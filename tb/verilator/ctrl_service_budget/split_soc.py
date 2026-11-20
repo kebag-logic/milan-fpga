@@ -33,9 +33,10 @@ named and unread and its inputs held idle by name, with one difference: the
 commit acknowledgement (fw_ack_p_i) pulses at the contract's bound,
 FACE_ACK_CYCLES bus cycles after fw_send_o rises, the slowest datapath the
 contract allows, so the measured CPU budget includes the longest commit wait.
-The window answers and face events stay idle, so a window request times out
-as the fabric-less split SoC sees it. KL_mbx_wb reaches KL_mbx through the
-split placement's record mover, milan_soc's own CtrlMailboxDma on the CPU's
+The EDIT window is answered at its bound, every beat accepted (StimulusMailbox.slowest_edit), since
+ADD and REMOVE_AUDIO_MAPPINGS commit each edit through it (#923); the other window answers and the face
+events stay idle, so their requests time out as the fabric-less split SoC sees them. KL_mbx_wb
+reaches KL_mbx through the split placement's record mover, milan_soc's own CtrlMailboxDma on the CPU's
 DMA bus, its CSR bank where the image addresses it
 (ctrl_build.SPLIT_MBX_DMA_BASE); the host-port pads are KL_mbx's side, so
 the testbench sees the mover's ring accesses and the CPU's alike. The flash keeps
@@ -64,7 +65,7 @@ CSR_BANK_BYTES = 0x800
 FLASH_MAP = Path('split-soc/flash-map')
 sys.path.insert(0, str(CAPTURE))
 import soc as capture_soc  # noqa: E402  the capture harness's simulation, read only
-from migen import ClockSignal, If, Instance, ResetSignal, Signal  # noqa: E402
+from migen import ClockSignal, Constant, If, Instance, Replicate, ResetSignal, Signal  # noqa: E402
 from litex.soc.interconnect.csr import CSRStorage  # noqa: E402
 from litex.build.generic_platform import Pins, Subsignal  # noqa: E402
 from litex.build.sim.config import SimConfig  # noqa: E402
@@ -207,6 +208,7 @@ class StimulusMailbox(LiteXModule):
             o_host_be_o=c['be'], i_host_ack_i=c['ack'], i_host_rdata_i=c['rdata'])
         face = face_ports(contract, n_if)
         face['i_fw_ack_p_i'] = self.slowest_ack(face['o_fw_send_o'], n_if, contract)
+        face.update(self.slowest_edit(face, n_if, contract))
         # The datapath's three coalesced change events (mailbox.yaml event types 6 to 8) on the testbench's pads, so a
         # group can post them and their sinks' cost be measured (#894); idle unless a script pulses one (DATAPATH_PADS)
         face.update({name: getattr(pads, pad) for name, pad in DATAPATH_PADS.items()})
@@ -227,8 +229,8 @@ class StimulusMailbox(LiteXModule):
         """The slowest datapath contract 2.3 allows: each interface's commit acknowledged by a
         one-cycle fw_ack_p_i pulse face_ack_cycles(contract) bus cycles after its fw_send_o
         rises (#665). The harness measures a CPU budget, so each commit waits as long as the
-        contract lets it. This and the datapath change pads (DATAPATH_PADS), idle unless a script pulses one, are the
-        face inputs not held idle as CtrlMailbox holds them."""
+        contract lets it. This, the EDIT window's answers (slowest_edit) and the datapath change pads (DATAPATH_PADS),
+        idle unless a script pulses one, are the face inputs not held idle as CtrlMailbox holds them."""
         bound = face_ack_cycles(contract)
         ack = Signal(n_if)
         for i in range(n_if):
@@ -236,6 +238,25 @@ class StimulusMailbox(LiteXModule):
             self.sync += If(~send[i], waited.eq(0)).Elif(waited != bound, waited.eq(waited + 1))
             self.comb += ack[i].eq(send[i] & (waited == bound))
         return ack
+
+    def slowest_edit(self, face: dict, n_if: int, contract: object) -> dict[str, object]:
+        """The EDIT window at the slowest datapath contract 2.3 allows, every beat accepted (#923): each interface's
+        open request answered by a one-cycle pulse with its tag and the verdict 1, wait_cycles - 1 bus cycles after it
+        opened, the last cycle KL_mbx's window takes an answer. ADD and REMOVE_AUDIO_MAPPINGS commit each accepted
+        edit to the datapath's map store through it (aecp_face.c), so each edit's record is measured with the longest
+        wait the contract allows for each of its beats. CTR, AMAP and GSI stay idle."""
+        window = next(w for w in contract.face_windows if w.name == 'EDIT')
+        req, tag = face['o_edit_req_o'], face['o_edit_tag_o']
+        pulse = Signal(n_if)
+        last = window.wait_cycles - 1
+        for i in range(n_if):
+            waited = Signal(max=window.wait_cycles)
+            self.sync += If(~req[i], waited.eq(0)).Elif(waited != last, waited.eq(waited + 1))
+            self.comb += pulse[i].eq(req[i] & (waited == last))
+        # The verdicts are a constant on the port: a slice per interface assigned in comb is a block of constants alone,
+        # which no event runs in the simulation, so at two interfaces its register kept its initial 0 and every beat
+        # read refused (#923).
+        return {'i_edit_ans_p_i': pulse, 'i_edit_ans_tag_i': tag, 'i_edit_ans_data_i': Replicate(Constant(1, 64), n_if)}
 
 
 def unread_publication(contract: object, n_if: int) -> dict[str, object]:
@@ -263,7 +284,8 @@ DATAPATH_PADS = {'i_avb_chg_p_i': 'avb_chg', 'i_asp_chg_p_i': 'asp_chg', 'i_amap
 
 #: The face block's inputs (contract 2.3), each held idle by name as CtrlMailbox holds it: the
 #: datapath's commit acknowledgement, the four windows' answers and the face events. The
-#: StimulusMailbox then drives the acknowledgement alone (StimulusMailbox.slowest_ack).
+#: StimulusMailbox then drives the acknowledgement and the EDIT window's answers (StimulusMailbox.slowest_ack,
+#: slowest_edit).
 FACE_IDLE_INPUTS = dict(
     i_fw_ack_p_i=0,
     i_ctr_ans_p_i=0, i_ctr_ans_tag_i=0, i_ctr_ans_data_i=0,
@@ -377,7 +399,8 @@ class FlashBoundary(LiteXModule):
 def add_devices(soc: object, platform: object, addresses: dict[str, int], contract: object, n_if: int) -> None:
     """The mailbox and its record mover where the fixture addresses them; the flash and timer0 in the
     split SoC's banks and window. The flash is add_spi_flash's (milan_soc.py: mode 1x, 12.5 MHz, with its
-    command master) with the native model as its PHY."""
+    command master) with the native model as its PHY. The AECP REBOOT's reset port is the split SoC's own
+    (milan_soc.add_ctrl_reboot, #871), its level left to the testbench's SoC to observe."""
     csr_base = soc.mem_map['csr']
     loc, rest = divmod(addresses['mbx_dma'] - csr_base, CSR_BANK_BYTES)
     if rest or loc != soc.csr.n_locs - 3:
@@ -402,6 +425,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
         origin=addresses['flash'], size=module.total_size, mode=spiflash.bus.mode + 'x'))
     soc.csr.add('timer0', n=(addresses['timer0'] - csr_base) // CSR_BANK_BYTES)
     soc.add_timer('timer0')
+    milan_soc.add_ctrl_reboot(soc)
 
 
 def fetch_l1_geometry(fetch_l1: str) -> tuple[int, int] | None:
@@ -478,12 +502,14 @@ class CpuPatches:
 
 def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     """add_ctrl_memory's plan held to the named ledgered point's tiles (ctrl_memory.LEDGERED), which
-    refuses any image that is not that point; None keeps the SoC build's plan, which names none.
-    build.build holds build() under it, named by build.ledgered_point."""
+    refuses any image that is not that point, in place of the entry the SoC build names by the image's
+    symbols (ctrl_memory.own_point, #923); None keeps the SoC build's plan. build.build holds build()
+    under it, named by build.ledgered_point."""
     if name is None:
         return contextlib.nullcontext()
     plan = milan_soc.ctrl_memory.plan
-    return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
+    return patch.object(milan_soc.ctrl_memory, 'plan',
+                        lambda image, ledgered=None, **kw: plan(image, ledgered=name, **kw))
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:

@@ -11,11 +11,18 @@ the fabric and the control-plane firmware (#665 lane F0). This script writes:
   sw/firmware/ctrl/mbx/mbx_contract.h  the C header
   docs/reference/MAILBOX_CONTRACT.md   the reference page
 
+and keeps one table of a hand-written page: the written columns of
+docs/reference/FR_NFR.md 3.4.1's response margins, the ingress allowances and
+the margins they leave, from each row's channel's ``refill_ms``
+(mailbox_margins.py, #917).
+
 TWO CHECKS, BECAUSE THEY CATCH DIFFERENT THINGS.
 
   --check       Regenerates every output in memory and compares it byte for
-                byte with the tracked file. A hand edit, or a YAML change
-                nobody regenerated, fails by name.
+                byte with the tracked file, and recomputes the margin table's
+                written cells. A hand edit, or a YAML change nobody
+                regenerated, fails by name; so does a margin that is not
+                positive.
   --crosscheck  Reads the three tracked constant carriers back (the package,
                 the header and the page's constant table) the way a reader
                 would, by name, and requires every name to carry the
@@ -74,6 +81,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import mailbox_margins  # noqa: E402
 from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
 from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces  # noqa: E402
 from mailbox_skeleton import emit_sv_top, read_mux_findings  # noqa: E402
@@ -169,16 +177,26 @@ def check_drift(contract: Contract, root: Path = REPO) -> list[str]:
             findings.append(f"{path}: missing; run gen_mailbox.py --write")
         elif target.read_text(encoding="utf-8") != text:
             findings.append(f"{path}: differs from what {CONTRACT.name} generates; run gen_mailbox.py --write")
-    return findings
+    return findings + mailbox_margins.findings(contract, (root / mailbox_margins.PAGE).read_text(encoding="utf-8"))
 
 
-def write_all(contract: Contract, root: Path = REPO) -> None:
-    """Write every output."""
+def write_all(contract: Contract, root: Path = REPO) -> list[str]:
+    """Write every output and the margin table's written cells; returns why the table could not be written."""
     for path, text in generate(contract).items():
         target = root / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
         print(f"wrote {path}")
+    page = root / mailbox_margins.PAGE
+    text = page.read_text(encoding="utf-8")
+    try:
+        spliced = mailbox_margins.splice(contract, text)
+    except mailbox_margins.MarginError as exc:
+        return [str(exc)]
+    if spliced != text:
+        page.write_text(spliced, encoding="utf-8")
+        print(f"wrote {mailbox_margins.PAGE} (its response-margin table)")
+    return []
 
 
 #: The outputs a variant build compiles: the package, the skeleton and the header.
@@ -443,6 +461,65 @@ def _contract_arms() -> list[tuple[str, str, str]]:
     ]
 
 
+def _with_refill(contract: Contract, name: str, refill_ms: int) -> Contract:
+    """The contract with one channel's refill period changed."""
+    return dataclasses.replace(contract, channels=type(contract.channels)(
+        dataclasses.replace(ch, refill_ms=refill_ms) if ch.name == name else ch for ch in contract.channels))
+
+
+def _margin_rows(page: str, channel: str) -> list[list[str]]:
+    """The margin table's rows for one channel, as cells."""
+    lines = mailbox_margins.split_page(page)[1][2:]
+    return [mailbox_margins.row_cells(ln) for ln in lines if f"| `{channel}` |" in ln]
+
+
+def _margin_plant(page: str, channel: str, cell: int, new: str) -> str:
+    """The page with one cell of the channel's first margin row replaced."""
+    row = next(ln for ln in mailbox_margins.split_page(page)[1][2:] if f"| `{channel}` |" in ln)
+    cells = mailbox_margins.row_cells(row)
+    cells[cell] = new
+    return page.replace(row, "| " + " | ".join(cells) + " |", 1)
+
+
+def _ms(cell: str, more: int = 0) -> str:
+    """A cell of whole milliseconds, moved by `more`."""
+    return f"{int(cell.split()[0]) + more} ms"
+
+
+def _margin_selftest(contract: Contract) -> int:
+    """FR_NFR.md 3.4.1's margin table (#917): the tracked page is clean; a hand edit of a written cell, a rate
+    change nobody regenerated, a margin that is not positive and a row naming no channel are each named; and
+    regenerating with aecp's refill_ms 5 ms longer moves aecp's held cells by those 5 ms and nothing else."""
+    page = (REPO / mailbox_margins.PAGE).read_text(encoding="utf-8")
+    failures = 0
+    clean = mailbox_margins.findings(contract, page)
+    print(f"[{'ok' if not clean else 'FAIL'}] positive control: {mailbox_margins.PAGE}'s margin table is the "
+          f"contract's{': ' + clean[0] if clean else ''}")
+    failures += bool(clean)
+    aecp = _margin_rows(page, "aecp")
+    refill = next(ch.refill_ms for ch in contract.channels if ch.name == "aecp")
+    slow = _with_refill(contract, "aecp", refill + 5)
+    arms = (("a held allowance edited by hand", contract, _margin_plant(page, "aecp", 8, _ms(aecp[0][8], 1)),
+             f"'{aecp[0][0]}' reads"),
+            ("aecp refill_ms 5 ms longer, not regenerated", slow, page, f"'{aecp[-1][0]}' reads"),
+            ("a margin that is not positive", contract, _margin_plant(page, "acmp", 2, "25 ms"), "leaves no margin"),
+            ("a row naming no channel", contract, _margin_plant(page, "acmp", 1, "`acmq`"), "names no channel"))
+    for arm, variant, planted, needle in arms:
+        found = mailbox_margins.findings(variant, planted)
+        named = [f for f in found if needle in f]
+        print(f"[{'ok' if named else 'FAIL'}] margin arm {arm}: {(named or found or ['NOTHING FOUND'])[0]}")
+        bit = bool(named)
+        failures += not bit
+    moved = mailbox_margins.splice(slow, page)
+    want = [r[:8] + [_ms(r[8], 5), _ms(r[9], -5), _ms(r[10], -5)] for r in aecp]
+    bit = (_margin_rows(moved, "aecp") == want and _margin_rows(moved, "acmp") == _margin_rows(page, "acmp")
+           and not mailbox_margins.findings(slow, moved))
+    print(f"[{'ok' if bit else 'FAIL'}] regenerated with aecp's refill_ms {refill + 5}: aecp's held cells "
+          f"{[' / '.join(r[8:]) for r in _margin_rows(moved, 'aecp')]}, acmp's unchanged, and clean")
+    failures += not bit
+    return failures
+
+
 def selftest() -> int:
     """Every arm must bite, and the tracked outputs must pass."""
     contract = load()
@@ -450,6 +527,7 @@ def selftest() -> int:
     clean = crosscheck(contract, generate(contract))
     print(f"[{'ok' if not clean else 'FAIL'}] positive control: generated outputs cross-check clean")
     failures += bool(clean)
+    failures += _margin_selftest(contract)
     for arm, planted, needle in _output_arms(contract):
         found = crosscheck(contract, planted)
         bit = any(needle in f for f in found)
@@ -522,9 +600,9 @@ def main(argv: list[str] | None = None) -> int:
     except ContractError as exc:
         print(f"REFUSED: {exc}")
         return 2
-    if args.write:
-        write_all(contract)
     findings: list[str] = []
+    if args.write:
+        findings += write_all(contract)
     if args.check or not (args.write or args.crosscheck):
         findings += check_drift(contract)
     if args.crosscheck:

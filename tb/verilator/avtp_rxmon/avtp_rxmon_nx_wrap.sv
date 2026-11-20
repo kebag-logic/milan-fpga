@@ -91,7 +91,10 @@ module avtp_rxmon_nx_wrap #(
 
   wire        match_w, tu_w, tv_w, mr_w;
   wire [7:0]  subtype_w, seq_w;
-  wire [1:0]  midx_w;
+  //! the parser's match-index width at this N (its IDXW_P), so an N=8 build
+  //! (sim_ctxfmt.cpp, #946) reaches contexts 4 to 7 instead of folding them
+  localparam int unsigned MIDXW_C = (N_STREAMS_P <= 1) ? 1 : $clog2(N_STREAMS_P);
+  wire [MIDXW_C-1:0] midx_w;
   wire [31:0] ts_w;
   wire [63:0] fsh_w;
   wire [64*N_STREAMS_P-1:0] tbl_sid_w;
@@ -131,7 +134,7 @@ module avtp_rxmon_nx_wrap #(
     .IVAL_CYC_P (IVAL_CYC_P)
   ) u_mon (
     .clk_i (clk), .rst_n (resetn),
-    .match_valid_i (match_w), .match_index_i ({2'b00, midx_w}),
+    .match_valid_i (match_w), .match_index_i (4'(midx_w)),
     .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .ts_valid_i (tv_w),
     .media_restart_i (mr_w),

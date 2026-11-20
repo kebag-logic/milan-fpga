@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Run both elaboration legs' toolchain setup at once on one planted tool cache.
+"""Run every elaboration leg's toolchain setup at once on one planted tool cache.
 
 act mounts one tool-cache volume into every job container of a replay, while
 each job keeps its own HOME, RUNNER_TEMP and workspace. This control rebuilds
 that sharing in one process tree, with no container: it copies a CPython
-installation into a planted tool cache and runs the setup steps of both
-elaboration legs, read from the workflow at --rev, side by side. Each leg has
+installation into a planted tool cache and runs the setup steps of every
+elaboration leg, read from the workflow at --rev, side by side. Each leg has
 its own home, temporary directory, workspace and PATH and environment files,
-and every step of both legs starts together, which is when two act jobs on one
-tool cache collide (#748; REQ-VER-04).
+and every step of all legs starts together, which is when two act jobs on one
+tool cache collide (#748; REQ-VER-04). The legs are the workflow's own
+elaborate-gates-N jobs, five since the LiteX simulations run in legs of
+their own (#737).
 
-The legs are isolated when every step of both passes, each leg's LiteX
+The legs are isolated when every step of each passes, each leg's LiteX
 interpreter and VexiiRiscv checkout live under that leg's RUNNER_TEMP, gate
 23h and its negative control each ran and passed in each leg, and every path
 of the tool cache is byte for byte what was planted. A patch check that did
@@ -20,14 +22,14 @@ not run, for want of a dependency or for any other recorded reason, is a
 failure named by the check: a skipped check proves nothing about the trees.
 Anything else exits 1.
 
---gate-legs then runs each leg's elaboration gate step, both started together,
+--gate-legs then runs each leg's elaboration gate step, all started together,
 before the tool cache is compared, so the Scala generation and every gate that
 writes through the LiteX interpreter are inside the comparison too. That needs
 the three source dependencies initialised in this checkout, an installed RV32
 SDK (--rv32-sdk), and sv2v and sbt on --tool-dir or the system PATH. The fetch
 step is replaced by initialising those dependencies from this checkout.
 
---shared drops the job-private environment step from both legs, so both
+--shared drops the job-private environment step from every leg, so all
 install, clone and patch in the tool cache's own site-packages. A --rev that
 predates that step plants the same sharing from its own workflow text.
 
@@ -57,7 +59,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = ".github/workflows/elaborate.yml"
-LEGS = ("elaborate-gates-0", "elaborate-gates-1")
+LEG_JOB = re.compile(r"elaborate-gates-[0-9]+")
 SETUP_ACTION = "actions/setup-python@"
 PRIVATE_STEP = "Put a job-private Python environment on PATH"
 LAST_STEP = "Apply the toolchain patch series"
@@ -379,7 +381,7 @@ def arguments() -> argparse.Namespace:
                         help="an empty scratch directory, relative or absolute")
     parser.add_argument("--rev", default="HEAD", help="the revision whose workflow and tree run")
     parser.add_argument("--shared", action="store_true",
-                        help="drop the job-private environment step from both legs")
+                        help="drop the job-private environment step from every leg")
     parser.add_argument("--pip-cache", type=Path, help="a pip cache to restore into each home")
     parser.add_argument("--report", type=Path, help="write the JSON report here")
     parser.add_argument("--gate-legs", action="store_true",
@@ -408,18 +410,21 @@ def arguments() -> argparse.Namespace:
 
 
 def main() -> int:
-    """Plant the cache, run both legs together, verify each and the cache."""
+    """Plant the cache, run every leg together, verify each and the cache."""
     args = arguments()
     text = subprocess.run(["git", "-C", str(ROOT), "show", f"{args.rev}:{WORKFLOW}"],
                           capture_output=True, text=True, check=True).stdout
     jobs = yaml.safe_load(text)["jobs"]
-    plans = {name: window(jobs[name], args.shared) for name in LEGS}
-    tails = {name: tail(jobs[name]) for name in LEGS} if args.gate_legs else {}
+    names = sorted(name for name in jobs if LEG_JOB.fullmatch(name))
+    if len(names) < 2:
+        raise ValueError(f"{WORKFLOW} at {args.rev}: fewer than two elaboration legs")
+    plans = {name: window(jobs[name], args.shared) for name in names}
+    tails = {name: tail(jobs[name]) for name in names} if args.gate_legs else {}
     cache = args.work / "toolcache"
     interpreter = plant(args.python, cache)
     before = manifest(cache)
     legs = [Leg(name, args.work / name, interpreter, args,
-                modules(jobs[name]) if args.gate_legs else None) for name in LEGS]
+                modules(jobs[name]) if args.gate_legs else None) for name in names]
     setup_seconds, problems = together(legs, plans)
     status = {}
     for leg in legs:

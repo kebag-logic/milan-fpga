@@ -24,7 +24,6 @@ ROOT = Path(__file__).resolve().parents[1]
 CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
 TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
-LONG_GATE = {"elaborate": "Standalone LiteX simulation aggregate"}
 CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
 #: The one template step per workflow whose driver command is divided by its
 #: measured gate legs (scripts/ci_builder_legs.py), and the worker each leg
@@ -33,8 +32,38 @@ CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract g
 BUILDER_SPLIT = {"docs": "End-station builder gates", "elaborate": "Elaboration gates"}
 BUILDER_WORKERS = {"docs": (1, 2), "elaborate": (0, 1)}
 DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
+#: The template step whose standalone LiteX simulations are divided by their
+#: measured legs (scripts/ci_litex_legs.py), and the worker each leg runs on.
+#: Run whole after builder leg 1 on worker 1 they held that job within a
+#: minute of its 45-minute limit (#737). Only these workers set up Verilator,
+#: which one member needs.
+LITEX_SPLIT = {"elaborate": "Standalone LiteX simulation aggregate"}
+LITEX_WORKERS = {"elaborate": (2, 3, 4)}
+LITEX_COMMAND = "scripts/run_litex_sims.sh"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
+#: The shared caches only the builder workers restore and save. actions/cache@v4 saves on every miss, so a
+#: LiteX worker that never runs the elaboration saved an empty CPU metadata entry under the builders' key,
+#: and a later worker restored it (#737). The LiteX workers therefore carry none of these steps, and every
+#: LiteX run installs and generates them cold; they keep the Verilator cache, which only they populate. Of
+#: the builders, only the one that generates the CPU metadata carries its cache (METADATA_STEPS).
+BUILDER_CACHES = {"elaborate": ("Cache verified sv2v archive", "Cache the pinned pip downloads",
+                                "Cache the Scala toolchain", "Cache the generated CPU metadata")}
+#: The CPU metadata cache and the step that fills the directory it saves. One job carries them: the builder
+#: worker whose leg holds the gates ci_builder_legs.py names for --require-elaboration, which elaborate the SoC
+#: through the interpreter and so generate the metadata. The other builder leg neither generates nor reads it,
+#: and its save of the empty directory took the key in every cited run. No LiteX worker carries them, so that
+#: one job alone saves the key; test_ctrl_memory generates its own on its worker (#737).
+METADATA_STEPS = {"elaborate": ("Cache the generated CPU metadata",
+                                "Keep the generated CPU netlist arguments for the next run")}
+#: The carriers whose aggregate fetches the head alone, and every aggregate's limit. The elaborate aggregate reads
+#: the head's tree and nothing else: its receipts' source identity, the template and the runners' inventories.
+#: Its full-history fetch took 260 seconds against this limit in run 41678609075 and grows with the branch
+#: count. Fetching the head, it projects at 111 seconds: the largest depth-one checkout over the cited runs, 26,
+#: plus its largest span less its checkout, 85, most of it before its first step. Three minutes leaves 69 seconds
+#: of margin (#737).
+HEAD_ONLY_AGGREGATES = {"elaborate"}
+AGGREGATE_TIMEOUT = 3
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
 #: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
 #: template keeps the build in yosys-elaboration; the generator moves it, and
@@ -97,13 +126,25 @@ def setup(step: dict) -> bool:
             or step.get("name") == "Build Verilator from source on cache miss")
 
 
+def divided(case: dict, workers: tuple[int, ...], kind: str, legs: int) -> list[dict]:
+    """One case per measured leg of a divided step, each on its own worker."""
+    return [{**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], kind: leg,
+             "name": case["name"] + ", leg " + str(leg) + " of " + str(legs)} for leg in range(legs)]
+
+
 def case_inventory(name: str, template: dict) -> list[dict]:
     """Derive gate identities and leg membership from the original ordered steps."""
     from ci_builder_legs import LEGS
+    from ci_litex_legs import LEGS as LITEX_LEGS
     original = template["jobs"][CARRIERS[name]]["steps"]
     workers = BUILDER_WORKERS[name]
     if len(workers) != LEGS:
         raise ValueError(name + ": builder legs and their workers differ in number")
+    if len(LITEX_WORKERS.get(name, ())) != (LITEX_LEGS if name in LITEX_SPLIT else 0):
+        raise ValueError(name + ": LiteX legs and their workers differ in number")
+    if set(LITEX_WORKERS.get(name, ())) & set(workers):
+        # A LiteX leg after a builder leg in one job is the shape that reached the 45-minute limit (#737).
+        raise ValueError(name + ": a LiteX leg shares a worker with a builder leg")
     cases = []
     for index, step in enumerate(original):
         if setup(step):
@@ -111,19 +152,19 @@ def case_inventory(name: str, template: dict) -> list[dict]:
         case = {"id": "gate_" + str(index), "index": index,
                 "name": step.get("name", "Run " + step.get("uses", "")),
                 "condition": step.get("if", "success()"),
-                "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
-                        else int(name in LONG_GATE and step.get("name") == LONG_GATE[name]))}
-        if step.get("name") != BUILDER_SPLIT[name]:
+                "leg": 2 if name == "docs" and step.get("name") in CONTRACT_GATES else 0}
+        if step.get("name") == BUILDER_SPLIT[name]:
+            cases.extend(divided(case, workers, "builder", LEGS))
+        elif step.get("name") == LITEX_SPLIT.get(name):
+            cases.extend(divided(case, LITEX_WORKERS[name], "litex", LITEX_LEGS))
+        else:
             cases.append(case)
-            continue
-        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], "builder": leg,
-                      "name": case["name"] + ", leg " + str(leg) + " of " + str(LEGS)}
-                     for leg in range(LEGS))
-    if (sum(case["name"] == LONG_GATE.get(name) for case in cases) != int(name in LONG_GATE)
-            or not any(case["leg"] == 0 for case in cases)):
-        raise ValueError(name + ": missing or ambiguous measured long gate")
+    if not any(case["leg"] == 0 for case in cases):
+        raise ValueError(name + ": no gate on the first worker")
     if sum("builder" in case for case in cases) != LEGS:
         raise ValueError(name + ": missing or ambiguous builder gate command")
+    if sum("litex" in case for case in cases) != (LITEX_LEGS if name in LITEX_SPLIT else 0):
+        raise ValueError(name + ": missing or ambiguous LiteX simulation command")
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError(name + ": duplicate gate names")
     return cases
@@ -169,12 +210,39 @@ def builder_leg_step(step: dict, case: dict) -> dict:
     return kept
 
 
+def split_litex_run(step: dict) -> tuple[list[str], str]:
+    """A divided simulation step's preparation lines and its one aggregate command, which ends it.
+
+    A preparation line may run the runner's own --selftest, which runs no simulation, and nothing else of it."""
+    *preparation, command = step["run"].strip().split("\n")
+    if (shlex.split(command)[:1] != [LITEX_COMMAND] or len(shlex.split(command)) != 2
+            or shlex.split(command)[1].startswith("-")
+            or any(LITEX_COMMAND in line and line.strip() != LITEX_COMMAND + " --selftest"
+                   for line in preparation)):
+        raise ValueError("the divided LiteX step must end in its one aggregate command")
+    return preparation, command
+
+
+def litex_leg_step(step: dict, case: dict) -> dict:
+    """The template's own simulation step, its aggregate command run for one measured leg with its receipt."""
+    preparation, command = split_litex_run(step)
+    kept = {key: copy.deepcopy(value) for key, value in step.items() if key != "run"}
+    kept["name"] = case["name"]
+    kept["run"] = ("".join(line + "\n" for line in preparation)
+                   + "python3 scripts/ci_litex_legs.py run " + str(case["litex"])
+                   + ' --receipt "$RUNNER_TEMP/gate-results/litex-leg-' + str(case["litex"])
+                   + '.json" -- ' + command + "\n")
+    return kept
+
+
 def collection_steps(name: str, leg: int) -> list[dict]:
     """Observe completed source steps even on failure, then retain the actual evidence."""
     destination = "$RUNNER_TEMP/gate-results/receipt.json"
     retained = "${{ runner.temp }}/gate-results/receipt.json"
     if leg in BUILDER_WORKERS[name]:
         retained += "\n${{ runner.temp }}/gate-results/builder-leg-*.json\n"
+    if leg in LITEX_WORKERS.get(name, ()):
+        retained += "\n${{ runner.temp }}/gate-results/litex-leg-*.json\n"
     return [
         {"name": "Record executed gate outcomes", "if": "${{ always() }}",
          "env": {"CI_GATE_STEPS": "${{ toJSON(steps) }}",
@@ -194,7 +262,12 @@ def aggregate(name: str, template: dict) -> dict:
     checkout = copy.deepcopy(template["jobs"][CARRIERS[name]]["steps"][0])
     if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
         raise ValueError(name + ": original checkout must stay first")
-    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+    if name in HEAD_ONLY_AGGREGATES:
+        # actions/checkout's default depth fetches the head alone (#737).
+        checkout.get("with", {}).pop("fetch-depth", None)
+        if not checkout.get("with", True):
+            del checkout["with"]
+    return {"runs-on": "ubuntu-24.04", "timeout-minutes": AGGREGATE_TIMEOUT,
             "needs": [worker_id(name, leg) for leg in worker_legs(name, template)], "if": "${{ always() }}",
             "steps": [checkout, *reader_setup(),
                       {"name": "Download executed gate outcomes", "uses": "actions/download-artifact@v4",
@@ -361,10 +434,15 @@ def gate_graph(name: str, template: dict) -> dict:
             owned = [case for case in cases.get(index, []) if case["leg"] == leg]
             if index in cases and not owned:
                 continue
-            if name == "elaborate" and step.get("name") in VERILATOR_SETUP and leg != 1:
+            if name in LITEX_WORKERS and step.get("name") in VERILATOR_SETUP and leg not in LITEX_WORKERS[name]:
                 continue
             case = owned[0] if owned else None
-            kept = builder_leg_step(step, case) if case and "builder" in case else copy.deepcopy(step)
+            if case and "builder" in case:
+                kept = builder_leg_step(step, case)
+            elif case and "litex" in case:
+                kept = litex_leg_step(step, case)
+            else:
+                kept = copy.deepcopy(step)
             if case:
                 if "id" in kept:
                     raise ValueError(name + ": gate already has an output identifier")
@@ -380,12 +458,47 @@ def gate_graph(name: str, template: dict) -> dict:
 
 
 
+def builder_caches(name: str, workflow: dict) -> dict:
+    """Remove the builders' shared caches from the LiteX workers, and the CPU metadata steps from every worker
+    but the one that generates the metadata, after the install caches are added.
+
+    Each builder and each LiteX worker must carry each of them exactly once first, so a renamed or a
+    missing step is refused rather than left on a worker or lost from the one that needs it (#737)."""
+    caches = BUILDER_CACHES.get(name)
+    if caches is None:
+        return workflow
+    metadata = METADATA_STEPS[name]
+    generator = metadata_worker(name)
+    for leg in (*BUILDER_WORKERS[name], *LITEX_WORKERS[name]):
+        job = workflow["jobs"][worker_id(name, leg)]
+        names = [step.get("name") for step in job["steps"]]
+        if sorted(found for found in names if found in caches) != sorted(caches):
+            raise ValueError(worker_id(name, leg) + ": the builders' shared cache steps are missing or repeated")
+        if sorted(found for found in names if found in metadata) != sorted(metadata):
+            raise ValueError(worker_id(name, leg) + ": the CPU metadata steps are missing or repeated")
+        if leg in LITEX_WORKERS[name]:
+            job["steps"] = [step for step in job["steps"] if step.get("name") not in caches]
+        if leg != generator:
+            job["steps"] = [step for step in job["steps"] if step.get("name") not in metadata]
+    return workflow
+
+
+def metadata_worker(name: str) -> int:
+    """The one builder worker whose leg generates the CPU metadata: the leg holding every elaboration gate."""
+    from ci_builder_legs import ISOLATED, LEGS, REQUIRED
+    legs = {ISOLATED.index(gate) if gate in ISOLATED else LEGS - 1 for gate in REQUIRED["--require-elaboration"]}
+    if len(legs) != 1:
+        raise ValueError(name + ": the elaboration gates span builder legs, so no one worker generates "
+                         "the CPU metadata")
+    return BUILDER_WORKERS[name][legs.pop()]
+
+
 def generate(name: str, template: dict) -> dict:
     """Add runtime collection after deriving the unchanged gate schedule."""
     from ci_runtime_workflows import generate as runtime_workflows
     from ci_install_workflows import generate as install_workflows
     from ci_suite_workflows import check_inventory_dependencies
-    result = runtime_workflows(name, install_workflows(gate_graph(name, template)))
+    result = runtime_workflows(name, builder_caches(name, install_workflows(gate_graph(name, template))))
     if name == "rtl-fast":
         bind_fast_tool_key(result)
     check_inventory_dependencies(result)

@@ -35,8 +35,8 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      ('Core.TheRunningCheckObservesEveryStreamBriefly', 'SET_CONFIGURATION observes every stream, briefly'),
      ('Face.TheRunningCheckReadsOneWindowWordAStream', 'one word a stream, selector 0')),
     ('stream-read-brief', 'aecp_commands.c',
-     '\tmemset(out, 0, sizeof *out);\n\treturn observe(a, type, index, out);',
-     '\tmemset(out, 0, sizeof *out);\n\tout->brief = true;\n\treturn observe(a, type, index, out);',
+     '\tbool brief = out->brief;\n\tmemset(out, 0, sizeof *out);\n\tout->brief = brief;\n',
+     '\tmemset(out, 0, sizeof *out);\n\tout->brief = true;\n',
      ('Core.TheRunningCheckObservesEveryStreamBriefly', 'GET_STREAM_INFO reads the stream whole'),
      ('Face.TheRunningCheckReadsOneWindowWordAStream', 'GET_STREAM_INFO reads its six')),
     ('configuration-streams-every-time', 'aecp_face.c',
@@ -72,4 +72,10 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      '\t\t} else if ((a->edited_ms = a->now, status = any_running(a)) != AECP_SUCCESS) {',
      ('Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace',
       'a refused SET_CONFIGURATION holds nothing')),
+    # an index past configurations_count names no CONFIGURATION descriptor (IEEE 1722.1-2021 7.4.7.1; #924)
+    ('configuration-past-the-count-bad-arguments', 'aecp_commands.c',
+     '\t\t\tstatus = AECP_NO_SUCH_DESCRIPTOR;\n\t\t} else {',
+     '\t\t\tstatus = AECP_BAD_ARGUMENTS;\n\t\t} else {',
+     ('Core.SetConfigurationOutOfRangeIsNoSuchDescriptor',
+      'an index past configurations_count names no CONFIGURATION descriptor')),
 )

@@ -233,6 +233,7 @@ Conditional paths exist only when their features are elaborated.
 | Ethernet liveness/activity toggles | `eth_rx`/`eth_tx` → Milan | Reset-less source toggles; synchronization inside `KL_link_guard` |
 | Frame-end toggle for an AECP REBOOT | `eth_tx` → Milan | `ethtxend_tgl`, reset-less, flips on each frame's last octet at `phy.sink`; three-flop synchronization and edge detect inside `KL_reboot_ctrl` (#787) |
 | PHY hold on an AECP REBOOT | Milan → `sys` | Migen `MultiReg` from `o_reboot_phy_hold`, a level that only rises (#787) |
+| The split's AECP REBOOT request (`--ctrl-mailbox` only) | `sys` → Milan | Migen `MultiReg` from the `ctrl_reboot_req` CSR's storage onto `i_reboot_req`, a level the firmware only sets (#871) |
 | ICAPE2 configuration port | none | `KL_reboot_ctrl` drives it in `axis_clk`; `ICAPE2` takes the same clock |
 | PHC commands and snapshots | `axis_clk` ↔ `gtx_clk` | `ptp_csr_sync` retained, but both clock ports alias Milan here |
 | Capture sample pairs | Audio/master TDM or external slave BCLK → Milan | `cdc_pair_fifo` in the selected capture module |
@@ -334,6 +335,8 @@ Wire -> PHY -> GMII RX 125 MHz -> LiteEth framing/width conversion
 - One ordered record per frame is reported back.
 - The plane reconstructs `PHC at the record - 426 ns`.
 - That is `(45 + 2) x 8 ns + 2 x 20 ns + 10 ns`.
+- The 100 Mb/s MII shape subtracts 3770 ns (#829).
+- That is `(90 + 2 + 1) x 40 ns + 2 x 20 ns + 10 ns`.
 - RX captures PHC time at the first accepted tap beat.
 - Neither timestamp is a PHY-pad timestamp.
 - The gap to the pad is CORRECTED per board (#358).

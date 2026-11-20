@@ -15,7 +15,12 @@
 //                keeps unchanged: it waits until wait is low, raises req
 //                with the fields, and while req is up takes the answer in
 //                the first cycle wait is low; then req falls for a cycle
-//                at least. A second cdc_handshake carries the answer back
+//                at least. The fields change only on a clock edge that
+//                leaves req low (PRE_S), and req rises no earlier than the
+//                next edge, so in every cycle req is high the fields are
+//                the previous clock's: the datapath registers a word it
+//                derives from the EDIT window's fields alone (#927). A second
+//                cdc_handshake carries the answer back
 //                with the tag it was asked under, and the mailbox side
 //                posts it as one pulse.
 //

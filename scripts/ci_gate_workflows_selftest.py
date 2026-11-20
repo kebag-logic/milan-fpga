@@ -23,8 +23,9 @@ from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
 from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
 from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
-from ci_gate_workflows import gate_graph
+from ci_gate_workflows import LITEX_SPLIT, gate_graph
 from ci_fast_tool_selftest import fast_tool_controls
+import ci_litex_legs_selftest as litex_legs
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -505,7 +506,10 @@ def docs_builder_controls(identity: tuple[str, str], names: list[str], reference
 
 
 def case_step_controls(name: str, case: dict, generated: dict, original: dict) -> None:
-    """Each gate is its worker's original step; a builder leg adds only its selection."""
+    """Each gate is its worker's original step; a builder or LiteX leg adds only its selection."""
+    if "litex" in case:
+        litex_legs.step_controls(name, case, generated, original)
+        return
     owned = [step for step in generated["jobs"][worker_id(name, case["leg"])]["steps"]
              if step.get("id") == case["id"]]
     assert len(owned) == 1
@@ -530,6 +534,18 @@ def case_step_controls(name: str, case: dict, generated: dict, original: dict) -
         key: value for key, value in original.items() if key not in ("name", "run")}
 
 
+def retention_controls(name: str, generated: dict, cases: list[dict], legs: list[int]) -> None:
+    """Exactly the workers that run a builder leg retain its receipt; likewise a LiteX leg's."""
+    owners = {case["leg"] for case in cases if "builder" in case}
+    assert owners == set(BUILDER_WORKERS[name]), (name, owners)
+    for leg in legs:
+        upload, = (step for step in generated["jobs"][worker_id(name, leg)]["steps"]
+                   if step.get("name") == "Upload executed gate outcomes")
+        retained = "builder-leg-*.json" in upload["with"]["path"]
+        assert retained == (leg in owners), (name, leg, upload["with"]["path"])
+    litex_legs.worker_controls(name, generated, cases, legs)
+
+
 def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
@@ -539,6 +555,7 @@ def main() -> int:
     suite_generator_controls()
     cpu_controls()
     census_controls()
+    litex_legs.split_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
         generated = generate(name, source)
@@ -552,7 +569,8 @@ def main() -> int:
         needs = {worker_id(name, leg): {"result": "success"} for leg in legs}
         flags = requirements(builder_command(name, source))
         builder = builder_receipts(identity, flags=tuple(flags))
-        assert len(verify(name, source, identity, digest, Collected(receipts, builder), needs)) == len(cases)
+        litex = litex_legs.litex_receipts(identity) if name in LITEX_SPLIT else None
+        assert len(verify(name, source, identity, digest, Collected(receipts, builder, litex), needs)) == len(cases)
         assert set(generated["jobs"][carrier]["needs"]) == set(needs)
         original = source["jobs"][carrier]["steps"]
         for case in cases:
@@ -563,18 +581,12 @@ def main() -> int:
             source_order = [index[step["id"]] for step in steps if step.get("id") in index]
             assert source_order == sorted(source_order)
             assert len(source_order) == sum(case["leg"] == leg for case in cases)
-        # Exactly the workers that run a builder leg retain its receipt.
-        owners = {case["leg"] for case in cases if "builder" in case}
-        assert owners == set(BUILDER_WORKERS[name]), (name, owners)
-        for leg in legs:
-            upload, = (step for step in generated["jobs"][worker_id(name, leg)]["steps"]
-                       if step.get("name") == "Upload executed gate outcomes")
-            retained = "builder-leg-*.json" in upload["with"]["path"]
-            assert retained == (leg in owners), (name, leg, upload["with"]["path"])
-        def refuse(label: str, records: list, jobs: dict, legs_builder: list | None = builder) -> None:
+        retention_controls(name, generated, cases, legs)
+        def refuse(label: str, records: list, jobs: dict, legs_builder: list | None = builder,
+                   legs_litex: list | None = litex) -> None:
             """Every damaged collection must reach the production refusal path."""
             try:
-                verify(name, source, identity, digest, Collected(records, legs_builder), jobs)
+                verify(name, source, identity, digest, Collected(records, legs_builder, legs_litex), jobs)
             except (ValueError, KeyError, TypeError):
                 print(name + ": refused " + label)
             else:
@@ -607,6 +619,8 @@ def main() -> int:
         refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
         other = builder_receipts(identity, flags=tuple(sorted(set(REQUIRED) ^ set(flags))))
         refuse("builder legs run with the other workflow's requirement flags", receipts, needs, other)
+        if litex:
+            litex_legs.verify_controls(litex, lambda label, sims: refuse(label, receipts, needs, builder, sims))
         if name == "elaborate":
             mixed = copy.deepcopy(receipts)
             mixed[1]["scope"] = "false"
@@ -617,12 +631,15 @@ def main() -> int:
             receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
             assert len(verify(name, source, identity, digest, Collected(receipts), needs)) == len(cases)
             refuse("builder receipts from a skipped builder division", receipts, needs, builder)
+            refuse("LiteX receipts from a skipped LiteX division", receipts, needs, None, litex)
             receipts[0]["scope"] = "true"
             refuse("contradictory skip scope", receipts, needs, None)
         assert len({case["index"] for case in cases}) == sum(not setup(step) for step in original)
         assert sum("builder" in case for case in cases) == (LEGS if name in BUILDER_SPLIT else 0)
+        assert sum("litex" in case for case in cases) == (litex_legs.LEGS if name in LITEX_SPLIT else 0)
         print(f"{name}: {len(cases)} source gates retain their complete original steps")
     builder_controls()
+    litex_legs.union_controls()
     print("gate workflow and union controls: PASS")
     return 0
 

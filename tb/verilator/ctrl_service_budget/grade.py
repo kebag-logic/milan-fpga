@@ -2,47 +2,44 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Read a group's observation log and grade every probe against its budget and its ceiling.
 
-Each rule a figure rests on lives in one place, so the self-test can mutate
-it and require a named failure:
+Each rule a figure rests on lives in one place, so the self-test can mutate it and require a named failure:
 
-  the clock ratio   Grader.cpu_cycles, Grader.ms, Grader.bus_cycles and
-                    Grader.cpu_ms: every conversion between the bus and the
-                    CPU clock, and to milliseconds, goes through them
-  the markers       Grader.start and Grader.end; owner(), the frame a receive
-                    commit belongs to; Grader.recipients and fanout_end(), a
-                    notification's required recipients and its end
+  the clock ratio   Grader.cpu_cycles, Grader.ms, Grader.bus_cycles and Grader.cpu_ms: every conversion between the bus
+                    and the CPU clock, and to milliseconds, goes through them
+  the markers       Grader.start and Grader.end; owner(), the frame a receive commit belongs to; Grader.recipients and
+                    fanout_end(), a notification's required recipients and its end
   the pass bound    Grader.pass_end and Grader.pass_origin
-  the fan-out cost  grade_probe's fanout: the last recipient's commit less the
-                    first's, over the gaps between the recipients
-  the composition   composed() and population(), checked against defined_load(),
-                    which derives each row's population from the contract alone;
-                    run.composed_maximum() takes the longest pass over every
-                    backlog row's window
-  the service       releases() and service(): each loaded channel's first and
-                    last record to the end of the pass that released it, a
-                    record never released reported as starved, and the records
-                    ahead of each: its channel's earlier records not yet
-                    released at its commit
+  the fan-out cost  grade_probe's fanout: the last recipient's commit less the first's, over the gaps between the
+                    recipients
+  the composition   composed() and population(), checked against defined_load(), which derives each row's population
+                    from the contract alone; run.composed_maximum() takes the longest pass over every backlog row's
+                    window
+  the service       releases() and service(): each loaded channel's first and last record to the end of the pass that
+                    released it, a record never released reported as starved, and the records ahead of each: its
+                    channel's earlier records not yet released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS, budget_ms() and verdicts()
-  the pass share    pass_share(): every work pass against share.py's share, apart from
-                    the rows
+  the pass share    pass_share(): every work pass against share.py's share, apart from the rows
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import answers
+import held
 import join_grade
 import mrpdu_grade
 import poll_grade
 import round_grade
 import slice_grade
+import save_burst
 import save_grade
 import save_window
 import scenario
+import shape_costs
 import share
 import whole_grade
 
@@ -52,7 +49,8 @@ EVENT = {e.value: e.name for e in scenario.CONTRACT.event_types}
 EV_TIMER = next(v for v, name in EVENT.items() if name == 'TIMER')
 RX_HEADER_WORDS = len(scenario.CONTRACT.rx_header)
 #: A receive commit follows its own frame's last byte: KL_mbx_rx takes no byte of the next
-#: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only).
+#: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only). So does the hold of a
+#: frame its channel's bucket had no token for (#917): an RXH line in the commit's place.
 COMMIT_LATENCY_MAX = 64
 CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not the stimulus
 #: The size of each receive channel's record in a defined composed load, from its clause and
@@ -103,7 +101,16 @@ class Log:
     marks: list[tuple[int, str]] = field(default_factory=list)
     rxc: list[tuple[int, int, int, str, int]] = field(default_factory=list)  # cycle, channel, interface, tag, bytes
     refused: list[tuple[int, int, str, int]] = field(default_factory=list)   # last byte, interface, tag, bytes
+    #: each record its channel's bucket held (#917, held.py): last byte, hold, commit (-1 never), channel, interface,
+    #: tag, bytes; and the frame each channel holds now
+    held: list[tuple[int, int, int, int, int, str, int]] = field(default_factory=list)
+    holding: dict[int, tuple[int, str, int, int, int]] = field(default_factory=dict)
     entries: list[tuple[int, str]] = field(default_factory=list)            # cycle, function entered
+    # An MRP timer's entry's owner as the testbench recorded it at the expiry (sim_main.cpp, owner_of), by its
+    # (cycle, callback): the participant (`if0 MSRP`), or None where it recorded the owner unresolved; an entry
+    # with no record (a log before the record) has no key.
+    owners: dict[tuple[int, str], str | None] = field(default_factory=dict)
+    participants: list[tuple[int, int, str]] = field(default_factory=list)  # cycle, timer argument, its owner
     traced: list[tuple[str, ...]] = field(default_factory=list)              # SPAN and CALL lines' fields
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
@@ -119,6 +126,8 @@ class Log:
     #: each run of journal reads (FLASHRD): its first and last read's cycles, its address and bytes
     reads: list[tuple[int, int, int, int]] = field(default_factory=list)
     polls: list[int] = field(default_factory=list)  # each busy poll's cycle (FLASHPOLL)
+    #: each page program's cycle, address and the bytes it left in the device (FLASHDATA; save_burst.py, #920)
+    programmed: list[tuple[int, int, bytes]] = field(default_factory=list)
     floods: list[tuple[int, int]] = field(default_factory=list)  # cycle, the grandmaster flood on or off (FLOOD)
     #: start, CPU cycles and the store's own cycles of each pass that carries the store's step and writes nothing
     #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
@@ -142,20 +151,37 @@ class Log:
         return sys_cycles * 1000 / self.sys_hz
 
 
-def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
-    """The frame a receive commit at cycle belongs to: (interface, tag, bytes).
+def last_frame(pending: list[tuple[int, str, int, int]], cycle: int, refused: list,
+               what: str = 'receive commit') -> tuple[int, str, int, int]:
+    """The frame a verdict acting at cycle belongs to: (interface, tag, bytes, last byte).
 
-    KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so
-    the commit belongs to the frame whose last byte passed last; every older
-    frame still pending got no commit, so the filter refused it. A commit
+    KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so the verdict belongs to the frame whose
+    last byte passed last; every older frame still pending got none, so the filter or the bucket refused it. A verdict
     with no frame ended within COMMIT_LATENCY_MAX cycles before it is refused.
     """
     if not pending or not cycle - COMMIT_LATENCY_MAX <= pending[-1][3] <= cycle:
-        raise Refusal(f'the receive commit at {cycle} follows no frame')
+        raise Refusal(f'the {what} at {cycle} follows no frame')
     frame = pending.pop()
     refused.extend((end, interface, tag, size) for interface, tag, size, end in pending)
     pending.clear()
-    return frame[:3]
+    return frame
+
+
+def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
+    """The frame a receive commit at cycle belongs to: (interface, tag, bytes), the frame its
+    verdict follows (last_frame)."""
+    return last_frame(pending, cycle, refused)[:3]
+
+
+def entry(log: Log, kind: str, rest: list[str]) -> None:
+    """A function's entry (ENTRY), with an MRP timer's owner as the testbench recorded it at the expiry, or the
+    testbench's binding of a participant's timer argument at its creation (PARTICIPANT; sim_main.cpp, note_owner)."""
+    if kind == 'PARTICIPANT':
+        log.participants.append((int(rest[0]), int(rest[1], 16), ' '.join(rest[2:])))
+        return
+    log.entries.append((int(rest[0]), rest[1]))
+    if len(rest) > 2:
+        log.owners[(int(rest[0]), rest[1])] = None if rest[2] == 'unresolved' else ' '.join(rest[2:4])
 
 
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
@@ -181,10 +207,11 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'RXE':
             pending_rx.append((*rxs, int(rest[0])))
         elif kind == 'RXC':
-            cycle = int(rest[0])
-            log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
-        elif kind == 'ENTRY':
-            log.entries.append((int(rest[0]), rest[1]))
+            log.rxc.append(held.commit(log, pending_rx, int(rest[0]), int(rest[1])))
+        elif kind in ('RXH', 'RXR'):
+            held.observe(kind, rest, pending_rx, log)
+        elif kind in ('ENTRY', 'PARTICIPANT'):
+            entry(log, kind, rest)
         elif kind in ('SPAN', 'CALL'):
             # The saved-state store's traced calls (#665): nvm_split_target grades them; this grader reads none.
             log.traced.append((kind, *rest))
@@ -201,8 +228,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
                 log.records.append((cycle, words))
         elif kind == 'TXC':
             commits.append((int(rest[0]), int(rest[1]), int(rest[2])))
-        elif kind == 'WIRE':
-            # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
+        elif kind == 'WIRE':  # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
             log.wire.append((int(rest[0]), int(rest[2]), int(rest[1]), bytes.fromhex(rest[3])))
         elif kind == 'PASS':
             index, start_sys, start_cpu, cycles = (int(v) for v in rest[:4])
@@ -246,13 +272,13 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
         else:
             raise Refusal(f'unknown observation line: {line[:80]}')
-    log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
+    held.unserved(pending_rx, log)
     log.writes.sort()
     log.reads.sort()
     log.tx = tx_records(log.writes, commits)
@@ -263,8 +289,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
 def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int, int]]) -> list[tuple]:
     """Each committed TX record's cycle, channel, interface and length, off its header word.
 
-    A TX_HEAD write commits every record between the previous head and the
-    new one; each record's word 0 holds its length and interface.
+    A TX_HEAD write commits every record between the previous head and the new one; each record's word 0 holds its
+    length and interface.
     """
     ring: dict[int, dict[int, int]] = {ch: {} for ch in TX_RING}
     head = {ch: 0 for ch in TX_RING}
@@ -348,6 +374,9 @@ class Grader:
             # A probe's own frames carry its name; any other frame on the ring is not its input.
             hits = [c for c, k, i, tag, _ in self.log.rxc if after <= c < before and k == ch
                     and i in (interface, -1) and tag == probe.name]
+        elif kind == 'rxh':
+            # the probe's own frame, held by its channel's bucket (#917): its path starts at the frame's last byte
+            hits = held.starts(self.log, probe, int(args[0]), interface, after, before)
         elif kind == 'pad':
             hits = [c for c, k, i in self.log.pads if after <= c < before and k == args[0] and i == interface]
         elif kind == 'entry':
@@ -448,9 +477,8 @@ class Grader:
     def pass_bound(self, start: int, taking: Pass) -> int:
         """Bus cycles from the start of the pass running at start to the end of the taking pass.
 
-        Whatever the input's phase in the pass running when it arrives, it is
-        taken no later than the following pass, so with the same passes the
-        interval cannot exceed this.
+        Whatever the input's phase in the pass running when it arrives, it is taken no later than the following pass, so
+        with the same passes the interval cannot exceed this.
         """
         return self.pass_end(taking) - self.pass_origin(start)
 
@@ -463,7 +491,7 @@ class Grader:
         """The ring the probe's input joined and how many records were ahead of it there:
         committed (or posted) before it and not yet released by the core."""
         kind, *args = probe.start.split(':')
-        if kind == 'rxc':
+        if kind in ('rxc', 'rxh'):
             ch = int(args[0])
             sizes = [RX_HEADER_WORDS + (size + 3) // 4 for c, k, _, _, size in self.log.rxc if k == ch and c < start]
             tail = [v for c, w, v in self.log.writes if w == scenario.ch_word(ch, 'RX_TAIL') and c < start]
@@ -600,6 +628,8 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
                                  // max(1, len(cycles) - 1)) if cycles else dict(recipients=0)
     if probe.owed:
         row['owed_ahead'] = [f'{s:x}' if s is not None else '-' for s in owed_ahead(grader, probe, i, start, end)]
+    if probe.start.startswith('rxh:'):
+        row.update(held.ingress(grader, probe, start))
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
@@ -706,15 +736,14 @@ def room(channel: str) -> int:
 
 
 def defined_load(name: str) -> dict[str, int]:
-    """The population a composed row's window must commit, from the contract alone and never
-    from the stimulus's declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
+    """The population a composed row's window must commit, from the contract alone and never from the stimulus's
+    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
 
-    Every receive channel carries what one instant admits: its token bucket's burst, unless
-    its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
-    the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
-    'backlog' is the LINK change; each commits only into a ring the core has drained, so a backlog
-    window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a channel
-    and two changes. A save's window is its backlog row's (save_window.row).
+    Every receive channel carries what one instant admits: its token bucket's burst, unless its ring holds fewer records
+    of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills the ring's room. Grandmaster changes fill the event
+    ring but the row's own event, which in 'backlog' is the LINK change; each commits only into a ring the core has
+    drained, so a backlog window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a
+    channel and two changes. A save's window is its backlog row's (save_window.row).
     """
     name = save_window.row(name)
     if name not in COMPOSED_ROWS:
@@ -835,13 +864,12 @@ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
 
 
 def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
-    """The longest pass that starts inside the composed window, whose committed population must
-    be the row's defined load exactly (MAAP and SRP included).
+    """The longest pass that starts inside the composed window, whose committed population must be the row's defined
+    load exactly (MAAP and SRP included).
 
-    serviced says whether the window released every record of that load: a window that
-    closed on a starved channel measured passes without that channel's work, so its longest
-    pass is a lower bound, and unreleased names the records. The composed maximum is the
-    longest over every backlog row's window, a lower bound while one is not serviced
+    serviced says whether the window released every record of that load: a window that closed on a starved channel
+    measured passes without that channel's work, so its longest pass is a lower bound, and unreleased names the records.
+    The composed maximum is the longest over every backlog row's window, a lower bound while one is not serviced
     (run.composed_maximum).
     """
     if 'composed' not in marks or 'composed_end' not in marks:
@@ -872,7 +900,7 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
     the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
-    after a page and within save_window.IDLE_MS of it, which the program phase issues every other tick, or before a
+    after a page and within save_window.IDLE_MS of it, which the program phase issues every other pass, or before a
     later page, as under a flood that paces a page every other aged step (the program phase); or that long or more
     after its last page, with no later page, while its read-backs have not yet read back every programmed byte (the
     verify). Refused otherwise, so that its passes are that phase's."""
@@ -896,11 +924,11 @@ def save_phase(log: Log, name: str, start: int) -> None:
 
 
 def pass_share(log: Log) -> dict:
-    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share
-    in ms and in CPU cycles at the log's CPU clock, the work passes, and each pass over it. A pass
-    that writes nothing to the mailbox is printed only as its run's longest (sim_main.cpp's IDLE),
-    and the store's step can be all such a pass does (ctrl_loop.h, THE STEP): a run whose longest
-    is over the share is one pass over it, idle_over counts them."""
+    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share in ms and in CPU cycles
+    at the log's CPU clock, the work passes, and each pass over it. A pass that writes nothing to the mailbox is
+    printed only as its run's longest (sim_main.cpp's IDLE), and the store's step can be all such a pass does
+    (ctrl_loop.h, THE STEP): a run whose longest is over the share is one pass over it, idle_over counts them.
+    """
     limit = share.share_cycles(log.cpu_hz)
     over = [dict(start_sys=p.start_sys, cycles=p.cycles) for p in log.passes if p.cycles > limit]
     idle = [dict(idle_run=n, cycles=longest) for n, (_, _, longest) in enumerate(log.idle) if longest > limit]
@@ -909,9 +937,21 @@ def pass_share(log: Log) -> dict:
                 idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces: int = 2) -> dict:
-    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
+def programmed(text: str) -> list[tuple[int, int, bytes]]:
+    """Each page program's cycle, address and the bytes it left in the device, from the testbench's FLASHDATA lines
+    (sim_main.cpp; save_burst.py, #920), which parse passes over."""
+    return [(int(m[1]), int(m[2], 16), bytes.fromhex(m[3]))
+            for m in re.finditer(r'^FLASHDATA (\d+) ([0-9a-fA-F]+) ([0-9a-fA-F]*)$', text, re.M)]
+
+
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
+          at: int | shape_costs.Shape = 2, journal: Path | None = None) -> dict:
+    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish. The passes given
+    whole, the polls and the slices are held to the costs stated at `at`, the image's shape (shape_costs.py, THE
+    SHAPES), or an interface count, that many interfaces at the shipping shape's streams."""
+    stated_at = at
     log = parse(text, sys_hz, cpu_hz)
+    log.programmed = programmed(text)
     refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
     grader = Grader(log)
@@ -948,8 +988,8 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int, interfaces
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
                             composed=window, share=pass_share(log), steps=save_grade.step_figures(grader),
-                            stated=whole_grade.held(log, interfaces), rounds=round_grade.held(log, interfaces),
-                            polls=poll_grade.held(log, interfaces), slices=slice_grade.held(log, interfaces),
+                            stated=whole_grade.held(log, stated_at), rounds=round_grade.held(log, stated_at),
+                            polls=poll_grade.held(log, stated_at), slices=slice_grade.held(log, stated_at),
                             joins=join_grade.held(log)),
-                save=save_grade.save_time(log, group),
+                save=save_grade.save_time(log, group), burst=save_burst.grade(log, group, journal),
                 summary=log.summary, modules=log.modules, code=log.code)

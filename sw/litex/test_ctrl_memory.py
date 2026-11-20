@@ -9,36 +9,29 @@ block RAM the SoC builds from them. This file grades nine things:
   1. BANKS. For every need up to past the budget, the banks are powers of two
      of whole RAMB18 granules, largest first, and hold the need with less than
      one granule spare. The oracle is ceil(need / 2,048) and its binary digits.
-  2. RULES. ELFs written by `ctrl_memory_elf.py`, a writer independent of
-     `read_elf`, are planned or refused. A good image is accepted and its rom
-     contents are the bytes placed at their load addresses. Every rule in `ctrl_memory.RULES`
-     has a planted defect that must be refused by that rule, among them a
-     truncated ELF, writable data running in rom, a CPU with other origins and
-     a load segment carrying fewer bytes than its sections claim.
-     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
-     Each ledgered point (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the
-     size fixture's and the platform's 8x8 images with two interfaces) plans
-     its 59.5 or 60.5 by name and is refused without its override, through
-     add_ctrl_memory and half a tile past; each override is refused on every
-     other point, on the other's image and on an image with one of its two
-     symbols. Six planted ledgers, each widening an entry to another point or
-     image, must each turn the ledger red with its pin set aside.
-  3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
-     largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
-     at the first and last word of every bank and drops a write; sram writes
-     byte lanes and reads them back at every bank boundary. Addresses past the
-     last bank, sampled to the top of the 256 KiB window the SoC decodes for a
-     region and so past 224 KiB, answer err in either region and write no
-     bank. An access presented on the cycle after an err acks with its data.
-  4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe
-     linked by `sw/firmware/ctrl/plat/ctrl_split.ld` behind
-     `ctrl_split_start.S` enters at the reset address with the reset entry
-     first, loads .data's initial value from rom and is planned, and its rom
-     words are the toolchain's own `objcopy -O binary` of it. The same script
-     with `.data`'s `AT > rom` removed, with `.data` linked in rom, or entering
-     at `main` is refused by its rule, and so is the linked image with its
-     reset segment's file bytes emptied or cut to one word, or .data's emptied.
-     Without a compiler this arm is a declared skip.
+  2. RULES. ELFs written by `ctrl_memory_elf.py`, a writer independent of `read_elf`, are planned or refused. A good
+     image is accepted and its rom contents are the bytes placed at their load addresses. Every rule in
+     `ctrl_memory.RULES` has a planted defect that must be refused by that rule, among them a truncated ELF, writable
+     data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
+     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
+     (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
+     interfaces and the platform's 8x8 image with one) plans its 60.5, 63.0 or 58.0 by name, and through
+     add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
+     tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
+     image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
+     on an image with one of its two symbols. Ten planted ledgers, each widening an entry to another point or image or
+     past its tiles, must each turn the ledger red with its pin set aside.
+  3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the largest image's sram banks (64, 32, 8, 4
+     and 2 KiB). rom reads its image at the first and last word of every bank and drops a write; sram writes byte
+     lanes and reads them back at every bank boundary. Addresses past the last bank, sampled to the top of the 256 KiB
+     window the SoC decodes for a region and so past 224 KiB, answer err in either region and write no bank. An access
+     presented on the cycle after an err acks with its data.
+  4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe linked by
+     `sw/firmware/ctrl/plat/ctrl_split.ld` behind `ctrl_split_start.S` enters at the reset address with the reset
+     entry first, loads .data's initial value from rom and is planned, and its rom words are the toolchain's own
+     `objcopy -O binary` of it. The same script with `.data`'s `AT > rom` removed, with `.data` linked in rom, or
+     entering at `main` is refused by its rule, and so is the linked image with its reset segment's file bytes emptied
+     or cut to one word, or .data's emptied. Without a compiler this arm is a declared skip.
   5. THE SOC BUILD. milan_soc.py's own main(), on the shipping 1x1 config's
      argv (sw/builder/endstation_builder.py), exporting without Vivado or
      software: an allocation over budget, a memory-map overlap, the 8x8 stage
@@ -230,12 +223,23 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with two tiles of .text more and of .bss less, still 56 RAMB36, then
-    a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 61.0, half a tile past the
-    platform's 60.5."""
+    """A ledger case written: the good image with five tiles of .text more and of .bss less, still 56 RAMB36,
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.5, half a tile past
+    the platform's 63.0 (four tiles reached 63.0 alone, past which .bss would run out of sram)."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 4 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 4) * GRANULE))
+                                  text=GOOD.text + 10 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 10) * GRANULE))
+
+
+def soc_plan(path: Path) -> object:
+    """The SoC build's plan of the image at `path` (milan_soc.add_ctrl_memory, looked up when it runs), or its
+    Refusal."""
+    soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
+    try:
+        milan_soc.add_ctrl_memory(soc, path)
+    except ctrl_memory.Refusal as exc:
+        return exc
+    return soc.ctrl_plan
 
 
 def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
@@ -313,8 +317,12 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
          plan(GOOD._replace(bss=215_000))),
         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
         *ledgers.refusals(partial(ledger_elf, tmp)),
-        *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image", soc(own))
-          for name, own in ledgers.OWN.items()),
+        *(("budget", f"the SoC build's add_ctrl_memory given the {name} point's image half a tile past its entry",
+           soc(own._replace(tiles=own.tiles + 0.5))) for name, own in ledgers.OWN.items()),
+        ("budget", "the SoC build's add_ctrl_memory given an unledgered 8x8 image at 56.5, its ctrl_plat another's",
+         soc(ledgers.Case(ledgers.STAGE_8X8, None, ledgers.PLAT_8X8_1 + 64, 56.5))),
+        ("budget", "the SoC build's add_ctrl_memory given an 8x8 image with no ctrl_plat at 56.5",
+         soc(ledgers.Case(ledgers.STAGE_8X8, None, None, 56.5))),
         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
         ("stage size", "PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage)",
          stage(GOOD, STAGE_8X8)),
@@ -331,9 +339,20 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 59.5 and 60.5 ({held})")
+                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0 and the "
+                                          f"platform's 8x8 image with one at 58.0 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
+    for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
+        check(problems, holds, what)
+    for name, own in ledgers.OWN.items():
+        soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
+        accepted(problems, lambda: milan_soc.add_ctrl_memory(soc, ledger_elf(tmp, own)),
+                 f"the SoC build's add_ctrl_memory builds the {name} point's image")
+        plan = getattr(soc, "ctrl_plan", None)
+        got = None if plan is None else (plan.tiles, plan.ledgered)
+        check(problems, got == (own.tiles, name),
+              f"the SoC build plans the {name} point's image at its own entry, {own.tiles} RAMB36 ({got})")
     good = ctrl_memory.plan(image(tmp, GOOD)).summary()
     check(problems, not {"ledgered", "ledgered_tiles"} & set(good),
           f"a plan without the override names no ledgered point ({sorted(good)})")
@@ -349,6 +368,7 @@ def ledger_plant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
         caught: list[str] = []
         with contextlib.redirect_stdout(None), patched(ctrl_memory, "LEDGERED", planted):
             caught += [fact for holds, fact in ledgers.facts(partial(ledger_elf, tmp)) if not holds]
+            caught += [fact for holds, fact in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan) if not holds]
             for rule, row, attempt in refusal_arms(tmp):
                 refused(caught, rule, attempt, row)
         check(problems, bool(caught), f"PLANTED ledger '{what}' is caught: {caught[0] if caught else 'nothing red'}")
@@ -759,6 +779,7 @@ PROPERTIES = {
     "rom contents": "each rom bank holds its own words of the image",
     "read-only rom": "rom drops writes",
     "no BIOS build": "add_ctrl_memory tells the Builder that rom holds its contents",
+    "own entry": "add_ctrl_memory plans a ledgered image at its own entry, by every one of its symbols",
     "no BIOS memory": "the split build adds no BIOS ROM or SRAM",
     "memory hookup": "the split build adds the control memory",
     "stage in main": "main() runs the staging check before any export",
@@ -829,6 +850,12 @@ MUTANTS = tuple(Mutant(*row) for row in (
     ("cpu origins off", "cpu origins", "milan_soc", "add_ctrl_memory", _ORIGINS, "if False:", "checks"),
     ("cpu origins read the reset address only", "cpu origins", "milan_soc", "add_ctrl_memory", _ORIGINS,
      "if soc.cpu.reset_address != ctrl_memory.ROM.origin:", "checks"),
+    ("the SoC build plans no image at its entry", "own entry", "milan_soc", "add_ctrl_memory",
+     "ledgered=ctrl_memory.own_point(soc.ctrl_image)", "ledgered=None", "checks"),
+    ("an image's entry found by its staging buffer alone", "own entry", "ctrl_memory", "own_point",
+     "for symbol, size in point.symbols)", "for symbol, size in point.symbols[:1])", "checks"),
+    ("an image's entry found by its symbols' names alone", "own entry", "ctrl_memory", "own_point",
+     "image.symbols.get(symbol, (0, None))[1] == size", "symbol in image.symbols", "checks"),
     ("rom left uninitialised for the Builder", "no BIOS build", "milan_soc", "add_ctrl_memory",
      "soc.integrated_rom_initialized = True", "soc.integrated_rom_initialized = False", "checks"),
     ("decode one bit short", "decode width", "milan_soc", "CtrlMemory",

@@ -4,17 +4,19 @@
 
 A persisted change starts a save of the saved-state store (sw/firmware/ctrl_nvm/nvm_store.c): after the
 1,000 ms first-dirty window it captures and seals, erases the slot that is not authoritative, checks it
-blank, programs it a page at a time and reads it back. The flash phases put a heavy step on the store's
-ticks: a 128-byte read-back on every tick of the blank check and of the verify, and a page program's
-issue on every other tick of the program phase. Each group opens backlog-adp's window
+blank, programs it a page at a time and reads it back. A save in flight takes a step in every pass that
+took no input and has room (#920; THE STEP, ctrl_loop.h), so its flash phases put a heavy step in every
+such pass: a 128-byte read-back in each of the blank check and of the verify, and a page program's issue
+in every other one of the program phase. Each group opens backlog-adp's window
 (scenario.bound_talker_groups, at the burst), the heaviest the budget stages, at one phase of that step's
-period, so some pass of the window meets the step if any can: eight phases 1.25 ms apart across the
-10 ms tick for the blank check and the verify, and eight 2.5 ms apart across the program phase's 20 ms.
-A phase starts at a flash event of the save itself, which sim_main.cpp's `wait flash` observes: the
-erase, the first page program, and the first 30 ms with no program after the last one. The SET_NAME that
-starts the save comes SET_MS into the 2 s the window waits for MAAP (scenario.announced), so the save's
-first-dirty window and seal run beside it and its erase still follows the window's set-up at both points;
-grade.save_phase refuses a window that did not open inside its phase.
+period, so some pass of the window meets the step if any can: eight phases 0.125 ms apart across the
+1 ms of a pass that carries a read-back, for the blank check and the verify, and eight 0.25 ms apart
+across the program phase's 2 ms of an issue and its wait. A phase starts at a flash event of the save
+itself, which sim_main.cpp's `wait flash` observes: the erase, the first page program, and the first
+IDLE_MS with no program after the last one. The SET_NAME that starts the save comes SET_MS into the 2 s
+the window waits for MAAP (scenario.announced), so the save's first-dirty window runs beside it and its
+capture, seal and erase follow the window's set-up at both points; grade.save_phase refuses a window
+that did not open inside its phase.
 
 A group is named backlog-adp@<phase>-<k>: grade.defined_load holds its window to backlog-adp's defined
 load, its probe is an instance of backlog-adp's path and its records of the composed rows' paths, and
@@ -36,17 +38,41 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 import frames as f
 import scenario
 
 #: Each flash phase: the flash event it starts after (sim_main.cpp's `wait flash`), then the delay into
-#: the phase and the heavy step's period, in ms. The verify starts once IDLE_MS pass with no page program.
-PHASES = {'blank': ('erase 1', 30, 10), 'program': ('program 1', 30, 20), 'verify': ('idle', 10, 10)}
-IDLE_MS = 30
-#: The SET_NAME's time after ready, inside the wait for MAAP.
-SET_MS = 1100
+#: the phase and the heavy step's period, in ms, a step a pass (#920). The verify starts once IDLE_MS pass with
+#: no page program.
+PHASES = {'blank': ('erase 1', 2, 1), 'program': ('program 1', 2, 2), 'verify': ('idle', 1, 1)}
+IDLE_MS = 2
+#: The SET_NAME's time after ready, inside the wait for MAAP, so the save's capture, seal and erase, a step a pass,
+#: come after the window's set-up (#920).
+SET_MS = 1500
+#: #920's planted save defects, build.MUTATIONS' entries (path under the control firmware's tree, or the store's
+#: under ctrl_nvm/), each caught by its group's late save (build.SAVE_CONTROLS, save_burst.py).
+PLANTS = {
+    # the lost mark: a record past the first 256 ids never reaches the store, as before the AECP owner's
+    # pending bits covered layout 3's space, so the burst's names from ordinal 34 on are never durable (save_burst.py).
+    'store-names-past-256-lost': ('aecp/aecp_nvm.c', '\tif (id < 0) return;\n',
+                                  '\tif (id < 0 || id >= 256) return;\n', 'save-burst', 'none'),
+    # the pace: the store steps only in a pass a centisecond owes it, as before a save in flight took a step
+    # in every pass that took no input, so at 8x8/1if the burst's names are not durable within 5 s of their response.
+    'store-step-only-owed': ('ctrl_nvm/nvm_store.c', '\tif (nvm_in_flight())\n\t\treturn 1;\n\treturn nvm.st.phase',
+                             '\tif (0 && nvm_in_flight())\n\t\treturn 1;\n\treturn 0 && nvm.st.phase', 'save-burst',
+                             'none'),
+    # the window: the next save waits for its change's window after the save in flight, so the change in
+    # flight's next save takes idle steps before its capture starts.
+    'store-next-save-waits': ('ctrl_nvm/nvm_store.c', '\t\tnvm.next_now = 1;', '\t\tnvm.next_now = 0;',
+                              'save-flight', 'none'),
+    # the capture's join, a change behind its cursor that no capture holds walking it again, has no plant here:
+    # left out, that change is the next save's, which starts at the first idle step, and the burst is still
+    # durable within 5 s at both points (7 saves where the join makes 6 at 8x8/1if); the store's units hold it
+    # (test_nvm_write.cpp, capture_joins).
+}
 #: The tick phases staged in each flash phase.
 TICK_PHASES = 8
 #: The store's first-dirty window (DR2a, MILAN_NVM_DEBOUNCE_MS) and its tick, in ms (nvm_store.c).
@@ -118,11 +144,11 @@ def bound_ms(image: int, records: int, age: int | None = None, flight: int | Non
     age + 1 ticks after the one before (THE STEP's age limit), and SLACK_MS. A change marked while a save of flight
     records is in flight, after that save's capture took the first record the change names (nvm_store.c, nvm_mark),
     waits for the rest of that save, its steps less the two that started its capture and took that record, at the
-    same pace, or its own first-dirty window if that is longer, before its own save's steps. A flash part's busy
-    time adds its erase's polls, one a step."""
+    same pace, and then its own save's steps, which start at the first idle step after it with no window (#920).
+    A flash part's busy time adds its erase's polls, one a step."""
     age = step_age() if age is None else age
     per = (age + 1) * TICK_MS
-    wait = DIRTY_MS if flight is None else max(DIRTY_MS, (steps(image, flight) - 2) * per)
+    wait = DIRTY_MS if flight is None else (steps(image, flight) - 2) * per
     return wait + steps(image, records) * per + SLACK_MS
 
 
@@ -248,18 +274,23 @@ def held_arrivals(p: scenario.Point, run_ms: float) -> list[tuple[float, str, st
                   key=lambda a: a[0])
 
 
-def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Group:
+def loaded(p: scenario.Point, name: str, flood: bool, image: int,
+           prelude: tuple[Callable[[scenario.Group, scenario.Point], None], int] | None = None) -> scenario.Group:
     """A save of a container of image bytes from its change, every receive channel at its refill rate with its
     bursts (held_arrivals) until its stated worst case has passed, and with flood a grandmaster change as every
-    pass starts, so no pass takes nothing."""
+    pass starts, so no pass takes nothing. A prelude, a step writer and its simulated time in ms, stands in for the
+    boot and MAAP's ranges (talker_window.held: the Talkers declared and a Listener Ready for each)."""
     run_ms = bound_ms(image, CHANGED) + 500
     load = held_arrivals(p, run_ms)
     # every record the group's receive channels must commit from its change on: the load and the SET_NAME
     offered = {name: sum(1 for _, channel, _ in load if channel == name) + (name == 'aecp') for name in scenario.CH}
-    g = scenario.Group(name, sim_ms=int(run_ms) + 2700,
+    g = scenario.Group(name, sim_ms=int(run_ms) + (2700 if prelude is None else prelude[1]),
                        save=dict(image=image, records=CHANGED, loaded=True, offered=offered))
-    scenario.ready(g, p)
-    scenario.announced(g)
+    if prelude is None:
+        scenario.ready(g, p)
+        scenario.announced(g)
+    else:
+        prelude[0](g, p)
     ms = scenario.MS
     g.add('mark save.change', f'frame 0 {set_name(p).hex()}', *(['flood gm 1'] if flood else []))
     at = 0
@@ -308,10 +339,13 @@ def aged_windows(p: scenario.Point, ages: tuple[int, ...] | None = None) -> list
 def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
     """The windows, opened from idle and aged, the save alone, a save under every channel at its refill rate,
     without and with no pass that takes nothing, and a change while a save is in flight, each of the build's
-    image's container."""
+    image's container; at one interface, a burst of names and a change in flight, each timed from its response
+    (save_burst.py, #920)."""
+    import save_burst  # it reads this module's
     image = container(build)
     return [*windows(p), *aged_windows(p), alone(p, image), loaded(p, 'save-held', False, image),
-            loaded(p, 'save-starved', True, image), second(p, image)]
+            loaded(p, 'save-starved', True, image), second(p, image),
+            *(save_burst.groups(p, build) if p.interfaces == 1 else [])]
 
 
 def row_names() -> list[str]:

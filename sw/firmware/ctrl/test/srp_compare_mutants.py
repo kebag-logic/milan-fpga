@@ -19,10 +19,12 @@ LOOP = "    while (n != 0u) {\n        --n;\n        if (a[n] != b[n]) {\n      
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the comparison, built with srp_mutants.Defect."""
     return (
-        # the last byte not compared: a source's StreamID and one that differs in its unique ID's low byte are one
-        kind("same-skips-the-last-byte", TEST, LOOP,
+        # the last byte not compared: a sink's StreamID and a Talker's that differs in its unique ID's low byte are
+        # one. A Listener's is told apart from a source's by that byte before same is called (sources_of; #665's
+        # ruling of 2026-11-20, item 3), so this one is planted under a Talker's near miss of a bound sink.
+        kind("same-skips-the-last-byte", "SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal", LOOP,
              LOOP.replace("    while (n != 0u) {\n", "    --n;\n    while (n != 0u) {\n"),
-             "differs from source 0's in byte 7 alone"),
+             "adapter.ifs[0].sinks[0].declared", suite="srp_walk.cpp"),
         # the first byte not compared: a StreamID whose talker MAC differs in its first byte is a source's
         kind("same-skips-the-first-byte", TEST, LOOP, LOOP.replace("while (n != 0u)", "while (n > 1u)"),
              "differs from source 0's in byte 0 alone"),

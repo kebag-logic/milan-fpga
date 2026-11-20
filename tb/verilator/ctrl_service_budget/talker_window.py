@@ -13,13 +13,18 @@ for its transmit opportunity (JOIN_MS). With no Listener, the 15 s probe window 
 withdraws every Talker in its own passes. The second group probes the same way, then makes each interface lose its
 range: a peer ANNOUNCEs it from a MAC for which compare_MAC is FALSE (IEEE 1722-2016 Table B.7, B.3.6.4), MAAP restarts
 on a new range, its DA gate closes, and SRP withdraws the interface's Talkers; the row runs from the ANNOUNCE's commit
-to MAAP's new PROBE and SRP's Leave, with the same wait. whole_grade.py holds each such pass to THE TRANSMIT's stated
-build cost and share.py to the per-pass share, as for every group.
+to MAAP's new PROBE and SRP's Leave, with the same wait. The third, srp-talker-held (held), declares every source's
+Talker the same way, then a bridge's Listener Ready for each source's stream, so each build carries every Talker
+declaration beside a registered Listener (the build THE SHAPES state THE TRANSMIT's costs at, #894), and then holds a
+save under every receive channel at its refill rate (save_window.loaded), long enough that a LeaveAll timer runs out
+under the load (mrpdu_grade.py's leaveall row; #665's ruling of 2026-11-16 on the dev sync, item 3). whole_grade.py
+holds each such pass to THE TRANSMIT's stated build cost and share.py to the per-pass share, as for every group.
 """
 from __future__ import annotations
 
 import answers
 import frames as f
+import save_window
 import scenario
 
 #: The fixture's edits, each (unique anchor, replacement): the source port valid once MAAP holds the range.
@@ -73,8 +78,28 @@ def declared(g: scenario.Group, p: scenario.Point) -> None:
         seq += 1
 
 
-def groups(p: scenario.Point) -> list[scenario.Group]:
-    """The probe window's end, then a range lost on every interface, each after a PROBE_TX for every source."""
+def listening(g: scenario.Group, p: scenario.Point) -> None:
+    """declared, then a bridge's Listener Ready for each source's stream on its interface, a row of its own each:
+    with the Talker declared, the registration licenses the source (srp_mbx.c) and the next build carries both."""
+    srp, ms = scenario.CH['srp'], scenario.MS
+    declared(g, p)
+    for n in range(p.sources):
+        i = n % p.interfaces
+        ready = f.mrp_message(3, f.be(p.mac << 16 | n, 8), [1], four_packed=[2])
+        g.probe(scenario.Probe(f'srp.listener_ready.s{n}.if{i}', 'Listener Ready RX beside a declared Talker',
+                               'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
+                f'frame {i} {f.msrp(scenario.BRIDGE_MAC, [ready]).hex()}', wait=f'cycles {30 * ms}')
+
+
+def held(p: scenario.Point, build: dict) -> scenario.Group:
+    """listening, then a save of the build's image's container under every receive channel at its refill rate."""
+    prelude_ms = 650 + 2600 + 330 * p.sources + 50
+    return save_window.loaded(p, 'srp-talker-held', False, save_window.container(build), (listening, prelude_ms))
+
+
+def groups(p: scenario.Point, build: dict | None = None) -> list[scenario.Group]:
+    """The probe window's end, then a range lost on every interface, each after a PROBE_TX for every source, and with
+    a build the held group (held)."""
     srp, maap, ms = scenario.CH['srp'], scenario.CH['maap'], scenario.MS
     window = scenario.Group('srp-talker', sim_ms=SIM_MS)
     declared(window, p)
@@ -90,4 +115,4 @@ def groups(p: scenario.Point) -> list[scenario.Group]:
                    f'reply {i} {maap} 15:{f.MAAP_ANNOUNCE:02x} on={i} 6={PEER_MAC:012x}',
                    wait=f'tx {srp} 1 within {300 * ms}')
     loss.add(f'wait cycles {RANGE_MS * ms}', 'wait quiet 3 within 2000000')
-    return [window, loss]
+    return [window, loss] + ([held(p, build)] if build is not None else [])

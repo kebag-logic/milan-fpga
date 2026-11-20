@@ -21,15 +21,27 @@ The legs held are the formal measurement's (#665, README: the labelled arms are 
 answering-every-port arm's, and in the answering-ports arm (arm B) its aecp group, the load gate's leg, and
 aecp-largest-notice, which the 8x8 shape runs there, and in its aecp-fanout the paced records, over which
 EDIT_RECORD_US is measured, and SET_CONFIGURATION's and SET_STREAM_INFO's, whose accepted paths no other arm reaches
-(arm A's observation ports never answer); the rest (arm B's other records, the 8x8-1if point) are reported by class,
-not held. A pass is refused unless its arm A legs at 1x1/1if together ran every group of the arm (run.all_groups),
-each stated cost measured over the arm depending on every one of them, and unless its answering-ports leg at 1x1/1if
-ran aecp-fanout's accepted SET_CONFIGURATION and its SET_STREAM_INFO, and its aecp group a GET_AS_PATH answered
-SUCCESS with the entries the arm's path port reads (#897): that port reads the window as the product's does and
-answers arm_path.ENTRIES (arm_path.py), so the response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021
-7.4.41.2: 16 and 8 an entry), and that record, an ordinary one held to record.aecp, is the answered GET_AS_PATH's,
-which no other arm reaches. Every GET_AS_PATH the answering-ports arm answers SUCCESS at another length is refused,
-and so is a pass whose build does not put arm_path.py's port in that arm's path port (port_findings).
+(arm A's observation ports never answer), and in its aecp-reboot every REBOOT, accepted and refused, an ordinary
+record, whose accepted path needs that arm's reset port (#871); the rest (arm B's other records) are reported by
+class, not held. Each leg is held at its own point's statements, 8x8/1if's at 8x8/1if's (THE SHAPES; #894's shape
+ruling, item (b)), never at another point's. A pass is refused unless, at each point it is held at (COMPLETE) where it
+runs any leg, it runs arm A there, its arm A legs together ran every group of the arm (run.all_groups), each stated
+cost measured over the arm depending on every one of them, and its answering-ports leg there ran aecp-fanout's
+accepted SET_CONFIGURATION and its SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such
+point is refused. So a pass of 8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if
+leg is held complete there too. At 1x1/1if its answering-ports leg must also have run aecp-reboot's accepted REBOOT
+and a refused one, and in its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path port reads
+(#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so the
+response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that record,
+an ordinary one held to record.aecp, is the answered GET_AS_PATH's, which no other arm reaches. Every GET_AS_PATH the
+answering-ports arm answers SUCCESS at another length is refused, and so is a pass whose build does not put
+arm_path.py's port in that arm's path port (port_findings).
+The declaring-outputs arm (#943; declaring_outputs.py) is the one whose STREAM_OUTPUTs the face reports declaring, so
+the AECP bridge completes each whole observation of one; each of its records counts the completions it ran (the
+testbench's entries of declaring_outputs.ENTRY inside its span), every one that ran one is held at its class's
+statement, and the rest are reported. A pass is refused unless, at each point it is held complete at, a
+declaring-outputs leg ran, each with the completion, an answered GET_STREAM_INFO, an accepted SET_STREAM_INFO and a
+refused one (DECLARED), whose completed paths no other arm reaches.
 
 usage: python3 -I record_classes.py RESULTS_DIR...   (each a run.py --out directory; its build.json beside it or in
                                                       its parent)
@@ -47,9 +59,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 import arm_path  # noqa: E402
+import declaring_outputs  # noqa: E402
 
 EDITS = {0x2C: 'ADD_AUDIO_MAPPINGS', 0x2D: 'REMOVE_AUDIO_MAPPINGS'}
-SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH = 0x06, 0x0E, 0x28
+SET_CONFIGURATION, SET_STREAM_INFO, GET_AS_PATH, REBOOT, GET_STREAM_INFO = 0x06, 0x0E, 0x28, 0x2A, 0x0F
 #: The ordinary records a line names by their command (the rest by their command_type).
 NAMED = {GET_AS_PATH: 'GET_AS_PATH'}
 #: The control_data_length of the GET_AS_PATH response the answering-ports arm's path port answers: its
@@ -61,6 +74,8 @@ ACCEPTED = (0, 9)
 #: The answering-ports arm's aecp-fanout records the formal measurement holds whatever their class, and a pass must run.
 HELD_COMMANDS = {SET_CONFIGURATION: 'SET_CONFIGURATION', SET_STREAM_INFO: 'SET_STREAM_INFO'}
 LONG_GROUP = 'aecp-largest-notice'
+#: The answering-ports arm's REBOOT group, whose REBOOT records the formal measurement holds, accepted and refused.
+REBOOT_GROUP = 'aecp-reboot'
 #: The answering-ports arm's groups the formal measurement holds (above).
 HELD_IN_ARM_B = ('aecp', LONG_GROUP)
 #: The planted defects controls() plants, in its order.
@@ -69,19 +84,40 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "a labelled arm's record held", "a pass missing arm B's SET_CONFIGURATION",
             "a pass missing arm B's SET_STREAM_INFO", 'an unpaced SET_CONFIGURATION charged as ordinary',
             'a SET_CONFIGURATION over the paced record', "a record named by a later record's response",
-            "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
-            'a GET_AS_PATH answered SUCCESS with no entries')
+            "a pass missing arm B's accepted REBOOT", "a pass missing arm B's refused REBOOT",
+            'a REBOOT over record.aecp', "a pass missing arm B's GET_AS_PATH", 'a GET_AS_PATH over record.aecp',
+            'a GET_AS_PATH answered SUCCESS with no entries',
+            "a pass missing the declaring arm's answered GET_STREAM_INFO",
+            "a pass missing the declaring arm's accepted SET_STREAM_INFO",
+            "a pass missing the declaring arm's refused SET_STREAM_INFO",
+            "a declaring record that ran no completion counted as the completed path",
+            'a completed record over record.aecp', "a declaring record that ran no completion held",
+            "an 8x8/1if record over its class's record reported, not held",
+            "an 8x8/1if pass missing arm B's SET_CONFIGURATION",
+            "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
+#: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
+#: 8x8/1if gate (THE SHAPES).
+COMPLETE = ('1x1/1if', '8x8/1if')
+#: run.POINTS' label of each point a pass is held complete at.
+LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if'}
+#: The point whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
+REBOOT_PATH_POINT = '1x1/1if'
+#: The declaring-outputs arm's records a pass must run at each point it is held complete at, each with the completion.
+DECLARED = {'answered GET_STREAM_INFO': lambda r: r.command == GET_STREAM_INFO and r.status == 0,
+            'accepted SET_STREAM_INFO': lambda r: r.command == SET_STREAM_INFO and r.status == 0,
+            'refused SET_STREAM_INFO': lambda r: r.command == SET_STREAM_INFO and r.status not in (0, None)}
 
 
 @dataclass
 class Record:
-    """One AECP record: its start in bus cycles, its CPU cycles, its command's type, its status and its response's
-    control_data_length (None if unanswered, or if a synthetic record states none)."""
+    """One AECP record: its start in bus cycles, its CPU cycles, its command's type, its status, its response's
+    control_data_length (None if unanswered, or if a synthetic record states none) and the completions it ran."""
     start: int
     cycles: int
     command: int | None
     status: int | None = None
     length: int | None = None
+    completions: int = 0
 
 
 @dataclass
@@ -100,7 +136,7 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8 follow-up, reported)."""
+    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8/1if shape)."""
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 
@@ -112,7 +148,7 @@ def statements(point: str, root: Path = ROOT) -> dict[str, int]:
     import rows_tiers
     pace = rows_tiers.point_inputs(root, '1x1/1if').pace_ms
     return {'long': rows_tiers.LONG_RECORD_US[point], 'paced': edit_rows.EDIT_RECORD_US[point],
-            'other': load_grade.GRADED[point]['record.aecp'], 'pace_ms': pace}
+            'other': load_grade.stated(root, point, load_grade.GRADED)['record.aecp'], 'pace_ms': pace}
 
 
 def named(spans: list[tuple[int, int]], answers: list[tuple[int, ...]]) -> list[Record]:
@@ -146,15 +182,19 @@ def read_leg(results: Path) -> tuple[Leg, dict]:
                          for c, ch, _, fr in parsed.tx
                          if ch == aecp and len(fr) >= 38 and fr[15] & 1 and not (fr[15] & 0x0F == 1 and fr[36] & 0x80))
         leg.groups[log.stem] = named(spans, answers)
+        entries = sorted(c for c, name in parsed.entries if name == declaring_outputs.ENTRY)
+        for r in leg.groups[log.stem]:
+            end = r.start + r.cycles * leg.sys_hz // leg.cpu_hz
+            r.completions = sum(1 for c in entries if r.start <= c <= end)
     return leg, spec
 
 
-def held(leg: Leg, group: str, kind: str, command: int | None = None) -> bool:
-    """Whether the formal measurement holds a leg's group's record of a class and command (the module's docstring)."""
-    if leg.point == '8x8/1if':
-        return False
+def held(leg: Leg, group: str, kind: str, command: int | None = None, completions: int = 0) -> bool:
+    """Whether the formal measurement holds a leg's group's record of a class and command that ran that many
+    completions (the module's docstring)."""
     return leg.variant in ('none', 'answering-every-port') or (leg.variant == 'answering-ports' and (
-        group in HELD_IN_ARM_B or (group == 'aecp-fanout' and (kind == 'paced' or command in HELD_COMMANDS))))
+        group in HELD_IN_ARM_B or (group == 'aecp-fanout' and (kind == 'paced' or command in HELD_COMMANDS)) or
+        (group == REBOOT_GROUP and command == REBOOT))) or (leg.variant == declaring_outputs.NAME and completions > 0)
 
 
 def paceable(r: Record) -> str | None:
@@ -192,29 +232,52 @@ def answered_path(r: Record) -> bool:
     return r.command == GET_AS_PATH and r.status == 0 and r.length == ANSWERED_LENGTH
 
 
-def findings(legs: list[Leg], groups_of_arm: list[str] | None,
+def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | None,
              stated_at: Callable[[str], dict[str, int]] = statements) -> tuple[list[str], list[str]]:
-    """The pass's findings, which refuse it, and the reported lines of the legs not held."""
+    """The pass's findings, which refuse it, and the reported lines of the legs not held. groups_of_arm is each
+    complete point's arm A groups (a list is 1x1/1if's alone), or None to hold no completeness. Completeness is held
+    at every point it names and at every point of COMPLETE the pass runs any leg at, so a point with legs and no arm A
+    leg is refused by name, whatever groups_of_arm holds."""
     out, reported = [], []
-    arm = [leg for leg in legs if leg.point == '1x1/1if' and leg.variant == 'none']
     if groups_of_arm is not None:
-        if not arm:
-            out.append('the pass runs no arm A leg at 1x1/1if')
-        ran = {g for leg in arm for g in leg.groups}
-        out += [f'the pass is missing {g}, a group of arm A at 1x1/1if, on which each stated cost measured over the '
-                'arm depends' for g in groups_of_arm if g not in ran]
-        ports = [leg for leg in legs if leg.point == '1x1/1if' and leg.variant == 'answering-ports']
-        fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
-        for command, name in HELD_COMMANDS.items():
-            got = [r for r in fanout if r.command == command and (command != SET_CONFIGURATION or r.status in ACCEPTED)]
-            if not got:
-                what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
-                out.append(f"the pass is missing arm B's {name}: no answering-ports leg at 1x1/1if ran {what} in "
-                           'aecp-fanout, whose accepted path no other arm reaches')
-        if not [r for leg in ports for r in leg.groups.get('aecp', []) if answered_path(r)]:
-            out.append("the pass is missing arm B's GET_AS_PATH: no answering-ports leg at 1x1/1if ran a GET_AS_PATH "
-                       f'answered SUCCESS with its {arm_path.ENTRIES} entries (control_data_length {ANSWERED_LENGTH}) '
-                       'in aecp, whose answered read no other arm reaches')
+        wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
+        points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))
+        if not points:
+            out.append(f'the pass runs no arm A leg at a point it is held at ({", ".join(COMPLETE)})')
+        for point in points:
+            groups = wanted.get(point, [])
+            arm = [leg for leg in legs if leg.point == point and leg.variant == 'none']
+            if not arm:
+                out.append(f'the pass runs no arm A leg at {point}')
+            ran = {g for leg in arm for g in leg.groups}
+            out += [f'the pass is missing {g}, a group of arm A at {point}, on which each stated cost measured over '
+                    'the arm depends' for g in groups if g not in ran]
+            ports = [leg for leg in legs if leg.point == point and leg.variant == 'answering-ports']
+            fanout = [r for leg in ports for r in leg.groups.get('aecp-fanout', [])]
+            for command, name in HELD_COMMANDS.items():
+                got = [r for r in fanout if r.command == command and
+                       (command != SET_CONFIGURATION or r.status in ACCEPTED)]
+                if not got:
+                    what = 'an accepted SET_CONFIGURATION' if command == SET_CONFIGURATION else f'a {name}'
+                    out.append(f"the pass is missing arm B's {name}: no answering-ports leg at {point} ran {what} in "
+                               'aecp-fanout, whose accepted path no other arm reaches')
+            completed = [r for leg in legs if leg.point == point and leg.variant == declaring_outputs.NAME
+                         for records in leg.groups.values() for r in records if r.completions]
+            out += [f"the pass is missing the declaring-outputs arm's {name}: no declaring-outputs leg at {point} ran "
+                    'one whose record ran the completion, which no other arm reaches'
+                    for name, test in DECLARED.items() if not any(map(test, completed))]
+            if point != REBOOT_PATH_POINT:
+                continue
+            reboots = [r for leg in ports for r in leg.groups.get(REBOOT_GROUP, []) if r.command == REBOOT]
+            for what, ran in (('accepted', any(r.status == 0 for r in reboots)),
+                              ('refused', any(r.status not in (0, None) for r in reboots))):
+                if not ran:
+                    out.append(f"the pass is missing arm B's {what} REBOOT: no answering-ports leg at {point} ran one "
+                               f'in {REBOOT_GROUP}, whose accepted path needs that arm\'s reset port')
+            if not [r for leg in ports for r in leg.groups.get('aecp', []) if answered_path(r)]:
+                out.append(f"the pass is missing arm B's GET_AS_PATH: no answering-ports leg at {point} ran a "
+                           f'GET_AS_PATH answered SUCCESS with its {arm_path.ENTRIES} entries (control_data_length '
+                           f'{ANSWERED_LENGTH}) in aecp, whose answered read no other arm reaches')
     for leg in legs:
         if leg.variant == 'answering-ports':
             out += [f'{leg.point} answering-ports aecp: a GET_AS_PATH answered SUCCESS with control_data_length '
@@ -223,14 +286,14 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | None,
                     for r in leg.groups.get('aecp', []) if r.command == GET_AS_PATH and r.status == 0
                     and not answered_path(r)]
     for leg in legs:
-        stated = stated_at(leg.point) if leg.point != '8x8/1if' else stated_at('1x1/1if')
+        stated = stated_at(leg.point)
         for group in sorted(leg.groups):
             for kind, r, cost, bound, why in classes(leg, group, stated):
                 if cost <= bound:
                     continue
                 line = (f'{leg.point} {leg.variant} {group}: a record of {r.cycles:,} CPU cycles, {cost} us by the '
                         f'rule, over the {kind} record\'s {bound} us ({why})')
-                (out if held(leg, group, kind, r.command) else reported).append(line)
+                (out if held(leg, group, kind, r.command, r.completions) else reported).append(line)
     return out, reported
 
 
@@ -246,7 +309,10 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     """A complete pass whose every record is within its class, the arm's group list, and statements: arm A's REMOVE
     at 240 us by the rule, over record.aecp and within the paced record, paced by the ADD 9 ms after it; arm B's
     accepted SET_CONFIGURATION at 295, paced by its SET_STREAM_INFO 9 ms after it, both held; arm B's GET_AS_PATH at
-    210, answered with its entries, held as an ordinary record; and arm B's SET_NAME at 350 reported, not held."""
+    210, answered with its entries, held as an ordinary record; arm B's SET_NAME at 350 reported, not held; and arm
+    B's REBOOTs, refused at 160 and accepted at 210, held as ordinary records; and the declaring-outputs arm's
+    answered GET_STREAM_INFO, accepted SET_STREAM_INFO and refused one, each with its completion, held at 200 to
+    215."""
     hz = 100_000_000
     stated = {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8}
     a = fanout([(0, 20_000), (10, 22_500), (19, 21_000), (28, 15_000)],
@@ -254,9 +320,37 @@ def synthetic() -> tuple[list[Leg], list[str], dict[str, int]]:
     arm = Leg('1x1/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 18_000, 0x10, 0)],
                                           LONG_GROUP: [Record(0, 91_000, 0x2D, 0)]})
     b = fanout([(0, 33_000), (10, 28_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
+    reboot = fanout([(0, 15_000), (10, 20_000)], [(0.1, REBOOT, 11), (10.1, REBOOT, 0)])
     ports = Leg('1x1/1if', 'answering-ports', hz, hz,
-                {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0, ANSWERED_LENGTH)]})
-    return [arm, ports], ['aecp-fanout', 'aecp', LONG_GROUP], stated
+                {'aecp-fanout': b, 'aecp': [Record(0, 20_000, GET_AS_PATH, 0, ANSWERED_LENGTH)], REBOOT_GROUP: reboot})
+    return [arm, ports, declaring('1x1/1if')], ['aecp-fanout', 'aecp', LONG_GROUP], stated
+
+
+def declaring(point: str) -> Leg:
+    """A declaring-outputs leg at a point: its answered GET_STREAM_INFO, its accepted SET_STREAM_INFO and its refused
+    one (NOT_SUPPORTED), each with its completion."""
+    hz = 100_000_000
+    return Leg(point, declaring_outputs.NAME, hz, hz, {declaring_outputs.GROUP: [
+        Record(0, 19_000, GET_STREAM_INFO, 0, completions=1),
+        Record(10 * MS, 20_000, SET_STREAM_INFO, 0, completions=1),
+        Record(20 * MS, 18_000, SET_STREAM_INFO, 11, completions=1)]})
+
+
+def synthetic_8x8() -> tuple[list[Leg], dict[str, list[str]], Callable[[str], dict[str, int]]]:
+    """A complete pass at 8x8/1if alone, held at its own statements: arm A's REMOVE at 330 us by the rule, within its
+    paced record, paced by the ADD 9 ms after it; arm B's accepted SET_CONFIGURATION at 610, paced by its
+    SET_STREAM_INFO 9 ms after it, both held, over 1x1/1if's statements and within 8x8/1if's."""
+    hz = 100_000_000
+    own = {'1x1/1if': {'long': 975, 'paced': 300, 'other': 235, 'pace_ms': 8},
+           '8x8/1if': {'long': 1510, 'paced': 635, 'other': 265, 'pace_ms': 8}}
+    a = fanout([(0, 20_000), (10, 31_000), (19, 30_000), (28, 15_000)],
+               [(0.1, 0x10, 0), (10.1, 0x2D, 0), (19.1, 0x2C, 0), (28.1, 0x04, 0)])
+    arm = Leg('8x8/1if', 'none', hz, hz, {'aecp-fanout': a, 'aecp': [Record(0, 24_000, 0x10, 0)],
+                                          LONG_GROUP: [Record(0, 143_000, 0x2D, 0)]})
+    b = fanout([(0, 23_000), (10, 58_000), (19, 20_000)], [(0.1, 0x10, 0), (10.4, 0x06, 0), (19.1, 0x0E, 0)])
+    ports = Leg('8x8/1if', 'answering-ports', hz, hz, {'aecp-fanout': b})
+    groups = {'8x8/1if': ['aecp-fanout', 'aecp', LONG_GROUP]}
+    return [arm, ports, declaring('8x8/1if')], groups, lambda point: own[point]
 
 
 def controls() -> list[str]:
@@ -292,15 +386,53 @@ def controls() -> list[str]:
         (lambda p: setattr(p[1].groups['aecp-fanout'][2], 'start', 17 * MS - 1), 'SET_CONFIGURATION not paced'),
         (lambda p: setattr(p[1].groups['aecp-fanout'][1], 'cycles', 29_000), '(SET_CONFIGURATION, paced)'),
         (unanswered, 'command unanswered'),
+        (lambda p: p[1].groups[REBOOT_GROUP].pop(1), "missing arm B's accepted REBOOT"),
+        (lambda p: p[1].groups[REBOOT_GROUP].pop(0), "missing arm B's refused REBOOT"),
+        (lambda p: setattr(p[1].groups[REBOOT_GROUP][1], 'cycles', 23_000), f'{REBOOT_GROUP}: a record of 23,000'),
         (lambda p: p[1].groups['aecp'].pop(0), "missing arm B's GET_AS_PATH"),
         (lambda p: setattr(p[1].groups['aecp'][0], 'cycles', 22_400), "over the other record's 235 us (command "
                                                                        'GET_AS_PATH)'),
         (lambda p: setattr(p[1].groups['aecp'][0], 'length', 16), 'a GET_AS_PATH answered SUCCESS with '
                                                                   'control_data_length 16, not the'),
+        (lambda p: p[2].groups[declaring_outputs.GROUP].pop(0), "missing the declaring-outputs arm's answered GET"),
+        (lambda p: p[2].groups[declaring_outputs.GROUP].pop(1), "missing the declaring-outputs arm's accepted SET"),
+        (lambda p: p[2].groups[declaring_outputs.GROUP].pop(2), "missing the declaring-outputs arm's refused SET"),
+        (lambda p: setattr(p[2].groups[declaring_outputs.GROUP][0], 'completions', 0),
+         "missing the declaring-outputs arm's answered GET"),
+        (lambda p: setattr(p[2].groups[declaring_outputs.GROUP][0], 'cycles', 22_400),
+         f'{declaring_outputs.NAME} {declaring_outputs.GROUP}: a record of 22,400'),
     )
     for name, entry in zip(CONTROLS, plants):
         if entry is not None and not refused(*entry):
             escaped.append(name)
+    # a declaring record that ran no completion, over record.aecp: reported, not held
+    unheld = copy.deepcopy(legs)
+    unheld[2].groups[declaring_outputs.GROUP].append(Record(30 * MS, 22_400, 0x10, 0))
+    found, shown = findings(unheld, arm, at)
+    if found or not any(f'{declaring_outputs.NAME} {declaring_outputs.GROUP}: a record of 22,400' in r for r in shown):
+        escaped.append(CONTROLS[22])
+    legs8, arm8, at8 = synthetic_8x8()
+    if findings(legs8, arm8, at8) != ([], []):
+        escaped += list(CONTROLS[-3:])
+        return escaped
+    over = copy.deepcopy(legs8)
+    over[1].groups['aecp-fanout'][1].cycles = 62_000  # 655 us by the rule, over 8x8/1if's paced 635
+    if not any('8x8/1if answering-ports aecp-fanout' in f and '(SET_CONFIGURATION, paced)' in f
+               for f in findings(over, arm8, at8)[0]):
+        escaped.append(CONTROLS[-3])
+    missing = copy.deepcopy(legs8)
+    missing[1].groups['aecp-fanout'].pop(1)
+    if not any("missing arm B's SET_CONFIGURATION: no answering-ports leg at 8x8/1if" in f
+               for f in findings(missing, arm8, at8)[0]):
+        escaped.append(CONTROLS[-2])
+    # 8x8/1if complete beside 1x1/1if's answering-ports leg alone, its accepted SET_CONFIGURATION dropped: the map
+    # names 8x8/1if alone, as main() builds it from the arm A legs, and 1x1/1if is held complete all the same.
+    ports1 = copy.deepcopy(legs[1])
+    ports1.groups['aecp-fanout'] = [r for r in ports1.groups['aecp-fanout'] if r.command != SET_CONFIGURATION]
+    mixed = findings(copy.deepcopy(legs8) + [ports1], arm8, lambda point: stated if point == '1x1/1if' else at8(point))
+    if not ('the pass runs no arm A leg at 1x1/1if' in mixed[0] and any(
+            "missing arm B's SET_CONFIGURATION: no answering-ports leg at 1x1/1if" in f for f in mixed[0])):
+        escaped.append(CONTROLS[-1])
     return escaped
 
 
@@ -323,12 +455,14 @@ def port_findings() -> list[str]:
 
 
 def checks() -> list[tuple[str, bool, str]]:
-    """The harness self-test's checks of this one (load_grade.ceiling_checks): every planted defect refused, and the
-    answering-ports arm's path port the one that reads the window (port_findings)."""
+    """The harness self-test's checks of this one (load_grade.ceiling_checks): every planted defect refused, the
+    answering-ports arm's path port the one that reads the window (port_findings), and the declaring-outputs arm's
+    own (declaring_outputs.checks)."""
     escaped, port = controls(), port_findings()
     return [(f'the record classes refuse {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
             for name in CONTROLS] + [("the answering-ports arm's path port is arm_path.py's, which reads the window",
-                                     not port, '; '.join(port) or 'arm_path.B_PATH in build.VARIANTS')]
+                                     not port, '; '.join(port) or 'arm_path.B_PATH in build.VARIANTS')] + \
+        declaring_outputs.checks()
 
 
 def main(argv: list[str]) -> int:
@@ -347,24 +481,24 @@ def main(argv: list[str]) -> int:
         return 2
     import run
     import scenario
-    legs, arm = [], None
+    legs, arm = [], {}
     for d in map(Path, argv):
         leg, spec = read_leg(d.resolve())
         legs.append(leg)
-        if leg.point == '1x1/1if' and leg.variant == 'none' and arm is None:
-            arm = [g.name for g in run.all_groups(scenario.point('1x1', spec), spec)]
+        if leg.point in COMPLETE and leg.variant == 'none' and leg.point not in arm:
+            arm[leg.point] = [g.name for g in run.all_groups(scenario.point(LABELS[leg.point], spec), spec)]
         print(f'{d.name}: {leg.point} {leg.variant}, {len(leg.groups)} groups, '
               f'{sum(len(v) for v in leg.groups.values())} AECP records')
-    found, reported = findings(legs, arm if arm is not None else [])
+    found, reported = findings(legs, arm)
     for point in sorted({leg.point for leg in legs}):
-        s = statements(point if point != '8x8/1if' else '1x1/1if')
+        s = statements(point)
         dearest = {}
         for leg in legs:
             if leg.point != point:
                 continue
             for group in leg.groups:
                 for kind, r, cost, bound, why in classes(leg, group, s):
-                    key = (kind, held(leg, group, kind, r.command))
+                    key = (kind, held(leg, group, kind, r.command, r.completions))
                     if key not in dearest or r.cycles > dearest[key][0]:
                         dearest[key] = (r.cycles, cost, bound, f'{leg.variant} {group}: {why}')
         for (kind, is_held), (cycles, cost, bound, where) in sorted(dearest.items()):

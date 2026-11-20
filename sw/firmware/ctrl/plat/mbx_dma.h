@@ -25,6 +25,7 @@
 #ifndef MBX_DMA_H
 #define MBX_DMA_H
 
+#include "ctrl_cc.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -62,7 +63,7 @@ static inline void mbx_dma_start(uint32_t base, uint32_t words, uint32_t index, 
 }
 
 // Wait for the move started last; true unless it ended with ERR.
-static inline bool mbx_dma_wait(void)
+static CTRL_CC_INLINE bool mbx_dma_wait(void)
 {
 	uint32_t status;
 	do {

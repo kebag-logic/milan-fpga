@@ -330,10 +330,12 @@ def d_avb_interface(gp: dict[str, int] | None = None,
                     name: str = OBJECT_NAMES["avb_interface"]) -> bytes:
     """gp = the builder-RESOLVED `gptp:` dataset (overlay key "gptp").
     Since [R-parallel] on #228 the builder derives every field the fabric
-    engine does not consume (priority2, clockQuality, the log intervals)
-    from the constants in gptp-processor/hdl/ucode/gen_gptp_ucode.py and
-    refuses a config that states anything else, so these bytes are the
-    wire Announce dataset, not a free claim. Absent (legacy overlays /
+    engine does not consume (priority2, clockClass,
+    offsetScaledLogVariance, the log intervals) from the constants in
+    gptp-processor/hdl/ucode/gen_gptp_ucode.py and refuses a config that
+    states anything else, and since #843 it passes clockAccuracy to the
+    engine per image, so these bytes are the wire Announce dataset, not a
+    free claim. Absent (legacy overlays /
     builtin spec) keeps the historical constants BYTE-EXACTLY:
     those shapes' entity_model_id predates the section, and controllers
     cache descriptor content by model id, so their bytes must not move."""

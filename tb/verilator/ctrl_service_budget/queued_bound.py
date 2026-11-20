@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The last queued notice's bound at one interface (#894's contingent ruling of 2026-11-13, item 2, as its
 amendment of 2026-11-13 states it): decision D's 125 ms (rows_grade.BOUNDS) while the built design's row
-holds that by every source, else the row rounded up to the next STEP_MS, never over MOST_MS. aecp_mbx.h states it,
-AECP_QUEUED_MS at MBX_N_IF 1, and the tier model (rows_tiers.bounds_at), the firmware's tests (test_aecp.cpp) and the
+holds that by every source, else the row rounded up to the next STEP_MS, never over MOST_MS. ctrl_loop.h states it in
+1x1/1if's block of THE SHAPES, CTRL_LOOP_QUEUED_MS, which aecp_mbx.h's AECP_QUEUED_MS is, each shape its own, and the
+tier model (rows_tiers.bounds_at), the firmware's tests (test_aecp.cpp) and the
 CPU budget harness (notice_window.py) read that statement. #908 stays open while it is over 125 ms.
 """
 from __future__ import annotations
 
 import math
-import re
 from pathlib import Path
 
 import rows_grade
+import shape_costs
 
-#: aecp_mbx.h, which states the bound, and the point the bound is held at.
-HEADER, POINT = 'sw/firmware/ctrl/aecp/aecp_mbx.h', '1x1/1if'
+#: ctrl_loop.h, whose table states the bound for each shape, and the point the bound is held at.
+HEADER, POINT = shape_costs.HEADER, '1x1/1if'
 #: The amendment's grid and its ceiling, in ms.
 STEP_MS, MOST_MS = 5, 140
 
@@ -30,13 +31,12 @@ def ruled(w: float | None) -> int | None:
 
 
 def stated(root: Path, texts: dict[str, str] | None = None) -> int:
-    """AECP_QUEUED_MS at one interface, as aecp_mbx.h (or its text in texts) states it."""
-    text = (texts or {}).get(HEADER) or (root / HEADER).read_text()
-    return int(re.search(r'^#define AECP_QUEUED_MS \(MBX_N_IF == 1u \? (\d+)u : \d+u\)', text, re.M)[1])
+    """AECP_QUEUED_MS at the point's shape, as ctrl_loop.h's table (or its text in texts) states it."""
+    return shape_costs.at(shape_costs.of_point(POINT, root), root, texts)[shape_costs.QUEUED]
 
 
 def statements(root: Path, texts: dict[str, str] | None = None) -> list[str]:
-    """Each way aecp_mbx.h's AECP_QUEUED_MS at one interface is not the bound the built design's last row rules."""
+    """Each way the table's AECP_QUEUED_MS at the point is not the bound the built design's last row rules."""
     import rows_tiers as rt
     w = rt.solve('last', rt.point_inputs(root, POINT, texts), rt.BUILT)[0]
     bound, said = ruled(w), stated(root, texts)
@@ -44,7 +44,7 @@ def statements(root: Path, texts: dict[str, str] | None = None) -> list[str]:
     if bound is None:
         return [f'{POINT}: the last queued notice {shown} ms, past the amendment\'s {MOST_MS} ms: the owner\'s']
     if said != bound:
-        return [f'{POINT}: aecp_mbx.h states AECP_QUEUED_MS {said} ms, not the {bound} ms its row {shown} ms rules']
+        return [f'{POINT}: ctrl_loop.h states AECP_QUEUED_MS {said} ms, not the {bound} ms its row {shown} ms rules']
     return []
 
 
@@ -58,10 +58,9 @@ def controls(root: Path) -> list[str]:
     if [ruled(w) for w in (100.0, 125.0, 125.01, 130.0, 138.2, 140.0, 140.01, None)] != \
             [125, 125, 130, 130, 140, 140, None, None]:
         escaped.append("the last queued notice's bound not the amendment's rule")
-    text = (root / HEADER).read_text()
-    old = f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {stated(root)}u : '
-    if statements(root) or text.count(old) != 1 or not all(
-            statements(root, {HEADER: text.replace(old, f'#define AECP_QUEUED_MS (MBX_N_IF == 1u ? {v}u : ')})
+    text, at = (root / HEADER).read_text(), shape_costs.of_point(POINT, root)
+    if statements(root) or not all(
+            statements(root, {HEADER: shape_costs.planted_at(text, at, shape_costs.QUEUED, v)})
             for v in (stated(root) - STEP_MS, stated(root) + STEP_MS)):
         escaped.append("AECP_QUEUED_MS not the bound the last queued notice's row rules")
     solve = rt.solve

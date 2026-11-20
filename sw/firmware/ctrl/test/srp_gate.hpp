@@ -3,10 +3,10 @@
 // 5.3.7.4): a source declares nothing until MAAP holds its range and a PROBE_TX_COMMAND for it was answered in the last
 // 15 s or a matching Listener is registered; then at once, on its own interface, at MAAP's base + n; it withdraws when
 // neither holds or MAAP loses the range, a re-probe with the same destination declares it again at once, and the new
-// range's destination waits two LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8). The source's frames
-// carry the stream_id its Talker declares (#905): the MAAP adapter, the DA gate's owner, writes each source's
-// SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, at its start before the bit first opens, and again before each
-// reopening, read from the source port (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
+// range's destination waits two nominal longest LeaveAll periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+// #951). The source's frames carry the stream_id its Talker declares (#905): the MAAP adapter, the DA gate's owner,
+// writes each source's SRC_SID_HI:SRC_SID_LO while its DA_GATE bit is clear, at its start before the bit first opens,
+// and again before each reopening, read from the source port (KL_mbx_pkg.sv SRC_SID_LO; Milan v1.2 5.3.7.5).
 namespace {
 
 // The publication block's writes from the model's reset, in order (#905).
@@ -326,19 +326,83 @@ TEST_F(SrpGate, F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff) {
     EXPECT_NE(app.maap.ifs[interface].core.base, first) << "MAAP restarts on a new range";
     EXPECT_FALSE(declared(interface)) << "a range lost withdraws the Talker";
     EXPECT_EQ(talker_decl(interface) >> source & 1u, 0u) << "a range lost withdraws the Talker";
-    // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1)
-    for (unsigned s = 0; s < 19u; ++s) {
+    // the peer keeps its Listener, so the source is valid again once MAAP holds the new range (Milan v1.2 4.3.3.1);
+    // its new destination waits two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE 802.1Q-2018
+    // 10.7.4.3) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30 s after the Leave, so it is still held a second before
+    constexpr unsigned kLeaveAllTimeS = 10u;
+    constexpr unsigned kTwoLongestLeaveAllS = 2u * (kLeaveAllTimeS + kLeaveAllTimeS / 2u);
+    for (unsigned s = 0; s + 1u < kTwoLongestLeaveAllS; ++s) {
         run(1000u);
         listener(1u);
     }
     EXPECT_TRUE(app.maap.ifs[interface].core.valid) << "MAAP holds the new range";
-    EXPECT_FALSE(declared(interface)) << "a changed destination waits two LeaveAllTime periods after the Leave";
+    EXPECT_FALSE(declared(interface))
+        << "a changed destination waits two of the longest LeaveAll periods after the Leave";
     for (unsigned s = 0; s < 2u; ++s) {
         run(1000u);
         listener(1u);
     }
     EXPECT_TRUE(declared(interface)) << "the new range's destination is declared once the hold-off ends";
     EXPECT_EQ(destination(), app.maap.ifs[interface].core.base + source) << "with the new range's base + n";
+    EXPECT_EQ(core()->reentries, 0u);
+}
+
+// #936: a probe's declaration and its expiry's withdrawal each reach the composition as the source's STREAM_OUTPUT
+// notice (Milan v1.2 5.4.5.2, Table 5.22): the SRP delivery takes SRP's record into the application's, once each, and
+// the probe window's periodic declarations notice nothing. The application is composed over a record an earlier
+// composition left (ctrl_app.h: recompose before attaching another SRP instance), which the attach clears.
+TEST_F(SrpGate, F936AProbeAndItsExpiryEachNoticeTheSource) {
+    app.srp_noticed = ~0u;
+    compose();
+    EXPECT_EQ(app.srp_noticed, 0u) << "an attached SRP instance starts with no record, and no source is noticed before "
+                                      "its Talker is declared";
+    probe();
+    run(300u);
+    ASSERT_TRUE(declared(interface)) << "a probe declares the source's Talker";
+    EXPECT_EQ(app.srp_noticed, 1u << source) << "a probe's declaration notices its source";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        EXPECT_EQ(srp_adapter.ifs[i].noticed, 0u) << "the SRP delivery takes SRP's record";
+    }
+    app.srp_noticed = 0u;
+    run(14500u);
+    EXPECT_EQ(app.srp_noticed, 0u) << "the probe window's periodic declarations notice nothing";
+    run(500u);
+    ASSERT_FALSE(declared(interface)) << "the probe's 15 s expiry withdraws the Talker";
+    EXPECT_EQ(app.srp_noticed, 1u << source) << "the probe's expiry notices its source";
+    EXPECT_EQ(core()->reentries, 0u);
+}
+
+// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps): the pass that takes SRP's
+// record of a probed source's declaration, and the one that takes its expiry's withdrawal, report output owed, since
+// the source's STREAM_OUTPUT notice is still to be raised. Each pass is stepped alone and checked as it ends.
+TEST_F(SrpGate, F936BThePassThatTakesTheRecordOwesItsNotice) {
+    compose();
+    // Each pass up to the one that takes the record; that pass's return value.
+    auto take = [&] {
+        unsigned work = 0;
+        for (unsigned k = 0; k < 256u && app.srp_noticed == 0u; ++k) work = ctrl_loop_service(&app.loop);
+        return work;
+    };
+    Pdu request;
+    request.msg = 0u;
+    request.talker = kOwn;
+    request.talker_uid = static_cast<std::uint16_t>(source);
+    ASSERT_TRUE(offer(request, spec::MULTICAST_MAC, interface));
+    const unsigned declaring = take();
+    ASSERT_EQ(app.srp_noticed, 1u << source) << "a probe's declaration notices its source";
+    EXPECT_NE(declaring, 0u) << "the pass that takes SRP's record of a declaration owes its notice";
+    settle();
+    app.srp_noticed = 0u;
+    run(14500u);
+    ASSERT_TRUE(declared(interface)) << "the probe window holds the declaration";
+    unsigned withdrawing = 0;
+    for (unsigned ms = 0; ms < 1000u && app.srp_noticed == 0u; ++ms) {
+        mbx_model_advance_ms(&model, 1u);
+        withdrawing = take();
+    }
+    ASSERT_EQ(app.srp_noticed, 1u << source) << "the probe's expiry notices its source";
+    EXPECT_FALSE(declared(interface)) << "the probe's 15 s expiry withdraws the Talker";
+    EXPECT_NE(withdrawing, 0u) << "the pass that takes SRP's record of a withdrawal owes its notice";
     EXPECT_EQ(core()->reentries, 0u);
 }
 

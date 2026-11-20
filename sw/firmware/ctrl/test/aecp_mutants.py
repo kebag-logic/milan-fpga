@@ -14,9 +14,13 @@ import aecp_configuration_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
+import aecp_notice_mutants
+import aecp_output_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
+import aecp_reboot_mutants
 import aecp_retry_mutants
+import aecp_stream_info_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
 
@@ -197,21 +201,7 @@ DEFECTS = (
            '\t*(uint32_t *)(void *)p = word;\n',
            '\t*(uint32_t *)(void *)p = word << 8 | word >> 24;\n',
            ('Mailbox.EveryInterfaceAndObservationPort', 'fabric.tx_sent')),
-    defect('stream-info-request-echo', 'aecp_commands.c',
-           'memcpy(out + 8, d->value + 74, 8u);',
-           'memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);',
-           ('Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal',
-            'SET response uses current format')),
-    defect('stream-info-flags-echo', 'aecp_commands.c',
-           'uint32_t flags = info.flags;',
-           'uint32_t flags = (uint32_t)wire_be32(in + 4);',
-           ('Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal',
-            'SET response flags describe current state')),
-    defect('stream-info-noop-refused', 'aecp_commands.c',
-           '(requested & 0xdaf80000u) != 0u',
-           'requested != 0x20000000u',
-           ('Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal',
-            'status for command')),
+    *(defect(*row) for row in aecp_stream_info_mutants.ROWS),
     defect('root-configuration-refused', 'aecp_commands.c',
            'if (type == 0u || type == 1u) {',
            'if (type == 0xffffu) {',
@@ -450,6 +440,27 @@ DEFECTS = (
            'len > m->capacity * 8u) return 0;',
            ('Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch',
             'owner.port.latch')),
+    # #920: a record past the first 256 ids never reaches the store, as before the pending bits covered layout 3's
+    # space; a record queued twice counted twice, and a delivered one left counted
+    defect('nvm-ids-past-256-dropped', 'aecp_nvm.c',
+           '\tif (id < 0) return;\n',
+           '\tif (id < 0 || id >= 256) return;\n',
+           ('Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle',
+            "every name's mark reaches the store, once"),
+           ('Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle',
+            'survives the power cycle')),
+    defect('nvm-pending-counted-twice', 'aecp_nvm.c',
+           '\tif ((*word & bit) == 0u) ++n->pending_count;',
+           '\t++n->pending_count;',
+           ('Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle',
+            'the pending count follows its bits')),
+    defect('nvm-pending-count-kept', 'aecp_nvm.c',
+           '\t\t--n->pending_count;\n',
+           '',
+           ('Nvm.EveryAcknowledgedNameSurvivesTheRealStorePowerCycle',
+            'the pending count follows its bits'),
+           ('Nvm.EveryChangeQueuesOnlyItsOwnedRecords',
+            'owner.pending_count')),
     # #763: an emptied list read back as the reset set, by the owner or by the store
     defect('nvm-empty-map-keeps-defaults', 'aecp_nvm.c',
            '\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);',
@@ -663,10 +674,8 @@ DEFECTS = (
            '\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n', '',
            ('AppFace.FaceEventsDriveTheirTable522Notifications',
             'a counter change notifies GET_COUNTERS')),
-    # acknowledged state is the only truth a controller sees (#665): a change
-    # the face has not taken waits undone behind IN_PROGRESS, then one final
-    # response; no other change is taken meanwhile; an expiry is notified once
-    # applied
+    # acknowledged state is the only truth a controller sees (#665): a change the face has not taken waits undone behind
+    # IN_PROGRESS, then one final response; no other change is taken meanwhile; an expiry is notified once applied
     defect('unapplied-change-not-refused', 'aecp_commands.c',
            'return a->refusing || aecp_other_lock(a);',
            'return aecp_other_lock(a);',
@@ -870,9 +879,12 @@ DEFECTS = (
            'if (!aecp_face_open(c->face)) return false;', '(void)aecp_face_open(c->face);',
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
-) + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
+) + tuple(defect(*row) for row in aecp_reboot_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_index_mutants.ROWS) + tuple(defect(*row) for row in aecp_retry_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_fan_mutants.ROWS) + tuple(defect(*row) for row in aecp_owed_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 

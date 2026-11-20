@@ -29,6 +29,7 @@ void aecp_override(struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 // Record the n bytes at a value a command is about to change (#665).
 void aecp_keep(struct aecp *, void *, size_t);
+// A stream's observation, brief as the caller sets it: a running check's reads bound and running alone (#894, #943).
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
 // A response's Ethernet header and AECPDU common data, through command_type.
 #define AECP_HEADER_BYTES 38u

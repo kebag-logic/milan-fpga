@@ -6,6 +6,7 @@
 #
 #   ./build.sh ax7101                  # ship shape (cbsf lineage) -> work/build_ax7101_<tag>
 #   ./build.sh arty                    # Arty A7-100 bring-up shape
+#   ./build.sh ax7a200t                # the ax7101 ship shape on the XC7A200T die (#911)
 #   ./build.sh ax7101 arty             # BOTH boards, parallel, 90 s stagger
 #   ./build.sh --sweep ax7101          # 3-directive place sweep (epo/spr/etm), per the
 #                                      # saturate-the-box rule (3 x 32 threads)
@@ -58,8 +59,9 @@ board_serials() {
     # the environment or in sw/litex/boards.local.sh (gitignored; template =
     # boards.local.sh.example). policy = what this board's QSPI holds:
     #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-    #   offset 0 in a dedicated 4 MiB slot, followed by the raw AEM image at
-    #   4 MiB per flashboot_layout.json. Every named config is bare-metal (#259).
+    #   offset 0 in the die's slot (4 MiB on the XC7A100T, 10 MiB on the
+    #   XC7A200T, #911), followed by the raw AEM image where that slot ends,
+    #   per flashboot_layout.json. Every named config is bare-metal (#259).
     [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
     AX_FTDI="${AX_FTDI:-SET_AX_FTDI}"       # sentinel fails loudly in openFPGALoader
     ARTY_FTDI="${ARTY_FTDI:-SET_ARTY_FTDI}"
@@ -67,6 +69,7 @@ board_serials() {
 board_facts() {  # -> "serial cable fpga_part flash_policy bit_name"
     case "$1" in
         ax7101|ax8x8) echo "$AX_FTDI ft232    xc7a100tfgg484 boot      alinx_ax7101.bit";;
+        ax7a200t)     echo "$AX_FTDI ft232    xc7a200tfbg484 boot      alinx_ax7101.bit";;
         arty)          echo "$ARTY_FTDI digilent xc7a100tcsg324 boot      digilent_arty.bit";;
         *)      return 1;;
     esac
@@ -75,7 +78,7 @@ gptp_owner_for_config() {
     # #259: the fabric plane is the one gPTP owner, so every named product
     # configuration must select it.
     case "$1" in
-        ax7101|ax8x8|arty) echo fabric;;
+        ax7101|ax8x8|ax7a200t|arty) echo fabric;;
         *)          return 1;;
     esac
 }
@@ -192,7 +195,7 @@ recipe_config() {  # -> the end-station config named recipe "$1" builds
         echo "$BUILD_CFG"; return
     fi
     case "$1" in
-        ax7101) echo "configs/endstation_ax7101_1x1_tdm8.yaml";;
+        ax7101|ax7a200t) echo "configs/endstation_ax7101_1x1_tdm8.yaml";;
         ax8x8)  echo "configs/endstation_ax7101_8x8.yaml";;
         arty)   echo "configs/endstation_arty_current.yaml";;
         *)      echo "no end-station config is bound to '$1'" >&2; return 1;;
@@ -378,6 +381,13 @@ design_argv() {
 cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
     echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
           --place-directive ExtraPostPlacementOpt"
+}
+cfg_ax7a200t() { # the ax7101 shipping shape on the board's XC7A200T die (#911)
+    # The same end-station config, so the same design argv, and the AX7101's
+    # flow flags read from cfg_ax7101 rather than restated. --fpga-part is the
+    # one difference: the die, not the design (the board's pins, banks and
+    # constraints are alinx_ax7101.py's for both).
+    echo "$(cfg_ax7101) --fpga-part xc7a200t-fbg484-2"
 }
 cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flow flags
     # The deployed 0x00010022 gateware came from the x32f1_eto sweep; this

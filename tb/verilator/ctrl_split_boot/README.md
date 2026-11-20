@@ -53,16 +53,21 @@ Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 The CPU generator is given the shipping split region list, each region as its aligned power-of-two pieces ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)), and that harness refuses a list that is not its own power-of-two cover.
 The results below were measured when the harness still widened each region to its cover.
-This SoC adds the two devices the platform reaches beyond the mailbox:
+This SoC adds the three devices the platform reaches beyond the mailbox:
 
 - the Milan CSR window, a Wishbone slave at `milan_soc.MILAN_CSR_BASE` named `milan_csr`, whose bus the testbench answers;
-- the UART, MilanSoC's own `sim` UART.
+- the UART, MilanSoC's own `sim` UART;
+- the PHY's MDIO bit-bang pair and link-status word (#919), named as the product's MilanMAC names them (`milan_mac_phy_mdio_w` and `_r`, LiteEth's `LiteEthPHYMDIO`, its input through the same two-register synchroniser; `milan_mac_link_status` at its reset value, link up at 1000 Mb/s full duplex), their pins on pads.
 
 [`sim_main.cpp`](sim_main.cpp) drives the clocks and the flash as that harness's testbench does, with a blank flash.
 The mailbox's datapath is idle with interface 0's link up.
 The CSR window answers from a register file holding builder gate 35's seeded words, ID and VERSION as the datapath's reset values.
 `TOD_RD_LO/HI` hold the simulated time of the last snapshot.
 After the ready line the testbench types `milan_status`, then `milan_gettime`, waits one millisecond, and types `milan_gettime` again, as the smoke grader does.
+The testbench is the PHY too: an IEEE 802.3 clause 22 peer at address 1, so the boot's probe misses once, 1000BASE-T full duplex negotiated, which launches bit k + 1 on MDC's rising edge k (22.3.4) and fails the run on a frame that is not a read driven then released or a write driven whole (22.2.4.5).
+A write at its address sets the register, its restart and reset bits clearing themselves (#840's advertisement); it renegotiates at once, so its link is the script's alone.
+After the commands it holds the link for two polls, latches a loss that has already recovered (BMSR's latched-low link status, 22.2.4.2.13), drops the link until a poll publishes it down and one more, then brings it back, latched, until a poll publishes it up.
+A step of that script that waits past 300 ms says so and moves on, so a run whose firmware never publishes still completes and is graded.
 
 ## What is graded
 
@@ -72,8 +77,13 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
 - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and the approved T_svc = 20 ms.
+- **PHY** (#919): the published link word, `milan_mac_link_status`. The boot's probe reads PHYID1 at each address below the PHY's once, each miss published link down, then the PHY's 1000BASE-T full duplex; a poll starts every `CTRL_PLAT_PHY_POLL_US` (`ctrl_plat_phy.h`, read by its derivation from `scripts/nvm_shape.py`), within the release's 250 ms publication bound; the loss latched between two polls is published down, then up, by the next poll; the sustained loss is published down; the link's return is published up by the first poll after it, within the release's 250 ms publication bound. Each frame, from its pins leaving 0 to their release, is within `CTRL_PLAT_PHY_STEP_US`, and MDC's shortest high and low times and period are at least IEEE 802.3 22.2.2.13's 160, 160 and 400 ns. The advertisement (#840, `ctrl_plat_phy.h` THE ADVERTISEMENT) is checked as writes:
+  - at boot, register 9 with 1000BASE-T full duplex alone (0x0200), 4 without 10/100 (0x0001), then 0 restarting negotiation (0x1200);
+  - after each of the script's two losses (a publication from link up to down), 9 and 4 again with no restart, the PHY still holding them;
+  - no other write;
+  - each group read back, registers 4 then 9.
 - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
-- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; the PHY's word never written to `milan_mac_link_status`, the loss a poll's first BMSR latched not published, and the boot's advertisement never owed (`ctrl_plat_phy.c`), must each be a PHY finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
 - **Placement controls** (`--placement-controls` on a finished run, and last in `--self-test`): `split_soc.map_deviations` must find nothing on the true flash map, and must name a moved register, a register the SoC lacks, a moved window and a resized window. `boot_soc.build` must refuse, in its own words, an export given the map with `spiflash_master_cs` moved four bytes. Each planted defect of that refusal must then let the same map through: the refusal taken out of the build (`guard-removed`), and a `map_deviations` that finds nothing (`deviations-empty`). They need the product LiteX tree, as the boot does, and no hosted job runs them.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
@@ -84,14 +94,25 @@ Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz; 
 
 | Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 25.477 ms | 2,547,656 | 18 of 18 equal | 2.600 / 0.467 / 0.119 ms | 0.332 / 0.199 / 0.113 ms |
-| 8x8, one interface | 64.584 ms | 6,458,406 | 18 of 18 equal | 4.161 / 0.544 / 0.196 ms | 0.487 / 0.276 / 0.216 ms |
+| 1x1, one interface | 27.540 ms | 2,754,032 | 18 of 18 equal | 5.814 / 0.667 / 0.312 ms | 0.433 / 0.251 / 0.162 ms |
+| 8x8, one interface | 66.615 ms | 6,661,535 | 18 of 18 equal | 7.106 / 0.763 / 0.371 ms | 0.555 / 0.314 / 0.221 ms |
+
+The PHY at this head (#919, with #840's advertisement), both shapes:
+- 59 frames and 10 publications. The longest frame is 14,537 CPU cycles (145.37 us) at 1x1 and 14,545 (145.45 us) at 8x8, against the stated 155 us.
+- Seven polls, 125.041 to 125.557 ms apart before the loss.
+- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.5 ms after it.
+- The advertisement's seven writes: the boot's register 9 0x0200, 4 0x0001 and 0 0x1200, then 9 and 4 after each loss, each group read back.
+- MDC at least 950 ns high, 1,120 ns low and 2,260 ns a period.
+
+At `55769f09`, before the advertisement and the merge of dev-soft-core `70f4056f`, the PHY gave 34 frames, the longest 14,537 CPU cycles at 1x1. The boot reached ready in 27.605 and 67.347 ms, and `milan_status` took 4.268 / 0.674 / 0.317 and 5.550 / 0.751 / 0.371 ms.
+The PHY adds to the boot and the console: the arm's timed run (1,024 spin turns, about 0.28 ms) before ready, and a frame in an empty pass between two of the console's output passes, which lengthens its longest gap by a frame's 0.15 ms.
+At `659d7687`, the head before the PHY, the same host gave 26.883 ms to ready at 1x1 and `milan_status` 3.027 / 0.486 / 0.133 ms.
 
 The SoC reads the flash through the product's uncached window, as the split CPU does (#665, 2026-11-02).
 At `c954b8a9`, the head before this change, this page recorded 24.660 and 64.271 ms to ready through a cached window, and the window alone moves them to 25.413 and 65.026 ms; the boot reads its slots' headers through it.
 The window alone leaves every UART figure as it was.
 At `4f58214f` the loop also read the store's clock as each pass starts and ran the store's owed step in a pass that took no input (THE STEP, `ctrl_loop.h`): 25.515 and 64.885 ms to ready, each longest gap 0.013 to 0.018 ms longer than that page's.
-At this head the step also has its age limit, and a changed record is marked without walking the records (#665): the boot is 25.477 and 64.584 ms to ready, the 8x8 `milan_status` span 4.161 ms against 3.976 ms, and no verdict moves.
+Before the PHY poll this page recorded the step's age limit and the record marked without walking the records (#665): the boot 25.477 and 64.584 ms to ready (2,547,656 and 6,458,406 CPU cycles), `milan_status` 2.600 / 0.467 / 0.119 and 4.161 / 0.544 / 0.196 ms, the 8x8 span 4.161 ms against 3.976 ms, and no verdict moved.
 
 The boot's own figures before the CPU moved, with the platform image still built RV32I without the record mover or the word-wide primitives, and the CPU at 50 MHz, were measured after merging `dev-soft-core` `a68536fa` and giving both platform links and boot exports the generated map (#665, decision 6677095110).
 The rows marked staged are the two `run.py` commands above, at `93c6e9a544`: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
@@ -109,7 +130,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
 Both boots at this head are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 60.0 RAMB36, the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers by name for the flip, owed to lane S14.
+The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, and each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.0 with the largest legal record's cut and the hot list relearned on it, and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
 At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
 
 The smoke grader's verdicts on the simulated UART:
@@ -140,7 +161,7 @@ At this branch's head each boot reaches ready, at 26.370 ms (1x1, one interface)
 
 [`plat_ledger.py`](plat_ledger.py) links the platform image at the ledger's four points, 1x1 and 8x8 each with one and two interfaces, and grades each against `ctrl_memory.LEDGERED` ([SPLIT_CONTROL_MEMORY.md section 5](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 Each shape's `csr.csv` and flash map are its split SoC export's, from the CPU budget harness's `build.flash_map`, and the runtime archives are this simulation's.
-The 8x8 image with two interfaces is linked with `--ledgered-point platform-8x8-two-interfaces`, and every other image with no override.
+Each 8x8 image is linked with its own override, `--ledgered-point platform-8x8-two-interfaces` and `--ledgered-point platform-8x8-one-interface` (#923), and every 1x1 image with no override.
 Each image is graded on four checks, each apart, so that one finding does not hide another:
 
 - `LINK`: `ctrl_plat_image.py` exits 0, and the image's plan with its point's override is accepted;
@@ -149,7 +170,7 @@ Each image is graded on four checks, each apart, so that one finding does not hi
 - `LEDGER`: every override of the platform's image is linked at a point.
 
 A stale `ctrl_plat` key refused that image by its key for three rounds of #665, and hid that its plan had passed the tiles its override then held.
-So `--self-test` grades seven planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 8x8 one-interface plan (`TILES` there), the override not taken (`LINK`, `TILES`, `LEDGER`) and an override no point links (`LEDGER`).
+So `--self-test` grades nine planted ledgers on the linked images, in its own process, and requires each to give exactly the findings it names: a stale key (`KEY`, `LINK`), a plan past its tiles (`TILES`, `LINK`), both at once (all three), a stale record in `ctrl_memory_ledger.py` (`KEY` at that point), the budget half a tile under the 1x1 two-interface plan (`TILES` there), the override not taken at the 8x8 image with two interfaces and at the one with one (`LINK`, `TILES`, `LEDGER`), and an override no point links, at a point's own `ctrl_plat` and at a size no image has (`LEDGER`).
 
 ```sh
 python3 tb/verilator/ctrl_split_boot/plat_ledger.py --build-dir /tmp/plat-ledger --self-test

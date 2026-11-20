@@ -62,7 +62,8 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: event page, and the clock-contract test checks the latency-tap table. The
 #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
 #: policy to the area budget's table. The mailbox contract generator's
-#: --check compares its reference page with what it emits (#665 F0). The
+#: --check compares its reference page with what it emits (#665 F0), and
+#: FR_NFR.md 3.4.1's response-margin table with what the contract gives (#917). The
 #: split control memory test (elaborate's LiteX aggregate) holds its rule
 #: table to ctrl_memory.RULES (#640). ctrl_service_bounds.py (firmware-unit)
 #: checks the mailbox service figures against compiled headers (#665 F3b).
@@ -71,6 +72,7 @@ GATE_READ_DOCS = [
     "docs/design/AREA_BUDGET.md",
     "docs/design/MAILBOX_SPLIT.md",
     "docs/design/SPLIT_CONTROL_MEMORY.md",
+    "docs/reference/FR_NFR.md",
     "docs/reference/MAILBOX_CONTRACT.md",
     "docs/reference/REGISTER_MAP.md",
     "docs/reference/TRACE_EVENTS.md",
@@ -289,6 +291,8 @@ def _cases() -> list[Case]:
         (["docs/design/AREA_BUDGET.md"], True),
         # The page the mailbox contract generator's --check compares (#665).
         (["docs/reference/MAILBOX_CONTRACT.md"], True),
+        # The page whose response-margin table the same --check compares (#917).
+        (["docs/reference/FR_NFR.md"], True),
         # The page whose service figures ctrl_service_bounds.py reads (#665).
         (["docs/design/MAILBOX_SPLIT.md"], True),
         # The page whose rule table the split control memory test reads (#640).

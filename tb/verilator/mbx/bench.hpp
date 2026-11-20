@@ -30,7 +30,10 @@
 // receive verdict's two cycles against the byte offered in them, and the
 // register read multiplexer's selects in each cycle it is sampled
 // (`reg_reads_multi` counts a read two of them answer). And every frame's
-// gap, from its last byte taken to the next byte taken (`rx_gaps`).
+// gap, from its last byte taken to the next byte taken (`rx_gaps`). And the
+// held records (#917): the cycles a channel holds a frame its bucket had no
+// token for (`hold_cycles`), and of them those in which its bucket holds a
+// token (`hold_with_token`), which a held record must never see.
 
 #ifndef MBX_BENCH_HPP
 #define MBX_BENCH_HPP
@@ -169,6 +172,28 @@ class Bench {
             step();
         }
         idle(8);
+        return rx_q_.empty();
+    }
+
+    //! Queue one frame and land a modeled millisecond's pulse `k` clocks after
+    //! the clock its verdict acts in (#917): 1 is the clock of its first header
+    //! word, 2 of its second, where a stored record is committed or held, 3 the
+    //! clock after. The millisecond's idle clocks follow. False when no verdict
+    //! acted within the patience.
+    bool send_frame_tick_after_verdict(const std::vector<std::uint8_t>& frame, unsigned iface, unsigned k,
+                                       unsigned patience = 4000) {
+        send_bytes(frame, iface, true);
+        acted_ = false;
+        for (unsigned i = 0; i < patience && !acted_; ++i) {
+            step();
+        }
+        if (!acted_ || k == 0u) {
+            return false;
+        }
+        idle(k - 1u);
+        dut_->ms_tick_p_i = 1;
+        step();
+        idle(kClocksPerMs - 1);
         return rx_q_.empty();
     }
 
@@ -386,6 +411,8 @@ class Bench {
     std::uint64_t reg_reads_hit = 0;      //!< of them, with one of its selects set
     std::uint64_t reg_reads_multi = 0;    //!< of them, with two or more set
     std::uint64_t verdicts = 0;           //!< receive verdicts taken
+    std::uint64_t hold_cycles = 0;        //!< cycles a channel held a frame its bucket had no token for (#917)
+    std::uint64_t hold_with_token = 0;    //!< of them, cycles a channel held one while its bucket held a token
     std::uint64_t verdict_offered = 0;    //!< cycles a verdict was taken or acted with a byte offered
     //! Clocks from a frame's last byte taken to the next byte taken, one per
     //! frame after the first since clear_rx_gaps().
@@ -489,6 +516,9 @@ class Bench {
     //! the read multiplexer's selects, before each edge.
     void watch_probes() {
         verdicts += (dut_->probe_rx_vrd_o & 1u) != 0 ? 1u : 0u;
+        acted_ = acted_ || (dut_->probe_rx_vrd_o & 2u) != 0;
+        hold_cycles += (dut_->probe_rx_hold_o & 1u) != 0 ? 1u : 0u;
+        hold_with_token += (dut_->probe_rx_hold_o & 2u) != 0 ? 1u : 0u;
         verdict_offered += (dut_->probe_rx_vrd_o != 0 && dut_->rx_valid_i) ? 1u : 0u;
         reg_reads += (dut_->probe_rd_sel_o & 1u) != 0 ? 1u : 0u;
         reg_reads_hit += (dut_->probe_rd_sel_o & 2u) != 0 ? 1u : 0u;
@@ -665,6 +695,7 @@ class Bench {
     std::array<std::uint32_t, MBX_N_CH> last_head_{};
     bool last_was_end_ = false;          //!< the last byte taken ended its frame
     std::uint64_t last_end_cycle_ = 0;   //!< the clock it was taken in
+    bool acted_ = false;                 //!< a receive verdict acted since send_frame_tick_after_verdict began
 };
 
 }  // namespace mbx_tb

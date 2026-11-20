@@ -77,6 +77,7 @@ from typing import NamedTuple
 
 import load_grade
 import poll_grade
+import shape_costs
 
 #: Each row's bound in ms: tier 1, SRP's (half of MRP's JoinTime as the firmware applies it) and the last queued
 #: notice's, at every shape (#665, decision D).
@@ -88,8 +89,12 @@ SOLVED = ('R4', 'R5', 'R6')
 POINTS = ('1x1/1if', '8x8/2if')
 #: A LINK event's stated cost in us (the most measured over every instance plus 5 %, rounded up to 5 us): the load has
 #: no LINK term, a LINK change having no arrival rate, so its tables do not state it. At 1x1/1if 155 under #894's
-#: SET_CONFIGURATION cut (14,715 CPU cycles in arm A's fixture group at fe0cef5b).
-ROW_COSTS = {'1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}}
+#: SET_CONFIGURATION cut (14,715 CPU cycles in arm A's fixture group at fe0cef5b). At 8x8/1if 8x8/2if's 300, whose
+#: records and events that point takes (load_grade.NEAREST) while its own measurement is within them: 16,392 cycles on
+#: the image with the Listener copies (#930, 46cf2a7d's), 175 us by the rule; so too its datapath events
+#: (rows_tiers.DATAPATH_US, 3,103, 2,864 and 1,851 cycles there). Its rows are reported (flip_grade.py, REPORTED), and
+#: THE TRANSMIT's figure there is held to its tx row (rows_tiers.tx_statements, flip_grade.tx_held).
+ROW_COSTS = {'1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}, '8x8/1if': {'event.LINK': 300}}
 #: The sources the docstring names, each a part of every solved row's window (links R5's alone), and the terms of
 #: demand() that make each up.
 SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': ('timers',), 'gm': ('gm',),
@@ -114,11 +119,14 @@ NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'C
          'AECP_QUEUED_FIRST_MS', 'AECP_QUEUED_MS')
 
 
-def header(root: Path, n_if: int, texts: dict[str, str] | None = None) -> dict[str, int]:
-    """The loop's and AECP's constants at that many interfaces, each expression evaluated (or a planted header's)."""
+def header(root: Path, n_if: int | shape_costs.Shape, texts: dict[str, str] | None = None) -> dict[str, int]:
+    """The loop's and AECP's constants at a shape's interfaces, or at that many, each expression evaluated (or a
+    planted header's); THE TRANSMIT's builds as ctrl_loop.h lists them at the shape, or with an interface count at the
+    shipping shape's streams (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
     text = ''.join((texts or {}).get(p) or (root / p).read_text() for p in load_grade.ROW_HEADERS)
     macros = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
-    macros['MBX_N_IF'] = str(n_if)
+    macros['MBX_N_IF'] = str(shape_costs.interfaces(n_if))
+    macros.update({name: str(us) for name, us in shape_costs.at(n_if, root, texts).items()})
 
     def value(name: str) -> int:
         """A constant's integer value: its body with each name it reads replaced by that name's value."""
@@ -149,9 +157,10 @@ def arithmetic(text: str) -> int:
 
 
 def costs(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
-    """A point's stated costs: the load gate's at the pin (or a planted table), the polls' items and ROW_COSTS'."""
+    """A point's stated costs: the load gate's at the pin (or a planted table), the polls' items at the point's shape
+    (THE SHAPES; at 8x8/1if its own, not one interface's) and ROW_COSTS'."""
     c = load_grade.stated(root, point, table or load_grade.STATED_US)
-    polls = poll_grade.stated_us(load_grade.POINTS[point]['n_if'])
+    polls = poll_grade.stated_us(shape_costs.of_point(point, root))
     for k in ('withdraw', 'rebuild', 'aecp'):
         c[f'item.{k}'] = polls[k]
     c['item.retained'] = max(c['item.retained'], c['record.srp'])
@@ -297,9 +306,13 @@ def solve(row: str, inputs: Inputs, dropped: str | None = None) -> tuple[float |
 
 
 def point_inputs(root: Path, point: str, table: dict | None = None, texts: dict | None = None) -> Inputs:
-    """A point's header constants, stated costs, counts and contract."""
+    """A point's header constants, stated costs, counts and contract; the notices a reset can leave pending as aecp.h
+    derives them for the point's own configuration (shape_costs.BUILT; 40 at 8x8/1if, whose header the shipping
+    configuration's would put at 12)."""
     s = dict(load_grade.POINTS[point])
-    h = header(root, s['n_if'], texts)
+    h = header(root, shape_costs.of_point(point, root), texts)
+    config, n_if = shape_costs.BUILT[point]
+    h['AECP_NOTICES_MOST'] = shape_costs.notices_most(root / 'configs' / f'{config}.yaml', n_if, root, texts)
     s['notices'] = h['AECP_NOTICES_MOST']
     rate, tick_ms = contract(root)
     return Inputs(h, costs(root, point, table), s, rate, tick_ms)

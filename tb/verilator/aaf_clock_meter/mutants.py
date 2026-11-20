@@ -217,6 +217,15 @@ MUTANTS = (
        "          if (16'(s2_abs_w) > max_dev_r) max_dev_r <= 16'(s2_abs_w);\n"
        "        end else begin\n"),),
      "cases:rates", "[M1 max_dev, a lost PDU] the PDU after the gap is no deviation"),
+    # #927: the group's reference is the next PDU's nominal timestamp. Not
+    # advanced, every later PDU of a group reads PDU_NS_C more of deviation
+    # per PDU; opened at PDU 0's own timestamp, PDU 1 reads a whole PDU_NS_C
+    ("group_reference_not_advanced", "meter",
+     (("            grp_ref_r <= grp_ref_r + 32'(PDU_NS_C);\n", "\n"),),
+     "cases:shapes", "[M2 indep] no history restart"),
+    ("group_reference_opened_without_the_first_pdu", "meter",
+     (("          grp_ref_r <= s2_ts_r + 32'(PDU_NS_C);", "          grp_ref_r <= s2_ts_r;"),),
+     "cases:shapes", "[M2 indep] no history restart"),
     ("switch_through_idle_W1", "servo",
      (("          else if (!ref_locked_i)    state_r <= HOLDOVER_S;",
        "          else if (!ref_locked_i)    state_r <= IDLE_S;"),),

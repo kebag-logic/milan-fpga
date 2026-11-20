@@ -115,7 +115,9 @@ static bool observe(struct aecp *a, uint16_t type, uint16_t index, struct aecp_s
 
 bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
+	bool brief = out->brief;
 	memset(out, 0, sizeof *out);
+	out->brief = brief;
 	return observe(a, type, index, out);
 }
 
@@ -190,7 +192,8 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 		} else if (aecp_foreign_lock(a)) {
 			status = AECP_ENTITY_LOCKED;
 		} else if (wire_be16(in + 2) >= a->cfg.model->configurations) {
-			status = AECP_BAD_ARGUMENTS;
+			// the index names no CONFIGURATION descriptor (IEEE 1722.1-2021 7.4.7.1, Table 7-141; #924)
+			status = AECP_NO_SUCH_DESCRIPTOR;
 		} else {
 			// accepted, it costs a paced record's, so it is paced as an edit is (THE PACE, aecp_mbx.h)
 			a->edited_ms = a->now;
@@ -359,7 +362,10 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			    uint8_t *out, size_t *bytes)
 {
 	body(out, bytes, set ? 84u : 56u);
-	if (len < (set ? 84u : 4u)) {
+	// A SET carries the IEEE 1722.1-2021 body or the 48-octet IEEE 1722.1-2013 one, whose fields end at
+	// stream_vlan_id, as the fabric processor accepts it; both are answered in the 2021 form, and a SET reads its
+	// flags and msrp_accumulated_latency alone, which both carry (#924)
+	if (set ? len != 48u && len < 84u : len < 4u) {
 		return AECP_BAD_ARGUMENTS;
 	}
 	memcpy(out, in, 4u);
@@ -371,7 +377,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 	if (d == NULL) {
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}
-	struct aecp_stream_info info;
+	struct aecp_stream_info info = {.brief = false};
 	if (!aecp_stream_read(a, type, index, &info)) {
 		return AECP_ENTITY_MISBEHAVING;
 	}
@@ -585,6 +591,38 @@ static unsigned control(struct aecp *a, bool set, const uint8_t *in, size_t len,
 	return AECP_SUCCESS;
 }
 
+// IEEE 1722.1-2021 7.4.43, Figure 7-68: {descriptor_type, descriptor_index},
+// echoed. ENTITY 0 is the one target, because no MEMORY_OBJECT firmware image
+// exists (7.4.43.1). So another type is NOT_SUPPORTED, another index
+// NO_SUCH_DESCRIPTOR, and another controller's lock ENTITY_LOCKED (7.4.43.2).
+// The entity is never acquired. The routes run in the processor's order. A
+// SUCCESS notifies (7.4.43, 7.5.2; Milan v1.2 5.4.5.2), and aecp_rx accepts
+// the REBOOT at it (#871). Without a reset port it is NOT_IMPLEMENTED, its
+// whole body echoed (*bytes is len), as for every command without a target.
+static unsigned reboot(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
+{
+	if (!a->cfg.reboot) {
+		memcpy(out, in, *bytes);
+		return AECP_NOT_IMPLEMENTED;
+	}
+	*bytes = 4u;
+	memcpy(out, in, len > 4u ? 4u : len);
+	if (len < 4u) {
+		return AECP_BAD_ARGUMENTS;
+	}
+	if (wire_be16(in) != 0u) {
+		return AECP_NOT_SUPPORTED;
+	}
+	if (wire_be16(in + 2) != 0u) {
+		return AECP_NO_SUCH_DESCRIPTOR;
+	}
+	if (aecp_foreign_lock(a)) {
+		return AECP_ENTITY_LOCKED;
+	}
+	a->notify = true;
+	return AECP_SUCCESS;
+}
+
 static bool dynamic_member(uint16_t cmd)
 {
 	switch (cmd) {
@@ -690,6 +728,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_BAD_ARGUMENTS; // IEEE 7.4.39.2: unsolicited-only opcode
 	case 39: case 40: return avb(a, cmd == 40u, in, len, out, bytes);
 	case 41: return counters(a, in, len, out, bytes);
+	case 42: return reboot(a, in, len, out, bytes);
 	case 43: case 44: case 45: return aecp_map_command(a, cmd, in, len, out, bytes);
 	case 75: return dynamic(a, interface, in, len, out, bytes);
 	default:

@@ -55,17 +55,40 @@ extern "C" {
 #define AECP_LINE _Alignas(64)
 #endif
 // What a refused attempt charges its round, in microseconds: a round of AECP_ROUND_PORTS refusals costs about 20,500
-// CPU cycles past its first attempt's cold misses, the walk of the events included. So a round spends at most what it
-// is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
-#define AECP_ATTEMPT_US 34u
+// CPU cycles past its first attempt's cold misses at 8x8/2if, the walk of the events included. So a round spends at
+// most what it is given (aecp_retry): each attempt starts with a notice's time left, and each refused one is charged.
+// It is stated for each shape an image is built at, with the round's cold start (THE SHAPES, ctrl_loop.h:
+// CTRL_LOOP_RETRY_ATTEMPT_US; #894's retry-cost ruling, item 1): 34 us, and 25 us at 8x8/1if, the line
+// over its rounds measured there. aecp.c, which charges it, reads the shape's table, a header of constants and
+// declarations whose functions it calls none of; a compile given no shape header is at the shipping shape's. Most
+// units include this header before the table and charge nothing, so the unit that charges one states it
+// (AECP_CHARGES_ATTEMPTS) with the table already in force, and one that states it without the table fails here, in
+// THE SHAPES' words, not at the charge with an undeclared name (#894's retry-cost ruling, item 1).
+#if defined(AECP_CHARGES_ATTEMPTS) && !defined(CTRL_LOOP_RETRY_ATTEMPT_US)
+#error "THE SHAPES: a unit that charges a refused attempt (AECP_ATTEMPT_US) has no shape's table (ctrl_loop.h) in force"
+#endif
+#define AECP_ATTEMPT_US CTRL_LOOP_RETRY_ATTEMPT_US
 // The ports a round tries, one attempt each: GET_STREAM_INFO's and GET_COUNTERS', which a notice reads through the
 // first interface's window, and each AVB interface's GET_AVB_INFO and GET_AS_PATH, through its own. A port is a window
 // read, which answers for all it serves or for none (#665).
 #define AECP_ROUND_PORTS (2u + 2u * MBX_N_IF)
-// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one:
-// each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO, GET_AS_PATH and GET_COUNTERS, each
-// clock domain's GET_COUNTERS, at the fixture's two shapes. The CPU budget harness holds the model to it.
-#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? 12u : 40u)
+// The most notices a datapath reset can leave pending, one for every observation of every descriptor that has one
+// (aecp_changed's kinds): each stream's GET_STREAM_INFO and GET_COUNTERS, each AVB interface's GET_AVB_INFO,
+// GET_AS_PATH and GET_COUNTERS, each clock domain's GET_COUNTERS. Each is kept in its descriptor's event
+// (aecp_config.events), so none is dropped at any count: this is what a round may take and what the bound on queued
+// notices counts. At one interface it is the image's own descriptors', which the shape header states
+// (CTRL_AEM_STREAM_INPUTS and the rest, srp_entity.py; THE SHAPES, ctrl_loop.h; #894's held-egress
+// ruling, item (b)(iv)): 12 at the 1x1's, 40 at the 8x8's. A compile given no shape header is at the
+// shipping 1x1's descriptors. At two interfaces it is 40, the 8x8's, which no two-interface shape's descriptors pass.
+// The CPU budget harness holds the model to it.
+#ifdef CTRL_AEM_STREAM_INPUTS
+#define AECP_NOTICE_STREAMS (CTRL_AEM_STREAM_INPUTS + CTRL_AEM_STREAM_OUTPUTS)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * CTRL_AEM_AVB_INTERFACES + CTRL_AEM_CLOCK_DOMAINS)
+#else
+#define AECP_NOTICE_STREAMS (2u + 2u)
+#define AECP_NOTICES_HELD (2u * AECP_NOTICE_STREAMS + 3u * 1u + 1u)
+#endif
+#define AECP_NOTICES_MOST (MBX_N_IF == 1u ? AECP_NOTICES_HELD : 40u)
 // A notification's bound, min(T_svc, the 24 ms notification ceiling), of
 // FR_NFR.md 3.4.1: from a retried notice's port answer to its last
 // recipient's commit, no extra budget at a retry.
@@ -200,6 +223,14 @@ struct aecp_ports {
 	// has not had.
 	enum aecp_fan (*fan)(void *, unsigned, const uint8_t *, size_t);
 	enum aecp_fan (*fan_end)(void *, uint32_t cookie, bool whole);
+	// The integrator's own map store, or NULL where it keeps none (#923): an ADD (remove false) or REMOVE of the
+	// mappings of a dynamic port the core has accepted, before the core changes its map, all or none (Milan v1.2
+	// 5.4.2.27, 5.4.2.28; IEEE 1722.1-2021 7.4.45, 7.4.46). count mappings, the k-th the 8-octet wire record at
+	// records + 8 * pick[k], or at records + 8 * k with pick NULL; each changes the map, and none repeats. Returns
+	// AECP_SUCCESS once the store holds the edit, else the command's status and the store unchanged: the core then
+	// changes nothing and answers it. The saved maps reach it the same way (aecp_restore_commit).
+	unsigned (*edit)(void *, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+			 size_t count);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
 // SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
@@ -290,6 +321,10 @@ struct aecp_config {
 	struct aecp_owed *owed;
 	unsigned owed_slots;
 	const struct aecp_owed_queue *queue;
+	// The platform resets the entity on an accepted REBOOT (IEEE 1722.1-2021
+	// 7.4.43; #871): it polls aecp_reboot_due, then fires its reset port.
+	// Without one, REBOOT is NOT_IMPLEMENTED, as before.
+	bool reboot;
 };
 struct aecp {
 	struct aecp_config cfg;
@@ -361,6 +396,12 @@ struct aecp {
 	size_t held_bytes;
 	uint8_t held[AECP_HELD_BYTES];
 	uint32_t edited_ms; // the clock as the last paced record was taken (#904, #894; THE PACE, aecp_mbx.h)
+	// An accepted REBOOT (#871): 1 from its SUCCESS, when no command is taken
+	// any more; 2 once every frame owed was handed to send, reboot_end the
+	// cookie after the last. tx_done is the cookie after the last completed.
+	uint8_t reboot;
+	uint32_t reboot_end;
+	uint32_t tx_done;
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);
@@ -386,6 +427,21 @@ void aecp_tx_complete(struct aecp *, uint32_t cookie, uint32_t departure_ms);
 // bit 3 COUNTERS. Call after causal ACMP responses have committed (#653).
 void aecp_changed(struct aecp *, uint16_t type, uint16_t index, unsigned events);
 bool aecp_locked(struct aecp *, uint64_t *owner);
+// IEEE 1722.1-2021 7.4.43 (#871): true once an accepted REBOOT's SUCCESS, its
+// notifications and every response owed with them have completed
+// (aecp_tx_complete). The platform then resets the entity.
+bool aecp_reboot_due(struct aecp *);
+// True from an accepted REBOOT's SUCCESS until the reset (#871). The platform
+// then takes no received frame of any channel (REQ-FWX-001).
+bool aecp_reboot_accepted(const struct aecp *);
+// The restored maps into the edit port's store (#923): once the restore's terminal and the restored formats reach
+// it, before AECP opens. The store then holds each dynamic port's reset set as the restored formats clip it
+// (aecp_restore_settle), so each port of the configuration in force whose map differs has that set removed and,
+// every removal done, its own added, so a stream channel one output port gave up and another took is free when the
+// taker's is added (Milan v1.2 5.3.10.1). A port the store refuses keeps what the store holds: its reset set where
+// the removal is refused; else its reset set added back, or none where that is refused too. Nothing with no edit
+// port.
+void aecp_restore_commit(struct aecp *);
 
 #ifdef CTRL_REENTRY_ASSERT
 void ctrl_reentry_assert(const char *module);

@@ -26,8 +26,10 @@ import sys
 from pathlib import Path
 
 import arm_path
+import declaring_outputs
 import notice_window
-import talker_window
+import observers
+import talker_notice
 import poll_items
 import save_window
 
@@ -94,16 +96,16 @@ MUTATIONS = {
                       '(!l->round_one || l->retry_first) && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
-    # timer owes is committed past its 20 ms of FR_NFR.md 3.4.1 (mrpdu_grade.py), as under the 44 ms hold before.
+    # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
     'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
                       '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
-    **poll_items.PLANTS,
+    **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
 #: The controls whose finding is a save not durable within its stated worst case, by its group's name.
-SAVE_CONTROLS = ('store-step-ageless',)
+SAVE_CONTROLS = ('store-step-ageless', *save_window.PLANTS)
 #: The controls whose finding is a row of an aged window over its budget, with no refusal.
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
@@ -120,16 +122,19 @@ REFERENCE_CONTROLS = poll_items.REFERENCE_CONTROLS
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never the formal measurement.
 #: answering-ports: the four observation ports answer zeroed values instead of 'unavailable'. All four are contract
 #: 2.3's face block (aecp_face.c: stream, avb, path and counters, each a bounded window read that the datapath, held
-#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core
-#: takes them, path with arm_path.py's. With the unmodified fixture, AECP retries each pending change notice 1 ms
-#: later forever (aecp.c, retry_at = now + 1), and this arm separates that retry from each path's cost. shutdown-entry:
-#: the linked image never disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the
-#: SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream
-#: observation stays unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS
-#: notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and
-#: every later one answers zeroed values, so the port answers just after a retry failed: the retried notice's row
-#: (notice_window.py) starts there. valid-destinations (#895): the fixture's ACMP source port reports destinations as
-#: the platform's does, so its group's probes open DA gates and SRP declares Talkers.
+#: idle here, never answers; GET_AS_PATH's since #897); the arm replaces them in the face's ports, before the core takes
+#: them, path with arm_path.py's, and gives AECP a reset port, so a REBOOT is accepted as on the platform (ctrl_plat.c;
+#: #871). With the unmodified fixture, AECP retries each pending change notice 1 ms later forever (aecp.c, retry_at =
+#: now + 1), and this arm separates that retry from each path's cost. shutdown-entry: the linked image never disables
+#: ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of the SHUTDOWN path
+#: (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the face block's stream observation stays
+#: unanswered, as with the unmodified fixture, until the first attempt at or after NOW_MS notice_window.ANSWER_MS fails;
+#: that attempt calls retry_port_answers, whose entry the testbench reports (ENTRY), and every later one answers zeroed
+#: values, so the port answers just after a retry failed: the retried notice's row (notice_window.py) starts there.
+#: valid-destinations (#895): the fixture's ACMP source port reports destinations as the platform's does, so its group's
+#: probes open DA gates and SRP declares Talkers. declaring-outputs (#943): answering-ports with valid-destinations'
+#: source port and every STREAM_OUTPUT declaring, so the AECP bridge completes each whole observation of one
+#: (declaring_outputs.py).
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n' + arm_path.INCLUDES),
@@ -148,6 +153,8 @@ VARIANTS = {
          '    image_face.ports.avb=b_avb;\n'
          '    image_face.ports.path=b_path;\n'
          '    image_face.ports.counters=b_counters;\n'),
+        ('        .events=image_events,.latency=image_latency};\n',
+         '        .events=image_events,.latency=image_latency,.reboot=true};\n'),
     ],
     'shutdown-entry': [
         ('int main(void)\n{',
@@ -228,9 +235,11 @@ VARIANTS = {
          '    ctrl_loop_run(&image_app.loop);'),
     ],
 }
-VARIANTS['valid-destinations'] = list(talker_window.FIXTURE_EDITS)
+VARIANTS.update(talker_notice.VARIANTS)
+VARIANTS[declaring_outputs.NAME] = [*VARIANTS['answering-ports'], *declaring_outputs.FIXTURE_EDITS]
 #: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
-VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',)}
+VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',), 'answering-every-port': ('retry_port_answers',),
+                   declaring_outputs.NAME: (declaring_outputs.ENTRY,)}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -287,7 +296,7 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
     the tree: the control firmware for MUTATIONS, or the tree a Plant names."""
     if isinstance(mutation, str):
         path, anchor, replacement, _, _ = MUTATIONS[mutation]
-        mutation = Plant(mutation, f'ctrl/{path}', anchor, replacement)
+        mutation = Plant(mutation, path if path.startswith('ctrl_nvm/') else f'ctrl/{path}', anchor, replacement)
     tree_name, _, path = mutation.path.partition('/')
     if tree_name not in PLANT_TREES:
         raise RuntimeError(f'mutation {mutation.name}: {mutation.path} is in no firmware tree the image takes')
@@ -384,13 +393,11 @@ def flash_map(generated: Path, shape: str) -> Path:
     return generated
 
 
-#: The labelled hybrid-XIP arm (#665, decision D3): the anchor in plat/ctrl_split.ld that
-#: places all code in rom, and what replaces it. Every other function executes from the QSPI
-#: flash window behind the instruction cache. rom keeps the reset entry, the saved-state flash
-#: driver (nvm_flash_litespi.c), .rodata and the initial values of .data, which the core reads
-#: through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching
-#: from the flash cannot also hold the flash's command master, so the driver's own fetches would
-#: wait behind its chip select.
+#: The labelled hybrid-XIP arm (#665, decision D3): the anchor in plat/ctrl_split.ld that places all code in rom, and
+#: what replaces it. Every other function executes from the QSPI flash window behind the instruction cache. rom keeps
+#: the reset entry, the saved-state flash driver (nvm_flash_litespi.c), .rodata and the initial values of .data, which
+#: the core reads through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching from the
+#: flash cannot also hold the flash's command master, so the driver's own fetches would wait behind its chip select.
 XIP_TEXT = ('\t.text :\n\t{\n\t\tKEEP(*(.text.start))\n',
             '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
             '\t.text : ALIGN(4)\n\t{\n')
@@ -478,11 +485,6 @@ def symbols(elf: Path) -> dict[str, int]:
     return table
 
 
-#: Each observed module, the instance name it has inside the mailbox, and one of its observed variables.
-OBSERVED = {'VexiiRiscv': ('vexiis_0_logic_core', 'WhiteboxerPlugin_logic_commits_ports_0_valid'),
-            'KL_mbx_rx': ('u_rx', 'commit_w'), 'KL_mbx_evt': ('u_evt', 'wr_en_o')}
-
-
 def code_modules(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
     """Each linked text input section and the source module it came from, off the link map.
 
@@ -512,42 +514,6 @@ def code_modules(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
     return names, spans
 
 
-def member_paths(native: Path) -> dict[str, tuple[str, str]]:
-    """Each observed module's C++ path from the root, and the prefix of its variables there.
-
-    Verilator keeps a module as its own class or inlines it into its parent,
-    whose members then carry the instance path (KL_mbx__DOT__u_rx__DOT__x);
-    both forms are read off the generated headers, never assumed.
-    """
-    edges: dict[str, list[tuple[str, str]]] = {}
-    members: dict[str, str] = {}
-    for header in [native / 'Vsim___024root.h', *native.glob('Vsim_*.h')]:
-        text = header.read_text()
-        members[header.stem] = text
-        for target, name in re.findall(r'^\s*(Vsim_\w+)\*\s+(\w+);', text, re.M):
-            edges.setdefault(header.stem, []).append((target, name))
-    paths = {'Vsim___024root': 'dut.rootp'}
-    frontier = ['Vsim___024root']
-    while frontier:
-        cls = frontier.pop()
-        for target, name in edges.get(cls, []):
-            if target not in paths:
-                paths[target] = f'{paths[cls]}->{name}'
-                frontier.append(target)
-    found: dict[str, tuple[str, str]] = {}
-    for module, (instance, var) in OBSERVED.items():
-        cls = 'Vsim_' + module
-        if cls in paths and re.search(rf'\b{var};', members[cls]):
-            found[module] = (paths[cls], '')
-            continue
-        hits = [(c, m.group(1)) for c in paths if c in members
-                for m in re.finditer(rf'\b(\w*__DOT__{instance}__DOT__){var};', members[c])]
-        if len(hits) != 1:
-            raise RuntimeError(f'observed module {module} is not reachable once from the root: {hits}')
-        found[module] = (paths[hits[0][0]], hits[0][1])
-    return found
-
-
 #: The testbench's observers: accessor name, its C++ type, the module and the variable it reads.
 ACCESSORS = (
     ('commit_valid', 'bool', 'VexiiRiscv', 'WhiteboxerPlugin_logic_commits_ports_0_valid'),
@@ -572,6 +538,7 @@ ACCESSORS = (
     ('lsu_rsp_error', 'bool', 'VexiiRiscv', 'LsuCachelessPlugin_logic_bus_rsp_payload_error'),
     ('rx_commit', 'bool', 'KL_mbx_rx', 'commit_w'),
     ('rx_channel', 'unsigned', 'KL_mbx_rx', 'ch_r'),
+    ('rx_hold', 'bool', 'KL_mbx_rx', 'hold_w'),
     ('evt_write', 'bool', 'KL_mbx_evt', 'wr_en_o'),
     ('evt_addr', 'unsigned', 'KL_mbx_evt', 'wr_addr_o'),
     ('evt_data', 'std::uint32_t', 'KL_mbx_evt', 'wr_data_o'),
@@ -633,10 +600,9 @@ STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 #: first and last firmware poll and the polls' heavy items (poll_grade.py), and a pass's parts (poll_items.PART_SPANS).
 SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service', ('ctrl_loop', 'round_of'), *poll_items.SPANS,
                 *poll_items.PART_SPANS)
-#: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
-#: static function) pair: the state port's owners as the boot walks apply and the write path
-#: latches, the flash port's calls, a round's attempts and the notices it builds (#665), and the
-#: cuts of a pass into its parts (poll_items.PART_CALLS).
+#: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module, static function) pair:
+#: the state port's owners as the boot walks apply and the write path latches, the flash port's calls, a round's
+#: attempts and the notices it builds (#665), and the cuts of a pass into its parts (poll_items.PART_CALLS).
 CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_restore', 'aecp_map_restore',
                 'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
                 'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
@@ -708,7 +674,7 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               'inline constexpr std::uint32_t entry_pc[n_entries] = {'
               + ', '.join(f'0x{table[name]:x}u' for name in entries) + '};',
               'inline const char* const entry_name[n_entries] = {'
-              + ', '.join(f'"{name}"' for name in entries) + '};']
+              + ', '.join(f'"{name}"' for name in entries) + '};', *observers.owner_lines(entries, table, paths)]
     lines += trace_lines(table, Path(spec['elf']), modules)
     journal = json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
     lines += [f"constexpr std::uint32_t journal_offset = 0x{journal['offset']:x}u;",
@@ -731,6 +697,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
         path, prefix = paths[module]
         mask = ' & 1u' if name.endswith('_id') else ''
         lines.append(f'inline {ctype} {name}(const Vsim& dut) {{ return {path}->{prefix}{var}{mask}; }}')
+    path, prefix = paths['KL_mbx_rx']   # a held record's commit (#917): rel_w[c], a bit for each channel
+    lines.append(f'inline unsigned rx_release(const Vsim& dut) {{ unsigned h = 0; for (unsigned c = 0; c < n_ch; ++c) '
+                 f'h |= static_cast<unsigned>({path}->{prefix}rel_w[c] & 1u) << c; return h; }}')
     if beats > 1:
         lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
@@ -784,7 +753,7 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
     missing = mailbox_pins_missing((build_dir / 'verilate.log').read_text(), build_dir / 'gateware')
     if missing:
         raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
-    config_header(build_dir, spec, table, member_paths(native),
+    config_header(build_dir, spec, table, observers.member_paths(native),
                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
     run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
 
@@ -867,10 +836,9 @@ class Core:
     cpu_cd: str | None = None
 
 
-#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30;
-#: milan_soc.CTRL_CPU_CD): the SoC's sys clock, the bus clock. A build whose CPU runs in any other
-#: domain, the Milan clock among them, or records none (a build made before the CPU moved), is
-#: refused, whether it is built or reused.
+#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30; milan_soc.CTRL_CPU_CD): the
+#: SoC's sys clock, the bus clock. A build whose CPU runs in any other domain, the Milan clock among them, or records
+#: none (a build made before the CPU moved), is refused, whether it is built or reused.
 SPLIT_CPU_CD = 'sys'
 
 

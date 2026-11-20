@@ -142,15 +142,6 @@ jobs:
             runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
             }}
         id: ci_step_11
-      - name: Cache the generated CPU metadata
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/vexii-netlist-args
-          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh',
-            'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
-            }}
-        id: ci_step_12
       - name: Install sbt
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -164,7 +155,7 @@ jobs:
           echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
           sudo tar xzf "$archive" -C /opt
           echo /opt/sbt/bin >> "$GITHUB_PATH"
-        id: ci_step_13
+        id: ci_step_12
       - name: Place the VexiiRiscv source at the revision LiteX pins
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -173,11 +164,11 @@ jobs:
           cp -n ~/vexii-netlist-args/*.py \
             "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
             2>/dev/null || true
-        id: ci_step_14
+        id: ci_step_13
       - name: Apply the toolchain patch series
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: sw/litex/patches/apply.sh
-        id: ci_step_15
+        id: ci_step_14
       - name: Cache the pinned RV32 SDK
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
@@ -185,25 +176,19 @@ jobs:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_16
+        id: ci_step_15
       - name: Install and verify the pinned RV32 SDK
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_17
+        id: ci_step_16
       - name: Elaboration gates, leg 0 of 2
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
         id: gate_15_0
-      - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
-        run: |
-          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
-            ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_19
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -211,7 +196,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_20
+        id: ci_step_18
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -221,7 +206,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
-        id: ci_step_21
+        id: ci_step_19
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -433,66 +418,12 @@ jobs:
         run: |
           python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
         id: gate_15_1
-      - name: Cache the pinned Verilator build
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        id: cache-verilator
-        uses: actions/cache@v4
-        with:
-          path: /opt/verilator
-          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
-            }}-${{ runner.os }}
-      - name: Resolve exact package downloads 17
-        id: ci_packages_17
-        run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_17" --output "$GITHUB_OUTPUT"
-        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
-          }}
-      - name: Cache exact package downloads 17
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_17
-          key: ${{ runner.os }}-${{ steps.ci_packages_17.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
-          }}
-        id: ci_step_21
-      - name: Build Verilator from source on cache miss
-        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
-          }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_17" install -y --no-install-recommends \
-            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
-          git clone --depth 1 --branch "$VERILATOR_VERSION" \
-            https://github.com/verilator/verilator.git /tmp/verilator-src
-          cd /tmp/verilator-src
-          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
-          autoconf
-          ./configure --prefix=/opt/verilator
-          make -j"$CI_TOOL_BUILD_JOBS"
-          sudo make install
-        id: ci_step_22
-      - name: Put Verilator on PATH and prove the version
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        run: |
-          set -euo pipefail
-          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
-          /opt/verilator/bin/verilator --version
-          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
-        id: ci_step_23
-      - name: Standalone LiteX simulation aggregate
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        run: |
-          scripts/run_litex_sims.sh --selftest
-          scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
-        id: gate_19
       - name: Keep the generated CPU netlist arguments for the next run
         if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
         run: |
           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
             ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_25
+        id: ci_step_19
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -500,7 +431,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 1 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_26
+        id: ci_step_20
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -510,7 +441,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
-        id: ci_step_27
+        id: ci_step_21
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -531,17 +462,738 @@ jobs:
           retention-days: 3
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+  elaborate-gates-2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_2
+      - name: Decide whether this head needs an elaboration
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # ci_scope.py arrives with PR #176. Until that lands this file may
+          # not exist, and the safe answer to "is this change RTL relevant"
+          # when the classifier is absent is yes.
+          if [ ! -f scripts/ci_scope.py ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "no scripts/ci_scope.py yet: elaborating unconditionally"
+            exit 0
+          fi
+          python3 scripts/ci_scope.py --selftest
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${ACT:-false}" = true ]; then
+            # Replay uses the live base fetched and verified by the runner.
+            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git cat-file -e "$base^{commit}"
+            merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
+              > "$RUNNER_TEMP/changed"
+          else
+            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed"
+          fi
+          echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
+      - name: Fetch the source dependencies the elaboration reads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        id: ci_step_4
+      - name: Install the pinned sv2v release
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+        id: ci_step_5
+      - uses: actions/setup-python@v5
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        with:
+          python-version: '3.12'
+        id: ci_step_6
+        name: Run actions/setup-python@v5
+      - name: Put a job-private Python environment on PATH
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/litex-venv"
+          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+        id: ci_step_7
+      - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+        id: ci_step_8
+      - name: Install sbt
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/milan-sbt"
+          archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+          if [ ! -f "$archive" ]; then
+            curl -fsSL --retry 3 -o "$archive" \
+              https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          fi
+          echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+          sudo tar xzf "$archive" -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+        id: ci_step_9
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+        id: ci_step_10
+      - name: Apply the toolchain patch series
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: sw/litex/patches/apply.sh
+        id: ci_step_11
+      - name: Cache the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+            hashFiles('scripts/ci_rv32_sdk.py') }}
+        id: ci_step_12
+      - name: Install and verify the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+        id: ci_step_13
+      - name: Cache the pinned Verilator build
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 16
+        id: ci_packages_16
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_16" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+      - name: Cache exact package downloads 16
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_16
+          key: ${{ runner.os }}-${{ steps.ci_packages_16.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        id: ci_step_16
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_16" install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$CI_TOOL_BUILD_JOBS"
+          sudo make install
+        id: ci_step_17
+      - name: Put Verilator on PATH and prove the version
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+        id: ci_step_18
+      - name: Standalone LiteX simulation aggregate, leg 0 of 3
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          scripts/run_litex_sims.sh --selftest
+          python3 scripts/ci_litex_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/litex-leg-0.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+        id: gate_19_0
+      - name: Record executed gate outcomes
+        if: ${{ always() }}
+        env:
+          CI_GATE_STEPS: ${{ toJSON(steps) }}
+          CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+        run: |
+          python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 2 --output "$RUNNER_TEMP/gate-results/receipt.json"
+        id: ci_step_20
+      - name: Upload executed gate outcomes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-elaborate-2-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/litex-leg-*.json
+          if-no-files-found: error
+        id: ci_step_21
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate-gates-2 --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-elaborate-elaborate-gates-2-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+  elaborate-gates-3:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_2
+      - name: Decide whether this head needs an elaboration
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # ci_scope.py arrives with PR #176. Until that lands this file may
+          # not exist, and the safe answer to "is this change RTL relevant"
+          # when the classifier is absent is yes.
+          if [ ! -f scripts/ci_scope.py ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "no scripts/ci_scope.py yet: elaborating unconditionally"
+            exit 0
+          fi
+          python3 scripts/ci_scope.py --selftest
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${ACT:-false}" = true ]; then
+            # Replay uses the live base fetched and verified by the runner.
+            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git cat-file -e "$base^{commit}"
+            merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
+              > "$RUNNER_TEMP/changed"
+          else
+            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed"
+          fi
+          echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
+      - name: Fetch the source dependencies the elaboration reads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        id: ci_step_4
+      - name: Install the pinned sv2v release
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+        id: ci_step_5
+      - uses: actions/setup-python@v5
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        with:
+          python-version: '3.12'
+        id: ci_step_6
+        name: Run actions/setup-python@v5
+      - name: Put a job-private Python environment on PATH
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/litex-venv"
+          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+        id: ci_step_7
+      - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+        id: ci_step_8
+      - name: Install sbt
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/milan-sbt"
+          archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+          if [ ! -f "$archive" ]; then
+            curl -fsSL --retry 3 -o "$archive" \
+              https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          fi
+          echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+          sudo tar xzf "$archive" -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+        id: ci_step_9
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+        id: ci_step_10
+      - name: Apply the toolchain patch series
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: sw/litex/patches/apply.sh
+        id: ci_step_11
+      - name: Cache the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+            hashFiles('scripts/ci_rv32_sdk.py') }}
+        id: ci_step_12
+      - name: Install and verify the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+        id: ci_step_13
+      - name: Cache the pinned Verilator build
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 16
+        id: ci_packages_16
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_16" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+      - name: Cache exact package downloads 16
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_16
+          key: ${{ runner.os }}-${{ steps.ci_packages_16.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        id: ci_step_16
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_16" install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$CI_TOOL_BUILD_JOBS"
+          sudo make install
+        id: ci_step_17
+      - name: Put Verilator on PATH and prove the version
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+        id: ci_step_18
+      - name: Standalone LiteX simulation aggregate, leg 1 of 3
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          scripts/run_litex_sims.sh --selftest
+          python3 scripts/ci_litex_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/litex-leg-1.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+        id: gate_19_1
+      - name: Record executed gate outcomes
+        if: ${{ always() }}
+        env:
+          CI_GATE_STEPS: ${{ toJSON(steps) }}
+          CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+        run: |
+          python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 3 --output "$RUNNER_TEMP/gate-results/receipt.json"
+        id: ci_step_20
+      - name: Upload executed gate outcomes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-elaborate-3-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/litex-leg-*.json
+          if-no-files-found: error
+        id: ci_step_21
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate-gates-3 --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-elaborate-elaborate-gates-3-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+  elaborate-gates-4:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_2
+      - name: Decide whether this head needs an elaboration
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # ci_scope.py arrives with PR #176. Until that lands this file may
+          # not exist, and the safe answer to "is this change RTL relevant"
+          # when the classifier is absent is yes.
+          if [ ! -f scripts/ci_scope.py ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            echo "no scripts/ci_scope.py yet: elaborating unconditionally"
+            exit 0
+          fi
+          python3 scripts/ci_scope.py --selftest
+          if [ "$EVENT_NAME" != pull_request ]; then
+            echo "rtl=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${ACT:-false}" = true ]; then
+            # Replay uses the live base fetched and verified by the runner.
+            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git cat-file -e "$base^{commit}"
+            merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
+              > "$RUNNER_TEMP/changed"
+          else
+            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed"
+          fi
+          echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
+      - name: Fetch the source dependencies the elaboration reads
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        id: ci_step_4
+      - name: Install the pinned sv2v release
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+        id: ci_step_5
+      - uses: actions/setup-python@v5
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        with:
+          python-version: '3.12'
+        id: ci_step_6
+        name: Run actions/setup-python@v5
+      - name: Put a job-private Python environment on PATH
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/litex-venv"
+          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+        id: ci_step_7
+      - name: Install LiteX at the pinned revisions
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+        id: ci_step_8
+      - name: Install sbt
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.cache/milan-sbt"
+          archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+          if [ ! -f "$archive" ]; then
+            curl -fsSL --retry 3 -o "$archive" \
+              https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+          fi
+          echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+          sudo tar xzf "$archive" -C /opt
+          echo /opt/sbt/bin >> "$GITHUB_PATH"
+        id: ci_step_9
+      - name: Place the VexiiRiscv source at the revision LiteX pins
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 scripts/ci_litex_env.py
+          mkdir -p ~/vexii-netlist-args
+          cp -n ~/vexii-netlist-args/*.py \
+            "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+            2>/dev/null || true
+        id: ci_step_10
+      - name: Apply the toolchain patch series
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: sw/litex/patches/apply.sh
+        id: ci_step_11
+      - name: Cache the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+            hashFiles('scripts/ci_rv32_sdk.py') }}
+        id: ci_step_12
+      - name: Install and verify the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+        id: ci_step_13
+      - name: Cache the pinned Verilator build
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 16
+        id: ci_packages_16
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_16" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+      - name: Cache exact package downloads 16
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_16
+          key: ${{ runner.os }}-${{ steps.ci_packages_16.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        id: ci_step_16
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+          }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_16" install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$CI_TOOL_BUILD_JOBS"
+          sudo make install
+        id: ci_step_17
+      - name: Put Verilator on PATH and prove the version
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+        id: ci_step_18
+      - name: Standalone LiteX simulation aggregate, leg 2 of 3
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          scripts/run_litex_sims.sh --selftest
+          python3 scripts/ci_litex_legs.py run 2 --receipt "$RUNNER_TEMP/gate-results/litex-leg-2.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+        id: gate_19_2
+      - name: Record executed gate outcomes
+        if: ${{ always() }}
+        env:
+          CI_GATE_STEPS: ${{ toJSON(steps) }}
+          CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+        run: |
+          python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 4 --output "$RUNNER_TEMP/gate-results/receipt.json"
+        id: ci_step_20
+      - name: Upload executed gate outcomes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-elaborate-4-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/litex-leg-*.json
+          if-no-files-found: error
+        id: ci_step_21
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate-gates-4 --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-elaborate-elaborate-gates-4-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   elaborate:
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     needs:
       - elaborate-gates-0
       - elaborate-gates-1
+      - elaborate-gates-2
+      - elaborate-gates-3
+      - elaborate-gates-4
     if: ${{ always() }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
         id: ci_step_0
         name: Run actions/checkout@v4
       - name: Set CPU-derived job budgets
@@ -629,6 +1281,9 @@ jobs:
     needs:
       - elaborate-gates-0
       - elaborate-gates-1
+      - elaborate-gates-2
+      - elaborate-gates-3
+      - elaborate-gates-4
       - elaborate
     permissions:
       contents: read
@@ -726,7 +1381,7 @@ jobs:
         id: ci_observe
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_JOBS: '["Collect CI manifest","elaborate","elaborate-gates-0","elaborate-gates-1"]'
+          EXPECTED_JOBS: '["Collect CI manifest","elaborate","elaborate-gates-0","elaborate-gates-1","elaborate-gates-2","elaborate-gates-3","elaborate-gates-4"]'
           SKIPPED_MATRICES: '{}'
         run: |
           python3 scripts/ci_fail_fast.py watch

@@ -67,9 +67,10 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
         calls.extend("aecp:" + defect.name for defect in module.aecp_mutants.DEFECTS[shard[0]::shard[1]])
         return False
 
-    def srp_campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
-        """Distinguish both interface variants of the live SRP table."""
-        calls.extend(f"srp-if{interfaces}:" + defect.name for defect in module.srp_mutants.DEFECTS)
+    def srp_campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+        """Distinguish both interface variants of the live SRP table, and a campaign at another entity (#930)."""
+        at = f"-{entity}" if entity else ""
+        calls.extend(f"srp-if{interfaces}{at}:" + defect.name for defect in module.srp_mutants.DEFECTS)
         return False
 
     def pin_controls(root: Path, lwsrp: Path) -> int:

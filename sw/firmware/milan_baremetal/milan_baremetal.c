@@ -946,6 +946,21 @@ void milan_mac_link_status_write(uint32_t value);
 #define PHY_BMSR_AN_DONE 0x20u
 #define PHY_BMSR_EXTENDED 0x100u
 #define PHY_BMCR_AN_ENABLE 0x1000u
+#define PHY_BMCR_RESET 0x8000u
+#define PHY_BMCR_ISOLATE 0x0400u
+#define PHY_BMCR_AN_RESTART 0x0200u
+/* IEEE 802.3-2022 Table 28B-1: register 4 bits 5 to 9 advertise 10BASE-T,
+ * 10BASE-T full duplex, 100BASE-TX, 100BASE-TX full duplex and 100BASE-T4.
+ * Bit 14 is reserved and written as zero (Table 28-2). */
+#define PHY_ANAR_BELOW_GIGABIT 0x03e0u
+#define PHY_ANAR_RESERVED 0x4000u
+/* Table 40-3: register 9 keeps its MASTER-SLAVE bits 12 to 10, advertises
+ * 1000BASE-T full duplex in bit 9, and leaves half duplex (bit 8), the test
+ * mode (bits 15 to 13) and the reserved bits 7 to 0 at zero. */
+#define PHY_GBCR_MASTER_SLAVE 0x1c00u
+#define PHY_GBCR_1000_FULL 0x0200u
+/* 22.2.4.4.3: register 15 bit 13, the PHY's 1000BASE-T full duplex ability. */
+#define PHY_ESTATUS_1000_FULL 0x2000u
 
 /* The fabric passed its identity check and was configured: nvm_boot() sets
  * this first, so the PHY link is published on every boot path from there,
@@ -956,13 +971,18 @@ static int phy_live;
 #ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR
 static unsigned int phy_address;
 static int phy_found;
+static int phy_advertised;
 static uint32_t phy_published;
 static uint64_t phy_last_poll;
 
 /* At least 32 CPU delay cycles per half-period, even at 100 MHz.
  * IEEE 802.3 22.3.4: the PHY advances its output after each rising edge.
- * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does. */
-static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
+ * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does.
+ * Inlined into both frame loops: the cacheless core refetches over the bus
+ * after every taken branch, so a call and return per bit doubled the cost of
+ * each transaction and of the 250 ms PHY publication charge (#840). */
+static inline __attribute__((always_inline))
+unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
 {
 	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
 	unsigned int value;
@@ -994,6 +1014,60 @@ static int phy_mdio_read(unsigned int reg)
 		value = (value << 1) | phy_mdio_bit(0, 0);
 	milan_mac_phy_mdio_w_write(0);
 	return ack ? -1 : (int)value;
+}
+
+/* IEEE 802.3 22.2.4.5: ST 01, OP 01, the PHY and register addresses, TA 10
+ * and the data, every bit driven by the station. A write has no reply. */
+static void phy_mdio_write(unsigned int reg, unsigned int value)
+{
+	uint32_t frame = (5u << 28) | (phy_address << 23) | (reg << 18) |
+			 (2u << 16) | (value & 0xffffu);
+	unsigned int i;
+
+	for (i = 0; i < 32u; ++i)
+		phy_mdio_bit(1, 1);
+	for (i = 0; i < 32u; ++i)
+		phy_mdio_bit(1, (frame >> (31u - i)) & 1u);
+	milan_mac_phy_mdio_w_write(0);
+}
+
+/* The PHY init (#840). The MAC runs at 1 Gb/s only, so the PHY advertises
+ * 1000BASE-T full duplex alone (IEEE 802.3-2022 28.2.4.1.3, Table 40-3)
+ * and then restarts auto-negotiation (22.2.4.1.7), as 28.2.4.1.3 asks
+ * after a change. A partner without 1000BASE-T then gets no link, published
+ * as down, rather than a 100 Mb/s link on which the MAC stays silent.
+ * A PHY without 1000BASE-T full duplex ability (22.2.4.2.16, 22.2.4.4.3) is
+ * the 10/100 PHY of an MII build, whose MAC runs 10 and 100 Mb/s: it keeps
+ * its own advertisement and is not written. `bmsr` is the poll's own status
+ * read, so a latched link loss (22.2.4.2.13) stays the poll's to publish.
+ * Returns 0, so the next poll retries, when a read is not acknowledged. */
+static int phy_advertise_gigabit_only(unsigned int bmsr)
+{
+	int extended;
+	int advertisement;
+	int gigabit;
+	int control;
+
+	if (!(bmsr & PHY_BMSR_EXTENDED))
+		return 1;
+	extended = phy_mdio_read(15);
+	if (extended < 0)
+		return 0;
+	if (!(extended & PHY_ESTATUS_1000_FULL))
+		return 1;
+	advertisement = phy_mdio_read(4);
+	gigabit = phy_mdio_read(9);
+	control = phy_mdio_read(0);
+	if (advertisement < 0 || gigabit < 0 || control < 0)
+		return 0;
+	phy_mdio_write(9, ((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |
+		       PHY_GBCR_1000_FULL);
+	phy_mdio_write(4, (unsigned int)advertisement &
+		       ~(PHY_ANAR_BELOW_GIGABIT | PHY_ANAR_RESERVED));
+	phy_mdio_write(0, ((unsigned int)control | PHY_BMCR_AN_ENABLE |
+			   PHY_BMCR_AN_RESTART) &
+		       ~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE));
+	return 1;
 }
 
 /* Standard Clause-22 negotiation registers serve both board PHY families.
@@ -1067,6 +1141,8 @@ static void phy_link_tick(uint64_t now)
 		phy_found = 1;
 	}
 	bmsr = phy_mdio_read(1);
+	if (!phy_advertised && bmsr >= 0)
+		phy_advertised = phy_advertise_gigabit_only((unsigned int)bmsr);
 	/* Preserve a latched loss, then resolve current state in this poll.
 	 * The second MDIO read separates the publications across the CDC. */
 	if (bmsr >= 0 && !(bmsr & PHY_BMSR_LINK) && (phy_published & 1u)) {

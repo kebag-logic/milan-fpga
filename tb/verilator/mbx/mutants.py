@@ -68,8 +68,8 @@ ARMS = (
     Arm("rx-writes-past-free-space", "KL_mbx_rx.sv", "+ 32'd2 < 32'(free_w))", "+ 32'd2 < 32'(free_w) + 32'd64)",
         0, "D0 every unread record survives"),
     Arm("rx-bucket-never-drains", "KL_mbx_rx.sv",
-        "      if (commit_w && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;\n", "", 0,
-        "T0 the frames past it count in RATE_DROP"),
+        "      if ((commit_w && ch_r == MBX_CH_W_C'(c)) || rel_w[c]) tokens = tokens - 9'd1;\n", "", 0,
+        "T0 only the frame behind the held one counts in RATE_DROP"),
     Arm("rx-lanes-big-endian", "KL_mbx_rx.sv", "(5'd8 * 5'(lane_r))", "(5'd8 * (5'd3 - 5'(lane_r)))", 0,
         "F1 frame byte k is ring word"),
     # lane FC: the classification is per match tuple now, so the subtype term is the tuple's
@@ -134,7 +134,7 @@ ARMS = (
         0, "C3 every MSRP and MVRP PDU reaches the SRP ring"),
     # The three host-counter guards (R496-1 F4).
     Arm("rx-tail-unguarded", "KL_mbx_rx.sv",
-        "free_w       = (used_w > ring_words_w) ? 16'd0 : ring_words_w - used_w;",
+        "free_w       = (used_w > ring_words_w || cused_w > ring_words_w) ? 16'd0 : ring_words_w - used_w;",
         "free_w       = ring_words_w - used_w;", 0, "H0 an RX_TAIL ahead of RX_HEAD stores nothing"),
     Arm("tx-head-unguarded", "KL_mbx_tx.sv", "&& occ_w <= ring_words_w && rec_words_w <= occ_w;",
         "&& rec_words_w <= occ_w;", 0, "H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused"),
@@ -247,8 +247,10 @@ ARMS = (
     Arm("rx-mismatch-sets-no-err", "KL_mbx_rx.sv", "assign err_p_o     = drop_w || rate_w || mis_w;",
         "assign err_p_o     = drop_w || rate_w;", 0, "Q9 a mismatch sets IRQ_STATUS.ERR"),
     # the token buckets stay, apart from the filter: a refusal takes no token
-    Arm("rx-refusal-takes-a-token", "KL_mbx_rx.sv", "if (commit_w && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
-        "if ((commit_w || (fin_ready_w && hit_r && !rule_pass_w)) && ch_r == MBX_CH_W_C'(c)) tokens = tokens - 9'd1;",
+    Arm("rx-refusal-takes-a-token", "KL_mbx_rx.sv",
+        "if ((commit_w && ch_r == MBX_CH_W_C'(c)) || rel_w[c]) tokens = tokens - 9'd1;",
+        "if (((commit_w || (fin_ready_w && hit_r && !rule_pass_w)) && ch_r == MBX_CH_W_C'(c)) || rel_w[c])"
+        " tokens = tokens - 9'd1;",
         0, "Q10 refusals by the filter take no token"),
 )
 
@@ -624,8 +626,10 @@ ARMS += (
            "  assign mis_w       = act_w && vd_mis_r;\n",
            "  assign act_w       = fin_ready_w;\n"
            "  assign drop_w      = act_w && hit_r && rule_pass_w && bad_w;\n"
-           "  assign rate_w      = act_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);\n"
-           "  assign accept_w    = act_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);\n"
+           "  assign rate_w      = act_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0)"
+           " && held_r[ch_r];\n"
+           "  assign accept_w    = act_w && hit_r && rule_pass_w && !bad_w"
+           " && ((tokens_r[ch_r] != 8'd0) || !held_r[ch_r]);\n"
            "  assign mis_w       = act_w && mis_r;\n",
            "V1 the next frame's first byte is taken 6 clocks after a committed frame's last byte"),
     # two selects set at one offset: a register's select set at another's too,
@@ -640,13 +644,63 @@ ARMS += (
 )
 
 
+#: ---- #917 (#665 ruling item 2): a frame its channel's bucket has
+#: no token for is held past RX_HEAD and committed at the next refill, not
+#: dropped; only a frame behind a held one is refused (the model's twin is
+#: model-drop-instead-of-hold in sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # the empty bucket's frame dropped, as before #917
+    Arm("rx-drop-instead-of-hold", "KL_mbx_rx.sv",
+        "      vd_rate_r <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0) && held_r[ch_r];\n"
+        "      vd_acc_r  <= hit_r && rule_pass_w && !bad_w && ((tokens_r[ch_r] != 8'd0) || !held_r[ch_r]);\n",
+        "      vd_rate_r <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);\n"
+        "      vd_acc_r  <= hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);\n", 0,
+        "B0 fifty AECP commands, each sent at line rate as the one before it is delivered, are all delivered"),
+    # the frame behind a held one dropped uncounted
+    Arm("rx-hold-behind-a-held-frame", "KL_mbx_rx.sv",
+        "!bad_w && (tokens_r[ch_r] == 8'd0) && held_r[ch_r];", "!bad_w && 1'b0;", 0,
+        "B1 the third, behind the held second, is dropped and counted in RATE_DROP"),
+    # the held record's commit leaves RX_HEAD where it was: it is never delivered
+    Arm("rx-held-record-never-committed", "KL_mbx_rx.sv",
+        "        end else if (rel_w[c]) begin\n          head_r[c] <= wr_head_r[c];\n",
+        "        end else if (rel_w[c]) begin\n          head_r[c] <= head_r[c];\n", 0,
+        "T0 and RX_HEAD then covers the held record"),
+    # the next frame based at RX_HEAD, not at the write head: its speculative
+    # words land on the held record's
+    Arm("rx-next-frame-over-the-held-record", "KL_mbx_rx.sv",
+        "assign drain_slot_w = wr_head_r[ch_r] + 16'd2", "assign drain_slot_w = head_r[ch_r] + 16'd2", 0,
+        "B1 the records are the first and the second, byte for byte, in order"),
+    # the free space read from RX_HEAD only: a tail inside the held record frees space
+    Arm("rx-tail-inside-the-held-record-frees-space", "KL_mbx_rx.sv",
+        "(used_w > ring_words_w || cused_w > ring_words_w)", "(used_w > ring_words_w)", 0,
+        "B4 a tail ahead of RX_HEAD, inside the held record, leaves no free word"),
+    # the free space from RX_HEAD, not the write head: the frame behind a held one fits
+    # where the held record is and writes over the oldest unread record
+    *_both("rx-space-from-the-committed-head", "KL_mbx_rx.sv",
+           "    used_w       = wr_head_r[ch_r] - tail_w;", "    used_w       = head_r[ch_r] - tail_w;",
+           "B7 with the ring holding room for one record, the held one takes it: the next frame counts in RX_DROP"),
+    # a frame the filter refuses behind a held one counted as a rate drop
+    Arm("rx-refused-behind-held-counted", "KL_mbx_rx.sv",
+        "vd_rate_r <= hit_r && rule_pass_w && !bad_w", "vd_rate_r <= hit_r && !bad_w", 0,
+        "B8 a frame the filter refuses behind a held one counts nowhere"),
+    # the held record's commit waits for an open channel: one held at a close is never committed
+    Arm("rx-release-gated-on-open", "KL_mbx_rx.sv",
+        "      rel_w[c]    = refill_w[c] && held_r[c];", "      rel_w[c]    = refill_w[c] && held_r[c] && open_i[c];",
+        0, "B9 a frame held when its channel closes is still committed at the next refill"),
+    # a refill in the header-write clock not seen: the frame held beside the token it brings
+    *_both("rx-refill-in-the-header-clock-missed", "KL_mbx_rx.sv",
+           "assign tok_now_w   = (tokens_r[ch_r] != 8'd0) || refill_w[ch_r];",
+           "assign tok_now_w   = (tokens_r[ch_r] != 8'd0);",
+           "B5 a refill in the clock of its second commits the frame then"),
+)
+
 #: One defect per leaf and one in the skeleton, one in the filter's tuple, one
-#: in the publication block, one in the face block and one per timing cut
-#: (#870): the arms the suite's default target runs.
+#: in the publication block, one in the face block, one per timing cut (#870)
+#: and the held record's (#917): the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
          "rx-dst-ignored", "top-pub-sid-valid-held-high", "top-face-identify-from-cur-config",
          "top-read-mux-on-the-bus", "rx-head-published-one-cycle-early", "rx-ring-port-zeroed-by-the-decision",
-         "rx-verdict-acts-unregistered", "top-read-select-overlaps-another")
+         "rx-verdict-acts-unregistered", "top-read-select-overlaps-another", "rx-drop-instead-of-hold")
 
 
 def recipe() -> list[str]:

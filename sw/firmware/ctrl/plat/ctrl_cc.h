@@ -12,6 +12,9 @@
 // only its code, and so its cost, may differ.
 //   CTRL_CC_NOINLINE   a function kept out of line, so the hot code that
 //                      calls it stays small (GNU noinline); nothing with 0.
+//   CTRL_CC_INLINE     a function inlined where it is called, so a hot caller
+//                      saves no registers for a call (GNU always_inline);
+//                      plain inline with 0.
 //   ctrl_cc_ptr_load,  a pointer read or written in place on bytes of another
 //   ctrl_cc_ptr_store  type, the pool's free-list link (GNU may_alias keeps
 //                      the access defined); memcpy with 0.
@@ -29,6 +32,7 @@
 
 #if CTRL_CC_GNU
 #define CTRL_CC_NOINLINE __attribute__((noinline))
+#define CTRL_CC_INLINE inline __attribute__((always_inline))
 typedef void *__attribute__((may_alias)) ctrl_cc_ptr;
 
 static inline void *ctrl_cc_ptr_load(const void *at)
@@ -44,6 +48,7 @@ static inline void ctrl_cc_ptr_store(void *at, void *value)
 #include <string.h>
 
 #define CTRL_CC_NOINLINE
+#define CTRL_CC_INLINE inline
 
 static inline void *ctrl_cc_ptr_load(const void *at)
 {

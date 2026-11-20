@@ -29,16 +29,29 @@ import paced_rows
 if TYPE_CHECKING:
     from rows_tiers import Inputs
 
-#: Each paced member's record in us at each point (above). A one-row edit's under #894's one-row edit cut, bc971054:
-#: at 1x1/1if 24,360 CPU cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE
-#: of one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; at 8x8/2if 30,563, a
-#: REMOVE of one output row, 325 (30,124 under that cut). An accepted SET_CONFIGURATION's under #894's cut of it
-#: (f275b619, paced at fe0cef5b), in the answering-ports arm's aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the
-#: rule (33,724 at 9606b3a9, 355), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py),
-#: the same work, its fetches moved by the port's code (28,357 with the port answering at once); at 8x8/2if 56,474,
-#: 595 (78,332, 825), and 55,631 with that port.
-PACED = {'1x1/1if': {'a one-row edit': 260, 'an accepted SET_CONFIGURATION': 305},
-         '8x8/2if': {'a one-row edit': 325, 'an accepted SET_CONFIGURATION': 595}}
+#: Each paced member's record in us at each point (above). A one-row edit's under #894's one-row edit cut, bc971054: at
+#: 1x1/1if 24,360 CPU cycles, a REMOVE of one output row in the answering-ports arm, 260 by the rule (arm A's REMOVE of
+#: one input row 22,728, 240; 27,851 at 7398ec0a), 24,418 under the SET_CONFIGURATION cut; with its commit to the
+#: datapath's map store through the EDIT window (#923), each beat answered at the contract's bound, 27,866, 295 by the
+#: rule (arm A's REMOVE of one input row 26,177, 275; 23,877 and 21,543 at #923's base 16ba667d); at 8x8/2if 30,563, a
+#: REMOVE of one output row, 325 (30,124 under that cut), and with its commit 33,481, 355 (28,627 at that base). An
+#: accepted SET_CONFIGURATION's under #894's cut of it (f275b619, paced at fe0cef5b), in the answering-ports arm's
+#: aecp-fanout: at 1x1/1if 28,376 CPU cycles, 300 by the rule (33,724 at 9606b3a9, 355; 28,076 at #923's head, 295, the
+#: larger kept), and 28,752, 305, once that arm's path port reads the window (#897, arm_path.py), the same work, its
+#: fetches moved by the port's code (28,357 with the port answering at once), and with AECP's REBOOT merged on the tiers
+#: (#871), whose image moves the hot code, 28,750, 305; at 8x8/2if 56,474, 595 (78,332, 825; 55,928 at #923's head,
+#: 590), and 55,631 with that port.
+#: At 8x8/1if, one interface's 8x8 streams, on the image that merges #902's 234bc149 (#894's shape ruling, item (b);
+#: THE SHAPES): a one-row edit's 30,277 CPU cycles, a REMOVE of one output row in the answering-ports arm, 320 by the
+#: rule, and an accepted SET_CONFIGURATION's 60,027 there, 635, each the most over every arm that reaches it; on the
+#: image that merges dev-soft-core 70f4056f (#901), 31,449 and 65,169 cycles there, 335 and 685 by the rule.
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 1x1/1if a
+#: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
+#: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
+#: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
+PACED = {'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+         '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
+         '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.
 EDIT_RECORD_US = {point: max(members.values()) for point, members in PACED.items()}
 #: The planted defects controls() plants (rows_tiers.CONTROLS names them).
@@ -46,8 +59,13 @@ CONTROLS = ("an unpaced edit charged at the non-edit record", "an unpaced SET_CO
 
 
 def point_of(i: Inputs) -> str:
-    """The point whose stated costs the inputs are: one interface's 1x1/1if's, two 8x8/2if's."""
-    return '1x1/1if' if i.s['n_if'] == 1 else '8x8/2if'
+    """The point whose stated costs the inputs are, by its shape, its interfaces and its sinks (load_grade.POINTS),
+    never by its interface count alone (THE SHAPES): 1x1/1if, 8x8/1if or 8x8/2if; a point the class is not measured at
+    takes the measured one of its interface count."""
+    import load_grade
+    own = [p for p in PACED if (load_grade.POINTS[p]['n_if'], load_grade.POINTS[p]['sinks_per_if']) ==
+           (i.s['n_if'], i.s['sinks_per_if'])]
+    return own[0] if own else '1x1/1if' if i.s['n_if'] == 1 else '8x8/2if'
 
 
 def edits_in(i: Inputs, w_ms: float, records: int) -> int:
@@ -86,9 +104,10 @@ def findings(i: Inputs) -> list[str]:
 
 
 def controls(root: Path) -> list[str]:
-    """The planted defects not refused, each refused by name and shortening a held row at 1x1/1if: an unpaced edit
-    charged at the non-edit record (the term taken as the pace's count where no pace holds), unpaced; and an unpaced
-    SET_CONFIGURATION charged as ordinary (the class's record its edits' alone, the command left out of the pace)."""
+    """The planted defects not refused, each refused by name and shortening ACMP's row: an unpaced edit charged at the
+    non-edit record (the term taken as the pace's count where no pace holds), unpaced, at 1x1/1if; and an unpaced
+    SET_CONFIGURATION charged as ordinary (the class's record its edits' alone, the command left out of the pace), at
+    the first point whose SET_CONFIGURATION is the class's dearer member."""
     from unittest import mock
 
     import rows_tiers as rt
@@ -103,11 +122,17 @@ def controls(root: Path) -> list[str]:
         planted = rt.solve('ACMP', bare, rt.BUILT)[0]
     if not named or plain is None or planted is None or not planted < plain:
         escaped.append(CONTROLS[0])
-    plain = rt.solve('ACMP', i, rt.BUILT)[0]
-    edits_only = {**EDIT_RECORD_US, '1x1/1if': PACED['1x1/1if']['a one-row edit']}
+    # The second is planted where an accepted SET_CONFIGURATION is the class's dearer member, so that leaving it out
+    # moves the class's record: 1x1/1if while it is there, else the first point where it is (at 1x1/1if a one-row
+    # edit measured past it on #665's final head, where the defect would change no figure)
+    point = next(p for p in ('1x1/1if', '8x8/2if', '8x8/1if')
+                 if PACED[p]['an accepted SET_CONFIGURATION'] > PACED[p]['a one-row edit'])
+    at = i if point == '1x1/1if' else rt.point_inputs(root, point)
+    plain = rt.solve('ACMP', at, rt.BUILT)[0]
+    edits_only = {**EDIT_RECORD_US, point: PACED[point]['a one-row edit']}
     with mock.patch.object(module, 'EDIT_RECORD_US', edits_only):
-        named = any(f.startswith('an accepted SET_CONFIGURATION charged below its record') for f in findings(i))
-        planted = rt.solve('ACMP', i, rt.BUILT)[0]
+        named = any(f.startswith('an accepted SET_CONFIGURATION charged below its record') for f in findings(at))
+        planted = rt.solve('ACMP', at, rt.BUILT)[0]
     if not named or plain is None or planted is None or not planted < plain:
         escaped.append(CONTROLS[1])
     return escaped

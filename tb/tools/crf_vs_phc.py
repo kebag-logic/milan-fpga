@@ -27,9 +27,9 @@ def strip_vlan(pkt: bytes) -> tuple[bytes, bytes, int, bytes]:
 def main() -> None:
     """Print each CRF frame's timestamp beside the PHC reading and their gap."""
     ap = argparse.ArgumentParser()
-    ap.add_argument('--iface', default='enp6s0')
+    ap.add_argument('--iface', default='<host-iface>')
     ap.add_argument('--phc', default='/dev/ptp0')
-    ap.add_argument('--src', default='02:00:00:00:00:01')
+    ap.add_argument('--src', default='02:4b:4c:4b:4c:01')  # the AX7101 station MAC (#840)
     ap.add_argument('--n', type=int, default=13)
     ap.add_argument('--gap', type=float, default=5.0)
     a = ap.parse_args()

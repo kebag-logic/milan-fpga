@@ -1,0 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// #923: the split half's --maps check reads the datapath's render map store,
+// the input store a controller's ADD and REMOVE_AUDIO_MAPPINGS reach through
+// the EDIT window (twin_split.cpp, maps_main). Read only; nothing drives it.
+`verilator_config
+public_flat_rd -module "milan_datapath" -var "amap_in_store_r"

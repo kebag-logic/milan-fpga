@@ -57,7 +57,7 @@ LSFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 LSSRCS = $(REF_SRC) $(RXMON_SRC) \
          avtp_rxmon_lockstep_wrap.sv
-.PHONY: all run clean coverage lockstep-build lockstep nx-build
+.PHONY: all run clean coverage lockstep-build lockstep nx-build ctxfmt-build ctxfmt
 all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vavtp_rxmon_wrap_sim
@@ -67,8 +67,19 @@ run:
 	$(MAKE) lockstep
 	python3 lockstep_mutants.py
 	python3 format_mutants.py
+	$(MAKE) ctxfmt
+	python3 ctxfmt_mutants.py
 nx-build:
 	$(VERILATOR) $(NXFLAGS) --Mdir $(NX_MDIR) $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
+# #946: each Stream Input's format in its LCTX context at the 8x8 shape's eight
+# contexts (sim_ctxfmt.cpp), the N=4 stack's recipe at N_STREAMS_P=8. CF_MDIR,
+# with RXMON_SRC, is overridable so ctxfmt_mutants.py builds a mutated engine
+# through this exact recipe.
+CF_MDIR ?= obj_cf
+ctxfmt-build:
+	$(VERILATOR) $(NXFLAGS) -GN_STREAMS_P=8 --Mdir $(CF_MDIR) $(NXSRCS) sim_ctxfmt.cpp -o Vavtp_rxmon_ctxfmt
+ctxfmt: ctxfmt-build
+	$(CF_MDIR)/Vavtp_rxmon_ctxfmt
 lockstep-build:
 	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)1 -GN_LISTENERS_P=1 \
 	  -CFLAGS "-DN_TB=1 -Wall -Wextra" $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
@@ -89,4 +100,4 @@ coverage:
 	    | tail -2
 	@python3 cov_gate.py cov_annotated 95
 clean:
-	rm -rf obj_dir obj_ls1 obj_ls8 obj_cov coverage.dat cov_annotated
+	rm -rf obj_dir obj_ls1 obj_ls8 obj_cf obj_cov coverage.dat cov_annotated

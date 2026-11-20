@@ -9,17 +9,29 @@ Its [next record](#re-baseline-of-2026-10-10-issue-696-first-draw) added #696's 
 Issue #708's [record](#re-baseline-of-2026-10-16-processor-2cbed0a9) adopted processor `2cbed0a9` on its merge of dev `734eb780`.
 Its [next record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopted processor `93fb0b2d` and FPGA-gPTP `55680bff` for #771, under an owner exception.
 Its [next record](#re-baseline-of-2026-10-23-issues-632-and-764) added the media clock phase alignment of #632 and #764 on its merge of dev `e5b480a3`, under two owner exceptions.
-The [current record](#re-baseline-of-2026-10-28-processor-f65c8ff7) adopts processor `f65c8ff7` for #799 on dev `97aab1d0`, under an owner decision.
+Its [next record](#re-baseline-of-2026-10-28-processor-f65c8ff7) adopted processor `f65c8ff7` for #799 on dev `97aab1d0`, under an owner decision.
+Its [next record](#re-baseline-of-2026-11-06-processor-92100657) adopted processor `92100657` for #845 on dev `87e9d03a`, under a maintainer decision.
+Its [next record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) adopted FPGA-gPTP `1616fc8f` for #843 on its merge of dev `1eb5289d`, under the same decision, and kept #845's standalone records.
+Its [next record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) adopted processor `044cb25f` for #851 on its merge of dev `0a75aa77`, the first image with all four lab fixes.
+The [current record](#re-baseline-of-2026-11-09-the-control-frame-drop-count) adds #854's control-frame drop count on dev `ac0a01e3`, with no pin moved.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
 The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`.
-Dev then moved the processor pin to `ed211803` (#780), and the current record moves it to `f65c8ff7`; the gPTP pin stays `55680bff`.
+Dev then moved the processor pin to `ed211803` (#780), and the #799 record moved it to `f65c8ff7`; the gPTP pin stayed `55680bff`.
+Dev then moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66`, and the #845 record moved the processor pin to `92100657`.
+The #843 record moved the gPTP pin to `1616fc8f`, and the #851 record moved the processor pin to `044cb25f`; the #854 record moved no pin.
+The current record, #883's, moves the processor pin to `801ef228`; the gPTP pin stays `1616fc8f`.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-10-28, processor f65c8ff7](#re-baseline-of-2026-10-28-processor-f65c8ff7)** -- The current record, under an owner decision: processor `f65c8ff7` and mailbox contract 2.3 on dev `97aab1d0`, remeasured at three endpoints, the same figures as before the contract change, sub-block movements, route-corner timing and input receipts.
+- **[Re-baseline of 2026-11-11, processor 801ef228](#re-baseline-of-2026-11-11-processor-801ef228)** -- The current record: #883's processor `801ef228` on dev `46c971fa`, gPTP kept at `1616fc8f`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at each directive against the preceding record's own routes, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-09, the control-frame drop count](#re-baseline-of-2026-11-09-the-control-frame-drop-count)** -- The preceding record: #854's control-frame drop count on dev `ac0a01e3`, remeasured at three endpoints, the route on the recipe's three directives with ExtraPostPlacementOpt selected, the change at one directive against the preceding record's own route, the tap's own share, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)** -- The preceding record: processor `044cb25f` on the merge of dev `0a75aa77`, the first image with all four lab fixes, remeasured at three endpoints, the route on the recipe's three directives with AltSpreadLogic_high selected, the adoption's share on both bases, sub-block movements, route-corner timing, worst paths and input receipts.
+- **[Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f)** -- The preceding route record, under the same maintainer decision: FPGA-gPTP `1616fc8f` with processor `92100657` on the merge of dev `1eb5289d`, the route alone on the recipe's three directives with AltSpreadLogic_high selected, against dev's own route, the engine's share, route-corner timing and input receipts.
+- **[Re-baseline of 2026-11-06, processor 92100657](#re-baseline-of-2026-11-06-processor-92100657)** -- The route record before it and the standalone records before the current ones, under a maintainer decision: processor `92100657` on dev `87e9d03a`, remeasured at three endpoints, the route on the recipe's three directives with ExtraTimingOpt selected, sub-block movements, route-corner timing and input receipts.
+- **[Re-baseline of 2026-10-28, processor f65c8ff7](#re-baseline-of-2026-10-28-processor-f65c8ff7)** -- The preceding record, under an owner decision: processor `f65c8ff7` and mailbox contract 2.3 on dev `97aab1d0`, remeasured at three endpoints, the same figures as before the contract change, sub-block movements, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-23, issues #632 and #764](#re-baseline-of-2026-10-23-issues-632-and-764)** -- The preceding record, under two owner exceptions: the media clock phase alignment on its merge of dev `e5b480a3`, remeasured at three endpoints, its share against dev's own route, the per-instance attribution, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)** -- The preceding record, under an owner exception: both pins adopted on dev `d77a8afd`, remeasured at three endpoints, with this adoption's share against dev's own measurement, the per-donor 1x1 ledger, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-16, processor 2cbed0a9](#re-baseline-of-2026-10-16-processor-2cbed0a9)** -- Processor `2cbed0a9` adopted on #708's merge of dev `734eb780`, remeasured at three endpoints, with its input difference from dev, unchanged policy, route-corner timing and input receipts.
@@ -39,6 +51,563 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-11-11, processor 801ef228
+
+This re-baseline records [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s adoption of processor `801ef2283ec793e35a2590fc6593c90313a64041` (protocol-processor PRs #218 and #219, for its #216 and #217); the gPTP pin stays `1616fc8f062fbf58c35ad31674b5b233207bbdb8`.
+All three endpoints measure lane commit `a89802c8dc278fabeff06fd2a79070611187a8f7` on dev `46c971fa0a09e2c8ca21acb95769defdc06c3068`, the live dev tip, so the lane is its own merge result.
+That commit carried FPGA-gPTP `a64be73de32f3ec5084cf908a530218e9006453e` (FPGA-gPTP PR #103, for its #102); lane commit `8edfae99` reverts it to `1616fc8f`, and the lane's other later commits change no synthesis input.
+`ooc-8x8` is out of context only; it was not routed.
+From the [preceding record](#re-baseline-of-2026-11-09-the-control-frame-drop-count)'s commit `7a19f62b` to dev `46c971fa` no synthesis input moves: the diff lists documentation, CI and register-reference tooling, testbench files, `sw/builder/test_builder.py` and the baseline JSON only.
+From dev to `a89802c8` the synthesis inputs that move are the processor's: its SRP sources `KL_srp_top.sv`, `KL_srp_domain.sv`, `KL_srp_vlan.sv`, `KL_srp_encoder.sv` and `srp_pkg.sv` (#216), and `KL_adp_engine.sv`, `KL_aecp_engine.sv`, the AECP microcode generator and `protocol_processor_top.sv` (#217).
+FPGA-gPTP `a64be73d` changes test infrastructure only; its `hdl/` and `syn/` are byte-identical to `1616fc8f`'s and its ROM digest is unchanged.
+So the differences below are the processor adoption's, and the record holds at the final pins.
+An export at the final pins reads the same 131 files and the same six ROM images; the gate's input digest of it differs only because the exporter's hierarchy comment lists black boxes in a different order.
+
+**Gate verdict.** Against the preceding record `check` exits 0 on all three endpoints.
+The route moved by -73 LUTs against a tolerance of 500, `ooc-1x1` by +214 against 250 and `ooc-8x8` by +218 against 316.
+All three are re-recorded, because the change moves the shipping image ([area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate)).
+Every tolerance, floor and ceiling stays unchanged, and every gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+The route is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected ExtraPostPlacementOpt, the shipping directive, as the preceding record did.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,461 | 54,971 | 15,849 | 74 / 27 | 15 | 3,753 | +0.334 | +0.017 |
+| `ooc-1x1` | 25,423 | 21,084 | - | 16 / 3 | 8 | 1,657 | +4.196 | +0.159 |
+| `ooc-8x8` | 37,276 | 32,192 | - | 21 / 5 | 8 | 2,335 | +1.139 | +0.159 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.334 / +0.017 ns | 53,461 | 54,971 | 15,849 | 1 |
+| ExtraTimingOpt | +0.218 / +0.036 ns | 53,474 | 54,974 | 15,850 | 0 |
+| AltSpreadLogic_high | +0.162 / +0.039 ns | 53,494 | 54,976 | 15,850 | 0 |
+
+Every directive routes with no unrouted net and no routing error, and meets the +0.030 ns WNS floor and the 0 ns WHS floor at every signoff corner; the gate judges the selected route against the floors, and the shipping image is built from that route.
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | -73 | +121 | +29 | 0 / 0 | 0 | +0.168 | -0.015 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | +214 | +64 | - | 0 / 0 | 0 | +0.869 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | +218 | +66 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+**The change at each directive.** Both records selected ExtraPostPlacementOpt, so the route row above compares one directive on one base.
+Against the preceding record's own three routes, directive by directive:
+
+| Directive | Preceding record LUT / FF / slice / WNS | This record LUT / FF / slice / WNS | Change |
+|---|---|---|---|
+| ExtraPostPlacementOpt | 53,534 / 54,850 / 15,820 / +0.166 ns | 53,461 / 54,971 / 15,849 / +0.334 ns | -73 / +121 / +29 / +0.168 ns |
+| AltSpreadLogic_high | 53,513 / 54,847 / 15,846 / +0.147 ns | 53,494 / 54,976 / 15,850 / +0.162 ns | -19 / +129 / +4 / +0.015 ns |
+| ExtraTimingOpt | 53,512 / 54,847 / 15,846 / +0.127 ns | 53,474 / 54,974 / 15,850 / +0.218 ns | -38 / +127 / +4 / +0.091 ns |
+
+The flip-flop growth is the same on every directive, +121 to +129; the LUT figure falls on every directive, by 19 to 73.
+Out of context the processor grows by about 214 LUTs, and in the routed image placement and optimization absorb it; the area budget counts the routed figures all the same.
+Out of context the processor's own sub-blocks carry the growth: `u_pp` +212 LUTs and +65 FFs at 1x1 and +221 and +69 at 8x8, within the wrapper's +214 / +64 and +218 / +66.
+At 1x1 the SRP block moves by +166 LUTs and +35 FFs, its talker by +214 LUTs, the VLAN participant by -48 LUTs and +18 FFs, and the AECP block by +99 LUTs with its D3 writer at +178; at 8x8 the SRP block moves by +222 LUTs and +34 FFs, of which the VLAN participant is +178 and +18, and ADP by +15 LUTs and +32 FFs, the 32-bit last index of the one interface (#217).
+On the route the gate's sub-block rows, which it does not judge, put `u_pp` at +166 LUTs and +58 FFs and the wrapper at +138 and +58; its listed rows are `u_aecp/u_d3` +257, `u_srp` +157 / +27, `u_srp/u_talker` +118 / -4, `u_aecp` +95, `u_aecp/u_ucpu` -79, `u_event_router` +65, `u_timer` -47, `u_aecp/u_dyn` -45, `u_adp` -6 / +32 and `u_srp/u_domain` +28 / +9.
+
+The selected route uses 87.5 RAM tiles and leaves 1 of 15,850 slices free, against 30 at the preceding record.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS is 0.304 ns above its +0.030 ns floor; WHS is 0.017 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.334 | +0.045 |
+| `Slow_85C` | +0.334 | +0.045 |
+| `Fast_0C` | +1.350 | +0.017 |
+| `Fast_85C` | +1.350 | +0.017 |
+
+Each path below is `report_timing`'s worst path of the selected routed checkpoint at the named corners, and its slack equals that corner's WNS or WHS.
+The worst setup path is in the SoC, on its 10 ns clock, outside the processor: from the SDRAM controller's `milansoc_sdram_bankmachine0_row_reg[11]` to the reset of `milansoc_sdram_twtrcon_count_reg[0]`, 15 logic levels, data delay 9.207 ns (3.136 ns of logic, 6.071 ns of routing).
+The worst hold path is in the TDM render's clock crossing, from `chan_tdm_render/bank_r_reg[4][16]` to the block RAM `u_fcdc/mem_r_reg_1`, at +0.017 ns at the fast corners.
+AltSpreadLogic_high's and ExtraTimingOpt's worst setup paths are the same SDRAM controller's, on the same clock.
+
+Each endpoint was written with `record --write` after its `check`, which returned 0 at all three against the preceding record.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane commit, the preceding record's figures and the differences.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `0c7a1ee8d60c1b65223007fbba16c917792054075d34d668c6b6a90c1261bb9e` |
+| `ooc-1x1` | `684f85afc0dff53e94a93302af5cab3a283f957c52b5910f19c3463a2646ea37` |
+| `ooc-8x8` | `df59c704bbc974e07f3ddc5bb7d99aea8b04ac5e353f6ca63ab76d10e2053c94` |
+
+No completed measurement log contains a `Synth 8-4445` diagnostic; each carries only the recipe's command that promotes it to an error.
+Each synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+At most two Vivado runs went at once, each in its own slot: `rtl-8x8` and then `ooc-8x8` beside the shipping route, `ooc-1x1` beside its place and route, then the two comparison routes one after the other.
+The largest Vivado memory peak was 8,540 MB, in the shipping route.
+The run times reflect a host shared with other lanes.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 171.6 | `bd4f0b440f2bf80195dfdaa779199ced511e7cd6d9d8a01cd53dc2be9af09c51` | 1,028,013 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 43.6 | `f573a387823244a3bed82dd28b612d111fa417825b85adc366548c2e8eb7ef5c` | 360,302 |
+| `route-1x1`, ExtraTimingOpt | 0 | 65.4 | `802de1d2cf1eeb64b199b78e0ea7c38d9fafbd6823b42243657ff529cc88d8ec` | 384,101 |
+| `ooc-1x1` | 0 | 43.4 | `11ce8123fdd67f7881ecb4b9ba9b25f07b76ba9d21fd749a922961455a0489f6` | 315,693 |
+| `rtl-8x8` | 0 | 3.2 | `21a0fb0b6860a4b75e406e831b00150c74b3d4b114bf47a9960f3a159e940421` | 209,519 |
+| `ooc-8x8` | 0 | 124.3 | `9751033da4df05d3d12e7160b2cf7c6133bf6110c67fbcff4a32a4191db31c64` | 320,638 |
+
+## Re-baseline of 2026-11-09, the control-frame drop count
+
+This re-baseline records [#854](https://github.com/kebag-logic/milan-fpga/issues/854): the all-fabric tap's control-frame drop count, `PP_DIAG[15:8]`, now read from its FIFO's own overflow indication.
+All three endpoints measure lane commit `7a19f62b4e622d1d7d563184363a42e2644776c1` on dev `ac0a01e354d20f5ecac1569c4e7afb3abcbf6f36`, the live dev tip, so the lane is its own merge result; the lane's later commits change no synthesis input.
+Processor `044cb25f` and FPGA-gPTP `1616fc8f` are unchanged.
+`ooc-8x8` is out of context only; it was not routed.
+From the [preceding record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)'s commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves: the diff lists documentation, testbench files and the baseline JSON only.
+So the differences below are this change's, and on the route the selected directive's.
+On dev `drop_evt_w` is constant 0, so synthesis removes the 8-bit count and the FIFO's overflow register; both now exist, with `last_kept_r`, the register of the last beat's classification.
+From dev to `7a19f62b` the synthesis inputs that differ are `KL_pp_shadow.sv` and one comment line of `milan_csr.sv`.
+
+**Gate verdict.** Against the preceding record `check` exits 0 on all three endpoints.
+The route grew by 106 LUTs against 500, `ooc-1x1` by 10 against 250 and `ooc-8x8` by 10 against 316.
+All three are re-recorded, because the change moves the shipping image ([area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate)).
+Every tolerance, floor and ceiling stays unchanged, and every gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+The route is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected ExtraPostPlacementOpt, the shipping directive.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,534 | 54,850 | 15,820 | 74 / 27 | 15 | 3,741 | +0.166 | +0.032 |
+| `ooc-1x1` | 25,209 | 21,020 | - | 16 / 3 | 8 | 1,649 | +3.327 | +0.159 |
+| `ooc-8x8` | 37,058 | 32,126 | - | 21 / 5 | 8 | 2,329 | +1.139 | +0.159 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.166 / +0.032 ns | 53,534 | 54,850 | 15,820 | 30 |
+| AltSpreadLogic_high | +0.147 / +0.036 ns | 53,513 | 54,847 | 15,846 | 4 |
+| ExtraTimingOpt | +0.127 / +0.036 ns | 53,512 | 54,847 | 15,846 | 4 |
+
+Every directive meets the +0.030 ns WNS floor and the 0 ns WHS floor at every signoff corner; the gate judges the selected route against the floors, and the shipping image is built from that route.
+The ExtraPostPlacementOpt figures equal the change's first route, at lane commit `e87f2179`, whose synthesis inputs differ from `7a19f62b` only in comment lines.
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | +106 | +13 | -9 | 0 / 0 | 0 | -0.044 | -0.004 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | +10 | +10 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | +10 | +10 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+**The change at one directive.** The preceding record selected AltSpreadLogic_high, and this one ExtraPostPlacementOpt, so the route row above compares two directives.
+The preceding record's own ExtraPostPlacementOpt route, in its section, is the same directive on the same base:
+
+| Figure | Preceding record, ExtraPostPlacementOpt | This record, ExtraPostPlacementOpt | Change |
+|---|---:|---:|---:|
+| LUT | 53,383 | 53,534 | +151 |
+| FF | 54,837 | 54,850 | +13 |
+| Slice | 15,848 | 15,820 | -28 |
+| WNS / WHS, worst corner | +0.112 / +0.036 ns | +0.166 / +0.032 ns | +0.054 / -0.004 ns |
+
+At one directive WNS rose, so the 0.044 ns fall against the record is the change of selected directive, not this change.
+Both figures move with placement.
+The change carries +10 FFs: the 8-bit count, `last_kept_r` and the FIFO's overflow register, as measured out of context and at the wrapper, which holds 20,038 FFs at all three directives.
+The other +3 at ExtraPostPlacementOpt is placement replication in the SoC, in the DMA write bridge's `aligner` (146 FFs against 143 at AltSpreadLogic_high, from the same synthesis checkpoint), outside `milan_datapath`, which holds 43,435 FFs at all three directives.
+The AltSpreadLogic_high comparison shows it: at the preceding record's selected directive the route moved by +10 FFs, from 54,837 to 54,847.
+
+**The tap's own share.** The gate's `wrapper` row is the `KL_pp_shadow` instance total, its children included: `u_pp`, the processor, `ctl_fifo`, the tap's FIFO, and `u_nvm`.
+The tap's own share is the change in the wrapper's remainder, the instance total less those children:
+
+| Scope | `route-1x1` LUT / FF | `ooc-1x1` LUT / FF | `ooc-8x8` LUT / FF |
+|---|---:|---:|---:|
+| the wrapper, the instance total | +35 / +10 | +10 / +10 | +10 / +10 |
+| `u_pp` | +27 / 0 | 0 / 0 | 0 / 0 |
+| `ctl_fifo` | +1 / +1 | +3 / +1 | +4 / +1 |
+| `u_nvm` | -1 / 0 | 0 / 0 | 0 / 0 |
+| the wrapper's remainder, the tap's share | +8 / +9 | +7 / +9 | +6 / +9 |
+
+The flip-flop share is an exact count: the hierarchy's FF totals are additive at this boundary, and the remainder equals the wrapper's own-cell row, 332 FFs on every route, 340 at 1x1 and 341 at 8x8.
+The LUT share is the change in the remainder, not a count of the tap's cells, because the hierarchy's LUT totals are not additive at this boundary: the own-cell row is 18 LUTs, 17 at 8x8, yet the total less its children is +1, 0 and 0 LUTs on the three routes and -5 and -6 standalone.
+Out of context the processor does not move, so the standalone rows are the change alone: +9 FFs in the tap, the 8-bit count and `last_kept_r`, and +1 FF in `ctl_fifo`, its overflow register, with a change of +6 or +7 LUTs in the tap's remainder and +3 or +4 in the FIFO.
+On the route `u_pp` moved by +27 LUTs with no RTL change: that is placement and optimization across two directives, which the [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) counts against the change all the same.
+The gate's other listed route rows, which it does not judge, are all inside `u_pp`: `u_listener` +19, `u_aecp/u_d3` -11, and seven rows of 3 LUTs or fewer.
+In the routed hierarchy, `milan_datapath` moved by +133 LUTs to 44,964, of which the wrapper moved by +35 to 25,219.
+The rest of the datapath moved by +98 LUTs, and the image outside it by -27.
+
+The selected route uses 87.5 RAM tiles and leaves 30 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS is 0.136 ns above its +0.030 ns floor; WHS is 0.032 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.166 | +0.050 |
+| `Slow_85C` | +0.166 | +0.050 |
+| `Fast_0C` | +1.633 | +0.032 |
+| `Fast_85C` | +1.633 | +0.032 |
+
+Each path below is `report_timing`'s worst path of the selected routed checkpoint at the named corners, and its slack equals that corner's WNS or WHS.
+The worst setup path has 37 logic levels on the 20 ns processor clock, inside the wrapper and outside the tap.
+It runs from the AECP microcode CPU's `u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_aecp/u_d3/deb_cnt_r_reg[13]`.
+Its data delay is 19.393 ns: 6.494 ns of logic and 12.899 ns of routing.
+The worst hold path is in the SoC, from the CPU's memory-bus register `mBusAxi_w_s2mPipe_rData_data_reg[252]` to the block RAM `storage_11_reg_3`, at +0.032 ns at the fast corners.
+AltSpreadLogic_high's and ExtraTimingOpt's worst setup paths are in the SoC, on its 10 ns clock.
+
+Each endpoint was written with `record --write` after its `check`, which returned 0 at all three against the preceding record.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane commit, the preceding record's figures and the one-directive comparison.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `401aabd7080837073732ee56c3f990a7e845d488708d2c15b8e6db707ad04840` |
+| `ooc-1x1` | `27ef2ef69d4a14c6d29c5354a7d646ad32ec93e4db9ea60be2dbe34cc169ee56` |
+| `ooc-8x8` | `f185c126b037e9cef3bd9dec0f1e830d885944ec6537cfce133090e68455d5ae` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Up to three Vivado runs went at once, each in its own slot: `rtl-8x8` and `ooc-8x8` beside the shipping route's synthesis, then the two comparison routes and `ooc-1x1` beside its place and route.
+The largest Vivado memory peak was 8,537 MB, in the shipping route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 68.1 | `fc2be49d556d3dcdb24ea2bdcc6a5f17fd877116f5f4b39350e22d03dab0f9d6` | 910,032 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 27.0 | `0c251dd4e9d642ab2c2dcd7beb40fcf439443a17d4f69b76514a169d2bcd7ba9` | 453,021 |
+| `route-1x1`, ExtraTimingOpt | 0 | 22.9 | `f2e986d942d622b23352bde2d8a74cd159e9231dfc584ab4f91b7678db4e956c` | 412,791 |
+| `ooc-1x1` | 0 | 21.0 | `f359269d9b7f87d53f950f5f9dfb37140b054a63edfafddaa121e15ab3584a3c` | 315,782 |
+| `rtl-8x8` | 0 | 1.3 | `f1b773a309c50be82aa4c1d0bd149c71502865db9196caf9e704b033ef6f1a46` | 207,987 |
+| `ooc-8x8` | 0 | 37.8 | `2e7cd457ed0a821c45ec102bf57efdbf13cb1560f46fc8a791cadd4dca1a3a4d` | 319,267 |
+
+## Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f
+
+This re-baseline records [#851](https://github.com/kebag-logic/milan-fpga/issues/851)'s adoption of processor `044cb25f4ed2187bd238490650e73d5d189855d1` (protocol-processor PR #215, for its #214) on dev `0a75aa77`, which carries [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s FPGA-gPTP `1616fc8f`.
+All three endpoints measure lane commit `e44a4d20d95858124b83048c0db4980b3e05a238`, the lane's merge of dev `0a75aa774b89ac89351700f63dd8cbb89694af6c`.
+It is the first route with all four lab fixes; the lane's later commits change no synthesis input.
+`ooc-8x8` is out of context only; it was not routed.
+From dev `0a75aa77` to that commit the only synthesis input that moves is the processor gitlink.
+Dev `0a75aa77`'s synthesis inputs are those the [preceding route record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) measured at `a6d7cdf3`, so the route's differences below are this adoption's alone.
+The standalone endpoints synthesize `KL_pp_shadow` alone; its bound parameters equal those of #845's standalone records but for the ROM paths, whose images are byte-identical, so their movement is this adoption's too.
+Only `protocol-processor/hdl/srp/KL_srp_encoder.sv` changes in processor HDL: one pending entry per attribute value, found by a search of the table before a push is accepted.
+
+**Gate verdict.** Against the preceding record `check` exits 0 on all three endpoints.
+The route grew by 207 LUTs against 500, `ooc-1x1` by 203 against 250 and `ooc-8x8` by 184 against 316.
+The preceding record's route carried processor `92100657`, and its standalone records were #845's, so all three are re-recorded: the record measures the merged tree.
+Every tolerance, floor and ceiling stays unchanged, and every gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+The route is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected AltSpreadLogic_high, as for the preceding record.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,428 | 54,837 | 15,829 | 74 / 27 | 15 | 3,741 | +0.210 | +0.036 |
+| `ooc-1x1` | 25,199 | 21,010 | - | 16 / 3 | 8 | 1,649 | +3.327 | +0.159 |
+| `ooc-8x8` | 37,048 | 32,116 | - | 21 / 5 | 8 | 2,329 | +1.139 | +0.159 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.210 / +0.036 ns | 53,428 | 54,837 | 15,829 | 21 |
+| ExtraPostPlacementOpt | +0.112 / +0.036 ns | 53,383 | 54,837 | 15,848 | 2 |
+| ExtraTimingOpt | +0.018 / +0.036 ns | 53,402 | 54,838 | 15,829 | 21 |
+
+ExtraTimingOpt misses the +0.030 ns WNS floor at its slow corners; the gate judges the selected route against the floors, and the shipping image is built from that route.
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | +207 | +83 | -5 | 0 / 0 | 0 | -0.032 | +0.024 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | +203 | +76 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | +184 | +80 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+The standalone figures equal #851's first measurement, at lane commit `a566d4f9` on dev `1eb5289d`.
+Their input digests differ from it because the export's read set also holds FPGA-gPTP sources and images, which `KL_pp_shadow` does not instantiate.
+
+**The adoption's share on each base.** Before its sync #851 measured the adoption on dev `1eb5289d` at lane commit `a566d4f9`, and [PR #846](https://github.com/kebag-logic/milan-fpga/pull/846)'s second round routed dev `1eb5289d` itself on this recipe.
+Both route sets selected ExtraTimingOpt:
+
+| Figure | Dev `1eb5289d` | Processor `044cb25f` on it | Change | Dev `0a75aa77`, the preceding record | This record | Change |
+|---|---:|---:|---:|---:|---:|---:|
+| Directive | ExtraTimingOpt | ExtraTimingOpt | | AltSpreadLogic_high | AltSpreadLogic_high | |
+| LUT | 52,973 | 53,050 | +77 | 53,221 | 53,428 | +207 |
+| FF | 54,595 | 54,729 | +134 | 54,754 | 54,837 | +83 |
+| Slice | 15,817 | 15,831 | +14 | 15,834 | 15,829 | -5 |
+| WNS / WHS, worst corner | +0.234 / +0.033 ns | +0.258 / +0.036 ns | +0.024 / +0.003 ns | +0.242 / +0.012 ns | +0.210 / +0.036 ns | -0.032 / +0.024 ns |
+
+The encoder's own row moves alike on both bases: +101 LUTs and +99 FFs on the first against the thirteenth record, +118 and +99 here.
+The rest of each share is placement, which moves with the base and the directive.
+
+The gate prints each endpoint's largest sub-block movements against the preceding record, LUT and FF; a block it did not list is marked so:
+
+| Block | `route-1x1` | `ooc-1x1` | `ooc-8x8` | Change |
+|---|---:|---:|---:|---|
+| the wrapper | +247 / +105 | +203 / +76 | +184 / +80 | |
+| `u_pp` | +242 / +105 | +203 / +76 | +201 / +77 | the processor |
+| `u_pp/u_srp` | +129 / +108 | +131 / +75 | +108 / +71 | the SRP block |
+| `u_pp/u_srp/u_encoder` | +118 / +99 | +78 / +75 | +105 / +71 | #214: the value search, its key and index registers, and the in-place merge |
+| `u_pp/u_srp/u_listener` | -69 / 0 | -33 / -1 | -51 / 0 | |
+| `u_pp/u_srp/u_vlan` | +49 / 0 | +52 / 0 | not listed | |
+| `u_pp/u_aecp` | +87 / -2 | +52 / +3 | not listed | |
+| `u_pp/u_aecp/u_dyn` | +87 / 0 | not listed | not listed | |
+| `u_pp/u_aecp/u_d3` | -65 / 0 | +33 / 0 | +18 / 0 | |
+| `u_pp/u_aecp/u_ucpu` | +63 / 0 | not listed | not listed | |
+| `u_pp/u_event_router` | -67 / 0 | -63 / 0 | not listed | |
+| `u_pp/u_tx_slots` | not listed | not listed | +124 / 0 | |
+
+In the routed hierarchy, `milan_datapath` moved by +200 LUTs to 44,831, of which the wrapper moved by +247 to 25,184.
+The rest of the datapath moved by -47 LUTs, and the image outside it by +7.
+The processor's storage table (processor docs 10, Section 5.1) lists the encoder's new registers: a 73-bit search key, a 4-bit entry index and a search flag.
+
+The selected route uses 87.5 RAM tiles and leaves 21 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS fell by 0.032 ns and is 0.180 ns above its +0.030 ns floor; WHS is 0.036 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.210 | +0.069 |
+| `Slow_85C` | +0.210 | +0.069 |
+| `Fast_0C` | +1.520 | +0.036 |
+| `Fast_85C` | +1.520 | +0.036 |
+
+Each path below is `report_timing`'s worst path of the selected routed checkpoint at the named corners, and its slack equals that corner's WNS or WHS.
+The worst setup path has 37 logic levels on the 20 ns processor clock, inside the wrapper and outside the encoder.
+It runs from the AECP microcode CPU's `u_aecp/u_ucpu/uop_e_r_reg[imm][1]` to the reset of the D3 debounce counter `u_aecp/u_d3/deb_cnt_r_reg[10]`.
+Its data delay is 19.258 ns: 6.316 ns of logic and 12.942 ns of routing.
+The worst hold path runs from the gPTP engine's `u_engine/frame_cid_r_reg[34]` to its RAM `u_engine/evq_pd_ctx_r_reg_0_3_114_119`, at +0.036 ns at the fast corners.
+ExtraPostPlacementOpt's worst setup path is in the SoC, on its 10 ns clock; ExtraTimingOpt's is the same AECP-to-D3 kind, at 34 logic levels.
+
+Each endpoint was written with `record --write` after its `check`, which returned 0 at all three against the preceding record.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane commit and the preceding record's figures.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `6eace23d2f36282170f810eb3329422045ebf64d2b2ed717b8d3c1bb6ee05cd8` |
+| `ooc-1x1` | `411ff583c8428aab0a567ea0a22a9631c89c052135aa46dc051b17a3a90604e9` |
+| `ooc-8x8` | `f1ffc8db9c3354f4fc2d9587f408aead6defbd77b7d5cd87f59bd796511c3b58` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+This lane's runs went one route at a time; `ooc-8x8` synthesized beside the shipping route.
+The largest Vivado memory peak was 8,527 MB, in the shipping route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 54.3 | `f511ea51b14bbe261746d0b85468396493231edc49a274053544383a62fc1278` | 823,247 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 17.4 | `39a4cac0d9547f04458d268a03171cd744a0edf337c13d76217545574a154f04` | 356,706 |
+| `route-1x1`, ExtraTimingOpt | 0 | 14.1 | `6ac25237e2a6a01fc612fdeaef9bce96a0a1d51b2addf2128869466a250d4495` | 255,897 |
+| `ooc-1x1` | 0 | 12.9 | `ade37e656659f5a708642661af1cfbfc5e35fc147d530dbd6e1a69d37ce0b6b5` | 315,644 |
+| `rtl-8x8` | 0 | 1.5 | `9ef0c7edf742a377237a9c6b47b033a091c83b59e2a74b87dcd292fe0ee23543` | 207,988 |
+| `ooc-8x8` | 0 | 36.7 | `d55762f53ea5376402b00fde07da62703d8c2ff181f712b65e93a22271fe1b40` | 319,256 |
+
+## Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f
+
+This re-baseline records [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1616fc8f062fbf58c35ad31674b5b233207bbdb8` (FPGA-gPTP PRs #99 and #101, for its #98 and #100), with clockAccuracy per board.
+`route-1x1` measures lane commit `a6d7cdf3e29fd07f98e3fcd0b4d1402302f65a3e`, the lane's merge of dev `1eb5289db8fc9d139ce90cad2e380b4515793806`, with processor `92100657`.
+It is the first route with both lab-fix pins; the lane's later commits change no synthesis input.
+Dev merged PRs #841 and #842 after the [preceding record](#re-baseline-of-2026-11-06-processor-92100657) without a new one, so the differences below are theirs and this adoption's together.
+Only the route is re-recorded: the standalone endpoints synthesise `KL_pp_shadow`, which holds no gPTP logic, and no source, generic or processor image of it differs from dev `1eb5289d`'s export, so `ooc-1x1` and `ooc-8x8` keep the preceding record's figures.
+
+**Maintainer decision.** Against the preceding record the gate refused the route with exit 1.
+It grew by 692 LUTs against 500 and by two DSPs against 0.
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541) accepts the area growth of the mandatory lab fixes on the shipping image, with a re-baselined budget; it is the decision #845's record cites (https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981), and it names this gPTP pin.
+This record is written under that decision; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+
+The route was measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+It is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected AltSpreadLogic_high, so the record's flow names that directive where the preceding record's named ExtraTimingOpt.
+The resource gate reports matching measurement identities against the preceding record.
+Dev `1eb5289d` was routed the same way, one run at a time, for the comparison; against the preceding record its best directive, ExtraTimingOpt, passes the gate with exit 0.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 53,221 | 54,754 | 15,834 | 74 / 27 | 15 | 3,726 | +0.242 | +0.012 |
+
+| Directive | Dev WNS / WHS, worst corner | Dev LUT | Dev slice | This pin WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+| ExtraPostPlacementOpt | +0.122 / +0.036 ns | 52,845 | 15,841 | +0.062 / +0.024 ns | 53,166 | 54,757 | 15,846 | 4 |
+| ExtraTimingOpt, dev's selection | +0.234 / +0.033 ns | 52,973 | 15,817 | +0.058 / +0.031 ns | 53,234 | 54,755 | 15,834 | 16 |
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | **+692** | +172 | -1 | 0 / 0 | **+2** | -0.131 | 0.000 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+
+Best against best, against dev `1eb5289d`:
+
+| Figure | Dev `1eb5289d`, ExtraTimingOpt | This pin, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 52,973 | 53,221 | +248 |
+| FF | 54,595 | 54,754 | +159 |
+| Slice of 15,850 | 15,817 | 15,834 | +17 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 13 | 15 | +2 |
+| WNS / WHS, slow corners | +0.234 / +0.061 ns | +0.242 / +0.071 ns | +0.008 / +0.010 ns |
+| WNS / WHS, fast corners | +1.553 / +0.033 ns | +1.383 / +0.012 ns | -0.170 / -0.021 ns |
+
+On the same directive the routed hierarchy names the gPTP engine as the growth:
+
+| Directive | `u_engine` LUT, dev to this pin | FF | DSP | `alinx_ax7101` LUT | FF |
+|---|---:|---:|---:|---:|---:|
+| ExtraPostPlacementOpt | 4,235 to 4,710, +475 | +166 | +2 | +321 | +161 |
+| AltSpreadLogic_high | 4,236 to 4,705, +469 | +166 | +2 | +253 | +158 |
+| ExtraTimingOpt | 4,236 to 4,705, +469 | +166 | +2 | +261 | +160 |
+
+On AltSpreadLogic_high its `u_ucpu` holds +256 of those LUTs, `u_timer` +110 and `u_parser` +57; the two DSPs are the information TLV's frequency multiply.
+FPGA-gPTP #100's out-of-context figures predicted +475 LUTs and two DSPs.
+In the routed hierarchy of the selected route `milan_datapath` holds 44,631 LUTs and the wrapper 24,937.
+Against the preceding record the gate's sub-block rows, which it does not judge, move the wrapper by +42 LUTs and -4 FFs; no wrapper source changed.
+
+The selected route uses 87.5 RAM tiles and leaves 16 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS fell by 0.131 ns and is 0.212 ns above its +0.030 ns floor; WHS is 0.012 ns above zero.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.242 | +0.071 |
+| `Slow_85C` | +0.242 | +0.071 |
+| `Fast_0C` | +1.383 | +0.012 |
+| `Fast_85C` | +1.383 | +0.012 |
+
+The worst setup path has 16 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from the SDRAM bank machine's `milansoc_sdram_bankmachine6_row_reg[5]` to the write-to-read timer `milansoc_sdram_twtrcon_ready_reg`.
+Its data delay is 9.301 ns: 3.053 ns of logic and 6.248 ns of routing.
+The worst hold path runs from the SoC's `milansoc_rdat1_reg[2]` to the block RAM `storage_43_reg`, at +0.012 ns at the fast corners.
+
+The endpoint was written with `record --write` after its `check`, which returned 1.
+`check-baseline` passes, and `check` returns 0 against the new record.
+The endpoint note identifies the measured lane commit and cites the maintainer decision.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `3eb58b65ce9c76d6a47a412dfb5d626298cdf847e9caa57e9ceaffb0efd99df4` |
+
+All 6 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic; the one match is the script's own `set_msg_config` line.
+The synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Runs went one at a time.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 49.1 | `06f2cfbf372cbf12896b455c74285fff9377390b4963204b3161b76c681bac81` | 1,043,761 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 18.2 | `3279e647fd85d2987991f7b3eb0bea1bb5f8f715da21fefc09860651f6175d00` | 350,937 |
+| `route-1x1`, ExtraTimingOpt | 0 | 15.1 | `0026d6e546ea12a1c0cb674ac756f0313b3c03e8e4b1358bcd3f443c6b31523d` | 339,214 |
+
+## Re-baseline of 2026-11-06, processor 92100657
+
+This re-baseline records [#845](https://github.com/kebag-logic/milan-fpga/issues/845)'s adoption of processor `9210065779b0f698fd7bdb22323a1ed5b8482677` (protocol-processor PR #213, for its #212).
+`route-1x1` and `ooc-1x1` measure lane commit `b16f0175ac402e124314a40d1ea9573e431684dc` on dev `87e9d03aa2a4797957ac0124d0c7851a2eec234c`, with FPGA-gPTP `135afd04`.
+`ooc-8x8` measures lane commit `bf6c5a67778a5e5d479ae51b3b4377ad4f763801`, out of context only; it was not routed.
+No synthesis input differs between those commits, and the lane's later commits change none.
+Dev moved the gPTP pin to `135afd04` and the processor pin to `a9e84b66` after the [preceding record](#re-baseline-of-2026-10-28-processor-f65c8ff7) without a new one, so the differences below are theirs and this adoption's together.
+The route's differences also span a change of placement directive.
+
+**Maintainer decision.** Against the preceding record the gate refused all three endpoints with exit 1.
+The route grew by 517 LUTs and 875 FFs against 500 and 600; `ooc-1x1` by 650 LUTs and 530 FFs against 250 each; `ooc-8x8` by 2,708 LUTs and 2,254 FFs against 316 and 339.
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts the area growth of the mandatory lab fixes on the shipping image, with a re-baselined budget.
+It covers this processor pin and the gPTP pin of [#843](https://github.com/kebag-logic/milan-fpga/issues/843), and the integrated image with every lab fix is routed before the release build.
+This record is written under that decision; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+The route is judged on its [route set](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate): the shipping route and its two comparison directives, placed from one synthesis checkpoint at the default seed.
+The gate selected ExtraTimingOpt, so the record's flow names that directive where the preceding record's named ExtraPostPlacementOpt.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 52,529 | 54,582 | 15,835 | 74 / 27 | 13 | 3,675 | +0.373 | +0.012 |
+| `ooc-1x1` | 24,996 | 20,934 | - | 16 / 3 | 8 | 1,636 | +3.327 | +0.159 |
+| `ooc-8x8` | 36,864 | 32,036 | - | 21 / 5 | 8 | 2,317 | +1.139 | +0.159 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.373 / +0.012 ns | 52,529 | 54,582 | 15,835 | 15 |
+| ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
+| AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | **+517** | **+875** | +55 | 0 / 0 | 0 | -0.067 | -0.024 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | **+650** | **+530** | - | 0 / 0 | 0 | -0.869 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | **+2,708** | **+2,254** | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+On ExtraPostPlacementOpt dev `cc204c6f` reads 51,994 LUTs and 54,101 FFs, so this adoption's own share there is +503 LUTs and +478 FFs.
+No standalone figure exists at dev's pin `a9e84b66`, so its share of the standalone growth is not measured.
+The latest standalone figures, at processor `1be824fc`, were -53 LUTs and +7 FFs on `ooc-1x1` and +104 LUTs and +16 FFs on `ooc-8x8`, from the preceding record.
+
+The gate prints each endpoint's largest sub-block movements against the preceding record, LUT and FF; a block it did not list is marked so:
+
+| Block | `route-1x1` | `ooc-1x1` | `ooc-8x8` | Change |
+|---|---:|---:|---:|---|
+| `u_pp` | +424 / +502 | +656 / +528 | +2,692 / +2,254 | the processor |
+| `u_pp/u_srp` | +666 / +496 | +726 / +522 | +2,488 / +2,242 | the SRP block |
+| `u_pp/u_srp/u_listener` | +443 / +522 | +416 / +523 | +2,279 / +2,239 | #212: the listener keeps one port Talker registrar per Stream Input |
+| `u_pp/u_srp/u_decoder` | +347 / 0 | +341 / 0 | +141 / +2 | |
+| `u_pp/u_srp/u_vlan` | +102 / 0 | +170 / 0 | -167 / 0 | |
+| `u_pp/u_srp/u_talker` | -174 / -2 | -238 / 0 | +47 / +1 | |
+| `u_pp/u_aecp` | -255 / +2 | -64 / 0 | +60 / 0 | |
+| `u_pp/u_timer` | +72 / 0 | +80 / 0 | +180 / 0 | |
+| `u_pp/u_notify` | -113 / 0 | -80 / 0 | not listed | |
+
+In the routed hierarchy, `milan_datapath` moved by +388 LUTs to 43,906, of which the wrapper moved by +402 to 24,895 and `KL_maap` by -67 to 473.
+The rest of the datapath moved by +53 LUTs, and the image outside it by +129.
+The 8x8 listener holds nine Stream Inputs where the 1x1 listener holds two.
+
+The selected route uses 87.5 RAM tiles and leaves 15 slices free.
+Each route's status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS fell by 0.067 ns and is 0.343 ns above its +0.030 ns floor; WHS is 0.012 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.373 | +0.038 |
+| `Slow_85C` | +0.373 | +0.038 |
+| `Fast_0C` | +1.567 | +0.012 |
+| `Fast_85C` | +1.567 | +0.012 |
+
+The worst setup path has 15 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from the SDRAM bank machine's `milansoc_sdram_bankmachine0_pipe_valid_source_payload_addr_reg[7]` to the write-to-read timer `milansoc_sdram_twtrcon_ready_reg`.
+Its data delay is 9.170 ns: 3.100 ns of logic and 6.070 ns of routing.
+The worst hold path runs from the AECP response block's `lane_d_r_reg[51]` to the block RAM `storage_40_reg_1`, at +0.012 ns at the fast corners.
+
+Each endpoint was written with `record --write` after its `check`, which returned 1 at all three.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane commit and cite the maintainer decision.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `91f650a9870d89552757db0fdd7392fcc8b6efd654239fde4cbc2140ca9e779e` |
+| `ooc-1x1` | `575279aa12c6cb8e4262a85b276c8021659c15aa7d6289eb86e30bc97b0b875e` |
+| `ooc-8x8` | `ce6d4134f01fa492f93bed149ec67faffa5dc475ef9dcbe53fe11b11b6f9b336` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each synthesis log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Runs went one at a time.
+The largest Vivado memory peak was 8,827 MB, in the shipping route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1`, ExtraPostPlacementOpt, with synthesis | 0 | 56.3 | `c3f3fc0e6b1a7b1a105a4c56ed541bc513c6b364aa02ed2df8a0313c77b53609` | 879,124 |
+| `route-1x1`, AltSpreadLogic_high | 0 | 17.8 | `5b88516ce387e55f62102fcf73f896cac9f9362d713f9675167276df686fe8e0` | 355,571 |
+| `route-1x1`, ExtraTimingOpt | 0 | 18.3 | `404c822e536e8d66c81a1250cbac392b8971410f5aeab6ec738e2f65ed281948` | 362,434 |
+| `ooc-1x1` | 0 | 11.5 | `bf78c449ca8513d0297b3994e4f22caba6f3b0cc2c8ceb0374dd7223dd32f36b` | 313,796 |
+| `rtl-8x8` | 0 | 1.2 | `b88d740d8ef8f217bd8a360fddfadbefb141091627940679826541df6875dc58` | 206,519 |
+| `ooc-8x8` | 0 | 32.8 | `bfafd6d5fac95bed909e174f2409e75c29ad8e45b689fe7bbb51efeebbfcc66a` | 319,133 |
 
 ## Re-baseline of 2026-10-28, processor f65c8ff7
 

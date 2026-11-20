@@ -67,11 +67,13 @@ TAIL_MS = {"ADP": 5000 + 4000, "MAAP": 30000 + 2000}
 #: each plant's words, which its refusal against the all-fabric capture must carry
 PLANT_WORDS = {
     "byte-flip": "ADP frame 1 differs at byte 34",
-    "srp-plus-k": "MSRP Talker Failed stream_id 0200000000010001",
+    "srp-plus-k": "MSRP Talker Advertise stream_id 024b4c4b4c010001",
     "missing-notification": "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 "
                             "to the second controller",
     "uncovered-field": "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65",
-    "vanished-owed": "owed row stream-output-0-notices: the difference has gone",
+    "output-dest-mac-zero": "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66",
+    "output-notice-dropped": "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first "
+                             "controller",
     "command-byte": "AECP command 0 differs at byte 33",
     "command-sequence": "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0",
     "response-sequence": "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its "
@@ -81,45 +83,31 @@ PLANT_WORDS = {
     "received-join": "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: "
                      "from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or "
                      "nothing",
-    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Domain value "
-                             "06030002} x6], the split's [{Domain value 06030002} x2, {none} x3]",
-    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27910 (a LeaveAll) is not an "
+    "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+                             "stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+                             "split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, "
+                             "{Domain value 06030002} x1, {none} x3]",
+    "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an "
                           "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
-    "vanished-mvrp-leave-all": "owed row fabric-mvrp-leave-all: the defect has gone",
-    "vanished-available-index": "owed row entity-available-index: the difference has gone",
+    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
+                          "stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
+                          "split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1",
     "mvrp-join-in": "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table "
                     "10-3's tx! sends JoinMt",
     "mvrp-received-join": "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with "
                           "the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing",
-    "vanished-domain-new": "owed row fabric-domain-one-new: the defect has gone",
-    "domain-trace-moved": "owed row fabric-domain-one-new does not hold: the all-fabric half sent MSRP Domain value "
-                          "06030002: New x1 from ms 200, JoinIn x1 from ms 1000",
-    "vanished-vid2-join-in": "owed row fabric-vid2-join-in: the defect has gone",
-    "vid2-registrar-in": "owed row fabric-vid2-join-in does not hold: the all-fabric half sent MVRP VID 0002: New x1 "
-                         "from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received 1 MVRPDU(s)",
 }
 #: the words of the control against the unplanted capture, where they differ
 SELF_WORDS = {
-    "vanished-owed": "the split sent and the fabric did not: AECP notice GET_STREAM_INFO 0x0006/0",
     "leave-all-declaration": "MSRP declarations at the LeaveAll boundaries differ",
-    "vanished-mvrp-leave-all": "the planted half no longer makes: [MRP] all-fabric MVRP: 64799 ms from ms 10201",
-    "vanished-available-index": "AECP response 13 differs at byte 81",
-    "vanished-domain-new": "the planted half no longer makes: [MRP] all-fabric MSRP Domain value 06030002: JoinMt at "
-                           "ms 1000",
-    "domain-trace-moved": "[MRP] all-fabric MSRP Domain value 06030002: JoinIn at ms 1000 is not an Applicant's "
-                          "message",
-    "vanished-vid2-join-in": "the planted half no longer makes: [MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200",
-    "vid2-registrar-in": "[MRP] all-fabric MVRP VID 0002: JoinIn at ms 6200 is not an Applicant's message: from AN "
-                         "with the Registrar IN",
+    "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ",
 }
 PLANTED_PROTOCOL = {"byte-flip": "ADP", "srp-plus-k": "MSRP", "missing-notification": "AECP",
-                    "uncovered-field": "AECP", "vanished-owed": "AECP", "command-byte": "AECP",
+                    "uncovered-field": "AECP", "output-dest-mac-zero": "AECP", "output-notice-dropped": "AECP",
+                    "command-byte": "AECP",
                     "command-sequence": "AECP", "response-sequence": "AECP", "table-10-3": "MSRP",
                     "received-join": "MSRP", "leave-all-declaration": "MSRP", "leave-all-omission": "MSRP",
-                    "vanished-mvrp-leave-all": "MVRP",
-                    "vanished-available-index": "AECP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP",
-                    "vanished-domain-new": "MSRP", "domain-trace-moved": "MSRP", "vanished-vid2-join-in": "MVRP",
-                    "vid2-registrar-in": "MVRP"}
+                    "talker-failed-back": "MSRP", "mvrp-join-in": "MVRP", "mvrp-received-join": "MVRP"}
 
 
 # ---- the ordered raw-byte comparison ---------------------------------------
@@ -329,11 +317,6 @@ def shown_aecp(frames: list) -> str:
                            f"{body(s).hex()}" for s in frames) + "]"
 
 
-def shown_msrp(attributes: list) -> str:
-    """MSRP attributes as a finding prints them."""
-    return "[" + "; ".join(f"MSRP {td.attribute_label(*k)}: {td.run_length(v)}" for k, v in attributes) + "]"
-
-
 FIRST, SECOND = 0x1111222233334444, 0x2222333344445555
 MVU = td.MVU_PROTOCOL
 SYSTEM_UNIQUE_ID = bytes.fromhex("0102030405060708")
@@ -413,83 +396,11 @@ LEDGER = (
         "HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept", shown_aecp),
 )
 
-#: the ENTITY descriptor's available_index in a READ_DESCRIPTOR response: the descriptor follows the
-#: configuration_index and its reserved octets (IEEE 1722.1-2021 7.4.5.2), the field at its octet 36 (Table
-#: 7-2: "the same as the available_index field in ATDECC Discovery Protocol", 6.2.2.15)
-AVAILABLE_INDEX_AT = 28 + 36
-
-
-def available_index(s: Sent) -> int:
-    """The available_index of a READ_DESCRIPTOR response's ENTITY descriptor."""
-    return int.from_bytes(s.data[s.at + AVAILABLE_INDEX_AT:s.at + AVAILABLE_INDEX_AT + 4], "big")
-
-
-def but_available_index(s: Sent) -> bytes:
-    """A READ_DESCRIPTOR response after its sequence_id, its ENTITY descriptor's available_index left out."""
-    d, k = body(s), AVAILABLE_INDEX_AT - 22
-    return d[:k] + d[k + 4:]
-
-
-def advertised(h: Half, before_ms: int) -> list[int]:
-    """The available_index of each ENTITY_AVAILABLE the half sent before `before_ms` (IEEE 1722.1-2021 6.2.2.15)."""
-    return [int.from_bytes(s.data[s.at + 36:s.at + 40], "big") for s in h.capture.frames.get("ADP", [])
-            if s.data[s.at + 1] & 0x0F == 0 and s.ms < before_ms]
-
-
-def entity_read(h: Half, sel: list[Sent], index: int) -> bool:
-    """One SUCCESS response to the later ENTITY read, after exactly two ENTITY_AVAILABLE (available_index 0
-    and 1): the ENTITY descriptor the first read returned (the response comparison holds that one equal
-    across the halves), with available_index `index`."""
-    first = responses(h, 2)
-    return (statuses(sel) == [(1, 0)] and len(first) == 1 and available_index(sel[0]) == index
-            and but_available_index(sel[0]) == but_available_index(first[0]) and advertised(h, sel[0].ms) == [0, 1])
-
-
-#: STREAM_OUTPUT 0's GET_STREAM_INFO fields as the fabric notifies them: its talker declared after the
-#: PROBE_TX (stream_id, accumulated latency, the MAAP address, VLAN 2), and withdrawn about 15 s later
-OUT0_DECLARED = bytes.fromhex("f2000000" "0205022002006000" "0200000000010000" "001e8480" "91e0f0000100" "00" "00"
-                              "0000000000000000" "0002" "0000" "00000000" "00" "000000").hex()
-OUT0_WITHDRAWN = bytes.fromhex("a0000000" "0205022002006000" "0000000000000000" "001e8480" "000000000000" "00" "00"
-                               "0000000000000000" "0000" "0000" "00000000" "00" "000000").hex()
-#: the Talker attributes each half declares (IEEE 802.1Q-2018 Table 35-1, 35.2.2.8): the fabric's Talker
-#: Advertise for source 0, the split's Talker Failed for both sources
-FABRIC_TALKER = (1, "020000000001000091e0f00001000002004900017000000000")
-SPLIT_TALKERS = ((2, "0200000000010000000000000000000200d900017000000000000002000000000102"),
-                 (2, "02000000000100010000000000000002001d00017000000000000002000000000102"))
-SRP_ADAPTER = ("the split's talker declaration state never changes: no SRP adapter entry takes MAAP's "
-               "allocation (sw/firmware/ctrl/plat/README.md, Not yet done)")
-SRP_ROUND = "the SRP adapter entry that takes MAAP's allocation (#665)"
-FABRIC_INDEX = ("the fabric's AECP engine serves the AEM image's ENTITY descriptor, whose available_index is the "
-                "image's constant 0, and never reads ADP's")
-
 #: The owed-difference list, apart from the ledger (#665): each row names the
-#: difference, its cause and the step that owes the fix, and asserts its exact values in both halves.
-OWED = (
-    Row("stream-output-0-notices", "Milan v1.2 5.4.5.2, Table 5.22: the talker declaration state changed",
-        lambda h: notices(h, 0x000F, (6, 0)),
-        lambda h, sel: [(recipient(s), td.stream_info(s).hex()) for s in sel]
-        == [(FIRST, OUT0_DECLARED), (SECOND, OUT0_DECLARED), (FIRST, OUT0_WITHDRAWN), (SECOND, OUT0_WITHDRAWN)],
-        lambda h, sel: sel == [],
-        "GET_STREAM_INFO notices of STREAM_OUTPUT 0 to both controllers as its talker declares after the "
-        "PROBE_TX and as it withdraws", "none", shown_aecp, SRP_ADAPTER, SRP_ROUND),
-    Row("split-talker-failed", "IEEE 802.1Q-2018 35.2.2.8; Milan v1.2 4.3.3: a talker's declaration",
-        lambda h: [(k, v) for k, v in sorted(h.msrp.items()) if k[0] in (1, 2)],
-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
-        == [(FABRIC_TALKER, "New x2, JoinMt x15, Lv x1, Mt x5")],
-        lambda h, sel: [(k, td.run_length(v)) for k, v in sel]
-        == [(SPLIT_TALKERS[0], "New x2, JoinMt x89"), (SPLIT_TALKERS[1], "New x2, JoinMt x89")],
-        "Talker Advertise for STREAM_OUTPUT 0's stream from the PROBE_TX until it withdraws",
-        "Talker Failed for both sources' streams from boot, never withdrawn", shown_msrp, SRP_ADAPTER,
-        SRP_ROUND),
-    Row("entity-available-index",
-        "IEEE 1722.1-2021 Table 7-2, 6.2.2.15: ENTITY's available_index, the last ENTITY_AVAILABLE's",
-        lambda h: responses(h, 25),
-        lambda h, sel: entity_read(h, sel, 0),
-        lambda h, sel: entity_read(h, sel, 1),
-        "the ENTITY descriptor with available_index 0 after the ENTITY_AVAILABLE that carried 1",
-        "the ENTITY descriptor with available_index 1, its last ENTITY_AVAILABLE's", shown_aecp, FABRIC_INDEX,
-        "#858 (a release-image defect)"),
-)
+#: difference, its cause and the step that owes the fix, and asserts its exact values in both halves. None is owed at
+#: this head: its row stream-output-0-dest-mac, the split's declared STREAM_OUTPUT 0 notices with stream_dest_mac 0,
+#: went with #943, whose firmware answers the Talker's MAAP address, so both halves send the same notices.
+OWED: tuple[Row, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -508,60 +419,10 @@ class GradeRow:
     owed_to: str
 
 
-def mvrp_shown(cap: Capture) -> str:
-    """A half's MVRP as the #857 row reads it: each LeaveAll's millisecond, and its last MRPDU's events."""
-    frames = cap.frames.get("MVRP", [])
-    if not frames:
-        return "no MVRPDU"
-    events = ", ".join(f"VID {e.value} {e.event}" for e in td.mvrp_events(frames[-1])[0])
-    return (f"MVRP LeaveAll at ms {[s.ms for s in frames if td.mvrp_events(s)[1]]}, its last MVRPDU at ms "
-            f"{frames[-1].ms} ({events})")
-
-
-#: The fabric's MVRP as #857 has it: one LeaveAll, then VID 2's Lv at 20 s and no PDU after it
-FABRIC_MVRP = "MVRP LeaveAll at ms [10201], its last MVRPDU at ms 20000 (VID 0002 Lv)"
-#: The two attributes #860 has: the Domain the halves declare (Milan v1.2 4.2.7.2.1) and VID 2, its VLAN
-DOMAIN_KEY, VID2_KEY = (4, "06030002"), (1, "0002")
-#: The fabric's Domain as #860 has it: one New at 200 ms, then JoinMt at every periodic and LeaveAll, with no
-#: MSRPDU received; and its VID 2: one New at 5200 ms, then JoinIn from 6200 ms with no MVRPDU received
-FABRIC_DOMAIN = ("MSRP Domain value 06030002: New x1 from ms 200, JoinMt x79 from ms 1000; received no MSRPDU, its "
-                 "Registrar MT throughout")
-FABRIC_VID2 = ("MVRP VID 0002: New x1 from ms 5200, JoinIn x15 from ms 6200, Lv x1 from ms 20000; received no MVRPDU, "
-               "its Registrar MT throughout")
-ONE_NEW = "#860 (a release-image defect)"
-
-
-def applicant_findings(application: str, key: tuple[int, str]) -> Callable[[str], bool]:
-    """Whether a grade finding is the all-fabric half's Table 10-3 finding of one attribute."""
-    head = f"[MRP] all-fabric {application} {twin_mrp.label_of(application, key)}: "
-    return lambda f: f.startswith(head)
-
-
-def traced(application: str, key: tuple[int, str]) -> Callable[[Capture], str]:
-    """A half's messages for one attribute, as an owed grade row asserts them (twin_mrp.trace_shown)."""
-    return lambda cap: twin_mrp.trace_shown(cap, application, key)
-
-
-#: The owed defects a half's grade finds (#857, #860), apart from the differences OWED holds: each covers its
-#: grade findings while the half shows exactly the behaviour it asserts.
-OWED_GRADES = (
-    GradeRow("fabric-mvrp-leave-all",
-             "IEEE 802.1Q-2018 10.7.9, 10.7.4.3; Milan v1.2 Table 4.3: a full participant's LeaveAll, declaring "
-             "or not", "all-fabric",
-             lambda f: f.startswith("[MRP] all-fabric MVRP: ") and "to the next LeaveAll" in f, mvrp_shown,
-             FABRIC_MVRP, "the fabric's MVRP participant sends nothing, LeaveAll included, once it declares nothing",
-             "#857 (a release-image defect)"),
-    GradeRow("fabric-domain-one-new",
-             "IEEE 802.1Q-2018 Table 10-3: from AN, tx! sends New again; Milan v1.2 4.2.7.2.1: the Domain declared "
-             "after startup", "all-fabric", applicant_findings("MSRP", DOMAIN_KEY), traced("MSRP", DOMAIN_KEY),
-             FABRIC_DOMAIN, "the fabric's Domain participant queues one New at startup and at LINK_UP, then re-joins "
-             "(KL_srp_domain.sv)", ONE_NEW),
-    GradeRow("fabric-vid2-join-in",
-             "IEEE 802.1Q-2018 Table 10-3, 10.7.6.3: from AN, tx! sends New again, and sJ sends JoinIn only with "
-             "the Registrar IN", "all-fabric", applicant_findings("MVRP", VID2_KEY), traced("MVRP", VID2_KEY),
-             FABRIC_VID2, "the fabric's MVRP participant declares a VID with one New, then re-joins it on every "
-             "periodic and LeaveAll tick with JoinIn, the only Join it sends (KL_srp_vlan.sv)", ONE_NEW),
-)
+#: The owed defects a half's grade finds, apart from the differences OWED holds: each covers its grade
+#: findings while the half shows exactly the behaviour it asserts. None is owed at this head: the three rows
+#: it held, the all-fabric half's #857 and #860 defects, went with processor 801ef228 (#893), which fixed them.
+OWED_GRADES: tuple[GradeRow, ...] = ()
 
 
 def apply_grade_rows(cap: Capture, findings: list[str]) -> tuple[list[str], list[str]]:

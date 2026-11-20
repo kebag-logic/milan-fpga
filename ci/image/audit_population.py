@@ -48,7 +48,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 WORKFLOWS = (('.github/workflows/docs.yml', ('docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-check')),
              ('.github/workflows/rtl-fast.yml', None),
-             ('.github/workflows/elaborate.yml', ('elaborate-gates-0', 'elaborate-gates-1', 'elaborate')))
+             ('.github/workflows/elaborate.yml',
+              ('elaborate-gates-0', 'elaborate-gates-1', 'elaborate-gates-2', 'elaborate-gates-3',
+               'elaborate-gates-4', 'elaborate')))
 #: Jobs that observe, collect and cancel workflow runs through the GitHub API: never traced offline.
 ORCHESTRATION = ('ci-manifest', 'ci-fail-fast', 'ci-cancel-tail')
 ORCHESTRATED = 'Run orchestration through the GitHub API, which needs the network by design'

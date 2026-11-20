@@ -3,6 +3,10 @@
 #include "mbx_hal.h"
 #include <string.h>
 
+// The most a reset leaves pending is at least what the image's descriptors hold (aecp.h; #894's held-egress
+// ruling, item (b)(iv)): a shape whose descriptors hold more fails the build.
+_Static_assert(AECP_NOTICES_HELD <= AECP_NOTICES_MOST, "AECP_NOTICES_MOST: the descriptors hold more notices");
+
 static uint16_t tx_count(uint32_t reg)
 {
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
@@ -127,6 +131,13 @@ static bool applied(void *ctx)
 	return m->environment->applied(m->environment->ctx);
 }
 
+static unsigned edit(void *ctx, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+		     size_t count)
+{
+	struct aecp_mbx *m = ctx;
+	return m->environment->edit(m->environment->ctx, remove, type, index, records, pick, count);
+}
+
 bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 		   const struct aecp_ports *environment, unsigned timer_slot)
 {
@@ -137,7 +148,8 @@ bool aecp_mbx_init(struct aecp_mbx *m, const struct aecp_config *cfg,
 	m->slot = timer_slot;
 	m->environment = environment;
 	m->ports = (struct aecp_ports){m, send, now, random_value, timer,
-		stream, avb, path, counters, changed, start, format, available_index, applied, fan, fan_end};
+		stream, avb, path, counters, changed, start, format, available_index, applied, fan, fan_end,
+		environment->edit != NULL ? edit : NULL};
 	bool ok = aecp_init(&m->core, cfg, &m->ports);
 	m->core.edited_ms = 0u - AECP_PACE_MS; // no edit yet: the pace is open from the first millisecond
 	return ok;

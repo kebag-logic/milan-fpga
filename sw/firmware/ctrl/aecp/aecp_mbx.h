@@ -25,8 +25,12 @@ extern "C" {
 // being over THE SHARE, which 185 us filled: 185 + 5 x 34 + 1,215 + 365 + 65 = 2,000 us (#665, decided 2026-11-13;
 // FR_NFR.md 3.4.1). Under THE TIERS that first notice is a tier row, reported (#890). It expires at the 8x8/2if flip:
 // #890 closes only with a measured cold cost of at most 176.1 us, or on a new owner decision.
+// The cold start, and a refused attempt's AECP_ATTEMPT_US, are stated for each shape (THE SHAPES, ctrl_loop.h:
+// CTRL_LOOP_RETRY_COLD_US and CTRL_LOOP_RETRY_ATTEMPT_US), never by the interface count (#894's retry-cost ruling,
+// item 1): 85 us at 1x1/1if, 165 us at 8x8/1if, the line over its rounds measured, and 185 us at both two-interface
+// shapes.
 #define AECP_NOTICE_US (MBX_N_IF == 1u ? 255u : 365u)
-#define AECP_ROUND_COLD_US (MBX_N_IF == 1u ? 85u : 185u)
+#define AECP_ROUND_COLD_US CTRL_LOOP_RETRY_COLD_US
 // A round sets the next one's earliest start. Two milliseconds, a pass, lets a row of passes given whole carry a queue.
 // While records wait and the client yields it is two passes, and a round takes AECP_ROUND_YIELD_NOTICES: the rows a
 // composed burst holds have the CPU those passes leave. Each round that builds beside records spends a yield, whatever
@@ -65,14 +69,21 @@ extern "C" {
 // and SRP's records, and commits within AECP_QUEUED_MS, the last queued notice's bound: decision D's 125 ms, half of
 // the 250 ms a controller waits on an AECP command (IEEE 1722.1-2021 9.3.2.6), at 1x1/1if by #894's amendment of
 // 2026-11-13 to its contingent ruling, item 2, the built design's row rounded up to the next 5 ms, never over
-// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, and 140 ms
-// at SRP's Talker declarations' composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling
-// of 2026-11-15 on that composition, item 1). The rows by every source hold both at
+// 140 ms (queued_bound.py derives it; #908 stays open while it is over 125): 130 ms after #908's cuts, 135 ms on
+// AECP's REBOOT's merge on the tiers (#871), its row 134.74 ms, and 140 ms at SRP's Talker declarations'
+// composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
+// composition, item 1), and 130 ms on the SRP cut's head, its row 127.31 ms at the slice rule's 950 us once the AECP
+// notice item and the long notice were restated from their measurement there, as the owner decided on 2026-11-20
+// (#665, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
 // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
 // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
-// source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872).
+// source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872). The last
+// queued notice's bound is stated for each shape (THE SHAPES, ctrl_loop.h, CTRL_LOOP_QUEUED_MS), never by the
+// interface count, so 1x1/1if's is never another shape's, even where the two state the same figure, as 1x1/1if's
+// 130 ms on the SRP cut's head does: 8x8/1if's is its own 130 ms, which the CPU budget harness
+// holds its measured queues to; its rows by every source are reported, not held (#894's shape ruling, item (b)).
 #define AECP_QUEUED_FIRST_MS (MBX_N_IF == 1u ? 20u : 22u)
-#define AECP_QUEUED_MS (MBX_N_IF == 1u ? 140u : 62u)
+#define AECP_QUEUED_MS CTRL_LOOP_QUEUED_MS
 // The owed-notice queue's slots an integrator gives AECP (aecp_config.owed, #894): the AECP channel's burst at one
 // interface, so its last record never waits on a full queue; none at two, whose ledger has no room for them
 // (docs/design/SPLIT_CONTROL_MEMORY.md section 5), so there the next record waits for every notice, as before.
