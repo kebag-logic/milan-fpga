@@ -1,0 +1,167 @@
+Public authority snapshot for R866-5
+
+Issue #665: https://github.com/kebag-logic/milan-fpga/issues/665
+Issue #871: https://github.com/kebag-logic/milan-fpga/issues/871
+Issue #894: https://github.com/kebag-logic/milan-fpga/issues/894
+Issue #917: https://github.com/kebag-logic/milan-fpga/issues/917
+Issue #919: https://github.com/kebag-logic/milan-fpga/issues/919
+Issue #920: https://github.com/kebag-logic/milan-fpga/issues/920
+Issue #923: https://github.com/kebag-logic/milan-fpga/issues/923
+Issue #924: https://github.com/kebag-logic/milan-fpga/issues/924
+Issue #925: https://github.com/kebag-logic/milan-fpga/issues/925
+Issue #927: https://github.com/kebag-logic/milan-fpga/issues/927
+Issue #929: https://github.com/kebag-logic/milan-fpga/issues/929
+Issue #930: https://github.com/kebag-logic/milan-fpga/issues/930
+Issue #936: https://github.com/kebag-logic/milan-fpga/issues/936
+Issue #943: https://github.com/kebag-logic/milan-fpga/issues/943
+Issue #946: https://github.com/kebag-logic/milan-fpga/issues/946
+Issue #951: https://github.com/kebag-logic/milan-fpga/issues/951
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6939574513
+[A10] **Way of working for the flip train, from now on** (owner, 2026-11-17 06:4x: avoid reviews and rounds that the next merge breaks anyway). This builds on option B (issuecomment-6939460730).
+
+1. **Freeze.** A PR with two POSITIVE reviews at its own reviewed head is frozen. It gets no sync round onto dev-soft-core and no re-review after a sync. It changes only for a defect in its own change.
+2. **Compose once.** One composition lane builds a train branch on live dev-soft-core, merging each frozen PR in train order with `--no-ff` and resolving every conflict there. It re-measures the composed image at 1x1/1if and 8x8/1if (the CPU service-budget harness, the in-tree statement survey, the ROM ledger) and fixes only what composition breaks.
+3. **Check once.**
+   - one composition review, by both reviewers, on the conflict resolutions and the composed measurements only;
+   - one train candidate, the full banks, on the train tip;
+   - the gating S12b on the same images.
+4. **Merge once.** The train branch merges into dev-soft-core in a single merge. Each constituent PR's head is then contained in the base, so GitHub marks it merged.
+5. **After composition,** any finding is fixed in the composition lane.
+
+**Applied now:**
+- #881's sync round is stopped; the PR is frozen at `d3e61e37`, both reviews positive. Its local resolution is kept for the composition lane.
+- Rounds that fix a PR's own change continue: #914 round 12, #934 round 5, #936 and #932 round 3.
+
+Frozen so far: #881, #918, #935, #933, #938, #931.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348
+**Re-ruling of items 2 and 4 of the round-4 ruling (issuecomment-6967930396).** Decided for the owner under the delegation of 2026-11-11. Items 1 and 3 stand.
+
+**Correction.** That ruling called THE TRANSMIT's 75 ms at 8x8/1if a constant no restatement may move. That was wrong.
+
+- `CTRL_LOOP_TX_MS` is the tx row rounded up, and #894 restated it before (`32a9242f`).
+- The owner's bound is txL's 49 ms, which is held at 1x1/1if only.
+- At 8x8/1if the rows are reported, not held, owed to #872 by the owner's decision of 2026-11-12.
+
+**2a. THE TRANSMIT's figure at 8x8/1if follows its row.**
+
+- It is restated to the final head's row rounded up: 77 ms for the 76.81 measured.
+- The withdrawn Talker's hold-off must stay 8 cs, so the figure must be 80 ms or less. Above that, the owner decides.
+- The host tests that read the figure run again.
+
+**2b. The SRP unit at 8x8/1if may follow its record to 375 us.**
+
+- The unit is a stated cost the firmware reads, not the slice. The 1x1/1if unit followed its record the same way.
+- It changes scheduling, so only a measurement of the image that carries it counts. That measurement must show, at 8x8/1if over every arm:
+  - the SRP record within its unit, and every statement within its figure;
+  - the load at 0.75 or less;
+  - no budget miss, and join intervals in range.
+- The code passes the firmware shards, the control campaign and the two-placement comparison, with no plant removed.
+- The 1x1/1if and 8x8/2if images must be byte-identical to the measured head's. If they are not, those points are measured again.
+- One more head, with the unit a step higher, may be measured in parallel. The lowest unit that its own image holds is taken.
+- The nearest-point rule and the LINKED gate stay unchanged.
+
+**4. The deadline.**
+
+- At 12:00 the owner receives the figures, as information.
+- The pass is decided on the 8x8/1if figures of the image that carries the unit, when they land. The hard stop is 15:00 CET; after it, the owner decides.
+- Fit and the timing floor start now on that head, at risk.
+- The flip stays Thursday.
+
+**Owner.** Nothing to decide if that measurement passes. The load ceiling 0.75, txL's 49 ms, the last queued notice's 140 ms and ACMP's 30 ms are unchanged.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447
+**Ruling: two findings from the gating bench run's qualification replay, on the final images.** Decided for the owner under the delegation of 2026-11-11. The owner is informed and may veto before the merge.
+
+**1. A STREAM_OUTPUT's GET_STREAM_INFO status: merge with it as a named known limitation.**
+- **The defect:** a running output reports stream_dest_mac 0 with STREAM_DEST_MAC_VALID set, and never sets REGISTERING or REGISTERING_FAILED (Milan v1.2 5.4.2.10, Table 5.8; IEEE 1722.1-2021 7.4.16). It is pre-existing in the split. It is status reporting only: the frames flow to the MAAP address.
+- **Why not fix it in the train:** a fix changes the firmware image after the gating run. The soak and power cycles would no longer carry by byte identity, so the cost is a full bench re-run.
+- **"No failure is acceptable"** is the release rule. No release is cut from the split until this passes.
+- **The fix starts now under #943,** as the first PR after the flip: the destination MAC from the talker's MAAP address, and both flags from the MSRP registrar's Listener declaration. It has tests on every output and re-measures the AECP rows.
+- The train record names the limitation and its clauses.
+
+**2. The re-declare hold-off after a MAAP conflict: cover the randomised LeaveAll, after the flip.**
+- **Today:** the split re-declares a withdrawn stream 20.3 s after the unregistration: 2 x LeaveAllTime plus JoinTime and one transmit, #895's accepted reading. By the project's own reading, IEEE 802.1Q-2018 35.2.2.8 sets only the least, so a longer hold still conforms.
+- **Why move it:** a real LeaveAll period runs up to 1.5 x LeaveAllTime (10.7.4.3; Milan v1.2 Table 4.3).
+- **The change:** derive the constant from two longest LeaveAll periods plus the existing terms, about 30.2 s at one interface. That matches the release.
+- **Its PR** shows an image diff limited to that value, and restates the Talker tests, mutants and docs.
+- Until then the train record lists it as a known divergence.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7018568112
+**Ruling: CPU margin before the flip train's final measurement.** Decided for the owner under the delegation of 2026-11-11. No owner bound or date moves.
+
+1. **The trigger.** Several AECP records sit at their statements, and code placement alone moves them across: the 1x1/1if paced map edit measures 310 us on one image and 320 us on another, against 310. A restatement by the rule (measured + 5 %, up to 5 us) would push 1x1/1if's last-queued-notice row past its 140 ms bound, which never moves.
+2. **A projection now, with no build.** Take each thin record at its worse measured value plus the rule: the map edit at 340 us, 8x8/1if's largest legal command at 1,850 us, and the held SET_STREAM_INFO past 245 us. Run the row rules and list every held row or owner bound that breaks. Only those are cut; the rest restate by the rule.
+3. **A margin-recovery logic cut starts now.**
+   - It targets 1x1/1if's last-queued-notice row, sized so the row holds 140 ms with the map edit at 340 us.
+   - A structural saving (per-notice cycles, or the edit split across passes) is preferred to shaving the edit back to its statement.
+   - It is based on the train head with #943's current round, and joins the train as step 15 with ordinary reviews, before the final measurement.
+4. **Pinning link order or alignment is rejected for the train.** It hides a zero-margin statement and breaks on the next change. It may be raised after the flip.
+5. **The final head's image rules.** No statement is taken from a luckier image.
+6. **Owner trigger:** if the cut cannot give the 140 ms row real margin by the weekend, the choice between the bound and the date is the owner's.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7029526172
+**Ruling: the flip train's final CPU measurement.** Decided for the owner under the delegation of 2026-11-11. No owner bound or date moves.
+
+1. **The finding.** At the composed head, two 8x8/1if SRP costs in the valid-destinations talker-held group exceed their statements by the rule: the SRP record (380 us against 375) and the reclaim item (45 against 40). With both restated, 8x8/1if's load is 0.7512, over the owner's 0.75 ceiling. Everything else holds: 1x1/1if's last notice 137.97 of 140 ms, ACMP 29.93 of 30, txL 48.89 of 49, and none of its statements exceeded.
+2. **Attribution (repeats agree to the cycle).**
+   - #951's change moves only the layout and adds no cost.
+   - The step that adds #943's fix (280 bytes, AECP path only) takes the reclaim and retained items over, and the load from 0.7461 to 0.7517.
+   - Layout alone moves these SRP figures by about +-300 cycles, more than their margin.
+3. **A logic cut, as a composition fix.** The SRP reclaim, retained and record path is made cheaper, sized so 8x8/1if holds 0.75 with every exceeded cost restated by the rule and with margin against layout movement. Tests and planted defects as usual, then the full re-measure.
+4. **Margin recovery at 1x1/1if, narrow exception to round 29.** The rows already hold, so the two stale notice-path statements (the AECP notice item, the long notice) are restated from this fresh every-source measurement at the final head, by the usual rule, and named in the record. This gives 1x1/1if's 140 ms, 30 ms and 49 ms rows real margin. It is not used to pass a missed bound: 8x8/1if must meet 0.75 by the cut. Round 29's rule otherwise stands.
+5. **#951 stays in the train.** It adds no cost.
+6. **Owner:** the 0.75 ceiling and the weekend date. Raised only if the cut cannot land in time.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7044585511
+**Owner decision (2026-11-20 17:1x): the flip train's 1x1/1if margins.**
+
+- **The situation:** the SRP cut (#665's ruling of 2026-11-20, item 3) brings 8x8/1if within its 0.75 load ceiling: 0.7436, with no statement exceeded. Its code-layout and cache effects move four 1x1/1if costs past their statements: the paced map edit, the held SET_STREAM_INFO, the ADP record and the centisecond tick. Restated by the usual rule, they put 1x1/1if's last queued notice at 141.53 ms (bound 140) and ACMP at 32.74 ms (bound 30).
+- **Decided by the owner:** item 4 of that ruling applies at 1x1/1if here too. The two stale notice-path statements are restated from the fresh every-source measurement of the final image, by the usual rule: the AECP notice item 210 to 150 us, and the long notice 365 to 315 us. The four moved costs are restated by the rule.
+  - The 1x1/1if rows are then: last queued notice 132.93 ms (bound 140), ACMP 29.01 ms (bound 30), txL 47.83 ms (bound 49).
+  - No owner bound moves.
+- **Records:** the exception is named in the train's record and in each restated statement's comment. Round 29's rule otherwise stands.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849
+[A10] **Owner decision 2026-11-12 05:47: option A for the flip gate.**
+- **1x1/1if:** the flip holds its rows by every source to option B's bounds (tier 1 20 ms, SRP 90 ms, last queued notice 125 ms). This is built in #894.
+- **8x8/2if:** the flip holds the long-window load at 0.75 (#890). It also needs a fresh measurement on the flip build, with every source at its contract rate, in which every row fits its bound.
+- **8x8/2if rows by every source:** reported, not gated, and owed to #872 (more compute), like 32x32. By the current model the worst row is SRP's R5 at 226 ms, against 90 ms and above MRP's 200 ms JoinTime. That is stated, not hidden.
+- This relaxes the 11-09 rule that rows hold by every source and never by measurement alone, for 8x8/2if only. The bounds themselves are unchanged.
+
+https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905
+[A10] **Ruling on the 8x8/1if lane's STOP (issuecomment-6871307898): round 2.** This is a maintainer-delegated decision.
+
+**(a) The two-core trigger is not met.**
+- `backlog-owed`'s seven rows are set by the scenario's 60 ms egress hold. They miss in the same way at 1x1/1if and at 8x8/2if, and a second hart can't move them.
+- Every CPU-decided measured row holds, and the load is 0.706 of 0.75.
+- **The trigger, restated** (#872, issuecomment-6862464924): a CPU-decided measured row over its bound, or the load over 0.75.
+- **The held-egress rows stay recorded misses,** in the form 1x1/1if has today: the same row names, recorded in the ledger. A new or larger miss fails the leg. FR_NFR 3.4.1 charges TX backpressure to the service budget, so they are not ruled as passing.
+
+**(b) Round 2.**
+- **(i) The MRPDU row's harness budget** derives from `CTRL_LOOP_TX_BOUND_MS` (49 ms after #902's merge), with a planted defect one over. "0 budget misses" means none beyond the recorded egress rows.
+- **(ii) `CTRL_LOOP_SRP_UNIT_US` per shape,** at 8x8/1if's measurement plus 5 %. This isn't a STOP condition: a stated cost below its measurement is the defect. The 1x1 and 8x8/2if images stay byte-identical.
+- **(iii) The poll costs per shape,** from measurement plus 5 %, with the load recomputed.
+- **(iv) Check the firmware first.**
+  - Derive 8x8/1if's largest number of pending notices from its descriptors, through the shape header.
+  - If that exceeds `AECP_NOTICES_MOST` (12), the queue is undersized there: size it by shape, and prove no notice is dropped, with a plant.
+  - Then build the queued-notice and R4L arm at 8x8/1if and measure it: the first notice 20 ms, the last 130 ms, paced R4L 238 ms.
+- **(v) The full pass runs once, at the round-2 head.**
+
+**STOP:** the platform image over 56.0 (it has no spare, and (iv) may add RAM), a slice over 1,600 µs, or a changed 1x1 or 8x8/2if image.
+
+**(c) Sequencing.**
+- **Now:** (i), the shape keying of (ii) and (iii), the notice-count derivation, and building the arm.
+- **After #902 merges:**
+  - merge dev-soft-core, and take the shape header as the single source for #902 round 9's direct-index table;
+  - check byte-identity against the merged head;
+  - then measure, and run the full pass once.
+
+
