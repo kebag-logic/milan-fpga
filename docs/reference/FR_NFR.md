@@ -73,13 +73,13 @@ Media capacity grows through fabric contexts, channels and sample rates.
 Control state grows through static, entity-sized contexts in the selected owner.
 Each supported shape must meet Section 3.4 service bounds.
 
-The diagram above describes the current all-fabric shipping default.
+The diagram above describes the all-fabric placement.
 Until the switch-over, a build selects each control function's placement.
 
-The all-fabric build stays the shipping default until then.
-The switch-over follows F2 to F5 acceptance.
+The split build is the shipping default since the flip (#665 S13).
+The all-fabric build stays built and gated until the switch-over.
 
-Acceptance covers all streams, all counters and the audio soak.
+The switch-over needs the full qualification: all streams, counters and the audio soak.
 Mark II then runs every control protocol as firmware only.
 
 No all-fabric option remains after it (NFR-SCOUT-02).

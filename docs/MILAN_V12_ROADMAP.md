@@ -3,7 +3,8 @@
 
 **Status 2026-09-10, VERSION `0x0002_0060`.** This is the ordered, clause-cited
 plan from where the device is to a device that satisfies the Milan v1.2
-end-station compliance requirements. The canonical current ledger is
+end-station compliance requirements. It was written against the all-fabric image;
+since the flip (#665 S13) the shipping split image reads VERSION `0x0003_0060`. The canonical current ledger is
 [`reference/MILAN_FEATURE_STATUS.md`](reference/MILAN_FEATURE_STATUS.md).
 Superseded campaign narratives remain in Git history.
 
@@ -33,7 +34,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |

@@ -1,9 +1,9 @@
 # FPGA design reference - every module in `hdl/`, and how they compose
 
-This page describes the all-fabric shipping placement.
-It stays the shipping default until F2 to F5 acceptance.
+This page describes the all-fabric placement, built and gated behind its switch.
+The split placement ships since the flip (#665 S13).
 
-That acceptance covers all streams, counters and the audio soak.
+The processor leaves only after the full qualification (NFR-SCOUT-02).
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) defines the transition and end state.
 
 

@@ -396,10 +396,19 @@ def check_source_facts(ledger: dict[str, Any], version_text: str,
     matches = re.findall(
         r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h"
         r"([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})", version_code)
+    # The current version is the shipping image's, a split image's since the
+    # flip (#665 S13): VERSION_SPLIT_MAJOR over VERSION's minor, the one
+    # flat ordinal both placements read (docs/ARCHITECTURE_HW_SW_SPLIT.md 7).
+    split_major = re.findall(
+        r"parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h"
+        r"([0-9A-Fa-f]{4})", version_code)
     if len(matches) != 1:
         findings.append(f"{names.version}: cannot locate VERSION parameter")
+    elif len(split_major) != 1:
+        findings.append(
+            f"{names.version}: cannot locate VERSION_SPLIT_MAJOR parameter")
     else:
-        actual = f"0x{matches[0][0].upper()}_{matches[0][1].upper()}"
+        actual = f"0x{split_major[0].upper()}_{matches[0][1].upper()}"
         expected = ledger["facts"]["gateware_version"]
         if actual != expected:
             findings.append(

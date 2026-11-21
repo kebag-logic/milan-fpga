@@ -52,23 +52,20 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0060` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
-`protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
-in this repository. There is no legacy fallback.
+The shipping image runs the [Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) split placement (#665 S13).
+Its VERSION is `0x0003_0060`: major 3 marks a split image.
 
-[Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) firmware runs ADP, ACMP, AECP, MAAP and SRP.
+Bare-metal firmware runs ADP, ACMP, AECP, MAAP and SRP behind the packet mailbox.
 AECP includes descriptor serving, unsolicited notifications and counter serving.
 
-Until the switch-over, each has build-selectable placement with one owner.
-All-fabric stays the shipping default until F2 to F5 acceptance.
+The all-fabric build stays built and gated behind `control.placement: all-fabric`.
+It keeps VERSION major 2, `hdl/milan/KL_pp_shadow.sv` and the pinned `protocol-processor`.
 
-That acceptance covers all streams, counters and the audio soak.
-After the switch-over, no all-fabric build remains.
+Each function has one owner in either placement.
+The processor is deleted only after the full qualification (NFR-SCOUT-02).
 
 Framing, timestamps, ingress filtering and media remain in fabric.
 gPTP stays in fabric until F6, then moves to firmware.
-
-F0/F1 are merged foundations; no shipping placement changes here.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
@@ -76,7 +73,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |

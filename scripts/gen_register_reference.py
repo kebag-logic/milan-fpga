@@ -98,6 +98,7 @@ def build_model(root: Path, soc: dict | None = None) -> tuple[Model, RtlFacts]:
     features = [(f["id"], f["status"], f.get("value", "-")) for f in ledger["features"] if PAGE in f["documents"]]
     model = Model(regs, modules, soc, table, facts.version, desc, features, guards(regs, desc))
     model.root = root
+    model.split_version = (facts.sym.value("VERSION_SPLIT_MAJOR") << 16) | (facts.version & 0xFFFF)
     model.wording = Wording(facts, regs, desc)
     model.mechanisms = mechanisms(model)
     return model, facts

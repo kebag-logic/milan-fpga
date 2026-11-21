@@ -1,6 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 
-The implementation evidence below describes the current all-fabric shipping image.
+The implementation evidence below describes the all-fabric image.
+The split placement ships since the flip (#665 S13); its bench gate is on #665.
 It does not establish firmware-placement acceptance.
 The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) requires separate timing evidence
 for each selected control owner before the default changes.
@@ -19,7 +20,7 @@ Machine-checked anchors from the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |

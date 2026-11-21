@@ -11,6 +11,9 @@ python3 scripts/gen_register_reference.py --check
 ```
 
 The SoC facts come from the `endstation_ax7101_1x1_tdm8` export, recorded in `scripts/register_map_soc.json`.
+That export is the all-fabric build.
+
+The shipping split image reads VERSION `0x0003_0060` (#665 S13).
 
 Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
@@ -252,6 +255,7 @@ Some reset values depend on these parameters.
 | `CHMAP_RDBK_P` | `3` | 3 |
 | `PPS_P` | `PPS_P` | 0 |
 | `PPS_WIDTH_CYC_P` | `PPS_WIDTH_CYC_P` | 50,000 |
+| `CTRL_SPLIT_P` | `CTRL_SPLIT_P` | 0 |
 
 ## 0x000  -  Identification / IRQ
 
@@ -300,6 +304,8 @@ RTL name: `A_ID`.
 Major and minor version of this CSR block's ABI.
 
 This build's VERSION is `0x0002_0060`.
+
+A split image's VERSION is `0x0003_0060` (#665 S13).
 
 RTL name: `A_VERSION`.
 
@@ -4538,7 +4544,7 @@ These rows come from the feature status ledger.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aaf.media-clock-following` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `aem.served-command-set` | `implemented` | - |

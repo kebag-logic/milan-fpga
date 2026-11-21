@@ -6,11 +6,11 @@ The current shipping build places control protocols in fabric.
 Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
 AECP includes unsolicited notifications and counter serving.
 
-Until the switch-over, each has build-selectable placement with one owner.
-All-fabric stays the shipping default until F2 to F5 acceptance.
+Each function has build-selectable placement with one owner.
+The split placement ships since the flip (#665 S13).
 
-That acceptance covers all streams, counters and the audio soak.
-After the switch-over, no all-fabric build remains.
+All-fabric stays built and gated until the full qualification (NFR-SCOUT-02).
+Then the processor is deleted and no all-fabric build remains.
 
 Framing, timestamps, ingress filtering and media remain in fabric.
 gPTP stays in fabric until F6, then moves to firmware.

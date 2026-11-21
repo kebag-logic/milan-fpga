@@ -95,7 +95,8 @@ def _fixtures():
     ledger, findings = load_ledger_text(json.dumps(base), "fixture")
     return _Fixtures(base, fact_row, prose, order_block, row, ordered_row,
                      ledger, findings,
-                     "parameter logic [31:0] VERSION = 32'h0002_0051;",
+                     "parameter logic [31:0] VERSION = 32'h0002_0051;\n"
+                     "parameter logic [15:0] VERSION_SPLIT_MAJOR = 16'h0002;",
                      'SERVED = {0: dict(name="READ_DESCRIPTOR")}\n')
 
 
@@ -199,6 +200,17 @@ def _source_fact_cases(fx):
     cases.append(("source version drift", any(
         "gateware version conflict" in item for item in check_source_facts(
             ledger, version_text.replace("0051", "0052"), command_text))))
+    # the current version is a split image's major over VERSION's minor (#665
+    # S13): a moved split major is a conflict, and a missing one is no
+    # source at all rather than a silent fall back to VERSION's own major
+    cases.append(("source split major drift", any(
+        "gateware version conflict" in item for item in check_source_facts(
+            ledger, version_text.replace("16'h0002", "16'h0003"),
+            command_text))))
+    cases.append(("source split major missing", any(
+        "cannot locate VERSION_SPLIT_MAJOR" in item
+        for item in check_source_facts(
+            ledger, version_text.split("\n")[0], command_text))))
     cases.append(("source inventory drift", any(
         "served AEM inventory conflict" in item for item in check_source_facts(
             ledger, version_text,

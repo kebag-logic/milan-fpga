@@ -60,6 +60,8 @@ class Model:
     root: Path = Path(".")
     wording: "Wording | None" = None
     mechanisms: list = field(default_factory=list)
+    #: a split image's VERSION: VERSION_SPLIT_MAJOR over VERSION's minor (#665 S13)
+    split_version: int = 0
 
 
 # ---------------------------------------------------------------- conditions --
@@ -522,6 +524,17 @@ def top_sections(model: Model) -> list[tuple[str, str]]:
     return rows
 
 
+def version_word(value: int) -> str:
+    """A VERSION value as the register map spells it, `0xMMMM_mmmm`."""
+    return f"0x{value >> 16:04X}_{value & 0xFFFF:04X}"
+
+
+def record_build(soc: dict) -> str:
+    """Which control placement the recorded export was built at, from its datapath's CTRL_SPLIT_P."""
+    split = soc.get("datapath_parameters", {}).get("CTRL_SPLIT_P", 0)
+    return "a split build" if split else "the all-fabric build"
+
+
 def header(model: Model) -> list[str]:
     """Title, provenance and the regeneration commands."""
     soc = model.soc
@@ -539,6 +552,9 @@ def header(model: Model) -> list[str]:
         "```",
         "",
         f"The SoC facts come from the `{soc['shape']}` export, recorded in `{SOC}`.",
+        f"That export is {record_build(soc)}.",
+        "",
+        f"The shipping split image reads VERSION `{version_word(model.split_version)}` (#665 S13).",
         "",
         "Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).",
         "",
@@ -754,7 +770,8 @@ def register_section(model: Model, module: Module, reg: Register, head: str) -> 
     out = [f"### {head}", "", regd.get("purpose", ""), ""]
     if reg.label == "VERSION":
         hi, lo = model.version >> 16, model.version & 0xFFFF
-        out += [f"This build's VERSION is `0x{hi:04X}_{lo:04X}`.", ""]
+        out += [f"This build's VERSION is `0x{hi:04X}_{lo:04X}`.", "",
+                f"A split image's VERSION is `{version_word(model.split_version)}` (#665 S13).", ""]
     out += [f"RTL name: `{reg.rtl_name}`.", ""]
     out += [f"![{acronym(reg, desc)} bit fields]({relative(svg_path(module, reg, desc))})", ""]
     rows = [[fl.bits, f"`{fl.name}`", fl.access, fl.reset, field_text(reg, fl, model)] for fl in reg.fields]

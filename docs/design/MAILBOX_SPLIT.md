@@ -29,9 +29,9 @@ Lane S6 adds [the placement switch](#the-placement-switch).
 The `--ctrl-mailbox` SoC connects the mailbox to it.
 
 The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
-All-fabric stays the shipping default until F2 to F5 acceptance.
+The split placement ships since the flip (#665 S13).
 
-That acceptance covers all streams, counters and the audio soak.
+All-fabric stays built and gated until the full qualification (NFR-SCOUT-02).
 
 The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
 So does the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665).
@@ -1596,8 +1596,8 @@ Both placements build from one tree, one recipe and one config file.
 
 | Placement | `control.placement` | `CTRL_SPLIT_P` | The SoC |
 |---|---|---|---|
-| all-fabric, the default until the flip | absent or `all-fabric` | 0, not emitted | no mailbox |
-| split | `split` | 1 | `--ctrl-mailbox --ctrl-firmware` |
+| all-fabric | absent or `all-fabric` | 0, not emitted | no mailbox |
+| split, the AX7101 configs' since the flip (#665 S13) | `split` | 1 | `--ctrl-mailbox --ctrl-firmware` |
 
 The builder emits the split's flags and states `CTRL_SPLIT_P` in
 `datapath_params()`. Builder gate 23m holds the SoC's binding to that
@@ -1801,8 +1801,9 @@ defects, its parallel gate and the two-placement simulation are local.
 
 ### The split image's identity
 
-Until the flip (S13) VERSION stays `0x0002_0060` in both placements, so a split
-image is identified another way (#665, decision D2):
+Since the flip (S13) a split image reads VERSION `0x0003_0060` and an all-fabric
+one `0x0002_0060`. Before it VERSION was `0x0002_0060` in both, so a split image
+is also identified another way (#665, decision D2):
 
 - **The recipe.** `endstation_builder.py <config> --placement split` builds a
   shipped config at the split placement without editing it. Its shape artifacts

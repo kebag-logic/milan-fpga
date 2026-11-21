@@ -17,11 +17,11 @@ the first wire byte; `tkeep` is contiguous on the final beat; `tlast` closes a
 packet; and backpressure is honored at every registered merge. The MAC adapter
 may cross clock domains only with a complete-packet asynchronous FIFO.
 
-The current shipping placement keeps control traffic in fabric.
-It stays the shipping default until F2 to F5 acceptance.
+The all-fabric placement keeps control traffic in fabric.
+The split placement ships since the flip (#665 S13).
 
-That acceptance covers all streams, counters and the audio soak.
-After the switch-over, no all-fabric build remains.
+All-fabric stays built and gated until the full qualification (NFR-SCOUT-02).
+Then the processor is deleted and no all-fabric build remains.
 
 Mark II passes selected control frames through filtered packet mailboxes.
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#packet-mailbox-interface) defines the mailbox boundary.

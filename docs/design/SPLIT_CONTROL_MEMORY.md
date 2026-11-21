@@ -2,7 +2,7 @@
 
 Status: **M8a-1 implemented** behind `--ctrl-mailbox` (#640 lane M8a, plan L11a).
 The split image's boot, service checks and route are M8a-2, after the placement switch (#665).
-The all-fabric shipping default is unchanged and keeps its BIOS.
+The all-fabric build keeps its BIOS; the split placement ships since the flip (#665 S13).
 
 In the split placement the control firmware owns the CPU's reset entry and runs from block RAM.
 No BIOS ROM or BIOS SRAM is built there.
