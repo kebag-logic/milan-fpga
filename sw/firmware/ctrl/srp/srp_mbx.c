@@ -37,11 +37,14 @@ _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held"
 #define SRP_LEAVEALL_LONGEST_CS (SRP_LEAVEALL_CS + SRP_LEAVEALL_CS / 2u)
 // A withdrawn Talker's hold-off, in centiseconds, before its StreamID declares another FirstValue (#895). MSRP does not
 // support a changed FirstValue on a StreamID: at least two LeaveAllTime periods pass between the Leave and the new
-// declaration (IEEE 802.1Q-2018 35.2.2.8). The hold-off covers two nominal longest periods, 30 s; two at Milan's
-// tolerance edge reach 31 s (#951). The count starts at the Leave's request, which leaves at most a JoinTime and
-// THE TRANSMIT's MRPDU by every source later (hold, CTRL_LOOP_TX_MS, the built design's, held at or over its tx row
-// at every shape by flip_grade.py --check: rows_tiers.tx_statements, and tx_held at 8x8/1if), so it adds both.
-#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)
+// declaration (IEEE 802.1Q-2018 35.2.2.8). The new declaration reaches the wire within two nominal longest periods,
+// 30 s, of the Leave's request, where the count starts (#951); two at Milan's tolerance edge reach 31 s. The count's
+// end leaves at most a JoinTime and THE TRANSMIT's MRPDU by every source before the declaration is on the wire (hold,
+// CTRL_LOOP_TX_MS, the built design's, held at or over its tx row at every shape by flip_grade.py --check:
+// rows_tiers.tx_statements, and tx_held at 8x8/1if), so both are counted inside the two periods: the declaration
+// comes no sooner than two longest periods less both terms and no later than 30 s (#956, the owner's decision of
+// 2026-11-21).
+#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)
 // Each source's count (srp_mbx.h, held_cs) holds the whole hold-off.
 _Static_assert(SRP_REDECLARE_CS < 1ul << 8u * sizeof ((struct srp_mbx *)0)->held_cs[0], "held_cs holds the hold-off");
 // A participant's slot: MSRP then MVRP of each interface.
