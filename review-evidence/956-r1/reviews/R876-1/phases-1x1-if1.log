@@ -1,0 +1,116 @@
+Note: Google Test filter = Talker.LatestPhase300
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase300
+$REVIEWS/956-r876-1-packet/scratch/phases-1x1-if1/ctrl/test/srp_talker.cpp:875: Failure
+Expected equality of these values:
+  adv->time_ms
+    Which is: 31000
+  end+kLatestMs
+    Which is: 30295
+the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow
+
+  [FAIL] Talker.LatestPhase300: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow
+$REVIEWS/956-r876-1-packet/scratch/phases-1x1-if1/ctrl/test/srp_talker.cpp:877: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 31000 vs 30300
+the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+
+  [FAIL] Talker.LatestPhase300: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+[  FAILED  ] Talker.LatestPhase300 (31 ms)
+[----------] 1 test from Talker (31 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (31 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.LatestPhase300
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+Note: Google Test filter = Talker.LatestPhase400
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase400
+[       OK ] Talker.LatestPhase400 (18 ms)
+[----------] 1 test from Talker (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (18 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = Talker.LatestPhase500
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase500
+[       OK ] Talker.LatestPhase500 (15 ms)
+[----------] 1 test from Talker (15 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (15 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = Talker.LatestPhase600
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase600
+[       OK ] Talker.LatestPhase600 (30 ms)
+[----------] 1 test from Talker (30 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (30 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = Talker.LatestPhase700
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase700
+[       OK ] Talker.LatestPhase700 (17 ms)
+[----------] 1 test from Talker (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (17 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = Talker.LatestPhase800
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase800
+[       OK ] Talker.LatestPhase800 (14 ms)
+[----------] 1 test from Talker (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (14 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+Note: Google Test filter = Talker.LatestPhase900
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.LatestPhase900
+[       OK ] Talker.LatestPhase900 (16 ms)
+[----------] 1 test from Talker (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (19 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP Talker declarations: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)

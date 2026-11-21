@@ -1,0 +1,22 @@
+Note: Google Test filter = AppOutputs.*:App.SrpDeclarationChangeIsItsStreamOutputsNotice:App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+[==========] Running 4 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from App
+[ RUN      ] App.SrpDeclarationChangeIsItsStreamOutputsNotice
+[       OK ] App.SrpDeclarationChangeIsItsStreamOutputsNotice (8 ms)
+[ RUN      ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed
+[       OK ] App.NoPassIsIdleWhileAStreamOutputsNoticeIsOwed (1 ms)
+[----------] 2 tests from App (9 ms total)
+
+[----------] 2 tests from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (6 ms)
+[ RUN      ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (19 ms)
+[----------] 2 tests from AppOutputs (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 2 test suites ran. (36 ms total)
+[  PASSED  ] 4 tests.
+== AECP core: checks: 4   failures: 0 ==
+RESULT: PASS

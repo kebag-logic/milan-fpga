@@ -1,0 +1,45 @@
+[==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from Talker
+[ RUN      ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore
+[       OK ] Talker.ValidSourceDeclaresAtOnceAndNothingBefore (0 ms)
+[ RUN      ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing
+[       OK ] Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing (20 ms)
+[ RUN      ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce
+[       OK ] Talker.UnchangedDestinationIsDeclaredAgainAtOnce (9 ms)
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods (33 ms)
+[ RUN      ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+[       OK ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest (12 ms)
+[ RUN      ] Talker.DestinationChangeWhileValidWithdrawsTheOld
+[       OK ] Talker.DestinationChangeWhileValidWithdrawsTheOld (14 ms)
+[ RUN      ] Talker.AdmissionChangeSwapsTheTypeInPlace
+[       OK ] Talker.AdmissionChangeSwapsTheTypeInPlace (0 ms)
+[ RUN      ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+[       OK ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (21 ms)
+[ RUN      ] Talker.GateEntryRecordsOnlyWhatChanged
+[       OK ] Talker.GateEntryRecordsOnlyWhatChanged (0 ms)
+[ RUN      ] Talker.RefusedDeclarationIsDeclaredAgain
+[       OK ] Talker.RefusedDeclarationIsDeclaredAgain (0 ms)
+[ RUN      ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin
+[       OK ] Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin (0 ms)
+[ RUN      ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt
+[       OK ] Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt (0 ms)
+[ RUN      ] Talker.DeclarationAndWithdrawalAreNoticed
+[       OK ] Talker.DeclarationAndWithdrawalAreNoticed (0 ms)
+[ RUN      ] Talker.TypeSwapIsNoticed
+[       OK ] Talker.TypeSwapIsNoticed (0 ms)
+[ RUN      ] Talker.AdoptedDomainVidIsNoticed
+[       OK ] Talker.AdoptedDomainVidIsNoticed (0 ms)
+[ RUN      ] Talker.ResetNoticesNothingUnchanged
+[       OK ] Talker.ResetNoticesNothingUnchanged (0 ms)
+[ RUN      ] Talker.ListenerRegistrationChangeIsNoticed
+[       OK ] Talker.ListenerRegistrationChangeIsNoticed (4 ms)
+[----------] 17 tests from Talker (127 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (127 ms total)
+[  PASSED  ] 17 tests.
+== ctrl SRP Talker declarations: checks: 17   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (17 tests, 0 failures, exit 0)

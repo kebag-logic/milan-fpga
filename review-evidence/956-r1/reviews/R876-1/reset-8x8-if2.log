@@ -1,0 +1,27 @@
+Note: Google Test filter = Talker.RegistrationAfterLinkResetIsNoticed
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Talker
+[ RUN      ] Talker.RegistrationAfterLinkResetIsNoticed
+$REVIEWS/956-r876-1-packet/scratch/reset-8x8-if2/ctrl/test/srp_talker.cpp:866: Failure
+Expected equality of these values:
+  adapter.ifs[i].noticed&1u
+    Which is: 0
+  1u
+    Which is: 1
+new Listener registration after link reset must be noticed
+
+  [FAIL] Talker.RegistrationAfterLinkResetIsNoticed: new Listener registration after link reset must be noticed
+[  FAILED  ] Talker.RegistrationAfterLinkResetIsNoticed (0 ms)
+[----------] 1 test from Talker (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Talker.RegistrationAfterLinkResetIsNoticed
+
+ 1 FAILED TEST
+== ctrl SRP Talker declarations: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

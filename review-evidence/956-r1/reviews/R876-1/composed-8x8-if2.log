@@ -1,0 +1,30 @@
+Note: Google Test filter = SrpGate.*
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from SrpGate
+[ RUN      ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens
+[       OK ] SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens (14 ms)
+[ RUN      ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens
+[       OK ] SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens (69 ms)
+[ RUN      ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain (14 ms)
+[ RUN      ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain
+[       OK ] SrpGate.F905ARangeLostClosesTheGateUntilItsStreamIdIsWrittenAgain (11 ms)
+[ RUN      ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt
+[       OK ] SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt (41 ms)
+[ RUN      ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow
+[       OK ] SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow (32 ms)
+[ RUN      ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff
+[       OK ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff (47 ms)
+[ RUN      ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource
+[       OK ] SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource (39 ms)
+[ RUN      ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice
+[       OK ] SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice (106 ms)
+[----------] 9 tests from SrpGate (382 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (382 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
