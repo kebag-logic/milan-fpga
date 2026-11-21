@@ -2503,7 +2503,7 @@
       "name": "gPTP neighbor delay",
       "purpose": "Measured gPTP neighbor propagation delay in nanoseconds.",
       "fields": {
-        "GPTP_PDELAY_NS": "reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value."
+        "GPTP_PDELAY_NS": "reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers GET_AVB_INFO from the snapshot it published last."
       },
       "notes": []
     },
@@ -2667,7 +2667,7 @@
       "name": "gPTP parent, low word",
       "purpose": "Parent clockIdentity bits 31 to 0, coherent with AS2_HI.",
       "fields": {
-        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0."
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers from its parentDS from the snapshot it published last."
       },
       "notes": [],
       "record": "as2_lo-offset-0x730"
@@ -2676,7 +2676,7 @@
       "name": "gPTP parent, high word",
       "purpose": "Parent clockIdentity bits 63 to 32, coherent with AS2_LO.",
       "fields": {
-        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0."
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers from its parentDS from the snapshot it published last."
       },
       "notes": [],
       "record": "as2_hi-offset-0x734"
@@ -3249,7 +3249,7 @@
       "name": "gPTP wire drops",
       "purpose": "gPTP frames lost at the tap or the parser.",
       "fields": {
-        "GPTP_TAP_DROP": "tap-FIFO drop count",
+        "GPTP_TAP_DROP": "tap-FIFO drop count. Under gPTP in firmware (`--sw-gptp`): egress records the timestamp unit's FIFO could not hold (KL_gptp_tsu); a received frame's stamp rides in its gptp record and is never dropped apart from its frame.",
         "GPTP_RX_DROP": "parser refusal count; both 16-bit wrapping; option OFF reads zero."
       },
       "notes": []
@@ -3258,7 +3258,7 @@
       "name": "gPTP event drops",
       "purpose": "Lost launch records and refused gPTP events.",
       "fields": {
-        "GPTP_TXTS_LOST": "`GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one.",
+        "GPTP_TXTS_LOST": "`GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one. Under gPTP in firmware (`--sw-gptp`): the timestamp unit's egress records with OK clear, which it posts as TIMESTAMP events too.",
         "GPTP_EV_DROP": "events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context. Both 16-bit wrapping; option OFF reads zero."
       },
       "notes": []

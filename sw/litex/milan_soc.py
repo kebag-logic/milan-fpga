@@ -2964,6 +2964,8 @@ _CTRL_SPLIT_MAILBOX_SOURCES = ["hdl/milan/mailbox/KL_mbx_cdc_window.sv", "hdl/mi
 #: per-entry ctl bus carries. The contract must carry exactly this many.
 CTRL_SPLIT_ENTRIES = 16
 _E = CTRL_SPLIT_ENTRIES
+#: the gPTP publication's words the split datapath takes (milan_datapath i_ctl_gptp_pub; mailbox.yaml GPTP_*)
+CTRL_SPLIT_GPTP_WORDS = 3
 #: milan_datapath's ctl ports: (port, width, an output of the datapath)
 CTRL_SPLIT_PORTS = (
     ("o_ctl_rx_valid", 1, True), ("o_ctl_rx_data", 8, True), ("o_ctl_rx_last", 1, True),
@@ -2996,11 +2998,12 @@ CTRL_SPLIT_PORTS = (
     ("i_ctl_gsi_prop", 64, False), ("o_ctl_gsi_data", 64, True), ("o_ctl_gsi_wait", 1, True),
     ("o_ctl_ctr_chg_valid", 1, True), ("o_ctl_ctr_chg_type", 16, True), ("o_ctl_ctr_chg_index", 16, True),
     ("o_ctl_avb_chg_p", 1, True), ("o_ctl_asp_chg_p", 1, True), ("o_ctl_amap_wr_p", 1, True),
-    # contract 2.5 (#884): the firmware's gPTP publication and the timestamp unit's records
-    ("i_ctl_gptp_pub", 22 * 32, False), ("i_ctl_gptp_pub_p", 1, False),
+    # contract 2.5 (#884): the firmware's gPTP publication (GPTP_GM_LO, GPTP_GM_HI, GPTP_STATE: the
+    # narrowed status block, #884's ruling item 7) and the timestamp unit's egress records
+    ("i_ctl_gptp_pub", CTRL_SPLIT_GPTP_WORDS * 32, False), ("i_ctl_gptp_pub_p", 1, False),
     ("o_ctl_ts_valid", 1, True), ("o_ctl_ts_data", 86, True), ("i_ctl_ts_take", 1, False),
 )
-#: a timestamp unit's record on the crossing: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} (MBX_TS_REC_BITS_C)
+#: a timestamp unit's record on the crossing: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP} (MBX_TS_REC_BITS_C)
 CTRL_SPLIT_TS_REC_BITS = 86
 #: KL_mbx_cdc's datapath side, port by port: the ctl port it binds
 _CTRL_CDC_DP = {
@@ -3305,6 +3308,10 @@ class CtrlMailbox(LiteXModule):
         if (contract.pub_sources, contract.pub_sinks) != (CTRL_SPLIT_ENTRIES, CTRL_SPLIT_ENTRIES):
             raise ValueError(f"milan_datapath's ctl ports carry {CTRL_SPLIT_ENTRIES} sources and sinks "
                              f"(CTRL_ENTRIES_P); the contract has {contract.pub_sources} and {contract.pub_sinks}")
+        words = len(mailbox_model.gptp_words(contract))
+        if words not in (0, CTRL_SPLIT_GPTP_WORDS):
+            raise ValueError(f"milan_datapath's i_ctl_gptp_pub carries {CTRL_SPLIT_GPTP_WORDS} gPTP publication words; "
+                             f"the contract has {words}")
         ctl, milan_cd = dp.ctl, dp.milan_cd
         # the frames: bytes and their last flag, each way through an async FIFO
         rx = _axis_dp_cdc(self, "ctl_rx_cdc", [("data", 8)], milan_cd, to_datapath=False)

@@ -79,6 +79,9 @@ static volatile int64_t image_phc_moved[MBX_N_IF];
 static void phc_adjfine(void *ctx, unsigned i, int32_t addend) { (void)ctx; image_phc_trim[i] = addend; }
 static void phc_step(void *ctx, unsigned i, int64_t delta) { (void)ctx; image_phc_moved[i] += delta; }
 static const struct gptp_mbx_phc image_phc = {NULL, phc_adjfine, phc_step};
+// the gPTP owner's AVB_INFO and AS_PATH changes, raised from its snapshot (the datapath's detectors are off
+// under gPTP in firmware; #884's ruling item 7): AVB_INTERFACE i, as the face events name it
+static void gptp_changed(void *ctx, unsigned i, unsigned events) { ctrl_app_aecp_changed(ctx, 9u, (uint16_t)i, events); }
 #endif
 int main(void)
 {
@@ -127,6 +130,8 @@ int main(void)
             for (unsigned b=0;b<6;++b) g[i].mac[b]=(uint8_t)(mac>>(8*(5-b)));
         }
         if (!gptp_mbx_attach(&image_gptp,&image_app.loop,g,&image_phc)) return 7;
+        aecp_face_gptp(&image_face,&(const struct aecp_face_gptp){&image_gptp,gptp_mbx_avb,gptp_mbx_path});
+        gptp_mbx_notify(&image_gptp,&(const struct gptp_mbx_aecp){&image_aecp_bridge,gptp_changed});
     }
 #endif
     aecp_nvm_init(&image_state,&image_aecp.core,image_names,AECP_ENTITY_NAME_RUNS,

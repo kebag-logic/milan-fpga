@@ -259,26 +259,7 @@ Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source
 | `0x010` | `TALKER_DECL` | rw | The Talker declarations: bit s is set while source s's MSRP Talker attribute, a Talker Advertise or a Talker Failed, is declared on this interface (IEEE 802.1Q-2018 clause 35; the processor's srp_tk_decl_state_o other than NONE). The datapath tags a stream's frames only while its bit is set, because a bridge prunes a tagged stream that is not declared (802.1Q 35.1.2). The SRP owner sets a bit before the declaration it describes is sent, and clears it before the declaration is destroyed. |
 | `0x020` | `GPTP_GM_LO` | rw | The grandmaster's ClockIdentity (gptp_grandmaster_id, Milan v1.2 5.4.2.23), low word; 0 while there is none. |
 | `0x024` | `GPTP_GM_HI` | rw | The grandmaster's ClockIdentity, high word. |
-| `0x028` | `GPTP_PARENT_LO` | rw | The parent port's ClockIdentity (IEEE 802.1AS-2020 10.3.9.4 parentDS), low word. |
-| `0x02C` | `GPTP_PARENT_HI` | rw | The parent port's ClockIdentity, high word. |
-| `0x030` | `GPTP_PDELAY` | rw | neighborPropDelay (IEEE 802.1AS-2020 11.2.19.3.4; GET_AVB_INFO's propagation_delay, Milan v1.2 5.4.2.23), nanoseconds, two's complement. |
-| `0x034` | `GPTP_STATE` | rw | The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one; PATH_COUNT is the pathTrace entries GPTP_PATH* hold, and PATH_GEN moves when they change (the AS_PATH_CHANGED source, Milan v1.2 Table 5.22). |
-| `0x038` | `GPTP_PATH0_LO` | rw | pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x03C` | `GPTP_PATH0_HI` | rw | pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x040` | `GPTP_PATH1_LO` | rw | pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x044` | `GPTP_PATH1_HI` | rw | pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x048` | `GPTP_PATH2_LO` | rw | pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x04C` | `GPTP_PATH2_HI` | rw | pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x050` | `GPTP_PATH3_LO` | rw | pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x054` | `GPTP_PATH3_HI` | rw | pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x058` | `GPTP_PATH4_LO` | rw | pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x05C` | `GPTP_PATH4_HI` | rw | pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x060` | `GPTP_PATH5_LO` | rw | pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x064` | `GPTP_PATH5_HI` | rw | pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x068` | `GPTP_PATH6_LO` | rw | pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x06C` | `GPTP_PATH6_HI` | rw | pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x070` | `GPTP_PATH7_LO` | rw | pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
-| `0x074` | `GPTP_PATH7_HI` | rw | pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. |
+| `0x028` | `GPTP_STATE` | rw | The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one. |
 
 `DA_GATE` fields:
 
@@ -324,132 +305,16 @@ Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source
 |---|---|---|
 | `[31:0]` | `ID` | gptp_grandmaster_id[63:32] |
 
-`GPTP_PARENT_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PARENT_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PDELAY` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `NS` | neighborPropDelay, ns |
-
 `GPTP_STATE` fields:
 
 | Bits | Field | Meaning |
 |---|---|---|
 | `[31:24]` | `GEN` | the publication's generation: moved by every write that publishes |
-| `[23:20]` | `PATH_GEN` | pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved |
 | `[19:16]` | `DISC` | discontinuities |
-| `[15:12]` | `PATH_COUNT` | pathTrace entries |
 | `[10]` | `SLEW` | a transient offset correction is in progress |
 | `[9]` | `SYNC_OK` | the synchronization verdict |
 | `[8]` | `AS_CAPABLE` | asCapable |
 | `[7:0]` | `DOMAIN` | gptp_domain_number |
-
-`GPTP_PATH0_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH0_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH1_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH1_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH2_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH2_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH3_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH3_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH4_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH4_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH5_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH5_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH6_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH6_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
-
-`GPTP_PATH7_LO` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[31:0] |
-
-`GPTP_PATH7_HI` fields:
-
-| Bits | Field | Meaning |
-|---|---|---|
-| `[31:0]` | `ID` | ClockIdentity[63:32] |
 
 ### Interface publication source registers
 
@@ -995,7 +860,7 @@ One fabric event, four words. Sources are coalesced: a source that fires again b
 | AS_PATH_CHANGED event | word 1 | `[15:0]` | `COUNT` | changes since the previous record |
 | AS_PATH_CHANGED event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
 | TIMESTAMP event | word 1 | `[21]` | `OK` | the stamp is a measurement |
-| TIMESTAMP event | word 1 | `[20]` | `EGRESS` | 1: a transmitted frame's stamp; 0: a received frame's |
+| TIMESTAMP event | word 1 | `[20]` | `EGRESS` | 1: a transmitted frame's stamp, always (a received frame's rides in its record) |
 | TIMESTAMP event | word 1 | `[19:16]` | `MSG_TYPE` | the message's messageType |
 | TIMESTAMP event | word 1 | `[15:0]` | `SEQUENCE_ID` | the message's sequenceId |
 | TIMESTAMP event | word 2 | `[31:0]` | `NS_LO` | the PHC's time, ns[31:0] |
@@ -1014,7 +879,7 @@ An RX or TX record is the header words, then ceil(LEN/4) payload words.
 | `COUNTERS_CHANGED` | 5 | The counters of a descriptor the datapath serves moved (the processor's ctr_change face; Milan v1.2 Table 5.22 makes it a GET_COUNTERS notification, at most one per descriptor per second). A descriptor that moves again before its record is posted, or within holdoff_ms of its last record, posts once. ALL set: a change named a descriptor the source keeps no bit for, so every served descriptor may have moved. |
 | `AVB_INFO_CHANGED` | 6 | A GET_AVB_INFO word the datapath serves changed on the interface (the processor's gsi_avb_chg_i; Milan v1.2 Table 5.22). COUNT is the changes since the previous record, at least 1 and saturating. |
 | `AS_PATH_CHANGED` | 7 | The AS_PATH sequence the datapath serves changed on the interface (the processor's gsi_asp_chg_i; Milan v1.2 Table 5.22). COUNT as for AVB_INFO_CHANGED. |
-| `TIMESTAMP` | 9 | The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3), or could not: OK clear says the frame left or arrived with no measurement, and NS is 0. Ingress stamps the first accepted beat at the receive tap, less the board's ingress latency; egress stamps the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. |
+| `TIMESTAMP` | 9 | The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3) the interface launched, or could not: OK clear says the frame left with no measurement, and NS is 0. The stamp is the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). A received frame's stamp is not an event: it rides in the frame's own gptp record (the channel's trailer). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. The event names no hart: it is posted to the event ring every event goes to, and a contract that routes events to rings routes it as any other (its credit flow and its order are the ring's). |
 | `AMAP_LIVE_WRITE` | 8 | An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating. |
 
 ## Channels and the ingress filter
@@ -1134,7 +999,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_N_BOUND` | `0x10` |
 | `MBX_N_PUB_SOURCES` | `0x10` |
 | `MBX_N_PUB_SINKS` | `0x10` |
-| `MBX_PUB_GPTP_WORDS` | `0x16` |
+| `MBX_PUB_GPTP_WORDS` | `0x3` |
 | `MBX_TICK_MS` | `0xa` |
 | `MBX_N_CH` | `0x6` |
 | `MBX_INDEX_BITS` | `0x10` |
@@ -1294,16 +1159,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_PUB_REG_GPTP_GM_HI` | `0x24` |
 | `MBX_GPTP_GM_HI_ID_LSB` | `0x0` |
 | `MBX_GPTP_GM_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PARENT_LO` | `0x28` |
-| `MBX_GPTP_PARENT_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PARENT_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PARENT_HI` | `0x2c` |
-| `MBX_GPTP_PARENT_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PARENT_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PDELAY` | `0x30` |
-| `MBX_GPTP_PDELAY_NS_LSB` | `0x0` |
-| `MBX_GPTP_PDELAY_NS_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_STATE` | `0x34` |
+| `MBX_PUB_REG_GPTP_STATE` | `0x28` |
 | `MBX_GPTP_STATE_DOMAIN_LSB` | `0x0` |
 | `MBX_GPTP_STATE_DOMAIN_WIDTH` | `0x8` |
 | `MBX_GPTP_STATE_AS_CAPABLE_LSB` | `0x8` |
@@ -1312,62 +1168,10 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_GPTP_STATE_SYNC_OK_WIDTH` | `0x1` |
 | `MBX_GPTP_STATE_SLEW_LSB` | `0xa` |
 | `MBX_GPTP_STATE_SLEW_WIDTH` | `0x1` |
-| `MBX_GPTP_STATE_PATH_COUNT_LSB` | `0xc` |
-| `MBX_GPTP_STATE_PATH_COUNT_WIDTH` | `0x4` |
 | `MBX_GPTP_STATE_DISC_LSB` | `0x10` |
 | `MBX_GPTP_STATE_DISC_WIDTH` | `0x4` |
-| `MBX_GPTP_STATE_PATH_GEN_LSB` | `0x14` |
-| `MBX_GPTP_STATE_PATH_GEN_WIDTH` | `0x4` |
 | `MBX_GPTP_STATE_GEN_LSB` | `0x18` |
 | `MBX_GPTP_STATE_GEN_WIDTH` | `0x8` |
-| `MBX_PUB_REG_GPTP_PATH0_LO` | `0x38` |
-| `MBX_GPTP_PATH0_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH0_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH0_HI` | `0x3c` |
-| `MBX_GPTP_PATH0_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH0_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH1_LO` | `0x40` |
-| `MBX_GPTP_PATH1_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH1_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH1_HI` | `0x44` |
-| `MBX_GPTP_PATH1_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH1_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH2_LO` | `0x48` |
-| `MBX_GPTP_PATH2_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH2_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH2_HI` | `0x4c` |
-| `MBX_GPTP_PATH2_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH2_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH3_LO` | `0x50` |
-| `MBX_GPTP_PATH3_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH3_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH3_HI` | `0x54` |
-| `MBX_GPTP_PATH3_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH3_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH4_LO` | `0x58` |
-| `MBX_GPTP_PATH4_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH4_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH4_HI` | `0x5c` |
-| `MBX_GPTP_PATH4_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH4_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH5_LO` | `0x60` |
-| `MBX_GPTP_PATH5_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH5_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH5_HI` | `0x64` |
-| `MBX_GPTP_PATH5_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH5_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH6_LO` | `0x68` |
-| `MBX_GPTP_PATH6_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH6_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH6_HI` | `0x6c` |
-| `MBX_GPTP_PATH6_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH6_HI_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH7_LO` | `0x70` |
-| `MBX_GPTP_PATH7_LO_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH7_LO_ID_WIDTH` | `0x20` |
-| `MBX_PUB_REG_GPTP_PATH7_HI` | `0x74` |
-| `MBX_GPTP_PATH7_HI_ID_LSB` | `0x0` |
-| `MBX_GPTP_PATH7_HI_ID_WIDTH` | `0x20` |
 | `MBX_PUB_SRC_BASE` | `0x80` |
 | `MBX_PUB_SRC_STRIDE` | `0x8` |
 | `MBX_PUB_SRC_REG_SRC_SID_LO` | `0x0` |

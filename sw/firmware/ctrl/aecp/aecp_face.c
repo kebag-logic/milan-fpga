@@ -205,6 +205,12 @@ static bool avb(void *ctx, unsigned interface, uint16_t index, struct aecp_avb_i
 	out->flags = (uint8_t)(info >> 16);
 	out->class_priority = (uint8_t)(map >> 16);
 	out->class_vlan = (uint16_t)map;
+	if (f->gptp.avb != NULL) {
+		// every gPTP field from the one published snapshot; the link and the SR class from the datapath
+		bool as_capable = false;
+		f->gptp.avb(f->gptp.ctx, interface, &out->gm_id, &out->propagation_delay, &out->domain, &as_capable);
+		out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));   // bit 0 AS_CAPABLE (7.4.40.2)
+	}
 	return true;
 }
 
@@ -337,6 +343,9 @@ static bool path(void *ctx, unsigned interface, uint16_t index, uint64_t *out, s
 {
 	struct aecp_face *f = ctx;
 	uint64_t n = 0;
+	if (f->gptp.path != NULL) {
+		return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);
+	}
 	if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {
 		return false;
 	}
@@ -360,6 +369,11 @@ void aecp_face_init(struct aecp_face *f, const struct aecp_ports *platform)
 void aecp_face_attach(struct aecp_face *f, struct aecp *core)
 {
 	f->core = core;
+}
+
+void aecp_face_gptp(struct aecp_face *f, const struct aecp_face_gptp *gptp)
+{
+	f->gptp = *gptp;
 }
 
 void aecp_face_status(struct aecp_face *f, uint32_t restore, uint32_t nvm, bool dirty)

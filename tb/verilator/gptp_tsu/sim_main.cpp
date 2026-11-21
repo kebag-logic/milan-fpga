@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // sim_main.cpp - the timestamp unit (hdl/ieee8021as/gptp_tsu/KL_gptp_tsu.sv,
-// #884, #665 F6), self-checking. Every expected stamp is computed here from
+// #884, #665 F6) and the split tap's gptp trailer it feeds (KL_ctrl_split),
+// self-checking. Every expected stamp is computed here from
 // the PHC this bench drives and the fabric plane's published corrections
 // (docs/design/GPTP_PLANE.md: 426 ns on GMII, 3770 ns on MII, the board's
 // ingress and egress constants), never read back from the unit.
@@ -47,19 +48,49 @@ Rec decode(const VlWide<3> &w)
 	return {bool((hi >> 21) & 1), bool((hi >> 20) & 1), (hi >> 16) & 0xF, hi & 0xFFFF, ns};
 }
 
+// a frame the control tap handed toward the mailbox: its bytes and its eight-octet trailer
+struct Out {
+	std::vector<uint8_t> bytes;
+	uint64_t trailer;
+};
+
+constexpr uint64_t NO_STAMP = ~0ull;
+
 struct Bench {
 	Vtb_gptp_tsu t;
 	uint64_t phc = 1'000'000'000'000ull;   // the PHC: 20 ns a cycle, the 50 MHz shape
 	uint64_t cyc = 0;
 	std::deque<Rec> g, m;
+	std::deque<Out> out;                   // frames the tap delivered, in order
+	std::vector<uint8_t> cur;              // the bytes of the frame being delivered
+	bool drain = true;                     // the mailbox side takes a byte a cycle
+	uint64_t m_stamp = 0;                  // the MII unit's ingress stamp at the last frame's last beat
+	bool m_event = false;
 
 	void tick()
 	{
 		t.phc_ns_i = phc;
+		t.s_rx_ready_i = drain;
 		t.clk_i = 0;
 		t.eval();
+		bool took = drain && t.s_rx_valid_o;
+		uint8_t byte = t.s_rx_data_o;
+		bool last = t.s_rx_last_o;
 		t.clk_i = 1;
 		t.eval();
+		if (took) {
+			cur.push_back(byte);
+			if (last) {
+				Out o;
+				o.trailer = 0;
+				size_t n = cur.size() >= 8 ? cur.size() - 8 : 0;
+				for (size_t k = n; k < cur.size(); k++)
+					o.trailer = (o.trailer << 8) | cur[k];
+				o.bytes.assign(cur.begin(), cur.begin() + long(n));
+				out.push_back(o);
+				cur.clear();
+			}
+		}
 		// the FIFO heads, taken as soon as offered
 		t.g_ts_take_i = 0;
 		t.m_ts_take_i = 0;
@@ -93,9 +124,11 @@ struct Bench {
 		run(2);
 		g.clear();
 		m.clear();
+		out.clear();
 	}
-	// a frame on the receive tap, eight octets a beat, little lane order; returns the PHC at its first beat
-	uint64_t frame(const std::vector<uint8_t> &f)
+	// a frame's beats on the receive tap, eight octets a beat, little lane order, then idle cycles; returns the
+	// PHC at its first beat
+	uint64_t beats(const std::vector<uint8_t> &f, unsigned idle)
 	{
 		uint64_t first = 0;
 		for (size_t at = 0; at < f.size(); at += 8) {
@@ -111,12 +144,24 @@ struct Bench {
 			t.rx_tlast_i = at + 8 >= f.size();
 			if (at == 0)
 				first = phc;
+			if (t.rx_tlast_i) {
+				t.eval();
+				m_stamp = t.m_rx_stamp_o;
+				m_event = t.m_rx_event_o;
+			}
 			tick();
 		}
 		t.rx_tvalid_i = 0;
 		t.rx_tlast_i = 0;
-		run(4);
+		run(idle);
 		return first;
+	}
+	// one frame, then long enough for the tap to hand it out whole
+	uint64_t frame(const std::vector<uint8_t> &f)
+	{
+		uint64_t at = beats(f, 4);
+		run(unsigned(f.size()) + 40);
+		return at;
 	}
 	// one launch record for both units; returns the PHC on the edge it lands
 	uint64_t launch(bool kind, unsigned gen, unsigned type, unsigned seq, unsigned dg, unsigned dm, bool abort)
@@ -147,14 +192,19 @@ std::vector<uint8_t> gptp(unsigned type, unsigned seq, size_t len = 58, uint64_t
 	f[6] = 0x02;
 	f[12] = uint8_t(et >> 8);
 	f[13] = uint8_t(et);
-	f[14] = uint8_t((sdo << 4) | type);
-	f[15] = 0x12;
+	if (len > 15) {
+		f[14] = uint8_t((sdo << 4) | type);
+		f[15] = 0x12;
+	}
 	if (len > 45) {
 		f[44] = uint8_t(seq >> 8);
 		f[45] = uint8_t(seq);
 	}
 	return f;
 }
+
+// a delivered frame's sequenceId (octets 44 and 45)
+unsigned seq_of(const Out &o) { return o.bytes.size() > 45 ? (unsigned(o.bytes[44]) << 8) | o.bytes[45] : ~0u; }
 
 }  // namespace
 
@@ -164,38 +214,92 @@ int main(int argc, char **argv)
 	Bench b;
 	b.reset();
 
-	// ---- ingress: the first beat's PHC, less the board's ingress constant
-	uint64_t at = b.frame(gptp(0x0, 0x1234));
-	check(b.g.size() == 1, "I1 a received Sync gives one record", b.g.size(), 1);
-	if (!b.g.empty()) {
-		Rec r = b.g.front();
-		check(!r.egress && r.ok, "I1 it is an ingress measurement");
-		check(r.type == 0 && r.seq == 0x1234, "I1 keyed by messageType and sequenceId", r.seq, 0x1234);
-		check(r.ns == at - 656, "I1 the stamp is the first beat's PHC less INGRESS_LAT (656 ns)", r.ns, at - 656);
-	}
-	check(b.m.size() == 1 && b.m.front().ns == at, "I1 the MII unit (no constant) stamps the first beat's PHC",
-	      b.m.empty() ? 0 : b.m.front().ns, at);
-	b.g.clear();
-	b.m.clear();
+	// ---- ingress: the first beat's PHC, less the board's ingress constant, in the frame's own trailer
+	std::vector<uint8_t> sync = gptp(0x0, 0x1234);
+	uint64_t at = b.frame(sync);
+	check(b.out.size() == 1 && b.out.front().bytes == sync, "I1 a received Sync is delivered whole, its trailer after it",
+	      b.out.size(), 1);
+	if (!b.out.empty())
+		check(b.out.front().trailer == at - 656, "I1 the trailer is the first beat's PHC less INGRESS_LAT (656 ns)",
+		      b.out.front().trailer, at - 656);
+	check(b.m_event && b.m_stamp == at, "I1 the MII unit (no constant) stamps the first beat's PHC", b.m_stamp, at);
+	check(b.g.empty(), "I1 a received frame posts no TIMESTAMP record", b.g.size(), 0);
+	b.out.clear();
+	std::vector<uint64_t> ats;
 	for (unsigned type : {0x2u, 0x3u, 0x1u})
-		b.frame(gptp(type, 7));
-	check(b.g.size() == 3, "I2 Pdelay_Req, Pdelay_Resp and Delay_Req (event messages) are all timed", b.g.size(), 3);
-	b.g.clear();
-	b.m.clear();
+		ats.push_back(b.frame(gptp(type, 7)));
+	bool own = b.out.size() == 3;
+	for (unsigned i = 0; own && i < 3; i++)
+		own = b.out[i].trailer == ats[i] - 656;
+	check(own, "I2 Pdelay_Req, Pdelay_Resp and Delay_Req (event messages) each carry their own stamp", b.out.size(), 3);
+	b.out.clear();
 	b.frame(gptp(0x8, 1));
 	b.frame(gptp(0xB, 2, 90));
 	b.frame(gptp(0xA, 3));
-	check(b.g.empty(), "I3 general messages (Follow_Up, Announce, Pdelay_Resp_Follow_Up) are not timed", b.g.size(), 0);
+	bool none = b.out.size() == 3;
+	for (const Out &o : b.out)
+		none = none && o.trailer == NO_STAMP;
+	check(none, "I3 general messages (Follow_Up, Announce, Pdelay_Resp_Follow_Up) carry the no-stamp trailer",
+	      b.out.size(), 3);
+	b.out.clear();
 	b.frame(gptp(0x0, 4, 58, 0x0180C2000021ull));
-	check(b.g.empty(), "I4 a Sync to another destination is not timed", b.g.size(), 0);
-	b.frame(gptp(0x0, 5, 58, 0x0180C200000Eull, 0x22EA));
-	check(b.g.empty(), "I4 another EtherType at the gPTP address is not timed", b.g.size(), 0);
+	check(!b.m_event, "I4 a Sync to another destination is not timed", b.m_event, 0);
+	b.frame(gptp(0x0, 5, 58, 0x0180C200000Eull, 0x88B5));   // (0x22EA there is MSRP, the srp channel's)
+	check(!b.m_event, "I4 another EtherType at the gPTP address is not timed", b.m_event, 0);
 	b.frame(gptp(0x0, 6, 58, 0x0180C200000Eull, 0x8100));
-	check(b.g.empty(), "I4 a tagged frame is not timed", b.g.size(), 0);
+	check(!b.m_event, "I4 a tagged frame is not timed", b.m_event, 0);
+	check(b.out.empty(), "I4 and the tap hands none of the three to the gptp channel", b.out.size(), 0);
 	b.frame(gptp(0x0, 7, 58, 0x0180C200000Eull, 0x88F7, 0));
-	check(b.g.empty(), "I4 majorSdoId 0 (IEEE 1588, not 802.1AS) is not timed", b.g.size(), 0);
-	b.frame(gptp(0x0, 8, 44));
-	check(b.g.empty(), "I5 a frame that ends before its sequenceId is not timed", b.g.size(), 0);
+	check(!b.m_event && b.out.size() == 1 && b.out.back().trailer == NO_STAMP,
+	      "I4 majorSdoId 0 (IEEE 1588, not 802.1AS) is not timed: its record carries the no-stamp trailer",
+	      b.out.empty() ? 0 : b.out.back().trailer, NO_STAMP);
+	b.out.clear();
+	b.frame(gptp(0x0, 8, 16));
+	check(b.out.size() == 1 && b.out.back().trailer == NO_STAMP, "I5 a frame of two beats carries no stamp",
+	      b.out.empty() ? 0 : b.out.back().trailer, NO_STAMP);
+	b.out.clear();
+
+	// ---- a flood (#884's ruling item 2): the mailbox side stalled, frames back to back. Every frame the tap
+	// delivers carries its own stamp; a frame it cannot keep is refused whole, stamp and all, and counted.
+	unsigned drops0 = b.t.s_rx_drops_o;
+	std::vector<uint64_t> flood;
+	b.drain = false;
+	for (unsigned i = 0; i < 80; i++)
+		flood.push_back(b.beats(gptp(0x2, 0x100 + i, 48), 0));
+	b.run(8);
+	unsigned refused = unsigned(b.t.s_rx_drops_o - drops0);
+	b.drain = true;
+	b.run(80 * (56 + 4) + 200);
+	bool mine = !b.out.empty();
+	for (const Out &o : b.out) {
+		unsigned k = seq_of(o) - 0x100;
+		mine = mine && k < 80 && o.trailer == flood[k] - 656;
+	}
+	check(mine, "T2 under a flood every delivered frame carries its own stamp", b.out.size(), 64);
+	check(b.out.size() == 64 && refused == 16,
+	      "T2 the stamp FIFO keeps 64; the 16 past them are refused at the tap and counted", refused, 16);
+	b.out.clear();
+	// the frame FIFO full first: a frame it drops takes its stamp with it, so the next frame still carries its own
+	drops0 = b.t.s_rx_drops_o;
+	std::vector<uint64_t> big;
+	b.drain = false;
+	for (unsigned i = 0; i < 6; i++)
+		big.push_back(b.beats(gptp(0x0, 0x200 + i, 1000), 1));
+	b.run(8);
+	refused = unsigned(b.t.s_rx_drops_o - drops0);
+	b.drain = true;
+	b.run(6 * 1010 + 200);
+	uint64_t after = b.frame(gptp(0x0, 0x2FF));
+	mine = b.out.size() >= 2;
+	for (const Out &o : b.out) {
+		unsigned sq = seq_of(o);
+		uint64_t want = sq == 0x2FF ? after : (sq - 0x200 < 6 ? big[sq - 0x200] : 0);
+		mine = mine && o.trailer == want - 656;
+	}
+	check(mine && refused > 0 && b.out.size() + refused == 7,
+	      "T3 a frame the frame FIFO drops takes its stamp with it: every delivered frame keeps its own",
+	      b.out.size() + refused, 7);
+	b.out.clear();
 	b.g.clear();
 	b.m.clear();
 
@@ -279,13 +383,14 @@ int main(int argc, char **argv)
 	b.launch(false, 1, 0x0, 9, 45, 90, false);
 	check(b.g.size() == 1 && b.g.back().ok, "S2 after the echo launches are stamped again");
 
-	// ---- the FIFO: held in order when nobody takes them, the ninth counted
+	// ---- the egress FIFO: held in order when nobody takes them, the 33rd counted (at least the 15 frames the
+	// gptp transmit ring holds, so the firmware's own sends never overrun it)
 	b.g.clear();
 	b.m.clear();
 	unsigned drop0 = b.t.g_drop_o;
 	// stop taking: a bench that does not drain
-	std::vector<uint64_t> ats;
-	for (unsigned i = 0; i < 9; i++) {
+	ats.clear();
+	for (unsigned i = 0; i < 33; i++) {
 		b.t.rec_valid_i = 1;
 		b.t.rec_kind_i = 0;
 		b.t.rec_gen_i = 1;
@@ -313,11 +418,11 @@ int main(int argc, char **argv)
 			b.phc += 20;
 		}
 	}
-	check(b.t.g_drop_o == drop0 + 1, "F1 the ninth record past eight held is counted", b.t.g_drop_o, drop0 + 1);
-	b.run(20);
-	check(b.g.size() == 8, "F2 the eight held records come out", b.g.size(), 8);
-	bool order = b.g.size() == 8;
-	for (unsigned i = 0; i < b.g.size() && i < 8; i++)
+	check(b.t.g_drop_o == drop0 + 1, "F1 the 33rd egress record past 32 held is counted", b.t.g_drop_o, drop0 + 1);
+	b.run(60);
+	check(b.g.size() == 32, "F2 the 32 held records come out", b.g.size(), 32);
+	bool order = b.g.size() == 32;
+	for (unsigned i = 0; i < b.g.size() && i < 32; i++)
 		order = order && b.g[i].seq == 100 + i && b.g[i].ns == ats[i] - 426 + 219;
 	check(order, "F2 in the order they were timed, each with its own stamp");
 

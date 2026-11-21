@@ -29,7 +29,8 @@
 module tb_split_top
   import KL_mbx_pkg::*;
 #(
-  parameter int SPLIT_P = 1     //! the datapath's CTRL_SPLIT_P
+  parameter int SPLIT_P = 1,    //! the datapath's CTRL_SPLIT_P
+  parameter bit GPTP_SW_P = 1'b0  //! the datapath's GPTP_SW_EN_P: gPTP in firmware (make split-sw, #884)
 ) (
   input  wire                     sys_clk,
   input  wire                     sys_rst_n,
@@ -349,7 +350,7 @@ module tb_split_top
     .m_status_bad_frame(), .m_status_good_frame());
 
   // ---- the split datapath ----------------------------------------------------------
-  milan_datapath #(.CTRL_SPLIT_P(SPLIT_P), .RXFILT_P(0), .GPTP_PLANE_EN_P(1'b0)) u_dp (
+  milan_datapath #(.CTRL_SPLIT_P(SPLIT_P), .RXFILT_P(0), .GPTP_PLANE_EN_P(1'b0), .GPTP_SW_EN_P(GPTP_SW_P)) u_dp (
     .axis_clk(dp_clk), .axis_resetn(dp_rst_n), .gtx_clk(dp_clk), .gtx_resetn(dp_rst_n),
     .clk_audio_i(dp_clk), .clk_tdm_i(dp_clk), .i_ps_clk(dp_clk), .i_mmcm_locked(1'b1),
     .s_axis_mac_rx_tdata(rx_tdata), .s_axis_mac_rx_tkeep(rx_tkeep), .s_axis_mac_rx_tvalid(rx_tvalid),

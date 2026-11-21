@@ -227,8 +227,9 @@ DUT_READER_DISPOSITIONS = {
         "The suite's default target runs its --leg-defects arms; the gateware and "
         "shape mutants are the explicit tdm8render-mutants target",
     "tb/verilator/gptp_tsu/tsu_mutants.py":
-        "mutation campaign; it plants one of sixteen timestamp-unit defects (#884) from its own table "
-        "into a scratch copy of KL_gptp_tsu, builds the bench with its Makefile and requires a [FAIL] "
+        "mutation campaign; it plants one of 24 timestamp-unit and gptp-trailer defects (#884) from its "
+        "own table into a scratch copy of KL_gptp_tsu or KL_ctrl_split, builds the bench with its Makefile "
+        "and requires a [FAIL] "
         "line carrying the defect's named words; the bench's stamps are computed from the PHC model "
         "and the derived corrections in sim_main.cpp, never read from RTL",
     "tb/verilator/mbx/mutants.py":

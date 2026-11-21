@@ -10,11 +10,16 @@
                 (#884, #665 F6; the owner's decision of 2026-11-21 on #872:
                 the fabric gPTP plane is removed, the hardware timestamps and
                 the PHC stay in fabric). It times every IEEE 802.1AS event
-                message (messageType 0 to 3) the port receives or launches
-                and hands each result, a measurement or a counted loss, to
-                the firmware as one record, keyed by direction, messageType
-                and sequenceId, through a FIFO the mailbox drains into its
-                TIMESTAMP events (contract 2.5). It runs no protocol.
+                message (messageType 0 to 3) the port receives or launches.
+                An ingress stamp goes with its frame: KL_ctrl_split reads it
+                at the frame's last beat and carries it in the gptp record's
+                trailer, so a frame the mailbox admits always has its stamp
+                and a frame it refuses takes its stamp with it (#884's
+                ruling of 2026-11-21, item 2). An egress result, a
+                measurement or a counted loss, goes to the firmware as one
+                record keyed by messageType and sequenceId, through a FIFO
+                the mailbox drains into its TIMESTAMP events (contract 2.5).
+                It runs no protocol.
 
                 THE ONE DECISION THAT MATTERS: both stamp points and every
                 correction are the fabric plane's, unchanged, so the digital
@@ -48,8 +53,10 @@
 
 module KL_gptp_tsu #(
     parameter int unsigned TDATA_WIDTH_P       = 64,
-    //! the record FIFO, entries (a power of two)
-    parameter int unsigned FIFO_DEPTH_P        = 8,
+    //! the egress record FIFO, entries (a power of two): at least the
+    //! frames the gptp transmit ring holds at once (256 words, 17 a
+    //! message at least: 15), so the firmware's own sends never overrun it
+    parameter int unsigned FIFO_DEPTH_P        = 32,
     //! the egress reconstruction's terms: KL_gptp_txret's, by the same names
     parameter int unsigned ETH_TICK_NS_P       = 8,
     parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
@@ -96,12 +103,15 @@ module KL_gptp_tsu #(
     output logic                      seal_req_o,
     output logic [TXTS_GEN_W_P-1:0]   seal_gen_o,
     input  wire                       seal_ack_i,
-    //! ---- the records: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP}, STAMP lowest, the PHC's 64-bit time
+    //! ---- the ingress stamp of the frame on the tap, read at its last beat (KL_ctrl_split's trailer)
+    output logic [63:0]               rx_stamp_o,    //! the PHC at its first beat less INGRESS_LAT, from beat 1 on
+    output logic                      rx_event_o,    //! the frame is an IEEE 802.1AS event message, from beat 2 on
+    //! ---- the egress records: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP}, STAMP lowest, the PHC's 64-bit time
     output logic                      ts_valid_o,
     output logic [85:0]               ts_data_o,
     input  wire                       ts_take_p_i,
     //! ---- counters, wrapping
-    output logic [15:0]               dbg_drop_o,    //! records the FIFO could not hold
+    output logic [15:0]               dbg_drop_o,    //! egress records the FIFO could not hold
     output logic [15:0]               dbg_lost_o     //! egress records with no measurement
 );
 
@@ -135,46 +145,42 @@ module KL_gptp_tsu #(
   localparam logic [15:0] ET_GPTP_C = 16'h88F7;
 
   // ======================================================================= //
-  //  Ingress: the first accepted beat's PHC, the key from beats 1 and 5    //
+  //  Ingress: the first accepted beat's PHC, held for the frame's trailer   //
   // ======================================================================= //
   logic beat_w;
   assign beat_w = rx_tvalid_i & rx_tready_i;
   //! beat 0 lanes 0-5 the destination; beat 1 lanes 4-5 the EtherType and
-  //! lane 6 the PTP header's first octet (majorSdoId | messageType); beat 5
-  //! lanes 4-5 the sequenceId (frame octets 44 and 45)
-  logic [2:0]  rx_beat_r;     //! beats of this frame accepted so far, saturating at 6
-  logic        rx_cand_r;     //! still a gPTP event message
-  logic [3:0]  rx_type_r;
+  //! lane 6 the PTP header's first octet (majorSdoId | messageType)
+  logic        rx_first_r;    //! the next accepted beat is a frame's first
+  logic        rx_second_r;   //! the next accepted beat is a frame's second
+  logic        rx_cand_r;     //! a gPTP event message so far
   logic [63:0] rx_ts_r;
-  logic        rx_push_w;
-  logic [15:0] rx_seq_w;
   logic [47:0] da_w;
   assign da_w = {rx_tdata_i[7:0], rx_tdata_i[15:8], rx_tdata_i[23:16],
                  rx_tdata_i[31:24], rx_tdata_i[39:32], rx_tdata_i[47:40]};
-  assign rx_seq_w  = {rx_tdata_i[39:32], rx_tdata_i[47:40]};
-  assign rx_push_w = beat_w && rx_cand_r && (rx_beat_r == 3'd5) && (&rx_tkeep_i[5:4]);
 
   always_ff @(posedge clk_i) begin : rx_tap
     if (!rst_n) begin
-      rx_beat_r <= '0;
-      rx_cand_r <= 1'b0;
-      rx_type_r <= '0;
-      rx_ts_r   <= '0;
+      rx_first_r  <= 1'b1;
+      rx_second_r <= 1'b0;
+      rx_cand_r   <= 1'b0;
+      rx_ts_r     <= '0;
     end else if (beat_w) begin
-      if (rx_beat_r == 3'd0) begin
+      rx_first_r  <= rx_tlast_i;
+      rx_second_r <= rx_first_r && !rx_tlast_i;
+      if (rx_first_r) begin
         //! THE INGRESS STAMP POINT: the plane's, on this same edge
         rx_ts_r   <= phc_ns_i - 64'(INGRESS_LAT_NS_P);
         rx_cand_r <= (da_w == DA_GPTP_C) && !rx_tlast_i;
-      end else if (rx_beat_r == 3'd1) begin
-        rx_type_r <= rx_tdata_i[51:48];
+      end else if (rx_second_r) begin
         rx_cand_r <= rx_cand_r && ({rx_tdata_i[39:32], rx_tdata_i[47:40]} == ET_GPTP_C)
-                     && (rx_tdata_i[55:52] == 4'h1) && (rx_tdata_i[51:50] == 2'b00) && !rx_tlast_i;
-      end else if (rx_beat_r == 3'd5) begin
-        rx_cand_r <= 1'b0;
+                     && (rx_tdata_i[55:52] == 4'h1) && (rx_tdata_i[51:50] == 2'b00);
       end
-      rx_beat_r <= rx_tlast_i ? 3'd0 : ((rx_beat_r == 3'd6) ? 3'd6 : rx_beat_r + 3'd1);
     end
   end : rx_tap
+  //! both hold until the next frame's first beat, so the last beat reads them
+  assign rx_stamp_o = rx_ts_r;
+  assign rx_event_o = rx_cand_r && !rx_second_r;
 
   // ======================================================================= //
   //  Egress: the PHC history guard and the capture (KL_gptp_txret's)       //
@@ -285,42 +291,18 @@ module KL_gptp_tsu #(
   logic          full_w, push_w, pop_w;
   logic [85:0]   push_rec_w;
   assign full_w = (wp_r - rp_r) == (PW_C+1)'(FIFO_DEPTH_P);
-  //! an egress record and an ingress record never land on one edge in
-  //! practice (a launch record is two clocks of a frame the tap is not
-  //! seeing), but if they do, egress goes first and ingress next cycle
-  logic        rx_hold_r;
-  logic [85:0] rx_rec_r;
-  always_comb begin : pick
-    push_w     = 1'b0;
-    push_rec_w = '0;
-    if (tx_event_w) begin
-      push_w     = 1'b1;
-      push_rec_w = {1'b1, tx_ok_w, cap_type_r, cap_seq_r,
-                    tx_ok_w ? (cap_phc_r - 64'(TXTS_NET_NS_C)) : 64'd0};
-    end else if (rx_hold_r) begin
-      push_w     = 1'b1;
-      push_rec_w = rx_rec_r;
-    end else if (rx_push_w) begin
-      push_w     = 1'b1;
-      push_rec_w = {1'b0, 1'b1, rx_type_r, rx_seq_w, rx_ts_r};
-    end
-  end : pick
+  assign push_w     = tx_event_w;
+  assign push_rec_w = {1'b1, tx_ok_w, cap_type_r, cap_seq_r,
+                       tx_ok_w ? (cap_phc_r - 64'(TXTS_NET_NS_C)) : 64'd0};
   assign pop_w = ts_take_p_i && ts_valid_o;
 
   always_ff @(posedge clk_i) begin : fifo
     if (!rst_n) begin
       wp_r       <= '0;
       rp_r       <= '0;
-      rx_hold_r  <= 1'b0;
-      rx_rec_r   <= '0;
       dbg_drop_o <= '0;
       dbg_lost_o <= '0;
     end else begin
-      rx_hold_r <= 1'b0;
-      if (tx_event_w && (rx_hold_r || rx_push_w)) begin
-        rx_hold_r <= 1'b1;
-        rx_rec_r  <= rx_hold_r ? rx_rec_r : {1'b0, 1'b1, rx_type_r, rx_seq_w, rx_ts_r};
-      end
       if (push_w) begin
         if (full_w && !pop_w) begin
           dbg_drop_o <= dbg_drop_o + 16'd1;
@@ -336,10 +318,11 @@ module KL_gptp_tsu #(
   assign ts_valid_o = wp_r != rp_r;
   assign ts_data_o  = fifo_r[rp_r[PW_C-1:0]];
 
-  //! the observer's index, the seal's delivery report and the frame octets
-  //! past the key are not read: identity is the key, not the position
+  //! the observer's index, the seal's delivery report, the receive lanes'
+  //! keep and the octets past the event test are not read: identity is the
+  //! key, not the position; an ingress stamp's key is its own frame
   logic unused_w;
-  assign unused_w = ^{rec_oidx_i, seal_ack_i, rx_tkeep_i[7:6], rx_tkeep_i[3:0]};
+  assign unused_w = ^{rec_oidx_i, seal_ack_i, rx_tkeep_i, rx_tdata_i[63:56], rx_tdata_i[49:48]};
 
 endmodule
 

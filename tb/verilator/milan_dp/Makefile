@@ -938,6 +938,19 @@ exec-split:
 split: build-split
 	$(MAKE) --no-print-directory exec-split
 
+# #884: the same leg with gPTP in firmware (GPTP_SW_EN_P): the timestamp unit in
+# the plane's place, the gptp tap with its trailer, the narrowed publication
+# decoded, plus sim_split.cpp's [GPTP] checks of that wiring
+SPLIT_SW_MDIR ?= obj_split_sw
+build-split-sw: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(subst --Mdir $(SPLIT_MDIR),--Mdir $(SPLIT_SW_MDIR) -GGPTP_SW_P=1 -CFLAGS -DSPLIT_GPTP_SW,$(SPLIT_BUILD))
+
+exec-split-sw:
+	./$(SPLIT_SW_MDIR)/Vmilan_dp_split
+
+split-sw: build-split-sw
+	$(MAKE) --no-print-directory exec-split-sw
+
 # the split leg's planted defects, each caught by the check it names
 split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	python3 split_mutants.py

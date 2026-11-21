@@ -217,7 +217,7 @@ def _pub_ports(contract: Contract | None = None) -> list[str]:
     out = ["  // the publication block, what the firmware owner publishes for the datapath"]
     if contract is not None and gptp_words(contract):
         out.append("  output logic [MBX_N_IF_C*MBX_PUB_GPTP_WORDS_C*32-1:0] pub_gptp_o,   "
-                   "//! GPTP_GM_LO to GPTP_PATH7_HI per interface, word k at [32k +: 32]")
+                   "//! GPTP_GM_LO to GPTP_STATE per interface, word k at [32k +: 32]")
     for (reg, fld), (port, width) in PUB_OUTPUTS.items():
         out.append(f"  output logic [MBX_N_IF_C*{width}-1:0] {port},   //! {reg}.{fld} per interface")
     out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0] pub_src_sid_o,   "

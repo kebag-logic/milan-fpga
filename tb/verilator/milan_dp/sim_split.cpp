@@ -28,6 +28,12 @@
 //   [TX]    a frame committed to the adp ring is held until both halves of the
 //           station MAC are written (#839), then leaves the MAC byte for byte
 //   [LINK]  the datapath's effective link sets LINK.UP, and its loss clears it
+//   [GPTP]  (make split-sw, GPTP_SW_EN_P; #884) a gPTP event message at the MAC
+//           reaches the gptp ring whole with its eight-octet ingress stamp after
+//           it, a general message with the no-stamp trailer; the narrowed
+//           publication's grandmaster comes back through the datapath to
+//           KL_mbx's GM registers, and its change posts no AVB_INFO_CHANGED (the
+//           firmware raises it from its own snapshot)
 //   [TAP]   KL_ctrl_split alone (tb_split_top's u_tap): each tuple class it
 //           accepts is handed out whole and each it refuses is not; a burst
 //           past its FIFO loses frames, and each lost control frame is
@@ -602,6 +608,91 @@ void check_rx(Tb& tb) {
     tb.check("[RX] ...and its bytes are the frame's", same);
 }
 
+#ifdef SPLIT_GPTP_SW
+// a gPTP frame as the wire carries it (IEEE 802.1AS-2020 11.3.4, 10.6.2): untagged, majorSdoId 1
+std::vector<std::uint8_t> gptp_frame(unsigned type, unsigned seq) {
+    std::vector<std::uint8_t> f(64, 0);
+    const std::uint64_t da = 0x0180C200000Eull;
+    for (int i = 0; i < 6; ++i) f[i] = static_cast<std::uint8_t>(da >> (8 * (5 - i)));
+    f[6] = 0x02;
+    f[12] = 0x88;
+    f[13] = 0xF7;
+    f[14] = static_cast<std::uint8_t>(0x10u | type);
+    f[15] = 0x12;
+    f[44] = static_cast<std::uint8_t>(seq >> 8);
+    f[45] = static_cast<std::uint8_t>(seq);
+    return f;
+}
+
+// the gptp ring's record at word w: its bytes (LEN of them) and its trailer, the last eight
+bool gptp_record(Tb& tb, std::uint32_t at, std::vector<std::uint8_t>& bytes, std::uint64_t& trailer) {
+    static const std::uint32_t base[MBX_N_CH] = MBX_CH_RX_BASE_TBL;
+    static const std::uint32_t words[MBX_N_CH] = MBX_CH_RX_WORDS_TBL;
+    const std::uint32_t w0 = tb.rd(base[MBX_CH_GPTP] + 4u * (at % words[MBX_CH_GPTP]));
+    const std::uint32_t len = (w0 >> MBX_RXREC_W0_LEN_LSB) & 0xFFFFu;
+    if (len < 8u) return false;
+    std::vector<std::uint8_t> all;
+    for (std::uint32_t k = 0; k < len; k += 4) {
+        const std::uint32_t w = tb.rd(base[MBX_CH_GPTP] + 4u * ((at + 2u + k / 4) % words[MBX_CH_GPTP]));
+        for (std::uint32_t j = 0; j < 4 && k + j < len; ++j) all.push_back(static_cast<std::uint8_t>(w >> (8u * j)));
+    }
+    trailer = 0;
+    for (std::uint32_t k = len - 8u; k < len; ++k) trailer = (trailer << 8) | all[k];
+    bytes.assign(all.begin(), all.end() - 8);
+    return true;
+}
+
+void check_gptp(Tb& tb) {
+    tb.wr(MBX_REG_FILTER_EN, (1u << MBX_CH_ADP) | (1u << MBX_CH_GPTP));
+    const std::uint32_t head0 = tb.rd(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_HEAD));
+    const auto sync = gptp_frame(0x0, 0x1234);
+    tb.mac_rx(sync);
+    tb.sys(800);
+    const std::uint32_t head1 = tb.rd(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_HEAD));
+    std::vector<std::uint8_t> bytes;
+    std::uint64_t trailer = 0;
+    const bool got = head1 != head0 && gptp_record(tb, head0, bytes, trailer);
+    tb.check("[GPTP] a Sync at the MAC reaches the gptp ring, its bytes and then its trailer", got && bytes == sync);
+    tb.check("[GPTP] ...and its trailer is a stamp, not the no-stamp code", got && trailer != ~0ull);
+    const std::uint64_t first = trailer;
+    tb.wr(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_TAIL), head1);
+    const auto fu = gptp_frame(0x8, 0x1234);
+    tb.mac_rx(fu);
+    tb.sys(800);
+    const std::uint32_t head2 = tb.rd(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_HEAD));
+    const bool got2 = head2 != head1 && gptp_record(tb, head1, bytes, trailer);
+    tb.check("[GPTP] a Follow_Up (a general message) carries the no-stamp trailer", got2 && bytes == fu && trailer == ~0ull);
+    tb.wr(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_TAIL), head2);
+    tb.mac_rx(gptp_frame(0x2, 0x55));
+    tb.sys(800);
+    const std::uint32_t head3 = tb.rd(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_HEAD));
+    const bool got3 = head3 != head2 && gptp_record(tb, head2, bytes, trailer);
+    tb.check("[GPTP] a later Pdelay_Req's stamp is later on the PHC", got3 && trailer != ~0ull && trailer > first);
+    tb.wr(ch_reg(MBX_CH_GPTP, MBX_CH_REG_RX_TAIL), head3);
+    // the narrowed publication: the grandmaster comes back to KL_mbx's GM registers through the datapath
+    const std::uint64_t gm = 0x0011223344556677ull;
+    const std::uint32_t evt0 = tb.rd(MBX_REG_EVT_HEAD);
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_LO), static_cast<std::uint32_t>(gm));
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_HI), static_cast<std::uint32_t>(gm >> 32));
+    tb.wr(pub(MBX_PUB_REG_GPTP_STATE), (1u << MBX_GPTP_STATE_GEN_LSB) | (1u << MBX_GPTP_STATE_AS_CAPABLE_LSB) |
+                                          (1u << MBX_GPTP_STATE_SYNC_OK_LSB));
+    const std::uint64_t took = wait_for(tb, [&] {
+        return tb.rd(MBX_IF_BASE + MBX_IF_REG_GM_LO) == static_cast<std::uint32_t>(gm) &&
+               tb.rd(MBX_IF_BASE + MBX_IF_REG_GM_HI) == static_cast<std::uint32_t>(gm >> 32);
+    }, 400);
+    tb.check("[GPTP] the published grandmaster reaches KL_mbx's GM registers through the datapath", took <= 400);
+    // the events posted since: the GM change, and no AVB_INFO_CHANGED (the firmware raises that itself)
+    static const std::uint32_t ev_base = MBX_EVT_BASE;
+    bool avb = false;
+    const std::uint32_t evt1 = tb.rd(MBX_REG_EVT_HEAD);
+    for (std::uint32_t at = evt0; at != evt1; at = (at + MBX_EV_WORDS) & 0xFFFFu) {
+        const std::uint32_t w0 = tb.rd(ev_base + 4u * (at % MBX_EVT_WORDS));
+        avb = avb || ((w0 >> MBX_EVREC_W0_TYPE_LSB) & ((1u << MBX_EVREC_W0_TYPE_WIDTH) - 1u)) == MBX_EV_TYPE_AVB_INFO_CHANGED;
+    }
+    tb.check("[GPTP] a published grandmaster change posts no AVB_INFO_CHANGED from the datapath", !avb);
+}
+#endif
+
 void check_tx(Tb& tb) {
     auto* d = tb.dut();
     static const std::uint32_t base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
@@ -814,6 +905,9 @@ int main(int argc, char** argv) {
     check_tap(tb);
     check_tap_drops(tb);
     check_dp_drops(tb);
+#ifdef SPLIT_GPTP_SW
+    check_gptp(tb);
+#endif
     std::printf("ran %llu mailbox cycles\n", static_cast<unsigned long long>(tb.sys_cycles()));
     dut->final();
     return tb.finish();

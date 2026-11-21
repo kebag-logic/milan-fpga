@@ -35,7 +35,7 @@ package KL_mbx_pkg;
   //! publication sink entries per interface (listener streams)
   localparam int unsigned MBX_N_PUB_SINKS_C = 32'd16;
   //! gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o)
-  localparam int unsigned MBX_PUB_GPTP_WORDS_C = 32'd22;
+  localparam int unsigned MBX_PUB_GPTP_WORDS_C = 32'd3;
   //! NOW_MS milliseconds per TICK (one centisecond)
   localparam int unsigned MBX_TICK_MS_C = 32'd10;
   //! channels
@@ -354,26 +354,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_GPTP_GM_HI_ID_LSB_C = 32'd0;
   //! GPTP_GM_HI: gptp_grandmaster_id[63:32]
   localparam int unsigned MBX_GPTP_GM_HI_ID_WIDTH_C = 32'd32;
-  //! The parent port's ClockIdentity (IEEE 802.1AS-2020 10.3.9.4 parentDS), low word.
-  localparam int unsigned MBX_PUB_REG_GPTP_PARENT_LO_C = 32'h00000028;
-  //! GPTP_PARENT_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PARENT_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PARENT_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PARENT_LO_ID_WIDTH_C = 32'd32;
-  //! The parent port's ClockIdentity, high word.
-  localparam int unsigned MBX_PUB_REG_GPTP_PARENT_HI_C = 32'h0000002C;
-  //! GPTP_PARENT_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PARENT_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PARENT_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PARENT_HI_ID_WIDTH_C = 32'd32;
-  //! neighborPropDelay (IEEE 802.1AS-2020 11.2.19.3.4; GET_AVB_INFO's propagation_delay, Milan v1.2 5.4.2.23), nanoseconds, two's complement.
-  localparam int unsigned MBX_PUB_REG_GPTP_PDELAY_C = 32'h00000030;
-  //! GPTP_PDELAY: neighborPropDelay, ns
-  localparam int unsigned MBX_GPTP_PDELAY_NS_LSB_C = 32'd0;
-  //! GPTP_PDELAY: neighborPropDelay, ns
-  localparam int unsigned MBX_GPTP_PDELAY_NS_WIDTH_C = 32'd32;
-  //! The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one; PATH_COUNT is the pathTrace entries GPTP_PATH* hold, and PATH_GEN moves when they change (the AS_PATH_CHANGED source, Milan v1.2 Table 5.22).
-  localparam int unsigned MBX_PUB_REG_GPTP_STATE_C = 32'h00000034;
+  //! The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one.
+  localparam int unsigned MBX_PUB_REG_GPTP_STATE_C = 32'h00000028;
   //! GPTP_STATE: gptp_domain_number
   localparam int unsigned MBX_GPTP_STATE_DOMAIN_LSB_C = 32'd0;
   //! GPTP_STATE: gptp_domain_number
@@ -390,118 +372,14 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_GPTP_STATE_SLEW_LSB_C = 32'd10;
   //! GPTP_STATE: a transient offset correction is in progress
   localparam int unsigned MBX_GPTP_STATE_SLEW_WIDTH_C = 32'd1;
-  //! GPTP_STATE: pathTrace entries
-  localparam int unsigned MBX_GPTP_STATE_PATH_COUNT_LSB_C = 32'd12;
-  //! GPTP_STATE: pathTrace entries
-  localparam int unsigned MBX_GPTP_STATE_PATH_COUNT_WIDTH_C = 32'd4;
   //! GPTP_STATE: discontinuities
   localparam int unsigned MBX_GPTP_STATE_DISC_LSB_C = 32'd16;
   //! GPTP_STATE: discontinuities
   localparam int unsigned MBX_GPTP_STATE_DISC_WIDTH_C = 32'd4;
-  //! GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved
-  localparam int unsigned MBX_GPTP_STATE_PATH_GEN_LSB_C = 32'd20;
-  //! GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved
-  localparam int unsigned MBX_GPTP_STATE_PATH_GEN_WIDTH_C = 32'd4;
   //! GPTP_STATE: the publication's generation: moved by every write that publishes
   localparam int unsigned MBX_GPTP_STATE_GEN_LSB_C = 32'd24;
   //! GPTP_STATE: the publication's generation: moved by every write that publishes
   localparam int unsigned MBX_GPTP_STATE_GEN_WIDTH_C = 32'd8;
-  //! pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH0_LO_C = 32'h00000038;
-  //! GPTP_PATH0_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH0_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH0_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH0_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH0_HI_C = 32'h0000003C;
-  //! GPTP_PATH0_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH0_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH0_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH0_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH1_LO_C = 32'h00000040;
-  //! GPTP_PATH1_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH1_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH1_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH1_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH1_HI_C = 32'h00000044;
-  //! GPTP_PATH1_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH1_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH1_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH1_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH2_LO_C = 32'h00000048;
-  //! GPTP_PATH2_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH2_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH2_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH2_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH2_HI_C = 32'h0000004C;
-  //! GPTP_PATH2_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH2_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH2_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH2_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH3_LO_C = 32'h00000050;
-  //! GPTP_PATH3_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH3_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH3_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH3_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH3_HI_C = 32'h00000054;
-  //! GPTP_PATH3_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH3_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH3_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH3_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH4_LO_C = 32'h00000058;
-  //! GPTP_PATH4_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH4_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH4_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH4_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH4_HI_C = 32'h0000005C;
-  //! GPTP_PATH4_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH4_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH4_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH4_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH5_LO_C = 32'h00000060;
-  //! GPTP_PATH5_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH5_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH5_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH5_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH5_HI_C = 32'h00000064;
-  //! GPTP_PATH5_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH5_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH5_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH5_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH6_LO_C = 32'h00000068;
-  //! GPTP_PATH6_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH6_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH6_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH6_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH6_HI_C = 32'h0000006C;
-  //! GPTP_PATH6_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH6_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH6_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH6_HI_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH7_LO_C = 32'h00000070;
-  //! GPTP_PATH7_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH7_LO_ID_LSB_C = 32'd0;
-  //! GPTP_PATH7_LO: ClockIdentity[31:0]
-  localparam int unsigned MBX_GPTP_PATH7_LO_ID_WIDTH_C = 32'd32;
-  //! pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
-  localparam int unsigned MBX_PUB_REG_GPTP_PATH7_HI_C = 32'h00000074;
-  //! GPTP_PATH7_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH7_HI_ID_LSB_C = 32'd0;
-  //! GPTP_PATH7_HI: ClockIdentity[63:32]
-  localparam int unsigned MBX_GPTP_PATH7_HI_ID_WIDTH_C = 32'd32;
   //! first source entry inside a publication block
   localparam int unsigned MBX_PUB_SRC_BASE_C = 32'h00000080;
   //! bytes per publication source entry
@@ -1234,7 +1112,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB_C = 32'd0;
   //! AS_PATH_CHANGED event word 3: NOW_MS at posting
   localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH_C = 32'd32;
-  //! The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3), or could not: OK clear says the frame left or arrived with no measurement, and NS is 0. Ingress stamps the first accepted beat at the receive tap, less the board's ingress latency; egress stamps the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16].
+  //! The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3) the interface launched, or could not: OK clear says the frame left with no measurement, and NS is 0. The stamp is the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). A received frame's stamp is not an event: it rides in the frame's own gptp record (the channel's trailer). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. The event names no hart: it is posted to the event ring every event goes to, and a contract that routes events to rings routes it as any other (its credit flow and its order are the ring's).
   localparam int unsigned MBX_EV_TYPE_TIMESTAMP_C = 32'd9;
   //! TIMESTAMP event word 1: the message's sequenceId
   localparam int unsigned MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB_C = 32'd0;
@@ -1244,9 +1122,9 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB_C = 32'd16;
   //! TIMESTAMP event word 1: the message's messageType
   localparam int unsigned MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH_C = 32'd4;
-  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's
+  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record)
   localparam int unsigned MBX_EV_TIMESTAMP_W1_EGRESS_LSB_C = 32'd20;
-  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's
+  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record)
   localparam int unsigned MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH_C = 32'd1;
   //! TIMESTAMP event word 1: the stamp is a measurement
   localparam int unsigned MBX_EV_TIMESTAMP_W1_OK_LSB_C = 32'd21;

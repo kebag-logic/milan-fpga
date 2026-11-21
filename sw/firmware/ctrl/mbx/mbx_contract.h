@@ -34,7 +34,7 @@
 /* publication sink entries per interface (listener streams) */
 #define MBX_N_PUB_SINKS 16u
 /* gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o) */
-#define MBX_PUB_GPTP_WORDS 22u
+#define MBX_PUB_GPTP_WORDS 3u
 /* NOW_MS milliseconds per TICK (one centisecond) */
 #define MBX_TICK_MS 10u
 /* channels */
@@ -353,26 +353,8 @@
 #define MBX_GPTP_GM_HI_ID_LSB 0u
 /* GPTP_GM_HI: gptp_grandmaster_id[63:32] */
 #define MBX_GPTP_GM_HI_ID_WIDTH 32u
-/* The parent port's ClockIdentity (IEEE 802.1AS-2020 10.3.9.4 parentDS), low word. */
-#define MBX_PUB_REG_GPTP_PARENT_LO 0x28u
-/* GPTP_PARENT_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PARENT_LO_ID_LSB 0u
-/* GPTP_PARENT_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PARENT_LO_ID_WIDTH 32u
-/* The parent port's ClockIdentity, high word. */
-#define MBX_PUB_REG_GPTP_PARENT_HI 0x2Cu
-/* GPTP_PARENT_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PARENT_HI_ID_LSB 0u
-/* GPTP_PARENT_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PARENT_HI_ID_WIDTH 32u
-/* neighborPropDelay (IEEE 802.1AS-2020 11.2.19.3.4; GET_AVB_INFO's propagation_delay, Milan v1.2 5.4.2.23), nanoseconds, two's complement. */
-#define MBX_PUB_REG_GPTP_PDELAY 0x30u
-/* GPTP_PDELAY: neighborPropDelay, ns */
-#define MBX_GPTP_PDELAY_NS_LSB 0u
-/* GPTP_PDELAY: neighborPropDelay, ns */
-#define MBX_GPTP_PDELAY_NS_WIDTH 32u
-/* The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one; PATH_COUNT is the pathTrace entries GPTP_PATH* hold, and PATH_GEN moves when they change (the AS_PATH_CHANGED source, Milan v1.2 Table 5.22). */
-#define MBX_PUB_REG_GPTP_STATE 0x34u
+/* The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one. */
+#define MBX_PUB_REG_GPTP_STATE 0x28u
 /* GPTP_STATE: gptp_domain_number */
 #define MBX_GPTP_STATE_DOMAIN_LSB 0u
 /* GPTP_STATE: gptp_domain_number */
@@ -389,118 +371,14 @@
 #define MBX_GPTP_STATE_SLEW_LSB 10u
 /* GPTP_STATE: a transient offset correction is in progress */
 #define MBX_GPTP_STATE_SLEW_WIDTH 1u
-/* GPTP_STATE: pathTrace entries */
-#define MBX_GPTP_STATE_PATH_COUNT_LSB 12u
-/* GPTP_STATE: pathTrace entries */
-#define MBX_GPTP_STATE_PATH_COUNT_WIDTH 4u
 /* GPTP_STATE: discontinuities */
 #define MBX_GPTP_STATE_DISC_LSB 16u
 /* GPTP_STATE: discontinuities */
 #define MBX_GPTP_STATE_DISC_WIDTH 4u
-/* GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved */
-#define MBX_GPTP_STATE_PATH_GEN_LSB 20u
-/* GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved */
-#define MBX_GPTP_STATE_PATH_GEN_WIDTH 4u
 /* GPTP_STATE: the publication's generation: moved by every write that publishes */
 #define MBX_GPTP_STATE_GEN_LSB 24u
 /* GPTP_STATE: the publication's generation: moved by every write that publishes */
 #define MBX_GPTP_STATE_GEN_WIDTH 8u
-/* pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH0_LO 0x38u
-/* GPTP_PATH0_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH0_LO_ID_LSB 0u
-/* GPTP_PATH0_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH0_LO_ID_WIDTH 32u
-/* pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH0_HI 0x3Cu
-/* GPTP_PATH0_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH0_HI_ID_LSB 0u
-/* GPTP_PATH0_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH0_HI_ID_WIDTH 32u
-/* pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH1_LO 0x40u
-/* GPTP_PATH1_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH1_LO_ID_LSB 0u
-/* GPTP_PATH1_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH1_LO_ID_WIDTH 32u
-/* pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH1_HI 0x44u
-/* GPTP_PATH1_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH1_HI_ID_LSB 0u
-/* GPTP_PATH1_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH1_HI_ID_WIDTH 32u
-/* pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH2_LO 0x48u
-/* GPTP_PATH2_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH2_LO_ID_LSB 0u
-/* GPTP_PATH2_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH2_LO_ID_WIDTH 32u
-/* pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH2_HI 0x4Cu
-/* GPTP_PATH2_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH2_HI_ID_LSB 0u
-/* GPTP_PATH2_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH2_HI_ID_WIDTH 32u
-/* pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH3_LO 0x50u
-/* GPTP_PATH3_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH3_LO_ID_LSB 0u
-/* GPTP_PATH3_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH3_LO_ID_WIDTH 32u
-/* pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH3_HI 0x54u
-/* GPTP_PATH3_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH3_HI_ID_LSB 0u
-/* GPTP_PATH3_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH3_HI_ID_WIDTH 32u
-/* pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH4_LO 0x58u
-/* GPTP_PATH4_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH4_LO_ID_LSB 0u
-/* GPTP_PATH4_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH4_LO_ID_WIDTH 32u
-/* pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH4_HI 0x5Cu
-/* GPTP_PATH4_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH4_HI_ID_LSB 0u
-/* GPTP_PATH4_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH4_HI_ID_WIDTH 32u
-/* pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH5_LO 0x60u
-/* GPTP_PATH5_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH5_LO_ID_LSB 0u
-/* GPTP_PATH5_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH5_LO_ID_WIDTH 32u
-/* pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH5_HI 0x64u
-/* GPTP_PATH5_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH5_HI_ID_LSB 0u
-/* GPTP_PATH5_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH5_HI_ID_WIDTH 32u
-/* pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH6_LO 0x68u
-/* GPTP_PATH6_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH6_LO_ID_LSB 0u
-/* GPTP_PATH6_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH6_LO_ID_WIDTH 32u
-/* pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH6_HI 0x6Cu
-/* GPTP_PATH6_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH6_HI_ID_LSB 0u
-/* GPTP_PATH6_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH6_HI_ID_WIDTH 32u
-/* pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH7_LO 0x70u
-/* GPTP_PATH7_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH7_LO_ID_LSB 0u
-/* GPTP_PATH7_LO: ClockIdentity[31:0] */
-#define MBX_GPTP_PATH7_LO_ID_WIDTH 32u
-/* pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0. */
-#define MBX_PUB_REG_GPTP_PATH7_HI 0x74u
-/* GPTP_PATH7_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH7_HI_ID_LSB 0u
-/* GPTP_PATH7_HI: ClockIdentity[63:32] */
-#define MBX_GPTP_PATH7_HI_ID_WIDTH 32u
 /* first source entry inside a publication block */
 #define MBX_PUB_SRC_BASE 0x80u
 /* bytes per publication source entry */
@@ -1233,7 +1111,7 @@
 #define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB 0u
 /* AS_PATH_CHANGED event word 3: NOW_MS at posting */
 #define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH 32u
-/* The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3), or could not: OK clear says the frame left or arrived with no measurement, and NS is 0. Ingress stamps the first accepted beat at the receive tap, less the board's ingress latency; egress stamps the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. */
+/* The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3) the interface launched, or could not: OK clear says the frame left with no measurement, and NS is 0. The stamp is the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). A received frame's stamp is not an event: it rides in the frame's own gptp record (the channel's trailer). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. The event names no hart: it is posted to the event ring every event goes to, and a contract that routes events to rings routes it as any other (its credit flow and its order are the ring's). */
 #define MBX_EV_TYPE_TIMESTAMP 9u
 /* TIMESTAMP event word 1: the message's sequenceId */
 #define MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB 0u
@@ -1243,9 +1121,9 @@
 #define MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB 16u
 /* TIMESTAMP event word 1: the message's messageType */
 #define MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH 4u
-/* TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's */
+/* TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record) */
 #define MBX_EV_TIMESTAMP_W1_EGRESS_LSB 20u
-/* TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's */
+/* TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record) */
 #define MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH 1u
 /* TIMESTAMP event word 1: the stamp is a measurement */
 #define MBX_EV_TIMESTAMP_W1_OK_LSB 21u
