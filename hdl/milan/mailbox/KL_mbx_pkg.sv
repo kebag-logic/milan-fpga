@@ -17,7 +17,7 @@ package KL_mbx_pkg;
   //! contract major version
   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
   //! contract minor version
-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd4;
+  localparam int unsigned MBX_VERSION_MINOR_C = 32'd5;
   //! ID.MAGIC
   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
   //! host window size
@@ -34,10 +34,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_N_PUB_SOURCES_C = 32'd16;
   //! publication sink entries per interface (listener streams)
   localparam int unsigned MBX_N_PUB_SINKS_C = 32'd16;
+  //! gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o)
+  localparam int unsigned MBX_PUB_GPTP_WORDS_C = 32'd22;
   //! NOW_MS milliseconds per TICK (one centisecond)
   localparam int unsigned MBX_TICK_MS_C = 32'd10;
   //! channels
-  localparam int unsigned MBX_N_CH_C = 32'd5;
+  localparam int unsigned MBX_N_CH_C = 32'd6;
   //! ring counter width
   localparam int unsigned MBX_INDEX_BITS_C = 32'd16;
   //! accept terms per channel
@@ -76,6 +78,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TMR_OP_ARM_C = 32'd1;
   //! TMR_CMD.OP cancel
   localparam int unsigned MBX_TMR_OP_CANCEL_C = 32'd2;
+  //! a timestamp unit's record on KL_mbx's ts_data_i: {EGRESS, OK, MSG_TYPE (4), SEQUENCE_ID (16), NS (64)}, NS lowest (minor 5)
+  localparam int unsigned MBX_TS_REC_BITS_C = 32'd86;
   //! Contract identity. Firmware checks MAGIC and MAJOR before it opens a channel.
   localparam int unsigned MBX_REG_ID_C = 32'h00000000;
   //! ID: contract minor version
@@ -338,6 +342,166 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TALKER_DECL_DECLARED_LSB_C = 32'd0;
   //! TALKER_DECL: bit s: source s has a Talker declaration
   localparam int unsigned MBX_TALKER_DECL_DECLARED_WIDTH_C = 32'd16;
+  //! The grandmaster's ClockIdentity (gptp_grandmaster_id, Milan v1.2 5.4.2.23), low word; 0 while there is none.
+  localparam int unsigned MBX_PUB_REG_GPTP_GM_LO_C = 32'h00000020;
+  //! GPTP_GM_LO: gptp_grandmaster_id[31:0]
+  localparam int unsigned MBX_GPTP_GM_LO_ID_LSB_C = 32'd0;
+  //! GPTP_GM_LO: gptp_grandmaster_id[31:0]
+  localparam int unsigned MBX_GPTP_GM_LO_ID_WIDTH_C = 32'd32;
+  //! The grandmaster's ClockIdentity, high word.
+  localparam int unsigned MBX_PUB_REG_GPTP_GM_HI_C = 32'h00000024;
+  //! GPTP_GM_HI: gptp_grandmaster_id[63:32]
+  localparam int unsigned MBX_GPTP_GM_HI_ID_LSB_C = 32'd0;
+  //! GPTP_GM_HI: gptp_grandmaster_id[63:32]
+  localparam int unsigned MBX_GPTP_GM_HI_ID_WIDTH_C = 32'd32;
+  //! The parent port's ClockIdentity (IEEE 802.1AS-2020 10.3.9.4 parentDS), low word.
+  localparam int unsigned MBX_PUB_REG_GPTP_PARENT_LO_C = 32'h00000028;
+  //! GPTP_PARENT_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PARENT_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PARENT_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PARENT_LO_ID_WIDTH_C = 32'd32;
+  //! The parent port's ClockIdentity, high word.
+  localparam int unsigned MBX_PUB_REG_GPTP_PARENT_HI_C = 32'h0000002C;
+  //! GPTP_PARENT_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PARENT_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PARENT_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PARENT_HI_ID_WIDTH_C = 32'd32;
+  //! neighborPropDelay (IEEE 802.1AS-2020 11.2.19.3.4; GET_AVB_INFO's propagation_delay, Milan v1.2 5.4.2.23), nanoseconds, two's complement.
+  localparam int unsigned MBX_PUB_REG_GPTP_PDELAY_C = 32'h00000030;
+  //! GPTP_PDELAY: neighborPropDelay, ns
+  localparam int unsigned MBX_GPTP_PDELAY_NS_LSB_C = 32'd0;
+  //! GPTP_PDELAY: neighborPropDelay, ns
+  localparam int unsigned MBX_GPTP_PDELAY_NS_WIDTH_C = 32'd32;
+  //! The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one; PATH_COUNT is the pathTrace entries GPTP_PATH* hold, and PATH_GEN moves when they change (the AS_PATH_CHANGED source, Milan v1.2 Table 5.22).
+  localparam int unsigned MBX_PUB_REG_GPTP_STATE_C = 32'h00000034;
+  //! GPTP_STATE: gptp_domain_number
+  localparam int unsigned MBX_GPTP_STATE_DOMAIN_LSB_C = 32'd0;
+  //! GPTP_STATE: gptp_domain_number
+  localparam int unsigned MBX_GPTP_STATE_DOMAIN_WIDTH_C = 32'd8;
+  //! GPTP_STATE: asCapable
+  localparam int unsigned MBX_GPTP_STATE_AS_CAPABLE_LSB_C = 32'd8;
+  //! GPTP_STATE: asCapable
+  localparam int unsigned MBX_GPTP_STATE_AS_CAPABLE_WIDTH_C = 32'd1;
+  //! GPTP_STATE: the synchronization verdict
+  localparam int unsigned MBX_GPTP_STATE_SYNC_OK_LSB_C = 32'd9;
+  //! GPTP_STATE: the synchronization verdict
+  localparam int unsigned MBX_GPTP_STATE_SYNC_OK_WIDTH_C = 32'd1;
+  //! GPTP_STATE: a transient offset correction is in progress
+  localparam int unsigned MBX_GPTP_STATE_SLEW_LSB_C = 32'd10;
+  //! GPTP_STATE: a transient offset correction is in progress
+  localparam int unsigned MBX_GPTP_STATE_SLEW_WIDTH_C = 32'd1;
+  //! GPTP_STATE: pathTrace entries
+  localparam int unsigned MBX_GPTP_STATE_PATH_COUNT_LSB_C = 32'd12;
+  //! GPTP_STATE: pathTrace entries
+  localparam int unsigned MBX_GPTP_STATE_PATH_COUNT_WIDTH_C = 32'd4;
+  //! GPTP_STATE: discontinuities
+  localparam int unsigned MBX_GPTP_STATE_DISC_LSB_C = 32'd16;
+  //! GPTP_STATE: discontinuities
+  localparam int unsigned MBX_GPTP_STATE_DISC_WIDTH_C = 32'd4;
+  //! GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved
+  localparam int unsigned MBX_GPTP_STATE_PATH_GEN_LSB_C = 32'd20;
+  //! GPTP_STATE: pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved
+  localparam int unsigned MBX_GPTP_STATE_PATH_GEN_WIDTH_C = 32'd4;
+  //! GPTP_STATE: the publication's generation: moved by every write that publishes
+  localparam int unsigned MBX_GPTP_STATE_GEN_LSB_C = 32'd24;
+  //! GPTP_STATE: the publication's generation: moved by every write that publishes
+  localparam int unsigned MBX_GPTP_STATE_GEN_WIDTH_C = 32'd8;
+  //! pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH0_LO_C = 32'h00000038;
+  //! GPTP_PATH0_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH0_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH0_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH0_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH0_HI_C = 32'h0000003C;
+  //! GPTP_PATH0_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH0_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH0_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH0_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH1_LO_C = 32'h00000040;
+  //! GPTP_PATH1_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH1_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH1_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH1_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH1_HI_C = 32'h00000044;
+  //! GPTP_PATH1_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH1_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH1_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH1_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH2_LO_C = 32'h00000048;
+  //! GPTP_PATH2_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH2_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH2_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH2_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH2_HI_C = 32'h0000004C;
+  //! GPTP_PATH2_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH2_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH2_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH2_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH3_LO_C = 32'h00000050;
+  //! GPTP_PATH3_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH3_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH3_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH3_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH3_HI_C = 32'h00000054;
+  //! GPTP_PATH3_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH3_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH3_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH3_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH4_LO_C = 32'h00000058;
+  //! GPTP_PATH4_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH4_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH4_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH4_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH4_HI_C = 32'h0000005C;
+  //! GPTP_PATH4_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH4_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH4_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH4_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH5_LO_C = 32'h00000060;
+  //! GPTP_PATH5_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH5_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH5_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH5_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH5_HI_C = 32'h00000064;
+  //! GPTP_PATH5_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH5_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH5_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH5_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH6_LO_C = 32'h00000068;
+  //! GPTP_PATH6_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH6_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH6_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH6_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH6_HI_C = 32'h0000006C;
+  //! GPTP_PATH6_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH6_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH6_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH6_HI_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH7_LO_C = 32'h00000070;
+  //! GPTP_PATH7_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH7_LO_ID_LSB_C = 32'd0;
+  //! GPTP_PATH7_LO: ClockIdentity[31:0]
+  localparam int unsigned MBX_GPTP_PATH7_LO_ID_WIDTH_C = 32'd32;
+  //! pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0.
+  localparam int unsigned MBX_PUB_REG_GPTP_PATH7_HI_C = 32'h00000074;
+  //! GPTP_PATH7_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH7_HI_ID_LSB_C = 32'd0;
+  //! GPTP_PATH7_HI: ClockIdentity[63:32]
+  localparam int unsigned MBX_GPTP_PATH7_HI_ID_WIDTH_C = 32'd32;
   //! first source entry inside a publication block
   localparam int unsigned MBX_PUB_SRC_BASE_C = 32'h00000080;
   //! bytes per publication source entry
@@ -1070,6 +1234,32 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB_C = 32'd0;
   //! AS_PATH_CHANGED event word 3: NOW_MS at posting
   localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH_C = 32'd32;
+  //! The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3), or could not: OK clear says the frame left or arrived with no measurement, and NS is 0. Ingress stamps the first accepted beat at the receive tap, less the board's ingress latency; egress stamps the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16].
+  localparam int unsigned MBX_EV_TYPE_TIMESTAMP_C = 32'd9;
+  //! TIMESTAMP event word 1: the message's sequenceId
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB_C = 32'd0;
+  //! TIMESTAMP event word 1: the message's sequenceId
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH_C = 32'd16;
+  //! TIMESTAMP event word 1: the message's messageType
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB_C = 32'd16;
+  //! TIMESTAMP event word 1: the message's messageType
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH_C = 32'd4;
+  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_EGRESS_LSB_C = 32'd20;
+  //! TIMESTAMP event word 1: 1: a transmitted frame's stamp; 0: a received frame's
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH_C = 32'd1;
+  //! TIMESTAMP event word 1: the stamp is a measurement
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_OK_LSB_C = 32'd21;
+  //! TIMESTAMP event word 1: the stamp is a measurement
+  localparam int unsigned MBX_EV_TIMESTAMP_W1_OK_WIDTH_C = 32'd1;
+  //! TIMESTAMP event word 2: the PHC's time, ns[31:0]
+  localparam int unsigned MBX_EV_TIMESTAMP_W2_NS_LO_LSB_C = 32'd0;
+  //! TIMESTAMP event word 2: the PHC's time, ns[31:0]
+  localparam int unsigned MBX_EV_TIMESTAMP_W2_NS_LO_WIDTH_C = 32'd32;
+  //! TIMESTAMP event word 3: the PHC's time, ns[63:32]
+  localparam int unsigned MBX_EV_TIMESTAMP_W3_NS_HI_LSB_C = 32'd0;
+  //! TIMESTAMP event word 3: the PHC's time, ns[63:32]
+  localparam int unsigned MBX_EV_TIMESTAMP_W3_NS_HI_WIDTH_C = 32'd32;
   //! An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating.
   localparam int unsigned MBX_EV_TYPE_AMAP_LIVE_WRITE_C = 32'd8;
   //! AMAP_LIVE_WRITE event word 1: live writes since the previous record
@@ -1390,6 +1580,68 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_SRP_T2_OFFSET_C = 32'd0;
   //! srp term 2 message types
   localparam int unsigned MBX_CH_SRP_T2_MSG_MASK_C = 32'h00000000;
+  //! channel gptp
+  localparam int unsigned MBX_CH_GPTP_C = 32'd5;
+  //! gptp receive ring byte offset
+  localparam int unsigned MBX_CH_GPTP_RX_BASE_C = 32'h00005800;
+  //! gptp receive ring words
+  localparam int unsigned MBX_CH_GPTP_RX_WORDS_C = 32'd512;
+  //! gptp transmit ring byte offset
+  localparam int unsigned MBX_CH_GPTP_TX_BASE_C = 32'h00003400;
+  //! gptp transmit ring words
+  localparam int unsigned MBX_CH_GPTP_TX_WORDS_C = 32'd256;
+  //! gptp largest frame
+  localparam int unsigned MBX_CH_GPTP_MAX_FRAME_BYTES_C = 32'd512;
+  //! gptp token bucket depth
+  localparam int unsigned MBX_CH_GPTP_RATE_BURST_C = 32'd16;
+  //! gptp ms per refilled token
+  localparam int unsigned MBX_CH_GPTP_RATE_REFILL_MS_C = 32'd10;
+  //! gptp tuple 0: IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5)
+  localparam int unsigned MBX_CH_GPTP_M0_DST_C = 32'd1;
+  //! gptp tuple 0 destination [47:32]
+  localparam int unsigned MBX_CH_GPTP_M0_DST_HI_C = 32'h00000180;
+  //! gptp tuple 0 destination [31:0]
+  localparam int unsigned MBX_CH_GPTP_M0_DST_LO_C = 32'hC200000E;
+  //! gptp tuple 0 EtherType
+  localparam int unsigned MBX_CH_GPTP_M0_ETHERTYPE_C = 32'h000088F7;
+  //! gptp tuple 0 matches a subtype
+  localparam int unsigned MBX_CH_GPTP_M0_HAS_SUBTYPE_C = 32'd0;
+  //! gptp tuple 0 AVTP subtype
+  localparam int unsigned MBX_CH_GPTP_M0_SUBTYPE_C = 32'h00000000;
+  //! gptp tuple 0 message types
+  localparam int unsigned MBX_CH_GPTP_M0_MSG_MASK_C = 32'h0000FFFF;
+  //! gptp tuple 1: unused
+  localparam int unsigned MBX_CH_GPTP_M1_DST_C = 32'd0;
+  //! gptp tuple 1 destination [47:32]
+  localparam int unsigned MBX_CH_GPTP_M1_DST_HI_C = 32'h00000000;
+  //! gptp tuple 1 destination [31:0]
+  localparam int unsigned MBX_CH_GPTP_M1_DST_LO_C = 32'h00000000;
+  //! gptp tuple 1 EtherType
+  localparam int unsigned MBX_CH_GPTP_M1_ETHERTYPE_C = 32'h00000000;
+  //! gptp tuple 1 matches a subtype
+  localparam int unsigned MBX_CH_GPTP_M1_HAS_SUBTYPE_C = 32'd0;
+  //! gptp tuple 1 AVTP subtype
+  localparam int unsigned MBX_CH_GPTP_M1_SUBTYPE_C = 32'h00000000;
+  //! gptp tuple 1 message types
+  localparam int unsigned MBX_CH_GPTP_M1_MSG_MASK_C = 32'h00000000;
+  //! gptp term 0: every gPTP message; each is link-local to this port (IEEE 802.1AS-2020 11.3.4)
+  localparam int unsigned MBX_CH_GPTP_T0_TEST_C = 32'd1;
+  //! gptp term 0 field byte
+  localparam int unsigned MBX_CH_GPTP_T0_OFFSET_C = 32'd0;
+  //! gptp term 0 message types
+  localparam int unsigned MBX_CH_GPTP_T0_MSG_MASK_C = 32'h0000FFFF;
+  //! gptp term 1: unused
+  localparam int unsigned MBX_CH_GPTP_T1_TEST_C = 32'd0;
+  //! gptp term 1 field byte
+  localparam int unsigned MBX_CH_GPTP_T1_OFFSET_C = 32'd0;
+  //! gptp term 1 message types
+  localparam int unsigned MBX_CH_GPTP_T1_MSG_MASK_C = 32'h00000000;
+  //! gptp term 2: unused
+  localparam int unsigned MBX_CH_GPTP_T2_TEST_C = 32'd0;
+  //! gptp term 2 field byte
+  localparam int unsigned MBX_CH_GPTP_T2_OFFSET_C = 32'd0;
+  //! gptp term 2 message types
+  localparam int unsigned MBX_CH_GPTP_T2_MSG_MASK_C = 32'h00000000;
   //! interface index bits
   localparam int unsigned MBX_IF_W_C = 32'd1;
   //! channel index bits
@@ -1402,39 +1654,39 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_FRAME_BYTES_MAX_C = 32'd1514;
 
   //! by channel id
-  localparam int unsigned MBX_CH_RX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_BASE_C, MBX_CH_ACMP_RX_BASE_C, MBX_CH_AECP_RX_BASE_C, MBX_CH_MAAP_RX_BASE_C, MBX_CH_SRP_RX_BASE_C};
+  localparam int unsigned MBX_CH_RX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_BASE_C, MBX_CH_ACMP_RX_BASE_C, MBX_CH_AECP_RX_BASE_C, MBX_CH_MAAP_RX_BASE_C, MBX_CH_SRP_RX_BASE_C, MBX_CH_GPTP_RX_BASE_C};
   //! by channel id
-  localparam int unsigned MBX_CH_RX_WORDS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_WORDS_C, MBX_CH_ACMP_RX_WORDS_C, MBX_CH_AECP_RX_WORDS_C, MBX_CH_MAAP_RX_WORDS_C, MBX_CH_SRP_RX_WORDS_C};
+  localparam int unsigned MBX_CH_RX_WORDS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_WORDS_C, MBX_CH_ACMP_RX_WORDS_C, MBX_CH_AECP_RX_WORDS_C, MBX_CH_MAAP_RX_WORDS_C, MBX_CH_SRP_RX_WORDS_C, MBX_CH_GPTP_RX_WORDS_C};
   //! by channel id
-  localparam int unsigned MBX_CH_TX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_BASE_C, MBX_CH_ACMP_TX_BASE_C, MBX_CH_AECP_TX_BASE_C, MBX_CH_MAAP_TX_BASE_C, MBX_CH_SRP_TX_BASE_C};
+  localparam int unsigned MBX_CH_TX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_BASE_C, MBX_CH_ACMP_TX_BASE_C, MBX_CH_AECP_TX_BASE_C, MBX_CH_MAAP_TX_BASE_C, MBX_CH_SRP_TX_BASE_C, MBX_CH_GPTP_TX_BASE_C};
   //! by channel id
-  localparam int unsigned MBX_CH_TX_WORDS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_WORDS_C, MBX_CH_ACMP_TX_WORDS_C, MBX_CH_AECP_TX_WORDS_C, MBX_CH_MAAP_TX_WORDS_C, MBX_CH_SRP_TX_WORDS_C};
+  localparam int unsigned MBX_CH_TX_WORDS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_WORDS_C, MBX_CH_ACMP_TX_WORDS_C, MBX_CH_AECP_TX_WORDS_C, MBX_CH_MAAP_TX_WORDS_C, MBX_CH_SRP_TX_WORDS_C, MBX_CH_GPTP_TX_WORDS_C};
   //! by channel id
-  localparam int unsigned MBX_CH_MAX_FRAME_BYTES_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_MAX_FRAME_BYTES_C, MBX_CH_ACMP_MAX_FRAME_BYTES_C, MBX_CH_AECP_MAX_FRAME_BYTES_C, MBX_CH_MAAP_MAX_FRAME_BYTES_C, MBX_CH_SRP_MAX_FRAME_BYTES_C};
+  localparam int unsigned MBX_CH_MAX_FRAME_BYTES_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_MAX_FRAME_BYTES_C, MBX_CH_ACMP_MAX_FRAME_BYTES_C, MBX_CH_AECP_MAX_FRAME_BYTES_C, MBX_CH_MAAP_MAX_FRAME_BYTES_C, MBX_CH_SRP_MAX_FRAME_BYTES_C, MBX_CH_GPTP_MAX_FRAME_BYTES_C};
   //! by channel id
-  localparam int unsigned MBX_CH_RATE_BURST_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RATE_BURST_C, MBX_CH_ACMP_RATE_BURST_C, MBX_CH_AECP_RATE_BURST_C, MBX_CH_MAAP_RATE_BURST_C, MBX_CH_SRP_RATE_BURST_C};
+  localparam int unsigned MBX_CH_RATE_BURST_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RATE_BURST_C, MBX_CH_ACMP_RATE_BURST_C, MBX_CH_AECP_RATE_BURST_C, MBX_CH_MAAP_RATE_BURST_C, MBX_CH_SRP_RATE_BURST_C, MBX_CH_GPTP_RATE_BURST_C};
   //! by channel id
-  localparam int unsigned MBX_CH_RATE_REFILL_MS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RATE_REFILL_MS_C, MBX_CH_ACMP_RATE_REFILL_MS_C, MBX_CH_AECP_RATE_REFILL_MS_C, MBX_CH_MAAP_RATE_REFILL_MS_C, MBX_CH_SRP_RATE_REFILL_MS_C};
+  localparam int unsigned MBX_CH_RATE_REFILL_MS_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RATE_REFILL_MS_C, MBX_CH_ACMP_RATE_REFILL_MS_C, MBX_CH_AECP_RATE_REFILL_MS_C, MBX_CH_MAAP_RATE_REFILL_MS_C, MBX_CH_SRP_RATE_REFILL_MS_C, MBX_CH_GPTP_RATE_REFILL_MS_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_DST_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_C, MBX_CH_ADP_M1_DST_C, MBX_CH_ACMP_M0_DST_C, MBX_CH_ACMP_M1_DST_C, MBX_CH_AECP_M0_DST_C, MBX_CH_AECP_M1_DST_C, MBX_CH_MAAP_M0_DST_C, MBX_CH_MAAP_M1_DST_C, MBX_CH_SRP_M0_DST_C, MBX_CH_SRP_M1_DST_C};
+  localparam int unsigned MBX_TUPLE_DST_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_C, MBX_CH_ADP_M1_DST_C, MBX_CH_ACMP_M0_DST_C, MBX_CH_ACMP_M1_DST_C, MBX_CH_AECP_M0_DST_C, MBX_CH_AECP_M1_DST_C, MBX_CH_MAAP_M0_DST_C, MBX_CH_MAAP_M1_DST_C, MBX_CH_SRP_M0_DST_C, MBX_CH_SRP_M1_DST_C, MBX_CH_GPTP_M0_DST_C, MBX_CH_GPTP_M1_DST_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_DST_HI_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_HI_C, MBX_CH_ADP_M1_DST_HI_C, MBX_CH_ACMP_M0_DST_HI_C, MBX_CH_ACMP_M1_DST_HI_C, MBX_CH_AECP_M0_DST_HI_C, MBX_CH_AECP_M1_DST_HI_C, MBX_CH_MAAP_M0_DST_HI_C, MBX_CH_MAAP_M1_DST_HI_C, MBX_CH_SRP_M0_DST_HI_C, MBX_CH_SRP_M1_DST_HI_C};
+  localparam int unsigned MBX_TUPLE_DST_HI_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_HI_C, MBX_CH_ADP_M1_DST_HI_C, MBX_CH_ACMP_M0_DST_HI_C, MBX_CH_ACMP_M1_DST_HI_C, MBX_CH_AECP_M0_DST_HI_C, MBX_CH_AECP_M1_DST_HI_C, MBX_CH_MAAP_M0_DST_HI_C, MBX_CH_MAAP_M1_DST_HI_C, MBX_CH_SRP_M0_DST_HI_C, MBX_CH_SRP_M1_DST_HI_C, MBX_CH_GPTP_M0_DST_HI_C, MBX_CH_GPTP_M1_DST_HI_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_DST_LO_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_LO_C, MBX_CH_ADP_M1_DST_LO_C, MBX_CH_ACMP_M0_DST_LO_C, MBX_CH_ACMP_M1_DST_LO_C, MBX_CH_AECP_M0_DST_LO_C, MBX_CH_AECP_M1_DST_LO_C, MBX_CH_MAAP_M0_DST_LO_C, MBX_CH_MAAP_M1_DST_LO_C, MBX_CH_SRP_M0_DST_LO_C, MBX_CH_SRP_M1_DST_LO_C};
+  localparam int unsigned MBX_TUPLE_DST_LO_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_DST_LO_C, MBX_CH_ADP_M1_DST_LO_C, MBX_CH_ACMP_M0_DST_LO_C, MBX_CH_ACMP_M1_DST_LO_C, MBX_CH_AECP_M0_DST_LO_C, MBX_CH_AECP_M1_DST_LO_C, MBX_CH_MAAP_M0_DST_LO_C, MBX_CH_MAAP_M1_DST_LO_C, MBX_CH_SRP_M0_DST_LO_C, MBX_CH_SRP_M1_DST_LO_C, MBX_CH_GPTP_M0_DST_LO_C, MBX_CH_GPTP_M1_DST_LO_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_ETHERTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_ETHERTYPE_C, MBX_CH_ADP_M1_ETHERTYPE_C, MBX_CH_ACMP_M0_ETHERTYPE_C, MBX_CH_ACMP_M1_ETHERTYPE_C, MBX_CH_AECP_M0_ETHERTYPE_C, MBX_CH_AECP_M1_ETHERTYPE_C, MBX_CH_MAAP_M0_ETHERTYPE_C, MBX_CH_MAAP_M1_ETHERTYPE_C, MBX_CH_SRP_M0_ETHERTYPE_C, MBX_CH_SRP_M1_ETHERTYPE_C};
+  localparam int unsigned MBX_TUPLE_ETHERTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_ETHERTYPE_C, MBX_CH_ADP_M1_ETHERTYPE_C, MBX_CH_ACMP_M0_ETHERTYPE_C, MBX_CH_ACMP_M1_ETHERTYPE_C, MBX_CH_AECP_M0_ETHERTYPE_C, MBX_CH_AECP_M1_ETHERTYPE_C, MBX_CH_MAAP_M0_ETHERTYPE_C, MBX_CH_MAAP_M1_ETHERTYPE_C, MBX_CH_SRP_M0_ETHERTYPE_C, MBX_CH_SRP_M1_ETHERTYPE_C, MBX_CH_GPTP_M0_ETHERTYPE_C, MBX_CH_GPTP_M1_ETHERTYPE_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_HAS_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_HAS_SUBTYPE_C, MBX_CH_ADP_M1_HAS_SUBTYPE_C, MBX_CH_ACMP_M0_HAS_SUBTYPE_C, MBX_CH_ACMP_M1_HAS_SUBTYPE_C, MBX_CH_AECP_M0_HAS_SUBTYPE_C, MBX_CH_AECP_M1_HAS_SUBTYPE_C, MBX_CH_MAAP_M0_HAS_SUBTYPE_C, MBX_CH_MAAP_M1_HAS_SUBTYPE_C, MBX_CH_SRP_M0_HAS_SUBTYPE_C, MBX_CH_SRP_M1_HAS_SUBTYPE_C};
+  localparam int unsigned MBX_TUPLE_HAS_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_HAS_SUBTYPE_C, MBX_CH_ADP_M1_HAS_SUBTYPE_C, MBX_CH_ACMP_M0_HAS_SUBTYPE_C, MBX_CH_ACMP_M1_HAS_SUBTYPE_C, MBX_CH_AECP_M0_HAS_SUBTYPE_C, MBX_CH_AECP_M1_HAS_SUBTYPE_C, MBX_CH_MAAP_M0_HAS_SUBTYPE_C, MBX_CH_MAAP_M1_HAS_SUBTYPE_C, MBX_CH_SRP_M0_HAS_SUBTYPE_C, MBX_CH_SRP_M1_HAS_SUBTYPE_C, MBX_CH_GPTP_M0_HAS_SUBTYPE_C, MBX_CH_GPTP_M1_HAS_SUBTYPE_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_SUBTYPE_C, MBX_CH_ADP_M1_SUBTYPE_C, MBX_CH_ACMP_M0_SUBTYPE_C, MBX_CH_ACMP_M1_SUBTYPE_C, MBX_CH_AECP_M0_SUBTYPE_C, MBX_CH_AECP_M1_SUBTYPE_C, MBX_CH_MAAP_M0_SUBTYPE_C, MBX_CH_MAAP_M1_SUBTYPE_C, MBX_CH_SRP_M0_SUBTYPE_C, MBX_CH_SRP_M1_SUBTYPE_C};
+  localparam int unsigned MBX_TUPLE_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_SUBTYPE_C, MBX_CH_ADP_M1_SUBTYPE_C, MBX_CH_ACMP_M0_SUBTYPE_C, MBX_CH_ACMP_M1_SUBTYPE_C, MBX_CH_AECP_M0_SUBTYPE_C, MBX_CH_AECP_M1_SUBTYPE_C, MBX_CH_MAAP_M0_SUBTYPE_C, MBX_CH_MAAP_M1_SUBTYPE_C, MBX_CH_SRP_M0_SUBTYPE_C, MBX_CH_SRP_M1_SUBTYPE_C, MBX_CH_GPTP_M0_SUBTYPE_C, MBX_CH_GPTP_M1_SUBTYPE_C};
   //! by channel id * MAX_TUPLES + tuple
-  localparam int unsigned MBX_TUPLE_MSG_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_MSG_MASK_C, MBX_CH_ADP_M1_MSG_MASK_C, MBX_CH_ACMP_M0_MSG_MASK_C, MBX_CH_ACMP_M1_MSG_MASK_C, MBX_CH_AECP_M0_MSG_MASK_C, MBX_CH_AECP_M1_MSG_MASK_C, MBX_CH_MAAP_M0_MSG_MASK_C, MBX_CH_MAAP_M1_MSG_MASK_C, MBX_CH_SRP_M0_MSG_MASK_C, MBX_CH_SRP_M1_MSG_MASK_C};
+  localparam int unsigned MBX_TUPLE_MSG_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_MSG_MASK_C, MBX_CH_ADP_M1_MSG_MASK_C, MBX_CH_ACMP_M0_MSG_MASK_C, MBX_CH_ACMP_M1_MSG_MASK_C, MBX_CH_AECP_M0_MSG_MASK_C, MBX_CH_AECP_M1_MSG_MASK_C, MBX_CH_MAAP_M0_MSG_MASK_C, MBX_CH_MAAP_M1_MSG_MASK_C, MBX_CH_SRP_M0_MSG_MASK_C, MBX_CH_SRP_M1_MSG_MASK_C, MBX_CH_GPTP_M0_MSG_MASK_C, MBX_CH_GPTP_M1_MSG_MASK_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_TEST_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_TEST_C, MBX_CH_ADP_T1_TEST_C, MBX_CH_ADP_T2_TEST_C, MBX_CH_ACMP_T0_TEST_C, MBX_CH_ACMP_T1_TEST_C, MBX_CH_ACMP_T2_TEST_C, MBX_CH_AECP_T0_TEST_C, MBX_CH_AECP_T1_TEST_C, MBX_CH_AECP_T2_TEST_C, MBX_CH_MAAP_T0_TEST_C, MBX_CH_MAAP_T1_TEST_C, MBX_CH_MAAP_T2_TEST_C, MBX_CH_SRP_T0_TEST_C, MBX_CH_SRP_T1_TEST_C, MBX_CH_SRP_T2_TEST_C};
+  localparam int unsigned MBX_TERM_TEST_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_TEST_C, MBX_CH_ADP_T1_TEST_C, MBX_CH_ADP_T2_TEST_C, MBX_CH_ACMP_T0_TEST_C, MBX_CH_ACMP_T1_TEST_C, MBX_CH_ACMP_T2_TEST_C, MBX_CH_AECP_T0_TEST_C, MBX_CH_AECP_T1_TEST_C, MBX_CH_AECP_T2_TEST_C, MBX_CH_MAAP_T0_TEST_C, MBX_CH_MAAP_T1_TEST_C, MBX_CH_MAAP_T2_TEST_C, MBX_CH_SRP_T0_TEST_C, MBX_CH_SRP_T1_TEST_C, MBX_CH_SRP_T2_TEST_C, MBX_CH_GPTP_T0_TEST_C, MBX_CH_GPTP_T1_TEST_C, MBX_CH_GPTP_T2_TEST_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_OFFSET_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_OFFSET_C, MBX_CH_ADP_T1_OFFSET_C, MBX_CH_ADP_T2_OFFSET_C, MBX_CH_ACMP_T0_OFFSET_C, MBX_CH_ACMP_T1_OFFSET_C, MBX_CH_ACMP_T2_OFFSET_C, MBX_CH_AECP_T0_OFFSET_C, MBX_CH_AECP_T1_OFFSET_C, MBX_CH_AECP_T2_OFFSET_C, MBX_CH_MAAP_T0_OFFSET_C, MBX_CH_MAAP_T1_OFFSET_C, MBX_CH_MAAP_T2_OFFSET_C, MBX_CH_SRP_T0_OFFSET_C, MBX_CH_SRP_T1_OFFSET_C, MBX_CH_SRP_T2_OFFSET_C};
+  localparam int unsigned MBX_TERM_OFFSET_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_OFFSET_C, MBX_CH_ADP_T1_OFFSET_C, MBX_CH_ADP_T2_OFFSET_C, MBX_CH_ACMP_T0_OFFSET_C, MBX_CH_ACMP_T1_OFFSET_C, MBX_CH_ACMP_T2_OFFSET_C, MBX_CH_AECP_T0_OFFSET_C, MBX_CH_AECP_T1_OFFSET_C, MBX_CH_AECP_T2_OFFSET_C, MBX_CH_MAAP_T0_OFFSET_C, MBX_CH_MAAP_T1_OFFSET_C, MBX_CH_MAAP_T2_OFFSET_C, MBX_CH_SRP_T0_OFFSET_C, MBX_CH_SRP_T1_OFFSET_C, MBX_CH_SRP_T2_OFFSET_C, MBX_CH_GPTP_T0_OFFSET_C, MBX_CH_GPTP_T1_OFFSET_C, MBX_CH_GPTP_T2_OFFSET_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_MSG_MASK_C, MBX_CH_ADP_T1_MSG_MASK_C, MBX_CH_ADP_T2_MSG_MASK_C, MBX_CH_ACMP_T0_MSG_MASK_C, MBX_CH_ACMP_T1_MSG_MASK_C, MBX_CH_ACMP_T2_MSG_MASK_C, MBX_CH_AECP_T0_MSG_MASK_C, MBX_CH_AECP_T1_MSG_MASK_C, MBX_CH_AECP_T2_MSG_MASK_C, MBX_CH_MAAP_T0_MSG_MASK_C, MBX_CH_MAAP_T1_MSG_MASK_C, MBX_CH_MAAP_T2_MSG_MASK_C, MBX_CH_SRP_T0_MSG_MASK_C, MBX_CH_SRP_T1_MSG_MASK_C, MBX_CH_SRP_T2_MSG_MASK_C};
+  localparam int unsigned MBX_TERM_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_MSG_MASK_C, MBX_CH_ADP_T1_MSG_MASK_C, MBX_CH_ADP_T2_MSG_MASK_C, MBX_CH_ACMP_T0_MSG_MASK_C, MBX_CH_ACMP_T1_MSG_MASK_C, MBX_CH_ACMP_T2_MSG_MASK_C, MBX_CH_AECP_T0_MSG_MASK_C, MBX_CH_AECP_T1_MSG_MASK_C, MBX_CH_AECP_T2_MSG_MASK_C, MBX_CH_MAAP_T0_MSG_MASK_C, MBX_CH_MAAP_T1_MSG_MASK_C, MBX_CH_MAAP_T2_MSG_MASK_C, MBX_CH_SRP_T0_MSG_MASK_C, MBX_CH_SRP_T1_MSG_MASK_C, MBX_CH_SRP_T2_MSG_MASK_C, MBX_CH_GPTP_T0_MSG_MASK_C, MBX_CH_GPTP_T1_MSG_MASK_C, MBX_CH_GPTP_T2_MSG_MASK_C};
   //! by COUNTERS_CHANGED descriptor family
   localparam int unsigned MBX_CTRCHG_TYPE_TBL_C [MBX_CTRCHG_N_SRC_C] = '{MBX_CTRCHG_STREAM_INPUT_TYPE_C, MBX_CTRCHG_STREAM_OUTPUT_TYPE_C, MBX_CTRCHG_AVB_INTERFACE_TYPE_C, MBX_CTRCHG_CLOCK_DOMAIN_TYPE_C};
   //! by COUNTERS_CHANGED descriptor family

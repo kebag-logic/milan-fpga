@@ -20,12 +20,19 @@
 //                write, an AVB_INFO or AS_PATH change, each with the count
 //                since its last record, and a served descriptor's counter
 //                change, one pending bit per descriptor (Milan v1.2 Table
-//                5.22). Fixed priority: link, then
-//                grandmaster, then the lowest expired slot, then the tick,
-//                then the map write, AVB_INFO, AS_PATH, and last the lowest
+//                5.22). Since contract 2.5 (#884, #665 F6) it posts each
+//                record of the interfaces' timestamp units (TIMESTAMP).
+//                Fixed priority: link, then grandmaster, then the lowest
+//                expired slot, then a timestamp record, then the tick, then
+//                the map write, AVB_INFO, AS_PATH, and last the lowest
 //                pending descriptor of the lowest interface.
 //
-//                The one decision that matters: every source is COALESCED.
+//                The one decision that matters: every source but the
+//                timestamp records is COALESCED. A timestamp record is a
+//                measurement, so each is posted once: the unit offers one
+//                record at a time on ts_data_i and takes the next only after
+//                ts_take_p_o, so its own FIFO holds what waits and the ring
+//                never drops one either.
 //                A source holds at most one unposted record and posts its
 //                state at posting time, and the poster writes only when four
 //                words are free. So the ring can never overflow and drop the
@@ -76,6 +83,10 @@ module KL_mbx_evt
   input  wire  [MBX_N_IF_C-1:0]         asp_chg_p_i,        //! one-cycle pulse per interface: the served AS_PATH sequence changed
   input  wire  [MBX_N_IF_C-1:0]         amap_wr_p_i,        //! one-cycle pulse per interface: an edit's commit changed the live map
 
+  input  wire  [MBX_N_IF_C-1:0]         ts_valid_i,         //! a timestamp unit's record waits on ts_data_i
+  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i, //! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} per interface
+  output logic [MBX_N_IF_C-1:0]         ts_take_p_o,        //! one-cycle pulse: that record was taken for posting
+
   input  wire  [15:0]                   evt_tail_words_i,   //! EVT_TAIL, words the core consumed
   output logic [15:0]                   evt_head_words_o,   //! EVT_HEAD, words posted here
 
@@ -102,8 +113,8 @@ module KL_mbx_evt
   assign tmr_bad_p_o = tmr_cmd_p_i && !cmd_ok_w;
 
   // ---- the poster's choice -----------------------------------------------------------
-  typedef enum logic [2:0] {SRC_LINK_S, SRC_GM_S, SRC_TIMER_S, SRC_TICK_S, SRC_AMAP_S, SRC_AVB_S, SRC_ASP_S,
-                            SRC_CTR_S} src_t;
+  typedef enum logic [3:0] {SRC_LINK_S, SRC_GM_S, SRC_TIMER_S, SRC_TS_S, SRC_TICK_S, SRC_AMAP_S, SRC_AVB_S,
+                            SRC_ASP_S, SRC_CTR_S} src_t;
 
   logic [MBX_N_IF_C-1:0] posted_up_r;   //! the link level the last LINK record carried
   logic [MBX_N_IF_C-1:0] gm_pend_r;     //! a grandmaster change not yet posted
@@ -172,6 +183,13 @@ module KL_mbx_evt
         src_slot_w = SW_C'(s);
       end
     end
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (!any_w && ts_valid_i[i]) begin
+        any_w    = 1'b1;
+        src_w    = SRC_TS_S;
+        src_if_w = MBX_IF_W_C'(i);
+      end
+    end
     if (!any_w && tick_cnt_r != 16'd0) begin
       any_w = 1'b1;
       src_w = SRC_TICK_S;
@@ -224,9 +242,12 @@ module KL_mbx_evt
     logic [31:0] etype;
     logic [31:0] dtype;
     logic [31:0] dindex;
+    logic [MBX_TS_REC_BITS_C-1:0] ts;
+    ts = ts_data_i[MBX_TS_REC_BITS_C*src_if_w +: MBX_TS_REC_BITS_C];
     etype = (src_w == SRC_LINK_S)  ? MBX_EV_TYPE_LINK_C
           : (src_w == SRC_GM_S)    ? MBX_EV_TYPE_GM_C
           : (src_w == SRC_TIMER_S) ? MBX_EV_TYPE_TIMER_C
+          : (src_w == SRC_TS_S)    ? MBX_EV_TYPE_TIMESTAMP_C
           : (src_w == SRC_TICK_S)  ? MBX_EV_TYPE_TICK_C
           : (src_w == SRC_AMAP_S)  ? MBX_EV_TYPE_AMAP_LIVE_WRITE_C
           : (src_w == SRC_AVB_S)   ? MBX_EV_TYPE_AVB_INFO_CHANGED_C
@@ -259,6 +280,15 @@ module KL_mbx_evt
              | (32'(src_slot_w) << MBX_EV_TIMER_W1_SLOT_LSB_C);
         w2_w = dl_r[src_slot_w] << MBX_EV_TIMER_W2_DEADLINE_MS_LSB_C;
         w3_w = now_ms_i << MBX_EV_TIMER_W3_NOW_MS_LSB_C;
+      end
+      SRC_TS_S: begin
+        // the record's layout on ts_data_i: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS}, NS lowest
+        w1_w = mbx_place_f(32'(ts[79:64]), MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB_C, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH_C)
+             | mbx_place_f(32'(ts[83:80]), MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB_C, MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH_C)
+             | mbx_place_f(32'(ts[85]), MBX_EV_TIMESTAMP_W1_EGRESS_LSB_C, MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH_C)
+             | mbx_place_f(32'(ts[84]), MBX_EV_TIMESTAMP_W1_OK_LSB_C, MBX_EV_TIMESTAMP_W1_OK_WIDTH_C);
+        w2_w = ts[31:0] << MBX_EV_TIMESTAMP_W2_NS_LO_LSB_C;
+        w3_w = ts[63:32] << MBX_EV_TIMESTAMP_W3_NS_HI_LSB_C;
       end
       SRC_TICK_S: begin
         w1_w = 32'(tick_cnt_r) << MBX_EV_TICK_W1_COUNT_LSB_C;
@@ -401,6 +431,11 @@ module KL_mbx_evt
       end
     end
   end : poster
+
+  always_comb begin : ts_take
+    for (int i = 0; i < int'(MBX_N_IF_C); i++)
+      ts_take_p_o[i] = start_w && src_w == SRC_TS_S && src_if_w == MBX_IF_W_C'(i);
+  end : ts_take
 
   assign wr_en_o          = busy_r;
   assign wr_addr_o        = $clog2(MBX_EVT_WORDS_C)'((head_r + 16'(k_r)) & (16'(MBX_EVT_WORDS_C) - 16'd1));

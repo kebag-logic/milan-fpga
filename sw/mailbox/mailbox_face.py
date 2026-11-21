@@ -161,9 +161,21 @@ def ports(contract: Contract) -> list[str]:
             "  input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_index_i,   //! its descriptor_index, valid with ctr_chg_p_i",
             "  input  wire  [MBX_N_IF_C-1:0] avb_chg_p_i,   //! a served GET_AVB_INFO word changed",
             "  input  wire  [MBX_N_IF_C-1:0] asp_chg_p_i,   //! the served AS_PATH sequence changed",
-            "  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i   //! an edit's commit beat changed the live map",
-            ");", ""]
+            "  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i" + ("," if has_timestamp(contract) else "") +
+            "   //! an edit's commit beat changed the live map"]
+    if has_timestamp(contract):
+        out += ["  // the timestamp units' records (minor 5), one at a time per interface",
+                "  input  wire  [MBX_N_IF_C-1:0] ts_valid_i,   //! a record waits on ts_data_i",
+                "  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i,   "
+                "//! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} per interface",
+                "  output logic [MBX_N_IF_C-1:0] ts_take_p_o   //! one-cycle pulse: the record was posted"]
+    out += [");", ""]
     return out
+
+
+def has_timestamp(contract: Contract) -> bool:
+    """The contract carries the TIMESTAMP event (minor 5), so KL_mbx takes the timestamp units' records."""
+    return any(t.name == "TIMESTAMP" for t in contract.event_types)
 
 
 def decode(contract: Contract, off: str = "off_w", pre: str = "") -> list[str]:
@@ -440,3 +452,5 @@ def read(contract: Contract, pre: str = "") -> list[tuple[str, str, str, frozens
 EVT_CONNECTIONS = (("ctr_chg_p_i", "ctr_chg_p_i"), ("ctr_chg_type_i", "ctr_chg_type_i"),
                    ("ctr_chg_index_i", "ctr_chg_index_i"), ("avb_chg_p_i", "avb_chg_p_i"),
                    ("asp_chg_p_i", "asp_chg_p_i"), ("amap_wr_p_i", "amap_wr_p_i"))
+#: ...and the timestamp units' (minor 5).
+EVT_TS_CONNECTIONS = (("ts_valid_i", "ts_valid_i"), ("ts_data_i", "ts_data_i"), ("ts_take_p_o", "ts_take_p_o"))

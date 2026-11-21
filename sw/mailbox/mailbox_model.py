@@ -844,6 +844,15 @@ def _channel_constants(contract: Contract) -> list[Constant]:
     return out
 
 
+#: The publication block's gPTP words (minor 5): every interface register named GPTP_*, in offset order.
+GPTP_PREFIX = "GPTP_"
+
+
+def gptp_words(contract: Contract) -> list[Register]:
+    """The gPTP publication's registers, contiguous from the first, in offset order (pub_gptp_o's words)."""
+    return sorted((r for r in contract.pub_registers if r.name.startswith(GPTP_PREFIX)), key=lambda r: r.offset)
+
+
 def constants(contract: Contract) -> list[Constant]:
     """The one flat list every output carries, in a stable order."""
     out = [Constant("VERSION_MAJOR", contract.major, "contract major version", False),
@@ -858,6 +867,8 @@ def constants(contract: Contract) -> list[Constant]:
                     False),
            Constant("N_PUB_SINKS", contract.pub_sinks, "publication sink entries per interface (listener streams)",
                     False),
+           Constant("PUB_GPTP_WORDS", len(gptp_words(contract)),
+                    "gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o)", False),
            Constant("TICK_MS", contract.tick_ms, "NOW_MS milliseconds per TICK (one centisecond)", False),
            Constant("N_CH", len(contract.channels), "channels", False),
            Constant("INDEX_BITS", contract.index_bits, "ring counter width", False),
@@ -872,6 +883,9 @@ def constants(contract: Contract) -> list[Constant]:
     out += [Constant(f"TEST_{name.upper()}", value, doc, False) for name, value, doc in contract.tests]
     out += [Constant(f"TMR_OP_{name.upper()}", value, f"TMR_CMD.OP {name}", False)
             for name, value in contract.tmr_ops]
+    if any(t.name == "TIMESTAMP" for t in contract.event_types):
+        out.append(Constant("TS_REC_BITS", 86, "a timestamp unit's record on KL_mbx's ts_data_i: {EGRESS, OK, "
+                            "MSG_TYPE (4), SEQUENCE_ID (16), NS (64)}, NS lowest (minor 5)", False))
     out += _register_constants(contract)
     out += _record_constants(contract)
     out += _channel_constants(contract)

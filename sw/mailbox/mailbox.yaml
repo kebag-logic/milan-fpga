@@ -82,10 +82,22 @@
 # dev added these entries as its own minor 3 over 2.2, without the face
 # block; they join this contract as minor 4 when dev's work merges here, and
 # dev reaches 2.4 by adding the face block (the ruling on #665).
+#
+# Minor 5 (#884, #665 F6; the owner's decision of 2026-11-21 on #872: gPTP all
+# in software, the hardware timestamps and the PHC kept in fabric): the gptp
+# channel takes the untagged IEEE 802.1AS frames of every AVB interface both
+# ways; the TIMESTAMP event carries the timestamp unit's record of each event
+# message it timed or could not time, in the order it timed them; and a gPTP
+# publication per interface carries the state the datapath's consumers read
+# (the clock validity verdict, the grandmaster counters, GET_AVB_INFO and
+# GET_AS_PATH), written by the firmware's gPTP owner and taken by the datapath
+# only as a whole, when its GPTP_STATE.GEN moves. It only adds: a firmware
+# built against 2.4 never opens channel 5, never writes the GPTP_* words and
+# reads no event type it does not know; the rings and words sit in free space.
 
 version:
   major: 2
-  minor: 4
+  minor: 5
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
@@ -404,6 +416,163 @@ interface_publication_registers:
         declaration is destroyed.
       fields:
         - {name: DECLARED, lsb: 0, width: 16, doc: "bit s: source s has a Talker declaration"}
+    # THE gPTP PUBLICATION (minor 5; #884, #665 F6). The firmware's gPTP owner of
+    # the interface writes GPTP_GM_LO to GPTP_PATH7_HI, then GPTP_STATE with GEN
+    # moved; the datapath takes every GPTP_* word as one snapshot, crossed when GEN
+    # moves, so it never combines two publications (a grandmaster identity never
+    # moves through a half-written value). The words are contiguous from GPTP_GM_LO,
+    # in this order, and leave KL_mbx on one port, pub_gptp_o, word k at bits
+    # [32k +: 32]. They replace the fabric gPTP plane's publication bank, whose
+    # consumers read them unchanged in meaning.
+    - name: GPTP_GM_LO
+      offset: 0x20
+      access: rw
+      doc: The grandmaster's ClockIdentity (gptp_grandmaster_id, Milan v1.2 5.4.2.23), low word; 0 while there is none.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[31:0]"}
+    - name: GPTP_GM_HI
+      offset: 0x24
+      access: rw
+      doc: The grandmaster's ClockIdentity, high word.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[63:32]"}
+    - name: GPTP_PARENT_LO
+      offset: 0x28
+      access: rw
+      doc: The parent port's ClockIdentity (IEEE 802.1AS-2020 10.3.9.4 parentDS), low word.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PARENT_HI
+      offset: 0x2C
+      access: rw
+      doc: The parent port's ClockIdentity, high word.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PDELAY
+      offset: 0x30
+      access: rw
+      doc: >-
+        neighborPropDelay (IEEE 802.1AS-2020 11.2.19.3.4; GET_AVB_INFO's propagation_delay,
+        Milan v1.2 5.4.2.23), nanoseconds, two's complement.
+      fields:
+        - {name: NS, lsb: 0, width: 32, doc: "neighborPropDelay, ns"}
+    - name: GPTP_STATE
+      offset: 0x34
+      access: rw
+      doc: >-
+        The port's state, written LAST: a write whose GEN moved publishes every GPTP_*
+        word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1);
+        SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the
+        last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction
+        level (a measurement window of the PHC's rate that overlaps it is discarded);
+        DISC counts the discontinuities of the PHC's time (a step, a grandmaster change),
+        so each move of it is one; PATH_COUNT is the pathTrace entries GPTP_PATH* hold, and
+        PATH_GEN moves when they change (the AS_PATH_CHANGED source, Milan v1.2 Table 5.22).
+      fields:
+        - {name: DOMAIN, lsb: 0, width: 8, doc: gptp_domain_number}
+        - {name: AS_CAPABLE, lsb: 8, width: 1, doc: asCapable}
+        - {name: SYNC_OK, lsb: 9, width: 1, doc: the synchronization verdict}
+        - {name: SLEW, lsb: 10, width: 1, doc: a transient offset correction is in progress}
+        - {name: PATH_COUNT, lsb: 12, width: 4, doc: pathTrace entries, at most 8}
+        - {name: DISC, lsb: 16, width: 4, doc: discontinuities, modulo 16}
+        - {name: PATH_GEN, lsb: 20, width: 4, doc: "pathTrace changes, modulo 16: moved only when PATH_COUNT or an entry moved"}
+        - {name: GEN, lsb: 24, width: 8, doc: "the publication's generation: moved by every write that publishes"}
+    - name: GPTP_PATH0_LO
+      offset: 0x38
+      access: rw
+      doc: "pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH0_HI
+      offset: 0x3C
+      access: rw
+      doc: "pathTrace entry 0 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH1_LO
+      offset: 0x40
+      access: rw
+      doc: "pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH1_HI
+      offset: 0x44
+      access: rw
+      doc: "pathTrace entry 1 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH2_LO
+      offset: 0x48
+      access: rw
+      doc: "pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH2_HI
+      offset: 0x4C
+      access: rw
+      doc: "pathTrace entry 2 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH3_LO
+      offset: 0x50
+      access: rw
+      doc: "pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH3_HI
+      offset: 0x54
+      access: rw
+      doc: "pathTrace entry 3 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH4_LO
+      offset: 0x58
+      access: rw
+      doc: "pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH4_HI
+      offset: 0x5C
+      access: rw
+      doc: "pathTrace entry 4 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH5_LO
+      offset: 0x60
+      access: rw
+      doc: "pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH5_HI
+      offset: 0x64
+      access: rw
+      doc: "pathTrace entry 5 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH6_LO
+      offset: 0x68
+      access: rw
+      doc: "pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH6_HI
+      offset: 0x6C
+      access: rw
+      doc: "pathTrace entry 6 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
+    - name: GPTP_PATH7_LO
+      offset: 0x70
+      access: rw
+      doc: "pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), low word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[31:0]"}
+    - name: GPTP_PATH7_HI
+      offset: 0x74
+      access: rw
+      doc: "pathTrace entry 7 (IEEE 802.1AS-2020 10.3.9.23), high word: entry 0 is the grandmaster's ClockIdentity; entries past GPTP_STATE.PATH_COUNT are 0."
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "ClockIdentity[63:32]"}
   source_registers:
     - name: SRC_SID_LO
       offset: 0x0
@@ -1068,6 +1237,31 @@ event_types:
       - index: 3
         fields:
           - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: TIMESTAMP
+    value: 9
+    doc: >-
+      The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to
+      3), or could not: OK clear says the frame left or arrived with no measurement, and NS
+      is 0. Ingress stamps the first accepted beat at the receive tap, less the board's
+      ingress latency; egress stamps the frame's launch at the MAC's own transmit stream,
+      reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020
+      11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp
+      boundaries). NOT COALESCED: each record is one measurement, posted from the unit's
+      FIFO in the order it timed them; a record the FIFO could not hold counts in the
+      CSR's GPTP_DROPW[31:16].
+    words:
+      - index: 1
+        fields:
+          - {name: SEQUENCE_ID, lsb: 0, width: 16, doc: the message's sequenceId}
+          - {name: MSG_TYPE, lsb: 16, width: 4, doc: the message's messageType}
+          - {name: EGRESS, lsb: 20, width: 1, doc: "1: a transmitted frame's stamp; 0: a received frame's"}
+          - {name: OK, lsb: 21, width: 1, doc: the stamp is a measurement}
+      - index: 2
+        fields:
+          - {name: NS_LO, lsb: 0, width: 32, doc: "the PHC's time, ns[31:0]"}
+      - index: 3
+        fields:
+          - {name: NS_HI, lsb: 0, width: 32, doc: "the PHC's time, ns[63:32]"}
   - name: AMAP_LIVE_WRITE
     value: 8
     doc: >-
@@ -1221,3 +1415,21 @@ channels:
     accept:
       - {test: any, field: MRPDU,
          doc: every MSRP and MVRP PDU; both are link-local to this port}
+  - name: gptp
+    id: 5
+    rx: {base: 0x5800, words: 512}
+    tx: {base: 0x3400, words: 256}
+    max_frame_bytes: 512
+    match:
+      - {dst: 0x0180C200000E, ethertype: 0x88F7,
+         doc: "IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5)"}
+    # provisional (#884's ruling): burst 16, one every 10 ms, 100 a second against
+    # Milan v1.2 4.2.6.2.2 Table 4.1's 20 a second of a slave port
+    rate: {burst: 16, refill_ms: 10}
+    cite: IEEE 802.1AS-2020 11.3.4, 11.3.5 and 11.4; Milan v1.2 4.2.6.2.2 Table 4.1
+    # The record carries the whole frame, so the PTP message (IEEE 802.1AS-2020
+    # 10.6.2, the common header first) is frame bytes 14 to LEN-1, and a TX
+    # record is the 14-byte header and a message the firmware's gPTP owner wrote.
+    accept:
+      - {test: any, field: PTPDU,
+         doc: every gPTP message; each is link-local to this port (IEEE 802.1AS-2020 11.3.4)}

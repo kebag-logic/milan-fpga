@@ -68,6 +68,12 @@ struct mbx_event {
 	uint16_t desc_index;    // COUNTERS_CHANGED
 	bool every;             // COUNTERS_CHANGED: every served descriptor may have moved (ALL)
 	uint16_t count;         // AVB_INFO_CHANGED, AS_PATH_CHANGED, AMAP_LIVE_WRITE: changes coalesced
+	// TIMESTAMP (contract 2.5): one event message's stamp, or its loss
+	bool ts_egress;         // a transmitted frame's (else a received frame's)
+	bool ts_ok;             // a measurement; false: the frame was not timed
+	uint8_t ts_msg_type;    // its messageType
+	uint16_t ts_seq;        // its sequenceId
+	uint64_t ts_ns;         // the PHC's time, ns
 };
 
 // The face block's request and answer windows (contract 2.3), in the contract's order.
@@ -113,6 +119,11 @@ bool mbx_pub_licence(unsigned interface, uint32_t active);
 bool mbx_pub_idle_slope(unsigned interface, uint32_t bps);
 bool mbx_pub_domain(unsigned interface, bool adopted, uint8_t priority, uint16_t vid);
 bool mbx_pub_talker_decl(unsigned interface, uint32_t declared);
+// The gPTP publication (contract 2.5): every GPTP_* word of the interface, in
+// the contract's order (MBX_PUB_GPTP_WORDS of them, GPTP_GM_LO first), each
+// written but GPTP_STATE, which is written last, so its GEN, which the caller
+// moved, publishes them as one snapshot. Bus writes: MBX_PUB_GPTP_WORDS.
+bool mbx_pub_gptp(unsigned interface, const uint32_t words[MBX_PUB_GPTP_WORDS]);
 // Source `source`'s entry (contract 2.4): one word of its stream_id, SRC_SID_HI
 // with high, else SRC_SID_LO, which the datapath stamps on the source's frames
 // as SRC_SID_HI:SRC_SID_LO. The DA gate's owner writes both while the source's

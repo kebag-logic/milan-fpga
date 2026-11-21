@@ -203,7 +203,8 @@ constexpr std::uint16_t kEtherAvtp = 0x22F0;   // IEEE 1722-2016 Table 5
 constexpr std::uint16_t kEtherMsrp = 0x22EA;   // IEEE 802.1Q-2018 Table 10-2
 constexpr std::uint16_t kEtherMvrp = 0x88F5;   // IEEE 802.1Q-2018 Table 10-2
 constexpr std::uint16_t kEtherVlan = 0x8100;   // IEEE 802.1Q-2018 Table 9-1
-constexpr std::uint16_t kEtherPtp = 0x88F7;    // IEEE 802.1AS-2020 11.3.4: not a control EtherType here
+constexpr std::uint16_t kEtherPtp = 0x88F7;    // IEEE 802.1AS-2020 11.3.5: the gptp channel's (contract 2.5)
+constexpr std::uint16_t kEtherLocalExp = 0x88B5;   // IEEE Std 802 Local Experimental EtherType 1: not a control EtherType here
 constexpr std::uint8_t kSubAaf = 0x02;          // IEEE 1722-2016 Table 6
 constexpr std::uint8_t kSubCrf = 0x04;          // IEEE 1722-2016 Table 6
 constexpr std::uint8_t kSubAdp = 0xFA;          // IEEE 1722.1-2021 6.2.2.1
@@ -342,6 +343,16 @@ inline std::vector<std::uint8_t> maap(std::uint8_t message_type, std::uint64_t s
     f[15] = message_type & 0x0Fu;
     put_be(f, 26, start, 6);
     put_be(f, 32, count, 2);
+    return f;
+}
+
+//! An IEEE 802.1AS message: majorSdoId 1 and `type` at byte 14, versionPTP 2 at
+//! byte 15, `len` frame bytes in all, at the gPTP address (802.1AS-2020 11.3.4).
+inline std::vector<std::uint8_t> gptp(std::uint8_t type, std::size_t len) {
+    auto f = eth(kMsrpMac, kEtherPtp, len);
+    f[14] = static_cast<std::uint8_t>(0x10u | (type & 0x0Fu));
+    f[15] = 0x12;
+    put_be(f, 16, len - 14u, 2);
     return f;
 }
 

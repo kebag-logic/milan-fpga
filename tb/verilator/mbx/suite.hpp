@@ -1296,6 +1296,8 @@ std::vector<typename Suite<Bench, Check>::Row> Suite<Bench, Check>::table_rows()
         {"maap, DEFEND to own unicast", MBX_CH_MAAP, mbx_tb::to(mbx_tb::maap(2, 0x91E000000100ull, 8), kOwnMac), true},
         {"srp MSRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMsrp, mrpdu), false},
         {"srp MVRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMvrp, mrpdu), false},
+        {"gptp Sync", MBX_CH_GPTP, mbx_tb::gptp(0x0, 58), false},
+        {"gptp Announce", MBX_CH_GPTP, mbx_tb::gptp(0xB, 90), false},
     };
 }
 
@@ -1340,9 +1342,12 @@ void Suite<Bench, Check>::check_tuple_rejections() {
             other = mbx_tb::kAdpAcmpMac;                    // the multicast row; the DEFEND row keeps kForeignMac
         } else if (r.channel == MBX_CH_SRP) {               // each MRP application at the other's address
             other = r.frame[5] == 0x0Eu ? mbx_tb::kMvrpMac : mbx_tb::kMsrpMac;
+        } else if (r.channel == MBX_CH_GPTP) {              // gPTP at the MVRP address: no tuple there
+            other = mbx_tb::kMvrpMac;
         }
         check_rejected("Q2 to another destination MAC, it" + row, mbx_tb::to(r.frame, other), 1);
         const std::uint16_t et = r.avtp ? mbx_tb::kEtherMvrp
+                                        : r.channel == MBX_CH_GPTP ? mbx_tb::kEtherMvrp   // MVRP at gPTP's address
                                         : (r.frame[5] == 0x0Eu ? mbx_tb::kEtherMvrp : mbx_tb::kEtherMsrp);
         check_rejected("Q3 under another control EtherType, it" + row, mbx_tb::with_ethertype(r.frame, et), 1);
         if (r.avtp) {
@@ -1351,13 +1356,17 @@ void Suite<Bench, Check>::check_tuple_rejections() {
         } else {
             // MSRP and MVRP read no subtype: AVTP at their address selects no channel, whatever byte 14 holds
             const auto avtp = mbx_tb::with_ethertype(r.frame, mbx_tb::kEtherAvtp);
-            check_rejected("Q4 as AVTP, a wrong AVTP subtype cannot select srp" + row, avtp, 1);
-            check_rejected("Q4 as AVTP with the ADP subtype, it cannot select srp" + row,
+            const char* ch = r.channel == MBX_CH_GPTP ? "gptp" : "srp";
+            check_rejected(std::string("Q4 as AVTP, a wrong AVTP subtype cannot select ") + ch + row, avtp, 1);
+            check_rejected(std::string("Q4 as AVTP with the ADP subtype, it cannot select ") + ch + row,
                            mbx_tb::with_subtype(avtp, mbx_tb::kSubAdp), 1);
         }
     }
-    check_rejected("Q3 under a non-control EtherType (gPTP), an ADPDU",
-                   mbx_tb::with_ethertype(mbx_tb::adpdu(2, 0), mbx_tb::kEtherPtp), 0);
+    check_rejected("Q3 under a non-control EtherType (IEEE 802 local experimental), an ADPDU",
+                   mbx_tb::with_ethertype(mbx_tb::adpdu(2, 0), mbx_tb::kEtherLocalExp), 0);
+    // contract 2.5: 0x88F7 is a control EtherType, so gPTP's EtherType at the ADP address counts
+    check_rejected("Q3 under gPTP's EtherType at the ADP address, an ADPDU",
+                   mbx_tb::with_ethertype(mbx_tb::adpdu(2, 0), mbx_tb::kEtherPtp), 1);
     // the identity term, each refusal uncounted: the tuple held
     check_rejected("Q5 ENTITY_DISCOVER for another entity", mbx_tb::adpdu(2, kForeignEid), 0);
     check_rejected("Q5 ENTITY_AVAILABLE of this entity", mbx_tb::adpdu(0, kOwnEid), 0);
@@ -2432,7 +2441,10 @@ void Suite<Bench, Check>::check_pub_out_of_window() {
                                          (in == MBX_PUB_SRC_REG_SRC_SID_LO || in == MBX_PUB_SRC_REG_SRC_SID_HI))
                                       : (in == MBX_PUB_REG_DA_GATE || in == MBX_PUB_REG_LICENCE ||
                                          in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN ||
-                                         in == MBX_PUB_REG_TALKER_DECL));
+                                         in == MBX_PUB_REG_TALKER_DECL ||
+                                         // the gPTP publication's words, contiguous (contract 2.5)
+                                         (in >= MBX_PUB_REG_GPTP_GM_LO &&
+                                          in < MBX_PUB_REG_GPTP_GM_LO + 4u * MBX_PUB_GPTP_WORDS)));
             if (!named) {
                 wr(pub_reg(i, off), 0xFFFFFFFFu);
                 holes_zero = holes_zero && rd(pub_reg(i, off)) == 0u;

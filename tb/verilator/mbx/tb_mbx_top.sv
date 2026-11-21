@@ -111,6 +111,10 @@ module tb_mbx_top
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_sid_valid_o,   //! BINDING.SID_VALID per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_started_o,     //! BINDING.STARTED per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0]         pub_sid_o,         //! SID_HI:SID_LO per sink
+  output logic [MBX_N_IF_C*MBX_PUB_GPTP_WORDS_C*32-1:0]      pub_gptp_o,        //! GPTP_GM_LO to GPTP_PATH7_HI (2.5)
+  input  wire  [MBX_N_IF_C-1:0]                              ts_valid_i,        //! a timestamp record waits (2.5)
+  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0]            ts_data_i,         //! the record
+  output logic [MBX_N_IF_C-1:0]                              ts_take_p_o,       //! the record was posted
 
   // the face block's ports, KL_mbx's own (contract 2.3): the bench answers the
   // windows and acknowledges the commits as the datapath of the split would
@@ -379,6 +383,10 @@ module tb_mbx_top
     .pub_sid_valid_o   (pub_sid_valid_o),
     .pub_started_o     (pub_started_o),
     .pub_sid_o         (pub_sid_o),
+    .pub_gptp_o        (pub_gptp_o),
+    .ts_valid_i        (ts_valid_i),
+    .ts_data_i         (ts_data_i),
+    .ts_take_p_o       (ts_take_p_o),
     .fw_send_o                (fw_send_o),
     .fw_ack_p_i               (fw_ack_p_i),
     .fw_ctrl_ready_o          (fw_ctrl_ready_o),

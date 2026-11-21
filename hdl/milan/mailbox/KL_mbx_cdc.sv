@@ -25,6 +25,14 @@
 //                               the datapath's req and fields until wait
 //                               falls, and one carries the answer and the
 //                               same tag back
+//                  gPTP         (contract 2.5) the gPTP publication's words, one
+//                               cdc_handshake started when GPTP_STATE.GEN
+//                               moves, so the datapath only ever holds a
+//                               whole publication; and the timestamp units'
+//                               records the other way, one in flight or
+//                               held at a time, its credit returned when
+//                               KL_mbx posts it, so the unit's FIFO holds
+//                               what waits and none is overwritten
 //                  events       a free-running cdc_handshake carries the
 //                               counter-change pending bits in the
 //                               contract's layout, the three face events,
@@ -142,6 +150,12 @@ module KL_mbx_cdc
   output logic             m_gm_change_p_o,
   output logic [63:0]      m_gm_id_o,
   output logic [7:0]       m_gptp_domain_o,
+  //! the gPTP publication (contract 2.5), KL_mbx's pub_gptp_o of interface 0
+  input  wire  [MBX_PUB_GPTP_WORDS_C*32-1:0] m_pub_gptp_i,
+  //! the timestamp unit's record, offered to KL_mbx until it takes it
+  output logic             m_ts_valid_o,
+  output logic [MBX_TS_REC_BITS_C-1:0] m_ts_data_o,
+  input  wire              m_ts_take_p_i,
 
   // ---- the datapath side (dp), milan_datapath's ctl ports ------------------
   //! the publication block's last snapshot to land, to its i_ctl_pub_*
@@ -221,7 +235,14 @@ module KL_mbx_cdc
   input  wire              d_link_up_i,
   input  wire              d_gm_change_p_i,
   input  wire  [63:0]      d_gm_id_i,
-  input  wire  [7:0]       d_gptp_domain_i
+  input  wire  [7:0]       d_gptp_domain_i,
+  //! the gPTP publication's last whole snapshot, and a pulse when one lands
+  output logic [MBX_PUB_GPTP_WORDS_C*32-1:0] d_pub_gptp_o,
+  output logic             d_pub_gptp_p_o,
+  //! the timestamp unit's FIFO head, and the pulse that takes it
+  input  wire              d_ts_valid_i,
+  input  wire  [MBX_TS_REC_BITS_C-1:0] d_ts_data_i,
+  output logic             d_ts_take_p_o
 );
 
   // ======================================================================= //
@@ -447,6 +468,67 @@ module KL_mbx_cdc
       end
     end
   end : m_post
+
+  // ======================================================================= //
+  //  gPTP (contract 2.5): the publication, and the timestamp records        //
+  // ======================================================================= //
+  //! GPTP_STATE's word in pub_gptp_o, and its GEN field: the firmware writes
+  //! that word last, so the cycle after GEN moves every other word is final
+  localparam int unsigned GPTP_STATE_WORD_C = (MBX_PUB_REG_GPTP_STATE_C - MBX_PUB_REG_GPTP_GM_LO_C) / 4;
+  localparam int unsigned GPTP_GEN_LSB_C = 32 * GPTP_STATE_WORD_C + MBX_GPTP_STATE_GEN_LSB_C;
+  logic [MBX_GPTP_STATE_GEN_WIDTH_C-1:0] gptp_sent_gen_r;
+  logic gptp_send_r, gptp_rcv_w;
+  always_ff @(posedge sys_clk_i) begin : gptp_pub_send
+    if (!sys_rst_n) begin
+      gptp_send_r     <= 1'b0;
+      gptp_sent_gen_r <= '0;
+    end else if (gptp_send_r) begin
+      if (gptp_rcv_w) gptp_send_r <= 1'b0;
+    end else if (m_pub_gptp_i[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C] != gptp_sent_gen_r) begin
+      //! cdc_handshake latches src_in on this level's rising edge, one cycle
+      //! after the GEN write: a GEN that moves again in flight sends again
+      gptp_send_r     <= 1'b1;
+      gptp_sent_gen_r <= m_pub_gptp_i[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C];
+    end
+  end : gptp_pub_send
+  cdc_handshake #(.WIDTH(MBX_PUB_GPTP_WORDS_C * 32)) u_gptp_pub (
+    .src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_in(m_pub_gptp_i), .src_send(gptp_send_r),
+    .src_rcv(gptp_rcv_w),
+    .dest_clk(dp_clk_i), .dest_rst_n(dp_rst_n), .dest_out(d_pub_gptp_o), .dest_req(d_pub_gptp_p_o));
+
+  //! the records: the datapath side takes the FIFO head into the crossing
+  //! only while it holds the credit, which the mailbox side returns once
+  //! KL_mbx has taken the record for posting
+  logic                         ts_busy_r, ts_send_r, ts_rcv_w, ts_land_w, ts_free_p_w, ts_free_m_p_w;
+  logic [MBX_TS_REC_BITS_C-1:0] ts_hold_r, ts_dst_w;
+  assign d_ts_take_p_o = !ts_busy_r && d_ts_valid_i;
+  always_ff @(posedge dp_clk_i) begin : ts_send
+    if (!dp_rst_n) begin
+      ts_busy_r <= 1'b0;
+      ts_send_r <= 1'b0;
+      ts_hold_r <= '0;
+    end else begin
+      if (d_ts_take_p_o) begin
+        ts_hold_r <= d_ts_data_i;
+        ts_busy_r <= 1'b1;
+        ts_send_r <= 1'b1;
+      end
+      if (ts_rcv_w) ts_send_r <= 1'b0;
+      if (ts_free_p_w) ts_busy_r <= 1'b0;
+    end
+  end : ts_send
+  cdc_handshake #(.WIDTH(MBX_TS_REC_BITS_C)) u_ts (
+    .src_clk(dp_clk_i), .src_rst_n(dp_rst_n), .src_in(ts_hold_r), .src_send(ts_send_r), .src_rcv(ts_rcv_w),
+    .dest_clk(sys_clk_i), .dest_rst_n(sys_rst_n), .dest_out(ts_dst_w), .dest_req(ts_land_w));
+  always_ff @(posedge sys_clk_i) begin : ts_offer
+    if (!sys_rst_n) m_ts_valid_o <= 1'b0;
+    else if (ts_land_w) m_ts_valid_o <= 1'b1;
+    else if (m_ts_take_p_i) m_ts_valid_o <= 1'b0;
+  end : ts_offer
+  assign m_ts_data_o   = ts_dst_w;
+  assign ts_free_m_p_w = m_ts_valid_o && m_ts_take_p_i;
+  cdc_pulse u_ts_free (.src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_pulse(ts_free_m_p_w),
+                       .dest_clk(dp_clk_i), .dest_rst_n(dp_rst_n), .dest_pulse(ts_free_p_w));
 
 endmodule
 
