@@ -317,12 +317,23 @@ records nothing, and one registered again after a LeaveAll is not indicated. A
 Ready replaced by a Ready Failed is recorded, though its flags are the same,
 since the release processor's LISTENER_REG_CHANGE follows the registration
 state. A link reset is not recorded here: it closes the output's declaration as
-a reset does for the Talker (above). The record takes 40 bytes of code at
-8x8/1if, whose image has 18 bytes of its 34 RAMB36 of `rom` left (#957). Tests:
-`srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` (at 1x1/1if and
-8x8/2if) and `test_aecp.cpp`'s `ListenerRegistrationChangeIsItsStreamOutputsNotice`
-(real Listener MRPDUs, the notices read on the wire, at every output of the 1x1
-shape at one and two interfaces and of the 8x8 at one); plants
+a reset does for the Talker (above). It destroys the interface's participants
+and the Listener registrations they hold with no indication, so
+`reset_interface` clears `declaration` with `listener_present`: the record then
+agrees with what the answer shows, no Listener, and the first registration after
+the reset is recorded whatever it declares, the destroyed one's declaration
+included. The record and that clear take 44 bytes of code at 8x8/1if (#957),
+whose image, with THE TRANSMIT's sliced build keeping what came due between its
+slices (#956, below), fills its 34 RAMB36 of `rom`, 139,264 bytes, with none
+left. Tests: `srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` and
+`ListenerRegistrationAfterAResetIsNoticed` (each declaration, the link's edges
+apart, coalesced into one service and twice over, the other interface's record
+kept; at 1x1/1if, 8x8/1if and 8x8/2if) and `test_aecp.cpp`'s
+`ListenerRegistrationChangeIsItsStreamOutputsNotice` and
+`ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice` (real Listener
+MRPDUs, the notices read on the wire, one with the new flags to every registered
+controller, at every output of the 1x1 shape at one and two interfaces and of
+the 8x8 at one, and across a link reset at the first output); plants
 `talker-registration-*` (`srp_talker_mutants.py`) and `registration-notice-*`
 (`aecp_registration_mutants.py`).
 
@@ -395,7 +406,7 @@ An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop giv
 What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
 lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
 The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
-A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
+A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming. The pause takes its interface's due, and the build waiting for its next slice is THE TRANSMIT's due and the poll's owed (`tx_owed`, the due and `tx_resume` read whole), so what comes due between the two slices, a join timer's end among the centiseconds dispatched there or a declaration another pass made owed, is owed again once the build ends, as after a build made whole, and a build with nothing due between its slices ends owing nothing, what its own sends moved included (#956; `Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue`). Before it, the resumed slice's end cleared a due a join timer's end set again between the slices, so a declaration that timer held waited for the next periodic MRPDU, past two longest LeaveAll periods after a withdrawal with the loop held (`Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning`, and `EveryPhase/TalkerPhase.*`, every centisecond of a second, the loop held and serviced).
 An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 34.00 ms there at the slice rule's 900 us, the last queued notice's bound at 140 ms, at the Talker declarations' costs composed with #894's SET_CONFIGURATION cut and measured again, which `CTRL_LOOP_TX_MS` states as 34 ms, and 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897) (34.05 at 950 us after the one cut, 33.88 at the composed tables, 33.69 before that cut, 33.64 at 900 us, 33.39 at the edit cut's composed tables, 33.20 before that cut, 33.01 at its own; `rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 35 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 Where a slice holds both MRPDUs (`CTRL_LOOP_BUILD_MOST` 2, a slice of at least `CTRL_LOOP_BUILD_PASS_US`; no point's at this tree), a Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit.
 Where a slice holds one (every point), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
