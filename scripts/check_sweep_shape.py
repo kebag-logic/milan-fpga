@@ -137,8 +137,8 @@ BUILD_PLANTS = [
 #   (why, old fragment, new fragment, what the refusal must name)
 REGENERATION_PLANTS = [
     ("the builder run fails",
-     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null',
-     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg"'
+     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" "${placement[@]}" > /dev/null',
+     '"$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" "${placement[@]}"'
      ' --selftest-no-such-flag > /dev/null',
      "endstation_builder.py exited"),
     ("the artefact cannot be read",
