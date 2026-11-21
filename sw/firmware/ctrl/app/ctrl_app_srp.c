@@ -78,13 +78,11 @@ static bool deliver(void *ctx)
     // one on another interface changes nothing its STREAM_OUTPUT shows. SRP's sources are ACMP's (ctrl_plat.c).
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
         uint32_t changed = app->srp->ifs[interface].registration_noticed;
-        if (changed != 0u) {
-            app->srp->ifs[interface].registration_noticed = 0u;
-            for (unsigned source = 0; changed != 0u; ++source, changed >>= 1) {
-                if ((changed & 1u) != 0u && app->acmp.acmp.cfg.source_interface[source] == interface) {
-                    app->srp_noticed |= 1u << source;
-                    noticed = true;
-                }
+        app->srp->ifs[interface].registration_noticed = 0u;
+        for (unsigned source = 0; changed != 0u; ++source, changed >>= 1) {
+            if ((changed & 1u) != 0u && app->acmp.acmp.cfg.source_interface[source] == interface) {
+                app->srp_noticed |= 1u << source;
+                noticed = true;
             }
         }
     }

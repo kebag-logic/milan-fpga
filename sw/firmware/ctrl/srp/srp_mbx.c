@@ -202,24 +202,14 @@ static struct srp_interface *from_ctx(struct msrp_ctx *ctx)
     return (struct srp_interface *)((uint8_t *)ctx - offsetof(struct srp_interface, msrp_ctx));
 }
 
-// What source n's STREAM_OUTPUT shows of the Listener registered for its stream on the interface (#957): its
-// declaration while it registers, else none. A change from what was last shown is noticed for the output's
-// GET_STREAM_INFO notice (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the release processor notices a
-// Listener registration change (its LISTENER_REG_CHANGE), and nothing else is: a Listener declared again unchanged or
-// registered again after a LeaveAll shows the same. Each copy of what it reads compares it, where the indication
-// (listener), the observer (listener_moved) or a reset makes it; the walk copies the same values (#930).
-static void show_registration(struct srp_interface *i, unsigned n)
-{
-    const uint8_t shown = i->listener_present[n] ? i->declaration[n] : 0u;
-    if (shown != i->shown_registration[n]) {
-        i->shown_registration[n] = shown;
-        i->registration_noticed |= 1u << n;
-    }
-}
-
 // A Listener's indication copies its declaration where it is reported, so it owes no registrar walk (#930): lwSRP
 // indicates a Listener whose stored declaration changed while it registers, and every Registrar change that starts or
-// ends a registration, which the observer copies too (listener_moved).
+// ends a registration, which the observer copies too (listener_moved). So the declaration it indicates, Ignore at a
+// registration's end (left), is what a source's STREAM_OUTPUT shows of the Listener registered for its stream on the
+// interface, and each change of it is noticed for the output's GET_STREAM_INFO notice (#957; Milan v1.2 5.4.5.2,
+// Table 5.22; IEEE 1722.1-2021 7.5.2), as the release processor notices a Listener registration change (its
+// LISTENER_REG_CHANGE). A Listener declared again unchanged shows the same, and one registered again after a LeaveAll
+// is not indicated.
 static void listener(struct msrp_ctx *ctx, uint8_t port,
                       const struct msrp_stream_id *identity, enum msrp_listener_decl declaration, bool is_new)
 {
@@ -233,8 +223,8 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
             if (!i->registered[n] && i->active[n]) {
                 i->stop_owed[n] = true;
             }
+            i->registration_noticed |= (uint32_t)(i->declaration[n] != declaration) << n;
             i->declaration[n] = (uint8_t)declaration;
-            show_registration(i,n);
         }
     }
 }
@@ -510,7 +500,6 @@ static void listener_moved(struct srp_interface *i, const struct mrp_transition 
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         if ((of >> n & 1u) != 0u) {
             i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;
-            show_registration(i,n);
         }
     }
 }
@@ -1195,7 +1184,10 @@ static void reset_interface(struct srp_interface *i)
         revoked[k] = i->active[k];
         i->active[k] = false;
         i->stop_owed[k] = false;
-        // the registrar it was walked from is destroyed below (#665)
+        // the registrar it was walked from is destroyed below (#665), and a Listener a STREAM_OUTPUT showed registered
+        // goes with it, with no indication (#957)
+        i->registration_noticed |= (uint32_t)(i->declaration[k] != 0u) << k;
+        i->declaration[k] = 0u;
         i->listener_present[k] = false;
     }
     publish_licence(i);
@@ -1204,10 +1196,6 @@ static void reset_interface(struct srp_interface *i)
             ++m->stops;
             m->config.licence(m->config.ctx,i->index,k,false);
         }
-    }
-    // a Listener a STREAM_OUTPUT showed registered goes with the registrar (#957)
-    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
-        show_registration(i,k);
     }
     withdraw_declared(i->index);
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);

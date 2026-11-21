@@ -804,6 +804,8 @@ TEST_F(Talker, ListenerRegistrationChangeIsNoticed) {
         }
         offer(frame(3,identity(i,n),1,2),i); advance(20);
         EXPECT_EQ(taken(i),0u) << "a Listener declared again unchanged is not noticed";
+        offer(frame(3,identity(i,n),0,2),i); advance(20);
+        EXPECT_EQ(taken(i),0u) << "a Listener declared New again unchanged is not noticed";
         // a LeaveAll of the Listener attribute type with the Listener's JoinIn after it in its message (IEEE 802.1Q-2018
         // 10.8.2.2): its Registrar leaves IN and registers again
         offer(frame(3,identity(i,n),1,2,true),i); advance(1200);
@@ -829,4 +831,6 @@ TEST_F(Talker, ListenerRegistrationChangeIsNoticed) {
     EXPECT_EQ(taken(last),1u<<n) << "a reset with a Listener registered notices it going";
     mbx_model_set_link(&model,last,true); settle(); advance(400);
     EXPECT_EQ(taken(last),0u) << "a reset with no Listener registered notices nothing";
+    offer(frame(3,identity(last,n),1,1),last); advance(20);
+    EXPECT_EQ(taken(last),1u<<n) << "a Listener registering again after a reset is noticed";
 }
