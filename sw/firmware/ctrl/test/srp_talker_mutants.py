@@ -127,7 +127,7 @@ RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declarati
 FORGOTTEN = "        i->declaration[k] = 0u;\n"
 #: what came due since the slice a build resumes from, which the build keeps owed once it ends (#956), as srp_mbx.c
 #: holds it.
-AGAIN = "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n"
+CAME_DUE = "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -262,10 +262,10 @@ def hold_off_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "a changed destination is declared once the hold-off ends"),
         # the split before the correction: a build resumed in a later slice drops what came due since its first, so a
         # join timer's end between the two leaves the declaration the count's end made for the next periodic MRPDU
-        d("talker-resume-drops-what-came-due", RUNNING, AGAIN, "    const unsigned again = 0u;\n",
+        d("talker-resume-drops-what-came-due", RUNNING, CAME_DUE, "    const unsigned again = 0u;\n",
           "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
           "withdrawal, at the latest"),
-        d("talker-resume-drops-what-came-due-at-a-phase", PHASES, AGAIN, "    const unsigned again = 0u;\n",
+        d("talker-resume-drops-what-came-due-at-a-phase", PHASES, CAME_DUE, "    const unsigned again = 0u;\n",
           "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
           "withdrawal, at the latest"),
     )
