@@ -23521,8 +23521,10 @@ def test_gptp_plane_reaches_the_instance() -> None:
     python = _litex_or_skip("gate 1e")
     if python is None:
         return
-    runs, expected = _gptp_instance_runs()
-    got = _instance_params(python, runs)
+    with tempfile.TemporaryDirectory() as elf_dir:
+        runs, expected = _gptp_instance_runs()
+        runs = _with_synthetic_firmware(runs, _synthetic_firmware(elf_dir, python))
+        got = _instance_params(python, runs)
     bad = _gptp_instance_contract(got, expected)
     assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
 
@@ -23574,12 +23576,13 @@ def test_gptp_plane_instance_gate_bites() -> None:
     python = _litex_or_skip("gate 1e mutation")
     if python is None:
         return
-    runs, expected = _gptp_instance_runs()
-    cases = dict(runs)
-    for why, mutations, label in GPTP_INSTANCE_MUTATIONS:
-        got = _instance_params(python, [(label, cases[label])], mutations)
-        bad = _gptp_instance_contract(got, {label: expected[label]})
-        assert bad, f"gate 1e accepted a tree where {why}"
+    with tempfile.TemporaryDirectory() as elf_dir:
+        runs, expected = _gptp_instance_runs()
+        cases = dict(_with_synthetic_firmware(runs, _synthetic_firmware(elf_dir, python)))
+        for why, mutations, label in GPTP_INSTANCE_MUTATIONS:
+            got = _instance_params(python, [(label, cases[label])], mutations)
+            bad = _gptp_instance_contract(got, {label: expected[label]})
+            assert bad, f"gate 1e accepted a tree where {why}"
     print(f"  [gate 1e mutation] {len(GPTP_INSTANCE_MUTATIONS)}/"
           f"{len(GPTP_INSTANCE_MUTATIONS)} owner-carrier cuts rejected")
 
@@ -23906,6 +23909,29 @@ def _split_cfg(cfg):
     return out
 
 
+def _synthetic_firmware(elf_dir, python):
+    """A synthetic split image the split SoC's control memory accepts (sw/litex/test_ctrl_memory.py's GOOD layout),
+    written into elf_dir by `python` (the LiteX interpreter test_ctrl_memory.py imports under): the --ctrl-firmware
+    of an elaboration that stops at the datapath Instance and links no firmware."""
+    code = ("import sys; from pathlib import Path; import test_ctrl_memory as t; "
+            "print(t.elf(Path(sys.argv[1]), t.GOOD))")
+    made = subprocess.run([python, "-c", code, str(elf_dir)], cwd=SOC_DIR, capture_output=True, text=True,
+                          check=True, env=dict(os.environ, PYTHONHASHSEED="0"))
+    return made.stdout.strip().splitlines()[-1]
+
+
+def _with_synthetic_firmware(runs, firmware):
+    """(label, argv) runs with every split argv's --ctrl-firmware naming `firmware`: the shipping launchers emit
+    the split since #665 S13, and its platform image is not built for an elaboration."""
+    out = []
+    for label, argv in runs:
+        argv = list(argv)
+        if "--ctrl-firmware" in argv:
+            argv[argv.index("--ctrl-firmware") + 1] = firmware
+        out.append((label, argv))
+    return out
+
+
 def _case_argv(name, elf_dir, python):
     """(cfg, argv) of a gate 23m case: a config at its own placement, its all-fabric build, or its split
     variant; a split argv names a synthetic firmware written by `python` (the LiteX interpreter
@@ -23918,11 +23944,7 @@ def _case_argv(name, elf_dir, python):
     base, _argv = _config_argv(own, "split")
     cfg = _split_cfg(base)
     argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg["name"])]
-    code = ("import sys; from pathlib import Path; import test_ctrl_memory as t; "
-            "print(t.elf(Path(sys.argv[1]), t.GOOD))")
-    made = subprocess.run([python, "-c", code, str(elf_dir)], cwd=SOC_DIR, capture_output=True, text=True,
-                          check=True, env=dict(os.environ, PYTHONHASHSEED="0"))
-    argv[argv.index("--ctrl-firmware") + 1] = made.stdout.strip().splitlines()[-1]
+    argv[argv.index("--ctrl-firmware") + 1] = _synthetic_firmware(elf_dir, python)
     return cfg, argv
 
 
@@ -24616,13 +24638,15 @@ def test_every_recipe_elaborates() -> None:
         return
     for name in CONFIGS:                # every --entity-gen-dir a recipe names
         eb.build(CONFIGS[name], OUT)
-    cases = _recipe_cases()
     t0 = time.time()
     # The --output-dir token is left FOR _instance_params to substitute, so
     # the directory these `--build` runs are pointed at is the one it can
     # afterwards prove empty. Substituting a local temp here would put the
-    # proof out of its reach, which is the point of the token.
-    got = _instance_params(python, cases)
+    # proof out of its reach, which is the point of the token. A split
+    # recipe's platform image is the synthetic one (_with_synthetic_firmware).
+    with tempfile.TemporaryDirectory() as elf_dir:
+        cases = _with_synthetic_firmware(_recipe_cases(), _synthetic_firmware(elf_dir, python))
+        got = _instance_params(python, cases)
     bad, stale, ran = [], [], 0
     for label, argv in cases:
         verdict, detail = _classify_recipe(label, argv, got[label])
@@ -24656,10 +24680,12 @@ def test_recipe_smoke_gate_bites() -> None:
     python = _litex_or_skip("gate 23g mutation")
     if python is None:
         return
-    cases = [c for c in _recipe_cases() if c[0] not in KNOWN_UNRUNNABLE]
-    controls = [(label, _drop_flag(argv, "--entity-gen-dir", 1))
-                for label, argv in cases[:1] + cases[-1:]]
-    got = _instance_params(python, controls)
+    with tempfile.TemporaryDirectory() as elf_dir:
+        cases = _with_synthetic_firmware([c for c in _recipe_cases() if c[0] not in KNOWN_UNRUNNABLE],
+                                         _synthetic_firmware(elf_dir, python))
+        controls = [(label, _drop_flag(argv, "--entity-gen-dir", 1))
+                    for label, argv in cases[:1] + cases[-1:]]
+        got = _instance_params(python, controls)
     for label, _argv in controls:
         assert got[label].get("error") is not None, (
             f"gate 23g accepted `{label}` with --entity-gen-dir stripped - "
