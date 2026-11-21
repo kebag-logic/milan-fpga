@@ -8158,7 +8158,12 @@ class NxnDatapathHarness {
     // ACMP, then 7 as well, then unbinds 4; each probe is answered with the
     // talker's stream_id. The inputs' formats are written through the CSR
     // window while they are unbound, as the split firmware writes them
-    // (#946). It runs last, so no later section reads the state it leaves.
+    // (#946). Between those, a controller STOPs input 4, then 6, and STARTs
+    // each again (Milan v1.2 5.3.8.7): the stopped input discards its share of
+    // each PDU while the other input sharing the stream receives every one,
+    // and the stopped input's FRAMES_RX still counts each, a PDU received on
+    // this Stream Input (Table 5.6). It runs last, so no later section reads
+    // the state it leaves.
     // ======================================================================
     const uint8_t fan_sid_[8] = {0x5B, 0, 0, 0, 0, 0x5B, 0, 0x0A};
     const uint8_t fan_talker_[8] = {0x02, 0, 0, 0, 0, 0x5B, 0, 0};
@@ -8199,12 +8204,15 @@ class NxnDatapathHarness {
         n.gc = (r.size() >= 174 && aecp_status(r) == 0) ? ctr_word(r, 11) : 0xDEADBEEFu;
         return n;
     }
-    //! `n` PDUs of the talker, then every input in `on` counted each and received each, and every input in
-    //! `off` neither; the shared PCMRX total counts one PDU per receiving input
-    void fan_round(const char* tag, int n, std::initializer_list<int> on, std::initializer_list<int> off) {
+    //! `n` PDUs of the talker, then every input in `on` counted each and received each, every input in `off`
+    //! neither, and every input in `stopped` counted each but received none (5.3.8.7); the shared PCMRX total
+    //! counts one PDU per receiving input
+    void fan_round(const char* tag, int n, std::initializer_list<int> on, std::initializer_list<int> off,
+                   std::initializer_list<int> stopped = {}) {
         std::array<FanSnap, 8> b{};
         for (int s : on) b[s] = fan_read(s);
         for (int s : off) b[s] = fan_read(s);
+        for (int s : stopped) b[s] = fan_read(s);
         const uint32_t pc0 = axi_read(A_PCMRX_CNT);
         for (int k = 0; k < n; k++) inject(mkaaf(fan_sid_, fan_seq_++, 2, static_cast<uint8_t>(0x20 + k)), 120);
         for (int i = 0; i < 2600; i++) step();                    // past one Table 5.6 interval commit
@@ -8223,10 +8231,26 @@ class NxnDatapathHarness {
             snprintf(nm, sizeof nm, "[FAN] %s: input %d counts and receives nothing", tag, s);
             ck(nm, (a.frx - b[s].frx) + (a.pdus - b[s].pdus), 0);
         }
+        for (int s : stopped) {
+            const FanSnap a = fan_read(s);
+            snprintf(nm, sizeof nm, "[FAN] %s: the stopped input %d's FRAMES_RX still counts every PDU", tag, s);
+            ck(nm, a.frx - b[s].frx, static_cast<uint32_t>(n));
+            snprintf(nm, sizeof nm, "[FAN] %s: the stopped input %d receives nothing (its DEPKT tally)", tag, s);
+            ck(nm, a.pdus - b[s].pdus, 0);
+        }
         snprintf(nm, sizeof nm, "[FAN] %s: the depacketizer emits one PDU per receiving input", tag);
         ck(nm, axi_read(A_PCMRX_CNT) - pc0, static_cast<uint32_t>(n) * static_cast<uint32_t>(on.size()));
     }
     uint8_t fan_seq_ = 0x10;
+    //! STOP_STREAMING (0x0023) or START_STREAMING (0x0022) of STREAM_INPUT s over AECP
+    uint16_t fan_ss_seq_ = 0x4980;
+    void fan_stream(int s, bool start) {
+        const std::vector<uint8_t> r = aecp_xact(start ? 0x0022 : 0x0023, fan_ss_seq_++,
+                                                 {0x00, 0x05, 0x00, static_cast<uint8_t>(s)});
+        char nm[96];
+        snprintf(nm, sizeof nm, "[FAN] %s_STREAMING of input %d answered SUCCESS", start ? "START" : "STOP", s);
+        ck(nm, aecp_status(r), 0);
+    }
     void prove_one_stream_bound_to_several_inputs() {
         if (kNstreamsTb < 8) return;
         printf("-- [FAN] #948: one talker stream bound over ACMP to inputs 4 and 6, then 7 as well, then 4 unbound --\n");
@@ -8241,6 +8265,15 @@ class NxnDatapathHarness {
         fan_acmp(4, true);
         fan_acmp(6, true);
         fan_round("two inputs on one stream", 4, {4, 6}, {7});
+        // Milan v1.2 5.3.8.7, input by input: the lower and then the higher of the two stopped
+        fan_stream(4, false);
+        fan_round("input 4 stopped", 4, {6}, {7}, {4});
+        fan_stream(4, true);
+        fan_round("input 4 started again", 4, {4, 6}, {7});
+        fan_stream(6, false);
+        fan_round("input 6 stopped", 4, {4}, {7}, {6});
+        fan_stream(6, true);
+        fan_round("input 6 started again", 4, {4, 6}, {7});
         fan_acmp(7, true);
         fan_round("three inputs on one stream", 4, {4, 6, 7}, {});
         fan_acmp(4, false);

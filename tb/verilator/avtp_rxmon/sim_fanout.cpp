@@ -41,6 +41,23 @@
 //         frame is read out eight times, so the store overflows; every PDU
 //         an input accepted is delivered to it, in order, or counted as one
 //         of its own DEPKT drops, and each input counts the same drops
+//   [FO11] a PDU whose stream_data_length is not the input's frame size
+//         (channels x samples_per_frame x sample octets, IEEE 1722-2016
+//         7.3.5 and I.2.4.1) is off-format: each input bound to its stream
+//         counts it in UNSUPPORTED_FORMAT and receives none of it, and the
+//         valid PDUs around it arrive whole, in order, under each input's
+//         index (Milan v1.2 4.4.2.2); 65 octets is the review's case. Two
+//         inputs with different frame sizes on one stream each take only
+//         the PDUs of their own size
+//   [FO12] formats whose frame size is not a multiple of eight, untagged and
+//         behind a C-VLAN tag, two inputs on one stream and a third input
+//         on another between them: each PDU reaches each input as one
+//         frame of ceil(length/8) beats, zero-padded, with one tlast, and
+//         the other stream's PDUs keep their own boundaries and index
+//   [FO13] frames that end short of their stream_data_length, by words and
+//         by one octet: each input counts the PDU (its header is whole) but
+//         receives none of it, the frame is one DEPKT drop for each, and
+//         the PDUs around it arrive whole
 //
 // Usage: make -C tb/verilator/avtp_rxmon fanout   (built at N_STREAMS_P=8)
 
@@ -72,6 +89,15 @@ constexpr uint32_t kFmtHi = 0x02050220u;
 constexpr uint32_t fmt_lo(unsigned ch) { return (ch << 22) | 0x6000u; }
 constexpr uint64_t fmt(unsigned ch) { return (static_cast<uint64_t>(kFmtHi) << 32) | fmt_lo(ch); }
 constexpr uint64_t kTalkerA = 0x0202DEADBEEF0001ull;  // the talker's stream_ids
+//! an AAF PCM format: the sample format (IEEE 1722-2016 Table 9), bit depth, channels and samples per frame
+struct Fmt {
+    uint8_t format, depth;
+    unsigned ch, spf;
+    unsigned octets() const { return ch * spf * (format == 0x03 ? 3u : format == 0x04 ? 2u : 4u); }
+    uint32_t hi() const { return 0x02050000u | (static_cast<uint32_t>(format) << 8) | depth; }
+    uint32_t lo() const { return (ch << 22) | (spf << 12); }
+};
+constexpr Fmt kPcm32x8{0x02, 32, 8, 6};               // fmt(8): 192 octets
 constexpr uint64_t kTalkerB = 0x0202DEADBEEF0002ull;
 
 using Pdu = std::vector<uint8_t>;
@@ -90,6 +116,9 @@ class FanOut {
         a_frame_ending_on_its_match_beat_then_a_full_one();
         a_burst_of_frames_ending_on_their_match_beat_to_eight_inputs();
         a_dense_burst_to_eight_inputs_overflows_the_store();
+        a_pdu_off_its_inputs_frame_size_is_discarded_whole();
+        payload_tails_that_are_not_whole_beats();
+        frames_short_of_their_payload();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -144,10 +173,15 @@ class FanOut {
     // an AAF PDU of talker `t` (0 = A, 1 = B) with `ch` channels and the given payload, its sequence_num
     // the talker's next unless `skip` numbers are left out first
     std::vector<uint8_t> aaf(int t, unsigned ch, const Pdu& p, unsigned skip = 0) {
-        std::vector<uint8_t> f(14 + 24 + p.size(), 0);
+        return aaf_as(t, Fmt{0x02, 32, ch, 6}, p, false, skip);
+    }
+    // the same in format `fm`, behind a C-VLAN tag when `vlan`; its stream_data_length is the payload's size
+    std::vector<uint8_t> aaf_as(int t, const Fmt& fm, const Pdu& p, bool vlan, unsigned skip = 0) {
+        const int o = vlan ? 18 : 14;
+        std::vector<uint8_t> f(static_cast<size_t>(o) + 24 + p.size(), 0);
         for (int i = 0; i < 6; i++) { f[i] = 0x91; f[6 + i] = 0x02; }
-        f[12] = 0x22; f[13] = 0xF0;
-        const int o = 14;
+        if (vlan) { f[12] = 0x81; f[13] = 0x00; f[14] = 0x60; f[15] = 0x02; }   // PCP 3, VID 2
+        f[o - 2] = 0x22; f[o - 1] = 0xF0;
         const uint64_t id = t == 0 ? kTalkerA : kTalkerB;
         seq[t] = static_cast<uint8_t>(seq[t] + skip);
         f[o + 0] = 0x02;                          // AAF
@@ -155,14 +189,27 @@ class FanOut {
         f[o + 2] = seq[t]++;
         for (int i = 0; i < 8; i++) f[o + 4 + i] = static_cast<uint8_t>(id >> (8 * (7 - i)));
         f[o + 12] = 0xA5; f[o + 13] = 0x5A; f[o + 14] = 0xC3; f[o + 15] = 0x3C;
-        f[o + 16] = 0x02;                         // INT32
+        f[o + 16] = fm.format;
         f[o + 17] = 0x05 << 4;                    // 48 kHz
-        f[o + 18] = static_cast<uint8_t>(ch);
-        f[o + 19] = 32;
+        f[o + 18] = static_cast<uint8_t>(fm.ch);
+        f[o + 19] = fm.depth;
         f[o + 20] = static_cast<uint8_t>(p.size() >> 8);
         f[o + 21] = static_cast<uint8_t>(p.size());
         for (size_t i = 0; i < p.size(); i++) f[o + 24 + i] = p[i];
         return f;
+    }
+    // a payload of `n` octets, every byte naming the PDU it belongs to
+    Pdu payload(unsigned n) {
+        Pdu p(n);
+        for (unsigned i = 0; i < n; i++) p[i] = static_cast<uint8_t>(pdu_no * 29u + i * 3u + 1u);
+        pdu_no++;
+        return p;
+    }
+    // what the depacketizer emits for payload `p`: whole beats, the last zero-padded
+    static Pdu padded(const Pdu& p) {
+        Pdu q = p;
+        q.resize((p.size() + 7) / 8 * 8, 0);
+        return q;
     }
 
     void feed(const std::vector<uint8_t>& f, int headroom = 60) {
@@ -247,11 +294,28 @@ class FanOut {
             lctx_wr(s, W_FMT_HI, kFmtHi);
         }
     }
+    void set_format(int s, const Fmt& fm) {
+        if (s == 0) {
+            dut->fmt0_i = (static_cast<uint64_t>(fm.hi()) << 32) | fm.lo();
+            cyc();
+        } else {
+            lctx_wr(s, W_FMT_LO, fm.lo());
+            lctx_wr(s, W_FMT_HI, fm.hi());
+        }
+    }
+    // rebind inputs `ins` to talker `t` at format `fm` (each unbound while its format is written)
+    void rebind_as(std::initializer_list<int> ins, uint64_t id, const Fmt& fm) {
+        for (int s : ins) bind(s, id, false);
+        cyc(200);
+        for (int s : ins) set_format(s, fm);
+        for (int s : ins) bind(s, id, true);
+        cyc(200);
+    }
 
     struct Snap {
         std::array<long, kStreams> acc;
         std::array<size_t, kStreams> pdus;
-        std::array<uint32_t, kStreams> frx, depkt, sm, si, uf;
+        std::array<uint32_t, kStreams> frx, depkt, ddrop, sm, si, uf;
     };
     Snap snap() {
         Snap n{};
@@ -260,6 +324,7 @@ class FanOut {
             n.pdus[s] = got[s].size();
             n.frx[s] = lctx_rd(s, W_FRX);
             n.depkt[s] = lctx_rd(s, W_DEPKT) & 0xFFFF;
+            n.ddrop[s] = (lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF;
             n.sm[s] = lctx_rd(s, W_SM);
             n.si[s] = lctx_rd(s, W_SI);
             n.uf[s] = lctx_rd(s, W_UF);
@@ -542,6 +607,133 @@ class FanOut {
         }
         for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, false);
         cyc(200);
+    }
+
+    void a_pdu_off_its_inputs_frame_size_is_discarded_whole() {
+        std::printf("\n[FO11] inputs 0 and 1 at 8 channels (192 octets): PDUs of 65, 64, 200 and 191 octets between valid ones\n");
+        const Snap b = snap();
+        const long drops = dut->pcm_drops_o;
+        std::vector<Pdu> sent;
+        // the review's 65-octet probe, then an aligned but wrong size, a longer one and one octet short; each
+        // carries the stream's own header fields, so only its length is off. A gap after each, then back to back.
+        for (int headroom : {60, 2}) {
+            for (unsigned n : {65u, 64u, 200u, 191u}) {
+                sent.push_back(payload());
+                feed(aaf(0, 8, sent.back()), headroom);
+                feed(aaf_as(0, kPcm32x8, payload(n), false), headroom);
+            }
+        }
+        sent.push_back(payload());
+        feed(aaf(0, 8, sent.back()));
+        cyc(400);
+        flush_iv();
+        for (int s : {0, 1}) {
+            received("[FO11] the 192-octet PDUs:", s, b, sent);
+            ck("[FO11] the off-size PDUs count UNSUPPORTED_FORMAT", s, lctx_rd(s, W_UF) - b.uf[s] > 0 ? 1 : 0, 1);
+            ck("[FO11] ...and are no SEQ_NUM_MISMATCH: a discarded PDU still advances the sequence (#775)", s,
+               lctx_rd(s, W_SM) - b.sm[s], 0);
+            ck("[FO11] ...and no DEPKT drop", s, ((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - b.ddrop[s], 0);
+        }
+        ck("[FO11] nothing dropped by the store", 0, dut->pcm_drops_o - drops, 0);
+
+        std::printf("  input 1 at 8 channels of seven samples (224 octets), input 0 at six (192)\n");
+        const Fmt spf7{0x02, 32, 8, 7};
+        rebind_as({1}, kTalkerA, spf7);
+        const Snap c = snap();
+        std::vector<Pdu> six, seven;
+        for (int headroom : {60, 2, 2, 60}) {
+            six.push_back(payload(192));
+            feed(aaf_as(0, kPcm32x8, six.back(), false), headroom);
+            seven.push_back(payload(224));
+            feed(aaf_as(0, spf7, seven.back(), false), headroom);
+        }
+        cyc(400);
+        flush_iv();
+        received("[FO11] input 0 takes the 192-octet PDUs:", 0, c, six);
+        received("[FO11] input 1 takes the 224-octet PDUs:", 1, c, seven);
+        for (int s : {0, 1})
+            ck("[FO11] ...and counts the other size as UNSUPPORTED_FORMAT", s, lctx_rd(s, W_UF) - c.uf[s] > 0 ? 1 : 0, 1);
+        rebind_as({1}, kTalkerA, kPcm32x8);
+    }
+
+    void payload_tails_that_are_not_whole_beats() {
+        std::printf("\n[FO12] frame sizes that are not whole beats: inputs 0 and 1 on talker A, input 2 on talker B between\n");
+        bind(2, kTalkerB, true);
+        cyc(200);
+        // the final beat lies wholly in the depacketizer's hold untagged at a remainder of 1 or 2 octets, behind a
+        // C-VLAN tag at 1 to 6; 63 octets is neither
+        const Fmt tails[] = {
+            {0x03, 24, 1, 11},   // INT_24BIT, 33 octets: remainder 1
+            {0x03, 24, 2, 11},   // 66 octets: remainder 2
+            {0x03, 24, 2, 6},    // 36 octets: remainder 4
+            {0x04, 16, 5, 7},    // INT_16BIT, 70 octets: remainder 6
+            {0x03, 24, 3, 7},    // 63 octets: remainder 7
+        };
+        for (const Fmt& fm : tails) {
+            rebind_as({0, 1}, kTalkerA, fm);
+            for (bool vlan : {false, true}) {
+                std::printf("  %u octets (%u ch x %u samples, format %u)%s\n", fm.octets(), fm.ch, fm.spf, fm.format,
+                            vlan ? ", tagged" : "");
+                char tag[96];
+                std::snprintf(tag, sizeof tag, "[FO12] %u octets%s:", fm.octets(), vlan ? " tagged" : "");
+                const Snap b = snap();
+                std::vector<Pdu> sa, sb;
+                for (int headroom : {60, 2, 2}) {
+                    const Pdu p = payload(fm.octets());
+                    sa.push_back(padded(p));
+                    feed(aaf_as(0, fm, p, vlan), headroom);
+                    sb.push_back(payload());
+                    feed(aaf_as(1, kPcm32x8, sb.back(), vlan), headroom);
+                }
+                cyc(800);
+                flush_iv();
+                for (int s : {0, 1}) received(tag, s, b, sa);
+                char tb[120];
+                std::snprintf(tb, sizeof tb, "%s talker B's input between them:", tag);
+                received(tb, 2, b, sb);
+            }
+        }
+        rebind_as({0, 1}, kTalkerA, kPcm32x8);
+        bind(2, kTalkerB, false);
+        cyc(200);
+    }
+
+    void frames_short_of_their_payload() {
+        std::printf("\n[FO13] inputs 0 and 1: 192-octet PDUs whose frames end early, between whole ones\n");
+        const Snap b = snap();
+        const long drops = dut->pcm_drops_o;
+        std::vector<Pdu> sent;
+        int cut = 0;
+        for (bool vlan : {false, true}) {
+            for (size_t len : {size_t{150}, size_t{0}}) {   // 0: one octet short
+                sent.push_back(payload());
+                feed(aaf_as(0, kPcm32x8, sent.back(), vlan), 2);
+                std::vector<uint8_t> f = aaf_as(0, kPcm32x8, payload(), vlan);
+                f.resize(len ? len : f.size() - 1);
+                feed(f, 2);
+                cut++;
+            }
+        }
+        sent.push_back(payload());
+        feed(aaf(0, 8, sent.back()));
+        cyc(800);
+        flush_iv();
+        for (int s : {0, 1}) {
+            char t[120];
+            ck("[FO13] each PDU is judged, the short ones too (FRAMES_RX)", s, lctx_rd(s, W_FRX) - b.frx[s],
+               static_cast<long>(sent.size()) + cut);
+            ck("[FO13] only the whole PDUs reach the depacketizer's output", s,
+               static_cast<long>(got[s].size() - b.pdus[s]), static_cast<long>(sent.size()));
+            long exact = 0;
+            for (size_t k = 0; k < sent.size() && b.pdus[s] + k < got[s].size(); k++)
+                if (got[s][b.pdus[s] + k] == sent[k]) exact++;
+            ck("[FO13] ...each its own payload, in order", s, exact, static_cast<long>(sent.size()));
+            ck("[FO13] the DEPKT tally counts the whole ones", s, (lctx_rd(s, W_DEPKT) & 0xFFFF) - b.depkt[s],
+               static_cast<long>(sent.size()));
+            std::snprintf(t, sizeof t, "[FO13] each short frame is one of the input's DEPKT drops");
+            ck(t, s, ((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - b.ddrop[s], cut);
+        }
+        ck("[FO13] the depacketizer counts each short frame as dropped", 0, dut->pcm_drops_o - drops, cut);
     }
 };
 
