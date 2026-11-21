@@ -151,6 +151,7 @@ Ruling item 4 accepts the gPTP ports' memory at 8x8 and above as debt with a led
 A port adds about 12 KB of `rom` and 1 KB of `sram`.
 
 Fit and timing at 8x8/1if (routed, Vivado 2026.1, the train's recipe, the `--sw-gptp` SoC with the platform's gPTP image at 62.0 RAMB36): 38.2k LUT, 45.8k FF, 95.5 of 135 block RAM tiles, and all three placement directives meet #818's floor at every signoff corner, the best AltSpreadLogic_high at WNS +0.237 ns, WHS +0.023 ns (ExtraTimingOpt +0.152 ns, ExtraPostPlacementOpt +0.098 ns).
+The plane at the same head and recipe (ExtraPostPlacementOpt, its image without gPTP at 58.5): 43.2k LUT, 51.3k FF, 11 DSP, the same 95.5 tiles, WNS +0.139 ns; so the firmware's ports cost the device 3.5 tiles of memory and save it 4.8k LUT, 5.5k FF and 6 DSP of fabric.
 Contract 2.5 itself costs every image a little: the gptp channel's table entries and the face's answer port, 64 B of the platform's `ctrl_plat` and 200 B of `rom` at 8x8 with one interface, which re-measured that entry at 58.5.
 
 ## Why not flexPTP as it is
