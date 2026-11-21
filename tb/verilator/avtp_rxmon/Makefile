@@ -57,7 +57,7 @@ LSFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 LSSRCS = $(REF_SRC) $(RXMON_SRC) \
          avtp_rxmon_lockstep_wrap.sv
-.PHONY: all run clean coverage lockstep-build lockstep nx-build ctxfmt-build ctxfmt
+.PHONY: all run clean coverage lockstep-build lockstep nx-build ctxfmt-build ctxfmt fanout-build fanout
 all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vavtp_rxmon_wrap_sim
@@ -80,6 +80,16 @@ ctxfmt-build:
 	$(VERILATOR) $(NXFLAGS) -GN_STREAMS_P=8 --Mdir $(CF_MDIR) $(NXSRCS) sim_ctxfmt.cpp -o Vavtp_rxmon_ctxfmt
 ctxfmt: ctxfmt-build
 	$(CF_MDIR)/Vavtp_rxmon_ctxfmt
+# #948: one talker stream bound to several Stream Inputs at the 8x8 shape's
+# eight contexts (sim_fanout.cpp), the N=4 stack's recipe at N_STREAMS_P=8.
+# FO_MDIR, with RXMON_SRC, PARSER_SRC and DEPKT_SRC, is overridable so
+# fanout_mutants.py builds a mutated parser, engine or depacketizer through
+# this exact recipe.
+FO_MDIR ?= obj_fo
+fanout-build:
+	$(VERILATOR) $(NXFLAGS) -GN_STREAMS_P=8 --Mdir $(FO_MDIR) $(NXSRCS) sim_fanout.cpp -o Vavtp_rxmon_fanout
+fanout: fanout-build
+	$(FO_MDIR)/Vavtp_rxmon_fanout
 lockstep-build:
 	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)1 -GN_LISTENERS_P=1 \
 	  -CFLAGS "-DN_TB=1 -Wall -Wextra" $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
@@ -100,4 +110,4 @@ coverage:
 	    | tail -2
 	@python3 cov_gate.py cov_annotated 95
 clean:
-	rm -rf obj_dir obj_ls1 obj_ls8 obj_cf obj_cov coverage.dat cov_annotated
+	rm -rf obj_dir obj_ls1 obj_ls8 obj_cf obj_fo obj_cov coverage.dat cov_annotated

@@ -86,7 +86,14 @@ module avtp_rxmon_nx_wrap #(
   output wire        render_tlast_o,
   output wire [3:0]  render_sel_o,
   output wire [15:0] pcm_pdus_o,
-  output wire [15:0] pcm_drops_o
+  output wire [15:0] pcm_drops_o,
+
+  //! the depacketizer's payload stream itself, before the route (#948: one
+  //! PDU per input that received it, tuser the input)
+  output wire        dp_tvalid_o,
+  output wire [63:0] dp_tdata_o,
+  output wire        dp_tlast_o,
+  output wire [3:0]  dp_tuser_o
 );
 
   wire        match_w, tu_w, tv_w, mr_w;
@@ -190,6 +197,11 @@ module avtp_rxmon_nx_wrap #(
     .pdu_out_p_o (depkt_pdu_p_w), .pdu_out_idx_o (depkt_pdu_idx_w),
     .drop_p_o (depkt_drop_p_w), .drop_idx_o (depkt_drop_idx_w)
   );
+
+  assign dp_tvalid_o = dp_tvalid_w && dp_tready_w;
+  assign dp_tdata_o  = dp_tdata_w;
+  assign dp_tlast_o  = dp_tlast_w;
+  assign dp_tuser_o  = dp_tuser_w;
 
   KL_pcm_route #(.N_LISTENERS_P(N_STREAMS_P)) u_route (
     .clk_i (clk), .rst_n (resetn),
