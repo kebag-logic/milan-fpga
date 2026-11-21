@@ -385,10 +385,12 @@ MUTANTS = (
            "\t} else if (ev->type == MBX_EV_TYPE_TICK || ev->type > MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
            "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
            "D9 an event of a type the contract does not define"),
+    # every type but the TIMESTAMP branch after it (contract 2.5) decoded as a face count, an undefined one too
     Mutant("unknown-event-decoded-as-a-face-count", "mbx/mbx.c",
            "\t} else if (ev->type == MBX_EV_TYPE_AVB_INFO_CHANGED || ev->type == MBX_EV_TYPE_AS_PATH_CHANGED ||\n"
            "\t\t   ev->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
-           "\t} else {", "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
+           "\t} else if (ev->type != MBX_EV_TYPE_TIMESTAMP) {", "unit",
+           "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
            "D9 an event of a type the contract does not define"),
     Mutant("whole-field-loses-its-top-bit", "mbx/mbx_wire.h",
            "\tuint32_t mask = width >= 32u ? 0xFFFFFFFFu : ((1u << width) - 1u);\n\treturn (word >> lsb) & mask;",
