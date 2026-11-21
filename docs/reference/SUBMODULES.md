@@ -23,7 +23,7 @@ Dirty submodules invalidate local evidence.
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `acd2305af10926bbcb1c326e2a388aace615d828` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/lwSRP` | `8645ce2074d43b3764e195f65e5615840a5ffa74` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `115df0bec6d45269979d4d7a9cebc4cd727b9fe1` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
@@ -1013,9 +1013,9 @@ It holds PR #12, PR #15 and PR #18.
 
 It adds the attribute key and #872's levers.
 
-The levers are build options, off by default.
+Each is a build option, off by default.
 
-So the firmware compiles the lwSRP code it compiled before.
+So the firmware compiles the objects of the previous pin, `08ee86e8`.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 

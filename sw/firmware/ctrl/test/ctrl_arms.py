@@ -432,10 +432,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
 #: The lwSRP revision port/shlan_port.h is written against (it restates that
 #: revision's src/ports/alloc.h). Fetch it with
 #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
-#:     git -C lwSRP checkout acd2305af10926bbcb1c326e2a388aace615d828
+#:     git -C lwSRP checkout 8645ce2074d43b3764e195f65e5615840a5ffa74
 #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
 LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
-LWSRP_REV = "acd2305af10926bbcb1c326e2a388aace615d828"
+LWSRP_REV = "8645ce2074d43b3764e195f65e5615840a5ffa74"
 #: Every source and header the arm compiles lives under this directory.
 LWSRP_TREE = "src"
 

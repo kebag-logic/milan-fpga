@@ -60,7 +60,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Unreleased - #872 donor pins
 
-- Issue #872 moves lwSRP to `acd2305a`.
+- Issue #872 moves lwSRP to `8645ce20`.
 - It moves tsn-c-stack to `115df0be`.
 - Both reach their `main` through their own reviews.
 - lwSRP adds a timer wheel and attribute lookup buckets.
@@ -68,7 +68,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each keeps every output of the code it replaces.
 - Trace differentials and planted defects show it.
 - They are build options, off by default.
-- The firmware's lwSRP objects are unchanged.
+- So is the attribute key they hash.
+- The firmware's lwSRP objects are the previous pin's.
 - With them on, the 8x8 images exceed their budgets.
 - Enabling them is the owner's decision.
 - `acmp_declaring` clears only the validity it reads.
