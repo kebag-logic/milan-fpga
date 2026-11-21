@@ -18,6 +18,9 @@ port's RV32 stand-ins (#665). Only a run whose runtime archives do not exist
 takes no map, the boundary gate's: it compiles on the stand-ins and stops at its
 link, with no ELF (ctrl_runs.py).
 
+--with-gptp composes gPTP in firmware (plat/ctrl_plat.c, CTRL_PLAT_GPTP: the
+ports on the CSR's PTP block), the image for an SoC built --sw-gptp (#884).
+
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
 report adds the five largest .bss objects, the platform measurement against the
 56-tile budget, with the platform's one static object, ctrl_plat, counted as
@@ -48,6 +51,9 @@ REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_
             "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
             "nvm_store_tick", "nvm_store_step", "ctrl_loop_step", "ctrl_plat_phy_arm", "ctrl_plat_phy_step",
             "ctrl_plat_phy_store_step"}
+#: What a --with-gptp image must hold besides: the ports, their adapter and the PTP block's HAL (#884).
+GPTP_REQUIRED = {"gptp_mbx_attach", "gptp_port_rx", "gptp_port_ts", "gptp_port_tick", "ctrl_plat_csr_ptp_rate",
+                 "ctrl_plat_csr_ptp_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.SPLIT_RV32_FLAGS); the map's replaces it. The record
 #: mover's bank stays there: the SoC pins it at that address (milan_soc.add_ctrl_mailbox).
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
@@ -85,11 +91,12 @@ MEMBERS = ("console", "maap_csr", "app", "config", "acmp", "bridge", "aecp", "ae
            "binding", "srp", "srp_config", "sources")
 
 
-def member_sizes(cc: str, flags: list[str], inc: list[str], out: Path) -> dict[str, int]:
+def member_sizes(cc: str, flags: list[str], inc: list[str], out: Path,
+                 members: tuple[str, ...] = MEMBERS) -> dict[str, int]:
     """sizeof each member of struct ctrl_plat, compiled as the image is: one object per member, read by nm -S."""
     probe = out / "ctrl_plat_members.c"
     probe.write_text('#include "ctrl_plat.h"\n' + "".join(
-        f"const unsigned char ctrl_plat_member_{m}[sizeof ctrl_plat.{m}] = {{1}};\n" for m in MEMBERS))
+        f"const unsigned char ctrl_plat_member_{m}[sizeof ctrl_plat.{m}] = {{1}};\n" for m in members))
     obj = out / "ctrl_plat_members.o"
     image.checked([cc, *flags, *inc, "-c", str(probe), "-o", str(obj)])
     found = {}
@@ -97,8 +104,8 @@ def member_sizes(cc: str, flags: list[str], inc: list[str], out: Path) -> dict[s
         fields = line.split()
         if len(fields) == 4 and fields[3].startswith("ctrl_plat_member_"):
             found[fields[3].removeprefix("ctrl_plat_member_")] = int(fields[1], 16)
-    if set(found) != set(MEMBERS):
-        raise Refusal(f"the member probe measured {sorted(found)}, not {sorted(MEMBERS)}")
+    if set(found) != set(members):
+        raise Refusal(f"the member probe measured {sorted(found)}, not {sorted(members)}")
     return found
 
 
@@ -132,6 +139,8 @@ def arguments() -> argparse.Namespace:
                         help="plan a ledgered point's image to its ledgered tiles (ctrl_memory.LEDGERED); the "
                              "platform's are platform-8x8-one-interface and platform-8x8-two-interfaces, and "
                              "any other image is refused")
+    parser.add_argument("--with-gptp", action="store_true",
+                        help="gPTP in firmware on the CSR's PTP block (contract 2.5, the SoC's --sw-gptp; #884)")
     parser.add_argument("--libc", type=Path, required=True)
     parser.add_argument("--compiler-runtime", type=Path, required=True)
     return parser.parse_args()
@@ -156,6 +165,10 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
     sources += [tree.src / n for n in PLAT_SOURCES] + aecp_sources
     sources += [tree.src / "app/ctrl_app_srp.c", tree.src / "srp/srp_mbx.c",
                 *[lw / "src" / n for n in LWSRP_SOURCES]]
+    if args.with_gptp:
+        flags += ["-DCTRL_PLAT_GPTP"]
+        inc += [f"-I{tree.src / 'gptp'}"]
+        sources += [tree.src / "gptp/gptp.c", tree.src / "gptp/gptp_mbx.c"]
     objects = []
     for index, src in enumerate(sources):
         obj = out / f"{index}-{src.stem}.o"
@@ -165,7 +178,7 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
     if findings:
         raise Refusal(str(findings))
     image.memory_calls_nothing(cc.removesuffix("gcc") + "nm", sources, objects)
-    return objects, member_sizes(cc, flags, inc, out)
+    return objects, member_sizes(cc, flags, inc, out, MEMBERS + (("gptp",) if args.with_gptp else ()))
 
 
 def main() -> int:
@@ -190,8 +203,9 @@ def main() -> int:
         names = {line.split()[-1] for line in symbols.splitlines() if line.split()}
         if names & {"malloc", "calloc", "realloc", "free", "sbrk", "_sbrk"}:
             raise Refusal("heap dependency in the platform image")
-        if REQUIRED - names:
-            raise Refusal(f"the platform image discarded required code or storage: {sorted(REQUIRED - names)}")
+        required = REQUIRED | (GPTP_REQUIRED if args.with_gptp else set())
+        if required - names:
+            raise Refusal(f"the platform image discarded required code or storage: {sorted(required - names)}")
         size = image.checked([tool + "size", "-A", "-x", str(elf)])
         sections = {name: (int(addr, 16), int(length, 16))
                     for name, length, addr in re.findall(r"^(\.\S+)\s+(0x[0-9a-f]+)\s+(0x[0-9a-f]+)", size, re.M)}
@@ -201,6 +215,7 @@ def main() -> int:
         # the point named, else the entry whose symbols the image carries, as the product SoC build plans it
         plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.own_point(linked))
         report = {"shape": args.config.stem, "interfaces": args.interfaces, "entry": "plat/ctrl_plat_main.c",
+                  "gptp": args.with_gptp,
                   "sections": {name: length for name, (_, length) in sections.items()},
                   "largest_bss": largest_bss(symbols, sections, members), "ctrl_plat_members": members,
                   "split": plan.summary(),
