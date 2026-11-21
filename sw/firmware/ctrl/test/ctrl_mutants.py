@@ -659,8 +659,9 @@ PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sin
                      "bool sid_valid)\n{\n")
 PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
 ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
-ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
-               "\t\tif (!marked(a, k)) {\n\t\t\tcontinue;\n\t\t}\n"
+ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n"
+               "\tfor (unsigned k = next_set(a->dirty, 0u, a->cfg.n_sinks); k < a->cfg.n_sinks;\n"
+               "\t     k = next_set(a->dirty, k + 1u, a->cfg.n_sinks)) {\n"
                "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
                "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
                "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"

@@ -28,8 +28,7 @@ MUTANTS = (
            "acmp", "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits", "A19 one frame per poll",
            (("acmp", "AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1", "E2 3 frames owed ahead"),)),
     Mutant("acmp-change-not-held-for-its-response", ACMP_C,
-           ("\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((o->release[k / 32u] >> (k % 32u)) & "
-            "1u));"),
+           "\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + 1u);",
            "\t\t(void)release;",
            "acmp", "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
            "A19 but its change is not reported while its response waits (#653)",
@@ -46,9 +45,10 @@ MUTANTS = (
            "acmp", "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
            "A19 a probe the full queue cannot take is lost and counted"),
     Mutant("acmp-first-owed-releases-every-change", ACMP_C,
-           ("\t\t\t\tif (((o->release[k / 32u] >> (k % 32u)) & 1u) != 0u) {\n\t\t\t\t\tmark(a, k);\n"
-            "\t\t\t\t\ta->sinks[k].change_owed--;\n\t\t\t\t}"),
-           "\t\t\t\tmark(a, k);\n\t\t\t\ta->sinks[k].change_owed = 0u;",
+           ("for (unsigned k = next_set(o->release, 0u, a->cfg.n_sinks); k < a->cfg.n_sinks;\n"
+            "\t\t\t     k = next_set(o->release, k + 1u, a->cfg.n_sinks)) {\n\t\t\t\tmark(a, k);\n"
+            "\t\t\t\ta->sinks[k].change_owed--;"),
+           "for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\t\t\tmark(a, k);\n\t\t\t\ta->sinks[k].change_owed = 0u;",
            "acmp", "AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether",
            "A19 the bind's response left but the unbind's is still owed"),
     Mutant("acmp-poll-newest-first", ACMP_C,
