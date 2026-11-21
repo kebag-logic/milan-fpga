@@ -170,7 +170,8 @@ ARMS = (
      "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;",
      "  assign tx_sa_ok_w = mac_alo_wr_r | mac_ahi_wr_r;",
      "[TX] ...and with its low half alone"),
-    ("a split datapath whose CSR keeps the all-fabric VERSION (#665 S13)", DP,
+    # the flip's version chain (#665 S13): the placement must reach milan_csr's VERSION
+    ("a split datapath whose CSR keeps the all-fabric VERSION", DP,
      "    .CTRL_SPLIT_P(CTRL_SPLIT_P)",
      "    .CTRL_SPLIT_P(0)",
      "[ID] the split datapath reads VERSION major 0x0003 (VERSION >> 16)"),
