@@ -26181,6 +26181,7 @@ def test_firmware_version_derived_from_rtl() -> None:
     import gen_aem_store as g
     for name in CONFIGS:
         cfg = eb.load_config(CONFIGS[name])
+        want = wants[cfg["control"]["placement"]]
         M = g.build_model(g.spec_from_overlay(eb.emit_aem_overlay(cfg)))
         base = next(b for (t, i, b, _l) in M["directory"] if (t, i) == (0, 0))
         fld = M["rom"][base + 116: base + 116 + 64]
@@ -26206,9 +26207,10 @@ def test_firmware_version_derived_from_rtl() -> None:
             p.unlink()
 
     print(f"  [gate 24] firmware_version DERIVED from milan_csr VERSION "
-          f"0x{major:04X}_{minor:04X} -> {want!r}: 3/3 configs derive it and "
-          f"declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs "
-          f"(1722.1 7.2.1 Table 7-2), no entity_model_id moves with it "
+          f"0x{major:04X}_{minor:04X} -> {wants['all-fabric']!r} all-fabric, {wants['split']!r} split: "
+          f"{len(CONFIGS)}/{len(CONFIGS)} configs derive it at their placement and "
+          f"declare none, it lands zero-padded at ENTITY+116 in all {len(CONFIGS)} ROMs "
+          f"(1722.1 7.2.1 Table 7-2), no entity_model_id moves with it or with the placement "
           f"(6.2.2.8 exclusion; arty_current still pinned "
           f"{DEPLOYED_MODEL_ID}), firmware_rev 7 -> {major}.{minor}.7 with "
           f"the same id, 4/4 bad declarations refused")
