@@ -3127,9 +3127,11 @@ class NxnDatapathHarness {
         0x04,0x00,0x00,0x00,0x00,0x04,0x00,0x02};
     static constexpr uint8_t sidX[8] = {
         0x05,0x00,0x00,0x00,0x00,0x05,0x00,0x09};
-    // AAF format u64 for {AAF, 48k, INT32, depth 32, up to 2 ch}
+    // AAF format u64 for {AAF, 48k, INT32, depth 32, 2 ch, six samples per
+    // frame}: Milan v1.2 Table 6.1's 0x0205022000806000, the 48 octets mkaaf
+    // sends at two channels (the frame size is part of the format, #948)
     static constexpr uint32_t FMT_HI = 0x02050220;
-    static constexpr uint32_t FMT_LO = 2u << 22;
+    static constexpr uint32_t FMT_LO = (2u << 22) | (6u << 12);
 
     void bring_the_datapath_out_of_reset() {
             dut->axis_resetn = 0; dut->gtx_resetn = 0;

@@ -54,10 +54,12 @@ constexpr long INV_SETTLE_CYC = 128;
 // Milan Table 5.6 observation interval (must match the wrap's IVAL_CYC_P)
 constexpr int IVAL = 2000;
 
-// STREAM_INPUT current format: AAF 48 kHz / INT32 / depth 32 / 8 ch
-constexpr uint64_t FMT  = 0x0205022002006000ULL;
-// the same Base format with 2 channels (Milan v1.2 Table 6.2)
-constexpr uint64_t FMT2 = 0x0205022000806000ULL;
+// STREAM_INPUT current format: AAF 48 kHz / INT32 / depth 32 / 8 ch, two
+// samples per frame: the frame size is part of the format (#948), and every
+// PDU build_aaf() makes carries 64 octets
+constexpr uint64_t FMT  = 0x0205022002002000ULL;
+// the same with 2 channels of eight samples, 64 octets too
+constexpr uint64_t FMT2 = 0x0205022000808000ULL;
 constexpr uint64_t SID0 = 0x020000FFFE010000ULL;
 constexpr uint64_t SID1 = 0x020000FFFE020000ULL;
 
