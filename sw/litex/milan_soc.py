@@ -3308,6 +3308,7 @@ class CtrlMailbox(LiteXModule):
         if (contract.pub_sources, contract.pub_sinks) != (CTRL_SPLIT_ENTRIES, CTRL_SPLIT_ENTRIES):
             raise ValueError(f"milan_datapath's ctl ports carry {CTRL_SPLIT_ENTRIES} sources and sinks "
                              f"(CTRL_ENTRIES_P); the contract has {contract.pub_sources} and {contract.pub_sinks}")
+        import mailbox_model   # sw/mailbox, on the path the contract was loaded from (_add_ctrl_mailbox)
         words = len(mailbox_model.gptp_words(contract))
         if words not in (0, CTRL_SPLIT_GPTP_WORDS):
             raise ValueError(f"milan_datapath's i_ctl_gptp_pub carries {CTRL_SPLIT_GPTP_WORDS} gPTP publication words; "
