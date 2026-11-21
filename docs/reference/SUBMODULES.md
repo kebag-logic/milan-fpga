@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `acd2305af10926bbcb1c326e2a388aace615d828` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `67fd8e278a5b4f7d579273732107a762354b6da1` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `115df0bec6d45269979d4d7a9cebc4cd727b9fe1` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -982,6 +982,7 @@ Issue #665 adopts stack pin `715589c1`.
 | [28](https://github.com/kebag-logic/tsn-c-stack/pull/28) (issue 26) | A command behind the full owed set is declined, not dropped; the ACMP adapter keeps it and offers it again after an accepting poll |
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
+| #872 (branch head, not yet a stack PR) | `acmp_declaring` clears only the destination validity it reads before the source port fills its state |
 | #872 (branch head, not yet a stack PR) | Each ACMP entry visits only the set bits of its sink marks and of an owed frame's release mask |
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
@@ -1025,7 +1026,7 @@ tsn-c-stack uses HTTPS and needs no credentials.
 
 The pin is a #872 branch head, not yet on `main`.
 
-Its parent is the merge of tsn-c-stack PR 34.
+Its base is the merge of tsn-c-stack PR 34.
 
 The stack's own review puts it on `main` first.
 
