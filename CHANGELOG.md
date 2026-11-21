@@ -60,7 +60,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Unreleased - #872 donor pins
 
-- Issue #872 moves lwSRP to `9597597a`.
+- Issue #872 moves lwSRP to `acd2305a`.
 - It moves tsn-c-stack to `67fd8e27`.
 - Both reach their `main` through their own reviews.
 - lwSRP adds a timer wheel and attribute lookup buckets.
