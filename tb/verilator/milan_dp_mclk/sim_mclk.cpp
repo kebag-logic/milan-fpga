@@ -237,6 +237,7 @@ class MclkHarness {
     void row_follows(const char* tag, const Talker& t);
     void row_csr_words(bool full);
     void row_echo();
+    void row_shared_stream();
     void row_loss_leg(int64_t ns);
     void row_aaf_loss(bool full);
     void row_w2_switch_to_crf(bool full);
@@ -760,6 +761,26 @@ void MclkHarness::row_echo() {
         static_cast<uint64_t>(aaf_out.toggles - at0 + crf_out.toggles - ct0), 0);
 }
 
+//! #948: one talker stream bound to both AAF inputs (IEEE 1722.1-2021 8.2): each
+//! PDU reaches both, so the meter follows whichever of the two is selected.
+//! Listener 1 is rebound onto AAF0's stream and AAF1's talker is silenced;
+//! the parser of the defect handed each PDU to listener 1 alone, so a meter
+//! following listener 0 never saw one.
+void MclkHarness::row_shared_stream() {
+    std::printf("\n[SHARED] listener 1 bound to AAF0's stream as well: the meter follows input 0, then input 1\n");
+    aaf1.on = false;
+    bind_listener(1, aaf0.uid);
+    run_for_ns(5'000'000);
+    select(kSrcAaf0);
+    run_for_ns(10'000'000);
+    ckv("SHARED: the meter locked on listener 0 while listener 1 shares its stream (AAFM_STAT {idx, en, locked})",
+        meter_stat() & 0xF5u, 0x05);
+    ck("SHARED: the servo leaves IDLE once the meter locks", servo_state() != kStIdle);
+    select(kSrcAaf1);
+    run_for_ns(10'000'000);
+    ckv("SHARED: the meter locked on listener 1, on the same stream", meter_stat() & 0xF5u, 0x15);
+}
+
 void MclkHarness::row_loss_leg(int64_t ns) {
     std::printf("\n[LOSS] one AAF0 PDU lost in every 0.3 s for %.1f s\n", static_cast<double>(ns) * 1e-9);
     const uint64_t n0 = aaf0.n;
@@ -1160,6 +1181,7 @@ int MclkHarness::run(const std::string& mode) {
         row_switch_past_the_timeout(aaf1, kSrcAaf1, 1);
     } else if (mode == "tu") { row_select_aaf0(); row_tu_edge(false); }
     else if (mode == "dwell") row_internal_dwell();
+    else if (mode == "shared") row_shared_stream();
     else check_.fail("unknown mode");
     std::printf("simulated %.3f s\n", now_s());
     return 0;

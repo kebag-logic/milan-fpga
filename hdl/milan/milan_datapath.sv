@@ -7482,11 +7482,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .bind_rise_i   (strtbl_bind_rise_w),
       .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
       //! the followed input's PDUs, whichever other inputs the stream is
-      //! bound to as well (#948): the index is the followed entry's when it
-      //! is among the matches, else the highest match, so the meter's own
-      //! listener compare still makes the selection
-      .match_p_i     (avtprx_match),
-      .match_idx_i   (avtprx_vec_w[aaf_follow_idx_r] ? aaf_follow_idx_r : avtprx_idx),
+      //! bound to as well (#948): the selection is the followed entry's bit
+      //! of the match vector, so the meter's index compare holds by
+      //! construction here (one index cannot name several matches)
+      .match_p_i     (avtprx_match && avtprx_vec_w[aaf_follow_idx_r]),
+      .match_idx_i   (aaf_follow_idx_r),
       .subtype_i     (avtprx_subtype),
       .tv_i          (avtprx_tv_bit),
       .tu_i          (avtprx_tu_bit),
