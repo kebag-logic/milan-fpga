@@ -20,14 +20,18 @@
 //         unbound input receives and counts nothing more
 //   [FO4] each input judges the one PDU on its own: an input whose format
 //         differs counts UNSUPPORTED_FORMAT and receives nothing, the others
-//         accept it; a sequence gap counts in each accepting input's own
-//         SEQ_NUM_MISMATCH and STREAM_INTERRUPTED
+//         accept it; once both have settled, a sequence gap counts in each
+//         accepting input's own SEQ_NUM_MISMATCH and STREAM_INTERRUPTED
 //   [FO5] two streams back to back, one bound to two inputs and one to a
 //         third: each input receives exactly its own stream's payloads, in
 //         order, and nothing is dropped
 //   [FO6] all eight inputs bound to one stream: each receives every PDU
 //   [FO7] a PDU no bound input accepts, then one they do, back to back: the
 //         first is delivered to no input, the second to each
+//   [FO8] a frame that ends on its eighth beat, the one the parser matches
+//         on, then a full PDU with no gap: the short frame is gone before
+//         its PDU is queued, so it is delivered to no input, and the full
+//         one is delivered to each, its own payload
 //
 // Usage: make -C tb/verilator/avtp_rxmon fanout   (built at N_STREAMS_P=8)
 
@@ -74,6 +78,7 @@ class FanOut {
         two_streams_back_to_back();
         all_eight_inputs_on_one_stream();
         a_pdu_no_input_accepts_then_one_they_do();
+        a_frame_ending_on_its_match_beat_then_a_full_one();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -357,7 +362,9 @@ class FanOut {
         bind(1, kTalkerA, true);
         cyc(200);
         Snap b = snap();
-        auto sent = send(0, 2);
+        // ten PDUs: the rebound input 1 locks and leaves its eight-PDU settle, inside which a gap is no
+        // mismatch (KL_avtp_rx_monitor_ctx's settle), so the gap below counts in both 8-channel inputs
+        auto sent = send(0, 10);
         flush_iv();
         for (int s : {0, 1}) received("[FO4] an 8-channel input:", s, b, sent);
         nothing("[FO4] the 2-channel input:", 5, b);
@@ -429,6 +436,27 @@ class FanOut {
         for (int s : {0, 1}) {
             received("[FO7] the 8-channel PDU:", s, b, sent);
             ck("[FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT", s, lctx_rd(s, W_UF) - b.uf[s], 1);
+        }
+    }
+
+    void a_frame_ending_on_its_match_beat_then_a_full_one() {
+        std::printf("\n[FO8] a 64-byte frame of the stream, then a full PDU with no gap between them\n");
+        const Snap b = snap();
+        Pdu cut = payload();
+        std::vector<uint8_t> f = aaf(0, 8, cut);
+        f.resize(64);                             // eight beats: the parser matches on the last
+        std::vector<Pdu> sent;
+        sent.push_back(payload());
+        feed(f, 0);
+        feed(aaf(0, 8, sent.back()));
+        cyc(400);
+        flush_iv();
+        for (int s : {0, 1}) {
+            ck("[FO8] both PDUs are judged (the short one counts in FRAMES_RX)", s, accepts[s] - b.acc[s], 2);
+            ck("[FO8] only the full PDU reaches the depacketizer's output", s,
+               static_cast<long>(got[s].size() - b.pdus[s]), 1);
+            ck("[FO8] ...with its own payload", s,
+               got[s].size() > b.pdus[s] && got[s][b.pdus[s]] == sent[0] ? 1 : 0, 1);
         }
     }
 };

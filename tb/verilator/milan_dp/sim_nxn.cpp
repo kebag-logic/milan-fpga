@@ -8145,6 +8145,76 @@ class NxnDatapathHarness {
     //  state to inspect; the current behaviors are tested at their new owner.
     // ==================================================================
     // ======================================================================
+    // [FAN] #948: ONE TALKER STREAM BOUND TO SEVERAL STREAM INPUTS, the 8x8
+    // shape. IEEE 1722.1-2021 8.2 lets each sink bind on its own, so one
+    // stream_id can be the source of several of the entity's inputs, and
+    // each receives every PDU: its own Table 5.6 counters (Milan v1.2
+    // 5.3.8.10) and its own share of the depacketizer's output, the render
+    // path's input (its DEPKT tally, LCTX w11). The bench found the first
+    // input of two starved: the parser gave each PDU to the highest matching
+    // context only. Inputs 4, 6 and 7 are taken through the CSR window, as
+    // the split firmware takes them; it runs last, so no later section reads
+    // the state it leaves.
+    // ======================================================================
+    void fan_bind(int s, bool on) {
+        axi_write(A_STRM_SEL, static_cast<uint32_t>(s) & 0xF);    // dir=0 idx=s
+        if (!on) { axi_write(A_SW_CTRL, 0); return; }             // evict: the zero sid
+        axi_write(A_SW_SID_LO, 0x005B000Au);                      // the talker's {5B 00 00 00 00 5B 00 0A}
+        axi_write(A_SW_SID_HI, 0x5B000000u);
+        axi_write(A_SW_FMT_LO, FMT_LO);
+        axi_write(A_SW_FMT_HI, FMT_HI);
+        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u);              // en, the retired route bit
+    }
+    struct FanSnap { uint32_t frx, pdus; };
+    FanSnap fan_read(int s) {
+        axi_write(A_STRM_SEL, static_cast<uint32_t>(s) & 0xF);
+        snap_and_wait();
+        return {axi_read(A_SW_CNT0 + 9*4), axi_read(A_SW_PDUS) & 0xFFFFu};
+    }
+    //! `n` PDUs of the talker, then every input in `on` counted each and received each, and every input in
+    //! `off` neither; the shared PCMRX total counts one PDU per receiving input
+    void fan_round(const char* tag, int n, std::initializer_list<int> on, std::initializer_list<int> off) {
+        const uint8_t sidT[8] = {0x5B, 0, 0, 0, 0, 0x5B, 0, 0x0A};
+        std::array<FanSnap, 8> b{};
+        for (int s : on) b[s] = fan_read(s);
+        for (int s : off) b[s] = fan_read(s);
+        const uint32_t pc0 = axi_read(A_PCMRX_CNT);
+        for (int k = 0; k < n; k++) inject(mkaaf(sidT, fan_seq_++, 2, static_cast<uint8_t>(0x20 + k)), 120);
+        for (int i = 0; i < 2600; i++) step();                    // past one Table 5.6 interval commit
+        char nm[120];
+        for (int s : on) {
+            const FanSnap a = fan_read(s);
+            snprintf(nm, sizeof nm, "[FAN] %s: input %d's FRAMES_RX counts every PDU", tag, s);
+            ck(nm, a.frx - b[s].frx, static_cast<uint32_t>(n));
+            snprintf(nm, sizeof nm, "[FAN] %s: input %d receives every PDU (its DEPKT tally)", tag, s);
+            ck(nm, a.pdus - b[s].pdus, static_cast<uint32_t>(n));
+        }
+        for (int s : off) {
+            const FanSnap a = fan_read(s);
+            snprintf(nm, sizeof nm, "[FAN] %s: input %d counts and receives nothing", tag, s);
+            ck(nm, (a.frx - b[s].frx) + (a.pdus - b[s].pdus), 0);
+        }
+        snprintf(nm, sizeof nm, "[FAN] %s: the depacketizer emits one PDU per receiving input", tag);
+        ck(nm, axi_read(A_PCMRX_CNT) - pc0, static_cast<uint32_t>(n) * static_cast<uint32_t>(on.size()));
+    }
+    uint8_t fan_seq_ = 0x10;
+    void prove_one_stream_bound_to_several_inputs() {
+        if (kNstreamsTb < 8) return;
+        printf("-- [FAN] #948: one talker stream bound to inputs 4 and 6, then 7 as well, then 4 unbound --\n");
+        for (int s : {4, 6, 7}) fan_bind(s, false);
+        fan_bind(4, true);
+        fan_bind(6, true);
+        for (int i = 0; i < 400; i++) step();                     // the bind walks
+        fan_round("two inputs on one stream", 4, {4, 6}, {7});
+        fan_bind(7, true);
+        for (int i = 0; i < 400; i++) step();
+        fan_round("three inputs on one stream", 4, {4, 6, 7}, {});
+        fan_bind(4, false);
+        for (int i = 0; i < 400; i++) step();
+        fan_round("input 4 unbound", 4, {6, 7}, {4});
+    }
+
+    // ======================================================================
     // item-5 (N x N, the AX 8x8 target): full-index routing sweep. The checks
     // above prove idx 1/2/3 at N=4; this proves EVERY fresh index 3..N-1 is
     // provisioned, live, and routed independently AT THE SAME TIME. Default
@@ -11501,6 +11571,7 @@ int NxnDatapathHarness::run() {
     notify_section(false);
     prove_the_loop_source_sequence_fidelity();
     prove_the_steerable_media_grid_wiring();
+    prove_one_stream_bound_to_several_inputs();
 
     return report();
 }
