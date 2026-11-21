@@ -62,7 +62,7 @@ images and scripts are byte-identical to this head's and whose logs a run here r
 
 | Point | Compared | Same | Different |
 |---|---:|---:|---:|
-| 1x1/1if | 37 | 37 | 0 |
+| 1x1/1if | 38 | 38 | 0 |
 | 8x8/1if | 8 | 8 | 0 |
 | 8x8/2if | 11 | 11 | 0 |
 | 32x32/2if (the scratch port) | 16 | 14 | 2 |
@@ -128,7 +128,7 @@ boot, where the older image ran it about 500 times a second, and the loop is idl
 ## 6. Limits of round 2
 
 - **The differential is a subset.** The cut ran, at 1x1/1if, arm A's 21 groups outside the store's windows and the
-  four arms that reach the cuts' code (37 finished); at 8x8/1if, 8x8/2if and 32x32/2if the model's matched groups. The
+  four arms that reach the cuts' code (38 finished); at 8x8/1if, 8x8/2if and 32x32/2if the model's matched groups. The
   store's windows (78 groups of arm A) and the three AECP-notice arms were not run for the cut.
 - **32x32/2if is not shown exact** in valid-destinations' `srp-talker-loss` (section 3).
 - **The loads are the model's**, round 1's, with each cost scaled by the cut/base ratio measured over the groups both
