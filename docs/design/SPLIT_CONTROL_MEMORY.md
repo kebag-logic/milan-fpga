@@ -136,7 +136,7 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.0 |
+| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.5 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -158,8 +158,9 @@ In the composed flip train (#665's [ruling of 2026-11-17](https://github.com/keb
 With the largest legal record's cut ([section 13](#the-largest-legal-record-on-the-composed-flip-train-665)) the entry is 60.5, by the same rule and #665's [ruling of 2026-11-17, amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243): the harness's `answering-ports` arm needs 131,128 B of `rom`, 56 B past the 131,072 B that 60.0 holds, and the other five arms 130,624 to 130,948 B, within it; ROM debt of 4.5 RAMB36 owed to S14.
 The platform's two-interface entry is 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946): its `rom` is 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its 115,504 B of `sram`, with `ctrl_plat` unchanged.
 It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
-Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
-Each image is refused half a tile past its entry, at 61.0, 63.5 and 58.5.
+Its one-interface entry is 58.5 with a waiting SET_STREAM_FORMAT's running check made again (#950) and ACMP's source port's Listener Asking Failed (#954): its `rom` is 139,304 B, 40 B past the 139,264 B that 58.0 holds, with `ctrl_plat` unchanged, by the owner's rule of 2026-11-15.
+It is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
+Each image is refused half a tile past its entry, at 61.0, 63.5 and 59.0.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -303,7 +304,7 @@ In the composed flip train (measured [below](#5-fit)) the entries are:
 
 - the target platform's 8x8 image with two interfaces, 63.0 RAMB36, a debt of 7.0, 28,672 B of cold code to move;
 - the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
-- the target platform's 8x8 image with one interface, a product image, 58.0, a debt of 2.0, 8,192 B, its own entry, which the product SoC build plans it at by its symbols;
+- the target platform's 8x8 image with one interface, a product image, 58.5, a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
 - every other point stays at or under 56.
 
 S14 is the first lane after the flip.
