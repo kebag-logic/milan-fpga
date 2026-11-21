@@ -112,6 +112,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, fifteen plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
 - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
+- **[One stream bound to several Stream Inputs on the split half (obj_twin8_\*, #948)](#one-stream-bound-to-several-stream-inputs-on-the-split-half-obj_twin8_-948)** -- The split half at the 8x8 shape with its own firmware: a controller binds two, then three Stream Inputs to one peer talker's stream over ACMP and unbinds one, each bound input counting and receiving every PDU, and the planted defect #948 found
 - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
@@ -1845,6 +1846,43 @@ must exit 1 and print the `MAPS-STORE`, `MAPS-FORMAT` (4 channels) and
 `MAPS-EDIT` failures by their words (`TWIN_MAPS_PLANT_WORDS`). Like the twin and
 `srptx`, these targets are this leg's own, outside the suite's `run` inventory.
 
+
+## One stream bound to several Stream Inputs on the split half (`obj_twin8_*`, #948)
+
+`make twin-fanout` builds the split half at the 8x8 shape with one interface:
+`tb_split_top` at `N_STREAMS_P = 8`, with the 8x8 split image's platform
+firmware (`twin_fw.py` on `configs/endstation_ax7101_8x8.yaml`). It runs the
+binary with `--fanout` ([`twin_split.cpp`](twin_split.cpp), `fanout_main`).
+The twin's own shape, 1x1, has one AAF Stream Input. Its comparison is also
+between two placements of one datapath, so a defect inside that datapath is
+no difference between them. This leg grades the split half on its own.
+
+After the boot, a controller binds STREAM_INPUT 0 and 1 to one peer talker's
+stream over ACMP. The talker answers each PROBE_TX_COMMAND with the stream's
+stream_id (IEEE 1722.1-2021 8.2.1.5). The controller then binds STREAM_INPUT 2
+as well, and unbinds 1. Four AAF PDUs of the stream follow each step. Each
+check prints PASS or FAIL with its label and words, and the binary exits 1 on
+any FAIL:
+
+| Label | What it holds |
+|---|---|
+| `FAN-TWO` | inputs 0 and 1 each count every PDU in GET_COUNTERS (TIMESTAMP_VALID, Table 7-157 @24, counted on receipt); input 1 receives each (its DEPKT tally, the `0x800` window's PDUS word); input 2 counts and receives nothing; the depacketizer's shared total grows by one PDU per receiving input |
+| `FAN-THREE` | the same for inputs 0, 1 and 2 |
+| `FAN-UNBIND` | with input 1 unbound, inputs 0 and 2 go on counting and receiving, and input 1 counts and receives nothing |
+
+Input 0's PDUS word is the flat alias of the depacketizer's shared total
+(`milan_csr`'s index-0 snapshot of `PCMRX_CNT`). So input 0's share is graded
+through that total and the other inputs' tallies. FRAMES_RX commits at the end
+of Milan's observation interval, one second of datapath cycles, which this
+leg's short milliseconds do not reach. So it reads TIMESTAMP_VALID, and
+`sim_nxn`'s `[FAN]` section reads FRAMES_RX on the 8x8 datapath at its short
+interval.
+
+`make twin-fanout-plants` builds the same binary on a parser planted with the
+defect #948 found (`twin_fanout_plant.py`: each PDU to the highest matching
+table entry alone). The run must exit 1 and print the four failures
+`TWIN8_PLANT_WORDS` names, among them input 0 starved beside input 1. Like the
+twin, these targets are this leg's own, outside the suite's `run` inventory.
 
 ## The #839 station MAC from reset (`obj_bootsa`)
 

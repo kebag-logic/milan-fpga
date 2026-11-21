@@ -39,6 +39,14 @@
 // (#923, maps_main): each check prints PASS or FAIL with its label and words;
 // --plant no-edit cuts the core's edit port after the boot.
 //   Vmilan_dp_twin_sp --maps [--plant no-edit]
+//
+// With --fanout, built at the 8x8 shape with one interface (#948,
+// fanout_main), a controller binds two and then three of the entity's Stream
+// Inputs to one peer talker's stream over ACMP, the talker answering each
+// probe, and unbinds one: each bound input counts and receives every PDU of
+// the stream, the unbound one nothing. Each check prints PASS or FAIL with its
+// label and words.
+//   Vmilan_dp_twin8_sp --fanout
 
 #include <algorithm>
 #include <array>
@@ -89,6 +97,36 @@ constexpr unsigned kPasses = 400;
 //! received one is taken, answered and sent inside it; at most kDrainMax.
 constexpr std::uint64_t kDrainIdle = 2048;
 constexpr std::uint64_t kDrainMax = 50000;
+
+//! --fanout (#948): the peer talker's stream, as its PROBE_TX_RESPONSE gives it, and whether the talker answers.
+constexpr std::uint64_t kFanStream = 0x0202DEADBEEF0005ull;
+constexpr std::uint64_t kFanDest = 0x91E0F0005B0Aull;
+bool& twin_talker_answers() {
+    static bool on = false;
+    return on;
+}
+
+//! The peer talker's PROBE_TX_RESPONSE to the entity's PROBE_TX_COMMAND (IEEE 1722.1-2021 8.2.1.5, Milan v1.2
+//! 5.5.3.5.18): the command echoed, message_type 1, status SUCCESS, and the stream's stream_id, destination and
+//! VLAN 2. False for any other frame.
+bool probe_tx_answer(const twin::Frame& sent, twin::Frame* answer) {
+    std::uint16_t t = 0;
+    std::size_t at = 0;
+    if (!twin::ethertype(sent, &t, &at) || t != twin::kEtherAvtp || at != 14 || sent.size() < 70) return false;
+    if (sent[14] != twin::kSubAcmp || (sent[15] & 0xFu) != 0u) return false;
+    std::uint64_t talker = 0;
+    for (unsigned k = 0; k < 8; ++k) talker = talker << 8 | sent[34 + k];
+    if (talker != twin::kPeerTalker) return false;
+    *answer = sent;
+    twin::put_be(*answer, 6, twin::kPeerMac, 6);
+    (*answer)[15] = static_cast<std::uint8_t>((sent[15] & 0xF0u) | 1u);
+    (*answer)[16] = static_cast<std::uint8_t>(sent[16] & 0x07u);
+    twin::put_be(*answer, 18, kFanStream, 8);
+    twin::put_be(*answer, 54, kFanDest, 6);
+    twin::put_be(*answer, 60, 1, 2);
+    twin::put_be(*answer, 66, 2, 2);
+    return true;
+}
 
 class SplitHalf {
  public:
@@ -212,6 +250,7 @@ void SplitHalf::tx_take() {
     if (!d_->tx_tlast) return;
     twin::Frame answer;
     const char* who = nullptr;
+    if (twin_talker_answers() && probe_tx_answer(tx_cur_, &answer)) rx_q_.push_back(answer);
     if (cap_ != nullptr && twin::is_control(tx_cur_)) {
         cap_->frames.push_back({ms_, tx_cur_});
         if (twin::controller_available_answer(tx_cur_, &answer, &who)) {
@@ -700,6 +739,175 @@ int maps_main(const std::string& plant) {
     return m.failed() == 0 && half.host_timeouts() == 0 ? 0 : 1;
 }
 
+
+//! ---- --fanout (#948): one peer talker's stream bound to several Stream Inputs, the 8x8 shape ----
+
+class Fan {
+ public:
+    Fan(SplitHalf& half, twin::Capture& cap) : half_(half), cap_(cap) {}
+
+    void check(bool ok, const char* label, const std::string& words) {
+        std::printf("%s [%s] %s\n", ok ? "PASS" : "FAIL", label, words.c_str());
+        failed_ += ok ? 0u : 1u;
+    }
+    unsigned failed() const { return failed_; }
+
+    void run_ms(unsigned n) {
+        const std::vector<twin::Stimulus> none;
+        std::size_t next = 0;
+        for (unsigned ms = 0; ms < n; ++ms) millisecond(half_, none, &next, &cap_);
+    }
+
+    //! BIND_RX (CONNECT_RX_COMMAND) or UNBIND_RX (DISCONNECT_RX_COMMAND) of STREAM_INPUT `s` to the peer talker's
+    //! unique_id 0, then 100 ms: the bind's probe is answered by the talker, and the listener settles
+    void acmp(bool bind, unsigned s) {
+        twin::Frame f = twin::acmp(bind ? 6 : 8, twin::kPeerTalker, twin::kEntityId, seq_++);
+        twin::put_be(f, 52, s, 2);
+        half_.mac_rx(f);
+        run_ms(100);
+    }
+
+    //! An AEM command and its response from the AVTP header on, or empty with none within 60 ms.
+    twin::Frame ask(std::uint16_t command_type, const std::vector<std::uint8_t>& payload) {
+        const std::uint16_t seq = seq_++;
+        const std::size_t from = cap_.frames.size();
+        half_.mac_rx(twin::aem(command_type, payload, seq));
+        const std::vector<twin::Stimulus> none;
+        std::size_t next = 0;
+        twin::Frame out;
+        for (unsigned ms = 0; ms < 60 && out.empty(); ++ms) {
+            millisecond(half_, none, &next, &cap_);
+            for (std::size_t k = from; k < cap_.frames.size() && out.empty(); ++k) {
+                const twin::Frame& r = cap_.frames[k].bytes;
+                std::uint16_t t = 0;
+                std::size_t at = 0;
+                if (twin::ethertype(r, &t, &at) && t == twin::kEtherAvtp && at + 24 <= r.size() &&
+                    r[at] == twin::kSubAecp && (r[at + 1] & 0xFu) == 1u && (r[at + 20] << 8 | r[at + 21]) == seq &&
+                    (r[at + 22] << 8 | r[at + 23]) == command_type)
+                    out.assign(r.begin() + static_cast<std::ptrdiff_t>(at), r.end());
+            }
+        }
+        return out;
+    }
+
+    //! STREAM_INPUT s's TIMESTAMP_VALID as GET_COUNTERS answers it (IEEE 1722.1-2021 Table 7-157 @24: a received
+    //! PDU with tv set, counted on receipt), or -1 with no SUCCESS answer
+    long counted(unsigned s) {
+        const twin::Frame r = ask(0x0029, twin::descriptor(5, static_cast<std::uint16_t>(s)));
+        if (r.size() < 32 + 4 * 12 || (r[2] >> 3) != 0) return -1;
+        const std::size_t o = 32 + 4 * 6;
+        return static_cast<long>(static_cast<std::uint32_t>(r[o]) << 24 | static_cast<std::uint32_t>(r[o + 1]) << 16 |
+                                 static_cast<std::uint32_t>(r[o + 2]) << 8 | r[o + 3]);
+    }
+
+    //! The 0x800 window's PDUS word of index s, read between milliseconds, when the firmware is not running. For
+    //! an input above 0 it is the input's DEPKT tally, its PDUs out of the depacketizer, the render path's input;
+    //! index 0's is the flat alias of the depacketizer's shared total (milan_csr's index-0 snapshot, PCMRX_CNT),
+    //! every PDU it emits for any input.
+    long pdus_word(unsigned s) {
+        half_.axi_write(0x800, s);
+        half_.axi_write(0x804, 1);
+        for (int g = 0; g < 256; ++g)
+            if ((half_.axi_read(0x804) & 1u) == 0) break;
+        return static_cast<long>(half_.axi_read(0x858) & 0xFFFFu);
+    }
+
+    //! `n` PDUs of the stream, one a millisecond, each 8 channels of six 48 kHz samples (the inputs' format)
+    void send(unsigned n) {
+        for (unsigned k = 0; k < n; ++k) {
+            twin::Frame f = twin::eth(kFanDest, twin::kPeerMac, twin::kEtherAvtp, 14 + 24 + 192);
+            f[14] = 0x02;                       // AAF
+            f[15] = 0x81;                       // sv, tv
+            f[16] = avtp_seq_++;
+            twin::put_be(f, 18, kFanStream, 8);
+            twin::put_be(f, 26, 0x1000, 4);
+            f[30] = 0x02;                       // INT32
+            f[31] = 0x05 << 4;                  // 48 kHz
+            f[32] = 8;
+            f[33] = 32;
+            twin::put_be(f, 34, 192, 2);
+            for (unsigned i = 0; i < 192; ++i) f[38 + i] = static_cast<std::uint8_t>(k * 13u + i);
+            half_.mac_rx(f);
+            run_ms(1);
+        }
+        run_ms(5);
+    }
+
+    //! A round of `n` PDUs: every input in `on` counts each in GET_COUNTERS and receives each, every input in
+    //! `off` neither. An input above 0 is graded by its own DEPKT tally; the depacketizer's shared total grows by
+    //! one PDU per receiving input, so with the others' tallies it grades input 0's share.
+    void round(const char* label, unsigned n, std::initializer_list<unsigned> on, std::initializer_list<unsigned> off) {
+        std::array<long, 8> c0{}, r0{};
+        for (unsigned s : on) { c0[s] = counted(s); r0[s] = pdus_word(s); }
+        for (unsigned s : off) { c0[s] = counted(s); r0[s] = pdus_word(s); }
+        const long total0 = pdus_word(0);
+        send(n);
+        for (unsigned s : on) {
+            const long c = counted(s);
+            check(c0[s] >= 0 && c - c0[s] == static_cast<long>(n), label,
+                  "STREAM_INPUT " + std::to_string(s) + " counts every PDU in GET_COUNTERS (" +
+                      std::to_string(c - c0[s]) + " of " + std::to_string(n) + ")");
+            if (s == 0) continue;
+            const long r = pdus_word(s);
+            check(r - r0[s] == static_cast<long>(n), label,
+                  "STREAM_INPUT " + std::to_string(s) + " receives every PDU (" + std::to_string(r - r0[s]) +
+                      " of " + std::to_string(n) + ")");
+        }
+        for (unsigned s : off) {
+            const long c = counted(s);
+            const long r = s == 0 ? r0[s] : pdus_word(s);
+            check(c0[s] >= 0 && c == c0[s] && r == r0[s], label,
+                  "STREAM_INPUT " + std::to_string(s) + " counts and receives nothing");
+        }
+        const long total = pdus_word(0) - total0;
+        check(total == static_cast<long>(n * on.size()), label,
+              "the depacketizer emits one PDU per receiving input (" + std::to_string(total) + " of " +
+                  std::to_string(n * on.size()) + ")");
+    }
+
+ private:
+    SplitHalf& half_;
+    twin::Capture& cap_;
+    std::uint16_t seq_ = 0x9480;
+    std::uint8_t avtp_seq_ = 0;
+    unsigned failed_ = 0;
+};
+
+//! The --fanout run: the platform's boot on the split half at 8x8/1if, then the binds, the PDUs and the checks.
+int fanout_main() {
+    // three AAF Stream Inputs and the CRF input: the 8x8 shape (the twin's own shape, 1x1, has one AAF input)
+    if (CTRL_AEM_STREAM_INPUTS < 4) {
+        std::fprintf(stderr, "FAIL --fanout runs at a shape with three AAF Stream Inputs; this one has %u inputs\n",
+                     static_cast<unsigned>(CTRL_AEM_STREAM_INPUTS));
+        return 2;
+    }
+    auto ctx = std::make_unique<VerilatedContext>();
+    const auto dut = std::make_unique<Vtb_split_top>(ctx.get());
+    SplitHalf half(dut.get());
+    current() = &half;
+    twin::Capture cap;
+    half.reset();
+    half.capture(&cap);
+    static Env env;
+    if (ctrl_plat_boot(&env.env) != CTRL_PLAT_READY) {
+        std::fprintf(stderr, "FAIL the platform stopped its boot: %s\n", half.console().c_str());
+        return 2;
+    }
+    twin_talker_answers() = true;
+    Fan f(half, cap);
+    f.run_ms(200);
+    f.acmp(true, 0);
+    f.acmp(true, 1);
+    f.round("FAN-TWO", 4, {0, 1}, {2});
+    f.acmp(true, 2);
+    f.round("FAN-THREE", 4, {0, 1, 2}, {});
+    f.acmp(false, 1);
+    f.round("FAN-UNBIND", 4, {0, 2}, {1});
+    dut->final();
+    std::printf("fanout: %u failed, %u host timeouts, %u ms\n", f.failed(), half.host_timeouts(), half.ms());
+    return f.failed() == 0 && half.host_timeouts() == 0 ? 0 : 1;
+}
+
 //! --srptx SCENARIO CAPTURE, then each option with its value: --ms N, --peer-leave-all-ms N.
 bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
     if (argc < 4 || argc % 2 != 0 || std::strcmp(argv[1], "--srptx") != 0) return false;
@@ -719,6 +927,7 @@ bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
 int main(int argc, char** argv) {
     std::uint32_t run_ms = 0;
     if (srptx_args(argc, argv, &run_ms)) return srptx_main(argv[2], argv[3], run_ms);
+    if (argc == 2 && std::strcmp(argv[1], "--fanout") == 0) return fanout_main();
     if (argc >= 2 && std::strcmp(argv[1], "--maps") == 0) {
         if (argc != 2 && !(argc == 4 && std::strcmp(argv[2], "--plant") == 0)) {
             std::fprintf(stderr, "usage: %s --maps [--plant no-edit]\n", argv[0]);
