@@ -22,7 +22,10 @@ word in its own register, again before each reopening, read from the source port
 declaration its STREAM_OUTPUT shows is noticed for its GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22):
 a declaration, a withdrawal, a type swapped in place (only once made) and an adopted Domain's other VID, and nothing
 else, a reset that declares an unchanged source again included; the SRP delivery takes the record and an attach
-starts with none (ctrl_app_srp.c).
+starts with none (ctrl_app_srp.c). Each change of the Listener registered for a source's stream, which its
+STREAM_OUTPUT shows too (#957; #943's REGISTERING and REGISTERING_FAILED), is recorded on its interface: a Listener
+appearing, replacing another or going, a reset with one registered, and nothing else, a Listener declared again or
+registered again after a LeaveAll included; its declaration as well as its presence, each copy compared.
 """
 from __future__ import annotations
 
@@ -51,6 +54,7 @@ NOTICED = "Talker.DeclarationAndWithdrawalAreNoticed"
 SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
 VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
 RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
+REGISTRATION = "Talker.ListenerRegistrationChangeIsNoticed"
 TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
 TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
@@ -107,6 +111,16 @@ TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n
         "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
 #: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
 OWED = "    bool pending = noticed;\n"
+#: what a source's STREAM_OUTPUT shows of its Listener's registration and its record of a change (#957), as srp_mbx.c
+#: holds them: the comparison, the indication's copy of the declaration, the observer's and the reset's comparisons.
+SHOWN = "    const uint8_t shown = i->listener_present[n] ? i->declaration[n] : 0u;\n"
+CHANGED = "    if (shown != i->shown_registration[n]) {\n"
+RECORDED = "        i->registration_noticed |= 1u << n;\n"
+COPIED = "            i->declaration[n] = (uint8_t)declaration;\n            show_registration(i,n);\n"
+OBSERVED = ("            i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;\n"
+            "            show_registration(i,n);\n")
+RESET_SHOWN = ("    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {\n        show_registration(i,k);\n    }\n"
+               "    withdraw_declared(i->index);\n")
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -309,4 +323,23 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           path=APP),
         d("talker-notice-owed-unreported", TAKEN_PASS, OWED, "    bool pending = false;\n    (void)noticed;\n",
           "owes its notice", path=APP),
+        # #957: a Listener registration change of a source's stream, what its STREAM_OUTPUT shows of it
+        d("talker-registration-unrecorded", REGISTRATION, RECORDED, "", "a Listener Ready appearing is noticed"),
+        d("talker-registration-unchanged-recorded", REGISTRATION, CHANGED, "    if (true) {\n",
+          "a Listener registered again after a LeaveAll is not noticed"),
+        d("talker-registration-presence-only", REGISTRATION, SHOWN,
+          "    const uint8_t shown = i->listener_present[n] ? 1u : 0u;\n",
+          "a Listener Ready Failed replacing a Ready is noticed"),
+        d("talker-registration-declaration-only", REGISTRATION, SHOWN, "    const uint8_t shown = i->declaration[n];\n",
+          "a reset with a Listener registered notices it going"),
+        d("talker-registration-declaration-uncopied", REGISTRATION, COPIED, "            show_registration(i,n);\n",
+          "a Listener Ready appearing is noticed"),
+        d("talker-registration-indication-uncompared", REGISTRATION, COPIED,
+          "            i->declaration[n] = (uint8_t)declaration;\n",
+          "a Listener Ready Failed replacing a Ready is noticed"),
+        d("talker-registration-observer-uncompared", REGISTRATION, OBSERVED,
+          "            i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;\n",
+          "a Listener Ready appearing is noticed"),
+        d("talker-registration-reset-uncompared", REGISTRATION, RESET_SHOWN, "    withdraw_declared(i->index);\n",
+          "a reset with a Listener registered notices it going"),
     )

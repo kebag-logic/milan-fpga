@@ -16,6 +16,7 @@ import aecp_map_mutants
 import aecp_face_mutants
 import aecp_notice_mutants
 import aecp_output_mutants
+import aecp_registration_mutants
 import aecp_fan_mutants
 import aecp_owed_mutants
 import aecp_reboot_mutants
@@ -885,6 +886,7 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 
