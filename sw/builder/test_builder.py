@@ -26130,20 +26130,29 @@ def test_firmware_version_derived_from_rtl() -> None:
     assert m, "milan_csr.sv has no VERSION parameter"
     v = int(m.group(1).replace("_", ""), 16)
     major, minor = (v >> 16) & 0xFFFF, v & 0xFFFF
-    want = f"{major}.{minor}.0"
+    # a split image reads VERSION_SPLIT_MAJOR over the same minor (#665 S13)
+    s = re.search(r"parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h([0-9A-Fa-f_]+)", csr)
+    assert s, "milan_csr.sv has no VERSION_SPLIT_MAJOR parameter"
+    wants = {"all-fabric": f"{major}.{minor}.0", "split": f"{int(s.group(1).replace('_', ''), 16)}.{minor}.0"}
 
-    # every shipped config derives it, and none of them declares it
+    # every shipped config derives it at its placement, and none of them declares it
     ids = {}
     for name, path in CONFIGS.items():
         raw = yaml.safe_load(path.read_text())["entity"]
         assert "firmware_version" not in raw, \
             f"{name}: config re-declares entity.firmware_version"
         cfg = eb.load_config(path)
+        want = wants[cfg["control"]["placement"]]
         assert cfg["entity"]["firmware_version"] == want, \
             (f"{name}: firmware_version {cfg['entity']['firmware_version']!r} "
-             f"!= {want!r} derived from VERSION 0x{v:08X}")
+             f"!= {want!r} derived from VERSION 0x{v:08X} at {cfg['control']['placement']}")
         assert cfg["entity"]["firmware_rev"] == 0
         ids[name] = cfg["entity"]["entity_model_id"]
+        # 6.2.2.8 below: the placement moves the string, never the model id
+        for placement in eb.CONTROL_PLACEMENTS:
+            at = eb.with_placement(cfg, placement)["entity"]
+            assert (at["firmware_version"], at["entity_model_id"]) == (wants[placement], ids[name]), \
+                f"{name} at {placement}: {at['firmware_version']!r}, {at['entity_model_id']}"
 
     # 1722.1-2021 6.2.2.8 EXCLUDES firmware_version from what makes an entity
     # model "changed" ("In the ENTITY descriptor: available_index,
@@ -28125,7 +28134,9 @@ def test_schema_11_configs_accepted_unchanged() -> None:
             legacy = eb.load_config(old)
         finally:
             old.unlink()
-        assert eb.emit_soc_argv(legacy) == eb.emit_soc_argv(tracked), name
+        # a split argv names the config's own image by the config's name, which is the file's (#665 S13)
+        argv = lambda c: [a.replace(eb.ctrl_firmware_path(c), "<own image>") for a in eb.emit_soc_argv(c)]  # noqa: E731
+        assert argv(legacy) == argv(tracked), name
         assert legacy["model_id"] == tracked["model_id"], name
         images = [eb._entity_model_image(c, eb.emit_aem_overlay(c))["aem_desc.bin"]
                   for c in (tracked, legacy)]
