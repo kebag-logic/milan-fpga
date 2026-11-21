@@ -145,7 +145,9 @@ def facts(image: Path) -> dict:
     except json.JSONDecodeError as exc:
         raise Unreadable(f"{path}: {exc}") from exc
     pkg = [p for p in _sources(script) if p.name == "KL_mbx_pkg.sv"]
-    major, minor = rtl_version(_source(script, "milan_csr.sv", image / "gateware"))
+    # the VERSION the image's datapath reads: a split datapath's major is VERSION_SPLIT_MAJOR (#665 S13)
+    placement = "split" if _split_param(verilog) else "all-fabric"
+    major, minor = rtl_version(_source(script, "milan_csr.sv", image / "gateware"), placement)
     return {
         "manifest": claimed,
         "ident": idents[0],

@@ -3068,7 +3068,7 @@ def write_image_manifest(soc: SoCCore, out_dir: Path, elf: Path, bitstream: Path
     gives, the control firmware ELF's sha256 and, after a Vivado build, the bitstream's binding.
     The build fails when the image it wrote disagrees with any of them."""
     contract = ctrl_mailbox_contract()
-    major, minor = check_image_identity.rtl_version()
+    major, minor = check_image_identity.rtl_version(placement="split")
     doc = check_image_identity.manifest(soc._ident, (major << 16) | minor, (contract.major, contract.minor),
                                         elf, bitstream)
     path = out_dir / check_image_identity.MANIFEST

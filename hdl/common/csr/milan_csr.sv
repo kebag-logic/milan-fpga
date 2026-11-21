@@ -198,7 +198,18 @@ module milan_csr #(
   //! No CSR address, width, access or OTHER field moves. PP_NVM_STAT
   //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
   //! The register occupies four bytes.
-  parameter logic [31:0] VERSION = 32'h0002_0060
+  parameter logic [31:0] VERSION = 32'h0002_0060,
+  //! The major a SPLIT image's VERSION reads (#665 S13): major 0x0003
+  //! identifies only images that run the split placement, and an all-fabric
+  //! image keeps VERSION above (docs/ARCHITECTURE_HW_SW_SPLIT.md section 7).
+  //! The minor stays VERSION[15:0], one flat ordinal across majors, so no
+  //! minor is stated twice. Like VERSION, it is read only by csr_default, so
+  //! it reaches the fabric as the defaults ROM's word for 0x004 alone.
+  parameter logic [15:0] VERSION_SPLIT_MAJOR = 16'h0003,
+  //! The datapath's control placement (milan_datapath CTRL_SPLIT_P, #665):
+  //! 1 in a split image, where VERSION reads {VERSION_SPLIT_MAJOR,
+  //! VERSION[15:0]}. Nothing else in this block reads it.
+  parameter int unsigned CTRL_SPLIT_P = 0
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -1986,13 +1997,18 @@ module milan_csr #(
   //  Config-in-RAM read path (area-70): shadow BRAM + defaults ROM + sweep
   // ==========================================================================
 
+  //! The VERSION this image reads at 0x004: a split image's major over the
+  //! one minor, else VERSION as declared (#665 S13).
+  localparam logic [31:0] VERSION_C = (CTRL_SPLIT_P != 0) ? {VERSION_SPLIT_MAJOR, VERSION[15:0]}
+                                                          : VERSION;
+
   //! reset/readback value per byte address — the single source shared by the
   //! defaults ROM init (must mirror the register_write reset block above)
   function automatic [31:0] csr_default(input [10:0] a);
     csr_default = 32'h0;
     unique case (a)
       A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      // "MILN"
-      A_VERSION[10:0]:    csr_default = VERSION;
+      A_VERSION[10:0]:    csr_default = VERSION_C;
       //! CAP[8] CBS = 0: no shaper is elaborated (REQ-CSR-05 - unsupported
       //! is explicit). [3:0] num_queues stays the 0x400 window's geometry.
       A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
