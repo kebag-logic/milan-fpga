@@ -12,6 +12,8 @@ receive commit to the Pdelay_Resp's transmit commit, against the provisional gpt
 """
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import scenario
 from scenario import MS, Group, Point, Probe, ready
 
@@ -33,6 +35,14 @@ def pdelay_req(seq: int) -> bytes:
     f[44:46] = seq.to_bytes(2, 'big')
     f[46] = 5
     return bytes(f)
+
+
+def load_frame(p: scenario.Point) -> Callable[[int], tuple[str, bytes]]:
+    """A composed window's gptp record n (scenario.composed_load): a peer's Pdelay_Req on interface n mod the point's,
+    each its own sequenceId from 0x7400, the dearest record of the channel since the port answers it with a
+    Pdelay_Resp and its Follow_Up (IEEE 802.1AS-2020 11.2.20). Its size for admission is its record's, the frame
+    and its eight-octet ingress trailer (grade.LOAD_FRAME_BYTES)."""
+    return lambda n: (f'frame {n % p.interfaces} {pdelay_req(0x7400 + n).hex()}', pdelay_req(0) + bytes(8))
 
 
 def hits(frames: list[tuple[int, bytes]], args: list[str]) -> list[int]:

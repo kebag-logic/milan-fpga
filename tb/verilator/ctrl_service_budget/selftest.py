@@ -40,6 +40,7 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import build  # noqa: E402
+import channel_gate  # noqa: E402
 import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
@@ -76,6 +77,8 @@ BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
 #: event row's LINK change. A changed contract, rule or stimulus must fail.
 AT_ONCE = {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15}
+#: A gPTP image's gptp records in each composed window: its bucket's burst, one in the fixture's (#884).
+GPTP_AT_ONCE = {'backlog': 16, 'backlog-adp': 16, 'backlog-adp-refill': 16, 'backlog-owed': 16, 'fixture': 1}
 DEFINED = {'backlog': {**AT_ONCE, 'LINK': 1}, 'backlog-adp': AT_ONCE, 'backlog-adp-refill': {**AT_ONCE, 'adp': 11},
            'backlog-owed': AT_ONCE, 'fixture': {'adp': 1, 'acmp': 1, 'aecp': 1, 'maap': 1, 'srp': 1, 'GM': 2}}
 FIRMWARE_AECP_H = HERE.parents[2] / 'sw/firmware/ctrl/aecp/aecp.h'
@@ -476,10 +479,10 @@ def window_checks() -> list[Check]:
 
 
 def channel_of(frame: bytes) -> str:
-    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype."""
+    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype (gptp's is 0x88F7)."""
     ethertype = int.from_bytes(frame[12:14], 'big')
-    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP):
-        return 'srp'
+    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP, 0x88F7):
+        return {0x88F7: 'gptp'}.get(ethertype, 'srp')
     if ethertype != scenario.f.ETH_AVTP:
         return '-'
     return {0xFA: 'adp', 0xFB: 'aecp', 0xFC: 'acmp', 0xFE: 'maap'}[frame[14]]
@@ -501,10 +504,10 @@ def stimulus(group: scenario.Group) -> dict[str, int]:
     return out
 
 
-def points(oracle: dict) -> list[scenario.Point]:
-    """The oracle's one-interface point and the same entity with two interfaces."""
-    one_if = scenario.Point(**oracle['point'])
-    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
+def points(oracle: dict, gptp: bool = False) -> list[scenario.Point]:
+    """The oracle's one-interface point and the same entity with two interfaces, their images with gPTP or not."""
+    one_if = scenario.Point(**dict(oracle['point'], gptp=gptp))
+    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2, gptp=gptp))]
 
 
 def load_checks() -> list[Check]:
@@ -513,12 +516,18 @@ def load_checks() -> list[Check]:
     out = []
     derived = {name: {k: v for k, v in grade.defined_load(name).items() if v} for name in DEFINED}
     out.append(('the defined loads, restated', derived == DEFINED, str(derived)))
+    opened = channel_gate.fixture() | {'gptp'}
+    derived = {name: {k: v for k, v in grade.defined_load(name, opened).items() if v} for name in DEFINED}
+    out.append(("a gPTP image's defined loads, restated", derived == {name: {**load, 'gptp': GPTP_AT_ONCE[name]}
+                                                                     for name, load in DEFINED.items()}, str(derived)))
     sent, declared = {}, {}
-    for p in points(oracle):
+    # a gPTP image's windows carry the gptp channel's too, its burst in the rows and one in the fixture's
+    for p in [*points(oracle), *points(oracle, gptp=True)]:
         for g in [*scenario.backlog_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]:
-            sent[f'{g.name}@{p.interfaces}'] = stimulus(g)
-            declared[f'{g.name}@{p.interfaces}'] = {k: v for k, v in g.load.items() if v}
-    want = {key: DEFINED[key.split('@')[0]] for key in sent}
+            sent[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = stimulus(g)
+            declared[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = {k: v for k, v in g.load.items() if v}
+    want = {key: {**DEFINED[key.split('@')[0]], **({'gptp': GPTP_AT_ONCE[key.split('@')[0]]}
+                                                   if key.endswith('+gptp') else {})} for key in sent}
     out.append(("every composed window's stimulus is its defined load", sent == want,
                 ', '.join(f'{k} {v} (defined {want[k]})' for k, v in sent.items() if v != want[k])))
     out.append(('every composed window declares its defined load', declared == want,
@@ -739,9 +748,16 @@ def build_checks() -> list[Check]:
     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
+    gptp = {label: build.ledgered_point(*run.POINTS[label], True) for label in sorted(run.POINTS)}
+    gothers = {(shape, n): build.ledgered_point(shape, n, True) for shape, _ in run.POINTS.values() for n in (1, 2)
+               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
             named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
-            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
+            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}'),
+           ("a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it",
+            gptp == {'1x1': None, '8x8': '8x8-two-interfaces-gptp', '8x8-1if': '8x8-one-interface-gptp'} and
+            gothers == {('endstation_ax7101_1x1_tdm8', 2): None} and
+            all(gptp[k] in ctrl_memory.LEDGERED for k in ('8x8', '8x8-1if')), f'{gptp}; other points {gothers}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],

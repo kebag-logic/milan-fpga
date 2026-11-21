@@ -316,17 +316,21 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
 #: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
 #: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
 LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
+#: A gPTP image's point at 8x8 (#884's ruling of 2026-11-21, item 4: its memory accepted as ledgered debt, so the
+#: 8x8 points are measured with gPTP in firmware); every other gPTP image is held to the budget.
+GPTP_LEDGERED_POINTS = {('endstation_ax7101_8x8', 1): '8x8-one-interface-gptp',
+                        ('endstation_ax7101_8x8', 2): '8x8-two-interfaces-gptp'}
 
 
-def ledgered_point(shape: str, n_if: int) -> str | None:
-    """The ledgered point's name when this build is that point, else None."""
-    return LEDGERED_POINTS.get((shape, n_if))
+def ledgered_point(shape: str, n_if: int, gptp: bool = False) -> str | None:
+    """The ledgered point's name when this build is that point, else None: a gPTP image's its own."""
+    return (GPTP_LEDGERED_POINTS if gptp else LEDGERED_POINTS).get((shape, n_if))
 
 
 @dataclasses.dataclass(frozen=True)
 class ImageArgs:
     """An image's own arguments: its flash port's map (gen_flash_port.py's; the RV32 stand-ins without one), and
-    whether it carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884), an image no ledger plans."""
+    whether it carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884), planned at GPTP_LEDGERED_POINTS."""
     flash_map: Path | None = None
     gptp: bool = False
 
@@ -350,8 +354,7 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', v
     entry = [str(ROOT / 'sw/firmware/ctrl/test/ctrl_srp_image.py')]
     if variant != 'none':
         entry = [str(HERE / 'fixture_variant.py'), str(variant_fixture(out, variant))]
-    # an image with gPTP is not the ledgered image: it is planned by its own symbols (#884 measures its memory)
-    ledgered = None if extra.gptp else ledgered_point(shape, n_if)
+    ledgered = ledgered_point(shape, n_if, extra.gptp)
     run([sys.executable, '-B', *entry,
          '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
          '--with-aecp', *(['--with-gptp'] if extra.gptp else []), '--layout', 'split', '--output', str(image), *source,
@@ -902,7 +905,7 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses(flash)['flash'])
     table = symbols(elf)
-    with split_soc.ledgered_plan(None if core.gptp else ledgered_point(shape, n_if)):
+    with split_soc.ledgered_plan(ledgered_point(shape, n_if, core.gptp)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
     refused = cpu_clock_refusals(spec)
     if refused:

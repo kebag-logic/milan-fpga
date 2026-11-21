@@ -60,8 +60,8 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: never from the stimulus: an ADPDU is 68 bytes after the Ethernet header (IEEE 1722.1-2021
 #: 6.2.1) and an ACMPDU 56 (Milan v1.2 5.5.2.2); a READ_DESCRIPTOR command (7.4.5.1), a MAAPDU
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
-#: to the 60-byte frame minimum. A gPTP Follow_Up with its TLV is 76 (IEEE 802.1AS-2020 11.4.4; #884).
-LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60, 'gptp': 14 + 76}
+#: to the 60-byte frame minimum. gptp's is a Pdelay_Req, 54 (802.1AS-2020 11.4.5), its record's trailer 8 more (#884).
+LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60, 'gptp': 14 + 54 + 8}
 #: The backlog rows (MAILBOX_SPLIT.md:773-778): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')

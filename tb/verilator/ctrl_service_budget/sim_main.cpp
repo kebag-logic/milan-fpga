@@ -298,10 +298,9 @@ private:
         dp_pulse_[0] = dp_pulse_[1] = dp_pulse_[2] = 0;
         if (frames_.empty() || sys_ < ingress_at_ || !dut.mbx_rx_valid || !dut.mbx_rx_ready) return;
         if (offset_ == 0) {
-            std::printf("RXS %llu %u %zu %s\n", ull(sys_), frames_.front().interface,
-                        frames_.front().bytes.size(), frames_.front().tag.c_str());
-            const Frame& fr = frames_.front();
-            ts_note(fr.interface, false, fr.bytes, fr.ts_ns ? fr.ts_ns : ns_now());
+            Frame& fr = frames_.front();
+            trail(fr, fr.ts_ns ? fr.ts_ns : ns_now());
+            std::printf("RXS %llu %u %zu %s\n", ull(sys_), fr.interface, fr.bytes.size(), fr.tag.c_str());
         }
         if (++offset_ < frames_.front().bytes.size()) return;
         std::printf("RXE %llu\n", ull(sys_));
@@ -811,8 +810,8 @@ private:
     std::array<std::deque<Sent>, n_ch> last_wire_;  // the newest frames each channel sent, with their interface
     std::deque<Frame> frames_;
     // ---- contract 2.5: the timestamp unit's model and a gPTP peer (#884, #665 F6) ----
-    // The unit stamps every IEEE 802.1AS event message (messageType 0 to 3) on the gptp channel's ingress and
-    // egress with this bench's time, ns; a peer frame carries the stamp the peer's link would give it.
+    // The unit stamps every IEEE 802.1AS event message (messageType 0 to 3) on the gptp channel's egress with this
+    // bench's time, ns, a TIMESTAMP record each; an ingress stamp rides after its frame (trail below).
     struct TsRec { bool egress = false, ok = true; unsigned type = 0, seq = 0; std::uint64_t ns = 0; };
     std::array<std::deque<TsRec>, n_if> ts_q_;
     std::array<bool, n_if> ts_shown_{};
@@ -821,6 +820,17 @@ private:
     void ts_note(unsigned iface, bool egress, const std::vector<std::uint8_t>& f, std::uint64_t ns) {
         if (!has_ts || iface >= n_if || f.size() < 46 || f[12] != 0x88 || f[13] != 0xF7 || (f[14] & 0x0F) > 3) return;
         ts_q_[iface].push_back({egress, true, unsigned(f[14] & 0x0F), unsigned(f[44] << 8 | f[45]), ns});
+    }
+    // A received gPTP frame's record carries its ingress stamp after it, eight octets, most significant first, or
+    // all ones for a frame that is no event message (KL_ctrl_split's trailer; contract 2.5, #884's ruling item 2):
+    // the gptp tuple only, untagged at its group address, at the frame's first byte taken.
+    void trail(Frame& fr, std::uint64_t ns) {
+        const auto& f = fr.bytes;
+        static const std::uint8_t da[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};
+        if (!has_ts || f.size() < 16 || !std::equal(da, da + 6, f.begin()) || f[12] != 0x88 || f[13] != 0xF7) return;
+        const bool event = (f[14] >> 4) == 1 && (f[14] & 0x0F) <= 3;  // majorSdoId 1, messageType 0 to 3
+        const std::uint64_t stamp = event ? ns : ~0ull;
+        for (int k = 7; k >= 0; --k) fr.bytes.push_back(std::uint8_t(stamp >> (8 * k)));
     }
     struct Peer {
         bool on = false;

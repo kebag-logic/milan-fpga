@@ -680,6 +680,11 @@ MUTANTS: dict[str, Patches] = {
         run, 'severity', lambda r: (False, r['ms']))],
     'build: the 1x1 point names the ledgered override too': lambda: [patch.dict(
         build.LEDGERED_POINTS, {('endstation_ax7101_1x1_tdm8', 1): '8x8-two-interfaces'})],
+    'build: a gPTP image is planned at the ledgered point of an image without it': lambda: [patch.object(
+        build, 'GPTP_LEDGERED_POINTS', build.LEDGERED_POINTS)],
+    "scenario: a gPTP image's composed windows carry no gptp records": lambda: [patch.object(
+        scenario, 'composed_load', lambda g, p, *a, f=scenario.composed_load, **k: f(
+            g, dataclasses.replace(p, gptp=False), *a, **k))],
     "build: arm B anchors the fixture's own observation callbacks (earlier rule)": lambda: [patch.dict(
         build.VARIANTS, {'answering-ports': [(
             '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',

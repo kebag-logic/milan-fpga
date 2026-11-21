@@ -1311,7 +1311,7 @@ Its checks:
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
-- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
+- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; a gPTP image's at `8x8` at one and at two interfaces, by its own names, and at `1x1` none; every labelled arm and control plant applies to the checkout's sources;
 - a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
@@ -1432,6 +1432,8 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 | build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
+| build: a gPTP image is planned at the ledgered point of an image without it | a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it |
+| scenario: a gPTP image's composed windows carry no gptp records | every composed window's stimulus is its defined load |
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | build: arm B's path port answers no entries at once, reading no window (earlier rule) | the answering-ports arm's path port is arm_path.py's, which reads the window |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |

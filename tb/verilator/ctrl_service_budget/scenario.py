@@ -199,6 +199,7 @@ class Point:
     mac: int
     sources: int
     sinks: int
+    gptp: bool = False   # its image built --with-gptp: the gptp channel opened (contract 2.5, #884)
 
 
 def point(label: str, build: dict) -> Point:
@@ -207,7 +208,7 @@ def point(label: str, build: dict) -> Point:
     header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
     values = {k: int(v, 16) for k, v in re.findall(r'\.(\w+) = (0x[0-9A-Fa-f]+)', header)}
     return Point(label, build['shape'], build['interfaces'], values['entity_id'], values['mac'],
-                 values['talker_stream_sources'], values['listener_stream_sinks'])
+                 values['talker_stream_sources'], values['listener_stream_sinks'], bool(build.get('gptp')))
 
 
 CTL1 = 0x0A0B0C0D0E0F0001          # a controller entity
@@ -725,12 +726,12 @@ def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = 
                   maap_select: int = f.MAAP_ANNOUNCE) -> None:
     """Every receive channel's admitted burst at once, but own's, which the row loads itself.
 
-    Each channel is offered admission()'s at_once records (counts overrides
-    a channel's number), alternating the interfaces; ACMP's go to sink 0,
-    on interface 0. MAAP's are conflicting PROBEs of each interface's own
-    range, so the range filter passes them; SRP's are srp_groups' Listener
-    Ready. grade.py requires the window to commit exactly this population.
+    Each channel is offered admission()'s at_once records (counts overrides a channel's number), alternating the
+    interfaces; ACMP's go to sink 0, on interface 0. MAAP's are conflicting PROBEs of each interface's own range, so
+    the range filter passes them; SRP's are srp_groups' Listener Ready; a gPTP image's are a peer's Pdelay_Req, each
+    answered twice (gptp_group.load_frame). grade.py requires the window to commit exactly this population.
     """
+    import gptp_group   # it imports this module
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
     read = lambda seq: f.read_descriptor(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq), 0, 0)
     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
@@ -739,10 +740,9 @@ def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = 
               'aecp': lambda n: (f'frame {n % p.interfaces} {read(0x7100 + n).hex()}', read(0)),
               'maap': lambda n: (maap_conflict(n % p.interfaces, maap_select), MAAP_PDU),
               'srp': lambda n: (f'frame {n % p.interfaces} {srp.hex()}', srp),
-              'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0))}
-    for channel, make in frames.items():
-        if channel == own:
-            continue
+              'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0)),
+              **({'gptp': gptp_group.load_frame(p)} if p.gptp else {})}
+    for channel, make in ((c, m) for c, m in frames.items() if c != own):
         number = (counts or {}).get(channel, admission(channel, make(0)[1])['at_once'])
         for n in range(number):
             g.offer(channel, *make(n))
