@@ -150,8 +150,8 @@ static uint32_t random_value(void *ctx)
 
 #define STREAM_INPUT 5u  // IEEE 1722.1-2021 Table 7-1
 
-// The face's change and applied ports this wraps, and whether the core is
-// doing a waiting change again: the applied port found it applied
+// The face's change and applied ports this wraps, and whether the core's next
+// change is a waiting one the applied port found applied
 static struct {
 	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
 	bool (*applied)(void *);
@@ -189,8 +189,10 @@ static bool sinks_of(enum aecp_change kind, uint16_t type, uint16_t index, bool 
 }
 
 // The face's applied port, wrapped: a waiting change that would move a bound
-// input's context is not applied. Applied, the core does it again at once,
-// before any other port (aecp.c, the waiting command: the change it noted)
+// input's context is not applied. Applied, the core's next change is that
+// one, the change it noted: done again, or, refused by the checks it makes
+// again first (a SET_STREAM_FORMAT's running check), given with the values in
+// force, which its contexts hold (aecp.c, the waiting command; #950)
 static bool sink_applied(void *ctx)
 {
 	const struct aecp *core = &ctrl_plat.aecp.core;
@@ -202,7 +204,8 @@ static bool sink_applied(void *ctx)
 
 // The face's change port, wrapped: a change the core keeps, one done again or
 // one the face applied (else the core waits, the change undone), moves its
-// contexts now
+// contexts now; a waiting one refused once applied writes them at the values
+// in force
 static void sink_changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t index)
 {
 	bool redo = sinks.redo;

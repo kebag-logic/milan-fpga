@@ -77,11 +77,17 @@ applied (#665). Acknowledged state is the only state a controller sees:
   SET_CONTROL), the command waits. The core undoes the change from the values
   it recorded as the command overwrote them (`aecp_keep`), keeps the SUCCESS
   response, and answers IN_PROGRESS with the values in force. If the port is
-  true within `AECP_WAIT_MS` (100 ms), the change is done again, answered and
-  notified. Otherwise it stays undone, and the command answers
-  ENTITY_MISBEHAVING and notifies no one. Either way the change is handed to
-  `changed` again. The core's own notifications, probes and lock expiry
-  follow the wait.
+  true within `AECP_WAIT_MS` (100 ms), the command makes again the checks a
+  waiting command repeats (`aecp_again`): a SET_STREAM_FORMAT's running
+  check, since its STREAM_INPUT may have been bound or its STREAM_OUTPUT
+  started meanwhile (#950; IEEE 1722.1-2021 7.4.9, 8.2). Passed, the change
+  is done again, answered and notified. Refused, or not applied in time, it
+  stays undone, and the command answers the check's status
+  (STREAM_IS_RUNNING, or ENTITY_MISBEHAVING when the stream cannot be
+  observed), or ENTITY_MISBEHAVING, and notifies no one. Either way the change
+  is handed to `changed` again. The other commands of `AECP_WAITS` are done
+  again as they were taken. The core's own notifications, probes and lock
+  expiry follow the wait.
 - **After a lock expires**, its release is handed to `changed`, and the lock
   holds, by its owner, for every response and read until the port is true:
   ENTITY_AVAILABLE, LOCK_ENTITY's `locked_id`, `aecp_locked` and every
@@ -423,6 +429,9 @@ The rest cover the acknowledgement:
 - a change not done again once applied; a success not notified; a failure
   notified, reporting the request, or not given to the face; a final response
   that forgets its requester;
+- a waiting SET_STREAM_FORMAT done again without its running check, its
+  check made on the wrong field, whole, or of another command, or its refusal
+  answered with another status, done again or notified (#950);
 - a lock expiry inside a wait, notified unapplied, or never notified once late;
 - an expired lock read as released, or its owner dropped, before its release
   is applied, by ENTITY_AVAILABLE, `aecp_locked` or a refusal to another

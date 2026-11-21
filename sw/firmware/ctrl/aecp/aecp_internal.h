@@ -39,6 +39,9 @@ bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info
 // and zeroes no more than its fixed body (#665).
 unsigned aecp_command(struct aecp *, unsigned, uint16_t, const uint8_t *, size_t,
 		      uint8_t *, size_t *);
+// The checks the waiting command (aecp.held) makes again once applied: AECP_SUCCESS, or the status it is refused
+// with (#950).
+unsigned aecp_again(struct aecp *);
 unsigned aecp_map_command(struct aecp *, uint16_t, const uint8_t *, size_t,
 			  uint8_t *, size_t *);
 bool aecp_maps_allow_format(struct aecp *, uint16_t, uint16_t, uint64_t);

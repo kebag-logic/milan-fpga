@@ -131,6 +131,16 @@ static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
 }
 
+// The checks a waiting command makes again once the platform applied it, before it is done again (#950): a
+// SET_STREAM_FORMAT's running check, since its STREAM_INPUT may have been bound or its STREAM_OUTPUT started while
+// it waited, refusing it with the status its dispatch gives (IEEE 1722.1-2021 7.4.9, 8.2). The other commands of
+// AECP_WAITS are done again as they were taken.
+unsigned aecp_again(struct aecp *a)
+{
+	if (wire_be16(a->held + 36) != 8u) return AECP_SUCCESS;
+	return running(a, (uint16_t)wire_be16(a->held + 38), (uint16_t)wire_be16(a->held + 40));
+}
+
 static unsigned any_running(struct aecp *a)
 {
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
