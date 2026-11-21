@@ -92,14 +92,19 @@ static bool locked(void *ctx, uint64_t *owner)
 }
 
 // Milan v1.2 5.5.4.1: a source's destination is valid once MAAP holds its
-// interface's range, address base + n (maap_csr.h)
+// interface's range, address base + n (maap_csr.h). Table 5.47: a Listener
+// Asking Failed is registered for its stream while SRP's registrar on its
+// interface holds a Listener for it that is not Ready or Ready Failed, the
+// registration GET_STREAM_INFO reads (ctrl_app_aecp.c, output; #943, #954)
 static void source(void *ctx, unsigned n, struct acmp_source_state *out)
 {
 	struct ctrl_plat *p = ctx;
-	const struct ctrl_plat_allocation *a = &p->allocation[p->acmp.source_interface[n]];
+	const unsigned interface = p->acmp.source_interface[n];
+	const struct ctrl_plat_allocation *a = &p->allocation[interface];
+	const struct srp_interface *srp = &p->srp.ifs[interface];
 	out->dest_mac_valid = a->valid && n < a->count;
 	out->stream = (struct acmp_stream){stream_id(p, n), a->base + n, (uint16_t)p->env->policy->sr_vid};
-	out->asking_failed = false;
+	out->asking_failed = srp->listener_present[n] && !srp->registered[n];
 }
 
 // SRP's request, persistence and change notices are the wrappers' (the SRP
