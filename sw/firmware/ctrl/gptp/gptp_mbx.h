@@ -8,16 +8,18 @@
 // ring (each record to its interface's port, its ingress stamp first: the
 // record's eight-octet trailer, KL_ctrl_split's), an event sink (TIMESTAMP,
 // an egress stamp, to the port that launched it; LINK to the port's
-// portEnabled), a centisecond consumer (the ports' timers, on NOW_MS) and a
-// poll (each port's gPTP publication). Its HAL sends on the gptp channel's
-// transmit ring and drives each interface's PHC through `phc`, the
-// platform's (gptp_phc_csr.h on the split).
+// portEnabled) and a centisecond consumer (the ports' timers, on NOW_MS),
+// and no poll: each of the three publishes the port it ran, in the pass that
+// ran it, so a pass that ran none of them costs nothing (#884, R2-5). Its HAL
+// sends on the gptp channel's transmit ring and drives each interface's PHC
+// through `phc`, the platform's (the CSR's PTP block on the split,
+// ctrl_plat_csr.h).
 //
-// THE PUBLISHED SNAPSHOT (#884's ruling of 2026-11-21, item 7). A poll
-// publishes a port's state whenever anything GET_AVB_INFO or GET_AS_PATH
-// answers moved: it writes the narrowed words (GPTP_GM_LO, GPTP_GM_HI, then
-// GPTP_STATE with GEN moved) and keeps the whole state as the snapshot of
-// that GEN. The AECP owner answers both commands' gPTP fields from the
+// THE PUBLISHED SNAPSHOT (#884's ruling of 2026-11-21, item 7). A port's
+// state is published whenever anything GET_AVB_INFO or GET_AS_PATH
+// answers moved: the adapter writes the narrowed words (GPTP_GM_LO,
+// GPTP_GM_HI, then GPTP_STATE with GEN moved) and keeps the whole state as
+// the snapshot of that GEN. The AECP owner answers both commands' gPTP fields from the
 // snapshot (gptp_mbx_snapshot), so its answers are the publication the
 // datapath holds, and the adapter raises both changes itself (the
 // datapath's detectors are off under gPTP in firmware): AVB_INFO when the
@@ -25,9 +27,9 @@
 // when the path trace did (Milan v1.2 Table 5.22).
 //
 // THE BOUND (ctrl_loop.h THE SHARE): a record costs the port's ts and rx; an
-// event, its ts or link; a centisecond, its tick; a poll, at most
-// MBX_PUB_GPTP_WORDS bus writes an interface that moved, and the AECP
-// owner's notice. None waits on the fabric.
+// event, its ts or link; a centisecond, every port's tick; each, for a port
+// that moved, MBX_PUB_GPTP_WORDS bus writes and the AECP owner's notice.
+// None waits on the fabric.
 
 #ifndef GPTP_MBX_H
 #define GPTP_MBX_H
@@ -82,7 +84,7 @@ bool gptp_mbx_attach(struct gptp_mbx *g, struct ctrl_loop *l, const struct gptp_
 // The publication's words of a port's state, in the contract's order (GPTP_GM_LO first), GEN as given.
 void gptp_mbx_words(const struct gptp_pub *pub, uint8_t gen, uint32_t words[MBX_PUB_GPTP_WORDS]);
 
-// The AECP owner's change notice; set once the owner is composed (before its first poll).
+// The AECP owner's change notice; set once the owner is composed (before the loop's first pass).
 void gptp_mbx_notify(struct gptp_mbx *g, const struct gptp_mbx_aecp *aecp);
 
 // The snapshot interface i last published (its GEN's state), or NULL before the first publication.

@@ -30,62 +30,6 @@ static void hal_step(void *ctx, unsigned port, int64_t delta_ns)
 	g->phc.step(g->phc.ctx, port, delta_ns);
 }
 
-// The record is the frame, then its trailer (mailbox.yaml, the gptp channel; KL_ctrl_split): an event message's
-// ingress stamp goes to its port first, so the port holds it when the frame arrives (gptp_port_ts, ingress).
-static void on_rx(void *ctx, const struct mbx_frame *f)
-{
-	struct gptp_mbx *g = ctx;
-	if (f->interface >= MBX_N_IF) {
-		g->foreign_if++;
-		return;
-	}
-	if (f->len < GPTP_MBX_TRAILER) {
-		g->rx_short++;
-		return;
-	}
-	unsigned len = f->len - GPTP_MBX_TRAILER;
-	uint64_t stamp = 0;
-	for (unsigned k = 0; k < GPTP_MBX_TRAILER; k++)
-		stamp = (stamp << 8) | f->bytes[len + k];
-	unsigned type = 0;
-	uint16_t seq = 0;
-	struct gptp_port *p = &g->port[f->interface];
-	// an IEEE 802.1AS event message (majorSdoId 1, messageType 0 to 3) is the one the unit stamps
-	if (gptp_frame_key(f->bytes, len, &type, &seq) && type <= 3u && (f->bytes[GPTP_ETH_BYTES] >> 4) == 1u) {
-		if (stamp == GPTP_MBX_NO_STAMP) {
-			g->rx_unstamped++;
-		} else {
-			g->rx_stamped++;
-			gptp_port_ts(p, false, type, seq, stamp, true);
-		}
-	}
-	gptp_port_rx(p, f->bytes, len);
-}
-
-static void on_event(void *ctx, const struct mbx_event *ev)
-{
-	struct gptp_mbx *g = ctx;
-	if (ev->type != MBX_EV_TYPE_TIMESTAMP && ev->type != MBX_EV_TYPE_LINK)
-		return;
-	if (ev->interface >= MBX_N_IF) {
-		g->foreign_if++;
-		return;
-	}
-	if (ev->type == MBX_EV_TYPE_TIMESTAMP && !ev->ts_egress)
-		g->ts_foreign++;   // a received frame's stamp rides in its record, never in an event
-	else if (ev->type == MBX_EV_TYPE_TIMESTAMP)
-		gptp_port_ts(&g->port[ev->interface], true, ev->ts_msg_type, ev->ts_seq, ev->ts_ns, ev->ts_ok);
-	else
-		gptp_port_link(&g->port[ev->interface], ev->link_up);
-}
-
-static void on_tick(void)
-{
-	uint32_t now = mbx_now_ms();
-	for (unsigned i = 0; i < MBX_N_IF; i++)
-		gptp_port_tick(&the_gptp->port[i], now);
-}
-
 _Static_assert(MBX_PUB_GPTP_WORDS == 3u, "the narrowed publication: GPTP_GM_LO, GPTP_GM_HI, GPTP_STATE");
 
 void gptp_mbx_words(const struct gptp_pub *pub, uint8_t gen, uint32_t w[MBX_PUB_GPTP_WORDS])
@@ -152,29 +96,90 @@ static bool moved(const struct gptp_pub *a, const struct gptp_pub *b)
 	       a->slew != b->slew || a->disc != b->disc;
 }
 
-static bool on_poll(void *ctx)
+// Publish interface i's state when it moved: the words the datapath takes and the AECP owner's notice. Each callback
+// below runs it for the port it ran, in the pass that moved the port, so the adapter needs no poll and a pass that
+// ran none of them costs nothing (#884, R2-5).
+static void publish(struct gptp_mbx *g, unsigned i)
+{
+	uint32_t w[MBX_PUB_GPTP_WORDS];
+	if (!gptp_port_pub_dirty(&g->port[i]))
+		return;
+	const struct gptp_pub *pub = gptp_port_pub(&g->port[i]);
+	if (g->snap_v[i] && !moved(pub, &g->snap[i]))
+		return;   // only the offset moved: nothing published or answered
+	unsigned ev = g->snap_v[i] ? gptp_mbx_changes(&g->snap[i], pub) : (GPTP_MBX_AVB_INFO | GPTP_MBX_AS_PATH);
+	g->gen[i]++;
+	gptp_mbx_words(pub, g->gen[i], w);
+	mbx_pub_gptp(i, w);
+	g->snap[i] = *pub;
+	g->snap_v[i] = true;
+	g->published++;
+	if (ev != 0u && g->aecp.changed != NULL) {
+		g->aecp.changed(g->aecp.ctx, i, ev);
+		g->notices++;
+	}
+}
+
+// The record is the frame, then its trailer (mailbox.yaml, the gptp channel; KL_ctrl_split): an event message's
+// ingress stamp goes to its port first, so the port holds it when the frame arrives (gptp_port_ts, ingress).
+static void on_rx(void *ctx, const struct mbx_frame *f)
 {
 	struct gptp_mbx *g = ctx;
-	for (unsigned i = 0; i < MBX_N_IF; i++) {
-		uint32_t w[MBX_PUB_GPTP_WORDS];
-		if (!gptp_port_pub_dirty(&g->port[i]))
-			continue;
-		const struct gptp_pub *pub = gptp_port_pub(&g->port[i]);
-		if (g->snap_v[i] && !moved(pub, &g->snap[i]))
-			continue;   // only the offset moved: nothing published or answered
-		unsigned ev = g->snap_v[i] ? gptp_mbx_changes(&g->snap[i], pub) : (GPTP_MBX_AVB_INFO | GPTP_MBX_AS_PATH);
-		g->gen[i]++;
-		gptp_mbx_words(pub, g->gen[i], w);
-		mbx_pub_gptp(i, w);
-		g->snap[i] = *pub;
-		g->snap_v[i] = true;
-		g->published++;
-		if (ev != 0u && g->aecp.changed != NULL) {
-			g->aecp.changed(g->aecp.ctx, i, ev);
-			g->notices++;
+	if (f->interface >= MBX_N_IF) {
+		g->foreign_if++;
+		return;
+	}
+	if (f->len < GPTP_MBX_TRAILER) {
+		g->rx_short++;
+		return;
+	}
+	unsigned len = f->len - GPTP_MBX_TRAILER;
+	uint64_t stamp = 0;
+	for (unsigned k = 0; k < GPTP_MBX_TRAILER; k++)
+		stamp = (stamp << 8) | f->bytes[len + k];
+	unsigned type = 0;
+	uint16_t seq = 0;
+	struct gptp_port *p = &g->port[f->interface];
+	// an IEEE 802.1AS event message (majorSdoId 1, messageType 0 to 3) is the one the unit stamps
+	if (gptp_frame_key(f->bytes, len, &type, &seq) && type <= 3u && (f->bytes[GPTP_ETH_BYTES] >> 4) == 1u) {
+		if (stamp == GPTP_MBX_NO_STAMP) {
+			g->rx_unstamped++;
+		} else {
+			g->rx_stamped++;
+			gptp_port_ts(p, false, type, seq, stamp, true);
 		}
 	}
-	return false;
+	gptp_port_rx(p, f->bytes, len);
+	publish(g, f->interface);
+}
+
+static void on_event(void *ctx, const struct mbx_event *ev)
+{
+	struct gptp_mbx *g = ctx;
+	if (ev->type != MBX_EV_TYPE_TIMESTAMP && ev->type != MBX_EV_TYPE_LINK)
+		return;
+	if (ev->interface >= MBX_N_IF) {
+		g->foreign_if++;
+		return;
+	}
+	if (ev->type == MBX_EV_TYPE_TIMESTAMP && !ev->ts_egress) {
+		g->ts_foreign++;   // a received frame's stamp rides in its record, never in an event
+		return;
+	}
+	if (ev->type == MBX_EV_TYPE_TIMESTAMP)
+		gptp_port_ts(&g->port[ev->interface], true, ev->ts_msg_type, ev->ts_seq, ev->ts_ns, ev->ts_ok);
+	else
+		gptp_port_link(&g->port[ev->interface], ev->link_up);
+	publish(g, ev->interface);
+}
+
+static void on_tick(void)
+{
+	uint32_t now = mbx_now_ms();
+	for (unsigned i = 0; i < MBX_N_IF; i++) {
+		gptp_port_tick(&the_gptp->port[i], now);
+		publish(the_gptp, i);   // the first tick publishes each port's first state
+	}
 }
 
 void gptp_mbx_notify(struct gptp_mbx *g, const struct gptp_mbx_aecp *aecp)
@@ -197,5 +202,5 @@ bool gptp_mbx_attach(struct gptp_mbx *g, struct ctrl_loop *l, const struct gptp_
 	for (unsigned i = 0; i < MBX_N_IF; i++)
 		gptp_port_init(&g->port[i], i, &cfg[i], &hal, mbx_now_ms());
 	return ctrl_loop_bind_rx(l, MBX_CH_GPTP, on_rx, g) && ctrl_loop_add_sink(l, on_event, g) &&
-	       ctrl_loop_add_tick(l, on_tick) && ctrl_loop_add_poll(l, on_poll, g);
+	       ctrl_loop_add_tick(l, on_tick);
 }
