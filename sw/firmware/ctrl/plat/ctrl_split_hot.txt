@@ -26,29 +26,57 @@
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256:
-#   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
-#   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
-#   aecp-largest-notice  d03e4494ef4b4cb23d98f00ceb978a639f07e225a1df0d340c9d3797b9a53eee
+#   backlog              861358027baf56cc635c8320581bc49e85e6980d445d59d7293982d4b9d13116
+#   backlog-adp          b55507cc67888c2565d26f5dc21a105f3392454a295c0226a25fa2901482dc68
+#   aecp-largest-notice  f9ae6fc59d7467157337053317008ecf376ffb40db763893d2b54e2d6f854504
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
+ctrl_app_aecp source
+ctrl_aecp_image source
+acmp acmp_declaring
+maap_mbx refresh_demand
+acmp enter
+ctrl_app_srp source
+maap_mbx poll
+maap maap_poll
+maap enter
+maap pump
+maap_mbx declaring
 ctrl_loop ctrl_loop_service
+aecp_mbx poll
+aecp aecp_poll
+aecp aecp_enter
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
+aecp transmit
+aecp arm
+aecp_mbx timer
+ctrl_app_aecp deliver
+aecp_nvm aecp_nvm_poll
+ctrl_app_aecp publish_store
+nvm_store nvm_store_status
+ctrl_app_aecp ctrl_app_aecp_store_words
+aecp_face aecp_face_status
+aecp_face aecp_face_poll
+srp_mbx poll
+srp_mbx enter
+mbx mbx_link_up
+srp_mbx snapshot
+srp_mbx reclaim
+ctrl_app_srp deliver
+srp_mbx srp_mbx_gate
 nvm_store nvm_store_clock
 nvm_store nvm_now
 nvm_flash_litespi ls_now_us
 ctrl_loop round_of
 aecp_mbx retry
 aecp aecp_retry
-aecp aecp_enter
 aecp round_waits
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
 aecp scan
-aecp arm
-aecp_mbx timer
 nvm_store nvm_store_step
 ctrl_loop ctrl_loop_step
 mbx_plat_mmio mbx_hal_wait
@@ -71,36 +99,7 @@ adp adp_poll
 adp reject_reentry
 acmp_mbx on_poll
 acmp acmp_poll
-acmp enter
-maap_mbx poll
-maap_mbx refresh_demand
-acmp acmp_declaring
 ctrl_mem memset
-ctrl_app_srp source
-ctrl_app_aecp source
-ctrl_aecp_image source
-maap maap_poll
-maap enter
-maap pump
-maap_mbx declaring
-aecp_mbx poll
-aecp aecp_poll
-aecp transmit
-ctrl_app_aecp deliver
-aecp_nvm aecp_nvm_poll
-ctrl_app_aecp publish_store
-nvm_store nvm_store_status
-ctrl_app_aecp ctrl_app_aecp_store_words
-aecp_face aecp_face_status
-aecp_face aecp_face_poll
-srp_mbx poll
-srp_mbx enter
-mbx mbx_link_up
-srp_mbx snapshot
-srp_mbx capture
-srp_mbx reclaim
-ctrl_app_srp deliver
-srp_mbx srp_mbx_gate
 srp_mbx tick
 timer shlan_timer_tick
 mrp_mad mrp_port_status
@@ -155,6 +154,7 @@ timer shlan_timer_remove
 shlan_port shlan_free
 ctrl_pool ctrl_pool_free
 mvrp mvrp_app_destroy
+srp_mbx capture
 mbx mbx_rx_before
 adp adp_link_change
 adp timer_stop
@@ -185,6 +185,7 @@ mbx mbx_pub_domain
 mrp_mad mrp_mad_join
 mrp_mad get_or_create_attr
 mrp_mad find_attr
+msrp msrp_attr_key
 mrp_mad attr_store_len
 msrp msrp_attr_mem_len
 mrp_mad deliver_event_changed
@@ -193,6 +194,7 @@ mrp_mad observe.isra.0
 srp_mbx moved_msrp
 srp_mbx moved
 mvrp mvrp_declare
+mvrp mvrp_attr_key
 mvrp mvrp_attr_len
 srp_mbx moved_mvrp
 srp_mbx declare_sources
@@ -202,6 +204,12 @@ srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
 mrp_mad mrp_reclaim
+maap_mbx receive
+maap maap_rx
+maap mac_at
+acmp_mbx on_adp_frame
+adp_mbx on_frame
+adp adp_rx
 acmp_mbx on_frame
 acmp acmp_rx
 acmp wire_be64
@@ -212,15 +220,10 @@ acmp build
 acmp wire_put_be
 acmp transmit
 acmp publish
+acmp next_set
 acmp p_send
 acmp_mbx port_send
 acmp finish
-maap_mbx receive
-maap maap_rx
-maap mac_at
-acmp_mbx on_adp_frame
-adp_mbx on_frame
-adp adp_rx
 srp_mbx receive
 srp_mbx transmit
 ctrl_app_srp locked
