@@ -26112,6 +26112,21 @@ def test_front_end_routing_gate_bites() -> None:
           f"losing its pins, a kind added on one side only, and the argv "
           f"itself selecting TDM for the Arty in BOTH tree states)")
 
+def _rtl_firmware_strings():
+    """milan_csr.sv's VERSION, its (major, minor), and the firmware string each control placement derives
+    from it: a split image's major is VERSION_SPLIT_MAJOR over the same minor (#665 S13)."""
+    csr = (ROOT / "hdl/common/csr/milan_csr.sv").read_text()
+    m = re.search(r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*"
+                  r"32'h([0-9A-Fa-f_]+)", csr)
+    assert m, "milan_csr.sv has no VERSION parameter"
+    s = re.search(r"parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h([0-9A-Fa-f_]+)", csr)
+    assert s, "milan_csr.sv has no VERSION_SPLIT_MAJOR parameter"
+    v = int(m.group(1).replace("_", ""), 16)
+    major, minor = (v >> 16) & 0xFFFF, v & 0xFFFF
+    split = int(s.group(1).replace("_", ""), 16)
+    return v, major, minor, {"all-fabric": f"{major}.{minor}.0", "split": f"{split}.{minor}.0"}
+
+
 def test_firmware_version_derived_from_rtl() -> None:
     """Gate 24: the version a controller reads is the version the fabric is.
 
@@ -26124,16 +26139,7 @@ def test_firmware_version_derived_from_rtl() -> None:
     The literal is read out of the RTL here, so this gate follows a VERSION
     bump instead of pinning one - a hardcoded expectation would be the same
     second copy the gate exists to forbid."""
-    csr = (ROOT / "hdl/common/csr/milan_csr.sv").read_text()
-    m = re.search(r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*"
-                  r"32'h([0-9A-Fa-f_]+)", csr)
-    assert m, "milan_csr.sv has no VERSION parameter"
-    v = int(m.group(1).replace("_", ""), 16)
-    major, minor = (v >> 16) & 0xFFFF, v & 0xFFFF
-    # a split image reads VERSION_SPLIT_MAJOR over the same minor (#665 S13)
-    s = re.search(r"parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h([0-9A-Fa-f_]+)", csr)
-    assert s, "milan_csr.sv has no VERSION_SPLIT_MAJOR parameter"
-    wants = {"all-fabric": f"{major}.{minor}.0", "split": f"{int(s.group(1).replace('_', ''), 16)}.{minor}.0"}
+    v, major, minor, wants = _rtl_firmware_strings()
 
     # every shipped config derives it at its placement, and none of them declares it
     ids = {}
