@@ -91,7 +91,7 @@ Each record is a measurement, so each is posted once, in the order it was timed.
 The event names no hart: contract 2.6 routes it, with LINK, to gPTP's hart.
 
 **The narrowed publication** (ruling item 7). Under `--sw-gptp` the datapath's consumers read only what fabric logic needs: the grandmaster for the clock validity and the GM counters, asCapable and the verdict for the clock validity, `DISC` for its discontinuity pulse.
-The parent, the peer delay and the path trace are no longer published; their CSR reads are zero under `--sw-gptp` (`docs/reference/REGISTER_MAP.md`).
+The parent, the peer delay and the path trace are no longer published; their CSR reads are zero under `--sw-gptp` ([register map](../reference/REGISTER_MAP.md)).
 The firmware writes `GPTP_GM_LO`, `GPTP_GM_HI`, then `GPTP_STATE` with `GEN` moved; `KL_mbx_cdc` crosses the three when `GEN` moves, as one snapshot.
 The words leave KL_mbx on one port, `pub_gptp_o`, and the datapath decodes them onto the plane's own `gptp_pub_*` nets.
 

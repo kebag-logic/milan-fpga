@@ -232,6 +232,11 @@ DUT_READER_DISPOSITIONS = {
         "and requires a [FAIL] "
         "line carrying the defect's named words; the bench's stamps are computed from the PHC model "
         "and the derived corrections in sim_main.cpp, never read from RTL",
+    "tb/verilator/gptp_sw/gptp_sw_mutants.py":
+        "mutation campaign; it plants one of 14 gPTP-in-firmware defects (#884) from its own table into a "
+        "scratch copy of sw/firmware/ctrl, builds the closed loop on that copy with its Makefile and requires "
+        "the judging run's [FAIL] line to carry the defect's named words; the peers and their clocks are "
+        "sim_main.cpp's own model, and no expected value is read from the firmware",
     "tb/verilator/mbx/mutants.py":
         "mutation campaign; it plants one packet-mailbox defect from its own table into a scratch "
         "copy of hdl/milan/mailbox, builds the suite with the Makefile's own recipe and requires the "

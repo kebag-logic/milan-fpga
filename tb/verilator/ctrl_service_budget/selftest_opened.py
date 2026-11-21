@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from types import ModuleType
 
 import channel_gate
 import grade
@@ -19,6 +20,8 @@ import scenario
 Check = tuple[str, bool, str]
 #: The channels the committed trace's image opened: the five the fixture image binds, gptp not among them.
 FIXTURE_OPENED = frozenset({'adp', 'acmp', 'aecp', 'maap', 'srp'})
+#: A gPTP image's gptp records in each composed window: its bucket's burst, one in the fixture's (#884).
+GPTP_AT_ONCE = {'backlog': 16, 'backlog-adp': 16, 'backlog-adp-refill': 16, 'backlog-owed': 16, 'fixture': 1}
 
 
 def fixture_clocks(oracle: dict) -> tuple[int, int]:
@@ -91,3 +94,23 @@ def opened_checks() -> list[Check]:
     last = channel_gate.opened(grade.parse(text + 'OPEN 1 3\n', 1, 1).opened)
     out.append(("the image's last gate is the one read", last == frozenset({'adp', 'acmp'}), str(sorted(last))))
     return out
+
+
+def gptp_load_check(defined: dict[str, dict[str, int]]) -> Check:
+    """A gPTP image's defined loads: each row's `defined` (selftest.DEFINED) and its GPTP_AT_ONCE gptp records."""
+    opened = channel_gate.fixture() | {'gptp'}
+    derived = {name: {k: v for k, v in grade.defined_load(name, opened).items() if v} for name in defined}
+    want = {name: {**load, 'gptp': GPTP_AT_ONCE[name]} for name, load in defined.items()}
+    return "a gPTP image's defined loads, restated", derived == want, str(derived)
+
+
+def gptp_point_check(build: ModuleType, points: dict[str, tuple[str, int]], ledgered: dict) -> Check:
+    """A gPTP image's ledgered point (build.GPTP_LEDGERED_POINTS) at each of the harness's `points` and at the shapes'
+    other interface counts: 8x8's two, each a name `ledgered` (ctrl_memory.LEDGERED) holds, and none at 1x1."""
+    named = {label: build.ledgered_point(*points[label], True) for label in sorted(points)}
+    others = {(shape, n): build.ledgered_point(shape, n, True) for shape, _ in points.values() for n in (1, 2)
+              if (shape, n) not in points.values()}
+    return ("a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it",
+            named == {'1x1': None, '8x8': '8x8-two-interfaces-gptp', '8x8-1if': '8x8-one-interface-gptp'} and
+            others == {('endstation_ax7101_1x1_tdm8', 2): None} and
+            all(named[k] in ledgered for k in ('8x8', '8x8-1if')), f'{named}; other points {others}')

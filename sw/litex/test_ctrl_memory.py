@@ -13,10 +13,9 @@ block RAM the SoC builds from them. This file grades nine things:
      image is accepted and its rom contents are the bytes placed at their load addresses. Every rule in
      `ctrl_memory.RULES` has a planted defect that must be refused by that rule, among them a truncated ELF, writable
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
-     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
-     (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one, and the gPTP images: the size fixture's 8x8 with one and two
-     interfaces and the platform's with one) plans its 60.5, 63.0, 58.5, 59.0, 64.0 or 62.0 by name, and through
+     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point (ctrl_memory.LEDGERED,
+     ctrl_memory_ledger.py: the 8x8 images, two-interface, the platform's one-interface, and the gPTP ones) plans its
+     60.5, 63.0, 58.5, 59.0, 64.0 or 62.0 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
@@ -205,12 +204,9 @@ def elf(tmp: Path, layout: Layout) -> Path:
     bss_at = RAM + 64 if layout.bss_at is None else layout.bss_at
     stack = RAM + 64 + layout.bss
     symbols = {"_start": 4} if layout.stage is None else {"_start": 4, ctrl_memory.STAGE_SYMBOL: layout.stage}
-    if layout.interfaces is not None:
-        symbols["image_allocation"] = 8 * layout.interfaces
-    if layout.plat is not None:
-        symbols["ctrl_plat"] = layout.plat
-    if layout.gptp is not None:
-        symbols["image_gptp"] = layout.gptp
+    for name, size in (("image_allocation", None if layout.interfaces is None else 8 * layout.interfaces),
+                       ("ctrl_plat", layout.plat), ("image_gptp", layout.gptp)):
+        symbols.update({} if size is None else {name: size})
     path = tmp / ("image-" + "-".join(str(v) for v in layout) + ".elf")
     path.write_bytes(write_elf(layout.entry, [
         (".text", at, at, bytes((i * 7 + 3) & 0xFF for i in range(layout.text)), False),
@@ -342,11 +338,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     point and image, an unknown name) are refusal_arms rows under `budget`.
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0, the "
-                                          f"platform's 8x8 image with one at 58.5, and the 8x8 images with gPTP "
-                                          f"in firmware: the size fixture's at 59.0 and 64.0, the platform's "
-                                          f"one-interface image at 62.0 ({held})")
+    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the 8x8 two-interface images at 60.5 "
+                                          f"and 63.0, the platform's one-interface image at 58.5, and the gPTP "
+                                          f"images at 59.0, 64.0 and 62.0 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):

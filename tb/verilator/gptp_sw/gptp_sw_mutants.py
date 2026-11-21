@@ -40,7 +40,7 @@ MUTANTS = (
      "SLAVE if1 the PHC is within 100 ns of its grandmaster"),
     ("snapshot-not-kept", "gptp/gptp_mbx.c", "	g->snap[i] = *pub;", "	(void)pub;", "slave",
      "the snapshot holds the grandmaster it published"),
-    ("notice-not-raised", "gptp/gptp_mbx.c", "			g->aecp.changed(g->aecp.ctx, i, ev);", "			(void)ev;",
+    ("notice-not-raised", "gptp/gptp_mbx.c", "		g->aecp.changed(g->aecp.ctx, i, ev);", "		(void)ev;",
      "slave", "the AVB_INFO and AS_PATH changes were raised"),
     ("path-answer-shifted", "gptp/gptp_mbx.c", "		out[k] = s->path[k];", "		out[k] = s->path[k + 1u];",
      "slave", "GET_AS_PATH is the snapshot's path"),
@@ -67,10 +67,15 @@ def run(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
 
 
-def one(work: Path, name: str, path: str | None, old: str | None, new: str | None, which: str,
-        needle: str | None) -> tuple[str, bool, str]:
-    """One arm under work/<name>: the unplanted firmware must pass `which`; a planted one must fail it with its
-    needle's words. Returns the name, whether it did, and the line that says so."""
+#: The unplanted arm: no source edited, every run.
+BASELINE = ("baseline", None, None, None, "", None)
+
+
+def one(work: Path, mutant: tuple) -> tuple[str, bool, str]:
+    """One arm under work/<name>, `mutant` a row of MUTANTS or BASELINE: the unplanted firmware must pass every run;
+    a planted one must fail its run with its needle's words. Returns the name, whether it did, and the line that
+    says so."""
+    name, path, old, new, which, needle = mutant
     d = work / name
     if d.exists():
         shutil.rmtree(d)
@@ -104,13 +109,13 @@ def main() -> int:
     ap.add_argument("--jobs", type=int, default=8)
     args = ap.parse_args()
     work = args.build_dir or Path(tempfile.mkdtemp(prefix="gptp-sw-mutants-"))
-    name, ok, log = one(work, "baseline", None, None, None, "", None)
+    name, ok, log = one(work, BASELINE)
     print(f"baseline: {'PASS' if ok else 'FAIL'}")
     if not ok:
         print(log[-2000:])
         return 2
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
-        res = list(pool.map(lambda m: one(work, *m), MUTANTS))
+        res = list(pool.map(lambda m: one(work, m), MUTANTS))
     failed = 0
     for name, ok, log in res:
         print(f"  {'ok  ' if ok else 'FAIL'} {name}: {log.splitlines()[0] if log else ''}")

@@ -40,7 +40,6 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import build  # noqa: E402
-import channel_gate  # noqa: E402
 import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
@@ -48,7 +47,8 @@ import selftest_mutants  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
-from selftest_opened import fixture_clocks, fixture_kept, fixture_open, opened_checks, planted_probe  # noqa: E402
+from selftest_opened import (GPTP_AT_ONCE, fixture_clocks, fixture_kept, fixture_open, gptp_load_check,  # noqa: E402
+                             gptp_point_check, opened_checks, planted_probe)
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
 from selftest_held import held_checks  # noqa: E402
@@ -77,8 +77,6 @@ BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
 #: event row's LINK change. A changed contract, rule or stimulus must fail.
 AT_ONCE = {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15}
-#: A gPTP image's gptp records in each composed window: its bucket's burst, one in the fixture's (#884).
-GPTP_AT_ONCE = {'backlog': 16, 'backlog-adp': 16, 'backlog-adp-refill': 16, 'backlog-owed': 16, 'fixture': 1}
 DEFINED = {'backlog': {**AT_ONCE, 'LINK': 1}, 'backlog-adp': AT_ONCE, 'backlog-adp-refill': {**AT_ONCE, 'adp': 11},
            'backlog-owed': AT_ONCE, 'fixture': {'adp': 1, 'acmp': 1, 'aecp': 1, 'maap': 1, 'srp': 1, 'GM': 2}}
 FIRMWARE_AECP_H = HERE.parents[2] / 'sw/firmware/ctrl/aecp/aecp.h'
@@ -516,10 +514,7 @@ def load_checks() -> list[Check]:
     out = []
     derived = {name: {k: v for k, v in grade.defined_load(name).items() if v} for name in DEFINED}
     out.append(('the defined loads, restated', derived == DEFINED, str(derived)))
-    opened = channel_gate.fixture() | {'gptp'}
-    derived = {name: {k: v for k, v in grade.defined_load(name, opened).items() if v} for name in DEFINED}
-    out.append(("a gPTP image's defined loads, restated", derived == {name: {**load, 'gptp': GPTP_AT_ONCE[name]}
-                                                                     for name, load in DEFINED.items()}, str(derived)))
+    out.append(gptp_load_check(DEFINED))
     sent, declared = {}, {}
     # a gPTP image's windows carry the gptp channel's too, its burst in the rows and one in the fixture's
     for p in [*points(oracle), *points(oracle, gptp=True)]:
@@ -748,16 +743,10 @@ def build_checks() -> list[Check]:
     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
-    gptp = {label: build.ledgered_point(*run.POINTS[label], True) for label in sorted(run.POINTS)}
-    gothers = {(shape, n): build.ledgered_point(shape, n, True) for shape, _ in run.POINTS.values() for n in (1, 2)
-               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
             named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
             named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}'),
-           ("a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it",
-            gptp == {'1x1': None, '8x8': '8x8-two-interfaces-gptp', '8x8-1if': '8x8-one-interface-gptp'} and
-            gothers == {('endstation_ax7101_1x1_tdm8', 2): None} and
-            all(gptp[k] in ctrl_memory.LEDGERED for k in ('8x8', '8x8-1if')), f'{gptp}; other points {gothers}')]
+           gptp_point_check(build, run.POINTS, ctrl_memory.LEDGERED)]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],

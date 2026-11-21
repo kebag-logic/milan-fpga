@@ -943,7 +943,7 @@ split: build-split
 # decoded, plus sim_split.cpp's [GPTP] checks of that wiring
 SPLIT_SW_MDIR ?= obj_split_sw
 build-split-sw: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(subst --Mdir $(SPLIT_MDIR),--Mdir $(SPLIT_SW_MDIR) -GGPTP_SW_P=1 -CFLAGS -DSPLIT_GPTP_SW,$(SPLIT_BUILD))
+	$(subst --Mdir $(SPLIT_MDIR),--Mdir $(SPLIT_SW_MDIR) -GGPTP_SW_P=1 -CFLAGS "-DSPLIT_GPTP_SW -Wall -Wextra",$(SPLIT_BUILD))
 
 exec-split-sw:
 	./$(SPLIT_SW_MDIR)/Vmilan_dp_split
