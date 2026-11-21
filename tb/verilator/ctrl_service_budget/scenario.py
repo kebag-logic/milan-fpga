@@ -671,6 +671,59 @@ def srp_groups(p: Point) -> list[Group]:
     return [g]
 
 
+#: The LeaveAll rounds srp-owed sends a one-interface point with the egress held, a JoinTime apart; a point of n
+#: interfaces sends 1/n of them. Each has both participants of every interface declare again, about 20 words of the
+#: SRP transmit ring's 512 an interface (mailbox.yaml), so the ring runs out of room before the rounds end.
+OWED_ROUNDS = 32
+#: lwSRP's JoinTime, the rounds' spacing: each round's rLA! is sent by the next join timer's run-out (10.7.4.1).
+OWED_ROUND_MS = 200
+
+
+def named_groups(p: Point, build: dict) -> list[Group]:
+    """Groups no arm runs, taken only where --groups names them (run.py select): measurements whose grading is not
+    ruled yet (#872). srp-owed holds the egress past THE TRANSMIT's bound with the SRP ring full, so the MRP timers'
+    run-outs of the hold are late by the hold (mrpdu_grade.py); it stays out of the arm until a ruling says how they
+    are graded, as #894's ruling did for backlog-owed's rows."""
+    return [owed_mrpdu_group(p)] if build.get('variant', 'none') == 'none' else []
+
+
+def owed_mrpdu_group(p: Point) -> Group:
+    """An MRPDU a build had no room for, sent later from lwSRP's prepared PDU (#872): the item the load gate states at a
+    build of one's (load_grade.py, item.mrpdu) and no other group stages.
+
+    The egress is held from before the links come up (sim_main.cpp, txready), so every MRPDU THE TRANSMIT builds stays
+    in the SRP transmit ring: the startup declarations, then on each interface a LeaveAll on both participants a
+    JoinTime apart, each re-declaring the default Domain and its VID (the device's own, so nothing is adopted and no
+    attribute is added). A received LeaveAll moves each declared attribute of its type to VP (802.1Q-2018 Table 10-3,
+    rLA!), so every join timer's run-out sends an MRPDU. The rate is a stimulus, not a claim about a bridge's LeaveAll
+    timer. Once the ring has no room a build's send is refused, mrp_transmit keeps its prepared PDU and srp_mbx.c owes
+    the frame (send_pdu, owed_len); the poll sends it, oldest first, once the ring has room (poll, build_mrpdu), which
+    is poll_items' mrpdu item. The egress returns and a Domain change on each interface is the group's probe, a Domain
+    RX's declarations behind the owed frames."""
+    srp = CH['srp']
+    rounds = OWED_ROUNDS // p.interfaces
+    g = Group('srp-owed', sim_ms=1500 + OWED_ROUND_MS * rounds)
+    ready(g, p, link=False)
+    g.add('txready 0', f'wait cycles {2 * MS}')
+    for i in range(p.interfaces):
+        g.add(f'link {i} 1')
+    g.add(f'wait cycles {300 * MS}')
+    domain = f.mrp_message(4, f.domain_value(6, 3, 2), [1], leave_all=True)
+    vid = f.mrp_message(1, f.be(2, 2), [1], leave_all=True, list_length=False)
+    for _ in range(rounds):
+        for i in range(p.interfaces):
+            g.add(f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}',
+                  f'frame {i} {f.ethernet(f.MVRP_DA, BRIDGE_MAC, f.ETH_MVRP, bytes(1) + vid + bytes(2)).hex()}')
+        g.add(f'wait cycles {OWED_ROUND_MS * MS}')
+    g.add('mark room', 'txready 1', f'wait cycles {100 * MS}', 'wait quiet 3 within 50000000')
+    for i in range(p.interfaces):
+        change = f.mrp_message(4, f.domain_value(6, 4, 3), [1])
+        g.probe(Probe(f'srp.owed_domain.if{i}', 'Domain RX -> declarations after an owed MRPDU (JoinTime wait)', 'srp',
+                      f'rxc:{srp}', [f'pub:{pub_word(i, "SR_DOMAIN")}', f'tx:{srp}'], wait_ms=200.0),
+                f'frame {i} {f.msrp(BRIDGE_MAC, [change]).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
+    return g
+
+
 def admission(channel: str, frame: bytes) -> dict:
     """What KL_mbx_rx admits of a channel's records of this frame's size.
 

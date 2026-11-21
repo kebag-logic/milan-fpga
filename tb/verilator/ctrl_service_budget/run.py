@@ -621,8 +621,8 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     return parser, parser.parse_args()
 
 
-def select(parser: argparse.ArgumentParser, args: argparse.Namespace, groups: list) -> list:
-    """The groups this run takes: a control's own, or those --groups names."""
+def select(parser: argparse.ArgumentParser, args: argparse.Namespace, groups: list, named: list = ()) -> list:
+    """The groups this run takes: a control's own, or those --groups names, of the arm's and the named groups."""
     import build as builder
     import scenario
     if args.cpu_regions == 'as-built':
@@ -637,6 +637,8 @@ def select(parser: argparse.ArgumentParser, args: argparse.Namespace, groups: li
     if not args.groups:
         return groups
     wanted = args.groups.split(',')
+    # A group no arm runs is taken only where it is named (scenario.named_groups)
+    groups = groups + [g for g in named if g.name not in {h.name for h in groups}]
     unknown = set(wanted) - {g.name for g in groups}
     if unknown:
         parser.error(f'unknown groups {sorted(unknown)}')
@@ -924,7 +926,8 @@ def main() -> int:
             return 1
     clock = builder.clock_line(spec)
     print('CLOCK', clock, flush=True)
-    groups = select(parser, args, all_groups(scenario.point(args.point, spec), spec))
+    point = scenario.point(args.point, spec)
+    groups = select(parser, args, all_groups(point, spec), scenario.named_groups(point, spec))
     out = (args.out or build_dir / 'results').resolve()
     out.mkdir(parents=True, exist_ok=True)
     absent: list[str] = []
