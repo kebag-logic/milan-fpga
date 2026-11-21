@@ -1193,7 +1193,6 @@ static void reset_interface(struct srp_interface *i)
         // the registrar it was walked from is destroyed below (#665)
         i->listener_present[k] = false;
     }
-    i->licence_stale = true;
     publish_licence(i);
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
         if (revoked[k]) {
@@ -1201,6 +1200,7 @@ static void reset_interface(struct srp_interface *i)
             m->config.licence(m->config.ctx,i->index,k,false);
         }
     }
+    i->licence_stale = true;
     withdraw_declared(i->index);
     msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
     i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
@@ -1371,7 +1371,7 @@ static bool poll(void *ctx)
 #ifdef CTRL_SRP_LICENCE_CHECK
             ++srp_licence_skips;
             for (unsigned s = 0; s < CTRL_SRP_SOURCES; ++s) {
-                const bool active = i->link && i->vlan_sent && i->admitted[s] && i->registered[s];
+                const bool active = i->vlan_sent && i->link && i->admitted[s] && i->registered[s];
                 srp_licence_unmarked += i->stop_owed[s] || active != i->active[s];
             }
 #endif
