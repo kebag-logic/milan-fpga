@@ -45,7 +45,7 @@ def defect(name: str, file: str, old: str, new: str,
 #: #950's test, the words of its status check, and the check aecp_again makes, as aecp_commands.c holds it.
 AGAIN = 'Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied'
 AGAIN_WORDS = 'a waiting SET_STREAM_FORMAT makes its running check again once applied: '
-AGAIN_CHECK = 'return running(a, (uint16_t)wire_be16(a->held + 38), (uint16_t)wire_be16(a->held + 40));'
+AGAIN_CHECK = 'running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;'
 
 
 DEFECTS = (
@@ -771,15 +771,14 @@ DEFECTS = (
            (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile'),
            (AGAIN, 'STREAM_INPUT 0: the check is made again')),
     defect('again-other-command', 'aecp_commands.c',
-           'if (wire_be16(a->held + 36) != 8u) return AECP_SUCCESS;',
-           'if (wire_be16(a->held + 36) != 6u) return AECP_SUCCESS;',
+           'return a->noted == AECP_CHANGE_FORMAT ?', 'return a->noted == AECP_CHANGE_CONFIGURATION ?',
            (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile')),
     defect('again-input-judged-by-streaming', 'aecp_commands.c', AGAIN_CHECK,
-           'return running(a, 6u, (uint16_t)wire_be16(a->held + 40));',
+           'running(a, 6u, a->noted_index) : AECP_SUCCESS;',
            (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile')),
     defect('again-unobservable-taken', 'aecp_commands.c', AGAIN_CHECK,
-           'return running(a, (uint16_t)wire_be16(a->held + 38), (uint16_t)wire_be16(a->held + 40)) == '
-           'AECP_STREAM_IS_RUNNING ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;',
+           '(running(a, a->noted_type, a->noted_index) == AECP_STREAM_IS_RUNNING ? AECP_STREAM_IS_RUNNING : '
+           'AECP_SUCCESS) : AECP_SUCCESS;',
            (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, not observable once applied')),
     defect('again-refusal-done-again', 'aecp.c',
            '\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n', '\t\tif (taken) {\n\t\t\tswap(a);\n\t\t}\n',

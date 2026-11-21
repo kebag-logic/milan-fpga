@@ -55,7 +55,7 @@ S13_WORDS = ("S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is ref
 S14_WORDS = ("S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once "
              "acknowledged: output ")
 AGAIN = "unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;"
-AGAIN_CHECK = "return running(a, (uint16_t)wire_be16(a->held + 38), (uint16_t)wire_be16(a->held + 40));"
+AGAIN_CHECK = "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;"
 #: #954's source port, as ctrl_plat.c holds it, and T1's words for an Asking Failed Listener's flag.
 ASKING = "\tout->asking_failed = srp->listener_present[n] && !srp->registered[n];\n"
 T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or "
@@ -185,7 +185,7 @@ def mutants(mutant: type) -> tuple:
           also=(("platsinks8", S14, S14_WORDS + "0"), ("platsinks1", S13, S13_WORDS + "0"),
                 ("platsinks1", S14, S14_WORDS + "0"))),
         m("again-of-stream-zero", "aecp/aecp_commands.c", AGAIN_CHECK,
-          "return running(a, (uint16_t)wire_be16(a->held + 38), 0u);",
+          "running(a, a->noted_type, 0u) : AECP_SUCCESS;",
           "platsinks1", S13, S13_WORDS + "1", also=(("platsinks1", S14, S14_WORDS + "1"),)),
         # #954: GET_TX_STATE's REGISTERING_FAILED from the source port: never (the shipped platform), for any
         # Listener, with none, or from output 0's
