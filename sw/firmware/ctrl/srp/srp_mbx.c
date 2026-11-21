@@ -58,6 +58,12 @@ static void snapshot(struct srp_interface *i);
 static void capture(struct srp_sink *s, uint8_t previous);
 static void count_held(struct srp_mbx *m);
 
+#ifdef CTRL_SRP_LICENCE_CHECK
+// Test builds only (srp_arms.py): the scans the poll runs, those it skips, and the skipped ones that would have changed
+// a licence, which the cut's premise says none would (srp_mbx.c, poll; srp_mbx.cpp, #872).
+unsigned long srp_licence_scans, srp_licence_skips, srp_licence_unmarked;
+#endif
+
 static bool enter(struct srp_mbx *m)
 {
     if (m->busy) {
@@ -217,6 +223,9 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
             }
         }
     }
+    if (of != 0u) {
+        i->licence_stale = true;
+    }
 }
 
 // The Listener declaration a binding's registered Talkers ask for: Ready (2) for an Advertise, AskingFailed (1) for a
@@ -337,6 +346,7 @@ static bool declare_sources(struct srp_interface *i, unsigned how)
     bool done = true;
     // A join rewrites the value of the attribute a registration shares (#665).
     i->stale = true;
+    i->licence_stale = true; // admitted, and active where a source withdraws
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         const uint32_t bit = 1u << n;
         // admitted[n] is the declared type: Advertise when set
@@ -559,6 +569,7 @@ static bool create_participants(struct srp_interface *i)
     mrp_set_rx_filter(i->msrp,interested_msrp,i);
     mrp_set_rx_filter(i->mvrp,interested_mvrp,i);
     i->vlan_sent = false;
+    i->licence_stale = true;
     i->domain = (struct msrp_domain){6,3,2};
     // The default Domain, not adopted, before it is declared (SR_DOMAIN).
     (void)mbx_pub_domain(i->index,false,i->domain.priority,i->domain.vid);
@@ -661,6 +672,7 @@ void srp_mbx_destroy(struct srp_mbx *m)
             i->active[k] = false;
             i->listener_present[k] = false;
         }
+        i->licence_stale = true;
         (void)mbx_pub_licence(n,0u);
         for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
             if (revoked[k]) {
@@ -949,6 +961,7 @@ static void vlan_committed(void *ctx, uint8_t type, enum mrp_attr_event event, c
     }
     if (wire_be16(value) == i->domain.vid) {
         i->vlan_sent = true;
+        i->licence_stale = true;
     }
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         struct srp_sink *s = &i->sinks[k];
@@ -999,6 +1012,7 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
                 // One value per StreamID; Ignore occupies no registrar (35.2.2.7.2).
                 i->listener_present[n] = true;
                 i->registered[n] = v[8] == 2 || v[8] == 3;
+                i->licence_stale = true;
             }
         }
     } else if (status->attr_type == MSRP_ATTR_TYPE_TALKER_ADV ||
@@ -1049,6 +1063,7 @@ static void snapshot(struct srp_interface *i)
     ++i->owner->walks;
     memset(i->registered,0,sizeof(i->registered));
     memset(i->listener_present,0,sizeof(i->listener_present));
+    i->licence_stale = true;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         previous[k] = i->sinks[k].desired;
         i->sinks[k].registered_kinds = 0;
@@ -1083,6 +1098,7 @@ static bool change_domain(struct srp_interface *i)
     }
     if (i->domain.vid != i->next_domain.vid) {
         i->vlan_sent = false;
+        i->licence_stale = true;
     }
     i->domain = i->next_domain;
     // The adopted Domain, before the declarations that carry it (SR_DOMAIN).
@@ -1177,6 +1193,7 @@ static void reset_interface(struct srp_interface *i)
         // the registrar it was walked from is destroyed below (#665)
         i->listener_present[k] = false;
     }
+    i->licence_stale = true;
     publish_licence(i);
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
         if (revoked[k]) {
@@ -1230,6 +1247,7 @@ static void on_event(void *ctx, const struct mbx_event *event)
         }
         i->link_seen = true;
         i->link = event->link_up;
+        i->licence_stale = true;
     }
     m->busy = false;
 }
@@ -1291,6 +1309,7 @@ static bool poll(void *ctx)
             reset_interface(i);
             i->link = link;
             i->link_seen = true;
+            i->licence_stale = true;
         }
         if (i->discard_prefix && !mbx_rx_before(MBX_CH_SRP,i->rx_mark)) {
             i->discard_prefix = false;
@@ -1346,6 +1365,22 @@ static bool poll(void *ctx)
             }
         }
         snapshot(i);
+        // The scan changes a licence only where what it reads moved since it last ran, each writer marking that
+        // (licence_stale): unmarked, it would leave every licence as it is, so it is not run (#872).
+        if (!i->licence_stale) {
+#ifdef CTRL_SRP_LICENCE_CHECK
+            ++srp_licence_skips;
+            for (unsigned s = 0; s < CTRL_SRP_SOURCES; ++s) {
+                const bool active = i->link && i->vlan_sent && i->admitted[s] && i->registered[s];
+                srp_licence_unmarked += i->stop_owed[s] || active != i->active[s];
+            }
+#endif
+            continue;
+        }
+#ifdef CTRL_SRP_LICENCE_CHECK
+        ++srp_licence_scans;
+#endif
+        i->licence_stale = false;
         for (unsigned s = 0; s < CTRL_SRP_SOURCES; ++s) {
             if (i->stop_owed[s]) {
                 i->stop_owed[s] = false;

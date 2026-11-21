@@ -77,6 +77,9 @@ struct srp_interface {
     // state of its creation (srp_mbx.c, moved and apply_receive; #665's
     // ruling of 2026-11-20, item 3).
     bool reclaim;
+    // What the poll's licence scan reads (link, vlan_sent, admitted, registered, stop_owed, active) may have moved
+    // since the scan last ran: it runs only then (#872). Each writer of those sets it (srp_mbx.c).
+    bool licence_stale;
     // Polls left until a reset's new participants are built, the first of them
     // the reset's own pass; receive waits until then (#665, srp_bounds.h).
     uint8_t reopen_polls;
@@ -186,6 +189,11 @@ struct srp_mbx {
     struct srp_held held[SRP_HELD_STREAMS];
 };
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];
+#ifdef CTRL_SRP_LICENCE_CHECK
+// Test builds only: the licence scans the poll runs, those it skips, and the skipped ones that would have changed a
+// licence (srp_mbx.c, poll).
+extern unsigned long srp_licence_scans, srp_licence_skips, srp_licence_unmarked;
+#endif
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);
 void srp_mbx_destroy(struct srp_mbx *m);

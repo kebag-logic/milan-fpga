@@ -835,6 +835,37 @@ TEST_F(Srp, SinkMembershipCommitsBeforeReadyAtStartup) {
     EXPECT_TRUE(ready);
 }
 
+// The poll's licence scan runs only where its interface is marked stale (#872, srp_mbx.c poll). Built with
+// CTRL_SRP_LICENCE_CHECK (srp_arms.py), each skip is checked against what the scan would have done: none may have
+// changed a licence. The sequence moves each input the scan reads: a Listener's Ready, AskingFailed and leave, a
+// source's validity withdrawn and given back (srp_mbx_gate), an adopted Domain's VID, whose licence waits for its
+// VLAN's first send, and the link.
+TEST_F(Srp, ALicenceScanIsSkippedOnlyWhereItWouldChangeNothing) {
+#ifdef CTRL_SRP_LICENCE_CHECK
+    EXPECT_CALL(licence,Change(::testing::_,::testing::_,::testing::_)).Times(::testing::AnyNumber());
+    settle();
+    const unsigned long unmarked=srp_licence_unmarked, skips=srp_licence_skips;
+    for(unsigned round=0;round<2;++round) {
+        for(unsigned i=0;i<MBX_N_IF;++i) {
+            offer(frame(3,identity(i),1,2),i); advance(30);
+            offer(frame(3,identity(i),1,1),i); advance(30);
+            offer(frame(3,identity(i),1,2),i); advance(30);
+            ASSERT_TRUE(srp_mbx_gate(&adapter,i,0u,0x91e0f0000100ull)); advance(300);
+            ASSERT_TRUE(srp_mbx_gate(&adapter,i,(1u<<CTRL_SRP_SOURCES)-1u,0x91e0f0000100ull)); advance(1500);
+            offer(frame(4,{6,3,0,uint8_t(7+round)},0),i); offer(frame(3,identity(i),1,2),i); advance(600);
+            offer(frame(3,identity(i),5,2),i); advance(30);
+            offer(frame(3,identity(i),1,2),i); advance(30);
+            mbx_model_set_link(&model,i,false); settle(); advance(30);
+            mbx_model_set_link(&model,i,true); settle(); advance(300);
+            offer(frame(3,identity(i),1,2),i); advance(300);
+        }
+    }
+    EXPECT_EQ(srp_licence_unmarked-unmarked,0u) << "a skipped licence scan would have changed a licence";
+    EXPECT_GT(srp_licence_skips-skips,0u) << "a pass whose interface moved nothing the scan reads skips it";
+#else
+    GTEST_SKIP() << "built without CTRL_SRP_LICENCE_CHECK";
+#endif
+}
 TEST_F(Srp, InListenerWithdrawalRevokesLicenceImmediately) {
     settle();
     for(unsigned i=0;i<MBX_N_IF;++i) {

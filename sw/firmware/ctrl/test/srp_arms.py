@@ -23,6 +23,9 @@ DEFAULT_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 LISTENER_SEAMS = ("-Dmsrp_app_create=srp_test_msrp_app_create", "-Dmrp_set_observer=srp_test_set_observer",
                   "-Dmrp_rx=srp_test_mrp_rx", "-Dmrp_reclaim=srp_test_mrp_reclaim",
                   "-Dmrp_set_rx_filter=srp_test_set_rx_filter")
+#: Every SRP arm runs every licence scan and counts those the cut would have skipped and that changed a licence;
+#: srp_licence_check.cpp, compiled after the arm's own tests, requires none (#872, srp_mbx.c poll).
+LICENCE_CHECK = "-DCTRL_SRP_LICENCE_CHECK"
 #: The 8x8 entity, whose one-interface shape srp_listeners.cpp runs at beside 1x1/1if (#930).
 ENTITY_8X8 = ROOT / "configs/endstation_ax7101_8x8.yaml"
 
@@ -76,7 +79,7 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
     build = fw_gtest.Build(coverage=tree.build.coverage and not debug,
                            address_sanitizer=tree.build.address_sanitizer,
                            jobs=tree.build.jobs,cache=tree.build.cache)
-    flags = [*C_FLAGS, "-UNDEBUG" if debug else "-DNDEBUG"]
+    flags = [*C_FLAGS, "-UNDEBUG" if debug else "-DNDEBUG", LICENCE_CHECK]
     if test == "srp_listeners.cpp":
         flags += LISTENER_SEAMS
     sources = [source(variant if p.startswith("mbx/") else tree.src, tree.stack, p) for p in SRP_SOURCES]
@@ -88,8 +91,9 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
             library_flags.append("-Dmrp_transmit=srp_test_transmit_real")
         theirs = fw_gtest.compile_c(build,library_flags,inc,
                                     [lw / p for p in LWSRP_SOURCES],out / "library",False)
-        tests = fw_gtest.compile_tests(build,[*inc,f"-I{STACK_TESTS}"],
-                                       [HERE / ("srp_debug.cpp" if debug else test)],out / "tests")
+        tests = fw_gtest.compile_tests(build,[*inc,f"-I{STACK_TESTS}",LICENCE_CHECK],
+                                       [HERE / ("srp_debug.cpp" if debug else test),HERE / "srp_licence_check.cpp"],
+                                       out / "tests")
         main = fw_gtest.main_object(build,out / "main")
         exe = fw_gtest.link(build,[*ours,*host,*theirs,*tests,main],out / "suite")
         ok, log = fw_gtest.run_binary(exe,[f"--gtest_filter={selected}"],cwd=out)
