@@ -289,7 +289,7 @@ class MilanDatapathHarness {
         printf("[CSR] identity + reset values\n");
         ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
         ck("VERSION",       axi_read(A_VERSION), 0x00020060);
-        // the all-fabric placement keeps major 2 (#665 S13): a split image reads 0x0003 (sim_split.cpp)
+        // the all-fabric placement keeps major 2 (#665): a split image reads 0x0003 (sim_split.cpp)
         ck("VERSION major (VERSION >> 16), all-fabric", axi_read(A_VERSION) >> 16, 0x0002);
         // link guard: TB leaves the eth toggles static -> unarmed = inert
         // (alive/alive, RUN, no reinit) exactly like a no-PHY top

@@ -29,7 +29,7 @@ parameters, define ``SYNTHESIS``, the all-fabric header), then one per
               build binds on milan_datapath (test_builder gate 23m compares it
               with the Instance milan_soc.py builds for each configuration).
               The census reads the processor's publication, so a config that
-              ships the split (#665 S13) is censused at its all-fabric build;
+              ships the split (#665) is censused at its all-fabric build;
               the split population adds CTRL_SPLIT_P = 1 itself. The three ROM
               image paths, which only the processor and gPTP wrappers read,
               stay at their defaults
@@ -192,7 +192,7 @@ def recipe() -> Recipe:
 def shapes() -> tuple[Shape, ...]:
     """The recipe's shape, then one per configs/*.yaml in name order: the builder's
     generated header directory for it and the parameters the builder states for its
-    all-fabric build (the AX7101 configs ship the split since #665 S13)."""
+    all-fabric build (the AX7101 configs ship the split since the flip, #665)."""
     out = [RECIPE]
     for path in sorted((REPO / "configs").glob("*.yaml")) if live("shapes") else ():
         try:

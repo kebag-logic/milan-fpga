@@ -24,7 +24,7 @@ milan_datapath row: the module's default parameters, define ``SYNTHESIS``,
 the all-fabric header ``configs/generated/endstation_arty_current``) and the
 shape of every ``configs/*.yaml``: its generated header directory, the
 integer parameters ``endstation_builder.datapath_params()`` states for its
-all-fabric build (the AX7101 configs ship the split since #665 S13), which
+all-fabric build (the AX7101 configs ship the split since the flip, #665), which
 test_builder gate 23m holds to the Instance milan_soc.py builds, and
 ``SYNTHESIS``. Today that is endstation_arty_4x4, _arty_8ch, _arty_current,
 _ax7101_1x1_tdm8 and _ax7101_8x8, from one to eight streams, with and without

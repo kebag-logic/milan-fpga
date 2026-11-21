@@ -612,7 +612,7 @@ SOC_ARGV: list[str] = []
 
 
 def soc_argv() -> list[str]:
-    """The 1x1 config's all-fabric argv, its output written first; each case adds the split's flags (#665 S13)."""
+    """The 1x1 config's all-fabric argv, its output written first; each case adds the split's flags (#665)."""
     if not SOC_ARGV:
         sys.path.insert(0, str(ROOT / "sw/builder"))
         try:

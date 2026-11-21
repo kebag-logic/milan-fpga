@@ -60,7 +60,7 @@ class Model:
     root: Path = Path(".")
     wording: "Wording | None" = None
     mechanisms: list = field(default_factory=list)
-    #: a split image's VERSION: VERSION_SPLIT_MAJOR over VERSION's minor (#665 S13)
+    #: a split image's VERSION: VERSION_SPLIT_MAJOR over VERSION's minor (#665)
     split_version: int = 0
 
 
@@ -554,7 +554,7 @@ def header(model: Model) -> list[str]:
         f"The SoC facts come from the `{soc['shape']}` export, recorded in `{SOC}`.",
         f"That export is {record_build(soc)}.",
         "",
-        f"The shipping split image reads VERSION `{version_word(model.split_version)}` (#665 S13).",
+        f"The shipping split image reads VERSION `{version_word(model.split_version)}` (#665).",
         "",
         "Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).",
         "",
@@ -771,7 +771,7 @@ def register_section(model: Model, module: Module, reg: Register, head: str) -> 
     if reg.label == "VERSION":
         hi, lo = model.version >> 16, model.version & 0xFFFF
         out += [f"This build's VERSION is `0x{hi:04X}_{lo:04X}`.", "",
-                f"A split image's VERSION is `{version_word(model.split_version)}` (#665 S13).", ""]
+                f"A split image's VERSION is `{version_word(model.split_version)}` (#665).", ""]
     out += [f"RTL name: `{reg.rtl_name}`.", ""]
     out += [f"![{acronym(reg, desc)} bit fields]({relative(svg_path(module, reg, desc))})", ""]
     rows = [[fl.bits, f"`{fl.name}`", fl.access, fl.reset, field_text(reg, fl, model)] for fl in reg.fields]

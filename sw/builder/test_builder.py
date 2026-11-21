@@ -23331,7 +23331,7 @@ def _config_argv(name, placement="all-fabric"):
 
     The gates that run milan_soc.py on a config elaborate its all-fabric build
     unless they ask for another placement: the AX7101 configs ship the split
-    since the flip (#665 S13), whose argv names a platform image these
+    since the flip (#665), whose argv names a platform image these
     elaborations do not link (gate 23m gives its split cases a synthetic one),
     and the all-fabric build stays built and gated.
 
@@ -23896,8 +23896,8 @@ def test_clock_plan_instance_gate_bites() -> None:
 #: datapath Instance with no firmware build.
 SPLIT_SUFFIX = "+split"
 FABRIC_SUFFIX = "+all-fabric"
-#: The tracked configs that ship the split placement since the flip (#665
-#: S13): the two AX7101 shapes its bench gate qualified. Every other tracked
+#: The tracked configs that ship the split placement since the flip (#665):
+#: the two AX7101 shapes its bench gate qualified. Every other tracked
 #: config is all-fabric (gate 23n).
 SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8")
 
@@ -23922,7 +23922,7 @@ def _synthetic_firmware(elf_dir, python):
 
 def _with_synthetic_firmware(runs, firmware):
     """(label, argv) runs with every split argv's --ctrl-firmware naming `firmware`: the shipping launchers emit
-    the split since #665 S13, and its platform image is not built for an elaboration."""
+    the split since the flip (#665); its platform image is not built for an elaboration."""
     out = []
     for label, argv in runs:
         argv = list(argv)
@@ -24209,7 +24209,7 @@ def test_image_identity_gate() -> None:
 #  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
 #
 #  The configs in SPLIT_SHIPPING ship the split placement since the flip
-#  (#665 S13); every other tracked config is all-fabric. Each config's
+#  (#665); every other tracked config is all-fabric. Each config's
 #  all-fabric variant states no CTRL_SPLIT_P and emits no split flag, so its
 #  argv, fragment and shape are what they were before the flip. Its split
 #  variant differs from that in exactly CTRL_SPLIT_P = 1 and the trailing
@@ -24287,7 +24287,7 @@ def test_control_placement_key() -> None:
           f"reverted at 8x8 refused")
 
 
-#  gate 23o (#665 S9, S13) - THE PLACEMENT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
+#  gate 23o (#665) - THE PLACEMENT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
 #
 #  `endstation_builder.py <cfg> --placement P` builds a shipped config at
 #  placement P without editing it, in both directions since the flip (the
@@ -24296,7 +24296,7 @@ def test_control_placement_key() -> None:
 #  P}` loads to (the loader is the oracle, not the recipe's own copy), every
 #  shape artifact the two placements write must be byte for byte equal but
 #  for the ENTITY's firmware_version, which follows VERSION's major (2.96.0
-#  all-fabric, 3.96.0 split, #665 S13) in the two artifacts that carry it and
+#  all-fabric, 3.96.0 split, #665) in the two artifacts that carry it and
 #  nowhere else, its soc_params.json must carry that loaded config's argv,
 #  and no tracked file may change: the recipe takes no tracked ownership.
 
@@ -26114,7 +26114,7 @@ def test_front_end_routing_gate_bites() -> None:
 
 def _rtl_firmware_strings():
     """milan_csr.sv's VERSION, its (major, minor), and the firmware string each control placement derives
-    from it: a split image's major is VERSION_SPLIT_MAJOR over the same minor (#665 S13)."""
+    from it: a split image's major is VERSION_SPLIT_MAJOR over the same minor (#665)."""
     csr = (ROOT / "hdl/common/csr/milan_csr.sv").read_text()
     m = re.search(r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*"
                   r"32'h([0-9A-Fa-f_]+)", csr)
@@ -28142,7 +28142,7 @@ def test_schema_11_configs_accepted_unchanged() -> None:
             legacy = eb.load_config(old)
         finally:
             old.unlink()
-        # a split argv names the config's own image by the config's name, which is the file's (#665 S13)
+        # a split argv names the config's own image by the config's name, which is the file's (#665)
         argv = lambda c: [a.replace(eb.ctrl_firmware_path(c), "<own image>") for a in eb.emit_soc_argv(c)]  # noqa: E731
         assert argv(legacy) == argv(tracked), name
         assert legacy["model_id"] == tracked["model_id"], name

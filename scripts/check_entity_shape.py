@@ -685,7 +685,7 @@ def check_firmware_version(builder: ModuleType) -> None:
     split_major, _ = g.rtl_version(RTL.csr, "split")
     print(f"  milan_csr VERSION: 0x{major:04X}_{minor:04X} "
           f"-> major {major}, minor {minor}; a split image's major "
-          f"{split_major} (VERSION_SPLIT_MAJOR, #665 S13)")
+          f"{split_major} (VERSION_SPLIT_MAJOR, #665)")
 
     # 1. no config re-declares it. An agreeing copy is still a second answer
     #    to "what version is this", and it is the copy controllers get. The

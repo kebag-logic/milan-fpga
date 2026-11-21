@@ -13,7 +13,7 @@ python3 scripts/gen_register_reference.py --check
 The SoC facts come from the `endstation_ax7101_1x1_tdm8` export, recorded in `scripts/register_map_soc.json`.
 That export is the all-fabric build.
 
-The shipping split image reads VERSION `0x0003_0060` (#665 S13).
+The shipping split image reads VERSION `0x0003_0060` (#665).
 
 Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
@@ -305,7 +305,7 @@ Major and minor version of this CSR block's ABI.
 
 This build's VERSION is `0x0002_0060`.
 
-A split image's VERSION is `0x0003_0060` (#665 S13).
+A split image's VERSION is `0x0003_0060` (#665).
 
 RTL name: `A_VERSION`.
 

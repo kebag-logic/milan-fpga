@@ -199,7 +199,7 @@ module milan_csr #(
   //! 0x93C, PP_NVM_SEL 0x934 and 0x005C's SRP status words are unchanged.
   //! The register occupies four bytes.
   parameter logic [31:0] VERSION = 32'h0002_0060,
-  //! The major a SPLIT image's VERSION reads (#665 S13): major 0x0003
+  //! The major a SPLIT image's VERSION reads (#665): major 0x0003
   //! identifies only images that run the split placement, and an all-fabric
   //! image keeps VERSION above (docs/ARCHITECTURE_HW_SW_SPLIT.md section 7).
   //! The minor stays VERSION[15:0], one flat ordinal across majors, so no
@@ -1998,7 +1998,7 @@ module milan_csr #(
   // ==========================================================================
 
   //! The VERSION this image reads at 0x004: a split image's major over the
-  //! one minor, else VERSION as declared (#665 S13).
+  //! one minor, else VERSION as declared (#665).
   localparam logic [31:0] VERSION_C = (CTRL_SPLIT_P != 0) ? {VERSION_SPLIT_MAJOR, VERSION[15:0]}
                                                           : VERSION;
 

@@ -67,7 +67,7 @@ platform:
   mac_address: "02:4b:4c:4b:4c:01"   # board 1, locally administered (#840)
   pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
 
-# The shipping control placement (#665 S13, NFR-SCOUT-02): ADP, ACMP, AECP,
+# The shipping control placement (#665, NFR-SCOUT-02): ADP, ACMP, AECP,
 # MAAP and SRP run as the bare-metal firmware behind the mailbox, and the image
 # reads VERSION major 0x0003. The all-fabric build stays built and gated:
 # `endstation_builder.py <this config> --placement all-fabric`.

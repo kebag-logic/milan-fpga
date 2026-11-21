@@ -91,7 +91,7 @@ DIFFERS = {
 #: gPTP peer, and why: each verdict is printed and none is evidence, pass or fail.
 STAND_IN = {
     'id-miln': 'ID is the datapath\'s reset value, which the testbench answers',
-    'version-gptp-publication': 'VERSION is the split datapath\'s reset value, 0x0003_0060 (#665 S13), which '
+    'version-gptp-publication': 'VERSION is the split datapath\'s reset value, 0x0003_0060 (#665), which '
                                 'the testbench answers',
     'gptp-identities': 'no gPTP peer and no datapath: GM and parent are the stand-in register file\'s words',
     'gptp-path': 'no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file\'s word',

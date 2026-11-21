@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """check_image_identity.py - the identity gate of one built image (#665, decision D2).
 
-Since the flip (S13) a split image reads VERSION major 0x0003 and an all-fabric
+Since the flip (#665) a split image reads VERSION major 0x0003 and an all-fabric
 one 0x0002, over one minor. A split image is also identified by three things
 that must agree with what the image holds: the SoC ident string names the
 placement, the mailbox's ID register gives the contract major and minor, and
@@ -148,7 +148,7 @@ def facts(image: Path) -> dict:
         raise Unreadable(f"{path}: {exc}") from exc
     pkg = [p for p in _sources(script) if p.name == "KL_mbx_pkg.sv"]
     # the VERSION of the placement the image claims: a manifest claims the split, whose major is
-    # VERSION_SPLIT_MAJOR (#665 S13); the placement rule holds the datapath to that claim (CTRL_SPLIT_P = 1),
+    # VERSION_SPLIT_MAJOR (#665); the placement rule holds the datapath to that claim (CTRL_SPLIT_P = 1),
     # so together they pin the VERSION the image reads
     placement = "split" if claimed is not None else "all-fabric"
     major, minor = rtl_version(_source(script, "milan_csr.sv", image / "gateware"), placement)

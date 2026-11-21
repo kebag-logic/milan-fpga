@@ -821,7 +821,7 @@ void check_dp_drops(Tb& tb) {
                 lost);
 }
 
-//! The split image's identity (#665 S13, docs/ARCHITECTURE_HW_SW_SPLIT.md section 7): the datapath built with
+//! The split image's identity (#665, docs/ARCHITECTURE_HW_SW_SPLIT.md section 7): the datapath built with
 //! CTRL_SPLIT_P = 1 reads VERSION major 0x0003 over the one minor, where an all-fabric one reads 0x0002_0060
 //! (milan_dp's sim_main.cpp), and the ID word is the block's in both.
 void check_identity(Tb& tb) {

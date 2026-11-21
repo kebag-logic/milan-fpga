@@ -45,7 +45,7 @@ MILAN_CSR_SV = ROOT / "hdl/common/csr/milan_csr.sv"
 
 _VERSION_RE = re.compile(
     r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h([0-9A-Fa-f_]+)")
-#: A split image's major (#665 S13): milan_csr.sv's VERSION_SPLIT_MAJOR, which
+#: A split image's major (#665): milan_csr.sv's VERSION_SPLIT_MAJOR, which
 #: the VERSION register reads in a datapath built with CTRL_SPLIT_P = 1. The
 #: minor is VERSION's in both placements, one flat ordinal across majors
 #: (docs/ARCHITECTURE_HW_SW_SPLIT.md section 7).
@@ -95,7 +95,7 @@ def firmware_version_string(rev: int = 0,
                             path: str | Path | None = None,
                             placement: str = PLACEMENTS[0]) -> str:
     """The ENTITY descriptor's firmware_version value: `major.minor.rev`, for
-    an image at `placement` (a split image's is `3.<minor>.<rev>`, #665 S13).
+    an image at `placement` (a split image's is `3.<minor>.<rev>`, #665).
 
     IEEE 1722.1-2021 7.2.1 Table 7-2 offset 116: "64-octet UTF-8 string
     containing the firmware version of the ATDECC Entity" - the standard

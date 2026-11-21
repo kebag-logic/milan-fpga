@@ -122,7 +122,7 @@ def grade(status_text: str, first_time_text: str,
     checks = [
         ("id-miln", status["id"] == 0x4D494C4E,
          f"ID=0x{status['id']:08X} VERSION=0x{status['version']:08X}"),
-        # major 2 is the all-fabric placement's, 3 a split image's (#665 S13); the
+        # major 2 is the all-fabric placement's, 3 a split image's (#665); the
         # minor is one flat ordinal across both, so the gPTP publication's 0x0056
         # bounds either
         ("version-gptp-publication",
@@ -282,7 +282,7 @@ def self_test() -> None:
 
     assert not verdict(status.replace("00020056", "00020055"),
                        "version-gptp-publication")
-    # a split image's major 3 (#665 S13) passes at the same minor and is held
+    # a split image's major 3 (#665) passes at the same minor and is held
     # to it; a major neither placement reads fails
     assert verdict(status.replace("00020056", "00030056"),
                    "version-gptp-publication"), \

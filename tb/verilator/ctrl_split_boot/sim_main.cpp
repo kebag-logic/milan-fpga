@@ -161,7 +161,7 @@ public:
     explicit Bench(const char* transcript) : flash_(0, 0), out_(transcript) {
         if (!out_) throw std::runtime_error("cannot open the transcript");
         words_[0x000u] = 0x4d494c4eu;   // ID, 'MILN'
-        words_[0x004u] = 0x00030060u;   // VERSION, as a split image reads it since the flip (#665 S13)
+        words_[0x004u] = 0x00030060u;   // VERSION, as a split image reads it since the flip (#665)
     }
 
     std::uint32_t word(std::uint32_t offset) const {

@@ -3270,7 +3270,7 @@ def emit_adp_shape_svh(cfg: dict[str, Any],
 def rtl_firmware_version(rev: int = 0, placement: str = "all-fabric") -> str:
     """This gateware's version string for the ENTITY descriptor of an image
     at `placement`: a split image's major is milan_csr.sv's
-    VERSION_SPLIT_MAJOR, the one its VERSION register reads (#665 S13).
+    VERSION_SPLIT_MAJOR, the one its VERSION register reads (#665).
 
     Delegates to avdecc/gen_aem_store.py, which parses `parameter logic
     [31:0] VERSION` out of hdl/common/csr/milan_csr.sv - the one place the
@@ -3824,7 +3824,7 @@ def _load_document(path):
 def _load_entity(cfg, path, placement):
     """The ENTITY descriptor facts the config owns. The firmware
     version is NOT among them - it is derived from the gateware, at the
-    config's control placement (a split image reads major 0x0003, #665 S13)."""
+    config's control placement (a split image reads major 0x0003, #665)."""
     # entity (entity_model_id resolved AFTER streams/interface: hash needs
     # the derived layout)
     ent = _req(cfg, "entity", path)
@@ -4539,7 +4539,7 @@ def _load_soc(cfg, cons):
 #: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
 #: all-fabric, the default when a config states none: the protocol processor
 #: and KL_maap in the datapath. split, which the AX7101 configs state since the
-#: flip (#665 S13): the bare-metal control firmware through the
+#: flip (#665): the bare-metal control firmware through the
 #: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with
 #: CTRL_SPLIT_P = 1. The two placements build from one tree, one recipe and one
 #: config file, differing in this key alone.
@@ -4577,7 +4577,7 @@ def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
     the same file stating `control: {placement: split}` loads to (gate 23o).
     The shape, the identity and the argv's other flags are the config's.
     The ENTITY's firmware_version follows the placement, as load_config
-    derives it, because VERSION's major does (#665 S13)."""
+    derives it, because VERSION's major does (#665)."""
     if placement not in CONTROL_PLACEMENTS:
         raise ConfigError(f"placement recipe '{placement}' is not one of {', '.join(CONTROL_PLACEMENTS)}")
     entity = cfg["entity"]
@@ -6247,11 +6247,11 @@ def build(config_path: str, outdir: str | None = None,
     OUTDIR/<config-stem>/, where a split argv's --ctrl-firmware already
     points, and takes no tracked ownership: the shape include and the sweep
     fragment stay the build of the config's own control.placement (the AX7101
-    configs' split since the flip, #665 S13), so a sweep or a named recipe
+    configs' split since the flip, #665), so a sweep or a named recipe
     never builds the other placement by accident (gate 23o)."""
     if placement is not None and (write_rtl or write_fragment):
         raise ConfigError("the placement recipe writes no tracked file: --write-rtl and --write-fragment "
-                          "stay with the config's own control.placement (#665 S13)")
+                          "stay with the config's own control.placement (#665)")
     art = _derive_artifacts(config_path, placement)
     cfg = art.cfg
     d, out = _write_artifact_dir(art, outdir)

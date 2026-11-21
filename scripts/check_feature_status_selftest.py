@@ -200,8 +200,8 @@ def _source_fact_cases(fx):
     cases.append(("source version drift", any(
         "gateware version conflict" in item for item in check_source_facts(
             ledger, version_text.replace("0051", "0052"), command_text))))
-    # the current version is a split image's major over VERSION's minor (#665
-    # S13): a moved split major is a conflict, and a missing one is no
+    # the current version is a split image's major over VERSION's minor (#665):
+    # a moved split major is a conflict, and a missing one is no
     # source at all rather than a silent fall back to VERSION's own major
     cases.append(("source split major drift", any(
         "gateware version conflict" in item for item in check_source_facts(

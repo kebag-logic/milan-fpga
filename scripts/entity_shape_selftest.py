@@ -653,7 +653,7 @@ def _prove_rtl_regressions(builder: ModuleType, base_dp: str,
                     lambda: gate.check_firmware_version(builder))
     finally:
         restore()
-    # 7b. the same defect for a split image (#665 S13): VERSION_SPLIT_MAJOR
+    # 7b. the same defect for a split image (#665): VERSION_SPLIT_MAJOR
     #     moves and a split config's descriptor keeps the old major. Read the
     #     literal out of the RTL for the same reason as above.
     cur = re.search(r"(parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h)"

@@ -2846,7 +2846,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .PPS_P(PPS_P),
     .PPS_WIDTH_CYC_P(PPS_WIDTH_CYC_P),
     //! The placement selects VERSION's major and nothing else: a split image
-    //! reads major 0x0003, an all-fabric one its own (#665 S13)
+    //! reads major 0x0003, an all-fabric one its own (#665)
     .CTRL_SPLIT_P(CTRL_SPLIT_P)
     //! No ADP shape parameters: milan_csr `include-s the SAME generated
     //! gen/adp_shape_defaults.svh this module does, so the config is the

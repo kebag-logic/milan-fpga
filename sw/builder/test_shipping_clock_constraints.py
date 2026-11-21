@@ -2,7 +2,7 @@
 """#607: inspect constraints emitted by real shipping AX7101 elaborations,
 including #395's timing-grade hooks and #817's servo reset synchronizer
 cut in the same build Tcl. Both AX7101 configs ship the split placement
-since the flip (#665 S13), elaborated with a synthetic platform image the
+since the flip (#665), elaborated with a synthetic platform image the
 split control memory accepts; the all-fabric release build is elaborated
 too, so both placements' constraints stay gated."""
 

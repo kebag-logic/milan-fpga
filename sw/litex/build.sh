@@ -29,7 +29,7 @@
 #   BUILD_PLACEMENT=all-fabric ./build.sh ax7101
 #                                      # the config at another control placement: the
 #                                      # builder's --placement recipe, every other key
-#                                      # the config's (#665 S13). The AX7101 configs
+#                                      # the config's (#665). The AX7101 configs
 #                                      # ship the split placement, whose launch reads
 #                                      # the platform image the builder's argv names
 #                                      # (sw/builder/out/<config>/ctrl_app.elf,
@@ -324,7 +324,7 @@ regenerate() {
     SNAP=$(mktemp -d) || { echo "refusing to build: could not create the temporary directory that holds the tracked generated files while the builder runs (mktemp -d failed). Nothing was regenerated." >&2; return 1; }
     snapshot_tracked_generated || { rm -rf "$SNAP"; return 1; }
     rc=0
-    # BUILD_PLACEMENT, when set, is the builder's placement recipe (#665 S13): the config
+    # BUILD_PLACEMENT, when set, is the builder's placement recipe (#665): the config
     # at that control placement, its shape unchanged; the builder refuses a name it lacks
     placement=()
     [ -n "${BUILD_PLACEMENT:-}" ] && placement=(--placement "$BUILD_PLACEMENT")
