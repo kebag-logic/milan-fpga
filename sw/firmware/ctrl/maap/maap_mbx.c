@@ -42,12 +42,20 @@ static uint32_t clock_ms(void *ctx)
 static void refresh_demand(struct maap_mbx *m)
 {
 	m->demand = 0u;
+	for (unsigned k = 0; k < MBX_N_IF; ++k) {
+		m->demand_if[k] = 0u;
+	}
 	if (m->acmp != NULL) {
 		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
 			// The owner supplies per-source destination validity and retires
 			// observed probe expiry. Only dispatch may call a protocol core.
 			if (acmp_declaring(m->acmp, s)) {
 				m->demand |= UINT32_C(1) << s;
+				// Filed under the source's own interface, so declaring reads each interface's bits whole (#872)
+				unsigned k = m->acmp->cfg.source_interface[s];
+				if (k < MBX_N_IF) {
+					m->demand_if[k] |= UINT32_C(1) << s;
+				}
 			}
 		}
 	}
@@ -60,13 +68,12 @@ static void refresh_demand(struct maap_mbx *m)
 static uint32_t declaring(struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)
 {
 	uint32_t gate = 0u;
-	if (m->acmp != NULL) {
-		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
-			bool demand = (m->demand & (UINT32_C(1) << s)) != 0u;
-			if (m->acmp->cfg.source_interface[s] == interface && valid && s < count && demand) {
-				gate |= UINT32_C(1) << s;
-			}
-		}
+	if (m->acmp != NULL && interface < MBX_N_IF) {
+		// The sources s on this interface with demand and s < count, while the range is valid: the latest
+		// refresh_demand's, filed by source_interface, which acmp_init fixed. It replaces a scan of every source in
+		// each interface's poll, 13 % of the service CPU at 32x32/2if (#872).
+		uint32_t below = count >= 32u ? UINT32_MAX : (UINT32_C(1) << count) - 1u;
+		gate = valid ? m->demand_if[interface] & below : 0u;
 	}
 	uint32_t may = gate & (m->published_gate[interface] | m->sid_written);
 	m->sid_wait[interface] = (uint16_t)(gate & ~may);

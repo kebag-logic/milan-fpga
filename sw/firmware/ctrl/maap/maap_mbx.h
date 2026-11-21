@@ -44,6 +44,7 @@ struct maap_mbx {
 	struct acmp *acmp;
 	uint32_t published_gate[MBX_N_IF];
 	uint32_t demand; // Cached acmp_declaring answers, including source DA validity.
+	uint32_t demand_if[MBX_N_IF]; // The same bits, each under its source's interface (cfg.source_interface).
 	// Each source's SRC_SID (#905), one source's at a time: the high word the
 	// poll owes next, of the source whose low word it wrote (sid_half, + 1, 0
 	// for none); bit s source s, written since its DA_GATE bit last opened, so

@@ -63,4 +63,20 @@ MUTANTS = (
            "if (gate != m->published_gate[k])", "if (gate != m->published_gate[k] && gate != 0u)",
            "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
            "probe expires at 15000 milliseconds without a Listener"),
+    # The gate masked from the demand filed by interface (#872), each defect against the scan it replaced
+    # (MaapHost.DeclaringMatchesTheSourceScan): a bit filed on interface 0 whatever its source's, which only two
+    # interfaces can tell; the filing kept across refreshes, so an expired or withdrawn demand stays open; the count
+    # not applied.
+    Mutant("f3b-demand-filed-on-interface-0", "maap/maap_mbx.c",
+           "m->demand_if[k] |= UINT32_C(1) << s;", "m->demand_if[0] |= UINT32_C(1) << s;",
+           "maap_if2", "MaapHost.DeclaringMatchesTheSourceScan", "the masked gate is the source scan's"),
+    Mutant("f3b-demand-kept-past-refresh", "maap/maap_mbx.c",
+           "\t\tm->demand_if[k] = 0u;\n", "",
+           "maap", "MaapHost.DeclaringMatchesTheSourceScan", "the masked gate is the source scan's",
+           (("maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
+             "probe expires at 15000 milliseconds without a Listener"),)),
+    Mutant("f3b-gate-past-count", "maap/maap_mbx.c",
+           "gate = valid ? m->demand_if[interface] & below : 0u;",
+           "gate = valid ? m->demand_if[interface] | (below & 0u) : 0u;",
+           "maap", "MaapHost.DeclaringMatchesTheSourceScan", "the masked gate is the source scan's"),
 )

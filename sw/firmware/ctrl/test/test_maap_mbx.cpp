@@ -598,4 +598,97 @@ TEST_F(MaapHost, AcquiredRangeFeedsExistingCsrPath) {
     // Stop protocol activity before the callback's context goes away.
     maap_mbx_stop(&adapter);
 }
+
+// The DA gate's sources as declaring found them before #872: every source scanned in each interface's poll against
+// its interface, the range's validity and count and the latest refresh_demand's bit. The adapter now files the bits
+// by interface in refresh_demand and masks them (maap_mbx.c declaring).
+std::uint32_t scanned_gate(const maap_mbx& m, unsigned interface) {
+    std::uint32_t gate = 0u;
+    if (m.acmp != nullptr) {
+        const auto& core = m.ifs[interface].core;
+        for (unsigned s = 0; s < m.acmp->cfg.n_sources; ++s) {
+            const bool demand = (m.demand & (UINT32_C(1) << s)) != 0u;
+            if (m.acmp->cfg.source_interface[s] == interface && core.valid && s < core.count && demand)
+                gate |= UINT32_C(1) << s;
+        }
+    }
+    return gate;
+}
+
+// The differential of the masked gate against that scan (#872): random configurations (the adapter's count, ACMP's
+// sources, more or fewer, each on a random interface) and random sequences of Listener registrations, probes, source
+// validity, time, MAAP acquisition and loss and link changes. After every pass each interface's gate, what it
+// published and what it holds back for a SRC_SID (declaring: published_gate | sid_wait), is exactly the scan's.
+TEST_F(MaapHost, DeclaringMatchesTheSourceScan) {
+    std::uint32_t seed = 0x872u;
+    auto next = [&seed](std::uint32_t n) { seed = seed * 1664525u + 1013904223u; return (seed >> 8) % n; };
+    unsigned passes = 0, open = 0, held = 0, beyond = 0;
+    for (unsigned trial = 0; trial < 32; ++trial) {
+        const unsigned count = 1u + next(MBX_N_PUB_SOURCES);
+        const unsigned sources = 1u + next(ACMP_MAX_SOURCES);
+        maap_mbx_stop(&adapter); mbx_model_reset(&model); ctrl_loop_init(&loop);
+        for (unsigned k = 0; k < MBX_N_IF; ++k) mbx_model_set_link(&model, k, true);
+        ASSERT_TRUE(maap_mbx_init(&adapter, macs.data(), static_cast<std::uint16_t>(count), 2, allocation, this));
+        acmp_config config = declaration_owner.cfg;
+        config.n_sources = sources;
+        for (unsigned s = 0; s < sources; ++s) config.source_interface[s] = static_cast<std::uint8_t>(next(MBX_N_IF));
+        ASSERT_TRUE(acmp_init(&declaration_owner, &config, &declaration_ports, &declaration_env));
+        source_valid.fill(true);
+        maap_mbx_bind_acmp(&adapter, &declaration_owner);
+        ASSERT_TRUE(maap_mbx_attach(&adapter, &loop));
+        ASSERT_TRUE(ctrl_loop_open(&loop, 1, macs.data()));
+        ASSERT_TRUE(maap_mbx_start(&adapter, kBase));
+        for (unsigned step = 0; step < 160; ++step) {
+            const unsigned s = next(sources);
+            const unsigned k = next(MBX_N_IF);
+            switch (next(8)) {
+            case 0: case 1:
+                (void)acmp_listener_registered(&declaration_owner, config.source_interface[s], s, next(2) != 0u);
+                break;
+            case 2: {
+                std::array<uint8_t, 70> frame{};
+                wire_put_be(frame.data() + 12, 0x22f0u, 2);
+                frame[14] = 0xfcu; frame[17] = 44u;
+                wire_put_be(frame.data() + 34, 1u, 8);
+                wire_put_be(frame.data() + 50, s, 2);
+                acmp_rx(&declaration_owner, config.source_interface[s], frame.data(), frame.size());
+                break;
+            }
+            case 3: source_valid[s] = !source_valid[s]; break;
+            case 4: {
+                static constexpr unsigned kSteps[] = {1u, 40u, 900u, 7000u, 14999u, 15000u};
+                advance(kSteps[next(6)]);
+                break;
+            }
+            case 5: case 6:
+                if (model.timers[adapter.ifs[k].slot].armed)
+                    advance(model.timers[adapter.ifs[k].slot].deadline_ms - model.now_ms);
+                break;
+            default:
+                if (next(3) == 0u) mbx_model_set_link(&model, k, !model.link_up[k]);
+                else (void)inject(incoming(2, macs[k]), k);
+                break;
+            }
+            ctrl_loop_service(&loop);
+            ++passes;
+            for (unsigned i = 0; i < MBX_N_IF; ++i) {
+                const std::uint32_t gate = adapter.published_gate[i] | adapter.sid_wait[i];
+                ASSERT_EQ(gate, scanned_gate(adapter, i))
+                    << "the masked gate is the source scan's, trial " << trial << " step " << step << " interface " << i;
+                open += gate != 0u;
+                held += adapter.sid_wait[i] != 0u;
+                const auto& core = adapter.ifs[i].core;
+                for (unsigned d = 0; d < sources; ++d) {
+                    beyond += core.valid && d >= core.count && config.source_interface[d] == i &&
+                              (adapter.demand >> d & 1u) != 0u;
+                }
+            }
+        }
+    }
+    std::printf("  declaring against the scan: %u passes, %u interface gates open, %u holding a SRC_SID back, "
+                "%u demands past the count\n", passes, open, held, beyond);
+    EXPECT_GT(open, passes / 8u) << "the sequences open gates, so the comparison is not of closed gates alone";
+    EXPECT_GT(beyond, 0u) << "the sequences hold demand past the range's count, which the gate must leave closed";
+    maap_mbx_stop(&adapter);
+}
 } // namespace
