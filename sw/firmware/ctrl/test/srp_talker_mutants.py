@@ -121,7 +121,7 @@ RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declarati
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every Talker declaration defect, built with srp_mutants.Defect: the declarations', then the entry's and the
     stream_id's, in that order."""
-    return declaration_defects(kind) + entry_defects(kind) + notice_defects(kind)
+    return declaration_defects(kind) + hold_off_defects(kind) + entry_defects(kind) + notice_defects(kind)
 
 
 def planter(kind: Callable[..., T]) -> Callable[..., T]:
@@ -135,8 +135,8 @@ def planter(kind: Callable[..., T]) -> Callable[..., T]:
 
 
 def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
-    """The declarations' defects: validity, the lapse, the hold-off, the admission's swap, the withdrawal's Leave and
-    THE TRANSMIT's publications (srp_mbx.c)."""
+    """The declarations' defects: validity, the lapse, the admission's swap, the withdrawal's Leave and THE TRANSMIT's
+    publications (srp_mbx.c); the hold-off's are hold_off_defects'."""
     d = planter(kind)
     return (
         d("talker-declared-while-not-valid", VALID, DECLARES, DECLARES.replace("if (valid && !waits", "if (!waits"),
@@ -148,49 +148,6 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "        bool changed = (valid & ~i->gate) != 0u;\n", "the probe's 15 s expiry withdraws the Talker"),
         d("talker-unchanged-held", AGAIN, WAITS,
           "        const bool waits = m->held_cs[n] != 0u;\n", "an unchanged destination is declared again at once"),
-        d("talker-hold-off-skipped", CHANGED, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "                m->held_cs[n] = 1u;\n",
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
-          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
-        d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
-          REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
-          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
-        d("talker-hold-off-adds-its-terms", CHANGED, REDECLARE, ADDED,
-          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
-          "withdrawal"),
-        d("talker-hold-off-adds-its-terms-at-the-latest", LATEST, REDECLARE, ADDED,
-          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
-          "withdrawal, at the latest"),
-        d("talker-hold-off-adds-its-terms-after-a-conflict", LOST, REDECLARE, ADDED,
-          "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict"),
-        d("talker-hold-off-a-centisecond-short", CHANGED, REDECLARE, REDECLARE.replace(" / 10u)", " / 10u - 1u)"),
-          "TALKER_DECL holds a changed destination withdrawn while it waits"),
-        d("talker-hold-off-takes-its-terms-twice", CHANGED, REDECLARE,
-          REDECLARE.replace(" - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)",
-                            " - 2u * (SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u))"),
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
-          REDECLARE.replace(" - (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
-          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
-          "withdrawal, at the latest"),
-        d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
-          "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
-          "a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE "
-          "TRANSMIT's term after its Leave's request"),
-        d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
-          REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
-          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
-          "withdrawal, at the latest"),
-        d("talker-hold-off-never-ends", CHANGED,
-          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
-          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
-          "a changed destination is declared once the hold-off ends"),
         d("talker-change-while-valid-unmarked", MOVED,
           "                moved = moved || s->value.dest_mac[b] != (uint8_t)dest;\n",
           "                moved = moved || (s->value.dest_mac[b] != (uint8_t)dest && false);\n",
@@ -240,6 +197,57 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-transmit-publishes-past-its-terms", TERMS, "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass"),
+    )
+
+
+def hold_off_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """The withdrawal's hold-off before a changed destination is declared (#895, #951, #956; srp_mbx.c,
+    SRP_REDECLARE_CS and count_held): its start, its terms inside the two longest LeaveAll periods, its end."""
+    d = planter(kind)
+    return (
+        d("talker-hold-off-skipped", CHANGED, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = 1u;\n",
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
+        d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
+          REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
+        d("talker-hold-off-adds-its-terms", CHANGED, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal"),
+        d("talker-hold-off-adds-its-terms-at-the-latest", LATEST, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-adds-its-terms-after-a-conflict", LOST, REDECLARE, ADDED,
+          "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict"),
+        d("talker-hold-off-a-centisecond-short", CHANGED, REDECLARE, REDECLARE.replace(" / 10u)", " / 10u - 1u)"),
+          "TALKER_DECL holds a changed destination withdrawn while it waits"),
+        d("talker-hold-off-takes-its-terms-twice", CHANGED, REDECLARE,
+          REDECLARE.replace(" - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)",
+                            " - 2u * (SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u))"),
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
+          REDECLARE.replace(" - (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
+          "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
+          "a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE "
+          "TRANSMIT's term after its Leave's request"),
+        d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
+          REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-never-ends", CHANGED,
+          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
+          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
+          "a changed destination is declared once the hold-off ends"),
     )
 
 
