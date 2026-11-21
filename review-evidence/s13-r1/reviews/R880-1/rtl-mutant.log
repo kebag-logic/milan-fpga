@@ -1,0 +1,16 @@
+[PUB] SID_VALID to the listener: 9 mailbox cycles
+[POL] LICENCE 0x0001: active 0x0001 admitted 0x0001 gate 0x0001 crf 0
+[POL] LICENCE 0x0002: active 0x0002 admitted 0x0002 gate 0x0002 crf 1
+[FACE] commit to BUSY clear: 2 polls
+[WIN] CTR round 0: status 0x102 data 0x0 in 6 polls
+[WIN] CTR round 1: status 0x202 data 0x0 in 5 polls
+[WIN] AMAP: status 0x102 data 0x1 in 10 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 6 polls
+[TX] commit to the MAC's last byte: 168 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 4, up again after 2
+[TAP] burst: 109 frames offered, 65 handed out, 44 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+FAIL [ID] the split datapath reads VERSION 0x0003_0060: got 0x20060, want 0x30060
+FAIL [ID] the split datapath reads VERSION major 0x0003 (VERSION >> 16): got 0x2, want 0x3
+ran 142807 mailbox cycles
+checks: 148   failures: 2

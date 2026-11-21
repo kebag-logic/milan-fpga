@@ -1,0 +1,15 @@
+PASS public manifest hashes: 108
+1x1 reported header differing bytes 77 rendered design-name differences 71 other header offsets [185, 191, 193, 194, 196, 197] frame changed bits 22
+1x1 signoff-AltSpreadLogic_high floor True
+1x1 signoff-ExtraPostPlacementOpt floor True
+1x1 signoff-ExtraTimingOpt floor False
+8x8 reported header differing bytes 74 rendered design-name differences 69 other header offsets [185, 193, 194, 196, 197] frame changed bits 15
+8x8 signoff-AltSpreadLogic_high floor True
+8x8 signoff-ExtraPostPlacementOpt floor True
+8x8 signoff-ExtraTimingOpt floor True
+PASS receipt inventory: 16 arm comparisons, each reports six changed loaded bytes and unchanged partition
+PASS receipt inventory: 13 descriptor/control groups reported identical
+Public comparison input counts: {".bit": 0, ".bram": 0, ".cells": 0, ".dcp": 0, ".elf": 0, ".init": 0, ".nets": 0}
+Subset comparison driver hcompare2.py present: False
+Subset driver hsubset.sh present: False
+LIMIT: this audit validates reported arithmetic and inventory, not the absent binary inputs or result leaves

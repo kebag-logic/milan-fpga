@@ -1,0 +1,47 @@
+R880-1 focused replay
+
+Use a disposable exact-head checkout with the four required submodules initialized.
+All scripts take paths as arguments. REPO is that checkout; PACKET is an absolute
+output directory containing these scripts, with a scratch/ subdirectory.
+LITEX_PYTHON is an existing equipped interpreter. SIMULATOR is the assigned
+5.050 executable. No shared installation is needed or modified.
+
+python3 "$PACKET/focused_checks.py" "$REPO" "$PACKET" "$LITEX_PYTHON"
+MILAN_LITEX_PYTHON="$LITEX_PYTHON" PYTHONDONTWRITEBYTECODE=1 python3 "$PACKET/builder_checks.py" "$REPO" "$PACKET"
+TMPDIR="$PACKET/scratch" PYTHONDONTWRITEBYTECODE=1 python3 "$PACKET/sweep_probe.py" "$REPO" "$PACKET" "$LITEX_PYTHON"
+PYTHONDONTWRITEBYTECODE=1 python3 "$PACKET/descriptor_check.py" "$REPO"
+
+builder_checks.py creates a standard builder-output symlink into scratch when
+absent and refuses an unrelated existing output directory. sweep_probe.py follows
+builder_checks.py so platform_shape.json exists; ctrl_app.elf must be absent.
+Its expected result is the split missing-image failure AND the all-fabric control
+reaching the datapath. It does not run resource pricing or create scratch commits.
+
+For RTL, use another disposable exact-head clone under PACKET/scratch/rtl with
+real initialized submodules (no copied or linked submodule directories):
+python3 "$PACKET/rtl_probe.py" "$PACKET/scratch/rtl" "$PACKET" "$SIMULATOR"
+This runs make -j16, with 12 compilation workers, then the binary, first clean
+and then with a copied datapath whose CSR placement binding is forced to zero.
+The mutation's exit 1 and two version assertions are the expected positive control.
+
+Additional commands, from the indicated checkout, with TMPDIR=$PACKET/scratch
+and PYTHONDONTWRITEBYTECODE=1:
+  scripts/check_entity_shape.py --self-test      (python3; disposable RTL clone)
+  scripts/check_sweep_shape.py --self-test       (python3; primary clone)
+  sw/builder/test_shipping_clock_constraints.py (LITEX_PYTHON; disposable RTL clone)
+  scripts/gen_register_reference.py --check     (LITEX_PYTHON; primary clone)
+
+Acquire the PUBLIC packet at commit 89a2e4b95f4dbe916f150c68c4403792f05bffa3,
+review-evidence/s13-r1, into scratch (only its author-r1 subtree and MANIFEST.json):
+python3 "$PACKET/evidence_audit.py" "$PACKET/scratch/review-evidence/s13-r1"
+This checks hashes and receipt arithmetic; it is explicitly NOT a replay of
+the absent binary inputs or the absent thirteen group-result operands.
+
+After probes and restoration:
+python3 "$PACKET/verify_tree.py" "$REPO"
+
+The initial builder and register-map setup failures are retained as receipts;
+the completed reruns are builder.log/rc and regmap-equipped.log/rc. The final
+focused_checks.py selects the equipped interpreter for the register-map command.
+No parent bank, processor bank, synthesis bank, hosted workflow or hardware run
+is part of these commands.
