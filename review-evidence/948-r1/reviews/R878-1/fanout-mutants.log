@@ -1,0 +1,28 @@
+Command: ['python3', '-B', 'fanout_mutants.py']
+[PASS] the unmutated stack still passes the N=8 fan-out contract
+[PASS] mutant caught: the parser's one index: each PDU goes to the highest matching entry alone (the defect #948 found) - breaks "[FO1] accept verdicts: input 0"
+    it broke 117 check(s); first: [FO1] accept verdicts: input 0
+[PASS] mutant caught: the engine serves a bundle to its first context alone - breaks "[FO1] accept verdicts: input 1"
+    it broke 107 check(s); first: [FO1] accept verdicts: input 1
+[PASS] mutant caught: the done pulse leaves out the last context's own accept - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+    it broke 28 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 1
+[PASS] mutant caught: a new bundle inherits the previous bundle's accepts - breaks "[FO4] the 2-channel input: no payload: input 5"
+    it broke 17 check(s); first: [FO3] the unbound input: no payload: input 1
+[PASS] mutant caught: the depacketizer reads a frame once: no pass for a second input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+    it broke 99 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a second pass keeps the first pass's input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 103 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a second pass goes on from where the first ended, not from the frame's start - breaks "[FO1] payloads equal the sent ones, byte for byte, in order: input 1"
+    it broke 103 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a frame no input accepted is read out to input 0 - breaks "[FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 3 check(s); first: [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: the read side takes a frame before its verdicts are known - breaks "[FO6] payloads equal the sent ones, byte for byte, in order"
+    it broke 69 check(s); first: [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a PDU queued after its frame ended waits for that frame's fate - breaks "[FO8] only the full PDU reaches the depacketizer's output: input 0"
+    it broke 36 check(s); first: [FO8] only the full PDU reaches the depacketizer's output: input 0
+[PASS] mutant caught: the verdict queue holds two entries, not the four a full ring and a lost PDU need - breaks "[FO9] only the three full PDUs reach the depacketizer's output"
+    it broke 24 check(s); first: [FO9] only the three full PDUs reach the depacketizer's output: input 0
+[PASS] mutant caught: a frame the full store dropped counts in no input's DEPKT drops - breaks "[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops"
+    it broke 16 check(s); first: [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0
+
+13 checks: 13 PASS, 0 FAIL

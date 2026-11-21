@@ -1,0 +1,4 @@
+From the reviewed clone, with PACKET set to the extracted review packet:
+python3 -m pip install --disable-pip-version-check --require-hashes --target "$PACKET/scratch/markdown" -r tools/markdown/requirements.txt
+PYTHONPATH="$PACKET/scratch/markdown" python3 -B scripts/check_em_dash.py --base 15168e14
+Initial dependency refusal: em-dash.log. Completed check: em-dash-pinned.log, rc 0.

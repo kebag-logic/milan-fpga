@@ -1,0 +1,39 @@
+== one stream bound to several Stream Inputs, N=8 (#948) ==
+
+[FO1] inputs 0 and 1 bound to one talker stream: each receives every PDU
+  [ ok ] [FO1] accept verdicts: input 0 = 4
+  [FAIL] [FO1] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO1] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [ ok ] [FO1] FRAMES_RX counts them: input 0 = 4
+  [FAIL] [FO1] the DEPKT tally counts them: input 0 got=0 exp=4
+  [ ok ] [FO1] MEDIA_LOCKED: input 0 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 0 = 0
+  [ ok ] [FO1] accept verdicts: input 1 = 4
+  [FAIL] [FO1] payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=4
+  [FAIL] [FO1] payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=4
+  [ ok ] [FO1] FRAMES_RX counts them: input 1 = 4
+  [FAIL] [FO1] the DEPKT tally counts them: input 1 got=0 exp=4
+  [ ok ] [FO1] MEDIA_LOCKED: input 1 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 1 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 5 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 5 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+======================================================================
+FANOUT N=8: 32 checks, 6 failures
+RESULT: FAIL
