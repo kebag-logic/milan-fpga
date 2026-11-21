@@ -7984,10 +7984,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   );
 
   // ==========================================================================
-  //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
-  //  accept pulse is the commit verdict, so fabric render receives exactly
-  //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
-  //  order (S32BE interleaved) toward the render path.
+  //  AAF RX depacketizer (listener media path), on the same RX tap: the
+  //  monitor's enqueue commits the frame and its done mask names the inputs
+  //  that accepted it (#948), so each input's render path receives exactly
+  //  the PDUs its FRAMES_RX counts. Payload leaves as full 8-byte beats in
+  //  wire order (S32BE interleaved) toward the render path, once per input.
   // ==========================================================================
   //! #632: the payload follows the header's timestamp by the cycles the
   //! render stage takes to place the PDU (its divider: a quotient bit per
