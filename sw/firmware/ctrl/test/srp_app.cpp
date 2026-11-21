@@ -145,7 +145,7 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     const auto record=cost([&]{ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&taken),MBX_STATUS_OK);});
     check("SRP maximum RX record bound",record,SRP_MBX_RX_RECORD_MAX);
     ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+    while (adapter.tx_owed!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     const auto pass=cost([&]{ctrl_loop_service(&loop);});
     ASSERT_GT(pass,record);
     check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
@@ -218,7 +218,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     unsigned sends=0;
     uint64_t most=0;
     // a declaration made after a build owes the participant whose join timer is idle a pass of its own
-    for (unsigned n=0;n<4u*MBX_N_IF && adapter.tx_due!=0u;++n) {
+    for (unsigned n=0;n<4u*MBX_N_IF && adapter.tx_owed!=0u;++n) {
         srp_probe={&model,0,0,0,true};
         const auto transmitting=build();
         const auto observed=srp_probe;
@@ -298,7 +298,7 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
         << "pass event records are funded independently";
     // Those resets' polls: receive waits until the new participants are built.
     for (unsigned n=0;n<2u;++n) loop.polls[0].fn(loop.polls[0].ctx);
-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+    while (adapter.tx_owed!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
     // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
     // Ethernet padding needs no allocation; the real readiness check runs.
     loop.rx[MBX_CH_SRP]=receive;

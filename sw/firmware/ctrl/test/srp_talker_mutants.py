@@ -10,7 +10,9 @@ defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) 
 licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one is held from its
 Leave's request for two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's MRPDU, so it reaches the
 wire no later than the two periods (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951, #956), whether it changed while
-declared or while lapsed, at the latest THE TRANSMIT allows, and held across a reset; never at the two LeaveAllTime
+declared or while lapsed, at the latest THE TRANSMIT allows, at every withdrawal phase with the join timer idle or
+running as the count ends, a build resumed in a later slice keeping owed what came due since its first, and held
+across a reset; never at the two LeaveAllTime
 periods it was before #951, alone or after a range lost to a conflict, nor with #951's terms added past the two
 periods, nor a centisecond short of the hold-off or with its terms taken twice; an admission change swaps in
 place; a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until
@@ -26,7 +28,8 @@ starts with none (ctrl_app_srp.c). Each change of the Listener registered for a 
 STREAM_OUTPUT shows too (#957; #943's REGISTERING and REGISTERING_FAILED), is recorded on its interface: a Listener
 appearing, replacing another or going, while its DA gate is open there, and nothing else, a Listener declared again
 or registered again after a LeaveAll included: the declaration its indication copies compared, Ignore at a
-registration's end, in the record a declaration's change is (noticed).
+registration's end, in the record a declaration's change is (noticed), and the first registration after a reset,
+which destroys the registrations with no indication, recorded whatever it declares.
 """
 from __future__ import annotations
 
@@ -56,6 +59,10 @@ SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
 VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
 RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
 REGISTRATION = "Talker.ListenerRegistrationChangeIsNoticed"
+REGISTRATION_RESET = "Talker.ListenerRegistrationAfterAResetIsNoticed"
+RUNNING = "Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning"
+#: the sweep's instance at a phase whose count's end finds the join timer running at every point (srp_talker.cpp)
+PHASES = "EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340"
 TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
 TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
@@ -116,6 +123,11 @@ OWED = "    bool pending = noticed;\n"
 #: change (#957), as srp_mbx.c holds them: the indication's comparison and copy of the declaration.
 RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declaration) << n & i->gate;\n"
             "            i->declaration[n] = (uint8_t)declaration;\n")
+#: the reset's clear of the declaration a registration it destroys held (#957), as srp_mbx.c holds it.
+FORGOTTEN = "        i->declaration[k] = 0u;\n"
+#: what came due since the slice a build resumes from, which the build keeps owed once it ends (#956), as srp_mbx.c
+#: holds it.
+AGAIN = "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -248,6 +260,14 @@ def hold_off_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
           "a changed destination is declared once the hold-off ends"),
+        # the split before the correction: a build resumed in a later slice drops what came due since its first, so a
+        # join timer's end between the two leaves the declaration the count's end made for the next periodic MRPDU
+        d("talker-resume-drops-what-came-due", RUNNING, AGAIN, "    const unsigned again = 0u;\n",
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-resume-drops-what-came-due-at-a-phase", PHASES, AGAIN, "    const unsigned again = 0u;\n",
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
     )
 
 
@@ -340,4 +360,6 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           RECORDED.replace("(uint32_t)(i->declaration[n] != declaration) << n & i->gate",
                            "(uint32_t)(i->declaration[n] != declaration) & i->gate"),
           "a Listener Ready appearing is noticed"),
+        d("talker-registration-kept-across-a-reset", REGISTRATION_RESET, FORGOTTEN, "",
+          "the first Listener registration after a reset is noticed, whatever the one before it declared"),
     )

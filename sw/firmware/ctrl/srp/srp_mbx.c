@@ -1186,7 +1186,9 @@ static void reset_interface(struct srp_interface *i)
         revoked[k] = i->active[k];
         i->active[k] = false;
         i->stop_owed[k] = false;
-        // the registrar it was walked from is destroyed below (#665)
+        // the registrar it was walked from, and the Listener it registers, are destroyed below (#665): a registration
+        // after the reset is a change of the Listener the source's STREAM_OUTPUT shows, whatever it declares (#957)
+        i->declaration[k] = 0u;
         i->listener_present[k] = false;
     }
     publish_licence(i);
@@ -1399,7 +1401,7 @@ static bool poll(void *ctx)
             owed = true;
         }
     }
-    owed = owed || m->tx_due != 0u;
+    owed = owed || m->tx_owed != 0u;
     m->busy = false;
     return owed;
 }
@@ -1409,9 +1411,11 @@ static bool poll(void *ctx)
 // the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send licensed. A
 // slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes at the next
 // participant, its declarations already made, then makes that interface's declarations: the frames of the build made
-// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). Where a slice holds both MRPDUs
-// (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID unlicensed between
-// them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU follows in the next
+// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). The pause takes the interface's
+// due and the build stays owed (tx_owed), so what comes due between the two slices, a join timer's end among the
+// centiseconds dispatched there, is owed again once the build ends, as after a build made whole (#956). Where a slice
+// holds both MRPDUs (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID
+// unlicensed between them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU follows in the next
 // slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit (vlan_sent;
 // Milan v1.2 4.3.2). No declaration is made
 // while a retained receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again
@@ -1424,6 +1428,8 @@ static void transmit(void *ctx, unsigned most)
         return;
     }
     const unsigned resume = m->tx_resume;
+    // what came due since the slice the build resumes from, whose pause took its interface's due
+    const unsigned again = resume != 0u ? m->tx_due : 0u;
     const unsigned first = resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
     for (unsigned k = resume != 0u ? MBX_N_IF : 0u; k <= MBX_N_IF; ++k) {
         const unsigned n = k < MBX_N_IF ? k : first;
@@ -1445,11 +1451,11 @@ static void transmit(void *ctx, unsigned most)
                     (void)build_mrpdu(m,i,slot);
                 }
             }
+            if (!m->owed_len) {
+                m->tx_due = (uint8_t)((m->tx_due & ~(1u << n)) | again);
+            }
             if (m->tx_resume != 0u) {
                 break;
-            }
-            if (!m->owed_len) {
-                m->tx_due &= (uint8_t)~(1u << n);
             }
         }
         if (i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) && m->join_left[2u * n] == 0u) {
@@ -1459,11 +1465,12 @@ static void transmit(void *ctx, unsigned most)
     m->busy = false;
 }
 
-// THE TRANSMIT's due: an owed MRPDU, with no frame owed ahead of it, takes a pass of its own (ctrl_loop.h).
+// THE TRANSMIT's due: an owed MRPDU, or a build waiting for its next slice, with no frame owed ahead of it, takes a
+// pass of its own (ctrl_loop.h).
 static bool transmit_aged(void *ctx)
 {
     const struct srp_mbx *m = ctx;
-    return m->tx_due != 0u && !m->owed_len;
+    return m->tx_owed != 0u && !m->owed_len;
 }
 
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)

@@ -169,9 +169,17 @@ struct srp_mbx {
     uint32_t transmitted;
     uint32_t stops;
     uint32_t walks;        // registrar walks snapshot made (#665)
-    uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
+    // What THE TRANSMIT owes, read whole (tx_owed) by its due and the poll: the interfaces that owe an MRPDU now, bit n
+    // interface n (THE TRANSMIT's pass), and the participant + 1 a build resumes at in the next slice, 0 none (THE
+    // TIERS). A build's pause takes its interface's due, so a due set again before the build ends is owed after it.
+    union {
+        struct {
+            uint8_t tx_due;
+            uint8_t tx_resume;
+        };
+        uint16_t tx_owed;
+    };
     uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
-    uint8_t tx_resume;     // the participant + 1 a build resumes at in the next slice, 0 none (THE TIERS)
     // The retained receive's retry (#665): the blocks the pools had returned at its last refusal (ctrl_pool_returned),
     // and whether a retry was made since the last centisecond (tick).
     uint32_t pending_freed;

@@ -19,7 +19,7 @@ COUNT = "TheJoinCountFollowsWhatABuildSent"
 OWED = "AnOwedFrameComesBeforeTheBuild"
 RETAINED = "SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding"
 #: The poll's end: an owed build reported owed.
-POLL_END = "    owed = owed || m->tx_due != 0u;\n    m->busy = false;\n    return owed;\n}\n"
+POLL_END = "    owed = owed || m->tx_owed != 0u;\n    m->busy = false;\n    return owed;\n}\n"
 #: The centisecond's end of a join count, and a LeaveAll's.
 ENDS = "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0u : la == MRP_LA_STATE_ACTIVE) {"
 #: An interface's declarations, which wait for a retained receive and are tried again at the JoinTime.
@@ -27,13 +27,21 @@ DECLARE = ("        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarati
            "m->join_left[2u * n] == 0u) {\n            m->join_left[2u * n] = SRP_JOIN_CS;\n        }\n")
 #: A build's result, which restarts the count of the participant that sent.
 SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\n"
+#: A build's end or pause: its interface's due cleared, with what came due since its first slice kept (#956).
+CLEARED = "                m->tx_due = (uint8_t)((m->tx_due & ~(1u << n)) | again);\n"
+#: That clear, unless a frame is owed.
+BUILT = "            if (!m->owed_len) {\n" + CLEARED + "            }\n"
+#: A build stopped at a slice boundary, which the next slice resumes.
+PAUSED = "            if (m->tx_resume != 0u) {\n                break;\n            }\n"
 
 
 def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """THE TIERS (#894; #665, the decision of 2026-11-09, item 2): a build that stops at a slice boundary resumes at the
     next participant with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the
-    next build would, and a reset ends the build it was resuming."""
+    next build would, stays owed between its slices and keeps owed what came due there (#956), and a reset ends the
+    build it was resuming."""
     sliced = "ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole"
+    paused = "ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue"
     boundary = ("                    reclaim(i);\n                    m->tx_resume = (uint8_t)(slot + 1u);\n")
     return (
         kind("build-resumed-from-the-first-participant", sliced,
@@ -49,6 +57,15 @@ def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("build-resumed-past-a-reset", sliced,
              "    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;\n", "",
              "a reset ends the build it was resuming: its new participants build whole, MSRP first"),
+        # #956: what came due between a build's slices is owed once it ends, and the build is owed between them
+        kind("build-resumed-drops-what-came-due", paused, "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n",
+             "    const unsigned again = 0u;\n", "a due set between a build's slices is owed once the build ends"),
+        kind("build-paused-keeps-its-due", paused, BUILT + PAUSED, PAUSED + BUILT,
+             "a build with nothing due between its slices ends owing nothing"),
+        kind("build-paused-not-aged", paused, "return m->tx_owed != 0u && !m->owed_len;",
+             "return m->tx_due != 0u && !m->owed_len;", "a build resuming in the next slice is THE TRANSMIT's due"),
+        kind("build-paused-unreported", paused, "    owed = owed || m->tx_owed != 0u;\n",
+             "    owed = owed || m->tx_due != 0u;\n", "the poll reports a build resuming in the next slice owed"),
     )
 
 
@@ -62,9 +79,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "    m->loop->rx_held = rebuilds;\n", "    m->loop->rx_held = m->loop->rx_held || rebuilds;\n",
              "and the rebuild ends the hold"),
         kind("transmit-built-by-the-poll", WAITS, POLL_END,
-             "    m->busy = false;\n    transmit(m, CTRL_LOOP_BUILD_MOST);\n    return owed || m->tx_due != 0u;\n}\n",
+             "    m->busy = false;\n    transmit(m, CTRL_LOOP_BUILD_MOST);\n    return owed || m->tx_owed != 0u;\n}\n",
              "and no poll builds it"),
-        kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_due != 0u;\n", "",
+        kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_owed != 0u;\n", "",
              "an owed MRPDU is reported owed"),
         kind("transmit-join-end-owes-nothing", WAITS, ENDS,
              "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0xffu : la == MRP_LA_STATE_ACTIVE) {",
@@ -126,11 +143,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "if (m->join_left[2u * i->index] == 0u || !m->loop->retry_queued) {", "if (m != NULL) {",
              "an interface's passes given whole, a JoinTime"),
         # a frame owed comes first
-        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_due != 0u && !m->owed_len;",
-             "return m->tx_due != 0u;", "no pass goes to the build while a frame is owed"),
-        kind("transmit-due-cleared-with-a-frame-owed", OWED,
-             "            if (!m->owed_len) {\n                m->tx_due &= (uint8_t)~(1u << n);\n            }\n",
-             "            m->tx_due &= (uint8_t)~(1u << n);\n", "the interface stays due"),
+        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_owed != 0u && !m->owed_len;",
+             "return m->tx_owed != 0u;", "no pass goes to the build while a frame is owed"),
+        kind("transmit-due-cleared-with-a-frame-owed", OWED, BUILT, CLEARED, "the interface stays due"),
         # the declarations with the build, none while a retained receive waits, a refusal tried again at the JoinTime
         kind("transmit-declares-beside-a-retained-receive", RETAINED, DECLARE,
              DECLARE.replace("(m->pending_rx.len != 0u || prepare_declarations(i))", "prepare_declarations(i)"),

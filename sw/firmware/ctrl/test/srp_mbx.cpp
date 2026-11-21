@@ -1736,6 +1736,53 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
     loop.transmit = whole_transmit;
 }
 
+// A build that stops at a slice boundary stays owed until its next slice, THE TRANSMIT's due and the poll's report
+// both, and what comes due between its two slices, a join timer's end among the centiseconds dispatched there, or a
+// declaration another pass made owed, is owed again once the build ends, as it is after a build made whole: the pause
+// takes its interface's due, so a due set again before the build ends is new (THE TIERS; #956). A build with nothing
+// due between its slices ends owing nothing, what its own sends moved included.
+TEST_F(Srp, ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue) {
+    ctrl_poll_fn poll = nullptr;
+    for (unsigned k = 0; k < loop.n_polls; ++k) {
+        if (loop.polls[k].ctx == &adapter) {
+            poll = loop.polls[k].fn;
+        }
+    }
+    ASSERT_NE(poll, nullptr);
+    // the start, served as far as it goes, so each check below is reached whatever the start left
+    const auto serve = [&] {
+        for (unsigned n = 0; n < 1000u && ctrl_loop_service(&loop) != 0u; ++n) {
+        }
+    };
+    serve();
+    EXPECT_EQ(adapter.tx_owed, 0u) << "(the start settles owing THE TRANSMIT nothing)";
+    for (const bool again : {false, true}) {
+        while (adapter.tx_resume != 0u) {
+            loop.transmit(loop.transmit_ctx, 1u);
+        }
+        adapter.tx_due = 1u;
+        loop.transmit(loop.transmit_ctx, 1u);
+        ASSERT_NE(adapter.tx_resume, 0u) << "(a build resuming at its next participant)";
+        // nothing else due: the paused build alone
+        const uint8_t due = adapter.tx_due;
+        adapter.tx_due = 0u;
+        EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx)) << "a build resuming in the next slice is THE TRANSMIT's due";
+        EXPECT_TRUE(poll(&adapter)) << "the poll reports a build resuming in the next slice owed";
+        adapter.tx_due = (uint8_t)(adapter.tx_due | due);
+        if (again) {
+            adapter.tx_due |= 1u;   // as a join timer's end dispatched between the two slices owes it (tick)
+        }
+        loop.transmit(loop.transmit_ctx, 1u);
+        ASSERT_EQ(adapter.tx_resume, 0u) << "(the build ended)";
+        if (again) {
+            EXPECT_NE(adapter.tx_due & 1u, 0u) << "a due set between a build's slices is owed once the build ends";
+        } else {
+            EXPECT_EQ(adapter.tx_due & 1u, 0u) << "a build with nothing due between its slices ends owing nothing";
+        }
+        serve();
+    }
+}
+
 // A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a
 // build of a participant that sends nothing leaves it, and an Applicant moved while it runs owes nothing before it
 // ends. LeaveAll's timer owes its LeaveAll whatever the join timer's count (802.1Q Table 10-5).

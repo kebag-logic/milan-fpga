@@ -1058,6 +1058,122 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
     }
 }
 
+// #957 across a link reset of an output's interface (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the reset
+// destroys the interface's SRP participants and the Listener registrations they hold, so once MAAP holds the output's
+// address again and its Talker is declared again its answer shows no Listener, and the Listener's return, the bridge
+// declaring it again once it registers that Talker, is one unsolicited GET_STREAM_INFO response of the output to every
+// registered controller with the new flags, whatever the Listener declares (Asking Failed, Ready or Ready Failed) and
+// whatever it declared before the reset, the same included; declared again unchanged it notifies nothing, and no other
+// output is notified. The link's edges come apart and coalesced into one service. Where an output is on another
+// interface, its Listener, which the reset kept and the bridge keeps declaring, notifies nothing. The reset holds the
+// output's new MAAP address the hold-off (#956), longer than a registration's monitor (Milan v1.2 5.4.5.1), so each
+// controller registers again before the Listener returns.
+TEST_F(AppOutputs, ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);
+    unsigned cursor=fabric.tx_sent;
+    const unsigned n=0,interface=connection.source_interface[n];
+    // an output on another interface, OUTPUTS if there is none
+    unsigned other=OUTPUTS;
+    for(unsigned m=OUTPUTS;m-->0u;)other=connection.source_interface[m]!=interface?m:other;
+    //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
+    struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
+    auto take=[&]{
+        std::vector<Seen> seen(OUTPUTS);
+        for(;cursor<fabric.tx_sent;++cursor){auto p=mbx_model_tx_frame(&fabric,cursor);
+            EXPECT_NE(p,nullptr)<<"each step's frames are read before the capture drops them";
+            if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x800fu||get(p->bytes+38,2)!=6u)continue;
+            const unsigned n=unsigned(get(p->bytes+40,2));
+            const uint64_t controller=get(p->bytes+26,8);
+            if(n>=OUTPUTS||(controller!=CTLR&&controller!=CTLR+1))continue;
+            ++seen[n].count[controller==CTLR?0:1];
+            seen[n].flags=uint32_t(get(p->bytes+42,4));seen[n].flags_ex=uint32_t(get(p->bytes+86,4));
+        }
+        return seen;
+    };
+    //! A PROBE_TX_COMMAND of every output on its own interface (IEEE 1722.1-2021 8.2.1), so each DA gate is open.
+    auto probe=[&]{
+        for(unsigned m=0;m<OUTPUTS;++m){
+            acmp_test::Pdu p{};p.msg=0;p.controller=CTLR;p.talker=ENTITY;p.listener=0x0303cafef00d0001;
+            p.talker_uid=uint16_t(m);p.seq=uint16_t(0x700+m);
+            auto bytes=acmp_test::acmpdu(p);
+            ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),connection.source_interface[m]));settle(2);
+            take();
+        }
+    };
+    //! Every interface's MAAP holds its range (an announce after its probes, IEEE 1722-2016 B.3).
+    auto valid=[&]{
+        for(unsigned k=0;k<200u;++k){
+            bool held=true;
+            for(unsigned i=0;i<MBX_N_IF;++i)held=held&&application.maap.ifs[i].core.valid;
+            if(held)return true;
+            settle(100);take();
+            if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
+        }
+        return false;
+    };
+    auto gate=[&](unsigned m){return (reservation.ifs[connection.source_interface[m]].gate>>m&1u)!=0u;};
+    auto declared=[&]{return (reservation.ifs[interface].talkers>>n&1u)!=0u;};
+    ASSERT_TRUE(valid())<<"(MAAP holds every interface's range)";
+    probe();settle(400);take();
+    ASSERT_TRUE(gate(n)&&declared())<<"(output 0's DA gate is open and its Talker declared)";
+    for(unsigned declaration=1u;declaration<=3u;++declaration){
+        for(unsigned coalesced=0u;coalesced<2u;++coalesced){
+            const std::string step=std::string(declaration==1u?"Asking Failed":declaration==2u?"Ready":"Ready Failed")+
+                                   (coalesced!=0u?", the link's edges coalesced":", the link's edges apart");
+            declaring[n]=true;
+            listener(interface,sid(n),1u,declaration);
+            if(other<OUTPUTS){
+                declaring[other]=true;
+                listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            take();
+            ASSERT_EQ(info(n).flags_ex,1u)<<"(its Listener registers): "<<step;
+            mbx_model_set_link(&fabric,interface,false);
+            if(coalesced==0u){
+                settle(50);
+                declaring[n]=gate(n);
+            }
+            mbx_model_set_link(&fabric,interface,true);settle(50);
+            ASSERT_TRUE(valid())<<"(MAAP holds the range again): "<<step;
+            for(unsigned k=0;k<450u&&!(gate(n)&&declared());++k){
+                probe();settle(100);
+                if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            ASSERT_TRUE(gate(n)&&declared())<<"(output 0's Talker is declared again): "<<step;
+            declaring[n]=true;
+            aem(36);aem(36,{},CTLR+1);
+            probe();settle(400);take();
+            EXPECT_EQ(info(n).flags_ex,0u)<<"the answer shows no Listener once a reset destroyed its registration: "<<step;
+            listener(interface,sid(n),1u,declaration);
+            const auto seen=take();
+            for(unsigned m=0;m<OUTPUTS;++m){
+                for(unsigned c=0;c<2u;++c){
+                    EXPECT_EQ(seen[m].count[c],m==n?1u:0u)
+                        <<(m==n?"a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every "
+                                "registered controller":"no other STREAM_OUTPUT is notified")
+                        <<": "<<step<<", output "<<m<<", controller "<<c;
+                }
+            }
+            EXPECT_EQ(seen[n].flags_ex,1u)<<"the notice carries the new REGISTERING: "<<step;
+            EXPECT_EQ(seen[n].flags&0x40u,declaration==1u?0x40u:0u)<<"the notice carries the new REGISTERING_FAILED: "
+                                                                    <<step;
+            listener(interface,sid(n),1u,declaration);
+            if(other<OUTPUTS){
+                listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            const auto again=take();
+            for(unsigned m=0;m<OUTPUTS;++m){
+                EXPECT_EQ(again[m].count[0]+again[m].count[1],0u)
+                    <<"a Listener declared again unchanged, or kept on another interface, notifies nothing: "<<step
+                    <<", output "<<m;
+            }
+        }
+    }
+    declaring[n]=false;
+    if(other<OUTPUTS)declaring[other]=false;
+}
+
 namespace {
 //! The composition with the integrator's map store (#923), a saved input map restored by the walk.
 struct AppStore : App {
