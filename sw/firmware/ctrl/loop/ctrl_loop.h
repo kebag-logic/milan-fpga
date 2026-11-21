@@ -346,8 +346,9 @@ extern "C" {
 // at that head, the figure not lowered),
 // 8x8/1if's its own, 130 ms, as #894 states it there, and its tx row rounded
 // up, 77 ms for the 76.81 ms of #665's final head (#665's ruling of 2026-11-18,
-// item 2a; 75 for #894's 74.26), at most 80 so a withdrawn Talker's hold-off
-// stays 8 cs (srp_mbx.c), and both two-interface shapes 8x8/2if's, 62 and 105 ms.
+// item 2a; 75 for #894's 74.26), at most 80 so the transmit term a withdrawn
+// Talker's hold-off counts stays 8 cs (srp_mbx.c), and both two-interface shapes
+// 8x8/2if's, 62 and 105 ms.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -491,7 +492,7 @@ extern "C" {
 // Talker declarations (#897; 34 before, its 34.00), 75 ms at 8x8/1if for its
 // 74.26 (its own polls since #930's
 // measurement), and 105 ms at 8x8/2if for its 104.25 there (#895's ruling of
-// 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off adds it
+// 2026-11-15 on that figure, item 1). A withdrawn Talker's hold-off counts it
 // (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
 // 8x8/2if and at 8x8/1if, whose rows by every source are reported and not held
 // (#894, the owner's decision of 2026-11-12, owed to #872), it is over the bound,

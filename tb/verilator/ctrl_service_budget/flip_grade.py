@@ -27,9 +27,9 @@ when ctrl_loop.h states THE TRANSMIT's figure under its row. The flip at 1x1/1if
 (load_grade.NEAREST), and to ctrl_loop.h's table of shapes (shape_costs.findings: its slice at most 1,600 us). Its
 measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if: 0 budget misses, every row
 within its bound and its join intervals in range); its rows by every source are reported, not held, owed to #872.
-THE TRANSMIT's figure there is held all the same (tx_held): a withdrawn Talker's hold-off adds CTRL_LOOP_TX_MS
-(srp_mbx.c, SRP_REDECLARE_CS; IEEE 802.1Q-2018 35.2.2.8), so the check fails when ctrl_loop.h states it under the
-point's tx row by every source, the row rows_tiers derives at 8x8/1if's own polls, notices and builds.
+THE TRANSMIT's figure there is held all the same (tx_held): a withdrawn Talker's hold-off counts CTRL_LOOP_TX_MS
+inside its two longest LeaveAll periods (srp_mbx.c, SRP_REDECLARE_CS; IEEE 802.1Q-2018 35.2.2.8; #956), so the check
+fails when ctrl_loop.h states it under the point's tx row by every source, the row rows_tiers derives at 8x8/1if's own polls, notices and builds.
 
 usage: python3 -I flip_grade.py [--check] [--point POINT] [--design DESIGN] [--selftest]
   --check     print the 8x8/2if row at the pin and the rows by every source, and exit 1 if a load is over its ceiling
@@ -470,7 +470,7 @@ def main() -> int:
             i = rows_tiers.point_inputs(ROOT, point)
             w = rows_tiers.solve('tx', i, rows_tiers.BUILT)[0]
             print(f'HELD {point}: THE TRANSMIT\'s figure CTRL_LOOP_TX_MS {i.tx_stated} ms against its tx row by every '
-                  f'source {"none" if w is None else f"{w:.2f}"} ms (tx_held; the hold-off adds the figure)')
+                  f'source {"none" if w is None else f"{w:.2f}"} ms (tx_held; the hold-off counts the figure)')
         found = (findings(ROOT, ceiling=load) if load else []) + row_findings(ROOT, rowed, args.design) + \
             rows_grade.rule_findings(ROOT, rowed) + tx_held(ROOT, points) + shape_costs.findings(ROOT)
         for line in found:
