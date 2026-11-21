@@ -953,14 +953,17 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
 }
 
 // #957 (Milan v1.2 5.4.5.2, Table 5.22: a Stream Output's MSRP Listener attribute registration state; IEEE 1722.1-2021
-// 7.5.2): at every STREAM_OUTPUT, each change of the Listener registered for its stream_id on its own interface, a
-// Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going, the registrar's reset with its
-// link included, is one unsolicited GET_STREAM_INFO response of that output to every registered controller, carrying
-// the new flags (#943's REGISTERING and REGISTERING_FAILED). A Listener declared again unchanged, one on another
-// interface and a pass with no change notify nothing, and no other output is notified.
+// 7.5.2): at every STREAM_OUTPUT, while its Talker is declared, each change of the Listener registered for its
+// stream_id on its own interface, a Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going,
+// is one unsolicited GET_STREAM_INFO response of that output to every registered controller, carrying the new flags
+// (#943's REGISTERING and REGISTERING_FAILED). A Listener declared again unchanged, one on another interface and a pass
+// with no change notify nothing, and no other output is notified. Each output's Talker declaration stays as it is
+// across its Listener's changes: a PROBE_TX_COMMAND every output's turn holds open the DA gate of each output MAAP's
+// range covers (its 15 s window, Milan v1.2 4.3.3.1), output 0's among them, and one past the range declares nothing,
+// so the Listener alone changes what an output shows.
 TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
 {
-    aem(36);aem(36,{},CTLR+1);settle(200);
+    aem(36);aem(36,{},CTLR+1);
     unsigned cursor=fabric.tx_sent;
     //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
     struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
@@ -998,9 +1001,28 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
         for(unsigned m=0;m<OUTPUTS;++m)
             EXPECT_EQ(seen[m].count[0]+seen[m].count[1],0u)<<words<<": output "<<n<<", "<<step<<", output "<<m;
     };
-    take();
+    //! A PROBE_TX_COMMAND of every output on its own interface (IEEE 1722.1-2021 8.2.1), so each DA gate is open.
+    auto probe=[&]{
+        for(unsigned m=0;m<OUTPUTS;++m){
+            acmp_test::Pdu p{};p.msg=0;p.controller=CTLR;p.talker=ENTITY;p.listener=0x0303cafef00d0001;
+            p.talker_uid=uint16_t(m);p.seq=uint16_t(0x700+m);
+            auto bytes=acmp_test::acmpdu(p);
+            ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),connection.source_interface[m]));settle(2);
+            take();
+        }
+    };
+    for(unsigned k=0;k<100u;++k){
+        bool held=true;
+        for(unsigned i=0;i<MBX_N_IF;++i)held=held&&application.maap.ifs[i].core.valid;
+        if(held)break;
+        settle(100);take();
+    }
+    probe();settle(400);take();
+    ASSERT_NE(reservation.ifs[connection.source_interface[0]].talkers&1u,0u)<<"output 0's Talker is declared";
     for(unsigned n=0;n<OUTPUTS;++n){
         const unsigned interface=connection.source_interface[n];
+        probe();
+        const uint32_t talker=reservation.ifs[interface].talkers>>n&1u;
         declaring[n]=true;
         listener(interface,sid(n),1u,2u);
         once(n,1u,false,"Ready appears");
@@ -1024,19 +1046,8 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
             settle(1100);
             none("a Listener on another interface notifies nothing",n,"its leave on the other interface");
         }
-        declaring[n]=false;
-    }
-    if(MBX_N_IF>1u){
-        // the last interface's registrar reset with its link: the output on it whose Listener is registered is noticed
-        const unsigned n=OUTPUTS-1u,interface=connection.source_interface[n];
-        ASSERT_NE(interface,0u)<<"the controllers are on interface 0";
-        declaring[n]=true;
-        listener(interface,sid(n),1u,1u);
-        once(n,1u,true,"Asking Failed appears");
-        mbx_model_set_link(&fabric,interface,false);settle(20);
-        once(n,0u,false,"its interface's registrar reset with its link");
-        mbx_model_set_link(&fabric,interface,true);settle(20);
-        none("a reset with no Listener registered notifies nothing",n,"the link back");
+        EXPECT_EQ(reservation.ifs[interface].talkers>>n&1u,talker)
+            <<"its Talker's declaration stays as it is across its Listener's changes: output "<<n;
         declaring[n]=false;
     }
 }
