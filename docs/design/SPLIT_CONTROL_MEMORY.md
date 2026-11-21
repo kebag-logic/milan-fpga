@@ -690,6 +690,17 @@ The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120
 
 The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
 
+**With a waiting SET_STREAM_FORMAT's running check made again and the source port's Listener Asking Failed** (#950, #954, on the flip train's head `15168e14`), planned the same way (`plat_ledger.py`):
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+|---|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 126,536 / 56,736 | 45.0 | 18,048 | within 56 |
+| 1x1, two interfaces | 128,136 / 59,040 | 46.0 | 19,712 | within 56 |
+| 8x8, one interface (shipping) | 139,304 / 98,160 | 58.5 | 18,944 | at its entry's 58.5, S14's debt, 2,008 B of `rom` left |
+| 8x8, two interfaces (largest) | 140,880 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 432 B of `rom` left |
+
+The two changes add 96 to 104 B of `rom` an image (126,432, 128,032, 139,208 and 140,784 B on the train's head), with every `ctrl_plat` and `sram` unchanged. The 8x8 one-interface image needs 40 B past the 139,264 B of `rom` that 58.0 holds, so its entry is 58.5 as debt owed to S14 by the owner's rule of 2026-11-15.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
