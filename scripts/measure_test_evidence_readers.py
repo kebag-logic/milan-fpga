@@ -94,6 +94,14 @@ DUT_READER_DISPOSITIONS = {
         "another context, an unlock walk writing over the format) into a copy and requires its named "
         "[CF] check of the N=8 harness to fail; expected values come from the formats the harness "
         "writes and drives, never from the text",
+    "tb/verilator/avtp_rxmon/fanout_mutants.py":
+        "mutation campaign; it plants one of ten #948 fan-out defects across the parser, the context "
+        "engine and the depacketizer (each PDU to one matching entry, a bundle served to one context, "
+        "a done mask without its last accept, accepts carried into the next bundle, no second pass, a "
+        "second pass under the first input or from the wrong word, a frame none accepted read out, a "
+        "frame read before its verdicts, a lost PDU waiting for its frame) into a copy and requires its "
+        "named [FO] check of the N=8 harness to fail; expected values come from the payloads and "
+        "formats the harness drives, never from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
         "mutation campaign; it plants one of three source-table and skid defects into a copy and "
         "requires its named lockstep check to fail; expected samples come from the harness's own "

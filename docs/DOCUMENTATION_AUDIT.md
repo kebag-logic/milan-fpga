@@ -222,7 +222,7 @@ Areas follow the directory tree.
 
 | Page | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
 |---|---|---|---|---|---|---|---|
-| [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | maintainer | One AAF frame, hop by hop | `hdl/milan` | current | no recorded contradiction | area lane | design |
+| [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | maintainer | One AAF frame, hop by hop | `hdl/milan`, 1722.1-2021 | current | no recorded contradiction | area lane | design |
 | [docs/fpga/FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | maintainer | FPGA design reference - every module in `hdl/`, and how they compose | `hdl/milan`, `hdl/common`, `hdl/common/csr`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | stale | 1 finding(s): D0-057 | area lane | design |
 
 ### docs/guides
