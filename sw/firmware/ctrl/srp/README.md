@@ -226,26 +226,32 @@ its licence closes first, its `TALKER_DECL` bit and bandwidth go before the
 Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 802.1Q-2018 35.2.2.8): a source valid again with an unchanged destination
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
-the Leave's request: two nominal longest LeaveAll periods, with a JoinTime and
-THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
-departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (77 ms) and 3,030
-at two interfaces (105 ms), each figure stated for its shape (THE SHAPES,
-`ctrl_loop.h`) and held to its row by `flip_grade.py --check`
+the Leave's request: two nominal longest LeaveAll periods less a JoinTime and
+THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the most the count's
+end leaves before the declaration is on the wire. Both terms are counted inside
+the two periods (#956, the owner's decision of 2026-11-21), so the declaration
+is made two longest periods less both terms after the request and reaches the
+wire no later than 30 s after it. That is 2,977 cs at 1x1/1if (35 ms), 2,973 at
+8x8/1if (77 ms) and 2,970 at two interfaces (105 ms), each figure stated for its
+shape (THE SHAPES, `ctrl_loop.h`) and held to its row by `flip_grade.py --check`
 (`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
 reported rows;
 [#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865),
 items 1 and 2). A destination that changes while valid withdraws the old one
 first. 35.2.2.8 asks for at least two LeaveAllTime periods, and 10.7.4.3 draws
 each LeaveAll period, nominally, between LeaveAllTime and 1.5 times it, so two
-nominal periods span 20 to 30 s. The hold-off covers the nominal longest two,
+nominal periods span 20 to 30 s. The hold-off spans the nominal longest two,
 1.5 times the LeaveAllTime the participants are configured with
 (`SRP_LEAVEALL_CS`, 1000 cs, Table 10-7 and Milan v1.2 Table 4.3) each, 3,000 cs
 ([#665's ruling of 2026-11-19](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-7007273447),
-item 2; #951). Milan v1.2 Table 4.3 also tolerates a leavealltimer up to
-15.5 s. The hold-off does not cover that tolerance: two periods at its upper
-edge reach 31 s, past the nominal 30 s the ruling sets. Before #951 the hold-off
-covered the shortest two, 2,000 cs, as acceptance 2 of #895 words it; a longer
-hold still meets 35.2.2.8, which sets only the least. Each source counts its
+item 2; #951), from the request to the wire. #951 added both terms past the two
+periods, 3,023 cs at 1x1/1if, so its declaration reached the wire about 30.26 s
+after the Leave at 8x8/1if on the flip bench (#956). Milan v1.2 Table 4.3 also
+tolerates a leavealltimer up to 15.5 s. The hold-off does not cover that
+tolerance: two periods at its upper edge reach 31 s, past the nominal 30 s the
+ruling sets. Before #951 the hold-off covered the shortest two, 2,000 cs, and
+both terms, as acceptance 2 of #895 words it; any of these still meets
+35.2.2.8, which sets only the least. Each source counts its
 hold-off down in `held_cs`, 16 bits, and the adapter does not compile with a
 hold-off the count cannot hold. An admission change swaps the type in place,
 the new type joined
@@ -292,6 +298,33 @@ Tests: `srp_talker.cpp` (`DeclarationAndWithdrawalAreNoticed`,
 `SrpDeclarationChangeIsItsStreamOutputsNotice` and
 `NoPassIsIdleWhileAStreamOutputsNoticeIsOwed`; plants `talker-notice-*`
 (`srp_talker_mutants.py`) and `app-output-notice-*` (`aecp_notice_mutants.py`).
+
+A STREAM_OUTPUT's GET_STREAM_INFO also shows the Listener registered for its
+stream on its own interface (#943: REGISTERING, and REGISTERING_FAILED for
+Asking Failed) while the face reports the output declaring, its DA gate, and
+Table 5.22 names that registration state too, so each change of it owes the
+output's notice (#957). lwSRP indicates every registration's start and end,
+Ignore at the end (`left`), and every change of a registered Listener's
+declaration, so the declaration the indication copies (`listener`, into
+`declaration`: Asking Failed, Ready or Ready Failed, Ignore with none) is what
+the output shows while its gate is open. Each change of it while the source's
+bit of `gate` is set on the interface is recorded in `noticed`, the record a
+Talker declaration's change is, so the composition and AECP take it the same
+way. MAAP opens a source's gate on its own interface only (`maap_mbx.c`), so a
+Listener on another interface records nothing, and behind a closed gate the
+face shows neither flag. A Listener declared again unchanged, New or JoinIn,
+records nothing, and one registered again after a LeaveAll is not indicated. A
+Ready replaced by a Ready Failed is recorded, though its flags are the same,
+since the release processor's LISTENER_REG_CHANGE follows the registration
+state. A link reset is not recorded here: it closes the output's declaration as
+a reset does for the Talker (above). The record takes 40 bytes of code at
+8x8/1if, whose image has 18 bytes of its 34 RAMB36 of `rom` left (#957). Tests:
+`srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` (at 1x1/1if and
+8x8/2if) and `test_aecp.cpp`'s `ListenerRegistrationChangeIsItsStreamOutputsNotice`
+(real Listener MRPDUs, the notices read on the wire, at every output of the 1x1
+shape at one and two interfaces and of the 8x8 at one); plants
+`talker-registration-*` (`srp_talker_mutants.py`) and `registration-notice-*`
+(`aecp_registration_mutants.py`).
 
 A binding declares Ready for a matching Advertise, AskingFailed for a matching
 Failed, and withdraws when its retained registration expires.
@@ -533,9 +566,9 @@ against `srp_bounds.h`'s terms. Through the composition, `test_acmp_mbx.cpp`'s
 `SrpGate` tests run at 8x8/2if: a probe declares its source at MAAP's base + n
 and the 15 s expiry withdraws it, a registered Listener keeps it declared past
 the window, and a range MAAP loses to a peer's ANNOUNCE withdraws it, the new
-range's destination declared only after the hold-off, two nominal longest
-LeaveAll periods after the Leave and not the two LeaveAllTime periods it was
-before #951. A named test refuses each
+range's destination declared only after the hold-off, held at 29 s and on
+the wire by two nominal longest LeaveAll periods after the conflict, neither at
+the two LeaveAllTime periods it was before #951 nor with #951's terms added. A named test refuses each
 allocation of a link restart's re-creation in turn, a source's join among
 them, so a creation that fails part way and still shows a declaration fails
 it too.

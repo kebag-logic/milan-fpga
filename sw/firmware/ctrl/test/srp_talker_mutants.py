@@ -24,9 +24,9 @@ a declaration, a withdrawal, a type swapped in place (only once made) and an ado
 else, a reset that declares an unchanged source again included; the SRP delivery takes the record and an attach
 starts with none (ctrl_app_srp.c). Each change of the Listener registered for a source's stream, which its
 STREAM_OUTPUT shows too (#957; #943's REGISTERING and REGISTERING_FAILED), is recorded on its interface: a Listener
-appearing, replacing another or going, a reset with one registered, and nothing else, a Listener declared again or
-registered again after a LeaveAll included: the declaration its indication copies compared, Ignore at a registration's
-end, and a reset's with no indication.
+appearing, replacing another or going, while its DA gate is open there, and nothing else, a Listener declared again
+or registered again after a LeaveAll included: the declaration its indication copies compared, Ignore at a
+registration's end, in the record a declaration's change is (noticed).
 """
 from __future__ import annotations
 
@@ -112,12 +112,10 @@ TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n
         "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
 #: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
 OWED = "    bool pending = noticed;\n"
-#: what a source's STREAM_OUTPUT shows of its Listener's registration and its record of a change (#957), as srp_mbx.c
-#: holds them: the indication's comparison and copy of the declaration, and the reset's.
-RECORDED = ("            i->registration_noticed |= (uint32_t)(i->declaration[n] != declaration) << n;\n"
+#: what a source's STREAM_OUTPUT shows of its Listener's registration while its DA gate is open, and its record of a
+#: change (#957), as srp_mbx.c holds them: the indication's comparison and copy of the declaration.
+RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declaration) << n & i->gate;\n"
             "            i->declaration[n] = (uint8_t)declaration;\n")
-RESET_RECORDED = ("        i->registration_noticed |= (uint32_t)(i->declaration[k] != 0u) << k;\n"
-                  "        i->declaration[k] = 0u;\n")
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -328,11 +326,10 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "a Listener declared New again unchanged is not noticed"),
         d("talker-registration-declaration-uncopied", REGISTRATION, RECORDED, RECORDED.split("\n", 1)[0] + "\n",
           "a Listener declared New again unchanged is not noticed"),
-        d("talker-registration-reset-unrecorded", REGISTRATION, RESET_RECORDED, RESET_RECORDED.split("\n", 1)[1],
-          "a reset with a Listener registered notices it going"),
-        d("talker-registration-reset-declaration-kept", REGISTRATION, RESET_RECORDED,
-          RESET_RECORDED.split("\n", 1)[0] + "\n", "a Listener registering again after a reset is noticed"),
-        d("talker-registration-reset-every-source", REGISTRATION, RESET_RECORDED,
-          RESET_RECORDED.replace("(uint32_t)(i->declaration[k] != 0u) << k", "1u << k"),
-          "a reset with no Listener registered notices nothing"),
+        d("talker-registration-ungated", REGISTRATION, RECORDED, RECORDED.replace(" & i->gate;", ";"),
+          "a Listener of a source whose DA gate is closed is not noticed"),
+        d("talker-registration-of-source-zero", REGISTRATION, RECORDED,
+          RECORDED.replace("(uint32_t)(i->declaration[n] != declaration) << n & i->gate",
+                           "(uint32_t)(i->declaration[n] != declaration) & i->gate"),
+          "a Listener Ready appearing is noticed"),
     )

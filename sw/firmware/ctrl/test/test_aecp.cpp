@@ -824,6 +824,8 @@ struct AppOutputs : App {
     void connecting() override {
         static_assert(OUTPUTS==CTRL_SRP_SOURCES,"SRP declares every STREAM_OUTPUT's Talker");
         connection.n_sources=CTRL_SRP_SOURCES+1u;
+        // MAAP claims an address of every output, so each output's DA gate can open (#957)
+        entity.talker_stream_sources=uint16_t(OUTPUTS);
         for(unsigned n=0;n<connection.n_sources;++n)connection.source_interface[n]=uint8_t(n%MBX_N_IF);
         for(unsigned i=0;i<MBX_N_IF;++i){
             for(unsigned n=0;n<CTRL_SRP_SOURCES;++n)put(sources[i][n].value.stream_id.bytes,sid(n),8);
@@ -953,14 +955,14 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
 }
 
 // #957 (Milan v1.2 5.4.5.2, Table 5.22: a Stream Output's MSRP Listener attribute registration state; IEEE 1722.1-2021
-// 7.5.2): at every STREAM_OUTPUT, while its Talker is declared, each change of the Listener registered for its
+// 7.5.2): at every STREAM_OUTPUT, while its DA gate is open, each change of the Listener registered for its
 // stream_id on its own interface, a Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going,
 // is one unsolicited GET_STREAM_INFO response of that output to every registered controller, carrying the new flags
 // (#943's REGISTERING and REGISTERING_FAILED). A Listener declared again unchanged, one on another interface and a pass
-// with no change notify nothing, and no other output is notified. Each output's Talker declaration stays as it is
-// across its Listener's changes: a PROBE_TX_COMMAND every output's turn holds open the DA gate of each output MAAP's
-// range covers (its 15 s window, Milan v1.2 4.3.3.1), output 0's among them, and one past the range declares nothing,
-// so the Listener alone changes what an output shows.
+// with no change notify nothing, and no other output is notified. Each output's DA gate, what the face reports as its
+// declaring, is held open, so its Talker declaration stays as it is across its Listener's changes: MAAP claims an
+// address of every output and a PROBE_TX_COMMAND every output's turn holds each gate's 15 s window (Milan v1.2
+// 4.3.3.1), so the Listener alone changes what an output shows.
 TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
 {
     aem(36);aem(36,{},CTLR+1);
@@ -1018,7 +1020,9 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
         settle(100);take();
     }
     probe();settle(400);take();
-    ASSERT_NE(reservation.ifs[connection.source_interface[0]].talkers&1u,0u)<<"output 0's Talker is declared";
+    for(unsigned n=0;n<OUTPUTS;++n){
+        ASSERT_NE(reservation.ifs[connection.source_interface[n]].gate>>n&1u,0u)<<"every output's DA gate is open: "<<n;
+    }
     for(unsigned n=0;n<OUTPUTS;++n){
         const unsigned interface=connection.source_interface[n];
         probe();
@@ -1028,6 +1032,8 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
         once(n,1u,false,"Ready appears");
         listener(interface,sid(n),1u,2u);
         none("a Listener declared again unchanged notifies nothing",n,"Ready again");
+        listener(interface,sid(n),0u,2u);
+        none("a Listener declared New again unchanged notifies nothing",n,"Ready's New again");
         listener(interface,sid(n),1u,3u);
         once(n,1u,false,"Ready Failed replaces Ready");
         listener(interface,sid(n),1u,1u);
@@ -1142,44 +1148,6 @@ TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
             EXPECT_EQ(notices(before,source,controller),1u)
                 <<"no pass is idle while a STREAM_OUTPUT's notice is owed";
         }
-    }
-}
-
-// #957 (ctrl_loop.h, the polls): SRP's record of a Listener registration change of a source on its own interface is
-// taken by the SRP delivery, and from that pass to its STREAM_OUTPUT's notice committed to every registered controller
-// no pass reports the loop idle; a record on another interface than its source's is taken and notifies nothing.
-TEST_F(App, NoPassIsIdleWhileAListenerRegistrationNoticeIsOwed)
-{
-    aem(36);aem(36,{},CTLR+1);
-    const unsigned last=connection.n_sources-1u;
-    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
-        unsigned n=0;
-        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
-            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
-               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
-        return n;
-    };
-    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
-    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
-    for(unsigned source:{0u,last}){
-        const unsigned interface=connection.source_interface[source];
-        const unsigned before=fabric.tx_sent;
-        reservation.ifs[interface].registration_noticed=1u<<source;
-        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
-        EXPECT_EQ(reservation.ifs[interface].registration_noticed,0u)<<"the SRP delivery takes SRP's record";
-        for(uint64_t controller:{CTLR,CTLR+1}){
-            EXPECT_EQ(notices(before,source,controller),1u)
-                <<"no pass is idle while a Listener registration's notice is owed";
-        }
-    }
-    for(unsigned interface=0;interface<MBX_N_IF;++interface){
-        if(interface==connection.source_interface[0])continue;
-        const unsigned before=fabric.tx_sent;
-        reservation.ifs[interface].registration_noticed=1u;
-        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
-        EXPECT_EQ(reservation.ifs[interface].registration_noticed,0u)<<"the SRP delivery takes every interface's record";
-        EXPECT_EQ(notices(before,0,CTLR)+notices(before,0,CTLR+1),0u)
-            <<"a record on another interface than its source's notifies nothing";
     }
 }
 #endif

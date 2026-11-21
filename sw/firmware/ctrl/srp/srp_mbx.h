@@ -95,20 +95,17 @@ struct srp_interface {
     // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of its declaration (#936; Milan v1.2 5.4.5.2, Table 5.22:
     // the Talker declaration state, the failure code, the stream VLAN ID), bit s source s: shown and shown_advertise
     // hold talkers and its Talker Advertises as declare_sources last published them, shown_vid the VID they carry,
-    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID
-    // since the composition last took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
+    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID, or
+    // whose Listener's declaration changed while their DA gate is open (#957, listener), since the composition last
+    // took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
     uint32_t shown;
     uint32_t shown_advertise;
     uint32_t noticed;
     uint16_t shown_vid;
-    // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of the Listener registered for its stream on this interface
-    // (#957; Milan v1.2 5.4.5.2, Table 5.22, the MSRP Listener attribute registration state; #943's REGISTERING and
-    // REGISTERING_FAILED), source s at s: declaration the Listener declaration its indication last copied (IEEE
-    // 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed), 0 (Ignore) at its registration's end and at a
-    // reset, and registration_noticed (bit s) the sources whose declaration changed since the composition last took it
-    // (ctrl_app_srp.c), which AECP notifies.
+    // The Listener declaration registered for each source's stream on this interface as its indication last copied it
+    // (IEEE 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed; 0, Ignore, at a registration's end), what
+    // its STREAM_OUTPUT shows while the source's DA gate is open: a change there is noticed too (#957, listener).
     uint8_t declaration[CTRL_SRP_SOURCES];
-    uint32_t registration_noticed;
     // srp_mbx_gate's base at its last call, once one was taken: a call with
     // that base and the gate it left changes nothing, so it returns at once
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
