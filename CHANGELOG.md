@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - #872 donor pins](#unreleased---872-donor-pins)** -- Scale options; ACMP marked sinks.
 - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
 - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
 - **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
@@ -56,6 +57,27 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - #872 donor pins
+
+- Issue #872 moves lwSRP to `9597597a`.
+- It moves tsn-c-stack to `67fd8e27`.
+- Both reach their `main` through their own reviews.
+- lwSRP adds a timer wheel and attribute lookup buckets.
+- It adds a Message build that merges sorted runs.
+- Each keeps every output of the code it replaces.
+- Trace differentials and planted defects show it.
+- They are build options, off by default.
+- The firmware's lwSRP objects are unchanged.
+- With them on, the 8x8 images exceed their budgets.
+- Enabling them is the owner's decision.
+- ACMP visits only the set bits of its marks.
+- Its calls, order and arguments are unchanged.
+- `struct acmp` keeps its size.
+- Each split image's rom grows 320 B.
+- Its banks and tiles are unchanged.
+- The hot list names `find_attr`.
+- The attribute key ended its `isra` clone.
 
 ## Unreleased - processor pin 801ef228
 

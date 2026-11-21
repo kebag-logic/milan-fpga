@@ -23,8 +23,8 @@ Dirty submodules invalidate local evidence.
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/lwSRP` | `9597597a6a778a0d06b394caf17a71e9ea037c50` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/tsn-c-stack` | `67fd8e278a5b4f7d579273732107a762354b6da1` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -982,6 +982,7 @@ Issue #665 adopts stack pin `715589c1`.
 | [28](https://github.com/kebag-logic/tsn-c-stack/pull/28) (issue 26) | A command behind the full owed set is declined, not dropped; the ACMP adapter keeps it and offers it again after an accepting poll |
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
+| #872 (branch head, not yet a stack PR) | Each ACMP entry visits only the set bits of its sink marks and of an owed frame's release mask |
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 
@@ -1003,8 +1004,17 @@ git submodule update --init \
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
-The pin is published on `main`.
-It includes PR #12, PR #15 and PR #18.
+The pin is a #872 branch head, not yet on `main`.
+
+lwSRP's own review puts it on `main` first.
+
+It holds PR #12, PR #15 and PR #18.
+
+It adds the attribute key and #872's levers.
+
+The levers are build options, off by default.
+
+So the firmware compiles the lwSRP code it compiled before.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
@@ -1013,7 +1023,11 @@ Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 tsn-c-stack uses HTTPS and needs no credentials.
 
-The pin is the merge of tsn-c-stack PR 34 on `main`.
+The pin is a #872 branch head, not yet on `main`.
+
+Its parent is the merge of tsn-c-stack PR 34.
+
+The stack's own review puts it on `main` first.
 
 The previous pin, `70936b77`, is its ancestor on `main`.
 
