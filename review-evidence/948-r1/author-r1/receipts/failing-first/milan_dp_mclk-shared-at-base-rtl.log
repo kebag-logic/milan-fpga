@@ -1,0 +1,8 @@
+plan -10.6393 ppm; mode shared
+
+[SHARED] listener 1 bound to AAF0's stream as well: the meter follows input 0, then input 1
+  [FAIL] SHARED: the meter locked on listener 0 while listener 1 shares its stream (AAFM_STAT {idx, en, locked}) got=4 exp=5
+  [FAIL] SHARED: the servo leaves IDLE once the meter locks
+simulated 0.075 s
+== milan_dp_mclk: checks: 8   failures: 2 ==
+RESULT: FAIL

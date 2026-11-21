@@ -1,0 +1,40 @@
+[ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+[ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+[ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+[ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+[ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+[ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+[ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+[ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+[ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+[ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+[ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+[ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+[ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+[ok] rule port-unmapped: removed, it lets through every one of its 1 arm(s), e.g. port census: a port no class names
+[ok] rule port-one-class: removed, it lets through every one of its 1 arm(s), e.g. port census: a port two classes name
+[ok] rule port-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: a row naming a port the wrapper does not declare
+[ok] rule port-class-d: removed, it lets through every one of its 1 arm(s), e.g. port census: a class C row the class-D census does not hold
+[ok] rule port-contract: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier contract 2.3 does not define
+[ok] rule port-width: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier narrower than its port
+[ok] rule g-on-wire: removed, it lets through every one of its 6 arm(s), e.g. port census: a CSR terminal's net also read past it
+[ok] rule g-csr-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a CSR input outside the processor-status face
+[ok] rule g-memory-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a datapath output outside the memory masters
+[ok] rule g-shim-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a MAAP shim output read past pp_shadow
+[ok] rule g-exclusion-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net no G cone reaches
+[ok] rule g-exclusion-amr: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net outside the map writer
+[ok] rule split-placement: removed, it lets through every one of its 3 arm(s), e.g. the processor left in the split
+[ok] rule split-unmapped: removed, it lets through every one of its 1 arm(s), e.g. a ctl port no row names
+[ok] rule split-one-class: removed, it lets through every one of its 1 arm(s), e.g. split census: a ctl port two classes name
+[ok] rule split-stale: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row naming a port the datapath does not declare
+[ok] rule split-contract: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier the contract does not define
+[ok] rule split-width: removed, it lets through every one of its 1 arm(s), e.g. split census: a split carrier narrower than its port
+[ok] rule split-every-field: removed, it lets through every one of its 1 arm(s), e.g. split census: a face event no row carries
+[ok] rule split-face: removed, it lets through every one of its 1 arm(s), e.g. split census: a split row standing for another setting
+[ok] rule split-drives: removed, it lets through every one of its 6 arm(s), e.g. a class-D consumer on a G tie-off
+[ok] rule split-tied: removed, it lets through every one of its 3 arm(s), e.g. the REBOOT request from another port in the split
+[ok] rule split-frame-block: removed, it lets through every one of its 1 arm(s), e.g. the frame block on another net
+[ok] rule split-field-reads: removed, it lets through every one of its 1 arm(s), e.g. a class-D consumer that reads the port around its net in the split
+[ok] rule split-consumed: removed, it lets through every one of its 2 arm(s), e.g. a stream_id taken without SID_VALID, SID_VALID unread
+[ok] rule split-beyond: removed, it lets through every one of its 1 arm(s), e.g. an entry past the shape's own read
+mutations: 0 of 57 rule(s) no arm proves

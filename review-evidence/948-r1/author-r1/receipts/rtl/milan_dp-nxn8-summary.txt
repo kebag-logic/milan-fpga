@@ -1,0 +1,32 @@
+-- [FAN] #948: one talker stream bound over ACMP to inputs 4 and 6, then 7 as well, then 4 unbound --
+  [ok]   [FAN] binding input 4: the listener launched its PROBE_TX = 0x1
+  [ok]   [FAN] binding input 6: the listener launched its PROBE_TX = 0x1
+  [ok]   [FAN] two inputs on one stream: input 4's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] two inputs on one stream: input 4 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] two inputs on one stream: GET_COUNTERS of input 4 answers its FRAMES_RX = 0x4
+  [ok]   [FAN] two inputs on one stream: input 6's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] two inputs on one stream: input 6 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] two inputs on one stream: GET_COUNTERS of input 6 answers its FRAMES_RX = 0x4
+  [ok]   [FAN] two inputs on one stream: input 7 counts and receives nothing = 0x0
+  [ok]   [FAN] two inputs on one stream: the depacketizer emits one PDU per receiving input = 0x8
+  [ok]   [FAN] binding input 7: the listener launched its PROBE_TX = 0x1
+  [ok]   [FAN] three inputs on one stream: input 4's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] three inputs on one stream: input 4 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] three inputs on one stream: GET_COUNTERS of input 4 answers its FRAMES_RX = 0x8
+  [ok]   [FAN] three inputs on one stream: input 6's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] three inputs on one stream: input 6 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] three inputs on one stream: GET_COUNTERS of input 6 answers its FRAMES_RX = 0x8
+  [ok]   [FAN] three inputs on one stream: input 7's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] three inputs on one stream: input 7 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] three inputs on one stream: GET_COUNTERS of input 7 answers its FRAMES_RX = 0x4
+  [ok]   [FAN] three inputs on one stream: the depacketizer emits one PDU per receiving input = 0xc
+  [ok]   [FAN] input 4 unbound: input 6's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] input 4 unbound: input 6 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] input 4 unbound: GET_COUNTERS of input 6 answers its FRAMES_RX = 0xc
+  [ok]   [FAN] input 4 unbound: input 7's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] input 4 unbound: input 7 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] input 4 unbound: GET_COUNTERS of input 7 answers its FRAMES_RX = 0x8
+  [ok]   [FAN] input 4 unbound: input 4 counts and receives nothing = 0x0
+  [ok]   [FAN] input 4 unbound: the depacketizer emits one PDU per receiving input = 0x8
+checks: 4027   failures: 0
+RESULT: PASS

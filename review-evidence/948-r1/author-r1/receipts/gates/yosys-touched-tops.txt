@@ -1,0 +1,4 @@
+# syn/yosys/run.sh --top T (generic cells, each module at its own default parameters, N=1), sv2v v0.0.12; base 15168e14 RTL vs head 73f1113b RTL
+avtp_stream_parser base cells=2967 head cells=3036 RESULT: PASS TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+KL_avtp_rx_monitor_ctx base cells=10991 head cells=10916 RESULT: PASS TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+KL_aaf_rx_depacketizer base cells=60880 head cells=53546 RESULT: PASS TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 

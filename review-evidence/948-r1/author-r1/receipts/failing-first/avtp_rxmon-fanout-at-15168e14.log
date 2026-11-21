@@ -1,0 +1,196 @@
+== one stream bound to several Stream Inputs, N=8 (#948) ==
+
+[FO1] inputs 0 and 1 bound to one talker stream: each receives every PDU
+  [FAIL] [FO1] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO1] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO1] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO1] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO1] the DEPKT tally counts them: input 0 got=0 exp=4
+  [FAIL] [FO1] MEDIA_LOCKED: input 0 got=0 exp=1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 0 = 0
+  [ ok ] [FO1] accept verdicts: input 1 = 4
+  [ ok ] [FO1] payloads reach the depacketizer's output under the input's index: input 1 = 4
+  [ ok ] [FO1] payloads equal the sent ones, byte for byte, in order: input 1 = 4
+  [ ok ] [FO1] FRAMES_RX counts them: input 1 = 4
+  [ ok ] [FO1] the DEPKT tally counts them: input 1 = 4
+  [ ok ] [FO1] MEDIA_LOCKED: input 1 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 1 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 5 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 5 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO2] input 5 bound to the same stream as well: each of the three receives every PDU
+  [FAIL] [FO2] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO2] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO2] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO2] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO2] the DEPKT tally counts them: input 0 got=0 exp=4
+  [FAIL] [FO2] accept verdicts: input 1 got=0 exp=4
+  [FAIL] [FO2] payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=4
+  [FAIL] [FO2] payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=4
+  [FAIL] [FO2] FRAMES_RX counts them: input 1 got=0 exp=4
+  [FAIL] [FO2] the DEPKT tally counts them: input 1 got=0 exp=4
+  [ ok ] [FO2] accept verdicts: input 5 = 4
+  [ ok ] [FO2] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO2] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO2] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO2] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO2] MEDIA_LOCKED of the input bound last: input 5 = 1
+  [ ok ] [FO2] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO3] input 1 unbound: inputs 0 and 5 go on receiving, input 1 receives nothing
+  [FAIL] [FO3] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO3] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO3] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO3] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO3] the DEPKT tally counts them: input 0 got=0 exp=4
+  [ ok ] [FO3] accept verdicts: input 5 = 4
+  [ ok ] [FO3] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO3] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO3] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO3] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO3] the unbound input: no accept verdict: input 1 = 0
+  [ ok ] [FO3] the unbound input: no payload: input 1 = 0
+  [ ok ] [FO3] the unbound input: FRAMES_RX unchanged: input 1 = 0
+
+[FO4] per-input verdicts on one PDU: input 5 at 2 channels, inputs 0 and 1 at 8
+  [FAIL] [FO4] an 8-channel input: accept verdicts: input 0 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: FRAMES_RX counts them: input 0 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: the DEPKT tally counts them: input 0 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: accept verdicts: input 1 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: FRAMES_RX counts them: input 1 got=0 exp=2
+  [FAIL] [FO4] an 8-channel input: the DEPKT tally counts them: input 1 got=0 exp=2
+  [ ok ] [FO4] the 2-channel input: no accept verdict: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: no payload: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO4] the 2-channel input counts UNSUPPORTED_FORMAT: input 5 = 1
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 0 = 0
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 1 = 0
+  a gap of three sequence numbers
+  [FAIL] [FO4] after the gap: accept verdicts: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: FRAMES_RX counts them: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: the DEPKT tally counts them: input 0 got=0 exp=1
+  [FAIL] [FO4] SEQ_NUM_MISMATCH counts the gap: input 0 got=0 exp=1
+  [FAIL] [FO4] STREAM_INTERRUPTED counts the gap: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: accept verdicts: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: FRAMES_RX counts them: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: the DEPKT tally counts them: input 1 got=0 exp=1
+  [FAIL] [FO4] SEQ_NUM_MISMATCH counts the gap: input 1 got=0 exp=1
+  [FAIL] [FO4] STREAM_INTERRUPTED counts the gap: input 1 got=0 exp=1
+  [ ok ] [FO4] the 2-channel input's SEQ_NUM_MISMATCH stays: input 5 = 0
+
+[FO5] talker A on inputs 0 and 1, talker B on input 2, their PDUs back to back
+  [FAIL] [FO5] talker A's input: accept verdicts: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: FRAMES_RX counts them: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: the DEPKT tally counts them: input 0 got=0 exp=3
+  [ ok ] [FO5] talker A's input: accept verdicts: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 1 = 3
+  [ ok ] [FO5] talker A's input: FRAMES_RX counts them: input 1 = 3
+  [ ok ] [FO5] talker A's input: the DEPKT tally counts them: input 1 = 3
+  [ ok ] [FO5] talker B's input: accept verdicts: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads reach the depacketizer's output under the input's index: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads equal the sent ones, byte for byte, in order: input 2 = 3
+  [ ok ] [FO5] talker B's input: FRAMES_RX counts them: input 2 = 3
+  [ ok ] [FO5] talker B's input: the DEPKT tally counts them: input 2 = 3
+  [ ok ] [FO5] nothing dropped: input 0 = 0
+
+[FO6] all eight inputs bound to one talker stream
+  [FAIL] [FO6] accept verdicts: input 0 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 0 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 0 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 1 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 1 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 1 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 2 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 2 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 2 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 2 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 2 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 3 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 3 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 3 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 3 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 3 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 4 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 4 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 4 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 4 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 4 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 5 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 5 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 5 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 5 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 5 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 6 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 6 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 6 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 6 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 6 got=0 exp=3
+  [ ok ] [FO6] accept verdicts: input 7 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 7 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 7 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 7 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 7 = 3
+  [ ok ] [FO6] nothing dropped: input 0 = 0
+
+[FO7] a 4-channel PDU inputs 0 and 1 discard, then an 8-channel one, back to back
+  [FAIL] [FO7] the 8-channel PDU: accept verdicts: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 0 got=0 exp=1
+  [FAIL] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 0 got=0 exp=1
+  [ ok ] [FO7] the 8-channel PDU: accept verdicts: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 1 = 1
+  [ ok ] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 1 = 1
+
+======================================================================
+FANOUT N=8: 176 checks, 91 failures
+RESULT: FAIL

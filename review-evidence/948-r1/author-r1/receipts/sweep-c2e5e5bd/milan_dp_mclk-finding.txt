@@ -1,0 +1,24 @@
+[PASS] the schemata at id 0 pass the --echo leg
+[PASS] mutant 7 (the meter's enable tied high, --dwell): caught; breaks "(iii) INTERNAL dwell: AAF0's mr toggle raises no request"
+[FAIL] mutant 9 (the echo ungated (the meter's listener compare ignored), --echo): pass; breaks "echo: the unfollowed AAF1's toggle raises no request"
+[PASS] mutant 14 (the decode table one source short (the previous shape's), --switch): caught; breaks "switch: AAF1 decodes as listener 1 and the meter follows it"
+[PASS] the schemata at id 0 pass the --silent leg
+[PASS] mutant 16 (a change of the followed listener keeping a held lock, --silent): caught; breaks "switch (iv): the meter's lock clears at the switch"
+[PASS] the schemata at id 0 pass the --dwell leg
+[PASS] the schemata at id 0 pass the --echo leg
+[PASS] mutant 7 (the meter's enable tied high, --dwell): caught; breaks "(iii) INTERNAL dwell: AAF0's mr toggle raises no request"
+[FAIL] mutant 9 (the echo ungated (the meter's listener compare ignored), --echo): pass; breaks "echo: the unfollowed AAF1's toggle raises no request"
+[PASS] the schemata at id 0 pass the --csr leg
+[PASS] the schemata at id 0 pass the --select leg
+[PASS] the schemata at id 0 pass the --tu leg
+[PASS] the schemata at id 0 pass the --w2 leg
+[PASS] mutant 1 (the decode kept as the CRF-only compare, --select): caught; breaks "AAF0: the servo leaves IDLE once the meter locks"
+[PASS] mutant 4 (the one-cycle unlocked presentation removed (W2), --w2): caught; breaks "W2: the switch onto a locked CRF passes HOLDOVER"
+[PASS] mutant 10 (C0's level (~tu only), --select): caught; breaks "C1: UNLOCKED moves at the switch onto AAF0"
+[PASS] mutant 11 (C2's level (the reference lock), --select): caught; breaks "C1: LOCKED holds until the servo reads LOCKED"
+[PASS] mutant 13 (the read-window terms missing, --csr): caught; breaks "CSR: AAFM_STAT reads the meter's status word"
+[PASS] mutant 15 (tu taken from the tv net (the CRF wiring), --tu): caught; breaks "tu: the followed talker's tu edge restarts the meter's history"
+
+34 checks: 33 PASS, 1 FAIL
+make: *** [Makefile:130: run] Error 1
+make: Leaving directory '<lanes>/948a810-shard1/tb/verilator/milan_dp_mclk'

@@ -1,0 +1,40 @@
+# git diff e8a877a0 4ceba3d4 -- hdl/ (e8a877a0: the six routes; the RTL since differs in comments only)
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 63b478786d..d9cb462bd3 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7482,7 +7482,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       .bind_rise_i   (strtbl_bind_rise_w),
+       .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
+       //! the followed input's PDUs, whichever other inputs the stream is
+-      //! bound to as well (#948): the match is the followed entry's
++      //! bound to as well (#948): the selection is the followed entry's bit
++      //! of the match vector, so the meter's index compare holds by
++      //! construction here (one index cannot name several matches)
+       .match_p_i     (avtprx_match && avtprx_vec_w[aaf_follow_idx_r]),
+       .match_idx_i   (aaf_follow_idx_r),
+       .subtype_i     (avtprx_subtype),
+@@ -7984,10 +7986,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   );
+ 
+   // ==========================================================================
+-  //  AAF RX depacketizer (listener media path) — same RX tap; the monitor's
+-  //  accept pulse is the commit verdict, so fabric render receives exactly
+-  //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
+-  //  order (S32BE interleaved) toward the render path.
++  //  AAF RX depacketizer (listener media path), on the same RX tap: the
++  //  monitor's enqueue commits the frame and its done mask names the inputs
++  //  that accepted it (#948), so each input's render path receives exactly
++  //  the PDUs its FRAMES_RX counts. Payload leaves as full 8-byte beats in
++  //  wire order (S32BE interleaved) toward the render path, once per input.
+   // ==========================================================================
+   //! #632: the payload follows the header's timestamp by the cycles the
+   //! render stage takes to place the PDU (its divider: a quotient bit per
+
+# git diff --stat c2e5e5bd 4ceba3d4 (c2e5e5bd: the sweep)
+ docs/DOCUMENTATION_AUDIT.md                |  2 +-
+ hdl/milan/milan_datapath.sv                |  4 +++-
+ tb/verilator/milan_dp_mclk/README.md       | 10 ++++++++--
+ tb/verilator/milan_dp_mclk/mclk_mutants.py | 13 +++++++++----
+ tb/verilator/milan_dp_mclk/sim_mclk.cpp    | 22 ++++++++++++++++++++++
+ 5 files changed, 43 insertions(+), 8 deletions(-)

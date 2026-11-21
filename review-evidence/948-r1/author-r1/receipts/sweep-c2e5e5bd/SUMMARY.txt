@@ -1,0 +1,18 @@
+# the sweep at c2e5e5bd: scripts/run_all_suites.sh --shard k/4, four units started one at a time as CPU ranges freed (one_shard.py, native-shards.py's steps per shard); the CI image's Verilator
+shard 0: shard: 0/4   selected suites: 15
+shard 0: suites: 15   passed: 15   failed: 0   timed out: 0
+shard 0: checks: 361490   in-suite failures: 0
+shard 1: shard: 1/4   selected suites: 17
+shard 1: suites: 17   passed: 16   failed: 1   timed out: 0
+shard 1: checks: 2046591   in-suite failures: 1
+shard 2: shard: 2/4   selected suites: 17
+shard 2: suites: 17   passed: 17   failed: 0   timed out: 0
+shard 2: checks: 284588   in-suite failures: 0
+shard 3: shard: 3/4   selected suites: 16
+shard 3: suites: 16   passed: 16   failed: 0   timed out: 0
+shard 3: checks: 20734   in-suite failures: 0
+total: 65 suites, 64 passed, 1 failed (milan_dp_mclk: its mutant 9 survived, the meter's compare made redundant by c4e6f7ed's wiring; fixed in b9a88d25); checks 2,713,403, in-suite failures 1
+declared skip (shard 3): SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+declared skip (shard 3): SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+declared skip (shard 3): SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+declared skip (shard 3): SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))

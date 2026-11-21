@@ -1,0 +1,13 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+twin_fw: 37 units into libtwinfw.a; MAAP pinned at 0x91e0f0000100
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 -B twin_fw.py --config ../../../configs/endstation_ax7101_8x8.yaml --out obj_twin8_fw --maap-preferred 0x91e0f0000100
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+twin_fw: 37 units into libtwinfw.a; MAAP pinned at 0x91e0f0000100
+<tools>/pinned-verilator-5.050/verilator twin_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module tb_split_top \
+caught: FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS
+caught: FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input
+caught: FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU
+caught: FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS

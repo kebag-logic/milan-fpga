@@ -1,0 +1,1 @@
+b9a88d25 gave the AAF clock meter a mux on its index (the followed index or the highest match); 09e78e41 restored e8a877a0's wiring, so this build is of RTL no longer in the branch. Kept as the record of the CPU-clock path's run-to-run variation (KL_mbx face registers, +0.332 at e8a877a0's ExtraTimingOpt, +0.007 here).

@@ -1,0 +1,487 @@
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:110:50: Instance has missing pin: 'bound_v_i'
+  110 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:74:40: ... Location of port declaration
+   74 |   input  wire [N_LISTENERS_P-1:0]      bound_v_i,    
+      |                                        ^~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:110:50: Instance has missing pin: 'sid_v_i'
+  110 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:75:40: ... Location of port declaration
+   75 |   input  wire [64*N_LISTENERS_P-1:0]   sid_v_i,      
+      |                                        ^~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:110:50: Instance has missing pin: 'bind_fall_o'
+  110 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:87:39: ... Location of port declaration
+   87 |   output logic [N_LISTENERS_P-1:0]    bind_fall_o   
+      |                                       ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:142:5: Instance has missing pin: 'bind_fall_i'
+  142 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:150:35: ... Location of port declaration
+  150 |   input  wire [N_LISTENERS_P-1:0] bind_fall_i,   
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:142:5: Instance has missing pin: 'wire_chans_all_o'
+  142 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:217:38: ... Location of port declaration
+  217 |   output logic [N_LISTENERS_P*4-1:0] wire_chans_all_o,
+      |                                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:142:5: Instance has missing pin: 'diag_idx_i'
+  142 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:229:38: ... Location of port declaration
+  229 |   input  wire [3:0]                  diag_idx_i,
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:142:5: Instance has missing pin: 'diag_col_i'
+  142 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:230:38: ... Location of port declaration
+  230 |   input  wire [3:0]                  diag_col_i,   
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:142:5: Instance has missing pin: 'diag_q_o'
+  142 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:231:38: ... Location of port declaration
+  231 |   output logic [31:0]                diag_q_o,     
+      |                                      ^~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:186:26: Instance has missing pin: 'hdr_p_o'
+  186 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:112:23: ... Location of port declaration
+  112 |   output logic        hdr_p_o,             
+      |                       ^~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:186:26: Instance has missing pin: 'hdr_ts_o'
+  186 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:116:23: ... Location of port declaration
+  116 |   output logic [31:0] hdr_ts_o,            
+      |                       ^~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:186:26: Instance has missing pin: 'hdr_tv_o'
+  186 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:117:23: ... Location of port declaration
+  117 |   output logic        hdr_tv_o,            
+      |                       ^~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module KL_stream_table #(
+      |        ^~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:120:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  120 | module KL_avtp_rx_monitor_ctx #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:72:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   72 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_pcm_route.sv:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module KL_pcm_route #(
+      |        ^~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.929 MB sources in 11 modules, into 0.724 MB in 7 C++ files needing 0.002 MB
+- Verilator: Walltime 8.112 s (elab=0.016, cvt=0.092, bld=7.948); cpu 0.161 s on 32 threads; allocated 730.609 MB
+== one stream bound to several Stream Inputs, N=8 (#948) ==
+
+[FO1] inputs 0 and 1 bound to one talker stream: each receives every PDU
+  [FAIL] [FO1] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO1] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO1] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO1] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO1] the DEPKT tally counts them: input 0 got=0 exp=4
+  [FAIL] [FO1] MEDIA_LOCKED: input 0 got=0 exp=1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 0 = 0
+  [ ok ] [FO1] accept verdicts: input 1 = 4
+  [ ok ] [FO1] payloads reach the depacketizer's output under the input's index: input 1 = 4
+  [ ok ] [FO1] payloads equal the sent ones, byte for byte, in order: input 1 = 4
+  [ ok ] [FO1] FRAMES_RX counts them: input 1 = 4
+  [ ok ] [FO1] the DEPKT tally counts them: input 1 = 4
+  [ ok ] [FO1] MEDIA_LOCKED: input 1 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 1 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 5 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 5 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO2] input 5 bound to the same stream as well: each of the three receives every PDU
+  [FAIL] [FO2] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO2] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO2] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO2] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO2] the DEPKT tally counts them: input 0 got=0 exp=4
+  [FAIL] [FO2] accept verdicts: input 1 got=0 exp=4
+  [FAIL] [FO2] payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=4
+  [FAIL] [FO2] payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=4
+  [FAIL] [FO2] FRAMES_RX counts them: input 1 got=0 exp=4
+  [FAIL] [FO2] the DEPKT tally counts them: input 1 got=0 exp=4
+  [ ok ] [FO2] accept verdicts: input 5 = 4
+  [ ok ] [FO2] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO2] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO2] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO2] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO2] MEDIA_LOCKED of the input bound last: input 5 = 1
+  [ ok ] [FO2] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO3] input 1 unbound: inputs 0 and 5 go on receiving, input 1 receives nothing
+  [FAIL] [FO3] accept verdicts: input 0 got=0 exp=4
+  [FAIL] [FO3] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=4
+  [FAIL] [FO3] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=4
+  [FAIL] [FO3] FRAMES_RX counts them: input 0 got=0 exp=4
+  [FAIL] [FO3] the DEPKT tally counts them: input 0 got=0 exp=4
+  [ ok ] [FO3] accept verdicts: input 5 = 4
+  [ ok ] [FO3] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO3] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO3] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO3] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO3] the unbound input: no accept verdict: input 1 = 0
+  [ ok ] [FO3] the unbound input: no payload: input 1 = 0
+  [ ok ] [FO3] the unbound input: FRAMES_RX unchanged: input 1 = 0
+
+[FO4] per-input verdicts on one PDU: input 5 at 2 channels, inputs 0 and 1 at 8
+  [FAIL] [FO4] an 8-channel input: accept verdicts: input 0 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: FRAMES_RX counts them: input 0 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: the DEPKT tally counts them: input 0 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: accept verdicts: input 1 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: FRAMES_RX counts them: input 1 got=0 exp=10
+  [FAIL] [FO4] an 8-channel input: the DEPKT tally counts them: input 1 got=0 exp=10
+  [ ok ] [FO4] the 2-channel input: no accept verdict: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: no payload: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO4] the 2-channel input counts UNSUPPORTED_FORMAT: input 5 = 1
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 0 = 0
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 1 = 0
+  a gap of three sequence numbers
+  [FAIL] [FO4] after the gap: accept verdicts: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: FRAMES_RX counts them: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: the DEPKT tally counts them: input 0 got=0 exp=1
+  [FAIL] [FO4] SEQ_NUM_MISMATCH counts the gap: input 0 got=0 exp=1
+  [FAIL] [FO4] STREAM_INTERRUPTED counts the gap: input 0 got=0 exp=1
+  [FAIL] [FO4] after the gap: accept verdicts: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: FRAMES_RX counts them: input 1 got=0 exp=1
+  [FAIL] [FO4] after the gap: the DEPKT tally counts them: input 1 got=0 exp=1
+  [FAIL] [FO4] SEQ_NUM_MISMATCH counts the gap: input 1 got=0 exp=1
+  [FAIL] [FO4] STREAM_INTERRUPTED counts the gap: input 1 got=0 exp=1
+  [ ok ] [FO4] the 2-channel input's SEQ_NUM_MISMATCH stays: input 5 = 0
+
+[FO5] talker A on inputs 0 and 1, talker B on input 2, their PDUs back to back
+  [FAIL] [FO5] talker A's input: accept verdicts: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: FRAMES_RX counts them: input 0 got=0 exp=3
+  [FAIL] [FO5] talker A's input: the DEPKT tally counts them: input 0 got=0 exp=3
+  [ ok ] [FO5] talker A's input: accept verdicts: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 1 = 3
+  [ ok ] [FO5] talker A's input: FRAMES_RX counts them: input 1 = 3
+  [ ok ] [FO5] talker A's input: the DEPKT tally counts them: input 1 = 3
+  [ ok ] [FO5] talker B's input: accept verdicts: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads reach the depacketizer's output under the input's index: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads equal the sent ones, byte for byte, in order: input 2 = 3
+  [ ok ] [FO5] talker B's input: FRAMES_RX counts them: input 2 = 3
+  [ ok ] [FO5] talker B's input: the DEPKT tally counts them: input 2 = 3
+  [ ok ] [FO5] nothing dropped: input 0 = 0
+
+[FO6] all eight inputs bound to one talker stream
+  [FAIL] [FO6] accept verdicts: input 0 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 0 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 0 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 1 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 1 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 1 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 1 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 1 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 2 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 2 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 2 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 2 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 2 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 3 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 3 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 3 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 3 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 3 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 4 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 4 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 4 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 4 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 4 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 5 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 5 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 5 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 5 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 5 got=0 exp=3
+  [FAIL] [FO6] accept verdicts: input 6 got=0 exp=3
+  [FAIL] [FO6] payloads reach the depacketizer's output under the input's index: input 6 got=0 exp=3
+  [FAIL] [FO6] payloads equal the sent ones, byte for byte, in order: input 6 got=0 exp=3
+  [FAIL] [FO6] FRAMES_RX counts them: input 6 got=0 exp=3
+  [FAIL] [FO6] the DEPKT tally counts them: input 6 got=0 exp=3
+  [ ok ] [FO6] accept verdicts: input 7 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 7 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 7 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 7 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 7 = 3
+  [ ok ] [FO6] nothing dropped: input 0 = 0
+
+[FO7] a 4-channel PDU inputs 0 and 1 discard, then an 8-channel one, back to back
+  [FAIL] [FO7] the 8-channel PDU: accept verdicts: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 0 got=0 exp=1
+  [FAIL] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 0 got=0 exp=1
+  [FAIL] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 0 got=0 exp=1
+  [ ok ] [FO7] the 8-channel PDU: accept verdicts: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 1 = 1
+  [ ok ] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 1 = 1
+
+[FO8] a 64-byte frame of the stream, then a full PDU with no gap between them
+  [FAIL] [FO8] both PDUs are judged (the short one counts in FRAMES_RX): input 0 got=0 exp=2
+  [FAIL] [FO8] only the full PDU reaches the depacketizer's output: input 0 got=0 exp=1
+  [FAIL] [FO8] ...with its own payload: input 0 got=0 exp=1
+  [ ok ] [FO8] both PDUs are judged (the short one counts in FRAMES_RX): input 1 = 2
+  [ ok ] [FO8] only the full PDU reaches the depacketizer's output: input 1 = 1
+  [ ok ] [FO8] ...with its own payload: input 1 = 1
+
+======================================================================
+FANOUT N=8: 182 checks, 94 failures
+RESULT: FAIL
+make: *** [Makefile:92: fanout] Error 1

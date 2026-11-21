@@ -1,0 +1,22 @@
+-- [FAN] #948: one talker stream bound to inputs 4 and 6, then 7 as well, then 4 unbound --
+  [FAIL] [FAN] two inputs on one stream: input 4's FRAMES_RX counts every PDU got=0x0 exp=0x4
+  [FAIL] [FAN] two inputs on one stream: input 4 receives every PDU (its DEPKT tally) got=0x0 exp=0x4
+  [ok]   [FAN] two inputs on one stream: input 6's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] two inputs on one stream: input 6 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] two inputs on one stream: input 7 counts and receives nothing = 0x0
+  [FAIL] [FAN] two inputs on one stream: the depacketizer emits one PDU per receiving input got=0x4 exp=0x8
+  [FAIL] [FAN] three inputs on one stream: input 4's FRAMES_RX counts every PDU got=0x0 exp=0x4
+  [FAIL] [FAN] three inputs on one stream: input 4 receives every PDU (its DEPKT tally) got=0x0 exp=0x4
+  [FAIL] [FAN] three inputs on one stream: input 6's FRAMES_RX counts every PDU got=0x0 exp=0x4
+  [FAIL] [FAN] three inputs on one stream: input 6 receives every PDU (its DEPKT tally) got=0x0 exp=0x4
+  [ok]   [FAN] three inputs on one stream: input 7's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] three inputs on one stream: input 7 receives every PDU (its DEPKT tally) = 0x4
+  [FAIL] [FAN] three inputs on one stream: the depacketizer emits one PDU per receiving input got=0x4 exp=0xc
+  [FAIL] [FAN] input 4 unbound: input 6's FRAMES_RX counts every PDU got=0x0 exp=0x4
+  [FAIL] [FAN] input 4 unbound: input 6 receives every PDU (its DEPKT tally) got=0x0 exp=0x4
+  [ok]   [FAN] input 4 unbound: input 7's FRAMES_RX counts every PDU = 0x4
+  [ok]   [FAN] input 4 unbound: input 7 receives every PDU (its DEPKT tally) = 0x4
+  [ok]   [FAN] input 4 unbound: input 4 counts and receives nothing = 0x0
+  [FAIL] [FAN] input 4 unbound: the depacketizer emits one PDU per receiving input got=0x4 exp=0x8
+checks: 4017   failures: 11
+RESULT: FAIL
