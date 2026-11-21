@@ -32,6 +32,11 @@
 //         on, then a full PDU with no gap: the short frame is gone before
 //         its PDU is queued, so it is delivered to no input, and the full
 //         one is delivered to each, its own payload
+//   [FO9] eight inputs on one stream: a full PDU, six such frames with no
+//         gap, then two full PDUs: the burst fills the engine's ring with
+//         lost PDUs behind the committed one's verdicts, and each input
+//         receives exactly the three full PDUs, its FRAMES_RX counting
+//         exactly the PDUs it accepted
 //
 // Usage: make -C tb/verilator/avtp_rxmon fanout   (built at N_STREAMS_P=8)
 
@@ -79,6 +84,7 @@ class FanOut {
         all_eight_inputs_on_one_stream();
         a_pdu_no_input_accepts_then_one_they_do();
         a_frame_ending_on_its_match_beat_then_a_full_one();
+        a_burst_of_frames_ending_on_their_match_beat_to_eight_inputs();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -458,6 +464,39 @@ class FanOut {
             ck("[FO8] ...with its own payload", s,
                got[s].size() > b.pdus[s] && got[s][b.pdus[s]] == sent[0] ? 1 : 0, 1);
         }
+    }
+
+    void a_burst_of_frames_ending_on_their_match_beat_to_eight_inputs() {
+        std::printf("\n[FO9] eight inputs on one stream: a full PDU, six 64-byte frames with no gap, then two full PDUs\n");
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, true);
+        cyc(200);
+        const Snap b = snap();
+        // the full PDU is committed and its eight verdicts outlast the burst behind it; each queued 64-byte frame is
+        // gone before its PDU is queued, and once the engine's ring is full the later ones are not queued at all, so
+        // three PDUs wait at once behind the committed one's verdicts and none of the short frames reaches an input
+        std::vector<Pdu> sent;
+        sent.push_back(payload());
+        feed(aaf(0, 8, sent.back()), 0);
+        for (int k = 0; k < 6; k++) {
+            std::vector<uint8_t> f = aaf(0, 8, payload());
+            f.resize(64);
+            feed(f, 0);
+        }
+        cyc(3000);
+        for (const Pdu& p : send(0, 2, 600)) sent.push_back(p);
+        flush_iv();
+        for (int s = 0; s < kStreams; s++) {
+            ck("[FO9] only the three full PDUs reach the depacketizer's output", s,
+               static_cast<long>(got[s].size() - b.pdus[s]), 3);
+            long exact = 0;
+            for (size_t k = 0; k < sent.size() && b.pdus[s] + k < got[s].size(); k++)
+                if (got[s][b.pdus[s] + k] == sent[k]) exact++;
+            ck("[FO9] ...each its own payload, in order", s, exact, 3);
+            ck("[FO9] FRAMES_RX counts exactly the PDUs the input accepted", s,
+               lctx_rd(s, W_FRX) - b.frx[s], accepts[s] - b.acc[s]);
+        }
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, false);
+        cyc(200);
     }
 };
 

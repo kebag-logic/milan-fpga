@@ -91,6 +91,10 @@ MUTATIONS = [
      [("        rq_res_r[rq_a_w] <= !p7_r;\n", "        rq_res_r[rq_a_w] <= 1'b0;\n"),
       ("        if (p7_r) ifl_e_r <= rq_ap_r;\n", "        ifl_e_r <= rq_ap_r;\n")],
      "[FO8] only the full PDU reaches the depacketizer's output: input 0"),
+    ("the verdict queue holds two entries, not the four a full ring and a lost PDU need",
+     "DEPKT_SRC",
+     [("  localparam int RQ_LOG2_C = 2;\n", "  localparam int RQ_LOG2_C = 1;\n")],
+     "[FO9] only the three full PDUs reach the depacketizer's output"),
 ]
 
 
