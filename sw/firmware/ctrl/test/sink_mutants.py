@@ -87,7 +87,12 @@ HI = ("\tctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_C
 
 
 def mutants(mutant: type) -> tuple:
-    """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
+    """The table, built with the campaign's Mutant (ctrl_mutant.py): the contexts' rows, then the streams'."""
+    return contexts(mutant) + streams(mutant)
+
+
+def contexts(mutant: type) -> tuple:
+    """The receive monitor's formats' rows (#946)."""
     m = mutant
     return (
         # the shipped firmware's state, and the write's place after the acknowledgement
@@ -177,6 +182,13 @@ def mutants(mutant: type) -> tuple:
         # reads the verdict's bit 1 against it refuses the saved format
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
+    )
+
+
+def streams(mutant: type) -> tuple:
+    """The streams' rows beside the contexts (Streams; #950, #954)."""
+    m = mutant
+    return (
         # #950: a waiting SET_STREAM_FORMAT done again without its running check (the shipped core), at input 0, the
         # CRF input and every output at both shapes; its check made of another stream
         m("again-unchecked-onto-a-stream", "aecp/aecp.c", AGAIN,

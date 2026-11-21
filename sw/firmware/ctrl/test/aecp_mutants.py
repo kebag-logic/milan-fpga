@@ -9,6 +9,7 @@ import shutil
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+import aecp_again_mutants
 import aecp_arms
 import aecp_configuration_mutants
 import aecp_index_mutants
@@ -40,12 +41,6 @@ def defect(name: str, file: str, old: str, new: str,
     """Keep the table's common AECP directory implicit."""
     path = file if "/" in file else "aecp/" + file
     return Defect(name, path, old, new, (check, *also))
-
-
-#: #950's test, the words of its status check, and the check aecp_again makes, as aecp_commands.c holds it.
-AGAIN = 'Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied'
-AGAIN_WORDS = 'a waiting SET_STREAM_FORMAT makes its running check again once applied: '
-AGAIN_CHECK = 'running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;'
 
 
 DEFECTS = (
@@ -763,32 +758,6 @@ DEFECTS = (
             'the values in force, as IN_PROGRESS reported them'),
            ('Face.ALateCommitIsOwedAndPublishedAgainWhole',
             'with the value in force')),
-    # #950 (IEEE 1722.1-2021 7.4.9, 8.2): a waiting SET_STREAM_FORMAT's running check, made again once the platform
-    # applied it and before it is done again; the shipped core's re-run without it first
-    defect('again-unchecked', 'aecp.c',
-           'unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;',
-           'unsigned status = taken ? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;',
-           (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile'),
-           (AGAIN, 'STREAM_INPUT 0: the check is made again')),
-    defect('again-other-command', 'aecp_commands.c',
-           'return a->noted == AECP_CHANGE_FORMAT ?', 'return a->noted == AECP_CHANGE_CONFIGURATION ?',
-           (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile')),
-    defect('again-input-judged-by-streaming', 'aecp_commands.c', AGAIN_CHECK,
-           'running(a, 6u, a->noted_index) : AECP_SUCCESS;',
-           (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile')),
-    defect('again-unobservable-taken', 'aecp_commands.c', AGAIN_CHECK,
-           '(running(a, a->noted_type, a->noted_index) == AECP_STREAM_IS_RUNNING ? AECP_STREAM_IS_RUNNING : '
-           'AECP_SUCCESS) : AECP_SUCCESS;',
-           (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, not observable once applied')),
-    defect('again-refusal-done-again', 'aecp.c',
-           '\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n', '\t\tif (taken) {\n\t\t\tswap(a);\n\t\t}\n',
-           (AGAIN, 'a refused waiting SET_STREAM_FORMAT stays undone: STREAM_INPUT 0, bound meanwhile')),
-    defect('again-refusal-notified', 'aecp.c',
-           'a->notify = status == AECP_SUCCESS;', 'a->notify = taken;',
-           (AGAIN, 'STREAM_INPUT 0, bound meanwhile: one final response, no notification')),
-    defect('again-refusal-misbehaving', 'aecp.c',
-           'refuse(a, status);', 'refuse(a, AECP_ENTITY_MISBEHAVING);',
-           (AGAIN, AGAIN_WORDS + 'STREAM_INPUT 0, bound meanwhile')),
     defect('waiting-response-forgets-its-requester', 'aecp.c',
            '\t\ta->requester = a->held_requester;\n', '',
            ('Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce',
@@ -917,6 +886,7 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
 
 
