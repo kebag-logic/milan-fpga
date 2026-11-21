@@ -952,6 +952,95 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
         <<"an output ACMP holds no source for is not answered";
 }
 
+// #957 (Milan v1.2 5.4.5.2, Table 5.22: a Stream Output's MSRP Listener attribute registration state; IEEE 1722.1-2021
+// 7.5.2): at every STREAM_OUTPUT, each change of the Listener registered for its stream_id on its own interface, a
+// Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going, the registrar's reset with its
+// link included, is one unsolicited GET_STREAM_INFO response of that output to every registered controller, carrying
+// the new flags (#943's REGISTERING and REGISTERING_FAILED). A Listener declared again unchanged, one on another
+// interface and a pass with no change notify nothing, and no other output is notified.
+TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);settle(200);
+    unsigned cursor=fabric.tx_sent;
+    //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
+    struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
+    auto take=[&]{
+        std::vector<Seen> seen(OUTPUTS);
+        for(;cursor<fabric.tx_sent;++cursor){auto p=mbx_model_tx_frame(&fabric,cursor);
+            EXPECT_NE(p,nullptr)<<"each step's frames are read before the capture drops them";
+            if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x800fu||get(p->bytes+38,2)!=6u)continue;
+            const unsigned n=unsigned(get(p->bytes+40,2));
+            const uint64_t controller=get(p->bytes+26,8);
+            if(n>=OUTPUTS||(controller!=CTLR&&controller!=CTLR+1))continue;
+            ++seen[n].count[controller==CTLR?0:1];
+            seen[n].flags=uint32_t(get(p->bytes+42,4));seen[n].flags_ex=uint32_t(get(p->bytes+86,4));
+        }
+        return seen;
+    };
+    //! One notice of output n to each controller with `ex` and `failed`, and none of any other output.
+    auto once=[&](unsigned n,uint32_t ex,bool failed,const char *step){
+        const auto seen=take();
+        for(unsigned m=0;m<OUTPUTS;++m){
+            for(unsigned c=0;c<2u;++c){
+                EXPECT_EQ(seen[m].count[c],m==n?1u:0u)
+                    <<(m==n?"a Listener registration change is one notice of its STREAM_OUTPUT to every registered "
+                            "controller":"no other STREAM_OUTPUT is notified")<<": output "<<n<<", "<<step
+                    <<", output "<<m<<", controller "<<c;
+            }
+        }
+        EXPECT_EQ(seen[n].flags_ex,ex)<<"the notice carries the new REGISTERING: output "<<n<<", "<<step;
+        EXPECT_EQ(seen[n].flags&0x40u,failed?0x40u:0u)<<"the notice carries the new REGISTERING_FAILED: output "<<n
+                                                      <<", "<<step;
+    };
+    //! No notice of any output.
+    auto none=[&](const char *words,unsigned n,const char *step){
+        const auto seen=take();
+        for(unsigned m=0;m<OUTPUTS;++m)
+            EXPECT_EQ(seen[m].count[0]+seen[m].count[1],0u)<<words<<": output "<<n<<", "<<step<<", output "<<m;
+    };
+    take();
+    for(unsigned n=0;n<OUTPUTS;++n){
+        const unsigned interface=connection.source_interface[n];
+        declaring[n]=true;
+        listener(interface,sid(n),1u,2u);
+        once(n,1u,false,"Ready appears");
+        listener(interface,sid(n),1u,2u);
+        none("a Listener declared again unchanged notifies nothing",n,"Ready again");
+        listener(interface,sid(n),1u,3u);
+        once(n,1u,false,"Ready Failed replaces Ready");
+        listener(interface,sid(n),1u,1u);
+        once(n,1u,true,"Asking Failed replaces Ready Failed");
+        listener(interface,sid(n),1u,2u);
+        once(n,1u,false,"Ready replaces Asking Failed");
+        settle(1000);
+        none("a pass with no change notifies nothing",n,"its Listener kept");
+        listener(interface,sid(n),5u,2u);
+        settle(1100);
+        once(n,0u,false,"its Listener goes");
+        if(MBX_N_IF>1u){
+            listener((interface+1u)%MBX_N_IF,sid(n),1u,1u);
+            none("a Listener on another interface notifies nothing",n,"Asking Failed on the other interface");
+            listener((interface+1u)%MBX_N_IF,sid(n),5u,1u);
+            settle(1100);
+            none("a Listener on another interface notifies nothing",n,"its leave on the other interface");
+        }
+        declaring[n]=false;
+    }
+    if(MBX_N_IF>1u){
+        // the last interface's registrar reset with its link: the output on it whose Listener is registered is noticed
+        const unsigned n=OUTPUTS-1u,interface=connection.source_interface[n];
+        ASSERT_NE(interface,0u)<<"the controllers are on interface 0";
+        declaring[n]=true;
+        listener(interface,sid(n),1u,1u);
+        once(n,1u,true,"Asking Failed appears");
+        mbx_model_set_link(&fabric,interface,false);settle(20);
+        once(n,0u,false,"its interface's registrar reset with its link");
+        mbx_model_set_link(&fabric,interface,true);settle(20);
+        none("a reset with no Listener registered notifies nothing",n,"the link back");
+        declaring[n]=false;
+    }
+}
+
 namespace {
 //! The composition with the integrator's map store (#923), a saved input map restored by the walk.
 struct AppStore : App {
