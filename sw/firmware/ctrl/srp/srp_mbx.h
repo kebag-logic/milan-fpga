@@ -101,6 +101,15 @@ struct srp_interface {
     uint32_t shown_advertise;
     uint32_t noticed;
     uint16_t shown_vid;
+    // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of the Listener registered for its stream on this interface
+    // (#957; Milan v1.2 5.4.5.2, Table 5.22, the MSRP Listener attribute registration state; #943's REGISTERING and
+    // REGISTERING_FAILED), source s at s: declaration the Listener declaration its indication last copied (IEEE
+    // 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed), shown_registration that declaration while
+    // listener_present holds and 0 otherwise, as last compared, and registration_noticed (bit s) the sources whose
+    // shown registration changed since the composition last took it (ctrl_app_srp.c), which AECP notifies.
+    uint8_t declaration[CTRL_SRP_SOURCES];
+    uint8_t shown_registration[CTRL_SRP_SOURCES];
+    uint32_t registration_noticed;
     // srp_mbx_gate's base at its last call, once one was taken: a call with
     // that base and the gate it left changes nothing, so it returns at once
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the

@@ -1144,6 +1144,44 @@ TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
         }
     }
 }
+
+// #957 (ctrl_loop.h, the polls): SRP's record of a Listener registration change of a source on its own interface is
+// taken by the SRP delivery, and from that pass to its STREAM_OUTPUT's notice committed to every registered controller
+// no pass reports the loop idle; a record on another interface than its source's is taken and notifies nothing.
+TEST_F(App, NoPassIsIdleWhileAListenerRegistrationNoticeIsOwed)
+{
+    aem(36);aem(36,{},CTLR+1);
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
+    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+    for(unsigned source:{0u,last}){
+        const unsigned interface=connection.source_interface[source];
+        const unsigned before=fabric.tx_sent;
+        reservation.ifs[interface].registration_noticed=1u<<source;
+        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+        EXPECT_EQ(reservation.ifs[interface].registration_noticed,0u)<<"the SRP delivery takes SRP's record";
+        for(uint64_t controller:{CTLR,CTLR+1}){
+            EXPECT_EQ(notices(before,source,controller),1u)
+                <<"no pass is idle while a Listener registration's notice is owed";
+        }
+    }
+    for(unsigned interface=0;interface<MBX_N_IF;++interface){
+        if(interface==connection.source_interface[0])continue;
+        const unsigned before=fabric.tx_sent;
+        reservation.ifs[interface].registration_noticed=1u;
+        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+        EXPECT_EQ(reservation.ifs[interface].registration_noticed,0u)<<"the SRP delivery takes every interface's record";
+        EXPECT_EQ(notices(before,0,CTLR)+notices(before,0,CTLR+1),0u)
+            <<"a record on another interface than its source's notifies nothing";
+    }
+}
 #endif
 
 namespace {

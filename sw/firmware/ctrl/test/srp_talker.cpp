@@ -777,3 +777,56 @@ TEST_F(Talker, ResetNoticesNothingUnchanged) {
     ASSERT_NE(newly(talker(last,0,first),1),nullptr) << "the reset declares the source again";
     EXPECT_EQ(adapter.ifs[last].noticed,0u) << "a source a reset declares again unchanged is not noticed";
 }
+
+// #957: a source's STREAM_OUTPUT shows the Listener registered for its stream on the interface (#943's REGISTERING and
+// REGISTERING_FAILED), so each change of that registration, a Listener Ready, Ready Failed or Asking Failed appearing,
+// replacing another or going, the registrar's reset with its link included, is noticed on that interface for the
+// output's GET_STREAM_INFO notice (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2). A Listener declared again
+// unchanged, its registration kept over a LeaveAll and a reset with none registered notice nothing; another stream's
+// Listener notices its own source; neither is a Talker's record.
+TEST_F(Talker, ListenerRegistrationChangeIsNoticed) {
+    settle(); advance(400);
+    const unsigned n=CTRL_SRP_SOURCES-1u;
+    // the record since it was last taken, taken as the composition takes it (ctrl_app_srp.c)
+    auto taken=[&](unsigned i){
+        const uint32_t r=adapter.ifs[i].registration_noticed;
+        adapter.ifs[i].registration_noticed=0u;
+        return r;
+    };
+    for (unsigned i=0;i<MBX_N_IF;++i) EXPECT_EQ(taken(i),0u) << "no Listener registered, nothing is noticed";
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        offer(frame(3,identity(i,n),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Ready appearing is noticed";
+        for (unsigned k=0;k<MBX_N_IF;++k) {
+            if (k!=i) {
+                EXPECT_EQ(taken(k),0u) << "a Listener is noticed on its own interface";
+            }
+        }
+        offer(frame(3,identity(i,n),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),0u) << "a Listener declared again unchanged is not noticed";
+        // a LeaveAll of the Listener attribute type with the Listener's JoinIn after it in its message (IEEE 802.1Q-2018
+        // 10.8.2.2): its Registrar leaves IN and registers again
+        offer(frame(3,identity(i,n),1,2,true),i); advance(1200);
+        EXPECT_EQ(taken(i),0u) << "a Listener registered again after a LeaveAll is not noticed";
+        offer(frame(3,identity(i,n),1,3),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Ready Failed replacing a Ready is noticed";
+        offer(frame(3,identity(i,n),1,1),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Asking Failed replacing a Ready Failed is noticed";
+        if (n!=0u) {
+            offer(frame(3,identity(i,0),1,2),i); advance(20);
+            EXPECT_EQ(taken(i),1u) << "another stream's Listener notices its own source";
+            offer(frame(3,identity(i,0),5,2),i); advance(1200);
+            EXPECT_EQ(taken(i),1u) << "another stream's Listener notices its own source";
+        }
+        offer(frame(3,identity(i,n),5,1),i); advance(1200);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener going is noticed";
+        EXPECT_EQ(adapter.ifs[i].noticed,0u) << "a Listener's registration is not a Talker's record";
+    }
+    const unsigned last=MBX_N_IF-1u;
+    offer(frame(3,identity(last,n),1,1),last); advance(20);
+    ASSERT_EQ(taken(last),1u<<n) << "a Listener Asking Failed appearing is noticed";
+    mbx_model_set_link(&model,last,false); settle();
+    EXPECT_EQ(taken(last),1u<<n) << "a reset with a Listener registered notices it going";
+    mbx_model_set_link(&model,last,true); settle(); advance(400);
+    EXPECT_EQ(taken(last),0u) << "a reset with no Listener registered notices nothing";
+}

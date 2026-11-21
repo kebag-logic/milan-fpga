@@ -73,6 +73,21 @@ static bool deliver(void *ctx)
         app->srp_noticed |= app->srp->ifs[interface].noticed;
         app->srp->ifs[interface].noticed = 0u;
     }
+    // The sources whose Listener registration SRP's copy changed on their own interface (ACMP's source_interface, the
+    // copy their GET_STREAM_INFO reads, ctrl_app_aecp.c), each its notice too (#957; Milan v1.2 5.4.5.2, Table 5.22):
+    // one on another interface changes nothing its STREAM_OUTPUT shows. SRP's sources are ACMP's (ctrl_plat.c).
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
+        uint32_t changed = app->srp->ifs[interface].registration_noticed;
+        if (changed != 0u) {
+            app->srp->ifs[interface].registration_noticed = 0u;
+            for (unsigned source = 0; changed != 0u; ++source, changed >>= 1) {
+                if ((changed & 1u) != 0u && app->acmp.acmp.cfg.source_interface[source] == interface) {
+                    app->srp_noticed |= 1u << source;
+                    noticed = true;
+                }
+            }
+        }
+    }
     // A Talker is declared while its destination is valid (#895; Milan v1.2 4.3.3.1, 5.3.7.4): the MAAP adapter's DA
     // gate, refreshed by MAAP's poll before this one, with the range MAAP holds on the interface
     for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {
