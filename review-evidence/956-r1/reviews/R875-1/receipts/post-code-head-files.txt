@@ -1,0 +1,8 @@
+ docs/design/MAILBOX_SPLIT.md                       |   7 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  13 ++-
+ docs/reference/FR_NFR.md                           |   2 +-
+ sw/firmware/ctrl/test/srp_talker_mutants.py        | 100 +++++++++++----------
+ .../ctrl_service_budget/declaring_outputs.py       |  38 ++++++--
+ tb/verilator/ctrl_service_budget/flip_grade.py     |   3 +-
+ tb/verilator/ctrl_service_budget/load_grade.py     |   7 +-
+ 7 files changed, 110 insertions(+), 60 deletions(-)

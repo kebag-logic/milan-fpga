@@ -1,0 +1,128 @@
+wrote $REVIEWS/956-r875-1-packet/scratch/b-phase-8x8-2/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r875-1-packet/scratch/b-phase-8x8-2/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r875-1-packet/scratch/b-phase-8x8-2/checkout/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = ReviewerPhase.*:Talker.ChangedDestination*
+[==========] Running 22 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from Talker
+[ RUN      ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods
+[       OK ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods (34 ms)
+[ RUN      ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+[       OK ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest (17 ms)
+[----------] 2 tests from Talker (52 ms total)
+
+[----------] 20 tests from ReviewerPhase
+[ RUN      ] ReviewerPhase.Held0
+PROBE held phase 0: join timers busy at the count's end 0
+$REVIEWS/956-r875-1-packet/scratch/probe-tree/sw/firmware/ctrl/test/srp_talker.cpp:879: Failure
+Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] ReviewerPhase.Held0: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] ReviewerPhase.Held0 (15 ms)
+[ RUN      ] ReviewerPhase.Free0
+$REVIEWS/956-r875-1-packet/scratch/probe-tree/sw/firmware/ctrl/test/srp_talker.cpp:879: Failure
+Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] ReviewerPhase.Free0: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] ReviewerPhase.Free0 (12 ms)
+[ RUN      ] ReviewerPhase.Held100
+PROBE held phase 100: join timers busy at the count's end 0
+PROBE held phase 100 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 100 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held100 (12 ms)
+[ RUN      ] ReviewerPhase.Free100
+PROBE free phase 100 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 100 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free100 (12 ms)
+[ RUN      ] ReviewerPhase.Held200
+PROBE held phase 200: join timers busy at the count's end 0
+PROBE held phase 200 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 200 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held200 (12 ms)
+[ RUN      ] ReviewerPhase.Free200
+PROBE free phase 200 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 200 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free200 (12 ms)
+[ RUN      ] ReviewerPhase.Held300
+PROBE held phase 300: join timers busy at the count's end 0
+PROBE held phase 300 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 300 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held300 (12 ms)
+[ RUN      ] ReviewerPhase.Free300
+PROBE free phase 300 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 300 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free300 (12 ms)
+[ RUN      ] ReviewerPhase.Held400
+PROBE held phase 400: join timers busy at the count's end 2
+PROBE held phase 400 if0: request-to-wire 30600 ms (deadline 30000)
+$REVIEWS/956-r875-1-packet/scratch/probe-tree/sw/firmware/ctrl/test/srp_talker.cpp:884: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 31000 vs 30400
+PROBE: on the wire within 30.0 s of the request
+
+  [FAIL] ReviewerPhase.Held400: PROBE: on the wire within 30.0 s of the request
+PROBE held phase 400 if1: request-to-wire 29995 ms (deadline 30000)
+[  FAILED  ] ReviewerPhase.Held400 (12 ms)
+[ RUN      ] ReviewerPhase.Free400
+PROBE free phase 400 if0: request-to-wire 29790 ms (deadline 30000)
+PROBE free phase 400 if1: request-to-wire 29790 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free400 (12 ms)
+[ RUN      ] ReviewerPhase.Held500
+PROBE held phase 500: join timers busy at the count's end 0
+PROBE held phase 500 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 500 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held500 (12 ms)
+[ RUN      ] ReviewerPhase.Free500
+PROBE free phase 500 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 500 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free500 (12 ms)
+[ RUN      ] ReviewerPhase.Held600
+PROBE held phase 600: join timers busy at the count's end 0
+PROBE held phase 600 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 600 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held600 (12 ms)
+[ RUN      ] ReviewerPhase.Free600
+PROBE free phase 600 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 600 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free600 (12 ms)
+[ RUN      ] ReviewerPhase.Held700
+PROBE held phase 700: join timers busy at the count's end 0
+PROBE held phase 700 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 700 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held700 (12 ms)
+[ RUN      ] ReviewerPhase.Free700
+PROBE free phase 700 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 700 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free700 (12 ms)
+[ RUN      ] ReviewerPhase.Held800
+PROBE held phase 800: join timers busy at the count's end 0
+PROBE held phase 800 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 800 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held800 (12 ms)
+[ RUN      ] ReviewerPhase.Free800
+PROBE free phase 800 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 800 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free800 (12 ms)
+[ RUN      ] ReviewerPhase.Held900
+PROBE held phase 900: join timers busy at the count's end 0
+PROBE held phase 900 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 900 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held900 (12 ms)
+[ RUN      ] ReviewerPhase.Free900
+PROBE free phase 900 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 900 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free900 (12 ms)
+[----------] 20 tests from ReviewerPhase (255 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 2 test suites ran. (307 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] ReviewerPhase.Held0
+[  FAILED  ] ReviewerPhase.Free0
+[  FAILED  ] ReviewerPhase.Held400
+
+ 3 FAILED TESTS
+== ctrl SRP Talker declarations: checks: 22   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 22 checks, exit 1)
+rc=1

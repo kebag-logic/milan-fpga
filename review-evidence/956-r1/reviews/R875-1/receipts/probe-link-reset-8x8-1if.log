@@ -1,0 +1,50 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+Note: Google Test filter = AppOutputs.*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (13 ms)
+[ RUN      ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (17 ms)
+[ RUN      ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+PROBE step1 Ready appears: notices 1/1 flags_ex 1
+PROBE step2 link down: gate 0 notices 1/1
+PROBE step3 link up, MAAP valid, probed: gate 1 talkers 0 notices 0/0 flags_ex 4294967295
+PROBE step3b base 91e0f0006111 readdressed 0 held_cs 0
+PROBE step3b Talker declared again: talkers 1 notices 1/1 flags_ex 0
+PROBE step4 answer before the Listener returns: flags_ex 0 listener_present 0 declaration 2
+PROBE step5 Listener Ready returns: notices 0/0 answer flags_ex 1
+$REVIEWS/956-r875-1-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_aecp.cpp:5808: Failure
+Expected equality of these values:
+  s[n].count[0]
+    Which is: 0
+  1u
+    Which is: 1
+PROBE: the Listener registration's return is one notice to the first controller
+
+  [FAIL] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset: PROBE: the Listener registration's return is one notice to the first controller
+$REVIEWS/956-r875-1-packet/scratch/probe-tree/sw/firmware/ctrl/test/test_aecp.cpp:5809: Failure
+Expected equality of these values:
+  s[n].count[1]
+    Which is: 0
+  1u
+    Which is: 1
+PROBE: the Listener registration's return is one notice to the second controller
+
+  [FAIL] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset: PROBE: the Listener registration's return is one notice to the second controller
+[  FAILED  ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset (30 ms)
+[----------] 3 tests from AppOutputs (62 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (62 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+
+ 1 FAILED TEST
+== AECP core: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)
+rc=1

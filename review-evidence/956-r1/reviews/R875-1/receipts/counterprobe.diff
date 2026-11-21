@@ -1,0 +1,12 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 1b0e168f7c..84ac1a5eb9 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -1188,6 +1188,7 @@ static void reset_interface(struct srp_interface *i)
+         i->stop_owed[k] = false;
+         // the registrar it was walked from is destroyed below (#665)
+         i->listener_present[k] = false;
++        i->declaration[k] = 0u; /* reviewer counter-probe */
+     }
+     publish_licence(i);
+     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {

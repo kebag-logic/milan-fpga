@@ -1,0 +1,44 @@
+# restore verification 2026-11-21T21:05:17Z
+HEAD 0d80f0ed2a880c3a3b2429c669f104801203ec05 tree 14c4607eaceb3369f6debb279ed83d59ad098846
+status-porcelain-ignored:
+worktree-vs-index: clean
+index-vs-HEAD: clean
+index entries vs HEAD tree (mode/blob/path):
+identical
+submodules:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+submodule worktrees (porcelain, empty = clean):
+gptp-processor: 0 entries
+protocol-processor: 1 entries
+third_party/lwSRP: 0 entries
+third_party/tsn-c-stack: 0 entries
+third_party/verilog-axis: 0 entries
+after removing protocol-processor/hdl/aecp/desc/__pycache__ (created 21:38 local by this run):
+gptp-processor: 0 entries
+protocol-processor: 0 entries
+third_party/lwSRP: 0 entries
+third_party/tsn-c-stack: 0 entries
+third_party/verilog-axis: 0 entries
+top-level porcelain --ignored entries: 0
+# final re-verification 2026-11-21T21:10:48Z
+HEAD 0d80f0ed2a880c3a3b2429c669f104801203ec05 tree 14c4607eaceb3369f6debb279ed83d59ad098846
+porcelain --ignored entries: 0
+worktree-vs-index: clean
+index-vs-HEAD: clean
+index entries (mode/blob/path) identical to HEAD tree
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor worktree: 0 entries, diff-vs-HEAD clean
+protocol-processor worktree: 0 entries, diff-vs-HEAD clean
+third_party/lwSRP worktree: 0 entries, diff-vs-HEAD clean
+third_party/tsn-c-stack worktree: 0 entries, diff-vs-HEAD clean
+third_party/verilog-axis worktree: 0 entries, diff-vs-HEAD clean

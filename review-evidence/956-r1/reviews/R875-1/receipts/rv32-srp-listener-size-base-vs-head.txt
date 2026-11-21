@@ -1,0 +1,24 @@
+== base if1 configs/endstation_ax7101_8x8.yaml
+RESULT: PASS
+SYM 00000158 00000080 t listener 128
+SYM 000005e4 00000460 t declare_sources 1120
+SIZE   13596	     20	      4	  13620	   3534	$REVIEWS/956-r875-1-packet/scratch/rv32-base-1-endstation_ax7101_8x8/checkout/srp-rv32-if1-endstation_ax7101_8x8/srp_srp_mbx.o
+== base if1 configs/endstation_ax7101_1x1_tdm8.yaml
+RESULT: PASS
+SYM 00000140 00000084 t listener 132
+SYM 000005b0 00000460 t declare_sources 1120
+SIZE   13580	     20	      4	  13604	   3524	$REVIEWS/956-r875-1-packet/scratch/rv32-base-1-endstation_ax7101_1x1_tdm8/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/srp_srp_mbx.o
+== head if1 configs/endstation_ax7101_8x8.yaml
+RESULT: PASS
+SYM 00000158 000000a8 t listener 168
+SYM 0000060c 00000460 t declare_sources 1120
+SIZE   13672	     20	      4	  13696	   3580	$REVIEWS/956-r875-1-packet/scratch/rv32-head-1-endstation_ax7101_8x8/checkout/srp-rv32-if1-endstation_ax7101_8x8/srp_srp_mbx.o
+== head if1 configs/endstation_ax7101_1x1_tdm8.yaml
+RESULT: PASS
+SYM 00000140 000000ac t listener 172
+SYM 000005d8 00000460 t declare_sources 1120
+SIZE   13620	     20	      4	  13644	   354c	$REVIEWS/956-r875-1-packet/scratch/rv32-head-1-endstation_ax7101_1x1_tdm8/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/srp_srp_mbx.o
+listener 128 -> 168
+on_event 188 -> 228
+poll 776 -> 800
+transmit 1300 -> 1276
