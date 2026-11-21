@@ -160,6 +160,7 @@ import srp_pub_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
 import srp_reclaim_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
+import gptp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import plat_arms  # noqa: E402
 import fw_gtest  # noqa: E402
@@ -208,6 +209,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
+    outcomes.extend(gptp_arms.all_arms(tree, args.require_rv32))
     outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))
     outcomes.extend(plat_arms.sink_arms(tree))
     return outcomes
@@ -280,6 +282,7 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
         outcomes.extend(srp_arms.talker_arms(tree, lwsrp.resolve()))
         outcomes.extend(srp_arms.listener_arms(tree, lwsrp.resolve()))
         outcomes.extend(aecp_arms.all_arms(tree))
+        outcomes.append(gptp_arms.arm_gptp(tree))
         outcomes.extend(plat_arms.coverage_arms(tree))
         outcomes.extend(plat_arms.sink_arms(tree))
     except Refusal as exc:
