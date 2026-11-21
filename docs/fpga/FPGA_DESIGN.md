@@ -266,7 +266,7 @@ this table whenever `hdl/` changes shape.
 | `KL_aaf_capture_i2s` | physical-interface audio capture front-end (NXN Section 2.1 / P4): the I2S/CDC half |
 | `KL_aaf_latency_chain` / `KL_aaf_latency_taps` | per-stage TX/RX latency tap chains (item-11) feeding the `LTAP` CSR group at `0x870` |
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
-| `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sinks: one stored frame, read out once for each input that accepted it (#948) |
+| `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sinks: one stored frame, read out once for each input that accepted it, as ceil(`stream_data_length`/8) beats with `tlast` on the last, a non-multiple tail zero-padded; a frame short of its payload is dropped whole and counted (#948) |
 | `KL_aes3_rx` / `KL_aes3_tx` | AES3 / S-PDIF biphase-mark receiver and transmitter (item-4 front-end family) |
 | `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds, and since #617 its TDM bucket hands each walk one whole TDM frame, snapshotted in the media tick's cycle, and the detector counts that walk's own repeated and skipped frames |
 | `KL_chan_map_render` | 64 stream-channel → physical render crossbar |
@@ -290,7 +290,7 @@ this table whenever `hdl/` changes shape.
 |---|---|
 | `KL_avtp_common_parser` | AVTP common header extractor (big-endian wire order) |
 | `KL_avtp_rx_monitor` | single-sink STREAM_INPUT diagnostic-counter engine |
-| `KL_avtp_rx_monitor_ctx` | shared NxN STREAM_INPUT diagnostic-counter engine — **live**, feeding the `0x6B8` `A_STRMW_CNT` window |
+| `KL_avtp_rx_monitor_ctx` | shared NxN STREAM_INPUT diagnostic-counter engine, **live**, feeding the `0x6B8` `A_STRMW_CNT` window; each input judges a PDU against its own current format, its frame size included (`stream_data_length` = channels x samples_per_frame x sample octets, #948) |
 | `KL_media_clock_restart` | the AVTP `mr` (media clock restart) level this end station transmits |
 | `KL_stream_table` | NxN stream-table authority (classification, Section 1.1 of the NxN doc) |
 | `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters, instantiated once per declared AAF output plus CRF when present. Solicited GET_COUNTERS serves its compact five-counter layout; its dirty pulse feeds the root's Table 5.22 descriptor arbiter. Its own suite is `tb/verilator/tkdiag` |

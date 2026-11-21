@@ -1884,6 +1884,18 @@ table entry alone). The run must exit 1 and print the four failures
 `TWIN8_PLANT_WORDS` names, among them input 0 starved beside input 1. Like the
 twin, these targets are this leg's own, outside the suite's `run` inventory.
 
+`sim_nxn`'s `[FAN]` section also stops one of the two inputs bound to the
+stream (Milan v1.2 5.3.8.7, STOP_STREAMING over AECP), input 4 and then 6,
+and starts each again. While one is stopped, the other receives every PDU
+(its DEPKT tally) and the stopped input receives none, while its FRAMES_RX
+still counts each, a PDU received on this Stream Input (Table 5.6). After
+START both receive. `make fan-stop-plants` builds `obj_nxn8` on a datapath
+whose stop gate is not per input (`fan_stop_plant.py`): `shared`, a stopped
+input among a PDU's accepting inputs discarding the PDU for all of them, and
+`one-index`, the accept pulse's one-index stop applied to every input's share.
+Each run must exit 1 and print the failures `FAN_STOP_WORDS_<plant>` names.
+This target is outside the suite's `run` inventory too.
+
 ## The #839 station MAC from reset (`obj_bootsa`)
 
 The defect: the processor's SRP engine runs from reset. The firmware writes
