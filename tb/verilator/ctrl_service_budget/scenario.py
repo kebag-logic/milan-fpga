@@ -684,7 +684,39 @@ def named_groups(p: Point, build: dict) -> list[Group]:
     ruled yet (#872). srp-owed holds the egress past THE TRANSMIT's bound with the SRP ring full, so the MRP timers'
     run-outs of the hold are late by the hold (mrpdu_grade.py); it stays out of the arm until a ruling says how they
     are graded, as #894's ruling did for backlog-owed's rows."""
-    return [owed_mrpdu_group(p)] if build.get('variant', 'none') == 'none' else []
+    return [owed_mrpdu_group(p), retained_group(p)] if build.get('variant', 'none') == 'none' else []
+
+
+def medium_blocks(p: Point) -> int:
+    """The medium blocks of SRP's pool at a point, which each attribute's instance takes (srp_mbx.h,
+    SRP_POOL_MEDIUM_BLOCKS: CTRL_SRP_SOURCES and CTRL_SRP_SINKS are the entity's, the point's sources and sinks)."""
+    return (16 + 3 * p.sources + 4 * p.sinks) * p.interfaces
+
+
+def retained_group(p: Point) -> Group:
+    """A receive SRP's pool has no room for, retained and retried (#872): poll_items' retained item, which the load gate
+    states at an SRP record's (load_grade.py, item.retained) and no other group stages.
+
+    The receive filter takes every SR class A Domain with a VID in range (srp_mbx.c, interested_msrp), and each
+    different FirstValue is an attribute of its own (IEEE 802.1Q-2018 35.2.2.8.6: a Domain's value is the whole
+    triple), its instance a block of SRP's pool. So a bridge's Domain declarations, one VID after another on interface
+    0, a few more than the pool's medium blocks (medium_blocks) and 30 ms apart, take the pool: lwSRP refuses the
+    receive whose attribute finds no block (mrp_mad.c, get_or_create_attr), srp_mbx.c retains it (pending_rx) and
+    retries it once a block returns or a state moves, at most once a centisecond (poll, apply_receive). The adoptions the
+    Domains cause (change_domain) leave their old declarations, whose reclaims return blocks. The rate and the VIDs are
+    a stimulus, not a claim about a bridge."""
+    srp = CH['srp']
+    count = medium_blocks(p) + 8
+    g = Group('srp-retained', sim_ms=2500 + 30 * count)
+    ready(g, p, link=False)
+    for i in range(p.interfaces):
+        g.add(f'link {i} 1')
+    g.add(f'wait cycles {300 * MS}', 'wait quiet 3 within 2000000')
+    for k in range(count):
+        domain = f.mrp_message(4, f.domain_value(6, 3, 10 + k), [1])
+        g.add(f'frame 0 {f.msrp(BRIDGE_MAC, [domain]).hex()}', f'wait cycles {30 * MS}')
+    g.add(f'wait cycles {2000 * MS}', 'wait quiet 3 within 50000000')
+    return g
 
 
 def owed_mrpdu_group(p: Point) -> Group:

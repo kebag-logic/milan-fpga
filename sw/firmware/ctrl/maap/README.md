@@ -148,6 +148,7 @@ The dispatch path caches each `acmp_declaring` answer before entering MAAP.
 Each answer includes the source owner's destination validity and demand.
 ACMP also retires observed probe expiry.
 The range callback combines that snapshot with its current MAAP validity.
+The snapshot files each answer under its source's interface (`demand_if`), so an interface's gate is that word masked by the count, not a scan of every source (#872; `MaapHost.DeclaringMatchesTheSourceScan`).
 It calls no protocol core.
 If the allocation report makes the source destination valid,
 the gate opens on the next MAAP poll.

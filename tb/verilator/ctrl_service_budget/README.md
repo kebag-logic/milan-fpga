@@ -290,6 +290,10 @@ Each channel's longest record under that load is a row too, as in `save-held`, f
 A retried notice later than its bound fails the run whatever the options record (`run.notice_misses`), and the run prints a `NOTICE` line for each, with its time, its recipients and its verdict; the table gives each group's.
 
 `--groups` selects groups and `--jobs` sets how many run at once.
+It also reaches the named groups no arm runs (`scenario.named_groups`), measurements whose grading is not ruled yet (#872).
+`srp-owed` holds the egress until the SRP ring refuses a build, so the poll resends lwSRP's prepared PDU (poll_items' `mrpdu` item).
+Its MRP run-outs during the hold are late by construction, so the run exits 1 by design.
+`srp-retained` sends a bridge's Domain declarations, one VID after another, until SRP's pool refuses a receive, which the poll retries (the `retained` item).
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
 S2's figures in [Results](#results) are the cacheless core's, and their commands add `--fetch-l1 none`.
