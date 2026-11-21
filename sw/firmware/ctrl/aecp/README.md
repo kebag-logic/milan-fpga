@@ -429,9 +429,10 @@ The rest cover the acknowledgement:
 - a change not done again once applied; a success not notified; a failure
   notified, reporting the request, or not given to the face; a final response
   that forgets its requester;
-- a waiting SET_STREAM_FORMAT done again without its running check, its
-  check made on the wrong field, whole, or of another command, or its refusal
-  answered with another status, done again or notified (#950);
+- a waiting SET_STREAM_FORMAT done again without its running check, with
+  another command's check instead, an input judged by its streaming, or a
+  stream it cannot observe taken; its refusal done again, notified, or
+  answered ENTITY_MISBEHAVING (#950);
 - a lock expiry inside a wait, notified unapplied, or never notified once late;
 - an expired lock read as released, or its owner dropped, before its release
   is applied, by ENTITY_AVAILABLE, `aecp_locked` or a refusal to another
