@@ -6,9 +6,11 @@ An image built --with-gptp opens the gptp channel and runs one IEEE 802.1AS end 
 groups give interface 0 a peer (sim_main.cpp's `gptp` op): a grandmaster that syncs the entity (`gptp-slave`) or a
 slave the entity syncs as grandmaster (`gptp-master`). Both peers answer the entity's Pdelay_Req as a 500 ns link
 with a 20 us turnaround and send their own, each message at its Milan v1.2 4.2.6.2.2 Table 4.1 interval; the
-testbench's timestamp unit stamps every event message both ways. The run's PASS lines then carry the ports' cycles
+testbench's timestamp unit stamps every event message both ways: an egress stamp is a TIMESTAMP record, an ingress
+stamp the record's eight-octet trailer (contract 2.5). The run's PASS lines then carry the ports' cycles
 pass by pass (the gptp and gptp_mbx modules), and each group probes the responder's turnaround: a Pdelay_Req's
-receive commit to the Pdelay_Resp's transmit commit, against the provisional gptp bound (scenario.CEILING_MS).
+receive commit to the Pdelay_Resp's transmit commit, against the gptp bound (scenario.CEILING_MS, #884's ruling of
+2026-11-21, item 1: 10 ms).
 """
 from __future__ import annotations
 

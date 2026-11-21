@@ -49,6 +49,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 `8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 60.5 RAMB36 (`ctrl_memory.LEDGERED`, its measured tiles since the map edits' commit, by [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024): 60.0 on the composed flip train, 60.5 with the largest legal record's cut; 59.0, its cap, since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`), in place of the entry the product build names by the image's symbols (`ctrl_memory.own_point`, #923).
 The planner refuses the override on any other image, and the product SoC build names none.
+An image built `--with-gptp` (#884) is planned at its own points instead, `8x8-one-interface-gptp` at `8x8-1if` and `8x8-two-interfaces-gptp` at `8x8` (`GPTP_LEDGERED_POINTS`, 59.0 and 64.0 RAMB36): [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 4, accepts the gPTP ports' memory at 8x8 as debt with a ledger entry, so both 8x8 points are measured with gPTP in firmware. A gPTP image at `1x1` takes no override.
 
 **The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
@@ -512,7 +513,9 @@ The defined load covers the channels the image opened, not every channel the con
 The testbench prints each `FILTER_EN` write as `OPEN <cycle> <gate>`, and `channel_gate.py` reads the image's last gate, each bit named by the contract's channel table.
 A log with no `FILTER_EN` write is refused, never read as every channel.
 An opened channel with no load frame in `grade.LOAD_FRAME_BYTES` is refused too, so the rule cannot hide load.
-An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst of Follow_Up records.
+An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst, 16 records, one in the fixture's window.
+Each is a peer's Pdelay_Req (`gptp_group.load_frame`), the channel's dearest record: the port answers it with a Pdelay_Resp and its Follow_Up, each with its egress stamp.
+The testbench gives every gptp record the eight-octet ingress trailer `KL_ctrl_split` appends (contract 2.5), the frame's stamp for an event message and all ones for any other, so a record is the frame and 8 octets (`grade.LOAD_FRAME_BYTES`).
 
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
@@ -526,8 +529,8 @@ The longest pass of the windows that released their whole load is reported besid
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 20 ms.
 Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family but gptp.
-The gptp family's 10 ms is provisional until the owner rules (#884): it is the Pdelay turnaround of IEEE 802.1AS-2011 B.2.3 itself, not a tenth of it, and only `gptp_group.py`'s probe reads it.
-It does not enter THE SHARE (`share.EXCLUDED`), which stays the approved T_svc over ten passes, 2 ms.
+The gptp family's 10 ms is the Pdelay turnaround of IEEE 802.1AS-2011 B.2.3 itself, not a tenth of it, kept by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 1; only `gptp_group.py`'s probe reads it.
+It does not enter THE SHARE (`share.EXCLUDED`), which stays the approved T_svc over ten passes, 2 ms, by the same ruling; a pass carrying gPTP work is held to that share like any other.
 A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
 A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 

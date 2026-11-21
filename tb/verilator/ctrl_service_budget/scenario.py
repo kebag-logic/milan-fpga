@@ -96,7 +96,7 @@ CEILING_MS = {
     'notify': 24.0,   # Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: the related 240 ms interval
     'maap': 50.0,     # IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms probe interval x 10 %
     'srp': 20.0,      # T_svc, the owner's ruling of 2026-11-06 (#665): over the 18 ms of JoinTime 180 ms x 10 %
-    'gptp': 10.0}     # PROVISIONAL, owner decides (#884): IEEE 802.1AS-2011 B.2.3's turnaround itself (gptp_group.py)
+    'gptp': 10.0}     # IEEE 802.1AS-2011 B.2.3's turnaround itself, #884's ruling of 2026-11-21 item 1 (gptp_group.py)
 
 
 @dataclass
