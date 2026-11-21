@@ -149,6 +149,8 @@ Ruling item 4 accepts the gPTP ports' memory at 8x8 and above as debt with a led
 | The platform's 8x8, one interface (the `--sw-gptp` build's) | 58.5 | 62.0 | `platform-8x8-one-interface-gptp` |
 
 A port adds about 12 KB of `rom` and 1 KB of `sram`.
+
+Fit and timing at 8x8/1if (routed, Vivado 2026.1, the train's recipe, the `--sw-gptp` SoC with the platform's gPTP image at 62.0 RAMB36): 38.2k LUT, 45.8k FF, 95.5 of 135 block RAM tiles, and all three placement directives meet #818's floor at every signoff corner, the best AltSpreadLogic_high at WNS +0.237 ns, WHS +0.023 ns (ExtraTimingOpt +0.152 ns, ExtraPostPlacementOpt +0.098 ns).
 Contract 2.5 itself costs every image a little: the gptp channel's table entries and the face's answer port, 64 B of the platform's `ctrl_plat` and 200 B of `rom` at 8x8 with one interface, which re-measured that entry at 58.5.
 
 ## Why not flexPTP as it is
@@ -173,19 +175,23 @@ Adopting flexPTP itself instead is an owner decision.
 ## Service bounds
 
 NFR-SCOUT-03 requires each gPTP path to state and test its firmware service bound.
+The 10 ms bound and THE SHARE of 2.0 ms are kept by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 1.
 
-| Path | Bound | Basis | Measured, 1x1/1if |
-|---|---|---|---:|
-| Pdelay_Req received to Pdelay_Resp committed | 10 ms, provisional | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.193 ms |
-| Sync egress stamp to Follow_Up committed | 125 ms | followUpReceiptTimeout, Milan v1.2 Table 4.2 | one pass |
-| A pass carrying gPTP work | THE SHARE | `ctrl_loop.h` | at most 0.195 ms |
+| Path | Bound | Basis | 8x8/2if | 8x8/1if |
+|---|---|---|---:|---:|
+| Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.266 ms | 0.186 ms |
+| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.945 ms | 7.491 ms |
+| Sync egress stamp to Follow_Up committed | 125 ms | followUpReceiptTimeout, Milan v1.2 Table 4.2 | one pass | one pass |
+| The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.633 ms | 1.638 ms |
+| A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
 
-The 10 ms row is a new family, `gptp`, in the harness.
-No existing row reads it, and the owner decides it.
-It stays out of THE SHARE, which remains the approved T_svc over ten passes.
+The images are built `--with-gptp` and planned at their ledgered points; the CPU is the split's, at 100 MHz.
+gPTP takes 0.31 % of it after link-up at 8x8/2if, 0.26 % at 8x8/1if; the dearest pass with gPTP work is 0.33 ms, at link-up.
+The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
 
 A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
-An image without gPTP opens five, so every existing row is unchanged ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
+An image without gPTP opens five, so every existing row is unchanged; a gPTP image's windows also carry the gptp channel's admitted burst, 16 Pdelay_Req records, its dearest ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
+With that burst one held-egress row at 8x8/1if, `backlog-owed.service.acmp.last.if0`, is 0.020 ms past its egress-ledger figure (62.640 ms against 62.62): an [open item](#open-items).
 
 ## Verification
 
@@ -215,4 +221,5 @@ Each peer is an independent model with its own clock, a 300 ns link and Milan's 
 - The split SoC's second MAC, and with it the second PHC and timestamp unit in the product build: the closed loop proves the replication, the SoC has one MAC. A redundant interface is NFR-SCOUT-05's work.
 - The publication census elaborates the split with the plane; it rules the gPTP ports (`census_split.GPTP_SW_ONLY`), and a `GPTP_SW_EN_P` shape is owed.
 - The rows model counts no gPTP work: `gptp/` links only into a `--with-gptp` image, and no row's image is one.
+- The held-egress ledger for a gPTP image: at 8x8/1if the gptp burst adds 0.150 ms to the owed ACMP response's service, past the ledger's 5 % (an owner's decision on #884).
 - The bench qualification of the 802.1AS clauses is owed before this line ships.
