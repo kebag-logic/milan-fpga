@@ -3054,9 +3054,9 @@ _CTRL_CDC_NVM = ("fw_nvm_backed_o", "fw_nvm_alarm_o", "fw_nvm_dirty_o", "fw_nvm_
 
 
 def soc_ident(cpu_human: str, xlen: int, cpu_count: int, software_profile: str, split: bool) -> str:
-    """The SoC ident string. Until the flip (#665 S13) VERSION does not tell the placements apart, so
-    a split image's ident names its placement in its last word (decision D2); the all-fabric ident is
-    the one it always was, so its image is unchanged."""
+    """The SoC ident string. A split image's ident names its placement in its last word (decision D2),
+    beside its VERSION major 0x0003 since the flip (#665 S13); the all-fabric ident is the one it always
+    was, so its image is unchanged."""
     ident = f"Milan TSN SoC - {cpu_human} RV{xlen} {cpu_count}-core {software_profile}"
     return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident
 
