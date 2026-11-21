@@ -612,10 +612,7 @@ SOC_ARGV: list[str] = []
 
 
 def soc_argv() -> list[str]:
-    """The shipping 1x1 config's all-fabric argv from the end-station builder, its output written first.
-
-    The cases add the split's --ctrl-mailbox and --ctrl-firmware themselves, the pairing refusals one alone,
-    so the base is the config's all-fabric build even though it ships the split since #665 S13."""
+    """The 1x1 config's all-fabric argv, its output written first; each case adds the split's flags (#665 S13)."""
     if not SOC_ARGV:
         sys.path.insert(0, str(ROOT / "sw/builder"))
         try:
