@@ -178,7 +178,7 @@ SECTIONS
 		*-mbx.o(.text.mbx_pub_domain)
 		*-mrp_mad.o(.text.mrp_mad_join)
 		*-mrp_mad.o(.text.get_or_create_attr)
-		*-mrp_mad.o(.text.find_attr.isra.0)
+		*-mrp_mad.o(.text.find_attr)
 		*-mrp_mad.o(.text.attr_store_len)
 		*-msrp.o(.text.msrp_attr_mem_len)
 		*-mrp_mad.o(.text.deliver_event_changed)
