@@ -26,61 +26,33 @@
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256:
-#   backlog              861358027baf56cc635c8320581bc49e85e6980d445d59d7293982d4b9d13116
-#   backlog-adp          b55507cc67888c2565d26f5dc21a105f3392454a295c0226a25fa2901482dc68
-#   aecp-largest-notice  f9ae6fc59d7467157337053317008ecf376ffb40db763893d2b54e2d6f854504
+#   backlog              9f978076024ca29cd63bc51ae75d96e5fcd7d169dcf335fef54b1ad7e46fed20
+#   backlog-adp          5c500a422d74bb9fa7a2734443ed5328cb594c3782d7922f2e79d234ce55047e
+#   aecp-largest-notice  44b4ab3046fc98fee434416e8ca3bb9246ac32297dea129d64b1bb6775f2e998
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
-ctrl_app_aecp source
-ctrl_aecp_image source
-acmp acmp_declaring
-maap_mbx refresh_demand
-acmp enter
-ctrl_app_srp source
-maap_mbx poll
-maap maap_poll
-maap enter
-maap pump
-maap_mbx declaring
-ctrl_loop ctrl_loop_service
-aecp_mbx poll
-aecp aecp_poll
-aecp aecp_enter
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
-aecp transmit
-aecp arm
-aecp_mbx timer
-ctrl_app_aecp deliver
-aecp_nvm aecp_nvm_poll
-ctrl_app_aecp publish_store
-nvm_store nvm_store_status
-ctrl_app_aecp ctrl_app_aecp_store_words
-aecp_face aecp_face_status
-aecp_face aecp_face_poll
-srp_mbx poll
-srp_mbx enter
-mbx mbx_link_up
-srp_mbx snapshot
-srp_mbx reclaim
-ctrl_app_srp deliver
-srp_mbx srp_mbx_gate
-nvm_store nvm_store_clock
-nvm_store nvm_now
 nvm_flash_litespi ls_now_us
+nvm_store nvm_store_clock
 ctrl_loop round_of
 aecp_mbx retry
 aecp aecp_retry
+aecp aecp_enter
 aecp round_waits
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
 aecp scan
+aecp arm
+aecp_mbx timer
+ctrl_loop ctrl_loop_service
 nvm_store nvm_store_step
 ctrl_loop ctrl_loop_step
 mbx_plat_mmio mbx_hal_wait
 ctrl_loop ctrl_loop_run
+nvm_store nvm_now
 aecp_mbx retry_aged
 aecp aecp_retry_aged
 srp_mbx transmit_aged
@@ -99,6 +71,34 @@ adp adp_poll
 adp reject_reentry
 acmp_mbx on_poll
 acmp acmp_poll
+acmp enter
+maap_mbx poll
+maap_mbx refresh_demand
+acmp acmp_declaring
+ctrl_app_srp source
+ctrl_app_aecp source
+ctrl_aecp_image source
+maap maap_poll
+maap enter
+maap pump
+maap_mbx declaring
+aecp_mbx poll
+aecp aecp_poll
+aecp transmit
+ctrl_app_aecp deliver
+aecp_nvm aecp_nvm_poll
+ctrl_app_aecp publish_store
+nvm_store nvm_store_status
+ctrl_app_aecp ctrl_app_aecp_store_words
+aecp_face aecp_face_status
+aecp_face aecp_face_poll
+srp_mbx poll
+srp_mbx enter
+mbx mbx_link_up
+srp_mbx snapshot
+srp_mbx reclaim
+ctrl_app_srp deliver
+srp_mbx srp_mbx_gate
 ctrl_mem memset
 srp_mbx tick
 timer shlan_timer_tick
