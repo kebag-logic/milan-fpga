@@ -35,10 +35,15 @@
                 (untagged, rotate 2) or 42 (C-VLAN, rotate 6); the read side
                 re-parses the buffered header (VLAN flag from bytes 12..13,
                 data_len from O+20..21) and rotates through a hold register.
-                Output beats are always FULL 8-byte words: Milan base-format payloads are
-                8-byte multiples (48k: 192 B, 96k: 384 B, 192k: 768 B); a
-                non-multiple data_len is zero-padded in the final beat and
-                the output advances by the padded length.
+                Output beats are always FULL 8-byte words: each PDU's output
+                frame is ceil(data_len/8) beats with tlast on the last, a
+                non-multiple data_len zero-padded in that beat. When the
+                payload's tail lies wholly in the hold register, the frame's
+                last stored word is popped with that final beat, so the pass
+                ends on the beat that carries tlast (#948). A frame that ends
+                short of its data_len is dropped whole at its tlast and
+                counted, never read out in part. (Milan base-format payloads
+                are 8-byte multiples: 48k 192 B, 96k 384 B, 192k 768 B.)
 
                 Presentation time (#632): the same header re-parse reads the
                 tv bit and avtp_timestamp (IEEE 1722-2016 4.4.4.9, 7.5) and
@@ -57,7 +62,8 @@
       pulse arrived in its flight; the verdicts may come later, so the read
       side waits for them before it reads the frame.
     - Store overflow (downstream consumer stalled) drops WHOLE frames and counts
-      them in drops_o — the tap itself never stalls the RX datapath.
+      them in drops_o — the tap itself never stalls the RX datapath. A queued
+      PDU's frame short of its payload is dropped and counted the same way.
 ------------------------------------------------------------------------------
 */
 
@@ -70,8 +76,8 @@
 //! read out once for each, tuser that input, so each receives exactly the
 //! PDUs its FRAMES_RX counts (#948). Payload realignment
 //! strips 38 (untagged) or 42 (C-VLAN) header bytes via a hold-register
-//! rotation; output beats are always full 8-byte words (Milan base-format
-//! payloads are 8-byte multiples), zero-padded on a non-multiple tail.
+//! rotation; output beats are always full 8-byte words, ceil(data_len/8) of
+//! them per PDU with tlast on the last, zero-padded on a non-multiple tail.
 
 `default_nettype none
 
@@ -123,7 +129,9 @@ module KL_aaf_rx_depacketizer #(
 
   //! --- observability ------------------------------------------------------
   output logic [15:0] pdus_o,             //! payloads emitted to fabric render
-  output logic [15:0] drops_o,            //! whole frames lost to FIFO overflow
+  output logic [15:0] drops_o,            //! whole frames lost: FIFO overflow,
+                                          //! or a queued PDU's frame short of
+                                          //! its payload
   //! per-stream attribution pulses (LCTX w11 DEPKT_CNT, NXN §1.4)
   output logic        pdu_out_p_o,        //! pulse per emitted payload PDU
   // spec-fixed 4-bit stream index (upper bits structurally 0 below N=16)
@@ -131,7 +139,8 @@ module KL_aaf_rx_depacketizer #(
   output logic [3:0]  pdu_out_idx_o,      //! its stream index
   // verilator coverage_on
   output logic        drop_p_o,           //! pulse per accepted frame the full
-                                          //! store dropped
+                                          //! store dropped, or that ended
+                                          //! short of its payload
   output logic [N_STREAMS_P-1:0] drop_mask_o //! its accepting inputs
 );
 
@@ -153,21 +162,52 @@ module KL_aaf_rx_depacketizer #(
   wire        enq_mine_w = pdu_enq_p_i && p7_r;
   wire        fw_good_w  = good_r || enq_mine_w;
 
+  //! A frame is kept only with its whole payload (#948): data_len octets
+  //! after the 24-octet AAF header, which starts at frame byte 14, or 18
+  //! behind a C-VLAN tag (IEEE 1722-2016 4.4.4.10). The VLAN flag is on
+  //! beat 1 and data_len on beat 4, so from beat 4 on wowe_r holds the
+  //! payload octets still to come; a frame whose last beat brings fewer is
+  //! dropped whole at its tlast, as the full store drops one, and the read
+  //! side only ever reads complete payloads. A frame with a queued PDU is
+  //! at least nine beats long, so its tlast is never before beat 4.
+  logic        wvlan_r;                   //! the in-flight frame is tagged
+  logic [16:0] wowe_r;                    //! its payload octets after these beats
+  wire  [3:0]  wkeep_n_w = 4'(s_tkeep_i[0]) + 4'(s_tkeep_i[1]) +
+                           4'(s_tkeep_i[2]) + 4'(s_tkeep_i[3]) +
+                           4'(s_tkeep_i[4]) + 4'(s_tkeep_i[5]) +
+                           4'(s_tkeep_i[6]) + 4'(s_tkeep_i[7]);
+  wire  [15:0] wlen_w    = wvlan_r ? {s_tdata_i[55:48], s_tdata_i[63:56]}
+                                   : {s_tdata_i[23:16], s_tdata_i[31:24]};
+  wire         wshort_w  = (wowe_r > 17'(wkeep_n_w));
+
   always_ff @(posedge clk_i) begin : write_verdict
     if (!rst_n) begin
-      bc_r   <= '0;
-      p7_r   <= 1'b0;
-      good_r <= 1'b0;
+      bc_r    <= '0;
+      p7_r    <= 1'b0;
+      good_r  <= 1'b0;
+      wvlan_r <= 1'b0;
+      wowe_r  <= '0;
     end
     else begin
       if (enq_mine_w) good_r <= 1'b1;
       if (in_acc) begin
         if (bc_r != 4'd8) bc_r <= bc_r + 4'd1;
         if (bc_r == 4'd7) p7_r <= !s_tlast_i;
+        if (bc_r == 4'd1)
+          wvlan_r <= (s_tdata_i[39:32] == 8'h81) && (s_tdata_i[47:40] == 8'h00);
+        //! beat 4 holds frame bytes 32..39: an untagged payload ends at
+        //! 38 + data_len, a tagged one at 42 + data_len
+        if (bc_r == 4'd4)
+          wowe_r <= wvlan_r ? 17'(wlen_w) + 17'd2
+                            : ((wlen_w > 16'd2) ? 17'(wlen_w) - 17'd2 : 17'd0);
+        else if (bc_r > 4'd4)
+          wowe_r <= (wowe_r > 17'd8) ? wowe_r - 17'd8 : 17'd0;
         if (s_tlast_i) begin
-          bc_r   <= '0;
-          p7_r   <= 1'b0;
-          good_r <= 1'b0;
+          bc_r    <= '0;
+          p7_r    <= 1'b0;
+          good_r  <= 1'b0;
+          wvlan_r <= 1'b0;
+          wowe_r  <= '0;
         end
       end
     end
@@ -180,8 +220,12 @@ module KL_aaf_rx_depacketizer #(
   //! its one copy (#948): the head frame's space is freed when its last
   //! input's pass ends, and between passes the read pointer returns to the
   //! frame's start. A frame is dropped whole when the store fills, an
-  //! uncommitted one at its tlast; the tap itself never stalls. Words are
-  //! {tlast, tdata}: the read side uses no tkeep.
+  //! uncommitted one or one short of its payload at its tlast; the tap
+  //! itself never stalls. Words are {tlast, tdata}: the read side uses no
+  //! tkeep. The store, its read registers qa_r/qb_r and the two small queues
+  //! (rq_msk_r, idxq_r) carry no reset ON PURPOSE (RAM): a word or entry is
+  //! read only where a reset pointer or valid flag (wc_r, va_r/vb_r, rq_vp_r,
+  //! idxq_wp_r) says it was written since the reset.
   localparam int FW_C = $clog2(FIFO_DEPTH_BYTES / 8);   //! word address bits
   localparam int FD_C = 1 << FW_C;
   logic [64:0]   fmem_r [FD_C];
@@ -195,7 +239,9 @@ module KL_aaf_rx_depacketizer #(
   wire           wdrop_w = full_w || drop_r;
   //! the in-flight frame's end: committed, dropped (store full) or discarded
   wire           tl_w    = in_acc && s_tlast_i;
-  wire           ovf_w   = tl_w && wdrop_w;
+  //! a frame with a queued PDU that ends short of its payload (#948)
+  wire           trunc_w = tl_w && fw_good_w && !wdrop_w && wshort_w;
+  wire           ovf_w   = tl_w && (wdrop_w || trunc_w);
 
   always_ff @(posedge clk_i) begin : store_write
     if (in_acc && !wdrop_w) fmem_r[wp_r[FW_C-1:0]] <= {s_tlast_i, s_tdata_i};
@@ -215,8 +261,8 @@ module KL_aaf_rx_depacketizer #(
       else begin
         wp_r <= wp_r + 1'b1;
         if (s_tlast_i) begin
-          if (fw_good_w) wc_r <= wp_r + 1'b1;
-          else           wp_r <= wc_r;
+          if (fw_good_w && !wshort_w) wc_r <= wp_r + 1'b1;
+          else                        wp_r <= wc_r;
         end
       end
     end
@@ -324,8 +370,8 @@ module KL_aaf_rx_depacketizer #(
       end
       if (fate_w) begin
         rq_res_r[fate_e_w] <= 1'b1;
-        rq_com_r[fate_e_w] <= !wdrop_w;
-        rq_drp_r[fate_e_w] <= wdrop_w;
+        rq_com_r[fate_e_w] <= !wdrop_w && !wshort_w;
+        rq_drp_r[fate_e_w] <= wdrop_w || wshort_w;
       end
       if (pdu_done_p_i) begin
         rq_msk_r[rq_vp_r[RQ_LOG2_C-1:0]] <= pdu_done_mask_i;
@@ -339,7 +385,8 @@ module KL_aaf_rx_depacketizer #(
           idxq_r[idxq_wp_r] <= rq_msk_r[rq_h_w];
           idxq_wp_r         <= idxq_wp_r + 1'b1;
         end
-        //! a frame lost to the full store: its accepting inputs' DEPKT drops
+        //! a frame lost to the full store, or short of its payload: its
+        //! accepting inputs' DEPKT drops
         if (rq_drp_r[rq_h_w] && (rq_msk_r[rq_h_w] != '0)) begin
           drop_p_o    <= 1'b1;
           drop_mask_o <= rq_msk_r[rq_h_w];
@@ -378,6 +425,12 @@ module KL_aaf_rx_depacketizer #(
 
   //! final beat needs no FIFO word when the tail fits inside the hold
   wire hold_only_w = (rstate_r == R_PAY_S) && (remain_r <= 16'(k_w));
+  //! the frame's last word leaves the payload's tail in the hold: it is not
+  //! popped with this beat but with the final, hold-only one, so the frame's
+  //! end, and the pass's (rewind or release), falls on the beat that carries
+  //! tlast (#948)
+  wire keep_w      = ff_last && (remain_r > 16'd8) &&
+                     (remain_r <= 16'd8 + 16'(k_w));
   //! the payload waits out PAY_LEAD_CYC_P cycles from the timestamp's pulse
   logic lead_ok_w;
   wire emit_w      = (rstate_r == R_PAY_S) && lead_ok_w && (hold_only_w || ff_valid);
@@ -440,11 +493,12 @@ module KL_aaf_rx_depacketizer #(
   end : pass_ctl
 
   //! pop the FIFO word once its lanes are consumed (header beats once the
-  //! frame's inputs are known; payload beats when the emit is accepted;
-  //! flush beats always)
+  //! frame's inputs are known; payload beats when the emit is accepted, the
+  //! kept last word with the hold-only beat; flush beats always)
   assign ff_ready = (rstate_r == R_HDR_S && (pass_r || sq_ne_w)) ||
                     (rstate_r == R_FLUSH_S) ||
-                    (rstate_r == R_PAY_S && lead_ok_w && !hold_only_w && m_axis_tready);
+                    (rstate_r == R_PAY_S && lead_ok_w && m_axis_tready &&
+                     (hold_only_w ? ff_last : !keep_w));
 
   // ------------------------------------------------------------------ //
   // The presentation time (#632): tv and avtp_timestamp from the header //
@@ -565,25 +619,25 @@ module KL_aaf_rx_depacketizer #(
               remain_r      <= '0;
               rbeat_r       <= '0;
               //! the beat that completed the payload may also close the
-              //! frame; otherwise swallow padding/FCS-strip tail beats
-              if (hold_only_w || !pop_w || !ff_last) begin
-                if (hold_only_w || !ff_last) rstate_r <= R_FLUSH_S;
-                // verilator coverage_off
-                else                         rstate_r <= R_HDR_S;
-                // verilator coverage_on
-              end
-              else rstate_r <= R_HDR_S;
+              //! frame (its last word popped with it, a hold-only beat's
+              //! kept word too); otherwise swallow padding/FCS-strip tail
+              //! beats
+              rstate_r <= (pop_w && ff_last) ? R_HDR_S : R_FLUSH_S;
             end
             else begin
               remain_r <= remain_r - 16'd8;
             end
           end
-          //! truncated frame (never for committed AAF PDUs): resync
+          //! truncated frame: defensive only, the write side commits a
+          //! frame only with its whole payload (#948), so its last word is
+          //! popped with the beat that carries tlast
+          // verilator coverage_off
           if (pop_w && ff_last && !(emit_w && m_axis_tready && last_beat_w)) begin
             rstate_r <= R_HDR_S;
             rbeat_r  <= '0;
             remain_r <= '0;
           end
+          // verilator coverage_on
         end
 
         R_FLUSH_S : begin

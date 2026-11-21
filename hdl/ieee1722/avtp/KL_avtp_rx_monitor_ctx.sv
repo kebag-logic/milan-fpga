@@ -96,8 +96,10 @@
                 not count a silence as STREAM_INTERRUPTED (#762), it does
                 not compare the channel count with the current format
                 (#765), and its format reject does not advance prev_seq
-                (#775). Wire bytes are unchanged, and so are the accept
-                verdicts for a PDU carrying the current format's count.
+                (#775), and it does not compare stream_data_length with
+                the current format's frame size (#948). Wire bytes are
+                unchanged, and so are the accept verdicts for a PDU
+                carrying the current format's count and frame size.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -330,6 +332,7 @@ module KL_avtp_rx_monitor_ctx #(
   pdu_evt_t          cur_w;                     //! = pq_ring_r[cur_idx_r]
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
+  logic [21:0]       flen_r;    //! the served context's frame size, octets
   logic [31:0]       monst_r;
   logic [3:0]        wrph_r;
   logic [11:0]       inc_list_r;
@@ -533,6 +536,7 @@ module KL_avtp_rx_monitor_ctx #(
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
   wire [9:0] f_cpf_w     = fmt_r[31:22];   //! channels_per_frame
+  wire [9:0] f_spf_w     = fmt_r[21:12];   //! samples_per_frame (I.2.4.1)
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_w.fsh[63:56];
@@ -541,7 +545,24 @@ module KL_avtp_rx_monitor_ctx #(
   //! the full 10-bit channels_per_frame (IEEE 1722-2016 7.3 Figure 26)
   wire [9:0] p_cpf_w    = cur_w.fsh[49:40];
   wire [7:0] p_depth_w  = cur_w.fsh[39:32];
+  wire [15:0] p_len_w   = cur_w.fsh[31:16]; //! stream_data_length
   wire       p_sp_w     = cur_w.fsh[12];
+
+  //! a format's frame size in octets: channels_per_frame x samples_per_frame
+  //! (IEEE 1722-2016 I.2.4.1) x the octets of one sample, which the format
+  //! field fixes (7.3.5, Table 9): two for INT_16BIT, three for INT_24BIT,
+  //! four for FLOAT_32BIT, INT_32BIT and AES3_32BIT. USER and the reserved
+  //! values fix no size; they are sized as four.
+  function automatic [21:0] frame_octets(input [9:0] cpf, input [9:0] spf,
+                                         input [7:0] format);
+    logic [19:0] n;
+    n = 20'(cpf) * 20'(spf);
+    unique case (format)
+      8'h03   : frame_octets = 22'(n) + 22'({n, 1'b0});
+      8'h04   : frame_octets = 22'({n, 1'b0});
+      default : frame_octets = 22'({n, 2'b00});
+    endcase
+  endfunction
 
   //! the PDU against the Stream Input's CURRENT format (#765, FR-STR-03):
   //! Milan v1.2 Table 5.6 counts UNSUPPORTED_FORMAT for a PDU whose format
@@ -553,12 +574,22 @@ module KL_avtp_rx_monitor_ctx #(
   //! A Base Listener advertising every count of a rate family (Milan v1.2
   //! 6.4) is served by SET_STREAM_FORMAT, which moves the current format.
   //! A zero count is no PCM format and is rejected even against itself.
+  //! The frame size is part of the format too (#948): every AAF PDU of a
+  //! stream carries the same number of samples (IEEE 1722-2016 7.3.5),
+  //! samples_per_frame of them per channel (I.2.4.1), and stream_data_length
+  //! counts the payload's octets (4.4.4.10). A PDU whose length is not the
+  //! input's frame size is off-format: that input counts it in
+  //! UNSUPPORTED_FORMAT and gives no accept verdict, so it receives none of
+  //! the PDU (Milan v1.2 4.4.2.2), while an input whose format it matches
+  //! receives all of it. A format of no samples is rejected like a zero count.
   wire fmt_ok_w = (cur_w.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
                   (p_cpf_w     == f_cpf_w)     &&
                   (p_cpf_w     != 10'd0)       &&
+                  (22'(p_len_w) == flen_r)     &&
+                  (flen_r      != 22'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
@@ -860,6 +891,7 @@ module KL_avtp_rx_monitor_ctx #(
       end
       ev_s_r      <= '0;
       fmt_r       <= '0;
+      flen_r      <= '0;
       monst_r     <= '0;
       wrph_r      <= '0;
       inc_list_r  <= '0;
@@ -1045,6 +1077,10 @@ module KL_avtp_rx_monitor_ctx #(
         end
         M_PFRD3_S : begin
           if (ev_s_r != '0) fmt_r[63:32] <= ram_q_r;
+          //! the context's frame size, from its FMT_LO (held since the pick or
+          //! M_PFRD2_S) and the PDU's sample format, which the verdict
+          //! requires to be the context's own
+          flen_r <= frame_octets(f_cpf_w, f_spf_w, p_format_w);
           mst_r <= M_PDEC_S;
         end
 

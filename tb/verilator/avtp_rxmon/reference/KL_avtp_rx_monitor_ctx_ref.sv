@@ -14,6 +14,9 @@
 //! it is graded by sim_main_nx.cpp's [UF] cases, never against this copy.
 //! #775's sequence advance on a discarded off-format PDU (M_PSEQ_S) is
 //! applied the same way; sim_main_nx.cpp's [SQ] cases grade it.
+//! #948's frame-size compare (flen_r, stream_data_length against the current
+//! format's frame size) is applied the same way; sim_fanout.cpp's [FO11]
+//! cases grade it.
 
 /*
 ------------------------------------------------------------------------------
@@ -303,6 +306,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
   pdu_evt_t          cur_r;
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
+  logic [21:0]       flen_r;    //! #948
   logic [31:0]       monst_r;
   logic [3:0]        wrph_r;
   logic [11:0]       inc_list_r;
@@ -484,6 +488,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
   wire [9:0] f_cpf_w     = fmt_r[31:22];   //! #765
+  wire [9:0] f_spf_w     = fmt_r[21:12];   //! #948
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_r.fsh[63:56];
@@ -491,7 +496,20 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [7:0] p_chans_w  = cur_r.fsh[47:40];
   wire [9:0] p_cpf_w    = cur_r.fsh[49:40];  //! #765
   wire [7:0] p_depth_w  = cur_r.fsh[39:32];
+  wire [15:0] p_len_w   = cur_r.fsh[31:16]; //! #948
   wire       p_sp_w     = cur_r.fsh[12];
+
+  //! #948: the format's frame size in octets, as the shipping engine sizes it
+  function automatic [21:0] frame_octets(input [9:0] cpf, input [9:0] spf,
+                                         input [7:0] format);
+    logic [19:0] n;
+    n = 20'(cpf) * 20'(spf);
+    unique case (format)
+      8'h03   : frame_octets = 22'(n) + 22'({n, 1'b0});
+      8'h04   : frame_octets = 22'({n, 1'b0});
+      default : frame_octets = 22'({n, 2'b00});
+    endcase
+  endfunction
 
   //! reference current-format compare, the same terms as the shipping
   //! engine (#765; Milan v1.2 4.4.2.2, Table 5.6 UNSUPPORTED_FORMAT,
@@ -509,6 +527,9 @@ module KL_avtp_rx_monitor_ctx_ref #(
                   //! #765: the current format's channel count
                   (p_cpf_w     == f_cpf_w)     &&
                   (p_cpf_w     != 10'd0)       &&
+                  //! #948: the current format's frame size
+                  (22'(p_len_w) == flen_r)     &&
+                  (flen_r      != 22'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
@@ -799,6 +820,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
       cur_r       <= '0;
       ev_s_r      <= '0;
       fmt_r       <= '0;
+      flen_r      <= '0;
       monst_r     <= '0;
       wrph_r      <= '0;
       inc_list_r  <= '0;
@@ -980,6 +1002,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
         end
         M_PFRD3_S : begin
           if (ev_s_r != '0) fmt_r[63:32] <= ram_q_r;
+          flen_r <= frame_octets(f_cpf_w, f_spf_w, p_format_w);   //! #948
           mst_r <= M_PDEC_S;
         end
 

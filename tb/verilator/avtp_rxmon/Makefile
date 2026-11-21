@@ -74,6 +74,7 @@ run:
 	$(MAKE) fanout
 	python3 fanout_mutants.py
 	$(MAKE) depkt
+	python3 depkt_mutants.py
 nx-build:
 	$(VERILATOR) $(NXFLAGS) --Mdir $(NX_MDIR) $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
 # #946: each Stream Input's format in its LCTX context at the 8x8 shape's eight
