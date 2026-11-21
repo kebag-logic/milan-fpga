@@ -1411,16 +1411,16 @@ static bool poll(void *ctx)
 // the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send licensed. A
 // slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes at the next
 // participant, its declarations already made, then makes that interface's declarations: the frames of the build made
-// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). The pause takes the interface's
-// due and the build stays owed (tx_owed), so what comes due between the two slices, a join timer's end among the
+// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). The pause takes the interface's due
+// and the build stays owed (tx_owed), so what comes due between the two slices, a join timer's end among the
 // centiseconds dispatched there, is owed again once the build ends, as after a build made whole (#956). Where a slice
 // holds both MRPDUs (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID
-// unlicensed between them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU follows in the next
-// slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit (vlan_sent;
-// Milan v1.2 4.3.2). No declaration is made
-// while a retained receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again
-// when the join count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay
-// what THE RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.
+// unlicensed between them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU
+// follows in the next slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit
+// (vlan_sent; Milan v1.2 4.3.2). No declaration is made while a retained receive waits, so none takes the room it waits
+// for. A refused or waiting declaration is tried again when the join count ends, at the JoinTime's rate and not every
+// pass given whole, so the passes this client takes stay what THE RETRY's bound counts. A frame the ring refuses stays
+// the poll's (A3) and the interface stays due.
 static void transmit(void *ctx, unsigned most)
 {
     struct srp_mbx *m = ctx;
@@ -1430,7 +1430,8 @@ static void transmit(void *ctx, unsigned most)
     const unsigned resume = m->tx_resume;
     // what came due since the slice the build resumes from, whose pause took its interface's due
     const unsigned again = resume != 0u ? m->tx_due : 0u;
-    const unsigned first = resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
+    // the interface the build is of: one interface's always, or the one it resumes, or the first due
+    const unsigned first = MBX_N_IF == 1u ? 0u : resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
     for (unsigned k = resume != 0u ? MBX_N_IF : 0u; k <= MBX_N_IF; ++k) {
         const unsigned n = k < MBX_N_IF ? k : first;
         struct srp_interface *i = &m->ifs[n];
@@ -1451,9 +1452,9 @@ static void transmit(void *ctx, unsigned most)
                     (void)build_mrpdu(m,i,slot);
                 }
             }
-            if (!m->owed_len) {
-                m->tx_due = (uint8_t)((m->tx_due & ~(1u << n)) | again);
-            }
+            // a frame the ring refused stays the poll's and its interface stays due (A3), the pause's due taken or not
+            const unsigned bit = 1u << n;
+            m->tx_due = (uint8_t)((m->tx_due & ~bit) | (m->owed_len != 0u ? bit : again));
             if (m->tx_resume != 0u) {
                 break;
             }

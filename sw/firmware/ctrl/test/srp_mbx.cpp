@@ -1740,7 +1740,8 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
 // both, and what comes due between its two slices, a join timer's end among the centiseconds dispatched there, or a
 // declaration another pass made owed, is owed again once the build ends, as it is after a build made whole: the pause
 // takes its interface's due, so a due set again before the build ends is new (THE TIERS; #956). A build with nothing
-// due between its slices ends owing nothing, what its own sends moved included.
+// due between its slices ends owing nothing, what its own sends moved included, and one whose second slice's frame the
+// ring refuses leaves its interface due, as a build made whole does (A3).
 TEST_F(Srp, ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue) {
     ctrl_poll_fn poll = nullptr;
     for (unsigned k = 0; k < loop.n_polls; ++k) {
@@ -1781,6 +1782,29 @@ TEST_F(Srp, ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue) {
         }
         serve();
     }
+    // the ring refuses the second slice's frame, once a periodic MRPDU of each participant is owed: the frame stays the
+    // poll's and the interface stays due (A3), its pause's due taken or not
+    while (adapter.tx_resume != 0u) {
+        loop.transmit(loop.transmit_ctx, 1u);
+    }
+    for (unsigned n = 0; n < 120u; ++n) {
+        loop.ticks[0]();
+    }
+    adapter.tx_due = 1u;
+    loop.transmit(loop.transmit_ctx, 1u);
+    ASSERT_NE(adapter.tx_resume, 0u) << "(a build resuming at its next participant)";
+    mbx_model_tx_pause(&model, true);
+    std::vector<uint8_t> filler(60);
+    wire_put_be(filler.data(), 0x0180c200000eull, 6);
+    wire_put_be(filler.data() + 12, 0x22ea, 2);
+    while (mbx_tx_send(MBX_CH_SRP, 0, filler.data(), filler.size()) == MBX_STATUS_OK) {
+    }
+    loop.transmit(loop.transmit_ctx, 1u);
+    ASSERT_GT(adapter.owed_len, 0u) << "(the ring refuses the second slice's frame)";
+    EXPECT_NE(adapter.tx_due & (1u << adapter.owed_if), 0u)
+        << "a frame the ring refuses in a build's second slice leaves its interface due";
+    mbx_model_tx_pause(&model, false);
+    serve();
 }
 
 // A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a

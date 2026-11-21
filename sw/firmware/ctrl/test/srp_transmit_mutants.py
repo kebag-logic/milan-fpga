@@ -27,10 +27,10 @@ DECLARE = ("        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarati
            "m->join_left[2u * n] == 0u) {\n            m->join_left[2u * n] = SRP_JOIN_CS;\n        }\n")
 #: A build's result, which restarts the count of the participant that sent.
 SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\n"
-#: A build's end or pause: its interface's due cleared, with what came due since its first slice kept (#956).
-CLEARED = "                m->tx_due = (uint8_t)((m->tx_due & ~(1u << n)) | again);\n"
-#: That clear, unless a frame is owed.
-BUILT = "            if (!m->owed_len) {\n" + CLEARED + "            }\n"
+#: A build's end or pause: its interface's due cleared, with what came due since its first slice kept (#956), and set
+#: while a frame the ring refused is owed (A3).
+BUILT = ("            const unsigned bit = 1u << n;\n"
+         "            m->tx_due = (uint8_t)((m->tx_due & ~bit) | (m->owed_len != 0u ? bit : again));\n")
 #: A build stopped at a slice boundary, which the next slice resumes.
 PAUSED = "            if (m->tx_resume != 0u) {\n                break;\n            }\n"
 
@@ -66,6 +66,9 @@ def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "return m->tx_due != 0u && !m->owed_len;", "a build resuming in the next slice is THE TRANSMIT's due"),
         kind("build-paused-unreported", paused, "    owed = owed || m->tx_owed != 0u;\n",
              "    owed = owed || m->tx_due != 0u;\n", "the poll reports a build resuming in the next slice owed"),
+        kind("build-refused-second-slice-not-due", paused, BUILT,
+             BUILT.replace("(m->owed_len != 0u ? bit : again)", "(m->owed_len != 0u ? 0u : again)"),
+             "a frame the ring refuses in a build's second slice leaves its interface due"),
     )
 
 
@@ -145,7 +148,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         # a frame owed comes first
         kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_owed != 0u && !m->owed_len;",
              "return m->tx_owed != 0u;", "no pass goes to the build while a frame is owed"),
-        kind("transmit-due-cleared-with-a-frame-owed", OWED, BUILT, CLEARED, "the interface stays due"),
+        kind("transmit-due-cleared-with-a-frame-owed", OWED, BUILT,
+             BUILT.replace("(m->owed_len != 0u ? bit : again)", "again"), "the interface stays due"),
         # the declarations with the build, none while a retained receive waits, a refusal tried again at the JoinTime
         kind("transmit-declares-beside-a-retained-receive", RETAINED, DECLARE,
              DECLARE.replace("(m->pending_rx.len != 0u || prepare_declarations(i))", "prepare_declarations(i)"),
