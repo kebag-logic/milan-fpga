@@ -3223,6 +3223,21 @@ On the SRP cut's head ([#665's ruling of 2026-11-20](https://github.com/kebag-lo
   - The AECP records by class hold: SET_STREAM_INFO 23,726 cycles at its 250 us, the paced map edit 29,993 at its 315.
   - Across 241 groups no command is refused and no work pass of 388,313 is over the share. The only misses are the seven held-egress rows' ([tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26)), as before.
 
+### A waiting SET_STREAM_FORMAT's running check made again (#950)
+
+[#950](https://github.com/kebag-logic/milan-fpga/issues/950) makes a waiting SET_STREAM_FORMAT's running check again once the platform applied it (`aecp_again`, `aecp_poll`), before the change is done again. That code runs only at a waiting command's end, which no group of the harness reaches, but it moves AECP's code: `aecp_poll` 20 B more and `aecp_again` 40 B, every image's hot code after `aecp_poll` 20 B later and its cold code 60 B later.
+Measured again in full on its images (`c7cfba76`): every arm and group, 64 parts a point, at 1x1/1if and 8x8/1if.
+At 1x1/1if one AECP record is over its statement by the code's placement alone, and is raised by the usual rule in both columns of `load_grade`:
+
+| 1x1/1if | Measured at #950's head, CPU cycles | Stated |
+|---|---:|---:|
+| an AECP record, a SET_STREAM_INFO | 23,858, `declaring-outputs`' `aecp-fanout` | 255 us (250) |
+
+- **The placement.** The paced map edit and this record move apart with the change's shape. Each shape was measured on the two groups that hold them: the paced map edit 29,960 to 30,224 CPU cycles (29,993 on the train's head, 30,000 the most its 315 us holds) and this record 23,380 to 23,858 (23,726; 23,809 the most 250 us holds). The shape kept, the simplest, is the only one measured that keeps the map edit within 315 us. A trace of the dearest map edit runs the same instructions at the same addresses on the train's head and on a shape whose hot code does not move, 231 cycles apart: what the fetch L1 holds when the record starts follows the cold code's placement.
+- **No other statement moves past its own.** At 1x1/1if 0 of 69 statements are exceeded, the largest legal notice 29,941 cycles within its 315 us, and the AECP records by class hold at the raised record (the map edit 29,960 at its 315, the largest legal command 91,737 at its 975). Across 241 groups no command is refused and no work pass of 384,551 is over the share; the only misses are the seven held-egress rows' ([tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26)), in arm A and the `answering-ports` arm, as before.
+- **The rows** at 1x1/1if by every source at the raised record (`flip_grade.py --check --point 1x1/1if`, ms): R4 13.33, R5 73.99, R6 69.85, the first queued notice 14.69, the last 127.43 of 130, R4L 203.48, ACMP 29.15 of 30, ADP 27.60, MAAP 27.69, THE TRANSMIT's 33.53 and 47.98 of 49; the load 0.512 of 0.70. The slice rule still takes 950 us and the queued rule 130 ms.
+- **At 8x8/1if** no statement is exceeded, 0 of 69, and none is restated: the largest legal notice 29,472 cycles within its 320 us, the AECP item 13,576 within its 145 and the SRP record 34,755 within its 375 (13,414 and 34,803 on the train's head, whose images the base's are). The AECP records by class hold: the largest legal command 163,397 cycles at its 1720 us, the paced SET_CONFIGURATION 56,473 within 685. Across 240 groups no command is refused; the only misses are the seven held-egress rows', and the only passes over the share the largest legal command's, two in each of the two arms that run it, the longest 2.229 and 2.279 ms of 661,621 (2.221 and 2.271 on the train's head), as before. The load stays 0.744 of 0.75 and THE TRANSMIT's row 76.81 of 77 ms; the rows by every source are reported, not held, as before.
+
 ### What is left
 
 - The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).

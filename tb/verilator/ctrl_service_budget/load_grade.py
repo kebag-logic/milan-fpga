@@ -219,9 +219,11 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
 #: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
-#: arm's aecp-fanout; 210 before).
+#: arm's aecp-fanout; 210 before). With a waiting SET_STREAM_FORMAT's running check made again (#950), whose code
+#: moves AECP's, measured over every arm and group, 1x1/1if's AECP record raised by the rule in both columns: 255 us
+#: (23,858 CPU cycles, the same SET_STREAM_INFO).
 STATED_US = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
@@ -271,9 +273,10 @@ STATED_US = {
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
 #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
 #: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
-#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
+#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill). With a waiting
+#: SET_STREAM_FORMAT's running check made again (#950), the AECP record as STATED_US states it, 255 us.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
