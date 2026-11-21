@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """selftest_opened.py - the self-test's checks of #884's ruling, A and B (channel_gate.py), and the committed trace's
-own clocks and channel gate, which selftest.py grades the fixture and completes its synthetic logs with.
+own clocks, channel gate and trim, which selftest.py grades, completes its synthetic logs with and writes it by.
 
 A row's defined load covers the channels the image opened, read from its FILTER_EN write (sim_main.cpp's OPEN
 lines); an opened channel with no load frame is refused; a log with no FILTER_EN write is refused, never read as
@@ -25,6 +25,17 @@ def fixture_clocks(oracle: dict) -> tuple[int, int]:
     """The system and CPU clocks the committed trace was recorded at (selftest.write_fixture pins them): its cycles
     are graded at its own SoC's clocks, not at the synthetic logs' SYS_HZ and CPU_HZ."""
     return oracle['clocks']['sys_hz'], oracle['clocks']['cpu_hz']
+
+
+def fixture_kept(text: str) -> list[str]:
+    """A 'fixture' group log trimmed to what its probes read (selftest.write_fixture). The saved-state store's traced
+    calls (SPAN, CALL) are nvm_split_target's and go. A tick, PC or fetch line stays only at an event record's third
+    word and the millisecond after it: a timer path's start is its deadline's tick, and the next tick must be there
+    too, or a start planted a millisecond late reads the deadline's own and the plant is lost."""
+    records = re.findall(r'^EVW \d+ \d+ ([0-9a-f]+)$', text, re.M)
+    ticks = {int(records[k + 2], 16) + late for k in range(0, len(records) - 3, 4) for late in (0, 1)}
+    return [line for line in text.splitlines() if not line.startswith(('SPAN ', 'CALL '))
+            and (not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in ticks)]
 
 
 def fixture_open() -> str:

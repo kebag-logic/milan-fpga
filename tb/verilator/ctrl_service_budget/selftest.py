@@ -47,7 +47,7 @@ import selftest_mutants  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
-from selftest_opened import fixture_clocks, fixture_open, opened_checks, planted_probe  # noqa: E402
+from selftest_opened import fixture_clocks, fixture_kept, fixture_open, opened_checks, planted_probe  # noqa: E402
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
 from selftest_held import held_checks  # noqa: E402
@@ -939,12 +939,7 @@ def write_fixture(log: Path, build_json: Path) -> None:
     p = scenario.point('1x1', spec)
     if spec['interfaces'] != 1:
         raise SystemExit('the fixture is the one-interface point')
-    text = log.read_text()
-    records = re.findall(r'^EVW \d+ \d+ ([0-9a-f]+)$', text, re.M)
-    deadlines = {int(records[k + 2], 16) for k in range(0, len(records) - 3, 4)}
-    kept = [line for line in text.splitlines()
-            if not line.startswith(('SPAN ', 'CALL '))
-            and (not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in deadlines)]
+    kept = fixture_kept(log.read_text())
     FIXTURE_LOG.write_text('\n'.join(kept) + '\n')
     oracle = dict(point=dict(label='fixture', shape=p.shape, interfaces=p.interfaces, entity_id=p.entity_id,
                              mac=p.mac, sources=p.sources, sinks=p.sinks),
