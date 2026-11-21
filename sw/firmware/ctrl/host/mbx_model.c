@@ -824,6 +824,17 @@ static uint32_t pub_mask(uint32_t rel)
 		}
 	}
 	switch (rel) {
+	case MBX_PUB_REG_GPTP_GM_LO:
+		return ones(MBX_GPTP_GM_LO_ID_LSB, MBX_GPTP_GM_LO_ID_WIDTH);
+	case MBX_PUB_REG_GPTP_GM_HI:
+		return ones(MBX_GPTP_GM_HI_ID_LSB, MBX_GPTP_GM_HI_ID_WIDTH);
+	case MBX_PUB_REG_GPTP_STATE:
+		return ones(MBX_GPTP_STATE_DOMAIN_LSB, MBX_GPTP_STATE_DOMAIN_WIDTH) |
+		       ones(MBX_GPTP_STATE_AS_CAPABLE_LSB, MBX_GPTP_STATE_AS_CAPABLE_WIDTH) |
+		       ones(MBX_GPTP_STATE_SYNC_OK_LSB, MBX_GPTP_STATE_SYNC_OK_WIDTH) |
+		       ones(MBX_GPTP_STATE_SLEW_LSB, MBX_GPTP_STATE_SLEW_WIDTH) |
+		       ones(MBX_GPTP_STATE_DISC_LSB, MBX_GPTP_STATE_DISC_WIDTH) |
+		       ones(MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH);
 	case MBX_PUB_REG_DA_GATE:
 		return ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
 	case MBX_PUB_REG_LICENCE:
@@ -870,6 +881,7 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 			out->sid[k] = ((uint64_t)e[MBX_PUB_SINK_REG_SID_HI / 4u] << 32) | e[MBX_PUB_SINK_REG_SID_LO / 4u];
 		}
 	}
+	memcpy(out->gptp, m->gptp_snap[interface], sizeof out->gptp);
 }
 
 // ---- the face block (contract 2.3) ------------------------------------------------
@@ -1392,7 +1404,13 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 	} else if (bound_at(off, &i, &e, &reg)) {
 		write_bound(m, i, e, reg, value);
 	} else if (pub_at(off, &i, &reg)) {
+		uint32_t gen0 = mbx_field(m->pub[i][MBX_PUB_REG_GPTP_STATE / 4u], MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH);
 		m->pub[i][reg / 4u] = value & pub_mask(reg);
+		// a GPTP_STATE write whose GEN moved publishes every GPTP_* word as one snapshot (KL_mbx_cdc)
+		if (reg == MBX_PUB_REG_GPTP_STATE &&
+		    mbx_field(value, MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH) != gen0) {
+			memcpy(m->gptp_snap[i], &m->pub[i][MBX_PUB_REG_GPTP_GM_LO / 4u], sizeof m->gptp_snap[i]);
+		}
 	} else if (face_at(off, &i, &reg)) {
 		face_write(m, i, reg, value);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {
