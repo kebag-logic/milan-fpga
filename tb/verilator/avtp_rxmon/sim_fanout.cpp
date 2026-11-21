@@ -37,6 +37,10 @@
 //         lost PDUs behind the committed one's verdicts, and each input
 //         receives exactly the three full PDUs, its FRAMES_RX counting
 //         exactly the PDUs it accepted
+//   [FO10] eight inputs on one stream, thirty full PDUs with no gap: each
+//         frame is read out eight times, so the store overflows; every PDU
+//         an input accepted is delivered to it, in order, or counted as one
+//         of its own DEPKT drops, and each input counts the same drops
 //
 // Usage: make -C tb/verilator/avtp_rxmon fanout   (built at N_STREAMS_P=8)
 
@@ -85,6 +89,7 @@ class FanOut {
         a_pdu_no_input_accepts_then_one_they_do();
         a_frame_ending_on_its_match_beat_then_a_full_one();
         a_burst_of_frames_ending_on_their_match_beat_to_eight_inputs();
+        a_dense_burst_to_eight_inputs_overflows_the_store();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -494,6 +499,46 @@ class FanOut {
             ck("[FO9] ...each its own payload, in order", s, exact, 3);
             ck("[FO9] FRAMES_RX counts exactly the PDUs the input accepted", s,
                lctx_rd(s, W_FRX) - b.frx[s], accepts[s] - b.acc[s]);
+        }
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, false);
+        cyc(200);
+    }
+
+    void a_dense_burst_to_eight_inputs_overflows_the_store() {
+        std::printf("\n[FO10] eight inputs on one stream: thirty full PDUs with no gap, more than the store holds\n");
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, true);
+        cyc(200);
+        const Snap b = snap();
+        std::array<long, kStreams> drops_before{};
+        for (int s = 0; s < kStreams; s++) drops_before[s] = (lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF;
+        const long drops = dut->pcm_drops_o;
+        // each frame is read out eight times, eight times slower than the wire brings it, so the store fills and
+        // drops whole frames; every PDU an input accepted is then either delivered to it or one of its own drops
+        std::vector<Pdu> sent;
+        for (int k = 0; k < 30; k++) {
+            sent.push_back(payload());
+            feed(aaf(0, 8, sent.back()), 0);
+        }
+        cyc(20000);
+        flush_iv();
+        ck("[FO10] the store dropped frames (the case is live)", 0, dut->pcm_drops_o - drops > 0 ? 1 : 0, 1);
+        long dropped0 = -1;
+        for (int s = 0; s < kStreams; s++) {
+            const long delivered = static_cast<long>(got[s].size() - b.pdus[s]);
+            const long dropped = static_cast<long>((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - drops_before[s];
+            ck("[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops", s,
+               delivered + dropped, accepts[s] - b.acc[s]);
+            ck("[FO10] the input counts drops", s, dropped > 0 ? 1 : 0, 1);
+            if (s == 0) dropped0 = dropped;
+            ck("[FO10] each input counts the same drops (one frame, one drop for each input that accepted it)", s,
+               dropped, dropped0);
+            long in_order = 0;
+            size_t k = 0;
+            for (size_t m = b.pdus[s]; m < got[s].size(); m++) {
+                while (k < sent.size() && got[s][m] != sent[k]) k++;
+                if (k < sent.size()) { in_order++; k++; }
+            }
+            ck("[FO10] each delivered payload is a sent one, in order", s, in_order, delivered);
         }
         for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, false);
         cyc(200);

@@ -95,6 +95,10 @@ MUTATIONS = [
      "DEPKT_SRC",
      [("  localparam int RQ_LOG2_C = 2;\n", "  localparam int RQ_LOG2_C = 1;\n")],
      "[FO9] only the three full PDUs reach the depacketizer's output"),
+    ("a frame the full store dropped counts in no input's DEPKT drops",
+     "DEPKT_SRC",
+     [("          drop_p_o    <= 1'b1;\n", "          drop_p_o    <= 1'b0;\n")],
+     "[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops"),
 ]
 
 
