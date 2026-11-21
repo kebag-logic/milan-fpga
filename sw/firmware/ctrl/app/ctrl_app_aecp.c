@@ -3,6 +3,7 @@
 #include "ctrl_app_aecp.h"
 #include "mbx_wire.h"
 #include "nvm_store.h"
+#include "srp_mbx.h"
 #include <string.h>
 
 _Static_assert(CTRL_APP_AECP_SLOT < MBX_N_TIMERS, "AECP needs its own timer slot");
@@ -45,6 +46,26 @@ static uint32_t random_value(void *ctx)
 	return c->environment->random(c->environment->ctx);
 }
 
+// What the split datapath's face cannot answer of a STREAM_OUTPUT it reports declaring (its STREAM_DEST_MAC_VALID;
+// #943; Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11, 5.12): stream_dest_mac is its Talker's MAAP address, the ACMP source
+// port's that PROBE_TX_RESPONSE carries, and the Listener SRP registers for its stream_id on its interface, as the SRP
+// delivery reads it, sets REGISTERING whatever its declaration and REGISTERING_FAILED for Asking Failed (IEEE
+// 802.1Q-2018 35.2.2.7.2). The face leaves both 0 for an output.
+static bool output(struct ctrl_app_aecp *c, uint16_t index, struct aecp_stream_info *v)
+{
+	const struct acmp_config *a = &c->app->acmp.acmp.cfg;
+	if (index >= a->n_sources) return false;
+	struct acmp_source_state st = {0};
+	source(c, index, &st);
+	const struct srp_interface *i = c->app->srp != NULL && index < CTRL_SRP_SOURCES
+		? &c->app->srp->ifs[a->source_interface[index]] : NULL;
+	bool listening = i != NULL && i->listener_present[index];
+	v->dest_mac = st.dest_mac_valid ? st.stream.dest_mac : 0u;
+	v->flags |= listening && !i->registered[index] ? 0x40u : 0u;
+	v->flags_ex = listening ? 1u : 0u;
+	return true;
+}
+
 static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index, struct aecp_stream_info *v)
 {
 	struct ctrl_app_aecp *c = ctx;
@@ -61,6 +82,11 @@ static bool stream(void *ctx, unsigned interface, uint16_t type, uint16_t index,
 			(s.registering_failed ? 0x08000040u : 0u) |
 			(s.bound ? 0x04000006u : 0u) | (s.bound && !s.started ? 8u : 0u);
 		v->flags_ex = s.talker_registered ? 1u : 0u;
+	} else if (!v->brief && (v->flags & 0x10000000u) != 0u) {
+		// a STREAM_OUTPUT (the core asks this port of STREAM_INPUTs and STREAM_OUTPUTs alone, aecp_commands.c observe)
+		// the face reports declaring, observed whole: undeclared, the face's answer is the fabric's, stream_dest_mac 0
+		// and neither flag, and a brief observation, a running check's, uses bound and running alone (aecp.h)
+		return output(c, index, v);
 	}
 	return true;
 }
@@ -121,6 +147,13 @@ static bool applied(void *ctx)
 {
 	struct ctrl_app_aecp *c = ctx;
 	return c->environment->applied(c->environment->ctx);
+}
+
+static unsigned edit(void *ctx, bool remove, uint16_t type, uint16_t index, const uint8_t *records, const uint8_t *pick,
+		     size_t count)
+{
+	struct ctrl_app_aecp *c = ctx;
+	return c->environment->edit(c->environment->ctx, remove, type, index, records, pick, count);
 }
 
 void ctrl_app_aecp_store_words(const struct nvm_status *s, uint32_t *restore, uint32_t *nvm, bool *dirty)
@@ -200,6 +233,18 @@ static bool deliver(void *ctx)
 		publish_store(c);
 		pending = aecp_face_poll(c->face) || pending;
 	}
+	// A Talker declared, withdrawn, swapped between Advertise and Failed or declared on another VID: its
+	// STREAM_OUTPUT's GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), as the
+	// release processor sends one at each declaration and withdrawal. SRP's delivery took the change from SRP.
+	uint32_t noticed = c->app->srp_noticed;
+	if (noticed != 0u) {
+		c->app->srp_noticed = 0u;
+		for (uint16_t n = 0; noticed != 0u; ++n, noticed >>= 1) {
+			if ((noticed & 1u) != 0u) {
+				aecp_changed(&c->aecp->core, 6, n, 1u);
+			}
+		}
+	}
 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
 		if ((c->bindings & (1u << n)) != 0u) {
 			c->bindings &= ~(1u << n);
@@ -225,7 +270,7 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	c->app = app; c->aecp = m; c->state = state; c->environment = env;
 	c->ports = (struct aecp_ports){.ctx = c, .random = random_value, .stream = stream,
 		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index,
-		.applied = applied};
+		.applied = applied, .edit = env->edit != NULL ? edit : NULL};
 	if (!aecp_mbx_init(m, cfg, &c->ports, CTRL_APP_AECP_SLOT) || !aecp_mbx_attach(m, &app->loop)) return false;
 	c->acmp_owner = app->acmp.acmp.env;
 	c->acmp_ports = (struct acmp_env){c, locked, source, srp, persist, acmp_changed};
@@ -251,6 +296,8 @@ bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 		publish_store(c);
 		if (!aecp_face_open(c->face)) return false;
 	}
+	// the restored maps into the datapath's store, which the acknowledged terminal released (#923)
+	aecp_restore_commit(&c->aecp->core);
 	uint32_t channels = 0;
 	for (unsigned n = 0; n < MBX_N_CH; ++n) {
 		if (c->app->loop.rx[n].fn != NULL) channels |= 1u << n;

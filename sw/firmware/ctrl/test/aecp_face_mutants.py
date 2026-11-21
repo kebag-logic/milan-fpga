@@ -3,8 +3,10 @@
 """aecp_face_mutants.py - the AECP campaign's planted defects in GET_AS_PATH's read through the face (#897; IEEE
 1722.1-2021 7.4.41): the count at kind 2 selector 0, each entry at selector 8 by its ordinal, through its own
 interface's window, at most the core's capacity; a word with no answer fails the port; AS_PATH_CHANGED notifies the
-AVB interface that changed (Milan v1.2 Table 5.22). aecp_mutants.py plants each row; every named check must fail on
-its own words."""
+AVB interface that changed (Milan v1.2 Table 5.22); and SET_STREAM_FORMAT's verdict before the open, while the saved
+state is applied, judged supported alone, since its bit 1 reads the map store's reset set, and exactly 3 from the
+open on (REQUIREMENTS.md, the persisted inventory; Milan v1.2 5.3.8.1). aecp_mutants.py plants each row; every named
+check must fail on its own words."""
 
 SEQUENCE = 'Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow'
 BOUND = 'Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt'
@@ -15,6 +17,9 @@ AS_PATH_COUNT = 'if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n
 AS_PATH_ENTRY = 'if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {'
 #: The AECP application's sink for AS_PATH_CHANGED (ctrl_app_aecp.c).
 AS_PATH_SINK = 'ctrl_app_aecp_changed(c, 9u, e->interface, 4u);'
+#: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it, and the face test that grades it.
+VERDICT = '((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;'
+BEFORE_OPEN = 'Face.BeforeOpenAFormatVerdictJudgesSupportAlone'
 
 ROWS = (
     ('face-as-path-count-read-as-avb-info', 'aecp_face.c', AS_PATH_COUNT,
@@ -46,4 +51,9 @@ ROWS = (
     ('face-as-path-change-on-the-first-interface', 'app/ctrl_app_aecp.c', AS_PATH_SINK,
      'ctrl_app_aecp_changed(c, 9u, 0u, 4u);',
      (CHANGE, 'an AS_PATH change notifies GET_AS_PATH')),
+    # the saved state's format restore: the reset set's survival read before the open, or not read once open
+    ('face-format-survival-read-before-the-open', 'aecp_face.c', VERDICT, '(verdict & 0xFFu) == 3u;',
+     (BEFORE_OPEN, 'supported, before the open')),
+    ('face-format-survival-unread-once-open', 'aecp_face.c', VERDICT, VERDICT.replace('(f->ready ? 0u : 2u)', '2u'),
+     (BEFORE_OPEN, 'supported alone refuses once open')),
 )

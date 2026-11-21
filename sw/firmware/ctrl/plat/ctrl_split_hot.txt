@@ -3,39 +3,69 @@
 # ctrl_split_hot.txt - the order plat/ctrl_split.ld's hot list places (#665, NFR-SCOUT-01).
 #
 # Each function a service pass ran, in the order the passes first ran it, from
-# committed-PC traces of the CPU budget harness (tb/verilator/ctrl_service_budget):
-# the 1x1/1if split image, arm A, groups backlog and backlog-adp, each traced from
-# 300,000 bus cycles before its first record's commit for 900,000 committed PCs
-# (BUDGET_TRACE_AFTER, BUDGET_TRACE_PCS), with the AECP event and registry indexes
-# and the SRP walk gate of docs/design/SPLIT_CONTROL_MEMORY.md section 11 in place.
-# The 8x8/2if traces ran the same functions. Contract 2.3's face block (#665)
-# replaced the size fixture's stream observation, ctrl_aecp_image a_stream, so
-# its entry is gone; the face's own port stays with the rest. The traces ran
-# AECP's event scan inside aecp_poll, between mbx_now_ms and arm; THE RETRY
-# (ctrl_loop.h) gives it a second caller, aecp_retry, so it is a function of its
-# own, aecp scan, and stands where its code ran. THE RETRY's pace asks
-# AECP's adapter as a pass given whole may start, so its two functions, aecp_mbx
-# retry_aged and aecp aecp_retry_aged, stand after ctrl_loop_service, which
-# calls them before it takes any input. THE TRANSMIT takes SRP's MRPDU build
-# out of srp_mbx poll into a function of its own, srp_mbx transmit, which
-# stands where its code ran, before mrp_mad mrp_transmit; its due, srp_mbx
-# transmit_aged, stands after THE RETRY's, as ctrl_loop_service reads it. A
-# notice's fan-out, aecp_mbx fan and fan_end over mbx mbx_tx_begin and
-# mbx_tx_commit, stands where the send it replaced ran.
+# committed-PC traces of the CPU budget harness (tb/verilator/ctrl_service_budget)
+# on the 1x1/1if split image, arm A, built and run as run.py does by default, in
+# three windows, each traced from 300,000 bus cycles before its first record's
+# commit for 900,000 committed PCs (BUDGET_TRACE_AFTER, BUDGET_TRACE_PCS): the
+# groups backlog and backlog-adp, each from its first record's commit, then the
+# largest legal AECP command's group, aecp-largest-notice, from its first record's
+# commit after its load's mark (aecp_long.*), its functions appended after the
+# other two windows' in the order it first ran them (#665's ruling of 2026-11-17,
+# as amended, item 1). Every function the windows ran stands where
+# they first ran it, and none is placed by hand. Each list is learned so at the
+# head it ships with; a fourth window, or a window chosen for one head, needs a
+# ruling of its own.
+# The list keeps a traced entry only if its section links in every image the
+# list serves (#665's ruling of 2026-11-18, item 1);
+# nothing else is dropped, added or reordered. The images it serves are the
+# split images ctrl_srp_image.py links and holds to this list: the size fixture
+# at 1x1/1if, 8x8/1if and 8x8/2if in each of the CPU budget harness's six arms,
+# each as itself and as the SoC plan's stand-in and mapped images. The target
+# platform's image (ctrl_plat_image.py) links the same script without that
+# check, and an entry it lacks places nothing there.
+# Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
+# Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256:
-#   backlog      869b1aca4b0e1ecc5be8b30d3f5bebd9ba4c8a5b0829595697c618cfa494a753
-#   backlog-adp  d2c80da7ea69b4f97b1b65babc52c7f9f3822f12e4a0efeedc6de77e03cbb21a
+#   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
+#   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
+#   aecp-largest-notice  d03e4494ef4b4cb23d98f00ceb978a639f07e225a1df0d340c9d3797b9a53eee
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
-mbx mbx_rx_waiting
 ctrl_loop ctrl_loop_service
+nvm_store nvm_store_clock
+nvm_store nvm_now
+nvm_flash_litespi ls_now_us
+ctrl_loop round_of
+aecp_mbx retry
+aecp aecp_retry
+aecp aecp_enter
+aecp round_waits
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
+aecp scan
+aecp arm
+aecp_mbx timer
+nvm_store nvm_store_step
+ctrl_loop ctrl_loop_step
+mbx_plat_mmio mbx_hal_wait
+ctrl_loop ctrl_loop_run
 aecp_mbx retry_aged
 aecp aecp_retry_aged
 srp_mbx transmit_aged
+mbx mbx_rx_mark
+ctrl_loop dispatch_ticks
+mbx mbx_event_take
+ctrl_loop service_rx
+aecp_mbx ready
+aecp aecp_ready
 mbx mbx_rx_take
+acmp_mbx on_rx_ready
+srp_mbx rx_ready
+mbx mbx_rx_waiting
 adp_mbx on_poll
 adp adp_poll
 adp reject_reentry
@@ -55,98 +85,67 @@ maap pump
 maap_mbx declaring
 aecp_mbx poll
 aecp aecp_poll
-aecp aecp_enter
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
-aecp scan
-aecp arm
-aecp_mbx timer
+aecp transmit
 ctrl_app_aecp deliver
 aecp_nvm aecp_nvm_poll
+ctrl_app_aecp publish_store
+nvm_store nvm_store_status
+ctrl_app_aecp ctrl_app_aecp_store_words
+aecp_face aecp_face_status
+aecp_face aecp_face_poll
 srp_mbx poll
 srp_mbx enter
 mbx mbx_link_up
 srp_mbx snapshot
 srp_mbx capture
-srp_mbx transmit
-mrp_mad mrp_transmit
-mrp_mad map_replay
+srp_mbx reclaim
 ctrl_app_srp deliver
-acmp acmp_listener_registered
-ctrl_loop ctrl_loop_step
-mbx_plat_mmio mbx_hal_wait
-ctrl_loop ctrl_loop_run
-ctrl_loop dispatch_ticks
-mbx mbx_event_take
-aecp_mbx ready
-aecp aecp_ready
-srp_mbx rx_ready
+srp_mbx srp_mbx_gate
 srp_mbx tick
 timer shlan_timer_tick
-nvm_store nvm_store_service
-nvm_store nvm_now
-nvm_flash_litespi ls_now_us
-nvm_store nvm_publish
+mrp_mad mrp_port_status
+nvm_store nvm_store_tick
 adp_mbx on_event
 acmp_mbx on_event
 maap_mbx event
 aecp_mbx event
+ctrl_app_aecp face_event
 srp_mbx on_event
+nvm_store nvm_store_service
+nvm_store nvm_publish
 adp adp_gm_change
 adp enter_delay
 adp_mbx port_timer_start
 mbx mbx_timer_arm
-acmp_mbx on_adp_frame
-adp_mbx on_frame
-adp adp_rx
-acmp_mbx on_frame
-acmp acmp_rx
-acmp wire_be64
-acmp wire_be32
-acmp echo
-ctrl_mem memcpy
-ctrl_mem forward
-acmp respond
-acmp build
-acmp wire_put_be
-acmp transmit
-acmp publish
-acmp p_send
-acmp_mbx port_send
-mbx mbx_tx_send
-acmp finish
-acmp record_of
-acmp view_of
 aecp_mbx frame
 aecp aecp_rx
 aecp wire_be32
 aecp wire_be64
 aecp header
 aecp aecp_put48
+aecp aecp_put32
 aecp aecp_put64
+aecp applied
+aecp_mbx applied
+ctrl_app_aecp applied
+aecp_face applied
+mbx mbx_face_busy
 aecp_commands aecp_command
 aecp_commands body
+ctrl_mem memcpy
+ctrl_mem forward
 aecp_commands aecp_find
 aecp aecp_port_begin
 aecp_mbx available_index
 ctrl_app_aecp available_index
 aecp aecp_port_end
-maap_mbx receive
-maap maap_rx
-maap mac_at
-maap enqueue
-maap wire_put_be
-maap_mbx send_frame
-aecp transmit
-aecp_mbx fan
-aecp_mbx fan_end
+aecp finish
+aecp_mbx send
+mbx mbx_tx_send
 mbx mbx_tx_begin
 mbx mbx_tx_commit
-aecp_mbx send
-mbx_plat_mmio mbx_hal_read32
+aecp sent_frame
 srp_mbx reset_interface
-mbx mbx_rx_mark
 srp_mbx publish_licence
 mbx mbx_pub_licence
 mbx mbx_pub_talker_decl
@@ -156,6 +155,19 @@ timer shlan_timer_remove
 shlan_port shlan_free
 ctrl_pool ctrl_pool_free
 mvrp mvrp_app_destroy
+mbx mbx_rx_before
+adp adp_link_change
+adp timer_stop
+adp_mbx port_timer_stop
+mbx mbx_timer_cancel
+maap maap_port_operational
+maap stop_timer
+maap_mbx cancel
+maap publish
+maap_mbx range
+mbx mbx_filter_set_maap_range
+mbx mbx_pub_da_gate
+ctrl_aecp_image allocation
 srp_mbx open_interface
 msrp msrp_app_create
 mrp_mad mrp_app_create
@@ -178,61 +190,113 @@ msrp msrp_attr_mem_len
 mrp_mad deliver_event_changed
 mrp_mad reg_event
 mrp_mad observe.isra.0
+srp_mbx moved_msrp
 srp_mbx moved
 mvrp mvrp_declare
 mvrp mvrp_attr_len
+srp_mbx moved_mvrp
 srp_mbx declare_sources
-msrp msrp_attr_cmp
-ctrl_mem memcmp
+srp_mbx wire_put_be
 mbx mbx_pub_idle_slope
-mbx mbx_rx_before
+srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
-srp_mbx same
 mrp_mad mrp_reclaim
-adp adp_link_change
-adp timer_stop
-adp_mbx port_timer_stop
-mbx mbx_timer_cancel
-maap maap_port_operational
-maap stop_timer
-maap_mbx cancel
-maap publish
-maap_mbx range
-mbx mbx_filter_set_maap_range
-mbx mbx_pub_da_gate
-ctrl_aecp_image allocation
+acmp_mbx on_frame
+acmp acmp_rx
+acmp wire_be64
+acmp wire_be32
+acmp echo
+acmp respond
+acmp build
+acmp wire_put_be
+acmp transmit
+acmp publish
+acmp p_send
+acmp_mbx port_send
+acmp finish
+maap_mbx receive
+maap maap_rx
+maap mac_at
+acmp_mbx on_adp_frame
+adp_mbx on_frame
+adp adp_rx
 srp_mbx receive
-aecp aecp_tx_complete
+srp_mbx transmit
+ctrl_app_srp locked
+ctrl_app_aecp locked
+aecp aecp_locked
+acmp mark
+acmp bind_response
+acmp_mbx port_publish
+mbx mbx_pub_sink_binding
+acmp probe
+acmp send_probe
+acmp now
+acmp_mbx port_now
+acmp_mbx port_timer
+acmp_mbx port_admit
+mbx mbx_filter_set_bound_talker
+acmp record_of
+ctrl_app_srp persist
+ctrl_app_aecp persist
+ctrl_aecp_image notice
+acmp view_of
+ctrl_app_srp changed
+ctrl_app_aecp acmp_changed
+nvm_store nvm_store_changed
+nvm_klj2 nvm_rec_id_of
+nvm_store nvm_mark
+nvm_store nvm_open_set
+acmp acmp_change_pending
+aecp aecp_changed
+aecp_face publish
+aecp_face current.isra.0
+mbx mbx_face_write
+mbx mbx_face_commit
 aecp_commands aecp_stream_read
+aecp_commands observe
 aecp_mbx stream
 ctrl_app_aecp stream
-srp_mbx apply_receive
-mrp_mad mrp_rx
-mrp_pdu mrpdu_parse
-mrp_pdu parse_pass
-msrp msrp_attr_len
-msrp msrp_attr_has_subtype
-msrp msrp_decode_attr
-msrp increment_stream
-mrp_mad rx_on_attr
-srp_mbx interested_msrp
-msrp msrp_join_ind
-srp_mbx listener
-msrp msrp_map_join
-mrp_mad mrp_attr_registered_ports
-msrp all_ports_except
-mrp_mad mrp_app_n_ports
+aecp_face stream
+aecp_face gsi
+mbx mbx_win_read
+mbx mbx_win_ask
 acmp acmp_adp_rx
 acmp_mbx port_gptp
 mbx mbx_gm_id
-acmp now
-acmp_mbx port_now
-acmp delay
-acmp_mbx port_seed
-acmp_mbx port_timer
-ctrl_app_srp changed
-ctrl_app_aecp acmp_changed
-ctrl_aecp_image notice
-acmp acmp_change_pending
-aecp aecp_changed
+acmp tk_departed
+aecp monitor
+aecp_mbx random_value
+ctrl_app_aecp random_value
+aecp_face random_value
+ctrl_aecp_image a_random
+aecp_maps aecp_map_command
+aecp_commands aecp_foreign_lock
+aecp_commands aecp_other_lock
+aecp aecp_put16
+aecp_maps wire_be32
+aecp_maps legal
+aecp_maps mark
+aecp_mbx edit
+ctrl_app_aecp edit
+aecp_face edit
+aecp_face beat
+aecp_face record
+aecp_face wire_be32
+aecp_commands aecp_note
+aecp_mbx changed
+ctrl_app_aecp changed
+aecp_nvm aecp_nvm_changed
+aecp_nvm mark
+aecp_face changed
+aecp fan_out
+nvm_store nvm_store_changed_id
+nvm_klj2 nvm_rec_id_known
+adp adp_timer_expired
+adp advertise
+adp send
+adp adp_build
+adp_mbx port_gptp
+adp wire_put_be
+adp_mbx port_send

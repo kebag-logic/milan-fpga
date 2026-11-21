@@ -88,6 +88,12 @@ DUT_READER_DISPOSITIONS = {
         "format word not loaded) into a copy and requires its named [UF] check of the N=4 harness to "
         "fail; expected values come from the Milan v1.2 Table 6.2 formats the harness drives, never "
         "from the text",
+    "tb/verilator/avtp_rxmon/ctxfmt_mutants.py":
+        "mutation campaign; it plants one of four #946 context-format defects (the bind walk taking "
+        "fmt0_i's words, a stream above 0 judged against fmt0_i's count, the window's write landing in "
+        "another context, an unlock walk writing over the format) into a copy and requires its named "
+        "[CF] check of the N=8 harness to fail; expected values come from the formats the harness "
+        "writes and drives, never from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
         "mutation campaign; it plants one of three source-table and skid defects into a copy and "
         "requires its named lockstep check to fail; expected samples come from the harness's own "
@@ -171,6 +177,13 @@ DUT_READER_DISPOSITIONS = {
         "Expected totals come from the MAC packet census and injected traffic; notification "
         "expectations come from the ruled spacing/gap contract; phase checks exhaust one second, "
         "never deriving expected packet totals or deadlines from RTL text",
+    "tb/verilator/milan_dp/bootsa_mutants.py":
+        "mutation campaign; it plants one of twelve #839 station-MAC defects (no hold, no stamp, "
+        "neither, either half alone completing the pair, the stamp on the destination octets, the "
+        "stamp's beat position kept across a frame's end or wrapping past the source address, the "
+        "hold gone from MAAP, the AAF talkers and the CRF talker together or from each alone) into "
+        "a copy of the datapath and requires every named check of its case to fail; no expected "
+        "value is read from RTL. It is the explicit bootsa-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",

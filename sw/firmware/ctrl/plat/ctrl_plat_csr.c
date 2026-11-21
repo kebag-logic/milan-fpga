@@ -67,6 +67,42 @@ void ctrl_plat_csr_status(uintptr_t csr, struct ctrl_plat_status *s)
 	s->pp_stat = rd(csr, CTRL_PLAT_CSR_PP_STAT);
 }
 
+void ctrl_plat_csr_sink_format(uintptr_t csr, unsigned n, uint64_t format)
+{
+	// the window's words by their offset from its selection
+	const uintptr_t window = csr + CTRL_PLAT_CSR_STRM_SEL;
+	uint32_t selection = ctrl_plat_io_read32(window);
+	// dir 0, the listener contexts: index n
+	ctrl_plat_io_write32(window, n & 0xFu);
+	ctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_LO - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)format);
+	ctrl_plat_io_write32(window + (CTRL_PLAT_CSR_STRMW_FMT_HI - CTRL_PLAT_CSR_STRM_SEL), (uint32_t)(format >> 32));
+	ctrl_plat_io_write32(window, selection);
+}
+
+// IEEE 1722.1-2021 7.2.6: a STREAM_INPUT's descriptor_type, descriptor_index,
+// current_format and avb_interface_index, by offset in its descriptor
+enum { STREAM_INPUT = 5u, TYPE_AT = 0u, INDEX_AT = 2u, FORMAT_AT = 74u, INTERFACE_AT = 126u };
+// IEEE 1722-2016 Table 6: the AAF subtype, a stream format's first byte
+#define AAF_SUBTYPE 0x02u
+
+static uint32_t be32(const uint8_t *p)
+{
+	return ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | p[3];
+}
+
+bool ctrl_plat_csr_sink_context(const uint8_t *value, size_t length, uint16_t configuration, uint16_t in_force,
+				uint64_t *format)
+{
+	if (length < INTERFACE_AT + 2u) {
+		return false;
+	}
+	*format = ((uint64_t)be32(value + FORMAT_AT) << 32) | be32(value + FORMAT_AT + 4u);
+	// type and index are the descriptor's first two words; the interface's two bytes are 0 or not
+	uint32_t key = be32(value + TYPE_AT);
+	return configuration == in_force && (key >> 16) == STREAM_INPUT && (key & 0xFFFFu) != 0u &&
+	       value[FORMAT_AT] == AAF_SUBTYPE && (value[INTERFACE_AT] | value[INTERFACE_AT + 1u]) == 0u;
+}
+
 bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns)
 {
 	wr(csr, CTRL_PLAT_CSR_PTP_CMD, CTRL_PLAT_PTP_SNAPSHOT);

@@ -21,8 +21,8 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -516,6 +516,435 @@ It uses 52,021 LUTs; 63 slices remain.
 
 The #818 gate passes it.
 
+Issue #845 adopts processor pin `92100657`.
+
+It is the merge commit of processor PR #213.
+
+That PR carries processor issue #212.
+
+Its tree is the reviewed head `6162885f`'s.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #212, a Talker registered before the settle | #213, merge commit `92100657` | A Stream Input that settles on a Talker Advertise or Talker Failed the port already registered applies it at the settle (Milan v1.2 5.3.8.5; 5.5.3.5.18 step 4; IEEE 802.1Q-2022 10.7, 10.7.8). It declares Listener Ready, or Asking Failed, within one T-MRP-JOIN, and its SRP state, GET_RX_STATE and GET_STREAM_INFO read at the settle. Before, it waited for the talker's next declaration. A link down or up now ends every Talker registration, a settled input's too (Table 10-4: Flush! at LINK_DOWN, Begin! at LINK_UP), and a registered settled input leaves the settled state (Milan v1.2 5.5.3.5.48) |
+
+The listener keeps one port Talker registrar per Stream Input.
+
+So the pre-settle path holds `N_STREAM_IN_P` Talker values.
+
+| Case, shipping image (`N_STREAM_IN_P` = 2: the AAF input and the CRF input) | Result |
+|---|---|
+| The input settles on a value the port registered while one of its two registrars was free, still registered | applied at the settle |
+| The value arrived while both registrars held other values | not held: the first settle waits for the talker's next declaration, at the latest its re-join after the next LeaveAll (`leavealltimer` default 10 to 15 s, Milan v1.2 Table 4.3) |
+| A re-bind of an input to the stream it was bound to | keeps its registration while it lasts, whatever the port holds |
+| A link down or up, an input with no settled registration | ends every Talker registration. The input waits for its talker's next declaration |
+| A link down or up, a registered settled input | ends its registration and reports it as a registration that timed out: `TK_ATTR_UNREGISTERED`, its Listener declaration withdrawn. It leaves the settled state (Milan v1.2 5.5.3.5.48). STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 5.4.2.10.1, Table 5.9). `probing_status` becomes PROBING_ACTIVE when its talker is discovered, and the input probes it after a random delay of 0 to 1 s. It becomes PROBING_PASSIVE otherwise, and the input waits for discovery (Milan v1.2 Table 5.5). The talker's next declaration alone does not return it: it must probe and settle again, and a value the port registered meanwhile applies at that settle |
+
+A port receives every Talker declaration of its VLAN.
+
+With more than two Talker values, most power-on settles wait.
+
+The top's ports and parameters are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `a9e84b66` rows.
+
+The shipping route was measured at lane commit `a29a7411`.
+
+Later commits change no synthesis input.
+
+It ran one placement directive under the recipe below.
+
+| Recipe | Value |
+|---|---|
+| Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2 |
+| Directives | synthesis AreaOptimized_high, opt ExploreArea, placement ExtraPostPlacementOpt |
+| Tool | Vivado 2026.1, at most 32 threads |
+
+| Figure | dev `cc204c6f`, same recipe | This adoption | Change |
+|---|---:|---:|---:|
+| Slice LUT | 51,994 | 52,497 | +503 |
+| Slice register | 54,101 | 54,579 | +478 |
+| Slice, of 15,850 | 15,841 | 15,780 | -61 |
+| Block RAM tile | 87.5 | 87.5 | 0 |
+| DSP | 13 | 13 | 0 |
+| WNS, slow corners | +0.236 ns | +0.198 ns | -0.038 ns |
+| WHS, worst corner | +0.036 ns | +0.015 ns | -0.021 ns |
+
+Every corner meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+
+It asks +0.03 ns WNS and 0 ns WHS.
+
+The worst setup path is in the SoC's SDRAM controller.
+
+It lies outside the processor and the datapath.
+
+Placement leaves 70 of 15,850 slices free.
+
+The resource gate refused this growth.
+
+The [area budget](../design/AREA_BUDGET.md) requires an owner decision for shipping-image growth.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/845#issuecomment-6689114981) accepts it.
+
+That decision re-baselines the budget.
+
+It covers both mandatory lab-fix pins, this one and #843's.
+
+Every lab fix is routed together before the release build.
+
+The gate's thirteenth record holds this adoption.
+
+The gate ran in its own form at lane commit `b16f0175`.
+
+That is the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate)'s three directives and 1x1 synthesis.
+
+`ooc-8x8` ran at `bf6c5a67`, out of context only.
+
+Later commits change no synthesis input.
+
+| Endpoint | Exit, twelfth record | Refused | Passed |
+|---|---:|---|---|
+| `route-1x1`, ExtraTimingOpt selected | 1 | 52,529 LUTs (+517 of +500), 54,582 FFs (+875 of +600) | 15,835 slices (+55 of +80), RAMB36, RAMB18, DSP, WNS +0.373 ns, WHS +0.012 ns |
+| `ooc-1x1` | 1 | 24,996 LUTs (+650 of +250), 20,934 FFs (+530 of +250) | RAMB36, RAMB18, DSP |
+| `ooc-8x8` | 1 | 36,864 LUTs (+2,708 of +316), 32,036 FFs (+2,254 of +339) | RAMB36, RAMB18, DSP |
+
+Against that record, `check` exits 0 on every endpoint.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraTimingOpt, selected | +0.373 / +0.012 ns | 52,529 | 54,582 | 15,835 | 15 |
+| ExtraPostPlacementOpt | +0.198 / +0.015 ns | 52,497 | 54,579 | 15,780 | 70 |
+| AltSpreadLogic_high | +0.047 / +0.018 ns | 52,554 | 54,580 | 15,835 | 15 |
+
+All three route without error.
+
+Each meets the build floor at every corner.
+
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
+
+That directive leaves 15 slices, not the 70 above.
+
+The deltas are from records at processor `f65c8ff7`.
+
+So they include dev's own movement since then.
+
+Issue #843 adopts gPTP pin `1616fc8f`.
+
+The processor stays at `92100657`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #98, Follow_Up TLV walk | [99](https://github.com/Mister-M-alt/FPGA-gPTP/pull/99) | The parser walks a Follow_Up's TLV chain within messageLength to the Follow_Up information TLV, so a TLV of another type ahead of it is passed over (IEEE 802.1AS-2011 Section 11.4.1); a malformed chain is refused |
+| #100, Follow_Up TLV values, announce receipt timeout, stricter readings | [101](https://github.com/Mister-M-alt/FPGA-gPTP/pull/101) | As grandmaster the Follow_Up information TLV carries gmTimeBaseIndicator, lastGmPhaseChange and scaledLastGmFreqChange (Sections 10.2.8.2.1 i) to l), 10.2.9, 11.4.4.3). The announce receipt timeout is announceReceiptTimeout times the interval the received Announce carries (Section 10.3.9.1). An Announce at the timeout instant ages the port first. A Pdelay response later than the Milan v1.2 Section 4.2.6.2.6 bound counts as lost. clockAccuracy is a generator option, `--clock-accuracy` (Section 8.6.2.3) |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The builder passes each config's clockAccuracy to the generator.
+
+The AX7101 configs state `0x22`, the Arty configs `0xFE`.
+
+`0x22` is the maintainer's 2026-11-05 decision.
+
+The Arty's oscillator is not characterised.
+
+So its configs state unknown (8.6.2.3 b).
+
+An omitted key is `0xFE` too.
+
+The AX7101 hash-derived model ids move; the Arty's stay.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The `milan_dp` gptp leg grades `0x22` on the wire.
+
+Its gptp-lat leg runs the Arty image and grades `0xFE`.
+
+The shipping route is the first with both lab-fix pins.
+
+It was measured at lane commit `a6d7cdf3`, the dev merge.
+
+Later commits change no synthesis input.
+
+It ran the recipe's three directives, as did dev `1eb5289d`:
+
+| Directive | Dev WNS / WHS, worst corner | Dev LUT | Dev slice | This pin WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.121 / +0.025 ns | 52,968 | 15,817 | +0.242 / +0.012 ns | 53,221 | 54,754 | 15,834 | 16 |
+| ExtraPostPlacementOpt | +0.122 / +0.036 ns | 52,845 | 15,841 | +0.062 / +0.024 ns | 53,166 | 54,757 | 15,846 | 4 |
+| ExtraTimingOpt, dev's selection | +0.234 / +0.033 ns | 52,973 | 15,817 | +0.058 / +0.031 ns | 53,234 | 54,755 | 15,834 | 16 |
+
+Each set's best directive, against dev's:
+
+| Figure | Dev `1eb5289d`, ExtraTimingOpt | This pin, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 52,973 | 53,221 | +248 |
+| FF | 54,595 | 54,754 | +159 |
+| Slice of 15,850 | 15,817 | 15,834 | +17 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 13 | 15 | +2 |
+| WNS / WHS, slow corners | +0.234 / +0.061 ns | +0.242 / +0.071 ns | +0.008 / +0.010 ns |
+| WNS / WHS, fast corners | +1.553 / +0.033 ns | +1.383 / +0.012 ns | -0.170 / -0.021 ns |
+
+Every route completes with no routing error.
+
+Every directive meets the build floor at every corner.
+
+The worst setup path is the SoC's SDRAM controller.
+
+On each directive the engine adds 469 to 475 LUTs.
+
+It also adds 166 FFs and two DSPs.
+
+Against the thirteenth record the gate refused this route.
+
+LUTs grew by 692, over the 500 tolerance.
+
+DSPs grew by two, over a tolerance of 0.
+
+The [maintainer decision of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/843#issuecomment-6689115541) accepts that growth.
+
+The gate's fourteenth record holds this route.
+
+Against it, `check` and `check-baseline` exit 0.
+
+The standalone records stay #845's.
+
+Their top, `KL_pp_shadow`, holds no gPTP logic.
+Issue #851 adopts processor pin `044cb25f`.
+
+It is the merge commit of processor PR #215.
+
+That PR carries processor issue #214.
+
+Its tree is the reviewed head `7feeccea`'s.
+
+It lands on dev `0a75aa77`, which carries #843's FPGA-gPTP `1616fc8f`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #214, one vector per value per MRPDU | #215, merge commit `044cb25f` | Each MRPDU the port sends carries each attribute value at most once: every MSRP Domain, Talker Advertise, Talker Failed and Listener value, and every MVRP VID. IEEE 802.1Q-2022 10.7.7 keeps one Applicant per value, and a value inside two VectorAttributes of one MRPDU is two events for its state machine (10.7.5.13 c), 10.8.2.10.1). Before, a value handed over twice in one transmission window went out twice: the Domain after a received LeaveAll with a `periodic!` in the window, and MVRP VID 2 after boot |
+
+The encoder now holds one pending entry per value.
+
+| Value | Identity in the pending table |
+|---|---|
+| Talker Advertise, Talker Failed, Listener | the AttributeType and the StreamID, FirstValue's first eight octets (802.1Q-2022 35.2.2.8.1 a), 35.2.2.8.2). MSRP allows no FirstValue change for an existing StreamID (35.2.2.8), so a second Talker value of one StreamID carries the newer FirstValue |
+| Domain | the whole value: SRclassID, SRclassPriority, SRclassVID (35.2.2.9.1) |
+| MVRP VID | the VID (11.2.3.1.7) |
+
+A second message rewrites that entry in place.
+
+The entry keeps its place, so push order stands.
+
+| Pending | Pushed | The MRPDU carries | Clause |
+|---|---|---|---|
+| any | New or Lv | the pushed message | a new declaration or a withdrawal (802.1Q-2022 Table 10-3: New!, Lv!) |
+| New | JoinIn or JoinMt | New | only New gives the peer's Registrar its new indication (10.7.6.12) |
+| JoinIn, JoinMt, In, Mt or Lv | JoinIn or JoinMt | the pushed message | sJ with the newer Registrar reading (10.7.6.3) |
+| New, JoinIn, JoinMt or Lv | In or Mt | the pending message | an s carries only the Registrar state (10.7.6.5) |
+| In or Mt | In or Mt | the pushed message | the newer Registrar reading (10.7.6.5) |
+
+In one window, `periodic!` and LeaveAll re-joins send one join.
+
+The encoder searches its table before it takes a push.
+
+| Case, shipping image (`N_STREAM_IN_P` = `N_STREAM_OUT_P` = 2) | Result |
+|---|---|
+| A push while its application holds pending entries | waits one clock per pending entry while the table is searched through its own read port, then rewrites the matching entry or appends. Every producer already holds its push until it is taken |
+| A Domain re-join handed over on a `tx!` clock, at most two Domain entries pending | rides that MRPDU: the drain starts five clocks after the `tx!` (processor docs 10, Section 3) |
+| The same re-join with a third Domain entry pending | rides the next MRPDU, one joinTime later: 200 ms by default (Milan v1.2 4.2.7.1.1, Table 4.3) |
+| A push that a drain start overtakes | rides the next MRPDU, as before |
+| A full table | holds every push until it drains, as before |
+
+The top's ports and parameters are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+Only `KL_srp_encoder.sv` changes in processor HDL.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `92100657` rows.
+
+The `milan_dp` crflic leg grades the rule on the wire.
+
+No DUT MRPDU may carry one value twice.
+
+That holds for MSRP and for MVRP.
+
+A planted encoder that never merges fails it, in `make -C tb/verilator/milan_dp crflic-mutants`.
+
+The shipping route was measured at lane commit `e44a4d20`.
+
+That commit merges dev `0a75aa77`.
+
+It is the first image with all four lab fixes.
+
+Later commits change no synthesis input.
+
+It ran the recipe's three directives, one at a time.
+
+| Recipe | Value |
+|---|---|
+| Configuration | `configs/endstation_ax7101_1x1_tdm8.yaml`, `N_STREAM_IN_P` 2, `N_STREAM_OUT_P` 2 |
+| Directives | synthesis AreaOptimized_high, opt ExploreArea; three placement directives from one synthesis checkpoint |
+| Tool | Vivado 2026.1, `synth.maxThreads` 1, `general.maxThreads` 32 |
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| AltSpreadLogic_high, selected | +0.210 / +0.036 ns | 53,428 | 54,837 | 15,829 | 21 |
+| ExtraPostPlacementOpt | +0.112 / +0.036 ns | 53,383 | 54,837 | 15,848 | 2 |
+| ExtraTimingOpt | +0.018 / +0.036 ns | 53,402 | 54,838 | 15,829 | 21 |
+
+Every route completes with no routing error.
+
+The best directive fits.
+
+It meets the [build floor](../integration/BUILDING.md#5-gates-before-a-build-is-good) at every corner.
+
+ExtraTimingOpt misses the WNS floor at its slow corners.
+
+The [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good) builds from the selected directive.
+
+Dev `0a75aa77` is #843's record.
+
+From it, only this pin moves a synthesis input.
+
+| Figure | Dev `0a75aa77`, AltSpreadLogic_high | This adoption, AltSpreadLogic_high | Change |
+|---|---:|---:|---:|
+| LUT | 53,221 | 53,428 | +207 |
+| FF | 54,754 | 54,837 | +83 |
+| Slice of 15,850 | 15,834 | 15,829 | -5 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 15 | 15 | 0 |
+| WNS / WHS, worst corner | +0.242 / +0.012 ns | +0.210 / +0.036 ns | -0.032 / +0.024 ns |
+
+On dev `1eb5289d` the share was +77 LUTs.
+
+It added 134 FFs and 14 slices there.
+
+Both of those routes selected ExtraTimingOpt.
+
+The encoder grows by 118 LUTs and 99 FFs here.
+
+The worst setup path lies in the processor's AECP block.
+
+It starts at the microcode CPU.
+
+It ends at the D3 debounce counter's reset.
+
+It has 37 logic levels, on the 20 ns clock.
+
+That path is outside the encoder this pin changes.
+
+Against #843's record the resource gate passed all three endpoints.
+
+The gate's fifteenth record re-records all three at `e44a4d20`.
+
+So the record measures the merged tree.
+
+Against it, `check` and `check-baseline` exit 0.
+
+| Sub-block, not gated, against #843's record | `route-1x1` | `ooc-1x1` | `ooc-8x8` |
+|---|---|---|---|
+| `u_pp/u_srp/u_encoder` | +118 LUTs, +99 FFs | +78 LUTs, +75 FFs | +105 LUTs, +71 FFs |
+| the wrapper | +247 LUTs, +105 FFs | +203 LUTs, +76 FFs | +184 LUTs, +80 FFs |
+
+The [area budget](../design/AREA_BUDGET.md) gives the figures.
+
+Issue #883 moves the processor gitlink to `801ef228`.
+
+It fast-forwards `044cb25f` on the donor's `main`.
+
+The FPGA-gPTP pin stays `1616fc8f`.
+
+FPGA-gPTP PR #103 rides with the next adoption.
+
+| Donor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| Processor #216, MRP Applicant and MVRP LeaveAll | [218](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/218), merge commit `45f03e04` | A new declaration sends New on two `tx!` opportunities, then the Join its Registrar gives: JoinIn with it IN, JoinMt otherwise (IEEE 802.1Q-2018 Table 10-3, 10.7.6.3). Before, the Domain and each VID sent one New, and a VID sent JoinIn with its Registrar MT (#860). MVRP's LeaveAll state machine now runs with nothing declared and sends the LeaveAll-only MVRPDU (10.7.9, Table 10-5); before, MVRP fell silent once it declared nothing (#857) |
+| Processor #217, ENTITY `available_index` from ADP | [219](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/219), merge commit `801ef228` | READ_DESCRIPTOR(ENTITY) carries the available_index of the last ENTITY_AVAILABLE sent, 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Table 7-2, 6.2.2.15); before, the AEM image's constant 0 (#858) |
+
+The top's ports, parameters and register map are unchanged.
+
+`KL_pp_shadow` and `milan_datapath` are unchanged.
+
+`ucode.hex` changes; its new ledger row is recorded.
+
+`ltn_rom.hex` matches the `044cb25f` row.
+
+The `milan_dp` crflic leg grades #860 and #857.
+
+Its notify leg grades #858 against the wire.
+
+At the old pins, both legs fail those checks.
+
+| Leg, AX7101 1x1 | At `801ef228`, `1616fc8f` | At `044cb25f`, `1616fc8f`, the same harness |
+|---|---|---|
+| crflic: `[MRPAPP]`, `[MVRPLA]` | 458 checks, 0 failures | 7 failures: one New and then JoinIn for the Domain and VID 2, 185 VID JoinIns with no registration, and no MVRP LeaveAll once nothing is declared |
+| notify: `[AIDX]` | 535 checks, 0 failures | 4 failures: READ_DESCRIPTOR(ENTITY) reads 0 against the wire's 31, 32, 33 and 1 |
+
+`crflic-mutants` plants five processor arms for them.
+
+`gsi-mutants` plants four for #858.
+
+Each is the processor's own arm.
+
+Since #216 one control needed both layers planted.
+
+The #851 encoder arm alone no longer doubles a value.
+
+Each Applicant now decides one message per `tx!`.
+
+So the control's intake also takes every push twice.
+
+The shipping route was measured at lane commit `a89802c8`.
+
+Dev `46c971fa` is #854's record, measured at `7a19f62b`.
+
+No synthesis input differs between those two commits.
+
+| Directive | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+|---|---|---:|---:|---:|---:|
+| ExtraPostPlacementOpt, selected | +0.334 / +0.017 ns | 53,461 | 54,971 | 15,849 | 1 |
+| ExtraTimingOpt | +0.218 / +0.036 ns | 53,474 | 54,974 | 15,850 | 0 |
+| AltSpreadLogic_high | +0.162 / +0.039 ns | 53,494 | 54,976 | 15,850 | 0 |
+
+Every route completes with no routing error.
+
+Every directive meets the build floor at every corner.
+
+| Figure | Dev `46c971fa`, ExtraPostPlacementOpt | This adoption, ExtraPostPlacementOpt | Change |
+|---|---:|---:|---:|
+| LUT | 53,534 | 53,461 | -73 |
+| FF | 54,850 | 54,971 | +121 |
+| Slice of 15,850 | 15,820 | 15,849 | +29 |
+| RAMB36 / RAMB18 | 74 / 27 | 74 / 27 | 0 |
+| DSP | 15 | 15 | 0 |
+| WNS / WHS, worst corner | +0.166 / +0.032 ns | +0.334 / +0.017 ns | +0.168 / -0.015 ns |
+
+Placement leaves one slice free.
+
+The worst setup path is the SoC's SDRAM controller.
+
+Against #854's record the resource gate passed all three endpoints.
+
+The gate's seventeenth record re-records all three at `a89802c8`.
+
+Against it, `check` and `check-baseline` exit 0.
+
+| Endpoint, against #854's record | LUT | FF |
+|---|---:|---:|
+| `route-1x1` | -73 | +121 |
+| `ooc-1x1` | +214 | +64 |
+| `ooc-8x8` | +218 | +66 |
+
+The [area budget](../design/AREA_BUDGET.md) gives the figures.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -652,10 +1081,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1616fc8f062fbf58c35ad31674b5b233207bbdb8/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

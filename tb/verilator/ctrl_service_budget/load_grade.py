@@ -21,6 +21,12 @@ build. The gate holds 1x1/1if in both: the pin's column is the image that merges
 move owes, which carries tsn-c-stack #28, #31 and #32. The donor's column may state below the pin's only a cost whose
 work runs the ACMP core's walk (WALK); any other such cost fails.
 
+The pin already carries tsn-c-stack#32 (#930): 715589c is the merge of tsn-c-stack PR #34, which closed #32, and its
+src/ and include/ are the donor's 9043b926, which the donor's column was measured on. So both columns state one
+image's costs. The pin's column holds as well what images built before the pin moved measured for the five costs the
+walk moves (WALK), the larger, since a statement never goes down; the donor's holds only what images carrying #32
+measured. A ceiling is read at the pin's column (flip_grade.py's REPORTED point, the merge gate's own reading).
+
 The terms (per millisecond):
   rec.<channel>  aecp, acmp, adp, maap: one record a refill, the fabric's limiter (mailbox.yaml `rate`), per channel
                  and not per stream, so the same at every shape; the burst is a window's first records, not a rate.
@@ -81,11 +87,15 @@ from __future__ import annotations
 
 import argparse
 import functools
+import math
 import re
 import sys
 from pathlib import Path
 
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import shape_costs  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
 #: The ceiling the merge gate holds a point's load to (#665, option D): 1x1/1if. 8x8/2if is the
@@ -93,16 +103,52 @@ ROOT = Path(__file__).resolve().parents[3]
 #: more-compute image, #872 (decision D, #665).
 CEILING = {'1x1/1if': 0.70}
 #: What the table says in a point's ceiling column where CEILING holds none: the flip check's, or none.
-FLIPPED = 'the flip check, 0.70 at the pin (flip_grade.py)'
+FLIPPED = 'the flip check, {:.2f} at the pin (flip_grade.py)'
 PENDING = 'reported: the more-compute image, #872'
 #: The load the compute factor is reported against: the ceiling the held points are held to.
 TARGET = 0.70
 #: Each point's counts: interfaces, sinks an interface (counted all on each), registrations an interface
 #: (aecp.h, AECP_REGISTRATIONS) and the descriptors with counters (each stream's, each AVB interface's and each clock
-#: domain's; aecp.h, AECP_NOTICES_MOST's terms).
+#: domain's; aecp.h, AECP_NOTICES_MOST's terms), at a point an image is built at the descriptors the shape header states
+#: (shape_costs.findings holds them to it: the 8x8's 18 streams, one AVB interface and one clock domain).
 POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
+          '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
+#: The points whose stated costs are another's, the nearest shape each is measured at in both columns (#894's shape
+#: ruling, item (b): 8x8/1if's load at most 0.75): 8x8/1if's records, events and THE STEP's pass are
+#: 8x8/2if's, the 8x8 shape's at two interfaces, measured over every group of both arms there, as #894 derived that
+#: load; THE TRANSMIT's builds and an owed MRPDU, a build of one's, are its own shape's (ctrl_loop.h, THE SHAPES), and
+#: the polls' base and items its own shape's (poll_grade.STATED_US; the held-egress ruling, item (b)(iii)),
+#: each measured on its built image on the tree that merges #902. stated() reads them so; its own measurement of the
+#: rest is owed to #872.
+NEAREST = {'8x8/1if': '8x8/2if'}
+#: A NEAREST point's own statements, where its measurement passes its nearest point's (#894's ledger ruling, item 4):
+#: the nearest point supplies a cost only while the point's measurement is within it, so where it is not, the point
+#: states its own by the rule, in either column; the nearest point's table is untouched. OWN_MEASURED is each one's
+#: measurement, CPU cycles and where: 8x8/1if's ADP record on the image that merges #902's 234bc149, 12,210 cycles,
+#: 130 us by the rule, over 8x8/2if's 125 us in the tsn-c-stack#32 column (its pin column states 240); and its MAAP
+#: record on the image that merges dev-soft-core 70f4056f (#901, SRP's Talker declarations), 16,323 cycles in the
+#: valid-destinations arm's range lost to a peer's ANNOUNCE, 175 us by the rule, over 8x8/2if's 155 in both columns;
+#: its SRP record, where a Listener Ready licenses a declared Talker (srp-talker-held), measured 42,663 cycles, 450 us
+#: by the rule, over 8x8/2if's 365, until a Listener's change walked no registrar (#930): on that image it is 32,936,
+#: 350 us, within 365, so 8x8/2if's supplies it again, as the cut's own measurement states the cost it moves. So with
+#: 1x1/1if's record.srp, 290 us for that group's 27,170 cycles before the cut and 280 after it, over its 23,503.
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
+#: record.maap 16,682 CPU cycles (the valid-destinations arm, srp-talker-loss), 180 us; 8x8/2if event.AECP 11,404 CPU
+#: cycles (the answering-every-port arm, notice-burst-6: aecp.c arm()'s walk of the registry and the live notices),
+#: 120 us; 8x8/2if events_none 4,069 CPU cycles (the valid-destinations arm, srp-talker-held), 45 us; 8x8/2if
+#: record.maap 14,770 CPU cycles (the valid-destinations arm, srp-talker-loss), 160 us, each by the rule.
+#: 8x8/1if's record.srp there, 35,547 CPU cycles (the valid-destinations arm, srp-talker-held), 375 us by the rule,
+#: and ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US with it (srp_unit), the unit following its record on the image that
+#: carries it (#665's ruling of 2026-11-18, re-ruled, item 2b).
+#: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
+#: record.adp 12,779 CPU cycles (arm A, backlog-adp-refill, on the image that carries the unit at 375 us), 135 us,
+#: each by the rule.
+OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 180, 'record.srp': 375}}
+OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, unit 375 us'),
+                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss'),
+                            'record.srp': (35_547, 'the valid-destinations arm, srp-talker-held')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
 #: 8x8/2if the polls' base and items are poll_grade.py's, which the harness holds every measured pass to, and THE
@@ -155,20 +201,33 @@ POINTS = {'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_desc
 #: the answering-every-port arm and arm B's legs on #894's tiers (234bc149), an AECP record at 1x1/1if 235 to 245, both
 #: columns, 23,051 CPU cycles, that arm's SET_NAME in each of its sixteen groups (22,236 at 234bc149, the same work,
 #: its fetches moved by the read's code), and on its merge of dev-soft-core 70f4056f (#901) each cost the one of the
-#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897).
+#: side that moved it from their merge base 234bc149: an AECP record at 1x1/1if #897's 245, every other #895's (#897);
+#: and on the merge of #894's tiers into AECP's REBOOT (#871), whose image moves the hot code, over every 1x1/1if
+#: leg (all of arm A, the answering-every-port arm and arm B), both columns, each the larger of that and this
+#: table's: SRP's record 285 us (26,865 CPU cycles in arm A's backlog-adp@blank-aged1-2), AECP's 240 (22,531, a
+#: SET_NAME in the answering-every-port arm's notice-burst-0), a pass's events' fixed part 40 (3,627 in its
+#: notice-burst-1), and a retained record's retry at SRP's record cost, 285; on that lane's merge of dev-soft-core
+#: cb96336d (#898) each cost the one of the side that moved it from their merge base 41ca9f87, the larger where
+#: both did: an AECP record at 1x1/1if #897's 245, a pass's events' fixed part #871's 40 (#871).
 #: 32x32/2if is measured on the 32x32 simulation shape (#859), arm A's groups but the
 #: save groups, each cost the larger of a30c9986's image's and this tree's. No group stages a retained record's retry,
 #: an owed MRPDU or a registration's probe at any point, so they are stated at this table's SRP record cost, at a build
 #: of one's (poll_grade.py's at 1x1/1if and 8x8/2if) and at a response's; the 32x32 shape has no saved state, so THE
 #: STEP's pass is stated there at ctrl_loop.h's two-interface cost.
+#: On the SRP cut's head (#665's ruling of 2026-11-20, item 3), measured over every arm and group, each 1x1/1if cost
+#: it exceeds raised by the rule and the AECP notice item restated from its measurement by ruling item 4, as the owner
+#: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
+#: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
+#: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
+#: arm's aecp-fanout; 210 before).
 STATED_US = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.retained': 280, 'item.aecp.notice': 210,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 155,
-                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 55,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.retained': 365, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 440, 'record.adp': 240, 'record.maap': 160,
+                'event.ADP': 120, 'event.ACMP': 350, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 55,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.retained': 365, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 980, 'record.adp': 735, 'record.maap': 205,
                   'event.ADP': 105, 'event.ACMP': 845, 'event.MAAP': 300, 'event.AECP': 55, 'event.TICK': 45,
@@ -210,16 +269,18 @@ STATED_US = {
 #: with srp_mbx_gate's repeat call cut, the polls' base 215 to 225 at 1x1/1if (poll_grade.py; #895); on that image
 #: with the 140 ms bound and the slice rule's 900 us, at 8x8/2if a pass's events' fixed part 35 to 40 and the
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
-#: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897).
+#: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
+#: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
+#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 280, 'record.aecp': 245, 'record.acmp': 265, 'record.adp': 100, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
-                'event.GM': 40, 'centisecond': 150, 'events_none': 35, 'item.aecp.notice': 210,
-                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 280,
+                'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
+                'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
                 'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
-    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 155,
-                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 115, 'event.TICK': 85,
-                'event.GM': 320, 'centisecond': 510, 'events_none': 40, 'item.aecp.notice': 275,
+    '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
+                'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 85,
+                'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.aecp.notice': 275,
                 'item.aecp.response': 65, 'item.aecp.probe': 65, 'base': 345, 'item.reclaim': 40, 'item.retained': 365,
                 'item.mrpdu': 1215, 'item.acmp': 70, 'item.walk': 60, 'build': 2035, 'build_one': 1215, 'step': 1030},
     '32x32/2if': {'record.srp': 865, 'record.aecp': 215, 'record.acmp': 425, 'record.adp': 270, 'record.maap': 205,
@@ -266,19 +327,25 @@ RETRY_RULE = {
     'what a refusal saw': ('sw/firmware/ctrl/srp/srp_mbx.c', '++m->refused; // What the refusal saw, after every '
                            'change of its own (poll). i->moved = false; m->pending_freed = ctrl_pool_returned; '
                            'return false;'),
+    # the observer marks every change, after the SRP cut's reclaim test and creation count (#665's ruling of
+    # 2026-11-20, item 3)
     'each Applicant or Registrar change marked': ('sw/firmware/ctrl/srp/srp_mbx.c',
-                                                  'i->reclaim = true; i->moved = true;'),
+                                                  '++i->fresh; } i->moved = true;'),
     'each returned block counted': ('sw/firmware/ctrl/port/ctrl_pool.c', 'bin->free_count++; ctrl_pool_returned++;'),
 }
 
 
-def macros(root: Path, n_if: int) -> dict[str, int]:
-    """The integer constants the load reads from the tree, at that many interfaces."""
+def macros(root: Path, n_if: int | shape_costs.Shape) -> dict[str, int]:
+    """The integer constants the load reads from the tree, at a shape's interfaces or at that many; THE TRANSMIT's
+    builds as ctrl_loop.h lists them at the shape, or with an interface count at the shipping shape's streams
+    (shape_costs.at, THE SHAPES; #894's shape ruling, item (b))."""
     text = ''.join((root / p).read_text() for p in (
         'sw/firmware/ctrl/loop/ctrl_loop.h', 'sw/firmware/ctrl/srp/srp_mbx.c', 'sw/firmware/ctrl/aecp/aecp_mbx.h',
         'third_party/tsn-c-stack/include/acmp.h', 'third_party/tsn-c-stack/include/maap.h',
         'third_party/tsn-c-stack/include/adp.h'))
     found = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
+    found.update({name: f'{us}u' for name, us in shape_costs.at(n_if, root).items()})
+    count = shape_costs.interfaces(n_if)
 
     def value(name: str) -> int:
         """A plain integer, a ternary on the interface count, or another constant's name (srp_mbx.c's SRP_JOIN_CS is
@@ -292,7 +359,7 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
         pick = re.fullmatch(r'\(MBX_N_IF == (\d+)u \? (\d+)u : (\d+)u\)', body)
         if pick is None:
             raise ValueError(f'{name} is {body!r}, neither an integer nor a ternary on MBX_N_IF')
-        return int(pick[2] if n_if == int(pick[1]) else pick[3])
+        return int(pick[2] if count == int(pick[1]) else pick[3])
     names = (*HEADER_COSTS, 'CTRL_LOOP_TICK_US', 'CTRL_LOOP_STEP_AGE', 'SRP_RX_RETRY_MS', 'SRP_JOIN_CS',
              'ACMP_TMR_NO_RESP_MS', 'MAAP_PROBE_BASE_MS', 'MAAP_PROBE_VARIATION_MS', 'ADP_ADVERTISE_MS',
              'AECP_NOTICE_US', 'AECP_ROUND_COLD_US')
@@ -300,26 +367,60 @@ def macros(root: Path, n_if: int) -> dict[str, int]:
 
 
 #: The points whose SRP drain ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US bounds: the slice starts an SRP record only while it
-#: has that left (ctrl_loop.c), so it is the load gate's record.srp there, the dearer of the two columns' (#894).
-SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if')
-SRP_UNIT_HEADER = 'sw/firmware/ctrl/loop/ctrl_loop.h'
+#: has that left (ctrl_loop.c), so it is the load gate's record.srp there, the dearer of the two columns' (#894),
+#: read at the point's shape as THE SHAPES list it (shape_costs.at), never by its interface count; at 8x8/1if the
+#: record.srp its NEAREST point's records state (stated).
+SRP_UNIT_POINTS = ('1x1/1if', '8x8/2if', '8x8/1if')
+SRP_UNIT_HEADER = shape_costs.HEADER
 
 
 def srp_unit(root: Path, texts: dict[str, str] | None = None) -> list[str]:
-    """Each point whose SRP drain limit (CTRL_LOOP_SRP_UNIT_US, from the header or its planted copy) is not the load
-    gate's record.srp there: a limit below it starts a record the slice has no room for."""
-    text = (texts or {}).get(SRP_UNIT_HEADER) or (root / SRP_UNIT_HEADER).read_text()
-    body = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US (.+)$', text, re.M)[1].split('//')[0].strip()
-    pick = re.fullmatch(r'\(MBX_N_IF == (\d+)u \? (\d+)u : (\d+)u\)', body)
-    plain = re.fullmatch(r'\(?(\d+)u?\)?', body)
+    """Each point whose SRP drain limit (CTRL_LOOP_SRP_UNIT_US at its shape, from the header or its planted copy) is
+    not the load gate's record.srp there: a limit below it starts a record the slice has no room for."""
     out = []
     for point in SRP_UNIT_POINTS:
-        n_if = POINTS[point]['n_if']
-        got = int(plain[1]) if plain else int(pick[2] if n_if == int(pick[1]) else pick[3]) if pick else None
-        want = max(column[point]['record.srp'] for _, column in COLUMNS)
+        try:
+            got = shape_costs.at(shape_costs.of_point(point, root), root, texts)[shape_costs.SRP_UNIT]
+        except ValueError as refused:
+            out.append(f'{point}: {refused}')
+            continue
+        want = max(stated(root, point, column)['record.srp'] for _, column in COLUMNS)
         if got != want:
             out.append(f"{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US {got} us, not the load gate's record.srp "
                        f'{want} us')
+    return out
+
+
+def unit_planted(header: str, shape: shape_costs.Shape, us: int) -> str:
+    """The header with the SRP drain's limit in one shape's block of THE SHAPES stated as us."""
+    lines = header.splitlines(keepends=True)
+    head = f'CTRL_LOOP_SHAPE({shape.interfaces}u, {shape.sources}u, {shape.sinks}u)'
+    k = next(k for k, line in enumerate(lines) if line.startswith(('#if ', '#elif ')) and head in line)
+    k += next(j for j, line in enumerate(lines[k:]) if line.startswith('#define CTRL_LOOP_SRP_UNIT_US '))
+    lines[k] = f'#define CTRL_LOOP_SRP_UNIT_US {us}u\n'
+    return ''.join(lines)
+
+
+def rule_us(cycles: int) -> int:
+    """A measured cost's statement by the rule: its time at 100 MHz plus 5 %, rounded up to 5 us."""
+    return int(math.ceil(cycles * 1.05 / 100 / 5 - 1e-9) * 5)
+
+
+def own_findings(root: Path) -> list[str]:
+    """Each NEAREST point's own statement not its measurement's by the rule, and each column that states the point a
+    cost under that measurement (OWN, OWN_MEASURED)."""
+    out = []
+    for point, costs in OWN_MEASURED.items():
+        for k, (cycles, where) in costs.items():
+            want, own = rule_us(cycles), OWN.get(point, {}).get(k)
+            if own != want:
+                out.append(f"{point}: its own {k} is stated {own} us, not its measurement's {want} us by the rule "
+                           f'({cycles:,} CPU cycles, {where})')
+            for name, column in COLUMNS:
+                got = stated(root, point, column)[k]
+                if got < want:
+                    out.append(f"{point}: {k} is {got} us {name}, under its measurement's {want} us by the rule "
+                               f'({cycles:,} CPU cycles, {where})')
     return out
 
 
@@ -354,25 +455,40 @@ def contract(root: Path) -> dict:
                 holdoff_ms=int(holdoff[1]))
 
 
+def shape(point: str, root: Path = ROOT) -> int | shape_costs.Shape:
+    """The shape a point is built at (shape_costs.of_point), or for a point no image is built at its interface
+    count."""
+    return shape_costs.of_point(point, root) if point in shape_costs.BUILT else POINTS[point]['n_if']
+
+
 def stated(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
-    """A point's stated costs: the table's, the polls' (poll_grade.py) and the headers' where the table has none."""
+    """A point's stated costs: the table's, or its NEAREST point's, the polls' (poll_grade.py) and the headers'
+    where the table has none; THE TRANSMIT's builds, an owed MRPDU and, at a NEAREST point, the polls at the point's own
+    shape."""
     import poll_grade
-    s = POINTS[point]
-    c = dict((table or GRADED)[point])
-    if point in ('1x1/1if', '8x8/2if'):
-        polls = poll_grade.stated_us(s['n_if'])
+    near = NEAREST.get(point, point)
+    c = dict((table or GRADED)[near])
+    if near != point:
+        c.update({k: us for k, us in OWN.get(point, {}).items() if c.get(k, 0) < us})
+    if point in shape_costs.BUILT:
+        polls = poll_grade.stated_us(shape(point, root))
         for k in ITEMS:
-            c.setdefault('base' if k == 'base' else f'item.{k}', polls[k])
-        h = macros(root, s['n_if'])
-        c.setdefault('build', h['CTRL_LOOP_BUILD_PASS_US'])
-        c.setdefault('build_one', h['CTRL_LOOP_BUILD_ONE_PASS_US'])
-        c.setdefault('step', h['CTRL_LOOP_STEP_PASS_US'])
+            key = 'base' if k == 'base' else f'item.{k}'
+            c[key] = polls[k] if near != point else c.get(key, polls[k])
+        h = macros(root, shape(point, root))
+        own = {'build': h['CTRL_LOOP_BUILD_PASS_US'], 'build_one': h['CTRL_LOOP_BUILD_ONE_PASS_US'],
+               'item.mrpdu': poll_grade.stated_us(shape(point, root))['mrpdu']}
+        if near != point:
+            c.update(own)
+        for k, us in own.items():
+            c.setdefault(k, us)
+        c.setdefault('step', macros(root, POINTS[near]['n_if'])['CTRL_LOOP_STEP_PASS_US'])
     return c
 
 
 def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     """Each term's CPU microseconds per millisecond of a long window (a share of the CPU, in thousandths)."""
-    s, k, h = POINTS[point], contract(root), macros(root, POINTS[point]['n_if'])
+    s, k, h = POINTS[point], contract(root), macros(root, shape(point, root))
     c, n_if, refill = stated(root, point, table), POINTS[point]['n_if'], contract(root)['refill']
     join_ms = 10 * h['SRP_JOIN_CS']
     both, one = n_if * c['build'], 2 * n_if * c['build_one']
@@ -454,7 +570,7 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
     needs, a term without its source (one the term list does not name, or SRP's retries where the tree states no rule
     that bounds them), a graded cost below the pin's that tsn-c-stack#32 does not move, and a column bound to another
     table than its name's (unbound)."""
-    out = unbound() + srp_unit(root, texts)
+    out = unbound() + srp_unit(root, texts) + own_findings(root)
     out += [f'the term srp has no source: srp_mbx.c states no {part}' for part in retry_unbounded(root, texts)]
     out += below_pin(root, table, pin)
     planted = {'at the pin': pin, 'with tsn-c-stack#32': table}
@@ -476,17 +592,17 @@ def findings(root: Path, table: dict | None = None, ceiling: dict | None = None,
 def ceiling(point: str) -> str:
     """A point's ceiling as the table prints it: the merge gate's, the flip check's (FLIPPED), or PENDING."""
     import flip_grade
-    return f'{CEILING[point]:.2f}, both columns' if point in CEILING else FLIPPED if point in flip_grade.FLIP else \
-        PENDING
+    return f'{CEILING[point]:.2f}, both columns' if point in CEILING else \
+        FLIPPED.format(flip_grade.FLIP[point]) if point in flip_grade.FLIP else PENDING
 
 
 def report(root: Path, table: dict | None = None) -> list[str]:
     """The load table: each point's load at the pin and with tsn-c-stack#32 (graded), its ceiling, the compute the
     graded load would need for TARGET (its load over TARGET, at least 1), its pass's own cost and every graded term by
     share."""
-    lines = ['| Point | Load at the pin | Load with tsn-c-stack#32 (owed to the pin move) | Ceiling | '
-             f'Compute for {TARGET:.2f} (with tsn-c-stack#32) | A pass\'s own cost, us | Terms by share (with '
-             'tsn-c-stack#32) |',
+    lines = ["| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | "
+             f'Ceiling | Compute for {TARGET:.2f} (with tsn-c-stack#32) | A pass\'s own cost, us | Terms by share '
+             '(with tsn-c-stack#32) |',
              '|---|---:|---:|---:|---:|---:|---|']
     for point in POINTS:
         try:
@@ -599,19 +715,40 @@ def controls(root: Path) -> list[str]:
     if not any('8x8/2if: the graded column states record.srp' in f for f in findings(root, lowered, fit)) or \
             below_pin(root, walked) or GRADED is not STATED_US_DONOR:
         escaped.append('the graded column below the pin where tsn-c-stack#32 moves nothing')
-    return escaped + srp_unit_controls(root, base, fit) + binding_controls(root)
+    return escaped + srp_unit_controls(root, base, fit) + own_controls(root, base, fit) + binding_controls(root)
+
+
+def own_controls(root: Path, base: dict, fit: dict) -> list[str]:
+    """8x8/1if's own ADP record left out (its nearest point's 125 us then supplies it in the tsn-c-stack#32 column) and
+    stated under its measurement, each refused by name by --check itself (findings); the head's refused by none."""
+    from unittest import mock
+    escaped = []
+    if own_findings(root):
+        return ["8x8/1if's own ADP record not stated", "8x8/1if's own ADP record not its measurement's by the rule"]
+    # the measurement's statement by the rule, read from OWN_MEASURED, so a measurement restated moves the control too
+    measured = rule_us(OWN_MEASURED['8x8/1if']['record.adp'][0])
+    with mock.patch.dict(OWN, {'8x8/1if': {}}):
+        if not any(f"8x8/1if: record.adp is 125 us with tsn-c-stack#32, under its measurement's {measured} us" in f
+                   for f in findings(root, base, fit)):
+            escaped.append("8x8/1if's own ADP record not stated")
+    with mock.patch.dict(OWN, {'8x8/1if': {'record.adp': 125}}):
+        if not any(f"8x8/1if: its own record.adp is stated 125 us, not its measurement's {measured} us" in f
+                   for f in findings(root, base, fit)):
+            escaped.append("8x8/1if's own ADP record not its measurement's by the rule")
+    return escaped
 
 
 def srp_unit_controls(root: Path, base: dict, fit: dict) -> list[str]:
-    """The SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, planted at each point, refused by name
-    by --check itself (findings); the head's own limit refused by none."""
+    """The SRP drain's limit (ctrl_loop.h) below the load gate's record.srp, planted in each point's own block of THE
+    SHAPES, refused by name by --check itself (findings); the head's own limits refused by none."""
     header = (root / SRP_UNIT_HEADER).read_text()
-    real = re.search(r'^#define CTRL_LOOP_SRP_UNIT_US .+$', header, re.M)[0]
-    one = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 250u : 365u)')
-    two = header.replace(real, '#define CTRL_LOOP_SRP_UNIT_US (MBX_N_IF == 1u ? 280u : 300u)')
+    one = unit_planted(header, shape_costs.of_point('1x1/1if', root), 250)
+    two = unit_planted(header, shape_costs.of_point('8x8/2if', root), 300)
+    # 8x8/1if at its own measured record, 345 us, under the 365 us its NEAREST point's records state
+    eight = unit_planted(header, shape_costs.of_point('8x8/1if', root), 345)
     if srp_unit(root) or not all(any(f'{point}: ctrl_loop.h states CTRL_LOOP_SRP_UNIT_US' in f
                                      for f in findings(root, base, fit, {SRP_UNIT_HEADER: planted}))
-                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two))):
+                                 for point, planted in (('1x1/1if', one), ('8x8/2if', two), ('8x8/1if', eight))):
         return ["the SRP drain's record cost not the load gate's"]
     return []
 
@@ -691,7 +828,8 @@ CONTROLS = ('a cost over the ceiling', 'a held point not held', 'a rise at the p
             'a retry with nothing changed', 'a retry every pass', 'one owed-frame charge for every AECP source',
             'a timer slot counted per pass', 'a term without a source',
             'the graded column below the pin where tsn-c-stack#32 moves nothing',
-            "the SRP drain's record cost not the load gate's", "a column's name bound to the other's table")
+            "the SRP drain's record cost not the load gate's", "8x8/1if's own ADP record not stated",
+            "8x8/1if's own ADP record not its measurement's by the rule", "a column's name bound to the other's table")
 
 
 def ceiling_checks() -> list[tuple[str, bool, str]]:

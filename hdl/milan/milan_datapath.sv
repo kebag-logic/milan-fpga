@@ -85,6 +85,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! KL_gptp_txret refuses the mismatch at elaboration rather than
   //! reconstructing from it.
   parameter int unsigned GPTP_PHC_TICK_NS_P = 0,
+  //! THE MAC'S TRANSMIT SHAPE at the launch observer (issue #829): the clock
+  //! period in nanoseconds and the clocks one octet holds there. The defaults
+  //! are the 1 Gb/s GMII shape; the MII shape states 40 and 2. The plane's
+  //! egress reconstruction subtracts whole periods of this clock.
+  parameter int unsigned GPTP_ETH_TICK_NS_P = 8,
+  parameter int unsigned GPTP_ETH_CYC_PER_OCTET_P = 1,
   //! THIS BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
   //! Per-board physical facts - PHY receive and transmit latency, plus the
   //! receive path ahead of the plane's tap - declared in the board
@@ -611,6 +617,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! PHY (a reset-less toggle in the MAC's transmit domain). Tie 0 on a
   //! build without a MAC: the REBOOT's egress wait then runs to its bound
   input  wire        i_ethtxend_tgl,
+  //! the split placement's REBOOT request (CTRL_SPLIT_P = 1; #871): the
+  //! firmware's reset port, a level in axis_clk (the SoC synchronises it),
+  //! held until the reload. It stands for the processor's reboot_req_o, and
+  //! KL_reboot_ctrl reads it as reboot_req_i. The all-fabric datapath reads
+  //! the processor's request instead and leaves this port unread; tie 0
+  input  wire        i_reboot_req,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -763,7 +775,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire        o_ctl_amap_wait,
   input  wire        i_ctl_edit_req,                         //! ADD/REMOVE_AUDIO_MAPPINGS, a beat
   //! the beat's phase, removal, descriptor, count, record and value, held
-  //! from req; the answer, taken while wait is low
+  //! from the clock before req rises until req falls (the record's
+  //! capture-source word is registered, #927); the answer, taken while wait
+  //! is low
   input  wire [2:0]  i_ctl_edit_phase,
   input  wire        i_ctl_edit_remove,
   input  wire [15:0] i_ctl_edit_type,
@@ -904,6 +918,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [47:0] station_mac_be_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
+  //! #839 TRANSMIT GATE: 1 once both halves of the station MAC have been
+  //! written since reset (mac_addr_seq, beside the CSR). Until then no source
+  //! that takes its address from that CSR may START a frame. The gate sits
+  //! on each of the four (the processor's control lane, MAAP, the AAF
+  //! talkers and the CRF talker) rather than at the MAC boundary, so no
+  //! arbiter sees a refused beat and its stall watchdog stays quiet
+  //! (A_TXARB_DIAG). It never falls once set, so it never cuts a frame.
+  wire tx_sa_ok_w;
+  //! each held source's own handshake, ahead of the gate (the gate itself
+  //! is beside the TX arbiters, after every net it reads is declared)
+  wire pp_txs_tvalid_w,   pp_txs_tready_w;
+  wire maap_txs_tvalid_w, maap_txs_tready_w;
+  wire aaf_txs_tvalid_w,  aaf_txs_tready_w;
+  wire crft_txs_tvalid_w, crft_txs_tready_w;
 
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (clk_audio_i), .rst_n (axis_resetn), .adv_i (1'b1),
@@ -1719,8 +1747,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .tctx_rd_en_i (csr_tctx_rd_en_w), .tctx_rd_addr_i (csr_tctx_rd_addr_w),
     .tctx_rd_data_o (tctx_rd_data_w), .tctx_rd_valid_o (tctx_rd_valid_w),
     .m_axis_tdata (aaf_tx_tdata), .m_axis_tkeep (aaf_tx_tkeep),
-    .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
-    .m_axis_tready(aaf_tx_tready),
+    .m_axis_tvalid(aaf_txs_tvalid_w), .m_axis_tlast (aaf_tx_tlast),
+    .m_axis_tready(aaf_txs_tready_w),
     .frames_sent_o (aaf_frames_w),
     //! IEEE 1722-2016 4.4.4.3 media clock restart level, per talker
     .mr_i (aaf_mr_w),
@@ -3195,6 +3223,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_irq              (csr_irq)
   );
 
+  //! #839 THE STATION-MAC PAIR'S OWN SEQUENCING, observed on the CSR slave's
+  //! write handshake. milan_csr commits a write on the edge its AWREADY is
+  //! high (combinational ready, single outstanding; its banner and
+  //! hdl/common/csr/doc/milan_csr.md), so AWVALID and AWREADY together with
+  //! the pair's address are exactly that register's write enable. Each half
+  //! records its first write since reset, and tx_sa_ok_w is 1 once both have
+  //! been written, in either order, so no frame is stamped with the reset
+  //! value or a half-written address. A read does not count. It stays 1
+  //! until reset: firmware writes the address once per boot, in
+  //! configure_fabric(). milan_csr itself, its ports and its registers are
+  //! unchanged.
+  localparam logic [15:0] MAC_ALO_ADDR_C = 16'h0108;  //! REGISTER_MAP MAC_ADDR_LO
+  localparam logic [15:0] MAC_AHI_ADDR_C = 16'h010C;  //! REGISTER_MAP MAC_ADDR_HI
+  logic mac_alo_wr_r, mac_ahi_wr_r;
+  always_ff @(posedge axis_clk) begin : mac_addr_seq
+    if (!axis_resetn) begin
+      mac_alo_wr_r <= 1'b0;
+      mac_ahi_wr_r <= 1'b0;
+    end else if (s_axi_awvalid && s_axi_awready) begin
+      if (s_axi_awaddr == MAC_ALO_ADDR_C) mac_alo_wr_r <= 1'b1;
+      if (s_axi_awaddr == MAC_AHI_ADDR_C) mac_ahi_wr_r <= 1'b1;
+    end
+  end : mac_addr_seq
+  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;
+
   // ==========================================================================
   //  PTP hardware clock (CSR-configured)
   // ==========================================================================
@@ -4623,6 +4676,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [15:0] amap_edit_out_cluster_w;
   logic [13:0] amap_edit_out_enc_w;
 
+  //! The output record's capture-source word, amap_edit_out_encode of the
+  //! record's cluster_offset and the descriptor index, is a function of the
+  //! request's fields alone. Its port-and-cluster search is the deepest term
+  //! of every phase-4 verdict, and so of the claim and live-write enables the
+  //! verdict gates (#927). All-fabric it is combinational: the processor may
+  //! raise req in the cycle its fields change. In the split it is registered,
+  //! and costs no cycle. KL_mbx_cdc_window changes a request's fields only on
+  //! a clock edge that leaves req low, and raises req no earlier than the
+  //! next edge (its PRE_S), so in every cycle req is high the fields are the
+  //! previous clock's and the register holds their word.
+  generate if (CTRL_SPLIT_P == 0) begin : g_af_amap_enc
+    assign amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
+                                                      pp_amap_edit_desc_index_w);
+  end else begin : g_sp_amap_enc
+    logic [13:0] enc_r;
+    always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_enc_reg
+      if (!axis_resetn) enc_r <= 14'd0;
+      else              enc_r <= amap_edit_out_encode(amap_edit_co_w,
+                                                      pp_amap_edit_desc_index_w);
+    end : amap_edit_enc_reg
+    assign amap_edit_out_enc_w = enc_r;
+  end endgenerate
+
   always_comb begin : amap_edit_validate
     int unsigned ikey_c, okey_c, ipbase_c, ipcls_c;
     logic [7:0] ibase_c, iexpect_c;
@@ -4656,8 +4732,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     amap_edit_out_key_w = '0;
     amap_edit_in_word_w = {1'b1, 1'b0, amap_edit_si_w[2:0],
                            amap_edit_sc_w[2:0]};
-    amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
-                                                pp_amap_edit_desc_index_w);
     amap_edit_out_word_w = amap_edit_out_enc_w[12:0];
     amap_edit_in_live_w = 8'd0;
     amap_edit_out_live_w = 13'd0;
@@ -7768,8 +7842,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .vlan_pcp_i (crft_pcp_w),
     .vlan_vid_i (crft_vid_w),
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
-    .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
-    .m_axis_tready(crft_tx_tready),
+    .m_axis_tvalid(crft_txs_tvalid_w), .m_axis_tlast (crft_tx_tlast),
+    .m_axis_tready(crft_txs_tready_w),
     .tx_count_o (crft_count_w),
     .tspec_max_frame_o (crft_maxf_w)
   );
@@ -8746,8 +8820,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .rx_tready_i (rx_axis_fabric.tready),
     .rx_tlast_i  (rx_axis_fabric.tlast),
     .m_axis_tdata (maap_tx_tdata), .m_axis_tkeep (maap_tx_tkeep),
-    .m_axis_tvalid(maap_tx_tvalid), .m_axis_tlast (maap_tx_tlast),
-    .m_axis_tready(maap_tx_tready),
+    .m_axis_tvalid(maap_txs_tvalid_w), .m_axis_tlast (maap_tx_tlast),
+    .m_axis_tready(maap_txs_tready_w),
     .addr_o (maap_addr), .addr_valid_o (maap_addr_valid),
     .state_o (maap_state), .offset_o (maap_offset),
     .conflicts_o (maap_conflicts), .defends_o (maap_defends)
@@ -8755,7 +8829,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end else begin : g_no_maap
     assign maap_tx_tdata   = {TDATA_WIDTH{1'b0}};
     assign maap_tx_tkeep   = {(TDATA_WIDTH/8){1'b0}};
-    assign maap_tx_tvalid  = 1'b0;
+    assign maap_txs_tvalid_w = 1'b0;
     assign maap_tx_tlast   = 1'b0;
     assign maap_addr       = 48'd0;
     assign maap_addr_valid = 1'b0;
@@ -8954,6 +9028,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   assign txarb_abort_w [1]   = 1'b0;
   assign txarb_stall_w [1]   = 1'b0;
 
+  //! #839 the transmit gate (tx_sa_ok_w, declared with the station MAC):
+  //! a held source sees tready 0 and its arbiter sees tvalid 0, so no frame
+  //! starts before both halves of the station MAC are written. The gPTP
+  //! plane is not held: its source address is the station MAC the builder
+  //! put in its ROM (gen_gptp_ucode.py --mac, the same platform.mac_address
+  //! firmware writes here, refused when zero or a group address), and its
+  //! path to the MAC stays free of runtime gates (the boot contract in
+  //! docs/integration/BAREMETAL_FIRMWARE.md).
+  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
+  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
+  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
+  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;
+
   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
   //! announce/probe/defend lane (s_adp). The selected processor pin also
@@ -9018,16 +9109,60 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! follows another control frame). Spacing every control frame here fixes
   //! ALL of them WITHOUT touching data/AAF throughput (the data lane
   //! bypasses this gasket). Replaces lwSRP's local gap workaround.
-  wire [TDATA_WIDTH-1:0]   ctlg2_tdata;
+  logic [TDATA_WIDTH-1:0]  ctlg2_tdata;       //! ctl_sa_stamp below (#839)
+  wire  [TDATA_WIDTH-1:0]  ctlg_src_tdata_w;  //! the gasket's own output
   wire [TDATA_WIDTH/8-1:0] ctlg2_tkeep;
   wire                     ctlg2_tvalid, ctlg2_tlast, ctlg2_tready;
   tx_ifg_gasket #(.DATA_WIDTH(TDATA_WIDTH), .GAP_CYCLES(512)) ctl_ifg (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_tdata (ctlh_tx_tdata),  .s_tkeep (ctlh_tx_tkeep),
     .s_tvalid(ctlh_tx_tvalid), .s_tlast (ctlh_tx_tlast), .s_tready(ctlh_tx_tready),
-    .m_tdata (ctlg2_tdata),  .m_tkeep (ctlg2_tkeep),
+    .m_tdata (ctlg_src_tdata_w),  .m_tkeep (ctlg2_tkeep),
     .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
   );
+
+  //! #839 SOURCE ADDRESS STAMP on the control lane, after the gasket
+  //! (processor + MAAP): octets 6 to 11 of every frame are the station MAC
+  //! (IEEE 802.1AC-2016 11.1, IEEE 802.1Q-2022 6.8.1: source_address is the
+  //! individual address of the source MSAP), taken from the CSR while the
+  //! octet is on the lane, as a MAC entity inserts its own address (IEEE
+  //! 802.3-2022 2.3.1.2). The hold above stops a frame STARTING before the
+  //! address is written, but the processor builds a frame into its TX slot
+  //! before offering it (KL_srp_encoder writes octets 6 to 11 at build
+  //! time), so an MSRP PDU built from the reset value would otherwise leave
+  //! with it once released. The data lane needs no stamp: KL_aaf_packetizer
+  //! and KL_crf_tx form octets 6 to 11 from station_mac_i on the beat they
+  //! emit, as KL_maap does, and the hold keeps their first beat back until
+  //! the address is written. Every other octet passes untouched. The lane
+  //! carries packed beats in little lane order (octet n of a beat in
+  //! tdata[8n +: 8], every beat but the last full), so a beat's position in
+  //! its frame fixes its octets.
+  localparam int unsigned TX_SA_BPB_C   = TDATA_WIDTH / 8;   //! octets per beat
+  //! beats that can hold a source-address octet (the field ends at octet 12)
+  localparam int unsigned TX_SA_BEATS_C = (12 + TX_SA_BPB_C - 1) / TX_SA_BPB_C;
+  localparam int unsigned TX_SA_IW_C    = $clog2(TX_SA_BEATS_C + 1);
+
+  //! the next control-lane beat's position in its frame, saturated at
+  //! TX_SA_BEATS_C (past the source address)
+  logic [TX_SA_IW_C-1:0] ctl_sa_idx_r;
+  always_ff @(posedge axis_clk) begin : ctl_sa_position
+    if (!axis_resetn)                                      ctl_sa_idx_r <= '0;
+    else if (ctlg2_tvalid && ctlg2_tready) begin
+      if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;
+      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
+    end
+  end : ctl_sa_position
+
+  //! the beat with every source-address octet it holds replaced; the CSR
+  //! packing is LSB-first, wire octet 6 + k in cfg_mac_addr[8k +: 8]
+  always_comb begin : ctl_sa_stamp
+    ctlg2_tdata = ctlg_src_tdata_w;
+    for (int b = 0; b < int'(TX_SA_BEATS_C); b++)
+      for (int ln = 0; ln < int'(TX_SA_BPB_C); ln++)
+        if (ctl_sa_idx_r == TX_SA_IW_C'(b) && (b * int'(TX_SA_BPB_C) + ln) >= 6
+            && (b * int'(TX_SA_BPB_C) + ln) < 12)
+          ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];
+  end : ctl_sa_stamp
 
   // ==========================================================================
   //  the fabric gPTP plane (issue #114, product default ON since #116)
@@ -9071,6 +9206,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
         .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
         .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P),
+        .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
+        .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
         .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
         .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
     ) u_gptp_shadow (
@@ -9804,9 +9941,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .tx_drain_i        (1'b0),
       .m_axis_tx_tdata   (pp_tx_tdata_w),
       .m_axis_tx_tkeep   (pp_tx_tkeep_w),
-      .m_axis_tx_tvalid  (pp_tx_tvalid_w),
+      .m_axis_tx_tvalid  (pp_txs_tvalid_w),
       .m_axis_tx_tlast   (pp_tx_tlast_w),
-      .m_axis_tx_tready  (pp_tx_tready_w),
+      .m_axis_tx_tready  (pp_txs_tready_w),
       //! the descriptor-image read master, straight out to the SoC
       .desc_mem_req_valid_o (o_desc_mem_req_valid),
       .desc_mem_req_ready_i (i_desc_mem_req_ready),
@@ -10098,11 +10235,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .tx_data_i        (i_ctl_tx_data),
       .tx_last_i        (i_ctl_tx_last),
       .tx_ready_o       (o_ctl_tx_ready),
+      //! the control lane's held handshake, as the wrapper's (#839): the
+      //! transmit gate holds the firmware's frames until both halves of the
+      //! station MAC are written, as it holds the processor's
       .m_axis_tx_tdata  (pp_tx_tdata_w),
       .m_axis_tx_tkeep  (pp_tx_tkeep_w),
-      .m_axis_tx_tvalid (pp_tx_tvalid_w),
+      .m_axis_tx_tvalid (pp_txs_tvalid_w),
       .m_axis_tx_tlast  (pp_tx_tlast_w),
-      .m_axis_tx_tready (pp_tx_tready_w),
+      .m_axis_tx_tready (pp_txs_tready_w),
       .rx_frames_o      (pp_rx_frames_w),
       .rx_drops_o       (pp_rx_drops_w),
       .tx_frames_o      (pp_tx_frames_w)
@@ -10138,9 +10278,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign pp_err_w             = 1'b1;
     assign pp_rdata_w           = 32'd0;
     assign pp_nvm_csr_rdata_w   = 32'd0;
-    //! AECP REBOOT is the firmware AECP owner's, and the split carries no
-    //! request for it yet (#787; the census's REBOOT exclusion)
-    assign pp_reboot_req_w      = 1'b0;
+    //! AECP REBOOT is the firmware AECP owner's: its request reaches
+    //! KL_reboot_ctrl from the platform reset port (#871, #787)
+    assign pp_reboot_req_w      = i_reboot_req;
     //! the record face of the map writer, which the split does not build
     assign mrec_gnt_w           = 1'b0;
     assign mrec_wready_w        = 1'b0;

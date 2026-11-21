@@ -3,13 +3,19 @@
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 GPTP_DIR   = ../../../gptp-processor
+UCODE_GEN  = $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+#: The clockQuality this harness's image announces (#843): the generator's
+#: CQ_C, read from the generator the image is built with. The image rule
+#: below passes no --clock-accuracy, so CQ_C's octet (0x22 since FPGA-gPTP
+#: #100) is the one on the wire, and sim_main.cpp's OUR_CQ is this value.
+OUR_CQ := $(shell python3 -I -c 'import runpy, sys; print(hex(runpy.run_path(sys.argv[1])["CQ_C"]))' $(UCODE_GEN))
 TOP        = gptp_plane_wrap
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 \
-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra -DOUR_CQ_TB=$(OUR_CQ)"
 SRCS = gptp_plane_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \
@@ -31,7 +37,7 @@ run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_plane_sim
 	./obj_dir/Vgptp_plane_sim
 
-gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+gptp_ucode.hex: $(UCODE_GEN)
 	python3 $< --clk-hz 2000000 -o $@
 
 clean:

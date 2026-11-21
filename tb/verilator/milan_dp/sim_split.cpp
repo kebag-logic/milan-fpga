@@ -17,10 +17,16 @@
 //           MBX_FACE_ACK_CYCLES
 //   [WIN]   each window's request is answered DONE under its own tag within
 //           its wait bound, by the datapath's answer logic
+//   [EDIT]  the EDIT window's ADD and REMOVE_AUDIO_MAPPINGS beats (#927): each
+//           phase-4 verdict is its own record's, beat after beat, with records
+//           whose capture-source words differ; a REMOVE and an ADD through
+//           every phase leave the live output map holding the added cluster's
+//           word, and the map is put back
 //   [RX]    an ADP frame at the MAC reaches the adp ring whole; an AAF frame
 //           never reaches the mailbox; a burst at the MAC past the datapath's
 //           own tap FIFO is counted in the datapath's PP_DIAG[15:8] net
-//   [TX]    a frame committed to the adp ring leaves the MAC byte for byte
+//   [TX]    a frame committed to the adp ring is held until both halves of the
+//           station MAC are written (#839), then leaves the MAC byte for byte
 //   [LINK]  the datapath's effective link sets LINK.UP, and its loss clears it
 //   [TAP]   KL_ctrl_split alone (tb_split_top's u_tap): each tuple class it
 //           accepts is handed out whole and each it refuses is not; a burst
@@ -70,6 +76,9 @@ class Tb {
                 tap_byte_ = d_->tap_data;
                 tap_byte_last_ = d_->tap_last;
                 rx_take_ = d_->rx_tvalid && d_->rx_tready;
+                aw_take_ = d_->s_axi_awvalid && d_->s_axi_awready;
+                w_take_ = d_->s_axi_wvalid && d_->s_axi_wready;
+                b_take_ = d_->s_axi_bvalid && d_->s_axi_bready;
                 tx_take_ = d_->tx_tvalid && d_->tx_tready;
                 tx_data_ = d_->tx_tdata;
                 tx_keep_ = d_->tx_tkeep;
@@ -94,7 +103,7 @@ class Tb {
         d_->rx_tvalid = 0;
         d_->tx_tready = 1;
         d_->link_up = 1;
-        // the CSR window stays idle here: no request, every response taken
+        // the CSR window is idle but for csr_wr: no request, every response taken
         d_->s_axi_awvalid = 0;
         d_->s_axi_wvalid = 0;
         d_->s_axi_arvalid = 0;
@@ -125,6 +134,22 @@ class Tb {
     }
     void wr(std::uint32_t off, std::uint32_t v) { (void)access(off, true, v); }
     std::uint32_t rd(std::uint32_t off) { return access(off, false, 0); }
+
+    //! One write to the datapath's CSR window (AXI4-Lite on dp_clk), address and data offered together, as the
+    //! platform's configure step makes it; returns once its response is taken.
+    void csr_wr(std::uint16_t addr, std::uint32_t v) {
+        d_->s_axi_awaddr = addr;
+        d_->s_axi_wdata = v;
+        d_->s_axi_wstrb = 0xF;
+        d_->s_axi_awvalid = 1;
+        d_->s_axi_wvalid = 1;
+        const std::uint64_t b0 = b_count_;
+        for (int i = 0; i < 400 && b_count_ == b0; ++i) sys(1);
+        if (b_count_ == b0) {
+            std::printf("FAIL CSR write at 0x%x never answered\n", addr);
+            ++fail_;
+        }
+    }
 
     //! Queue a frame for the MAC's receive side, little lane order.
     void mac_rx(const std::vector<std::uint8_t>& f) {
@@ -199,6 +224,9 @@ class Tb {
     }
 
     void on_dp_rise() {
+        if (aw_take_) d_->s_axi_awvalid = 0;
+        if (w_take_) d_->s_axi_wvalid = 0;
+        if (b_take_) ++b_count_;
         if (tap_beat_ && !tap_q_.empty()) tap_q_.pop_front();
         if (tap_q_.empty()) {
             d_->tap_tvalid = 0;
@@ -242,6 +270,10 @@ class Tb {
     std::uint64_t sys_cycles_ = 0;
     std::vector<Beat> rx_q_;
     bool rx_take_ = false;
+    bool aw_take_ = false;
+    bool w_take_ = false;
+    bool b_take_ = false;
+    std::uint64_t b_count_ = 0;
     bool tx_take_ = false;
     bool tx_last_ = false;
     std::uint64_t tx_data_ = 0;
@@ -456,6 +488,86 @@ void check_windows(Tb& tb) {
     tb.check("[WIN] ...and that word is not the empty one", map0 != 0);
 }
 
+//! One EDIT beat on STREAM_PORT_OUTPUT 0 (IEEE 1722.1-2021 7.4.45 and 7.4.46, descriptor type 0x000F):
+//! the phase, the record {stream_index, stream_channel, cluster_offset, cluster_channel 0}, GO, and
+//! the verdict's bit 0. A beat that closes TIMEOUT, or DONE under another tag, fails its own check.
+struct EditTxn {
+    bool remove;
+    unsigned count;
+};
+std::uint32_t edit_beat(Tb& tb, const EditTxn& t, unsigned phase, unsigned rec, unsigned si, unsigned sc,
+                        unsigned co) {
+    static const Win edit{"EDIT", MBX_FACE_REG_EDIT_REQ, MBX_FACE_REG_EDIT_CMD, MBX_FACE_REG_EDIT_STATUS,
+                          MBX_FACE_REG_EDIT_DATA_LO, MBX_FACE_REG_EDIT_DATA_HI, MBX_EDIT_STATUS_DONE_LSB,
+                          MBX_EDIT_STATUS_TIMEOUT_LSB, MBX_EDIT_STATUS_TAG_LSB, MBX_WIN_EDIT_WAIT_CYCLES};
+    static unsigned tag = 0;
+    tb.wr(face(MBX_FACE_REG_EDIT_REQ), (0x000Fu << MBX_EDIT_REQ_TYPE_LSB) | (0u << MBX_EDIT_REQ_INDEX_LSB));
+    tb.wr(face(MBX_FACE_REG_EDIT_BEAT), (phase << MBX_EDIT_BEAT_PHASE_LSB) |
+                                            ((t.remove ? 1u : 0u) << MBX_EDIT_BEAT_REMOVE_LSB) |
+                                            (rec << MBX_EDIT_BEAT_REC_LSB) | (t.count << MBX_EDIT_BEAT_COUNT_LSB));
+    tb.wr(face(MBX_FACE_REG_EDIT_RECORD_LO), (co << 16) | 0u);
+    tb.wr(face(MBX_FACE_REG_EDIT_RECORD_HI), (si << 16) | sc);
+    tb.wr(face(MBX_FACE_REG_EDIT_VALUE_LO), 0u);
+    tb.wr(face(MBX_FACE_REG_EDIT_VALUE_HI), 0u);
+    std::uint64_t data = 0;
+    std::uint64_t took = 0;
+    const std::uint32_t s = run_window(tb, edit, &data, &took);
+    tag = (tag + 1u) & 0xFu;
+    tb.check("[EDIT] each beat closes DONE under its own tag, not TIMEOUT",
+             ((s >> edit.done_lsb) & 1u) && !((s >> edit.timeout_lsb) & 1u) && ((s >> edit.tag_lsb) & 0xFu) == tag);
+    return static_cast<std::uint32_t>(data & 1u);
+}
+
+//! One whole transaction of one record through the phases a command takes: 0 opens it, 4 checks
+//! and claims the record, 1 checks the commit, 5 applies the record, 2 ends it. Each verdict must
+//! be 1, and the end must report the change.
+void edit_one(Tb& tb, const char* what, bool remove, unsigned si, unsigned sc, unsigned co) {
+    const EditTxn t{remove, 1};
+    const std::string p = std::string("[EDIT] ") + what;
+    tb.check_eq((p + ": phase 0 opens it on the dynamic port").c_str(), edit_beat(tb, t, 0, 0, si, sc, co), 1);
+    tb.check_eq((p + ": phase 4 accepts the record").c_str(), edit_beat(tb, t, 4, 0, si, sc, co), 1);
+    tb.check_eq((p + ": phase 1 can commit").c_str(), edit_beat(tb, t, 1, 0, si, sc, co), 1);
+    tb.check_eq((p + ": phase 5 applies it").c_str(), edit_beat(tb, t, 5, 0, si, sc, co), 1);
+    tb.check_eq((p + ": phase 2 ends it and reports the change").c_str(), edit_beat(tb, t, 2, 0, si, sc, co), 1);
+}
+
+void check_edit(Tb& tb) {
+    auto* d = tb.dut();
+    const unsigned pcls = d->p_opcls0;
+    // the face commit's format gives STREAM_OUTPUT 0 two channels, and the boot clip leaves the
+    // power-on image's mappings 0 -> 0 and 1 -> 1 (#658); no talker streams, so the port can be edited
+    tb.check_eq("[EDIT] no talker streams, so STREAM_PORT_OUTPUT 0 can be edited", d->p_streaming, 0);
+    tb.check_eq("[EDIT] the live map holds channel 0 at cluster 0's word", d->p_omap_word0, d->p_ocsrc0);
+    tb.check_eq("[EDIT] ...and channel 1 at cluster 1's", d->p_omap_word1, d->p_ocsrc1);
+    // Phase 4 beat after beat, each record's cluster offset alternating between one past the port's
+    // clusters (no capture-source word: refused) and one the live map already holds (its own word:
+    // accepted, since an ADD of a held mapping is idempotent). A verdict taken from an earlier
+    // beat's record reads the opposite answer. Phase 3 then ends the transaction with nothing applied.
+    const EditTxn probe{false, 4};
+    tb.check_eq("[EDIT] phase 0 opens an ADD on STREAM_PORT_OUTPUT 0", edit_beat(tb, probe, 0, 0, 0, 0, 0), 1);
+    tb.check_eq("[EDIT] phase 4: a cluster offset past the port's clusters is refused",
+                edit_beat(tb, probe, 4, 0, 0, 0, pcls), 0);
+    tb.check_eq("[EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted",
+                edit_beat(tb, probe, 4, 1, 0, 0, 0), 1);
+    tb.check_eq("[EDIT] phase 4: the next beat's offset past the clusters is refused again",
+                edit_beat(tb, probe, 4, 2, 0, 0, pcls + 1u), 0);
+    tb.check_eq("[EDIT] phase 4: the next beat's held mapping 1 -> 1 is accepted",
+                edit_beat(tb, probe, 4, 3, 0, 1, 1), 1);
+    tb.check_eq("[EDIT] phase 3 ends the transaction", edit_beat(tb, probe, 3, 0, 0, 0, 0), 1);
+    tb.check_eq("[EDIT] ...and applies nothing", d->p_omap_word1, d->p_ocsrc1);
+    // channel 1 moved from cluster 1 to cluster 2, then back: each commit writes the live map with
+    // the word the record's cluster encodes
+    edit_one(tb, "REMOVE 1 -> 1", true, 0, 1, 1);
+    tb.check_eq("[EDIT] the REMOVE clears channel 1's live word", d->p_omap_word1, 0);
+    edit_one(tb, "ADD 1 -> 2", false, 0, 1, 2);
+    tb.check_eq("[EDIT] the ADD writes cluster 2's word into channel 1", d->p_omap_word1, d->p_ocsrc2);
+    tb.check_eq("[EDIT] ...and records channel 1's cluster as 2", d->p_omap_cluster1, 2);
+    tb.check_eq("[EDIT] ...and leaves channel 0 as it was", d->p_omap_word0, d->p_ocsrc0);
+    edit_one(tb, "REMOVE 1 -> 2", true, 0, 1, 2);
+    edit_one(tb, "ADD 1 -> 1", false, 0, 1, 1);
+    tb.check_eq("[EDIT] the map is put back: channel 1 at cluster 1's word", d->p_omap_word1, d->p_ocsrc1);
+}
+
 void check_rx(Tb& tb) {
     auto* d = tb.dut();
     tb.wr(MBX_REG_OWN_EID_LO, static_cast<std::uint32_t>(kOwnEid));
@@ -507,6 +619,20 @@ void check_tx(Tb& tb) {
     }
     head = (head + 2u + static_cast<std::uint32_t>((f.size() + 3u) / 4u)) & 0xFFFFu;
     tb.wr(ch_reg(MBX_CH_ADP, MBX_CH_REG_TX_HEAD), head);
+    // #839: the transmit gate holds the control lane until both halves of the station MAC are written, so the
+    // frame waits for the station MAC the platform writes; it is the frame's own source address (frames.hpp's
+    // kSrcMac), in the CSR's LSB-first order ({MAC_ADDR_HI[15:0], MAC_ADDR_LO}, wire octet 6 + k in bits 8k),
+    // so the stamp leaves the frame as it was committed
+    std::uint64_t mac = 0;
+    for (unsigned k = 0; k < 6; ++k) mac |= ((mbx_tb::kSrcMac >> (8u * (5u - k))) & 0xFFu) << (8u * k);
+    const auto mac_lo = static_cast<std::uint32_t>(mac);
+    const auto mac_hi = static_cast<std::uint32_t>(mac >> 32);
+    (void)wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
+    tb.check("[TX] the gate holds the committed frame before the station MAC is written (#839)", tb.tx_frames.empty());
+    tb.csr_wr(0x108, mac_lo);
+    (void)wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
+    tb.check("[TX] ...and with its low half alone", tb.tx_frames.empty());
+    tb.csr_wr(0x10C, mac_hi);
     const std::uint64_t took = wait_for(tb, [&] { return !tb.tx_frames.empty(); }, 4000);
     tb.check("[TX] the committed frame leaves the MAC", !tb.tx_frames.empty());
     if (tb.tx_frames.empty()) {
@@ -681,6 +807,7 @@ int main(int argc, char** argv) {
     check_policer(tb);
     check_face(tb);
     check_windows(tb);
+    check_edit(tb);
     check_rx(tb);
     check_tx(tb);
     check_link(tb);

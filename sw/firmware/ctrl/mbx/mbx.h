@@ -158,6 +158,12 @@ enum mbx_status mbx_face_commit(unsigned interface);
 // answer within the bound. FULL: a request already waited, nothing was
 // written. BAD: no such interface or window.
 enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t *request, uint64_t *data);
+// mbx_win_read writing only request words from .. to - 1 (to past the window's
+// last is its last): every other request register keeps what an earlier request
+// wrote, as the contract's rw registers do, so the beats of one EDIT transaction
+// write EDIT_REQ once and each beat only what moves (#923).
+enum mbx_status mbx_win_ask(unsigned interface, unsigned window, const uint32_t *request, unsigned from, unsigned to,
+			    uint64_t *data);
 
 // LICENCE.ACTIVE's bit for source `source` of interface `interface`, as the SRP
 // owner last published it: the source is streaming (Milan v1.2 5.3.7.3). False

@@ -11,30 +11,36 @@
  * (nvm_store_tick) and takes it at the end of a pass that took no input and
  * has room for it, or as the whole of a pass once it has waited past the
  * loop's age limit (nvm_store_step; THE STEP in
- * sw/firmware/ctrl/loop/ctrl_loop.h).
+ * sw/firmware/ctrl/loop/ctrl_loop.h). While a save is in flight, or a change
+ * it left waits, every pass that took no input and has room takes a step too,
+ * one a pass, the centisecond's or not (#920), except one whose call owes no
+ * centisecond's step and that the split platform gives to its PHY poll's owed
+ * frame instead (plat/ctrl_plat_phy.h, #919). The centisecond's step keeps its
+ * first place and no call carries a save's step and a frame, so the slowest
+ * pace below, and every worst case it gives, stand.
  *
  * A CHANGE'S WORST CASE. Under input that leaves no pass empty the loop takes
- * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds. A change is
- * durable once the save that captures it is. With no save in flight that is
- * at most MILAN_NVM_DEBOUNCE_MS after the change, plus that many centiseconds
- * for each step of its save after the window (the step that starts the
- * capture, one for each changed record and one more, the seal's
- * NVM_STEP_BYTES stretches, the erase and its wait, NVM_IMG_LEN /
- * NVM_READ_BYTES read-backs for the blank check and as many for the verify,
- * and each page's issue and its wait), plus the few passes between a
- * centisecond and the step it brings. A change marked once a capture in
- * flight has passed its record (nvm_mark) is left to the next save, and only
- * an idle step starts a capture: it waits first for the rest of the save in
- * flight, at worst all its steps but the two that started its capture and
- * took its first record, at the same pace, or for its own window where that
- * is longer. At 8x8/2if with no flash busy time a SET_NAME of the entity,
- * which marks both its names, is 370 steps: durable at most 12.11 s after it
- * alone and 22.15 s beside another's save in flight (#665; the budget
- * harness's save_window.bound_ms, to which its save-starved and save-second
- * groups hold a change). Each further record of either save is one more
- * step, and a flash part's busy time adds at most its erase time and each
- * page program's: on the part of SAVED_STATE_FASTCONNECT.md section 9.4,
- * 3.26 s a save at 8x8/2if.
+ * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds and no pass
+ * takes another, the slowest pace. A change is durable once the save that
+ * captures it is. With no save in flight that is at most MILAN_NVM_DEBOUNCE_MS
+ * after the change, plus that many centiseconds for each step of its save after
+ * the window (the step that starts the capture, one for each changed record and
+ * one more, the seal's NVM_STEP_BYTES stretches, the erase and its wait,
+ * NVM_IMG_LEN / NVM_READ_BYTES read-backs for the blank check and as many for
+ * the verify, and each page's issue and its wait), plus the few passes between
+ * a centisecond and the step it brings. A change marked during a running
+ * capture joins it (nvm_mark): a record it has yet to reach, or one no capture
+ * holds, for which it walks again, one step more a walk. A change to a record
+ * the save in flight has taken, or marked after its capture, is the next
+ * save's, which starts at the first idle step after that save, with no window:
+ * it waits first for the rest of the save in flight, at worst all its steps but
+ * the two that started its capture and took the record, then for its own
+ * save's steps, at the same pace. The budget harness's save_window.bound_ms
+ * states both, and its save-starved and save-second groups hold a change to
+ * them; docs/design/SPLIT_CONTROL_MEMORY.md section 13 gives the figures at
+ * each shape. A flash part's busy time adds at most its erase time and each
+ * page program's: on the part of SAVED_STATE_FASTCONNECT.md section 9.4, tSE
+ * plus the container's pages times tPP a save.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
@@ -175,10 +181,16 @@ void nvm_store_service(void);
 /* The loop's centisecond consumer: one step is owed. A step still owed is
  * not owed twice, so a pass with room takes one step at most. */
 void nvm_store_tick(void);
-/* The loop's step (ctrl_loop.h, THE STEP): the owed step, taken when at
- * least NVM_STEP_US remain before `deadline` on nvm_store_clock; true while
- * it is still owed. */
+/* The loop's step (ctrl_loop.h, THE STEP): the owed step, or with a save in
+ * flight any step (#920), taken when at least NVM_STEP_US remain before
+ * `deadline` on nvm_store_clock; true while a centisecond's step is still
+ * owed. */
 bool nvm_store_step(void *ctx, uint32_t deadline);
+/* True while a centisecond's step is owed and not yet taken. THE STEP's client
+ * on the split platform reads it before the call's step: a call that owes none
+ * takes the PHY poll's owed frame, and the store's step past the centisecond's
+ * (#920) waits for a call that owes no frame (plat/ctrl_plat_phy.h, #919). */
+bool nvm_store_owed(void);
 /* The flash port's clock in microseconds, the one the store's windows run
  * on. Valid once nvm_store_boot has run: a platform binds the step after it. */
 uint32_t nvm_store_clock(void *ctx);

@@ -1,29 +1,43 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
 
-Status: **F0 implemented behind a default-off build switch.** The all-fabric
-build is unchanged and remains the shipping image. This page is the design
-of the contract between the fabric and the bare-metal control-plane firmware.
-The split integrates before P3; milestone 13 retains the hard-core port.
-Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
-tests and the co-simulation build; no image links that firmware yet.
-Lane F-INT adds the [publication block](#the-publication-block) (contract
-2.2), where the firmware owner writes the class-D state the split placement's
-datapath reads; nothing reads it until the placement switch lands.
-Lane S1 adds [the processor's other faces](#the-processors-other-faces)
-(contract 2.3): every port of the processor wrapper in one class, and the face
-block, windows and events that carry what the split datapath still reads.
-Lane S6 adds [the placement switch](#the-placement-switch): `CTRL_SPLIT_P`
-builds the datapath without the processor, and the `--ctrl-mailbox` SoC
-connects the mailbox to it.
-The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+Status: **F0 implemented behind a default-off build switch.**
+The all-fabric build is unchanged and remains the shipping image.
+
+This page designs the fabric's contract with the control-plane firmware.
+The split integrates before P3.
+
+Milestone 13 retains the hard-core port.
+Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware.
+
+The host tests and the co-simulation build compile it.
+No image links that firmware yet.
+
+Lane F-INT adds the [publication block](#the-publication-block), contract 2.2.
+There the firmware owner writes the class-D state.
+
+The split placement's datapath reads that state.
+Nothing reads it until the placement switch lands.
+
+Lane S1 adds [the processor's other faces](#the-processors-other-faces), contract 2.3.
+Every port of the processor wrapper is in one class.
+
+The face block, windows and events carry what the split datapath still reads.
+Lane S6 adds [the placement switch](#the-placement-switch).
+
+`CTRL_SPLIT_P` builds the datapath without the processor.
+The `--ctrl-mailbox` SoC connects the mailbox to it.
+
+The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
 All-fabric stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
-The owner decisions of
-2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
-and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
-define the interface. The numbers live in one place, the generated
-[reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
+
+The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
+So does the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665).
+
+The numbers live in one place, the generated [reference page](../reference/MAILBOX_CONTRACT.md).
+This page explains them.
 
 ## Contents
 
@@ -31,7 +45,7 @@ define the interface. The numbers live in one place, the generated
 - **[One contract, four outputs](#one-contract-four-outputs)** -- The YAML that is the only place a number is written, the four files generated from it, and the drift, cross-output and planted-defect checks.
 - **[Byte order](#byte-order)** -- Fixed bit positions for every 32-bit word, little-endian lanes for frame bytes, network order inside a frame.
 - **[Rings, records and events](#rings-records-and-events)** -- The record shapes, a head published only after the words it covers, commit order across channels, the doorbells and their range rule, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
-- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, the verdict that acts a clock after it is taken, and the MRPDU form the SRP channel hands lwSRP.
+- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, the verdict that acts a clock after it is taken, the MRPDU form the SRP channel hands lwSRP, and the frame the bucket holds for its next refill instead of dropping it.
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- A register read answered a cycle after a ring read or a write, through an AND-OR of one-hot selects; Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
@@ -46,11 +60,19 @@ define the interface. The numbers live in one place, the generated
 
 ## What moves, and what the fabric keeps
 
-The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
-fabric keeps framing and timestamps, the gPTP plane, the media path,
-the timers that carry hard deadlines, and an ingress filter. The two exchange
-frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
-interrupt, 32-bit accesses only and no DMA.
+The bare-metal core runs ADP, ACMP, MAAP, SRP and AECP.
+SRP runs through lwSRP.
+
+The fabric keeps framing, timestamps and the media path.
+It also keeps hard-deadline timers and an ingress filter.
+
+It keeps the gPTP plane until #665 lane F6.
+Then firmware owns the protocol and servo.
+
+The two exchange frames through packet mailboxes.
+Those are block-RAM rings with a doorbell per ring.
+
+There is one interrupt, 32-bit accesses only and no DMA.
 
 ```mermaid
 flowchart LR
@@ -145,9 +167,7 @@ in words, and storage the producer writes only past the consumer's tail.
   flushes a ring to TX_HEAD on a malformed one, because a length that cannot
   be trusted leaves no next record to find. TX_TAIL moves only after the last
   byte has left.
-- **Event record:** four words. The sources are a link level change, a
-  grandmaster change published by the gPTP plane, a fabric timer expiry with
-  the tag of the arm it belongs to, and the centisecond tick.
+- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. Its sources also include fabric timer expiries, tagged by arm. The centisecond tick is the fourth source.
 
 Records leave in **commit order across channels** (the ruling on PR #668,
 comment 5994730420). Before each record the merge reads SEQ from the oldest
@@ -192,9 +212,10 @@ nibble of byte 15) is one of the tuple's where it names some. A frame that
 ends at byte 14 has message_type 0, as the accept terms read it. The four-word
 queue holds bytes 0 to 15, so the decision at byte 15 never waits for a drain.
 The frame is then stored only when its channel is open, one of the
-channel's accept terms (its identity term) holds, it fits the channel's
-largest frame and the free ring space, and the channel's token bucket holds a
-token.
+channel's accept terms (its identity term) holds, and it fits the channel's
+largest frame and the free ring space. It is committed while the channel's
+token bucket holds a token; otherwise it is held and committed at the
+channel's next refill ([below](#the-held-frame)).
 
 | Channel | Destination MAC | EtherType | Subtype | Passes | Clause |
 |---|---|---|---|---|---|
@@ -236,8 +257,8 @@ token.
   `IRQ_STATUS.ERR`. The counter judges the tuple whatever `FILTER_EN` holds.
   A frame refused by its identity term, or for a closed channel, is not
   addressed to this entity and is dropped uncounted. So is a frame that ends
-  before byte 14. A size or space drop counts in `RX_DROP`, a rate drop in
-  `RATE_DROP`.
+  before byte 14. A size or space drop counts in `RX_DROP`, and a frame the
+  bucket refuses behind a held one in `RATE_DROP`.
 - **The adp channel takes its bound talkers' announcements.** Its third
   accept term (`eq_bound`, message types 0 and 1) compares entity_id with the
   enabled entries of the arrival interface's bound-talker table
@@ -246,7 +267,8 @@ token.
   [below](#discovery-and-the-adp-channels-filter)). This only adds, so the
   contract went to 2.1.
 - **The token buckets stay.** Only a committed frame takes a token, so a
-  frame the filter refuses spends none.
+  frame the filter refuses spends none. A frame that finds the bucket empty
+  is held, not dropped ([below](#the-held-frame)).
 - **The verdict acts a clock after it is taken.** It is taken once the last
   byte's word has drained, into four registers (committed, `RX_DROP`,
   `RATE_DROP`, `FILTER_MISMATCH`), and acts in the next mailbox clock on the
@@ -255,10 +277,10 @@ token.
   enable). That costs one mailbox clock per received frame, 10 ns at the
   split's 100 MHz, and none per host access. The receiver takes no byte in
   either cycle, so the next frame's first byte waits on `rx_ready` and is
-  taken once: 6 clocks after a committed frame's last byte, 4 after any
-  other's. The mailbox suite queues twelve frames back to back across every
-  verdict and checks each counted once and each committed record once, in
-  order (its checks V0 and V1).
+  taken once: 6 clocks after a stored (committed or held) frame's last byte,
+  4 after any other's. The mailbox suite queues thirteen frames back to back
+  across every verdict and checks each counted once and each committed record
+  once, in order (its checks V0 and V1).
 
 This narrows what the filter passes, so the contract went to major 2. A
 firmware built against major 1 would not write the own MAC the AECP channel
@@ -267,6 +289,75 @@ now matches, and `mbx_open()` refuses the other major.
 The SRP record carries the whole frame, so the MRPDU (ProtocolVersion first)
 is frame bytes 14 onward: the contiguous buffer lwSRP's `mrp_rx()` and
 `mrpdu_parse()` take, with the record's interface as `port_id`.
+
+### The held frame
+
+The ruling on [#665 (6894152131)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6894152131),
+item 2, on [#917](https://github.com/kebag-logic/milan-fpga/issues/917).
+#917 measured a controller that keeps one AECP command in flight: at about
+1 kHz it lost about one command in 21 once the burst was spent, and each lost
+command cost it its transaction timeout and a retry (IEEE 1722.1-2021 9.3.2.6,
+9.3.6). One in flight is that workload, not a rule of the protocol: a
+controller may pipeline commands (9.2.2). The table's rates stay: a 1 ms
+refill would charge the load gate one record a millisecond, taking AECP's
+share from 0.047 to 0.235 and the load past 0.70. So a frame that finds no
+token is held instead of dropped:
+
+- **Where it waits.** In the ring, past `RX_HEAD`. `KL_mbx_rx` writes its
+  words while it arrives and its two header words after the verdict, as for
+  a committed frame, but leaves the head where it is. A second, per-channel
+  write head runs ahead of the head by the held record; the next frame's
+  words and its free space are based on it, so they never touch the held
+  record. A tail ahead of `RX_HEAD`, inside the held record too, leaves no
+  free word, as the contract says of any tail ahead of `RX_HEAD`.
+- **When it is committed.** At the channel's next refill, which its commit
+  spends, so it waits at most one refill period. A refill that lands between
+  the verdict and the header writes commits the frame at once: a channel
+  holds a frame only while its bucket is empty. `ARRIVAL_MS` stays the time
+  its last byte arrived. A frame held when its channel is closed is still
+  committed: it passed the filter while the channel was open, as a frame
+  committed just before the close did. A reset forgets it.
+- **Its ingress allowance.** A record that finds a token is published within
+  64 clocks of its last byte; a held one waits up to its channel's refill
+  period more. [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+  states each path's allowance and the response margins it leaves, and the
+  [generated channel table](../reference/MAILBOX_CONTRACT.md#channels-and-the-ingress-filter)
+  states each channel's held allowance from its `refill_ms`. `gen_mailbox.py`
+  writes the margin table's ingress and margin columns from the same
+  `refill_ms`, and `--check` fails when they differ from it.
+- **What is dropped.** A channel holds one frame. While it holds one its
+  bucket is empty, so every later frame of the channel that passes the
+  filter and fits finds no token and is refused, in `RATE_DROP` (and
+  `IRQ_STATUS.ERR`); one the filter refuses is dropped uncounted and one
+  that does not fit counts in `RX_DROP`, as anywhere else. The held frame is
+  committed first. Holding a frame counts nothing.
+- **Its limit.** Once the burst is spent and a frame is held, any second
+  frame of the channel that passes within the refill period is refused and
+  counted: on AECP, a second controller's command, a pipelining controller's
+  next command, and a response to a command this entity sent as a controller,
+  which shares the bucket. The hold serves the one-in-flight workload #917
+  measured; it does not admit fifty commands sent with no wait.
+- **What is unchanged.** Every commit, held or not, spends one token, so the
+  committed rate is the table's (the burst, then one record a refill period)
+  and so is the load. The registers, the record layout and the contract
+  version are unchanged, so the firmware image is too; printing the drop
+  counters waits until after the flip. The mechanism is per channel, so every
+  channel of the table holds its frame the same way. A frame that finds a
+  token takes the same clocks as before.
+
+The mailbox suite grades it on both adapters and on the host model (group
+`HeldNotDropped`, checks B0 to B4 and B7 to B9: fifty AECP commands sent one
+in flight at line rate all delivered in order, each by the next refill, the
+bench's deadline; a third command behind a held one dropped and counted; a
+controller at one command a millisecond losing none of a hundred; a reset
+forgetting the held frame; a tail inside it; a ring with room for one record,
+which the held one takes, refusing the next in `RX_DROP` with every unread
+record intact; filtered and cut frames behind a held one counted nowhere; a
+frame held across a close committed), on the RTL at the clock (B5: a refill
+landing in each clock around the header writes) and over every clock of every
+check (B6: no channel holds a frame while its bucket holds a token). The CPU
+budget harness measures a held record from its last byte (group `aecp-held`,
+[its README](../../tb/verilator/ctrl_service_budget/README.md#a-held-record)).
 
 ## Bus adapters and the hard core
 
@@ -308,7 +399,10 @@ waits for it. On the host port it keeps `KL_mbx`'s rule: one request, none
 until its answer, which comes one cycle after the request or two for a
 register read (#870); the mover holds the port for a CPU request from its
 issue to its answer, however long that takes, and routes the answer to the
-CPU (`cpu_wait_r`). [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
+CPU (`cpu_wait_r`). Its ring address is a register that moves with the ring
+index, loaded at a move's start and at each answer, so `KL_mbx`'s write
+decode reads no add on the mover's address; it costs no cycle (#927).
+[Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
 gives its measurement.
 
 Every AXI4-Lite output is a register or a function of registers only: no
@@ -387,7 +481,7 @@ flowchart TB
   the pass has spent at most `CTRL_LOOP_DRAIN_US`, then, once AECP's take
   left none it would take, ACMP's, ADP's and MAAP's, each its due, then one a
   channel in turn; tier 2 only once tier 1 left no record to take: SRP's records in a
-  slice from the pass's start (`CTRL_LOOP_SLICE_US`: the slice rule's choice at one interface, 0.95 ms, and 1.3 ms at two), and
+  slice from the pass's start (`CTRL_LOOP_SLICE_US`, stated for each shape ([THE SHAPES](SPLIT_CONTROL_MEMORY.md#the-shapes-and-8x81if)): the slice rule's choice at 1x1/1if, 0.9 ms since #901's restatement (0.95 ms before it), 1.475 ms at 8x8/1if, and 1.3 ms at two interfaces), and
   THE TRANSMIT's build and THE RETRY's round each a slice of a pass given
   whole, the build resumed in the next slice where one cannot hold it.
   A pass that dispatches a centisecond takes one record of a channel, not
@@ -1193,8 +1287,10 @@ them:
   as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
   lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
   bit set and the withdrawal owed until lwSRP takes it. A
-  changed destination is declared two LeaveAllTime periods after the Leave
-  (IEEE 802.1Q-2018 35.2.2.8). The CRF talker's C-TAG reads this level. Its
+  changed destination is declared two nominal longest LeaveAll periods, 1.5
+  LeaveAllTime each, after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+  #951); Milan v1.2 Table 4.3's further tolerance, a leavealltimer up to
+  15.5 s, is not covered. The CRF talker's C-TAG reads this level. Its
   frames leave under the licence, which needs a declaration in both
   placements; with policing off (the AAF bypass or lwSRP disabled) both
   placements tag them only while the gate is open.
@@ -1283,13 +1379,16 @@ The ruling
 settles the AECP REBOOT request, `reboot_req_o` (#787). It drives
 `KL_reboot_ctrl`, which stays in the datapath and runs the drain, the egress
 wait, the PHY hold and the configuration reload. In the split the firmware's
-AECP owner takes REBOOT, and the split has no carrier for the request yet. So
-`reboot_req_o` is G, and its cone stops at the one cell input
-`REBOOT_TERMINAL` names, `reboot_ctrl.reboot_req_i`, and at no other input of
-that cell. A second consumer of the same net is still the wire. The split
-carries no REBOOT request: ruling 6715535566 item 3 holds `reboot_req_i` at 0
-until S11 gives REBOOT its carrier. The split census proves the hold:
-`pp_reboot_req_w` is a constant there, so it needs no exclusion either.
+AECP owner takes REBOOT. Its request reaches `KL_reboot_ctrl` from the
+platform's reset port, a CSR of the split SoC (#871), not through the
+mailbox. So `reboot_req_o` stays G, and its cone in the all-fabric datapath
+stops at the one cell input `REBOOT_TERMINAL` names,
+`reboot_ctrl.reboot_req_i`, and at no other input of that cell. A second
+consumer of the same net is still the wire. In the split census
+`pp_reboot_req_w` is driven by the datapath input `i_reboot_req` alone, never
+a constant (`G_CARRIED` in
+[`census_split.py`](../../sw/mailbox/census_split.py)), so it needs no
+exclusion either.
 
 The census's 12 new rules (`port-*`, `g-*` in
 [`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
@@ -1454,7 +1553,14 @@ Every window read is bounded too (`mbx_win_read`): a request that finds no answe
 fails its port, and the core answers as for an unavailable observation.
 GET_COUNTERS reads 33 quadlets through `CTR`, GET_STREAM_INFO six words and
 GET_AVB_INFO three through `GSI`, and SET_STREAM_FORMAT one verdict, whose
-low byte must be exactly 3, as the processor's argument check reads it.
+low byte must be exactly 3 from the open on, as the processor's argument check
+reads it: bit 0 supported, bit 1 every channel the datapath's map store
+references still in the format. Before the open, while the saved state is
+applied, bit 0 alone decides. The store then still holds its reset set, which
+bit 1 reads, and the restored maps are checked against the restored formats
+instead (`aecp_restore_settle`). Otherwise an input narrowed under a reset set
+that maps its channels would be refused at every boot, and its saved format
+lost ([REQUIREMENTS.md](../../REQUIREMENTS.md), the persisted inventory; Milan v1.2 5.3.8.1).
 GET_AS_PATH reads kind 2 through `GSI`: the count at selector 0, then each
 path_sequence ClockIdentity at selector 8 by its ordinal, the processor's
 word table. The datapath answers the entries from the path it held at the
@@ -1474,9 +1580,14 @@ them:
 - A STREAM_OUTPUT streams while the SRP owner holds its licence
   (`LICENCE.ACTIVE`; Milan v1.2 5.3.7.3).
 - `AMAP_LIVE_WRITE` is counted, not acted on: the core owns the maps.
-- The core holds the audio maps and does not apply a map change through the
-  `EDIT` window; a map change sets `DYN_DIRTY` only. Applying the maps to the
-  datapath is the placement switch's (see [Open items](#open-items)).
+- The core holds the audio maps and applies each accepted ADD or
+  REMOVE_AUDIO_MAPPINGS to the datapath's store through interface 0's `EDIT`
+  window before its own map moves, the release processor's transaction (begin,
+  validate each record, begin the commit, commit each, finish, or abort); a
+  refusal there is the command's answer and changes nothing (#923). The
+  restored maps reach the store the same way when AECP opens, after the
+  publication that carries the restore's terminal. A map change also sets
+  `DYN_DIRTY`.
 
 ## The placement switch
 
@@ -1520,8 +1631,8 @@ the FIFO's own overflow indication, since a FIFO that drops when full never
 lowers its ready.
 
 The map writer goes because the firmware's AECP owner holds the maps
-(#665). Its registers rest at reset, but the restore's
-hold, which is 0.
+(#665) and applies them through the `EDIT` window (#923). Its registers rest
+at reset, but the restore's hold, which is 0.
 
 ### The split's control face
 
@@ -1588,7 +1699,7 @@ its ledger row:
 Its 14 rules are the `split-*` entries of
 [`census_rules.py`](../../sw/mailbox/census_rules.py).
 Each has an arm in [`census_plants.py`](../../sw/mailbox/census_plants.py),
-23 in all. Seventeen plant a copy of the datapath, elaborated in both
+24 in all. Eighteen plant a copy of the datapath, elaborated in both
 placements.
 
 - The processor, the MAAP engine and the map writer left in the split.
@@ -1598,7 +1709,8 @@ placements.
 - Half a field dropped, and a setting from another setting's port.
 - Two bits of a packed setting swapped, and an answer from another window.
 - A face notification never raised.
-- The REBOOT request driven, and a value the block does not carry driven.
+- The REBOOT request from another port, and tied off; a value the block does
+  not carry driven.
 - The frame block on another net, a later entry read, and a port no row
   names.
 
@@ -1622,6 +1734,19 @@ CDC census draws each instance.
 A newer window request wins over one the mailbox already timed out. Its
 stale answer carries the older tag, which `KL_mbx` discards.
 
+Each window's requester (`KL_mbx_cdc_window`) changes its fields only on a
+datapath clock edge that leaves req low, and raises req no earlier than the
+next edge. So in every cycle req is high, the fields are the previous
+clock's. The split datapath relies on this for the `EDIT` window alone
+(#927). It registers the record's capture-source word, the port-and-cluster
+search of `amap_edit_out_encode`, which is a function of the record's
+`cluster_offset` and the descriptor index. That search was most of the 40
+logic levels from the window's request register to the claim registers'
+clock enable at 8x8. The answer leaves on the cycle it did before, so no
+window bound or latency of the contract moves. The all-fabric build keeps
+the word combinational, since the processor may raise req in the cycle its
+fields change.
+
 ### The proofs
 
 - [`placement_identity.py`](../../sw/mailbox/placement_identity.py)
@@ -1633,7 +1758,7 @@ stale answer carries the older tag, which `KL_mbx` discards.
   control path end to end, and `KL_ctrl_split`'s tap alone: every tuple class
   it accepts or refuses, and its drop count, which it also reads on the
   datapath's own tap after a burst at the MAC. `split_mutants.py` plants
-  twenty-four defects, each caught by the check it names.
+  twenty-nine defects, each caught by the check it names.
 - `split_cdc_check.py` (`make split-cdc`) reads `KL_mbx_cdc`'s netlist. Every
   flop, output and primitive input, the primitives' resets among them, must
   read only its own clock's domain, and every clock pin one of the two clocks.
@@ -1727,14 +1852,14 @@ each fail by their kind:
 | Evidence | What it shows |
 |---|---|
 | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 41 reads of 22 of the 26 class-D nets (4 are unread), and each of the wrapper cell's 219 ports in one class (C 26, F 28, R 34, E 6, M 14, G 111), every G output's cone ending only at its terminals and the two exclusions; its self-test's 163 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 19, the [split census's](#the-splits-control-face) 23, a positive and a negative control and a positive control in both placements; each of its 57 rules (31 of the class-D census, 12 of the port census, 14 of the split census) removed in turn, each letting its arms through. In each shape's split elaboration, each of the datapath's 80 ctl ports in one class (C 12, F 16, R 34, E 6, M 12), every publication and contract 2.3 field consumed but the four read in neither placement |
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 525 at one interface and 532 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 570 at one interface, 577 at two |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 622 at one interface and 629 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter and the frame it holds (#917), the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 667 at one interface, 674 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
 | the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.4), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
 | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
-| the same suite on the host model, in `make run-if2` | the 490 of the RTL's 532 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the same suite on the host model, in `make run-if2` | the 547 of the RTL's 629 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
@@ -1744,7 +1869,7 @@ each fail by their kind:
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
 | the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); a change the datapath never takes answered within 120 ms of its IN_PROGRESS and 240 ms of its command, the service bound included, on the model's millisecond clock (`Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`), the expired lock read and refused as its owner's until then (`Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease`), SET_SYSTEM_UNIQUE_ID refused as every change is (`Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs`), and the final response leaving on the interface its command came in on (`Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn`); every window read within its bound; GET_AS_PATH's count and each entry through its AVB interface's own window, SUCCESS at 0, 1 and several entries, `AECP_PATH_ITEMS` carried whole and a count past it failing the port at the count (`Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow`, `Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt`), a word with no answer failing it there (`Face.AnUnansweredAsPathWordFailsItsPortThere`), and AS_PATH_CHANGED's notice carrying the sequence the datapath then serves (`AppFace.AnAsPathChangeNotifiesTheDatapathsSequence`; #897); the store's words; the face events' Table 5.22 notifications |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; twelve of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; thirteen of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model, the held frame's (#917) among them |
 
 ## Default build
 
@@ -1753,7 +1878,8 @@ default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
 and no interrupt. On, it adds the eight mailbox sources, `KL_mbx` behind
 `KL_mbx_wb` and the record mover in the IO region, a CSR bank pinned below the
 existing observer's page so no existing bank moves, the mover's bank below
-it, the mover's master on the CPU's DMA bus, and one interrupt. It also regenerates the
+it, the REBOOT reset port's one-bit bank below the mover's (#871), the mover's
+master on the CPU's DMA bus, and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that
@@ -2126,14 +2252,15 @@ report_timing_summary -delay_type max
   ([The split's control face](#the-splits-control-face)). They stay on the
   face as firmware-written state until the flip (issuecomment-6716584453,
   item 2), each with its ledger row.
-- **The AECP REBOOT request** (#787) has no carrier in the split: the
-  firmware's AECP owner takes REBOOT. S11 (#665), after #810, gives the
-  request its carrier, a face-block level being the expected end state, decided
-  in that lane; until then the split ties `reboot_req_i` to
-  0. Its split elaboration must then pass the port census without the REBOOT
-  exclusion ([Every port, one class](#every-port-one-class)). The split
-  census proves the hold.
-- **The audio maps on the datapath.** The AECP owner holds the maps and does
-  not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
-  the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
-  placement switch's.
+- **The AECP REBOOT request** (#787) is carried by the platform's reset
+  port, not by the face block (S11, #871). A face-block level would add a
+  field to `mailbox.yaml`, a contract change, and the port needs none: one
+  CSR bit of the split SoC (`milan_soc.CtrlReboot`), crossed into the
+  datapath's clock by a `MultiReg` onto `i_reboot_req` and so onto
+  `reboot_ctrl.reboot_req_i`. `reboot_req_o` therefore stays G with its
+  all-fabric exclusion ([Every port, one class](#every-port-one-class)), and
+  the split census holds the net to that one port. The firmware's sequence
+  is in [REBOOT_RESET.md](REBOOT_RESET.md#8-the-split-placement).
+- **The live map writes on the datapath.** The AECP owner applies every map
+  change to the datapath's store through the `EDIT` window (#923); the live
+  map writes `AMAP_LIVE_WRITE` counts are still counted only.

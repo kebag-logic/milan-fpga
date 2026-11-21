@@ -7,11 +7,12 @@
 #                    then the firmware co-simulation over the real RTL, then the
 #                    same checks on a two-interface variant of the contract
 #                    through both adapters and on the host model (run-if2), then
-#                    twelve planted RTL defects (one per leaf, one in the
+#                    thirteen planted RTL defects (one per leaf, one in the
 #                    skeleton, one in the filter's tuple, one in the
-#                    publication block, one in the face block and one per
-#                    timing cut of #870), each of which must redden the check
-#                    it names (mutants.py --quick)
+#                    publication block, one in the face block, one per
+#                    timing cut of #870 and the held frame's of #917), each
+#                    of which must redden the check it names (mutants.py
+#                    --quick)
 #   make census    - the publication census over milan_datapath as the pinned
 #                    sv2v and Yosys elaborate it (both on PATH, or named by
 #                    $SV2V and $YOSYS) in every shape the builder builds, its

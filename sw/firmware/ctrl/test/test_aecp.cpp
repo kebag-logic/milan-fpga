@@ -3,7 +3,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <array>
+#include <functional>
 #include <map>
+#include <tuple>
 #include <vector>
 #include <algorithm>
 #include <cstdio>
@@ -34,7 +36,13 @@ extern "C" {
 #include "acmp_nvm.h"
 #include "srp_mbx.h"
 #endif
+#include "mbx_contract.h"
 }
+// The core under test is given AECP_TEST_INTERFACES interfaces, so it is compiled at that many: its contract's, and
+// so the shape whose costs it charges (THE SHAPES, ctrl_loop.h; aecp.h, AECP_ATTEMPT_US; #894's retry-cost ruling,
+// item 1). aecp_arms.core_arm gives each arm its interfaces' own contract; one at another's fails here.
+static_assert(MBX_N_IF==AECP_TEST_INTERFACES,
+              "THE SHAPES: the host arm's mailbox contract (MBX_N_IF) is not at its interfaces (AECP_TEST_INTERFACES)");
 #ifdef AECP_TEST_APP
 #include "acmp_fake.hpp"
 #endif
@@ -42,6 +50,13 @@ extern "C" {
 
 
 FW_TALLY_LABEL("AECP core");
+//! A mapping compared coordinate for coordinate, and printed so (the store's records, #923).
+static bool operator==(const aecp_mapping &x,const aecp_mapping &y) {
+    return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;
+}
+static void PrintTo(const aecp_mapping &r,std::ostream *os) {
+    *os<<"{"<<r.stream<<","<<r.channel<<","<<r.cluster<<","<<r.cluster_channel<<"}";
+}
 using Bytes = std::vector<uint8_t>;
 using testing::_;
 using testing::Return;
@@ -77,6 +92,7 @@ struct Ports {
     MOCK_METHOD(bool,Format,(uint16_t,uint16_t,uint64_t));
     MOCK_METHOD(uint32_t,AvailableIndex,(unsigned));
     MOCK_METHOD(bool,Applied,());
+    MOCK_METHOD(unsigned,Edit,(bool,uint16_t,uint16_t,std::vector<aecp_mapping>));
 };
 struct Core : testing::Test {
     aecp a{};
@@ -119,7 +135,7 @@ struct Core : testing::Test {
           [](void*p,uint16_t t,uint16_t d,uint64_t f){return static_cast<Ports*>(p)->Format(t,d,f);},
           [](void*p,unsigned i){return static_cast<Ports*>(p)->AvailableIndex(i);},
           [](void*p){return static_cast<Ports*>(p)->Applied();},
-          nullptr,nullptr};
+          nullptr,nullptr,nullptr};
         ON_CALL(mock,Format).WillByDefault([this](uint16_t type,uint16_t index,uint64_t proposed){
             auto &d=desc(type,index);uint64_t declared=get(d.defaults+74,8);
             if((declared>>56)!=2)return proposed==declared;
@@ -149,7 +165,7 @@ struct Core : testing::Test {
         maps[0]={14,0,0,8,input.data(),0,input.size(),nullptr,0};
         maps[1]={15,0,0,8,output.data(),0,output.size(),nullptr,0};
         cfg={ENTITY,{MAC,MAC+1},AECP_TEST_INTERFACES,&model,maps.data(),maps.size(),events.data(),latency.data(),
-             nullptr,0u,nullptr};
+             nullptr,0u,nullptr,false};
         ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
     }
     aecp_descriptor& desc(unsigned type,unsigned index=0) {
@@ -201,6 +217,17 @@ struct Core : testing::Test {
             put(body,12+8*k,rows[k].cluster,2);put(body,14+8*k,rows[k].cluster_channel,2);
         }
         return ask(cmd,body,status);
+    }
+    //! The integrator's map store (#923): the edit port, each call's mappings decoded from its wire records and
+    //! picks, to the mock's Edit (AECP_SUCCESS unless a test says otherwise).
+    void store() {
+        ports.edit=[](void*p,bool remove,uint16_t type,uint16_t index,const uint8_t*records,const uint8_t*pick,size_t n){
+            std::vector<aecp_mapping> rows;
+            for(size_t k=0;k<n;++k){
+                const uint8_t *r=records+8*(pick!=nullptr?pick[k]:k);
+                rows.push_back({uint16_t(get(r,2)),uint16_t(get(r+2,2)),uint16_t(get(r+4,2)),uint16_t(get(r+6,2))});
+            }
+            return static_cast<Ports*>(p)->Edit(remove,type,index,rows);};
     }
     static bool same_rows(const aecp_map &m,const std::vector<aecp_mapping> &want) {
         return m.count==want.size()&&std::equal(want.begin(),want.end(),m.rows,[](auto &x,auto &y){
@@ -344,6 +371,33 @@ TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
     }
 }
 
+// #920: a SET_NAME of every user-settable name, each acknowledged, is saved and restored after a power cycle
+// (Milan v1.2 5.3.13). Each name's record id is layout 3's (nvm_layout3.h): the names follow every other block, so
+// at 1x1/1if the ordinals from 34 on have ids from 256 on, and every one must reach the store, once.
+TEST_F(Nvm, EveryAcknowledgedNameSurvivesTheRealStorePowerCycle)
+{
+    boot();ASSERT_EQ(nvm_store_status()->terminal,NVM_T_BLANK);
+    ON_CALL(mock,Changed).WillByDefault([this](aecp_change k,uint16_t t,uint16_t i){aecp_nvm_changed(&owner,k,t,i);});
+    aecp_open(&a);
+    ASSERT_GT(nvm_rec_id_of(NVM_G_NAME,AECP_ENTITY_NAMES-1),255)<<"the shape has names past the first 256 ids";
+    auto value=[](unsigned k){Bytes v(64,0);v[0]='n';v[1]=uint8_t('A'+k%26);v[2]=uint8_t('0'+k/26);return v;};
+    for(unsigned k=0;k<AECP_ENTITY_NAMES;++k){
+        auto body=target(names[k].type,names[k].index,72),name=value(k);put(body,4,names[k].name,2);
+        std::copy(name.begin(),name.end(),body.begin()+8);ask(16,body);
+    }
+    unsigned delivered=0;while(aecp_nvm_poll(&owner))++delivered;
+    EXPECT_EQ(delivered,AECP_ENTITY_NAMES)<<"every name's mark reaches the store, once";
+    EXPECT_EQ(owner.pending_count,0u)<<"the pending count follows its bits";
+    EXPECT_EQ(nvm_store_status()->n_dirty,AECP_ENTITY_NAMES)<<"the store holds every name dirty";
+    EXPECT_TRUE(owner.released);
+    save();
+    a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));owner.released=false;nvm_fmodel_power_on();boot();
+    ASSERT_EQ(nvm_store_status()->terminal,NVM_T_COMPLETE);
+    for(unsigned k=0;k<AECP_ENTITY_NAMES;++k)
+        EXPECT_EQ(latch(NVM_G_NAME,k,64),value(k))<<"name "<<k<<" (descriptor "<<names[k].type<<" "
+                                                   <<names[k].index<<") survives the power cycle";
+}
+
 // #763: an emptied list in either direction and a non-default list in the other survive the store's power
 // cycle (Milan v1.2 5.3.9.1, 5.3.10.1); the empty set is a framed record of UNUSED entries, never an erased one
 TEST_F(Nvm, EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle)
@@ -453,8 +507,9 @@ TEST_F(Nvm, EveryChangeQueuesOnlyItsOwnedRecords)
         {AECP_CHANGE_MAP,14,NVM_G_MAPI},{AECP_CHANGE_MAP,15,NVM_G_MAPO}}){
         aecp_nvm_changed(&owner,aecp_change(kind),type,0);
         auto r=nvm_rec_of(group,0);ASSERT_TRUE(r.ok);
-        for(unsigned n=0;n<8;++n)EXPECT_EQ(owner.pending[n],n==r.id/32?(1u<<(r.id%32)):0u);
-        EXPECT_TRUE(aecp_nvm_poll(&owner));EXPECT_FALSE(aecp_nvm_poll(&owner));
+        for(unsigned n=0;n<AECP_NVM_WORDS;++n)EXPECT_EQ(owner.pending[n],n==r.id/32?(1u<<(r.id%32)):0u);
+        EXPECT_EQ(owner.pending_count,1u);
+        EXPECT_TRUE(aecp_nvm_poll(&owner));EXPECT_EQ(owner.pending_count,0u);EXPECT_FALSE(aecp_nvm_poll(&owner));
     }
     aecp_nvm_changed(&owner,AECP_CHANGE_NAME,5,1);
     unsigned expected=0;for(unsigned n=0;n<AECP_ENTITY_NAMES;++n){
@@ -498,7 +553,9 @@ struct App : Nvm {
         setup.classes=srp_pool_classes;setup.n_classes=SRP_POOL_N_CLASSES;
         setup.maap_allocation=[](void*,unsigned,uint64_t,uint16_t,bool){};
         setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
+        connecting();
         ASSERT_TRUE(ctrl_app_compose(&application,&setup));
+        composing();
         ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&ports,&owner));
         aecp_nvm_init(&owner,&adapter.core,runs,AECP_ENTITY_NAME_RUNS,scratch,AECP_ENTITY_MAP_MAX);
         acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
@@ -508,8 +565,14 @@ struct App : Nvm {
         srp_mbx_config srp{};srp.link_rate_bps=1000000000;srp.licence=[](void*,unsigned,unsigned,bool){};
         for(unsigned i=0;i<MBX_N_IF;++i){srp.mac[i]=MAC;srp.sources[i]=sources[i];}
         ASSERT_TRUE(srp_mbx_init(&reservation,&srp));ASSERT_TRUE(ctrl_app_attach_srp(&application,&reservation));
+        restored();
         ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
     }
+    //! Before the application's composition, with the streams' defaults set (#943).
+    virtual void connecting() {}
+    //! Before AECP's composition, and between the saved-state walk and AECP's open (#923).
+    virtual void composing() {}
+    virtual void restored() {}
     void TearDown() override { srp_mbx_destroy(&reservation);Nvm::TearDown(); }
     void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
     void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
@@ -745,6 +808,241 @@ TEST_F(App, UnboundStartAndStopAreSuccessfulNoOps)
     }
     auto rx=application.loop.rx[MBX_CH_SRP];application.loop.rx[MBX_CH_SRP].fn=nullptr;
     EXPECT_TRUE(ctrl_app_open_aecp(&bridge));application.loop.rx[MBX_CH_SRP]=rx;
+}
+
+namespace {
+//! Every STREAM_OUTPUT of the shape as the platform composes it (ctrl_plat.c): output n on interface n % MBX_N_IF, its
+//! Talker's stream_id the entity's MAC and n, ACMP's source port reporting MAAP's address for it, BASE + n, the value
+//! PROBE_TX_RESPONSE carries. ACMP holds one source past SRP's generated shape. The face answers as the split
+//! datapath's does (#943): the output declaring while `declaring` says so, with stream_dest_mac 0 and flags_ex 0.
+struct AppOutputs : App {
+    static constexpr uint64_t BASE=0x91e0f0000100;
+    static constexpr unsigned OUTPUTS=CTRL_AEM_STREAM_OUTPUTS;
+    std::array<bool,CTRL_SRP_SOURCES+2u> declaring{};
+    bool allocated=true;
+    static uint64_t sid(unsigned n) { return MAC<<16|n; }
+    void connecting() override {
+        static_assert(OUTPUTS==CTRL_SRP_SOURCES,"SRP declares every STREAM_OUTPUT's Talker");
+        connection.n_sources=CTRL_SRP_SOURCES+1u;
+        for(unsigned n=0;n<connection.n_sources;++n)connection.source_interface[n]=uint8_t(n%MBX_N_IF);
+        for(unsigned i=0;i<MBX_N_IF;++i){
+            for(unsigned n=0;n<CTRL_SRP_SOURCES;++n)put(sources[i][n].value.stream_id.bytes,sid(n),8);
+            mbx_model_set_link(&fabric,i,true);
+        }
+        acmp_env_ports.ctx=this;
+        acmp_env_ports.source=[](void*p,unsigned n,acmp_source_state*v){
+            *v={static_cast<AppOutputs*>(p)->allocated,{sid(n),BASE+n,2},false};};
+        ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t type,uint16_t index,aecp_stream_info*v){
+            const bool on=type==6u&&index<declaring.size()&&declaring[index];
+            *v={on?sid(index):0u,0u,0u,on?0xf2000000u:0xa0000000u,2000000u,0u,uint16_t(on?2u:0u),0,0,0,false,false,
+                v->brief};
+            return true;});
+    }
+    //! A peer's MSRP Listener vector for `stream` on `interface`: one value, `event` (1 JoinIn, 5 Lv) and its
+    //! declaration (1 Asking Failed, 2 Ready, 3 Ready Failed; IEEE 802.1Q-2018 35.2.2.7.2, 35.2.2.7.4).
+    void listener(unsigned interface,uint64_t stream,unsigned event,unsigned declaration) {
+        Bytes f(60);put(f,0,0x0180c200000e,6);put(f,6,0x020304010203,6);put(f,12,0x22ea,2);
+        f[15]=3;f[16]=8;f[18]=14;f[20]=1;put(f,21,stream,8);
+        f[29]=uint8_t(event*36u);f[30]=uint8_t(declaration*64u);
+        ASSERT_TRUE(mbx_model_rx(&fabric,f.data(),f.size(),interface));settle(20);
+    }
+    void settle(unsigned ms) { for(unsigned k=0;k<ms;++k){mbx_model_advance_ms(&fabric,1);service(1);} }
+    struct Info { unsigned status=~0u;uint32_t flags=0;uint64_t dest=~0ull;uint32_t flags_ex=~0u; };
+    //! STREAM_OUTPUT n's GET_STREAM_INFO response as the first controller reads it (Milan v1.2 Figure 5.1).
+    Info info(unsigned n) {
+        const unsigned before=fabric.tx_sent;aem(15,target(6,n));
+        for(unsigned k=before;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&(p->bytes[15]&15)==1&&get(p->bytes+36,2)==15u&&
+               get(p->bytes+38,2)==6u&&get(p->bytes+40,2)==n)
+                return {unsigned(get(p->bytes+16,2)>>11),uint32_t(get(p->bytes+42,4)),get(p->bytes+66,6),
+                        uint32_t(get(p->bytes+86,4))};
+        }
+        ADD_FAILURE()<<"STREAM_OUTPUT "<<n<<"'s GET_STREAM_INFO is answered";
+        return {};
+    }
+};
+}
+
+// #943 (Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12; IEEE 1722.1-2021 7.4.16): at every STREAM_OUTPUT, while
+// the face reports it declaring, its GET_STREAM_INFO carries its Talker's MAAP address as stream_dest_mac and follows
+// the Listener registered for its stream_id on its own interface: REGISTERING for Ready, Ready Failed and Asking
+// Failed, REGISTERING_FAILED for Asking Failed alone, the face's flags otherwise (MSRP_FAILURE_VALID is a Talker
+// Failed's, never a Listener's); both clear when the Talker withdraws and when the Listener leaves, and neither
+// another output nor a Listener on another interface shows them.
+TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration)
+{
+    settle(200);
+    //! every other output, each read while it declares, shows no Listener: n's is not its own
+    auto quiet=[&](unsigned n,const char *step){
+        for(unsigned m=0;m<OUTPUTS;++m){
+            if(m==n)continue;
+            declaring[m]=true;
+            const Info o=info(m);
+            declaring[m]=false;
+            EXPECT_EQ(o.flags_ex,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
+            EXPECT_EQ(o.flags&0x40u,0u)<<"no other output shows its Listener: output "<<m<<", "<<step;
+        }
+    };
+    for(unsigned n=0;n<OUTPUTS;++n){
+        const unsigned interface=connection.source_interface[n];
+        const Info idle=info(n);
+        EXPECT_EQ(idle.status,0u);
+        EXPECT_EQ(idle.dest,0u)<<"an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers: "<<n;
+        declaring[n]=true;
+        const Info declared=info(n);
+        EXPECT_EQ(declared.flags,0xf2000000u)<<"the face's flags, and no REGISTERING_FAILED with no Listener: "<<n;
+        EXPECT_EQ(declared.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+        EXPECT_EQ(declared.flags_ex,0u)<<"no REGISTERING with no Listener: "<<n;
+        if(MBX_N_IF>1u){
+            // its stream's Listener, Asking Failed, on the interface its Talker is not declared on, kept registered
+            listener((interface+1u)%MBX_N_IF,sid(n),1u,1u);
+            const Info other=info(n);
+            EXPECT_EQ(other.flags_ex,0u)<<"another interface's Listener is not its own: output "<<n;
+            EXPECT_EQ(other.flags,0xf2000000u)<<"another interface's Listener is not its own: output "<<n;
+        }
+        for(auto [declaration,failed]:{std::pair{2u,false},std::pair{3u,false},std::pair{1u,true}}){
+            listener(interface,sid(n),1u,declaration);
+            const Info r=info(n);
+            EXPECT_EQ(r.flags_ex,1u)
+                <<"REGISTERING while declaring and registering a matching Listener (Table 5.8): output "<<n
+                <<", declaration "<<declaration;
+            EXPECT_EQ(r.flags,failed?0xf2000040u:0xf2000000u)
+                <<"REGISTERING_FAILED for a Listener Asking Failed alone (Table 5.11), in the face's flags, and never "
+                <<"MSRP_FAILURE_VALID, a Talker Failed's: output "<<n<<", declaration "<<declaration;
+            EXPECT_EQ(r.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+            quiet(n,"its Listener registered");
+        }
+        declaring[n]=false;
+        const Info withdrawn=info(n);
+        EXPECT_EQ(withdrawn.flags_ex,0u)<<"both clear once the Talker withdraws: "<<n;
+        EXPECT_EQ(withdrawn.flags&0x40u,0u)<<"both clear once the Talker withdraws: "<<n;
+        EXPECT_EQ(withdrawn.dest,0u)<<"an undeclared STREAM_OUTPUT's stream_dest_mac is 0, as the fabric answers: "<<n;
+        declaring[n]=true;
+        EXPECT_EQ(info(n).flags&0x40u,0x40u)<<"REGISTERING_FAILED again as the Talker declares again: "<<n;
+        listener(interface,sid(n),5u,1u);
+        settle(1100);
+        const Info left=info(n);
+        EXPECT_EQ(left.flags_ex,0u)<<"both clear once the Listener leaves: "<<n;
+        EXPECT_EQ(left.flags&0x40u,0u)<<"both clear once the Listener leaves: "<<n;
+        EXPECT_EQ(left.dest,BASE+n)<<"a declaring STREAM_OUTPUT's stream_dest_mac is its Talker's MAAP address: "<<n;
+        declaring[n]=false;
+    }
+    declaring[0]=true;
+    listener(connection.source_interface[0],sid(0),1u,1u);
+    allocated=false;
+    EXPECT_EQ(info(0).dest,0u)<<"no address MAAP does not hold";
+    allocated=true;
+    aecp_stream_info v{};
+    srp_mbx *srp=application.srp;application.srp=nullptr;
+    const bool answered=bridge.ports.stream(&bridge,0,6,0,&v);
+    application.srp=srp;
+    ASSERT_TRUE(answered)<<"without SRP, an output is still answered";
+    EXPECT_EQ(v.dest_mac,BASE)<<"without SRP, an output's address is still its Talker's";
+    EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"without SRP, no Listener is registered";
+    aecp_stream_info brief{};brief.brief=true;
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,0,&brief));
+    EXPECT_EQ(brief.dest_mac|brief.flags_ex|(brief.flags&0x40u),0u)
+        <<"a brief observation of an output, a running check's, is the face's: bound and running alone";
+    declaring[CTRL_SRP_SOURCES]=true;
+    ASSERT_TRUE(bridge.ports.stream(&bridge,0,6,CTRL_SRP_SOURCES,&v))<<"a source past SRP's shape is answered";
+    EXPECT_EQ(v.dest_mac,BASE+CTRL_SRP_SOURCES)<<"a source past SRP's shape has its Talker's address";
+    EXPECT_EQ(v.flags_ex|(v.flags&0x40u),0u)<<"a source past SRP's shape registers no Listener";
+    declaring[connection.n_sources]=true;
+    EXPECT_FALSE(bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v))
+        <<"an output ACMP holds no source for is not answered";
+}
+
+namespace {
+//! The composition with the integrator's map store (#923), a saved input map restored by the walk.
+struct AppStore : App {
+    std::vector<std::tuple<bool,unsigned,std::vector<aecp_mapping>>> edits;
+    aecp_mapping saved{0,2,0,0};
+    void composing() override {
+        store();
+        ON_CALL(mock,Edit).WillByDefault([this](bool remove,uint16_t type,uint16_t,std::vector<aecp_mapping> rows){
+            EXPECT_FALSE(adapter.core.open)<<"the restored maps reach the store before AECP opens";
+            edits.emplace_back(remove,type,rows);return 0u;});
+    }
+    void restored() override {
+        ASSERT_TRUE(owner.released)<<"the walk ended";
+        ASSERT_EQ(aecp_map_restore(&adapter.core,&pools[0],&saved,1),0u);
+    }
+};
+}
+
+// #923: AECP's open commits the restored maps to the integrator's store before AECP opens: the input port's reset set
+// removed, its saved set added (ctrl_app_open_aecp)
+TEST_F(AppStore, TheRestoredMapsReachTheStoreBeforeAecpOpens)
+{
+    ASSERT_EQ(pools[0].type,14u);ASSERT_GT(pools[0].default_count,0u);
+    std::vector<aecp_mapping> reset(pools[0].defaults,pools[0].defaults+pools[0].default_count);
+    using Edit=std::tuple<bool,unsigned,std::vector<aecp_mapping>>;
+    ASSERT_EQ(edits.size(),2u)<<"AECP's open commits the restored maps";
+    EXPECT_EQ(edits[0],Edit(true,14,reset))<<"the reset set the store holds removed";
+    EXPECT_EQ(edits[1],Edit(false,14,{saved}))<<"the saved set added";
+    EXPECT_TRUE(adapter.core.open);EXPECT_TRUE(same_rows(pools[0],{saved}));
+}
+
+// #936: SRP's record of a source whose Talker declaration changed is its STREAM_OUTPUT's GET_STREAM_INFO notice
+// (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the SRP delivery takes it and the bridge raises the
+// notice of that STREAM_OUTPUT, which every registered controller is sent once (Milan v1.2 5.4.5.1). A source the
+// record does not name, and a pass with no record, are notified nothing.
+TEST_F(App, SrpDeclarationChangeIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);service();
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    unsigned before=fabric.tx_sent;
+    reservation.ifs[0].noticed=1u;service();
+    EXPECT_EQ(reservation.ifs[0].noticed,0u)<<"the SRP delivery takes SRP's record";
+    EXPECT_EQ(application.srp_noticed,0u)<<"the bridge raises every STREAM_OUTPUT the delivery took";
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,0,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,last,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+    before=fabric.tx_sent;service();mbx_model_advance_ms(&fabric,50);service();
+    EXPECT_EQ(notices(before,0,CTLR)+notices(before,last,CTLR),0u)<<"a pass with no record notifies nothing";
+    before=fabric.tx_sent;
+    reservation.ifs[MBX_N_IF-1u].noticed=1u<<last;service();
+    for(uint64_t controller:{CTLR,CTLR+1}){
+        EXPECT_EQ(notices(before,last,controller),1u)
+            <<"a declaration changed notifies its STREAM_OUTPUT's GET_STREAM_INFO to every registered controller";
+        EXPECT_EQ(notices(before,0,controller),0u)<<"a source the record does not name is notified nothing";
+    }
+}
+
+// #936 (ctrl_loop.h, the polls: only a pass that handled nothing and owes nothing sleeps in mbx_hal_wait()): from the
+// pass that takes SRP's record to its STREAM_OUTPUT's notice committed to every registered controller, no pass
+// reports the loop idle. Each pass is stepped alone, from an idle loop, until one returns 0.
+TEST_F(App, NoPassIsIdleWhileAStreamOutputsNoticeIsOwed)
+{
+    aem(36);aem(36,{},CTLR+1);
+    const unsigned last=connection.n_sources-1u;
+    auto notices=[&](unsigned from,unsigned index,uint64_t controller){
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==0x800fu&&get(p->bytes+38,2)==6u&&
+               get(p->bytes+40,2)==index&&get(p->bytes+26,8)==controller)++n;}
+        return n;
+    };
+    auto idle=[&]{for(unsigned k=0;k<256u;++k)if(ctrl_loop_service(&application.loop)==0u)return k;return 256u;};
+    ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+    for(auto [interface,source]:{std::pair{0u,0u},std::pair{MBX_N_IF-1u,last}}){
+        const unsigned before=fabric.tx_sent;
+        reservation.ifs[interface].noticed=1u<<source;
+        ASSERT_LT(idle(),256u)<<"the loop reaches an idle pass";
+        for(uint64_t controller:{CTLR,CTLR+1}){
+            EXPECT_EQ(notices(before,source,controller),1u)
+                <<"no pass is idle while a STREAM_OUTPUT's notice is owed";
+        }
+    }
 }
 #endif
 
@@ -1891,7 +2189,7 @@ TEST_F(Core, RegistryCapacityInterfaceKeysAndLiveness)
 TEST_F(Core, ConfigurationAndLockedSetRefusals)
 {
     auto out=ask(7);EXPECT_EQ(get(out,40,2),0u);
-    ask(6,Bytes(3),7);auto b=Bytes(4);put(b,2,1,2);ask(6,b,7);
+    ask(6,Bytes(3),7);auto b=Bytes(4);put(b,2,1,2);ask(6,b,2);
     bound=true;ask(6,b,12);bound=false;streaming=true;ask(6,b,12);streaming=false;
     ask(1,Bytes(16));ask(6,b,3,CTLR+1);
     for(auto [cmd,type,size]:std::vector<std::array<unsigned,3>>{{8,5,12},{20,2,8},{22,36,8},{14,6,84},{24,26,5},{34,5,4}})
@@ -1917,6 +2215,10 @@ TEST_F(Core, TheRunningCheckObservesEveryStreamBriefly)
     EXPECT_TRUE(briefs.front())<<"SET_STREAM_FORMAT's running check is brief";
     briefs.clear();ask(15,target(6,0));
     EXPECT_EQ(briefs,std::vector<bool>{false})<<"GET_STREAM_INFO reads the stream whole";
+    // #943: an output map edit's check of its stream is a running check too (aecp_maps.c, idle)
+    auto map=target(15,0,16);put(map,4,1,2);put(map,10,1,2);put(map,12,1,2);
+    briefs.clear();ask(44,map);ASSERT_FALSE(briefs.empty());
+    EXPECT_EQ(briefs,std::vector<bool>(briefs.size(),true))<<"an output map edit's running check is brief";
 }
 
 // SET_CONFIGURATION's change names whether its index moved, which the face's stream entries follow; its notify
@@ -2905,6 +3207,255 @@ TEST_F(Core, RestoredOutputMapsHaveOneGlobalOwner)
     EXPECT_EQ(pools[0].count,2u)<<"a saved row that differs only in its cluster channel is its own";
 }
 
+// #923: an accepted ADD or REMOVE_AUDIO_MAPPINGS reaches the integrator's map store before the core's map moves: one
+// edit of the mappings that change the map, each once, in command order (Milan v1.2 5.4.2.27, 5.4.2.28). An edit that
+// changes nothing reaches no store.
+TEST_F(Core, AnAcceptedEditReachesTheStoreBeforeTheMap)
+{
+    store();
+    auto &m=maps[0];
+    std::vector<std::tuple<bool,std::vector<aecp_mapping>,size_t>> calls;   // remove, its mappings, the map's count then
+    ON_CALL(mock,Edit).WillByDefault([&](bool remove,uint16_t type,uint16_t index,std::vector<aecp_mapping> rows){
+        EXPECT_EQ(type,14u)<<"the edit names its port";EXPECT_EQ(index,0u);
+        calls.emplace_back(remove,rows,m.count);return 0u;});
+    edit_map(44,14,{{0,1,1,0}},0);
+    calls.clear();edit_map(44,14,{{0,2,2,0},{0,1,1,0},{0,2,2,0},{0,3,3,0}},0);
+    ASSERT_EQ(calls.size(),1u)<<"one store edit for the command";
+    EXPECT_FALSE(std::get<0>(calls[0]))<<"an ADD is no removal";
+    EXPECT_EQ(std::get<1>(calls[0]),(std::vector<aecp_mapping>{{0,2,2,0},{0,3,3,0}}))
+        <<"an ADD's additions alone, each once, in command order";
+    EXPECT_EQ(std::get<2>(calls[0]),1u)<<"the store takes the edit before the map moves";
+    EXPECT_TRUE(same_rows(m,{{0,1,1,0},{0,2,2,0},{0,3,3,0}}));
+    calls.clear();edit_map(45,14,{{0,3,3,0},{0,1,1,0},{0,3,3,0}},0);
+    ASSERT_EQ(calls.size(),1u)<<"one store edit for the command";
+    EXPECT_TRUE(std::get<0>(calls[0]))<<"a REMOVE is a removal";
+    EXPECT_EQ(std::get<1>(calls[0]),(std::vector<aecp_mapping>{{0,3,3,0},{0,1,1,0}}))
+        <<"a REMOVE's every distinct mapping, each once, in command order";
+    EXPECT_EQ(std::get<2>(calls[0]),3u)<<"the store takes the edit before the map moves";
+    EXPECT_TRUE(same_rows(m,{{0,2,2,0}}));
+    calls.clear();edit_map(44,14,{{0,2,2,0},{0,2,2,0}},0);edit_map(45,14,{},0);
+    EXPECT_TRUE(calls.empty())<<"an edit that changes nothing reaches no store";
+}
+
+// #923: the store's refusal is the command's answer, and nothing changes: not the map, and no notification
+TEST_F(Core, AStoreRefusalIsTheAnswerAndChangesNothing)
+{
+    store();register_controller(CTLR+1);
+    EXPECT_CALL(mock,Changed(AECP_CHANGE_MAP,_,_)).Times(2);
+    for(unsigned status:{7u,11u,10u}){
+        EXPECT_CALL(mock,Edit(false,14,0,_)).WillOnce(Return(status)).RetiresOnSaturation();
+        auto out=edit_map(44,14,{{0,4,4,0}},status);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<"the store's refusal is the command's status";
+        EXPECT_EQ(maps[0].count,0u)<<"refused by the store, the map keeps its rows";
+        EXPECT_EQ(sent.size(),1u)<<"a refusal's response alone, no notification";
+    }
+    EXPECT_CALL(mock,Edit(false,14,0,_)).WillOnce(Return(0u)).RetiresOnSaturation();
+    edit_map(44,14,{{0,4,4,0}},0);
+    EXPECT_EQ(maps[0].count,1u);EXPECT_EQ(sent.size(),2u)<<"an accepted change is notified";
+    EXPECT_CALL(mock,Edit(true,14,0,_)).WillOnce(Return(7u)).RetiresOnSaturation();
+    edit_map(45,14,{{0,4,4,0}},7);
+    EXPECT_EQ(maps[0].count,1u)<<"a REMOVE the store refuses keeps the mapping";
+    EXPECT_CALL(mock,Edit(true,14,0,_)).WillOnce(Return(0u)).RetiresOnSaturation();
+    edit_map(45,14,{{0,4,4,0}},0);EXPECT_EQ(maps[0].count,0u);
+}
+
+// #923: a command the core refuses never reaches the store
+TEST_F(Core, ARefusedEditNeverReachesTheStore)
+{
+    store();size_t edits=0;
+    ON_CALL(mock,Edit).WillByDefault([&](bool,uint16_t,uint16_t,std::vector<aecp_mapping>){++edits;return 0u;});
+    edit_map(44,14,{{0,1,1,0},{0,8,4,0}},7);
+    edit_map(44,14,{{0,4,4,0},{0,5,4,0}},7);
+    edit_map(45,14,{{0,1,1,0}},7);
+    maps[0].capacity=0;edit_map(44,14,{{0,1,1,0}},8);maps[0].capacity=input.size();
+    ask(1,Bytes(16),0,CTLR+1);edit_map(44,14,{{0,1,1,0}},3);
+    EXPECT_EQ(edits,0u)<<"a command the core refuses never reaches the store";
+    EXPECT_EQ(maps[0].count,0u);
+}
+
+// #923: the restored maps reach the store before AECP opens. Each moved port's reset set leaves the store before any
+// restored set joins it (Milan v1.2 5.3.10.1), an empty set costs no edit, and a port at its reset set reaches nothing.
+TEST_F(Core, RestoredMapsReachTheStoreRemovalsFirst)
+{
+    store();a.open=false;
+    std::array<aecp_mapping,4> in_defaults{{{0,0,0,0},{0,1,1,0},{0,2,2,0},{0,3,3,0}}};
+    std::array<aecp_mapping,2> out_defaults{{{0,0,0,0},{0,1,1,0}}};
+    maps[0].defaults=in_defaults.data();maps[0].default_count=4;
+    maps[1].defaults=out_defaults.data();maps[1].default_count=2;
+    ASSERT_TRUE(aecp_restore_defaults(&a));
+    std::vector<std::tuple<bool,unsigned,std::vector<aecp_mapping>>> calls;
+    ON_CALL(mock,Edit).WillByDefault([&](bool remove,uint16_t type,uint16_t,std::vector<aecp_mapping> rows){
+        calls.emplace_back(remove,type,rows);return 0u;});
+    aecp_restore_commit(&a);EXPECT_TRUE(calls.empty())<<"maps at their reset sets reach nothing";
+    aecp_mapping in[]={{0,3,0,0},{0,2,1,0}};ASSERT_EQ(aecp_map_restore(&a,&maps[0],in,2),0u);
+    aecp_mapping out[]={{0,1,1,0}};ASSERT_EQ(aecp_map_restore(&a,&maps[1],out,1),0u);
+    aecp_restore_commit(&a);
+    using Call=std::tuple<bool,unsigned,std::vector<aecp_mapping>>;
+    ASSERT_EQ(calls.size(),4u)<<"two removals and two additions";
+    EXPECT_EQ(calls[0],Call(true,14,{in_defaults.begin(),in_defaults.end()}))<<"the input port's reset set removed";
+    EXPECT_EQ(calls[1],Call(true,15,{out_defaults.begin(),out_defaults.end()}))<<"the output port's reset set removed";
+    EXPECT_EQ(calls[2],Call(false,14,{in,in+2}))<<"every removal before any addition";
+    EXPECT_EQ(calls[3],Call(false,15,{out,out+1}))<<"every removal before any addition";
+    EXPECT_TRUE(same_rows(maps[0],{in[0],in[1]}));EXPECT_TRUE(same_rows(maps[1],{out[0]}));
+    // a port restored empty: its reset set removed, and no addition
+    ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(aecp_map_restore(&a,&maps[0],nullptr,0),0u);
+    calls.clear();aecp_restore_commit(&a);
+    ASSERT_EQ(calls.size(),1u)<<"an empty set costs no edit";
+    EXPECT_EQ(calls[0],Call(true,14,{in_defaults.begin(),in_defaults.end()}));
+    // a port whose reset set is empty: its restored set added, and no removal
+    maps[1].default_count=0;ASSERT_TRUE(aecp_restore_defaults(&a));
+    ASSERT_EQ(aecp_map_restore(&a,&maps[1],out,1),0u);
+    calls.clear();aecp_restore_commit(&a);
+    ASSERT_EQ(calls.size(),1u)<<"an empty set costs no edit";
+    EXPECT_EQ(calls[0],Call(false,15,{out,out+1}));
+}
+
+// #923: the store holds the reset set the restored formats clip (aecp_restore_settle): only its kept rows leave the
+// store, a map that is that clipped set has not moved, and a port whose removal is refused keeps that clipped set.
+// A row of no such stream is kept by no format.
+TEST_F(Core, TheStoresResetSetIsTheClippedOne)
+{
+    store();a.open=false;
+    std::array<aecp_mapping,5> defaults{{{0,0,0,0},{0,1,1,0},{0,2,2,0},{0,3,3,0},{0xff00,0,4,0}}};
+    maps[0].defaults=defaults.data();maps[0].default_count=5;ASSERT_TRUE(aecp_restore_defaults(&a));
+    auto &d=desc(5);put(d.value+74,(get(d.value+74,8)&~(uint64_t(1023)<<22))|(uint64_t(2)<<22),8);
+    using Call=std::pair<bool,std::vector<aecp_mapping>>;
+    std::vector<Call> calls;
+    ON_CALL(mock,Edit).WillByDefault([&](bool remove,uint16_t,uint16_t,std::vector<aecp_mapping> rows){
+        calls.emplace_back(remove,rows);return 0u;});
+    maps[0].count=2;aecp_restore_commit(&a);
+    EXPECT_TRUE(calls.empty())<<"a map that is the clipped reset set has not moved";
+    aecp_mapping in[]={{0,1,0,0}};ASSERT_EQ(aecp_map_restore(&a,&maps[0],in,1),0u);
+    calls.clear();aecp_restore_commit(&a);
+    EXPECT_EQ(calls,(std::vector<Call>{{true,{defaults[0],defaults[1]}},{false,{in[0]}}}))
+        <<"only the clipped reset set's rows leave the store";
+    // a stream descriptor too short for a format keeps none of its rows
+    auto length=d.length;maps[0].count=0;d.length=81;calls.clear();aecp_restore_commit(&a);d.length=length;
+    EXPECT_TRUE(calls.empty())<<"a stream too short for a format keeps no row";
+    // a map shorter, longer or other than the clipped set has moved
+    for(auto rows:std::vector<std::vector<aecp_mapping>>{{defaults[0]},{defaults[0],defaults[1],in[0]},
+                                                         {defaults[0],in[0]}}){
+        std::copy(rows.begin(),rows.end(),maps[0].rows);maps[0].count=rows.size();
+        calls.clear();aecp_restore_commit(&a);
+        EXPECT_EQ(calls,(std::vector<Call>{{true,{defaults[0],defaults[1]}},{false,rows}}))
+            <<"a map shorter, longer or other than the clipped reset set has moved";
+    }
+    // the store refuses the removal: the port keeps what the store holds, the clipped reset set, and adds nothing
+    ON_CALL(mock,Edit).WillByDefault([&](bool remove,uint16_t,uint16_t,std::vector<aecp_mapping> rows){
+        calls.emplace_back(remove,rows);return remove?7u:0u;});
+    maps[0].rows[0]=in[0];maps[0].count=1;calls.clear();aecp_restore_commit(&a);
+    EXPECT_EQ(calls,(std::vector<Call>{{true,{defaults[0],defaults[1]}}}))<<"a refused removal adds nothing";
+    EXPECT_TRUE(same_rows(maps[0],{defaults[0],defaults[1]}))
+        <<"a refused removal keeps the clipped reset set the store holds";
+}
+
+// #923: a port the store refuses keeps what the store holds: its reset set where the removal is refused; else its
+// reset set added back, or none where the store refuses that too. The other ports go on.
+TEST_F(Core, ARefusedRestoreKeepsWhatTheStoreHolds)
+{
+    store();a.open=false;
+    std::array<aecp_mapping,2> defaults{{{0,0,0,0},{0,1,1,0}}};
+    for(auto &m:maps){m.defaults=defaults.data();m.default_count=2;}
+    aecp_mapping in[]={{0,2,0,0}},out[]={{0,2,2,0}};
+    std::vector<aecp_mapping> reset(defaults.begin(),defaults.end()),none,restored_in{in[0]},restored_out{out[0]};
+    auto restore=[&]{
+        ASSERT_TRUE(aecp_restore_defaults(&a));
+        ASSERT_EQ(aecp_map_restore(&a,&maps[0],in,1),0u);ASSERT_EQ(aecp_map_restore(&a,&maps[1],out,1),0u);
+    };
+    restore();
+    {
+        testing::InSequence order;
+        EXPECT_CALL(mock,Edit(true,14,0,reset)).WillOnce(Return(7u));
+        EXPECT_CALL(mock,Edit(true,15,0,reset)).WillOnce(Return(0u));
+        EXPECT_CALL(mock,Edit(false,15,0,restored_out)).WillOnce(Return(0u));
+    }
+    aecp_restore_commit(&a);
+    EXPECT_TRUE(same_rows(maps[0],reset))<<"a refused removal keeps the reset set the store holds";
+    EXPECT_TRUE(same_rows(maps[1],restored_out))<<"the other ports go on";
+    testing::Mock::VerifyAndClearExpectations(&mock);
+    for(unsigned back:{0u,10u}){
+        restore();
+        {
+            testing::InSequence order;
+            EXPECT_CALL(mock,Edit(true,14,0,reset)).WillOnce(Return(0u));
+            EXPECT_CALL(mock,Edit(true,15,0,reset)).WillOnce(Return(0u));
+            EXPECT_CALL(mock,Edit(false,14,0,restored_in)).WillOnce(Return(7u));
+            EXPECT_CALL(mock,Edit(false,14,0,reset)).WillOnce(Return(back));
+            EXPECT_CALL(mock,Edit(false,15,0,restored_out)).WillOnce(Return(0u));
+        }
+        aecp_restore_commit(&a);
+        if(back==0u){EXPECT_TRUE(same_rows(maps[0],reset))<<"a refused addition puts the reset set back";}
+        else{EXPECT_TRUE(same_rows(maps[0],none))<<"a refused put-back leaves the store's empty port empty";}
+        EXPECT_TRUE(same_rows(maps[1],restored_out))<<"the other ports go on";
+        testing::Mock::VerifyAndClearExpectations(&mock);
+    }
+}
+
+// #923: nothing reaches a store with no edit port, or from an open core, from inside a port, or of another
+// configuration; a port past a page of mappings keeps its reset set.
+TEST_F(Core, TheRestoreCommitsOnlyAClosedCoresMapsInForce)
+{
+    a.open=false;
+    std::array<aecp_mapping,1> defaults{{{0,0,0,0}}};maps[0].defaults=defaults.data();maps[0].default_count=1;
+    ASSERT_TRUE(aecp_restore_defaults(&a));maps[0].count=0;
+    aecp_restore_commit(&a);EXPECT_EQ(maps[0].count,0u)<<"no store: nothing changes";
+    store();size_t edits=0;
+    ON_CALL(mock,Edit).WillByDefault([&](bool,uint16_t,uint16_t,std::vector<aecp_mapping>){++edits;return 0u;});
+    maps[0].configuration=1;aecp_restore_commit(&a);maps[0].configuration=0;
+    EXPECT_EQ(edits,0u)<<"a map of another configuration is not committed";
+    aecp_open(&a);aecp_restore_commit(&a);a.open=false;
+    EXPECT_EQ(edits,0u)<<"an open core commits no restored map";
+    maps[0].capacity=AECP_MAP_PAGE+1u;aecp_restore_commit(&a);
+    EXPECT_EQ(edits,0u)<<"a port past a page reaches no store";
+    EXPECT_TRUE(same_rows(maps[0],{defaults[0]}))<<"a port past a page keeps its reset set";
+    maps[0].capacity=input.size();aecp_open(&a);
+    auto reentries=a.reentries;
+    EXPECT_CALL(mock,Edit(true,14,0,_)).WillOnce([&](bool,uint16_t,uint16_t,std::vector<aecp_mapping>){
+        aecp_restore_commit(&a);return 0u;});
+    edit_map(45,14,{{0,0,0,0}},0);
+    EXPECT_EQ(a.reentries,reentries+1)<<"the restore's commit from inside a port is refused";
+}
+
+// #924: SET_CONFIGURATION of an index at or past configurations_count names no CONFIGURATION descriptor and answers
+// NO_SUCH_DESCRIPTOR with the index in force (IEEE 1722.1-2021 7.4.7.1, Table 7-141), as the fabric processor does.
+TEST_F(Core, SetConfigurationOutOfRangeIsNoSuchDescriptor)
+{
+    for(unsigned index:{1u,2u,0xffffu}){
+        Bytes b(4);put(b,2,index,2);auto out=ask(6,b,2);
+        EXPECT_EQ(get(out,16,2)>>11,2u)<<"an index past configurations_count names no CONFIGURATION descriptor";
+        EXPECT_EQ(get(out,40,2),0u)<<"answered with the index in force";
+    }
+    EXPECT_EQ(a.configuration,0u);
+    model.configurations=2;Bytes b(4);put(b,2,1,2);ask(6,b);EXPECT_EQ(a.configuration,1u)<<"an index in range is taken";
+    put(b,2,2,2);auto out=ask(6,b,2);EXPECT_EQ(get(out,40,2),1u)<<"answered with the index in force";
+    put(b,2,0,2);ask(6,b);
+}
+
+// #924: SET_STREAM_INFO takes the 48-octet IEEE 1722.1-2013 body, whose fields end at stream_vlan_id, as it takes the
+// 2021 body, with the same refusals in the same order, and answers it in the 84-octet 2021 form; a body of any other
+// length short of 84 octets is refused.
+TEST_F(Core, SetStreamInfoTakesTheEarlierBodyOf48Octets)
+{
+    EXPECT_CALL(mock,Changed(AECP_CHANGE_LATENCY,6,0)).Times(1);
+    auto b=target(6,0,48);put(b,4,0x20000000,4);put(b,24,654321,4);
+    auto out=ask(14,b);
+    EXPECT_EQ(get(out,16,2)>>11,0u)<<"the 48-octet body is taken";
+    EXPECT_EQ(out.size(),38u+84u)<<"answered in the 2021 form";
+    EXPECT_EQ(get(out,42,4)&0x20000000u,0x20000000u)<<"MSRP_ACC_LAT_VALID answered";
+    EXPECT_EQ(get(out,62,4),654321u)<<"its latency answered";
+    EXPECT_EQ(get(ask(15,target(6,0)),62,4),654321u)<<"its latency taken";
+    put(b,0,5,2);ask(14,b,11);put(b,0,6,2);
+    put(b,4,0x22000000,4);ask(14,b,11);put(b,4,0x20000000,4);
+    put(b,24,0x80000000,4);ask(14,b,7);put(b,24,654321,4);
+    streaming=true;ask(14,b,12);streaming=false;
+    put(b,2,65535,2);ask(14,b,2);
+    for(size_t size:{4u,47u,49u,60u,83u}){
+        auto refused=target(6,0,size);if(size>=8)put(refused,4,0x20000000,4);
+        out=ask(14,refused,7);
+        EXPECT_EQ(get(out,16,2)>>11,7u)<<"a body between 48 and 84 octets, or short of 48, is refused";
+    }
+}
+
 TEST_F(Core, InitRefusalsAndClosedService)
 {
     auto original=cfg;
@@ -3014,6 +3565,94 @@ TEST_F(Core, NotificationBackpressureAndLatestCompletion)
     EXPECT_EQ(sent.size(),count)<<"an old completion cannot release a newer copy";
     aecp_tx_complete(&a,latest,5000);ms=5999;drain();EXPECT_EQ(sent.size(),count);
     ms=6000;drain();EXPECT_EQ(sent.size(),count+2);
+}
+
+// IEEE 1722.1-2021 7.4.43 (#871): a composition without a reset port answers
+// REBOOT NOT_IMPLEMENTED, as it did before, and stays in service.
+TEST_F(Core, RebootIsNotImplementedWithoutAResetPort)
+{
+    auto out=ask(42,target(0,0),1);
+    EXPECT_EQ(get(out,16,2)>>11,1u)<<"REBOOT without a reset port is NOT_IMPLEMENTED";
+    EXPECT_EQ(Bytes(out.begin()+38,out.end()),target(0,0))<<"the refusal echoes its body";
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"REBOOT without a reset port resets nothing";
+    ask(7,target(0,0));
+}
+
+// Figure 7-68's routes, in the processor's order: too short is BAD_ARGUMENTS,
+// another type NOT_SUPPORTED (no MEMORY_OBJECT firmware image exists, 7.4.43.1),
+// another ENTITY index NO_SUCH_DESCRIPTOR, and another controller's lock
+// ENTITY_LOCKED (7.4.43.2). A change the platform has not applied is refused
+// ENTITY_MISBEHAVING, as every change is. Each refusal is answered at cdl 16,
+// notifies no one and leaves the entity in service.
+TEST_F(Core, RebootRefusalsLeaveTheEntityInService)
+{
+    cfg.reboot=true;ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    register_controller(CTLR+1);
+    auto refused=[&](Bytes body,unsigned status,const char* what){
+        auto out=ask(42,body,status);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<what;
+        EXPECT_EQ(get(out,16,2)&0x7ff,16u)<<what<<", answered at cdl 16";
+        EXPECT_EQ(sent.size(),1u)<<what<<", notifying no one";
+        EXPECT_FALSE(aecp_reboot_due(&a))<<what<<", resetting nothing";
+        EXPECT_FALSE(aecp_reboot_accepted(&a))<<what<<", resetting nothing";
+        ask(7,target(0,0));
+    };
+    refused({0,0},7,"BAD_ARGUMENTS short of Figure 7-68's four bytes");
+    refused(target(5,0),11,"NOT_SUPPORTED for a STREAM_INPUT");
+    refused(target(11,0),11,"NOT_SUPPORTED for a MEMORY_OBJECT");
+    refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index");
+    ask(1,Bytes(16),0,CTLR+1);
+    refused(target(0,0),3,"ENTITY_LOCKED under another controller's lock");
+    // the processor's order: the index is judged before the lock (protocol-processor 06_aecp_engine.md 6.11)
+    refused(target(0,1),2,"NO_SUCH_DESCRIPTOR for another ENTITY index under another controller's lock");
+    Bytes unlock(16);put(unlock,0,1,4);ask(1,unlock,0,CTLR+1);
+    ON_CALL(mock,Applied).WillByDefault(Return(false));
+    refused(target(0,0),10,"ENTITY_MISBEHAVING while a change waits for the platform");
+}
+
+// 7.4.43: SUCCESS echoes {ENTITY, 0}, and every other registered controller is
+// notified (7.5.2; Milan v1.2 5.4.5.2). The reset is due only once each of
+// those frames has completed, and no command is taken, nor probe or
+// notification started by the poll or by THE RETRY's round, after the SUCCESS.
+// The lock's owner may reboot.
+TEST_F(Core, RebootIsAnsweredNotifiedAndDueOnlyOnceItsFramesComplete)
+{
+    cfg.reboot=true;ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    register_controller(CTLR);register_controller(CTLR+1);ask(1,Bytes(16));
+    sent.clear();completions.clear();
+    auto b=command(42,target(0,0));aecp_rx(&a,0,b.data(),b.size());
+    EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, before any poll hands its frames over";
+    for(unsigned n=0;n<4;++n)aecp_poll(&a);
+    ASSERT_EQ(sent.size(),2u)<<"the SUCCESS response, then one notification";
+    EXPECT_TRUE(aecp_reboot_accepted(&a))<<"accepted at its SUCCESS, so the platform takes no frame";
+    const auto &r=sent[0].second,&u=sent[1].second;
+    EXPECT_EQ(get(r,16,2)>>11,0u)<<"a REBOOT of ENTITY 0 by the lock's owner is SUCCESS";
+    EXPECT_EQ(get(r,36,2),42u)<<"the response is solicited";
+    EXPECT_EQ(Bytes(r.begin()+38,r.end()),target(0,0))<<"the response echoes Figure 7-68's fields";
+    EXPECT_EQ(get(u,36,2),0x8000u|42u)<<"the notification is unsolicited";
+    EXPECT_EQ(get(u,26,8),CTLR+1)<<"the requester is not notified";
+    EXPECT_EQ(Bytes(u.begin()+38,u.end()),target(0,0))<<"the notification echoes Figure 7-68's fields";
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the response has left";
+    const uint32_t response=completions[0];
+    aecp_tx_complete(&a,completions[0],ms);aecp_poll(&a);
+    EXPECT_FALSE(aecp_reboot_due(&a))<<"not due before the notification has left";
+    aecp_tx_complete(&a,completions[1],ms);
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
+    sent.clear();auto read=command(4,Bytes(8));aecp_rx(&a,0,read.data(),read.size());drain();
+    EXPECT_TRUE(sent.empty())<<"no command is taken after a REBOOT's SUCCESS";
+    EXPECT_EQ(a.busy_drops,1u)<<"no command is taken after a REBOOT's SUCCESS";
+    ms=120000;drain();
+    EXPECT_TRUE(sent.empty())<<"no probe or notification is started after a REBOOT's SUCCESS";
+    aecp_changed(&a,5,0,8);aecp_retry(&a,4,1000000);drain();
+    EXPECT_TRUE(sent.empty())<<"THE RETRY's round starts no notification after a REBOOT's SUCCESS";
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"due once every frame of the REBOOT has completed";
+    aecp_tx_complete(&a,response,ms);
+    EXPECT_TRUE(aecp_reboot_due(&a))<<"an older completion does not hold the reset back";
+    const uint32_t reentries=a.reentries;
+    EXPECT_CALL(mock,Now).WillOnce([this]{
+        EXPECT_FALSE(aecp_reboot_due(&a))<<"a port's call cannot read the release";return ms;});
+    aecp_poll(&a);
+    EXPECT_EQ(a.reentries,reentries+1u)<<"a port's call cannot read the release";
 }
 
 TEST_F(Core, DescriptorAndObservationBoundaryFailures)
@@ -3392,6 +4031,53 @@ TEST_F(Mailbox, EveryNoticePendingAtOnceMeetsItsBound)
     EXPECT_LE(last,AECP_QUEUED_MS)<<"every queued notice within AECP_QUEUED_MS";
 }
 
+// The most notices a datapath reset can leave pending (aecp.h, AECP_NOTICES_MOST; #894's held-egress
+// ruling, item (b)(iv)): every notice the image's descriptors hold is kept at once, at one interface
+// exactly the most its shape header's descriptors derive, and each is built and sent once as its port answers.
+TEST_F(Mailbox, EveryNoticeTheDescriptorsHoldIsKeptAndSentOnce)
+{
+    bool answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){*v={};return answers;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){*v={};return answers;});
+    ON_CALL(mock,Counters).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_counters*v){*v={};return answers;});
+    ON_CALL(mock,Path).WillByDefault([&](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=0;return answers;});
+    receive(36);
+    unsigned held=0;
+    for(const auto &d:descriptors){
+        held+=d.type==5u||d.type==6u?2u:d.type==9u?3u:d.type==36u?1u:0u;
+        aecp_changed(&adapter.core,d.type,d.index,15u);
+    }
+    const auto pending=[&]{
+        unsigned n=0;
+        for(const auto &e:events)n+=static_cast<unsigned>(__builtin_popcount(e.pending));
+        return n;
+    };
+    EXPECT_EQ(pending(),held)<<"every notice the descriptors hold is kept at once";
+    if(MBX_N_IF==1u){
+        EXPECT_EQ(AECP_NOTICES_MOST,held)<<"one interface's most is its descriptors' own";
+    }
+    EXPECT_LE(held,AECP_NOTICES_MOST)<<"no more than the most a reset leaves";
+    std::map<std::array<uint64_t,3>,unsigned> sent;
+    uint32_t seen=fabric.tx_sent;
+    answers=true;
+    for(unsigned k=0;k<2000u&&pending()!=0u;++k){
+        mbx_model_advance_ms(&fabric,2);
+        service(1);
+        for(;seen<fabric.tx_sent;++seen){
+            const mbx_model_tx *p=mbx_model_tx_frame(&fabric,seen);
+            ASSERT_NE(p,nullptr)<<"every frame read before the capture wraps";
+            if(p->channel==MBX_CH_AECP&&p->len>41u&&(get(p->bytes+36,2)&0x8000u)!=0u){
+                ++sent[{get(p->bytes+36,2)&0x7fffu,get(p->bytes+38,2),get(p->bytes+40,2)}];
+            }
+        }
+    }
+    EXPECT_EQ(pending(),0u)<<"every kept notice is built";
+    unsigned once=0;
+    for(const auto &[notice,count]:sent)once+=count==1u?1u:0u;
+    EXPECT_EQ(sent.size(),held)<<"every notice the descriptors hold is sent, none dropped";
+    EXPECT_EQ(once,held)<<"each once";
+}
+
 // THE TIERS (#894): beside held tier-1 or THE DRAIN's work, THE RETRY's round is a queue's first notice alone, tier
 // 1's, and only the first: once a round sends one, the queue's next is tier 2's until the queue is served to its end.
 TEST_F(Mailbox, ARoundBesideHeldWorkIsAQueuesFirstNoticeAlone)
@@ -3646,11 +4332,72 @@ struct Far {
     uint64_t asp_count=~0ull;                           // a count word other than the sequence's length, when set
     std::vector<std::array<uint32_t,3>> asked;          // each GSI kind 2 request: interface, GSI_REQ, GSI_SEL
     std::vector<unsigned> selectors;                                  // each GSI request's selector
+    //! The datapath's map store behind the EDIT window (#923), as milan_datapath.sv's transaction server keeps it:
+    //! each dynamic port's live mappings, a transaction's records claimed as they validate and written as each
+    //! commits. mute decides a beat: 0 the store's own verdict, 1 refused, 2 no answer in the window's bound. A
+    //! begin, a record's validation or the commit-begin with no answer is held, not taken. A record's commit or the
+    //! finish is taken and only its reply is lost: the release's engine reserves the transaction at an accepted
+    //! commit-begin and has those beats complete without back-pressure (KL_aecp_engine.sv, the transaction face), so
+    //! the store never skips a write after it.
+    struct Beat { unsigned phase,rec,count,type,index; bool remove; aecp_mapping r; };
+    std::vector<Beat> beats;                                                // every beat the store took, in order
+    std::map<std::pair<unsigned,unsigned>,std::vector<aecp_mapping>> live;  // port (type, index): its mappings
+    std::vector<std::pair<unsigned,unsigned>> dynamic{{14,0},{15,0}};
+    std::vector<aecp_mapping> claims;
+    bool open=false;   // a transaction begun on a dynamic port
+    bool moved=false;  // and a mapping changed
+    std::function<unsigned(const Beat &)> mute;
+    static bool keyed(bool input,const aecp_mapping &x,const aecp_mapping &y) {
+        return input?x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel:x.stream==y.stream&&x.channel==y.channel;
+    }
+    bool valid(const Beat &b) {
+        bool input=b.type==14;auto &rows=live[{b.type,b.index}];
+        for(auto &c:claims)if(keyed(input,c,b.r)&&!(c==b.r))return false;
+        bool held=std::find(rows.begin(),rows.end(),b.r)!=rows.end();
+        if(b.remove)return held||std::find(claims.begin(),claims.end(),b.r)!=claims.end();
+        for(auto &[port,others]:live){
+            if(port.first!=b.type||(port.second!=b.index&&input))continue;
+            for(auto &o:others)if(keyed(input,o,b.r)&&!(o==b.r&&port.second==b.index))return false;
+        }
+        return true;
+    }
+    uint64_t edit(const uint32_t *r,mbx_model_reply *reply) {
+        Beat b{r[1]&7u,(r[1]>>8)&255u,r[1]>>16,r[0]&0xffffu,r[0]>>16,((r[1]>>4)&1u)!=0,
+               {uint16_t(r[3]>>16),uint16_t(r[3]),uint16_t(r[2]>>16),uint16_t(r[2])}};
+        unsigned verdict=mute?mute(b):0u;
+        bool reserved=b.phase==5u||b.phase==2u;
+        if(verdict==2u&&!reserved){*reply=MBX_MODEL_SILENT;return 0;}
+        if(verdict==2u){*reply=MBX_MODEL_SILENT;verdict=0u;}   // taken; its reply lost
+        beats.push_back(b);
+        auto &rows=live[{b.type,b.index}];
+        bool ok=verdict==0u;
+        switch(b.phase){
+        case 0:
+            open=std::find(dynamic.begin(),dynamic.end(),std::make_pair(b.type,b.index))!=dynamic.end();
+            claims.clear();moved=false;return ok&&open;
+        case 4:
+            ok=ok&&open&&b.rec<b.count&&valid(b);
+            if(ok)claims.push_back(b.r);
+            return ok;
+        case 1: return ok&&open;
+        case 5: {
+            auto at=std::find(rows.begin(),rows.end(),b.r);
+            if(b.remove&&at!=rows.end()){rows.erase(at);moved=true;}
+            if(!b.remove&&at==rows.end()){rows.push_back(b.r);moved=true;}
+            return 1;
+        }
+        case 2: open=false;return moved;
+        default: open=false;claims.clear();return 1;
+        }
+    }
     static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
         auto &f=*static_cast<Far*>(p);++f.requests[w];
         if(w==MBX_WIN_GSI)f.selectors.push_back((r[1]>>4)&15u);
         if(w==MBX_WIN_GSI&&(r[1]&3u)==2u){f.asked.push_back({i,r[0],r[1]});*d=f.path(i,r[1]);return f.reply;}
-        *d=word(i,w,r,f.verdict);return f.reply;
+        *d=word(i,w,r,f.verdict);
+        mbx_model_reply reply=f.reply;
+        if(w==MBX_WIN_EDIT)*d=f.edit(r,&reply);
+        return reply;
     }
     //! GET_AS_PATH's words (kind 2), the processor face's layout: selector 0 the count, 8 the entry at the ordinal.
     uint64_t path(unsigned i,uint32_t sel) const {
@@ -3710,8 +4457,12 @@ struct Face : Core {
     std::vector<uint64_t> heads;     // the trace clock at each AECP TX_HEAD write
     std::vector<uint64_t> commits;   // and at each F_COMMIT write
     unsigned entries=0;              // writes to a stream's entry, a sink's or a source's
+    unsigned edit_req_writes=0,edit_value_writes=0;   // interface 0's EDIT_REQ and EDIT_VALUE (#923)
     static void trace(void *p,bool write,uint32_t offset,uint32_t) {
         auto &s=*static_cast<Face*>(p);s.ns+=100;++s.accesses;
+        s.edit_req_writes+=write&&offset==MBX_FACE_BASE+MBX_FACE_REG_EDIT_REQ;
+        s.edit_value_writes+=write&&(offset==MBX_FACE_BASE+MBX_FACE_REG_EDIT_VALUE_LO||
+                                     offset==MBX_FACE_BASE+MBX_FACE_REG_EDIT_VALUE_HI);
         uint32_t reg=(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE;
         if(write&&offset>=MBX_FACE_BASE&&offset<MBX_FACE_BASE+MBX_N_IF*MBX_FACE_STRIDE&&
            ((reg>=SRC&&reg<SRC+MBX_N_PUB_SOURCES*MBX_FACE_SOURCE_STRIDE)||
@@ -3739,9 +4490,35 @@ struct Face : Core {
         if(fabric.tx_sent==before){ADD_FAILURE()<<"command "<<cmd<<" has a response";return Bytes(200);}
         auto f=mbx_model_tx_frame(&fabric,before);Bytes out(f->bytes,f->bytes+f->len);
         EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;
-        // an accepted SET_CONFIGURATION's next record waits for THE PACE (aecp_mbx.h), so the next arrives a pace on
-        mbx_model_advance_ms(&fabric,cmd==6&&status==0?AECP_PACE_MS:5);
+        // an accepted SET_CONFIGURATION's next record, and a checked edit's, waits for THE PACE (aecp_mbx.h), so the
+        // next arrives a pace on
+        mbx_model_advance_ms(&fabric,(cmd==6&&status==0)||cmd==44||cmd==45?AECP_PACE_MS:5);
         return out;
+    }
+    //! An ADD or REMOVE_AUDIO_MAPPINGS body of `rows` at port 0 of `type`.
+    static Bytes mappings(unsigned type,const std::vector<aecp_mapping> &rows) {
+        Bytes b=target(type,0,8+8*rows.size());put(b,4,rows.size(),2);
+        for(size_t k=0;k<rows.size();++k){
+            put(b,8+8*k,rows[k].stream,2);put(b,10+8*k,rows[k].channel,2);
+            put(b,12+8*k,rows[k].cluster,2);put(b,14+8*k,rows[k].cluster_channel,2);
+        }
+        return b;
+    }
+    //! Each answered EDIT beat's phase, and its record's ordinal.
+    std::vector<unsigned> phases() { std::vector<unsigned> v;for(auto &b:far.beats)v.push_back(b.phase);return v; }
+    std::vector<unsigned> ordinals() { std::vector<unsigned> v;for(auto &b:far.beats)v.push_back(b.rec);return v; }
+    //! GET_AUDIO_MAP's first page of port 0 of `type` and the store's mappings of it hold the same mappings (#923).
+    void agree(unsigned type) {
+        auto out=receive(43,target(type,0,8));
+        std::vector<aecp_mapping> got,want=far.live[std::make_pair(type,0u)];
+        for(size_t k=0;k<get(out,46,2);++k){
+            const uint8_t *r=out.data()+50+8*k;
+            got.push_back({uint16_t(get(r,2)),uint16_t(get(r+2,2)),uint16_t(get(r+4,2)),uint16_t(get(r+6,2))});
+        }
+        auto order=[](const aecp_mapping &x,const aecp_mapping &y){
+            return std::tie(x.stream,x.channel,x.cluster,x.cluster_channel)<std::tie(y.stream,y.channel,y.cluster,y.cluster_channel);};
+        std::sort(got.begin(),got.end(),order);std::sort(want.begin(),want.end(),order);
+        EXPECT_EQ(got,want)<<"GET_AUDIO_MAP and the datapath's store hold the same mappings";
     }
     //! The block interface i's datapath took at its last commit.
     const std::vector<uint32_t> &taken(unsigned i) {
@@ -4019,6 +4796,173 @@ TEST_F(Face, AnUnansweredAsPathWordFailsItsPortThere)
             EXPECT_EQ(n,9u)<<"a failed port reports no count";
         }
     }
+}
+
+// #923: an accepted ADD or REMOVE_AUDIO_MAPPINGS runs the release processor's transaction on interface 0's EDIT window
+// (KL_aecp_engine's transaction face; Milan v1.2 5.4.2.27, 5.4.2.28): begin, each record validated, the commit begun,
+// each record committed, finished. EDIT_REQ is written once a transaction, the record as its two wire quadlets and
+// the value lane not at all; the datapath's store and GET_AUDIO_MAP then hold the same mappings.
+TEST_F(Face, AnEditIsTheReleasesTransactionOnTheEditWindow)
+{
+    using P=std::vector<unsigned>;
+    edit_req_writes=edit_value_writes=0;
+    receive(44,mappings(14,{{0,1,1,0},{0,2,2,0}}));
+    EXPECT_EQ(phases(),(P{0,4,4,1,5,5,2}))<<"begin, validate each record, begin the commit, commit each, finish";
+    EXPECT_EQ(ordinals(),(P{0,0,1,0,0,1,0}))<<"each record's beat names its record";
+    ASSERT_EQ(far.beats.size(),7u)<<"seven beats for two records";
+    for(auto &b:far.beats){
+        EXPECT_EQ(b.type,14u)<<"EDIT_REQ names the port";EXPECT_EQ(b.index,0u)<<"EDIT_REQ names the port";
+        EXPECT_FALSE(b.remove)<<"an ADD is no REMOVE";EXPECT_EQ(b.count,2u)<<"COUNT the records";
+    }
+    EXPECT_EQ(far.beats[1].r,(aecp_mapping{0,1,1,0}))<<"the record as its two wire quadlets";
+    EXPECT_EQ(far.beats[5].r,(aecp_mapping{0,2,2,0}))<<"the record as its two wire quadlets";
+    EXPECT_EQ(edit_req_writes,1u)<<"EDIT_REQ written once a transaction";
+    EXPECT_EQ(edit_value_writes,0u)<<"the value lane is not an edit's";
+    agree(14);
+    far.beats.clear();receive(45,mappings(14,{{0,1,1,0}}));
+    EXPECT_EQ(phases(),(P{0,4,1,5,2}));
+    ASSERT_EQ(far.beats.size(),5u)<<"five beats for one record";
+    EXPECT_TRUE(far.beats[0].remove&&far.beats[3].remove)<<"REMOVE names a REMOVE_AUDIO_MAPPINGS";
+    agree(14);
+    far.beats.clear();receive(44,mappings(15,{{0,3,3,0}}));
+    EXPECT_EQ(phases(),(P{0,4,1,5,2}))<<"an output port's edit";agree(15);
+    far.beats.clear();receive(44,mappings(15,{{0,3,3,0}}));
+    EXPECT_TRUE(far.beats.empty())<<"an edit that changes nothing writes no beat";
+    EXPECT_EQ(face.unanswered,0u);EXPECT_EQ(fabric.bus_err,0u)<<"no write met a held window";
+}
+
+// #923: the store's refusal aborts the transaction and moves nothing: a refused record or commit-begin answers
+// BAD_ARGUMENTS, a refused begin (no dynamic map there) NOT_SUPPORTED, as the release's processor answered them
+TEST_F(Face, ARefusedBeatAbortsAndNothingMoves)
+{
+    receive(44,mappings(14,{{0,1,1,0}}));
+    struct Case { unsigned phase,rec,status; std::vector<unsigned> beats; const char *what; };
+    for(auto &c:std::vector<Case>{{4,1,7,{0,4,4,3},"a refused record aborts"},
+                                 {1,0,7,{0,4,4,1,3},"a refused commit-begin aborts"},
+                                 {0,0,11,{0,3},"a refused begin aborts"}}){
+        far.beats.clear();far.mute=[c](const Far::Beat &b){return b.phase==c.phase&&b.rec==c.rec?1u:0u;};
+        auto out=receive(44,mappings(14,{{0,2,2,0},{0,3,3,0}}),c.status);
+        EXPECT_EQ(get(out,16,2)>>11,c.status)<<c.what<<": the store's verdict is the command's";
+        EXPECT_EQ(phases(),c.beats)<<c.what;
+        EXPECT_EQ((far.live[{14u,0u}]),(std::vector<aecp_mapping>{{0,1,1,0}}))<<c.what<<": the store keeps its mappings";
+        EXPECT_EQ(maps[0].count,1u)<<c.what<<": the map keeps its mappings";
+        far.mute=nullptr;
+    }
+    far.dynamic.clear();far.beats.clear();receive(45,mappings(14,{{0,1,1,0}}),11);
+    EXPECT_EQ(phases(),(std::vector<unsigned>{0,3}))<<"a port with no dynamic map in the store";
+    far.dynamic={{14,0},{15,0}};agree(14);
+}
+
+// #923: a datapath that does not answer. The store's edit face waits for the restore's terminal and its boot sweep,
+// so a begin with no answer is asked once more. No answer before the commit is begun aborts and answers
+// ENTITY_MISBEHAVING, nothing moved; once it is begun the store holds the reservation and takes each commit and the
+// finish, so only a reply is lost: the edit stands in the map as in the store, and each unanswered beat is counted.
+TEST_F(Face, AnUnansweredEditFailsUntilItsCommitIsReserved)
+{
+    using P=std::vector<unsigned>;
+    unsigned left=1;
+    far.mute=[&left](const Far::Beat &b){if(b.phase!=0u||left==0u)return 0u;--left;return 2u;};
+    receive(44,mappings(14,{{0,1,1,0}}));
+    EXPECT_EQ(phases(),(P{0,4,1,5,2}))<<"a begin the boot sweep holds is asked once more";
+    EXPECT_EQ(face.unanswered,1u)<<"each unanswered beat is counted";
+    far.mute=nullptr;agree(14);
+    for(auto &[phase,beats]:std::vector<std::pair<unsigned,P>>{{0u,P{3}},{4u,P{0,3}},{1u,P{0,4,3}}}){
+        far.beats.clear();auto before=face.unanswered;
+        far.mute=[phase=phase](const Far::Beat &b){return b.phase==phase?2u:0u;};
+        receive(44,mappings(14,{{0,2,2,0}}),10);
+        EXPECT_EQ(phases(),beats)<<"no answer before the commit is reserved aborts";
+        EXPECT_EQ(face.unanswered,before+(phase==0u?2u:1u))<<"each unanswered beat is counted";
+        EXPECT_EQ(maps[0].count,1u)<<"no answer before the commit is reserved moves nothing";
+        far.mute=nullptr;agree(14);
+    }
+    for(unsigned phase:{5u,2u}){
+        far.beats.clear();auto before=face.unanswered;
+        far.mute=[phase](const Far::Beat &b){return b.phase==phase?2u:0u;};
+        receive(44,mappings(14,{{0,uint16_t(phase),uint16_t(phase),0}}));
+        EXPECT_EQ(face.unanswered,before+1u)<<"an unanswered beat after the reserved commit is counted";
+        EXPECT_EQ(maps[0].count,phase==5u?2u:3u)<<"after the reserved commit, the edit stands";
+        far.mute=nullptr;agree(14);
+    }
+}
+
+// #923: a reply lost after the reserved commit-begin, whichever record's: the store took the commit, so a two-record
+// ADD answers SUCCESS with both mappings in the map and in the store, a REMOVE leaves neither in either, and the lost
+// reply is counted. A face that stops committing at a lost reply would leave the store short of the map.
+TEST_F(Face, ALostReplyAfterTheReservedCommitLeavesTheStoreAndTheMapAgreeing)
+{
+    std::vector<aecp_mapping> two{{0,1,1,0},{0,2,2,0}};
+    for(unsigned rec:{1u,0u}){
+        for(unsigned cmd:{44u,45u}){
+            auto before=face.unanswered;
+            far.mute=[rec](const Far::Beat &b){return b.phase==5u&&b.rec==rec?2u:0u;};
+            auto out=receive(cmd,mappings(14,two));far.mute=nullptr;
+            EXPECT_EQ(get(out,16,2)>>11,0u)<<"the reserved edit answers SUCCESS";
+            EXPECT_EQ(face.unanswered,before+1u)<<"the lost reply is counted";
+            EXPECT_EQ(maps[0].count,cmd==44u?2u:0u)<<"the edit stands in the map";
+            agree(14);
+        }
+    }
+}
+
+// #923: the store takes the mappings that change the map as the core picks them, not the command's first ones: an ADD
+// of a held and a new mapping validates and commits the new one alone, and a REMOVE naming a mapping twice commits
+// each distinct mapping once. GET_AUDIO_MAP and the store then hold the same mappings.
+TEST_F(Face, AnEditCommitsTheMappingsTheCorePicksAndNoOthers)
+{
+    using M=std::vector<aecp_mapping>;
+    aecp_mapping held{0,1,1,0},fresh{0,2,2,0};
+    auto records=[this](unsigned phase){M v;for(auto &b:far.beats)if(b.phase==phase)v.push_back(b.r);return v;};
+    receive(44,mappings(14,{held}));agree(14);
+    far.beats.clear();receive(44,mappings(14,{held,fresh}));
+    EXPECT_EQ(records(4),(M{fresh}))<<"the records the core picked are validated";
+    EXPECT_EQ(records(5),(M{fresh}))<<"the records the core picked are committed";
+    ASSERT_FALSE(far.beats.empty());EXPECT_EQ(far.beats.front().count,1u)<<"COUNT the records the core picked";
+    EXPECT_EQ(maps[0].count,2u);agree(14);
+    far.beats.clear();receive(45,mappings(14,{held,held,fresh}));
+    EXPECT_EQ(records(4),(M{held,fresh}))<<"the records the core picked are validated";
+    EXPECT_EQ(records(5),(M{held,fresh}))<<"the records the core picked are committed";
+    ASSERT_FALSE(far.beats.empty());EXPECT_EQ(far.beats.front().count,2u)<<"COUNT the records the core picked";
+    EXPECT_EQ(maps[0].count,0u);agree(14);
+}
+
+// #923: the restore's commit with a reply lost after its commit-begin: a removal of the reset set the store holds
+// (the restored map empty) or an addition of the restored set, its first or second record's reply lost. The store took
+// each, so when AECP opens GET_AUDIO_MAP answers what the store holds, and the lost reply is counted.
+TEST_F(Face, ALostReplyInTheRestoresCommitLeavesTheStoreAndTheMapAgreeing)
+{
+    std::array<aecp_mapping,2> defaults{{{0,0,0,0},{0,1,1,0}}};
+    auto &m=maps[0];m.defaults=defaults.data();m.default_count=2;
+    aecp_mapping in[]={{0,3,1,0},{0,2,2,0}};
+    struct Case { bool remove; unsigned rec; size_t restored; };
+    for(auto c:std::vector<Case>{{true,1,0},{true,0,0},{false,1,2},{false,0,2}}){
+        adapter.core.open=false;ASSERT_TRUE(aecp_restore_defaults(&adapter.core));
+        far.live[{14u,0u}]={defaults.begin(),defaults.end()};
+        ASSERT_EQ(aecp_map_restore(&adapter.core,&m,c.restored!=0u?in:nullptr,c.restored),0u);
+        auto before=face.unanswered;
+        far.mute=[c](const Far::Beat &b){return b.phase==5u&&b.rec==c.rec&&b.remove==c.remove?2u:0u;};
+        aecp_restore_commit(&adapter.core);far.mute=nullptr;
+        EXPECT_EQ(face.unanswered,before+1u)<<"the lost reply is counted";
+        EXPECT_EQ(m.count,c.restored)<<"the restored map stands";
+        adapter.core.open=true;agree(14);
+    }
+}
+
+// #923: the restored maps reach the datapath's store through the EDIT window before AECP opens: the reset set it
+// holds removed, then the restored set added; GET_AUDIO_MAP then answers what the store holds
+TEST_F(Face, RestoredMapsReachTheStoreThroughTheEditWindow)
+{
+    std::array<aecp_mapping,2> defaults{{{0,0,0,0},{0,1,1,0}}};
+    auto &m=maps[0];m.defaults=defaults.data();m.default_count=2;
+    adapter.core.open=false;ASSERT_TRUE(aecp_restore_defaults(&adapter.core));
+    far.live[std::make_pair(14u,0u)]={defaults.begin(),defaults.end()};
+    aecp_mapping in[]={{0,3,1,0},{0,2,2,0}};ASSERT_EQ(aecp_map_restore(&adapter.core,&m,in,2),0u);
+    aecp_restore_commit(&adapter.core);
+    EXPECT_EQ(phases(),(std::vector<unsigned>{0,4,4,1,5,5,2,0,4,4,1,5,5,2}))
+        <<"the reset set removed, then the restored set added";
+    ASSERT_FALSE(far.beats.empty())<<"the restored map reaches the store";
+    EXPECT_TRUE(far.beats.front().remove)<<"the reset set removed first";
+    EXPECT_FALSE(far.beats.back().remove)<<"then the restored set added";
+    adapter.core.open=true;agree(14);
 }
 
 // The running check reads one GSI word a stream, selector 0, whose answer proves the window answers; bound and
@@ -4397,6 +5341,24 @@ TEST_F(Face, BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed)
     EXPECT_EQ(far.commits.size()-count,MBX_N_IF);
     count=far.commits.size();aecp_face_status(&face,face.restore,face.nvm,face.dirty);
     EXPECT_EQ(far.commits.size(),count)<<"nothing moved, nothing published";
+}
+
+// Before the face opens the saved state is being applied, and the datapath's map store still holds its reset set,
+// not the maps the restore applies (aecp_restore_commit moves it after the open's acknowledged publication); its
+// verdict's bit 1, every mapped channel kept, reads that set. So a saved format is judged supported alone (bit 0),
+// and the restored maps are checked against the restored formats (aecp_restore_settle, #658). From the open on the
+// low byte must be exactly 3 again (REQUIREMENTS.md, the persisted inventory; Milan v1.2 5.3.8.1).
+TEST_F(Face, BeforeOpenAFormatVerdictJudgesSupportAlone)
+{
+    aecp_face early{};aecp_face_init(&early,&ports);aecp_face_attach(&early,&adapter.core);
+    const uint64_t proposed=get(desc(5).defaults+74,8);
+    far.verdict=1;EXPECT_TRUE(early.ports.format(&early,5,0,proposed))<<"supported, before the open";
+    far.verdict=0;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"not supported, before the open";
+    far.verdict=2;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"kept but not supported, before the open";
+    far.verdict=5;EXPECT_FALSE(early.ports.format(&early,5,0,proposed))<<"a bit past 1 in the low byte, before the open";
+    far.verdict=0x103;EXPECT_TRUE(early.ports.format(&early,5,0,proposed))<<"the low byte alone, before the open";
+    far.verdict=1;EXPECT_FALSE(face.ports.format(&face,5,0,proposed))<<"supported alone refuses once open";
+    far.verdict=3;EXPECT_TRUE(face.ports.format(&face,5,0,proposed))<<"3 passes once open";
 }
 
 namespace {

@@ -3,7 +3,8 @@
 """The self-test's checks of the retried notice's row (#665, notice_window.py): it is timed from the port's answer to
 its last recipient's commit, a row later than its 20 ms fails the run whatever its options record, build.py's age-less
 plant is caught only when every group's row is late, its aged build's plant only when every group's timer-driven MRPDU
-is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's.
+is over its bound, and every group holds its load across the answer; of the queue's rows, and of THE TRANSMIT's, held
+to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it (#894's held-egress ruling, item (b)(i)).
 
 selftest.py passes its synthetic-log helpers in, so this module imports nothing of it.
 """
@@ -12,12 +13,14 @@ from __future__ import annotations
 import argparse
 import contextlib
 import io
+import re
 from collections.abc import Callable
 
 import build
 import grade
 import mrpdu_grade
 import notice_window
+import rows_grade
 import run
 import scenario
 
@@ -51,10 +54,10 @@ def quietly(action: Callable[[], int]) -> int:
 def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: bool = True) -> list[dict]:
     """A held group's timer rows: a TICK posted at TICK_AT, its join timer's end, a pass with its build and a commit."""
     srp = scenario.CH['srp']
-    frame = bytes(60)
+    frame = bytes(12) + (0x22EA).to_bytes(2, 'big') + bytes(46)   # an MSRP MRPDU, its timer's owner's
     sent = tx_sequence(srp, [(0, frame, commit)]) if built else []
     lines = ['MARK 1000 load', f'EVW {TICK_AT} 0 {mrpdu_grade.TICK:08x}', f'EVW {TICK_AT} 1 00000001',
-             f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer',
+             f'EVW {TICK_AT} 2 00000000', f'EVW {TICK_AT} 3 00000000', f'ENTRY {TICK_AT + 100} on_join_timer if0 MSRP',
              f'ENTRY {commit - 2000} build_mrpdu',
              f'PASS 1 {commit - 3000} {commit - 3000} 5000 instr=10 store_mbx=1 W {commit - 1000}:1:0', *sent]
     log = grade.parse(synthetic(lines), SYS_HZ, CPU_HZ)
@@ -62,20 +65,43 @@ def timer_rows(synthetic: Callable, tx_sequence: Callable, commit: int, built: b
     return mrpdu_grade.rows(grade.Grader(log), group)
 
 
+def header_bound() -> int:
+    """CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h's text derives it, apart from mrpdu_grade's reader: each name its body reads
+    replaced by that name's own #define, and the arithmetic evaluated (rows_grade.arithmetic)."""
+    text = (scenario.ROOT / 'sw/firmware/ctrl/loop/ctrl_loop.h').read_text()
+    defines = {m[1]: m[2].split('//')[0].strip() for m in re.finditer(r'^#define (\w+) (.+)$', text, re.M)}
+
+    def value(name: str) -> int:
+        """A constant's value, every name in its body expanded."""
+        body = re.sub(r'[A-Z][A-Z0-9_]+', lambda m: str(value(m[0])), re.sub(r'(\d+)u\b', r'\1', defines[name]))
+        return rows_grade.arithmetic(body)
+    return value('CTRL_LOOP_TX_BOUND_MS')
+
+
 def timer_checks(synthetic: Callable, tx_sequence: Callable) -> list[Check]:
-    """THE TRANSMIT's row: from the TICK that ran the timer out to the commit, against T_svc, and none for no frame."""
-    within = timer_rows(synthetic, tx_sequence, TICK_AT + 1_900_000)
-    late = timer_rows(synthetic, tx_sequence, TICK_AT + 2_100_000)
-    none = timer_rows(synthetic, tx_sequence, TICK_AT + 1_900_000, built=False)
-    return [("a timer's MRPDU is timed from its TICK to its commit, 19 ms within its 20 ms",
-             len(within) == 1 and within[0]['ms'] == 19.0 and within[0]['within_budget'] is True, str(within)),
-            ('one at 21 ms is over its bound', len(late) == 1 and late[0]['within_budget'] is False, str(late)),
+    """THE TRANSMIT's row: from the TICK that ran the timer out to the commit, against THE TRANSMIT's bound as
+    ctrl_loop.h derives it (mrpdu_grade.BUDGET_MS), one at it within it and one 1 ms over it a miss, and none for no
+    frame."""
+    bound, ms = header_bound(), SYS_HZ // 1000
+    within = timer_rows(synthetic, tx_sequence, TICK_AT + bound * ms)
+    late = timer_rows(synthetic, tx_sequence, TICK_AT + (bound + 1) * ms)
+    none = timer_rows(synthetic, tx_sequence, TICK_AT + (bound - 1) * ms, built=False)
+    return [("THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure "
+             "(#894's held-egress ruling, item (b)(i))",
+             mrpdu_grade.BUDGET_MS == bound and [r['budget_ms'] for r in within] == [float(bound)],
+             str((mrpdu_grade.BUDGET_MS, bound, [r['budget_ms'] for r in within]))),
+            (f"a timer's MRPDU is timed from its TICK to its commit, at its bound, {bound} ms, within it",
+             len(within) == 1 and within[0]['ms'] == float(bound) and within[0]['within_budget'] is True, str(within)),
+            (f'one 1 ms over its bound, at {bound + 1} ms, misses it',
+             len(late) == 1 and late[0]['ms'] == float(bound + 1) and late[0]['within_budget'] is False, str(late)),
             ('a timer that ends with nothing to send, whose build sends no frame, has no row', none == [], str(none))]
 
 
 def queue_checks() -> list[Check]:
     """The queued notices' bounds: read from the headers, each point's own, the first of a queue held to its own."""
-    got = notice_window.queued_ms(1), notice_window.queued_ms(2)
+    import shape_costs
+    got = (notice_window.queued_ms(1), notice_window.queued_ms(shape_costs.of_point('8x8/1if', scenario.ROOT)),
+           notice_window.queued_ms(2))
     first = notice_window.queued_first_ms(1), notice_window.queued_first_ms(2)
     rows = lambda first, last, bound: [dict(group='g', probes=[
         dict(status='measured', path=[notice_window.QUEUED, 0], ms=first, budget_ms=bound, within_budget=True),
@@ -83,10 +109,12 @@ def queue_checks() -> list[Check]:
              within_budget=last <= bound)])]
     verdicts = tuple(len(run.notice_misses(rows(a, b, notice_window.queued_ms(n)), n)) for a, b, n in
                      ((21.5, 57.0, 2), (22.5, 57.0, 2), (21.5, 63.0, 2), (19.5, 21.0, 1), (20.5, 21.0, 1),
-                      (19.5, 141.0, 1)))
-    return [("a queued notice's bound is the constants', the last queued notice's 140 ms at one interface (its row "
-             "rounded up by the queued rule, #895's ruling of 2026-11-15, item 1; 130 by #894's amendment of "
-             "2026-11-13 to decision D's 125) and 62 ms at two", got == (140, 62), str(got)),
+                      (19.5, float(notice_window.queued_ms(1) + 1), 1)))
+    return [("a queued notice's bound is the constants' for each shape, the last queued notice's 130 ms at 1x1/1if "
+             "(its row rounded up by the queued rule at the slice rule's 950 us once its notice path was restated, "
+             "#665's owner decision of 2026-11-20 (item 4), under the owner's 140 ms; 140 by "
+             "#895's ruling of 2026-11-15, item 1, before), 8x8/1if's own 130 and 62 ms at two",
+             got == (130, 130, 62), str(got)),
             ("a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two",
              first == (20, 22), str(first)),
             ("a queue's first notice is held to its point's own bound and every other to the queue's bound",
@@ -128,7 +156,8 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
                 and [x.name for x in run.all_groups(points[0], dict(variant='answering-later'))] == names, ''))
     srp = argparse.Namespace(cpu_regions='cover', mutation='transmit-aged', record_budget_findings=True,
                              record_share_findings=True)
-    held = lambda n, row='mrpdu.join': [f'{name}.{row}.if1: 21.000 ms over its budget 20 ms' for name in n]
+    over = header_bound() + 1
+    held = lambda n, row='mrpdu.join': [f'{name}.{row}.if1: {over:.3f} ms over its budget {over - 1} ms' for name in n]
     built = tuple(quietly(lambda m=m: run.verdict(srp, [g], [], m, [], []))
                   for m in (held(names), held(names[1:]), held(names, 'held.srp')))
     out.append(("the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not "
@@ -150,4 +179,64 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
                 wrong.append(group.name)
     out.append(('every retried notice group binds before its load, floods and holds every channel across the '
                 "port's answer, and grades its held records from the load's mark", not wrong, str(wrong)))
+    return out + talker_checks(points)
+
+
+def talker_checks(points: list[scenario.Point]) -> list[Check]:
+    """The declared and withdrawn Talker's notice rows (#936, talker_notice.py): each timed from its event's commit to
+    its last registration's notice against 20 ms, inside its load; a row later than that, or with no notice, fails the
+    run; and the dropped and delayed plants are caught only when both rows of every group fail for their reason."""
+    import talker_notice
+    names = talker_notice.names()
+    wrong = []
+    for p in points:
+        everyone = scenario.registrations() * p.interfaces
+        own = scenario.listener_ready(p).hex()
+        for group in talker_notice.groups(p):
+            rows = {probe.path: probe for probe in group.probes}
+            steps = group.steps
+            ok = set(rows) == set(talker_notice.PATHS) and all(
+                probe.family == 'notify' and grade.budget_ms(probe) == scenario.T_SVC_MS and
+                len(probe.recipients) == everyone and probe.ends[-1] == f'notify:{AECP}:000f:6:{talker_notice.SOURCE}'
+                for probe in rows.values())
+            for probe in rows.values():
+                mark, event = steps.index(f'mark {probe.name}'), next(
+                    n for n, s in enumerate(steps) if s.endswith(probe.name) and not s.startswith('mark '))
+                flood = steps.index('flood gm 1', mark)
+                ok = ok and mark < flood < event < steps.index('flood gm 0', event) < steps.index(f'mark {probe.until}')
+            ok = ok and rows[talker_notice.DECLARED].start == f"rxc:{scenario.CH['acmp']}" and \
+                rows[talker_notice.WITHDRAWN].start == f"rxc:{scenario.CH['maap']}" and \
+                not any(own in s for s in steps)
+            if not ok:
+                wrong.append(f'{p.label} {group.name}')
+    out = [("every talker-notice group times its declaration from the PROBE_TX's commit and its withdrawal from the "
+            "ANNOUNCE's to source 0's STREAM_OUTPUT notice to every registration against 20 ms, each event inside its "
+            "load, with no Listener Ready for the entity's own stream", not wrong, str(wrong))]
+    groups = talker_notice.groups(points[0])
+    rows = [probe.name for g in groups for probe in g.probes]
+    measured = lambda name, ms: dict(probe=name, path=[talker_notice.DECLARED if '.declared.' in name else
+                                                       talker_notice.WITHDRAWN, 0], status='measured', ms=ms,
+                                     budget_ms=20.0, within_budget=ms <= 20.0, fanout=dict(recipients=16))
+    results = lambda ms: [dict(group=g.name, probes=[measured(probe.name, ms) for probe in g.probes]) for g in groups]
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    verdicts = tuple(quietly(lambda ms=ms: run.verdict(args, groups, [], [], [], run.notice_misses(results(ms), 1)))
+                     for ms in (12.0, 21.0))
+    out.append(("a declared or withdrawn Talker's notice later than its bound fails the run whatever the options "
+                'record, and one within it passes', verdicts == (0, 1), str(verdicts)))
+    dropped = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-dropped', record_budget_findings=True,
+                                 record_share_findings=True)
+    delayed = argparse.Namespace(cpu_regions='cover', mutation='declared-notice-delayed', record_budget_findings=True,
+                                 record_share_findings=True)
+    never = [f'{name}: no end: no notification to [x]' for name in rows]
+    late = run.notice_misses(results(25.0), 1)
+    caught = tuple(quietly(lambda c=c, r=r, m=m: run.verdict(c, groups, r, [], [], m)) for c, r, m in (
+        (dropped, never, []), (dropped, never[1:], []), (dropped, [*never, 'x.held.srp.if0: refused'], []),
+        (dropped, [], late), (delayed, [], late), (delayed, [], late[1:]), (delayed, never, [])))
+    out.append(("the dropped notice's plant is caught only when both rows of every group have no notice, with no other "
+                "refusal, and the delayed one's only when both are later than their bound", caught == (0, 1, 1, 1, 0, 1,
+                                                                                                      1), str(caught)))
+    out.append(("both plants run every group of the talker-notices arm, and that arm's run takes them alone",
+                all(build.MUTATIONS[m][3:] == (','.join(names), 'talker-notices') for m in talker_notice.CONTROLS)
+                and [x.name for x in run.all_groups(points[0], dict(variant='talker-notices'))] == names, ''))
     return out

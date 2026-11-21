@@ -86,6 +86,9 @@ sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(SOC_DIR / "platforms"))
 import alinx_ax7101
 import board_audio_routing
+from platforms.ax7101_timing import BOARD_PARTS
+import flash_map as flash_map_reader
+from typing import Any
 
 # The saved-state record contract (design page section 4.2): the firmware's
 # record-set constants come from the SAME derivation the record-space gate and
@@ -146,6 +149,20 @@ FLASHBOOT_MANIFESTS = {
     "baremetal": ["aem"],
 }
 FLASHBOOT_AEM = FLASHBOOT_LAYOUT["aem"]
+# The bitstream slot of each die that needs more than FLASHBOOT_LAYOUT's
+# 4 MiB (#911), from offset 0 and erase-block aligned; the AEM region starts
+# where it ends, so every reader derives the AEM offset from the slot. An
+# uncompressed XC7A200T configuration image is 9,730,652 B on every build
+# (the die's frame count, not the design's), so 10 MiB holds it with
+# 755,108 B to spare; compressed it measured 5,566,832 B, still past the
+# 4 MiB slot. The AX7101's 3,825,992-B XC7A100T image keeps FLASHBOOT_LAYOUT.
+FLASHBOOT_BITSTREAM_SLOT = {"xc7a200t-fbg484-2": 0xA0_0000}
+
+
+def flashboot_layout(part: str | None = None) -> dict[str, dict[str, int]]:
+    """FLASHBOOT_LAYOUT as the die `part` needs it (flash_map.layout_for)."""
+    return flash_map_reader.layout_for(FLASHBOOT_LAYOUT,
+                                       FLASHBOOT_BITSTREAM_SLOT, part)
 
 # Writable slots. NOT boot images: the BIOS never copies them, deploy.sh never
 # writes them, and `build.sh flash` / `deploy.sh flash-pair` MUST NOT erase
@@ -186,20 +203,27 @@ FLASHBOOT_RESERVED = {
 }
 
 
-def flash_map() -> list[tuple[str, int, int, str]]:
+def flash_jedec_id(module: Any) -> int:
+    """The 24-bit JEDEC ID (manufacturer, then device) a litespi module names."""
+    return (int(module.manufacturer_id.value) << 16) | int(module.device_id)
+
+
+def flash_map(layout: dict[str, dict[str, int]] = FLASHBOOT_LAYOUT
+              ) -> list[tuple[str, int, int, str]]:
     """Every slot on the device, ordered by offset: [(name, offset, size, kind)].
 
     The single reader of both dicts.  `kind` is "image" for anything the BIOS
     or deploy.sh transfers and "reserved" for the writable slots.
     """
     rows = [(n, e["offset"], e["size"], "image")
-            for n, e in FLASHBOOT_LAYOUT.items()]
+            for n, e in layout.items()]
     rows += [(n, e["offset"], e["size"], "reserved")
              for n, e in FLASHBOOT_RESERVED.items()]
     return sorted(rows, key=lambda r: r[1])
 
 
-def check_flash_map() -> list[str]:
+def check_flash_map(layout: dict[str, dict[str, int]] = FLASHBOOT_LAYOUT
+                    ) -> list[str]:
     """Return a list of problems with the flash map; empty means consistent.
 
     Erase-block alignment is not cosmetic: a writable region that starts or ends
@@ -207,7 +231,7 @@ def check_flash_map() -> list[str]:
     turn "write the journal" into "corrupt the adjacent slot".
     """
     problems, prev_end, prev_name = [], 0, None
-    for name, off, size, _kind in flash_map():
+    for name, off, size, _kind in flash_map(layout):
         if size <= 0:
             problems.append(f"{name}: non-positive size {size}")
         if off % FLASH_ERASE_BLOCK:
@@ -1388,6 +1412,10 @@ def add_milan_datapath(host: Module, platform: object,
         # (CtrlMailbox); none exists in an all-fabric build
         host.ctl = {name: Signal(width, name=name) for name, width, _out in CTRL_SPLIT_PORTS}
         ports.update({f"{'o' if out else 'i'}_{name}": host.ctl[name] for name, _w, out in CTRL_SPLIT_PORTS})
+        # the firmware's AECP REBOOT request, already in `milan_cd`: the reset
+        # port's CSR crossed by add_ctrl_reboot's MultiReg (#871)
+        host.reboot_req = Signal(name="ctrl_reboot_req_dp")
+        ports["i_i_reboot_req"] = host.reboot_req
         for f in _CTRL_SPLIT_DATAPATH_SOURCES:
             platform.add_source(str(base / f))
     host.specials += Instance("milan_datapath", **dp_params, **ports)
@@ -1465,6 +1493,16 @@ _MAC_DATA_WIDTH = 64
 #: _mac_tx_egress_octets out of this file to state the same parameters
 _BOARD_PHY_MODEL = {"ax7101": "gmii", "arty": "mii"}
 _PHY_MODEL_MIN_MBPS = {"gmii": 1000, "mii": 10}
+#: The launch shape a PHY model states to the plane (#829). GMII states nothing,
+#: so its elaboration keeps the RTL defaults: one octet per 8 ns clock. MII holds
+#: each octet for two 40 ns clocks, which the plane's reconstruction subtracts.
+_PHY_MODEL_LAUNCH = {"gmii": {},
+                     "mii": {"GPTP_ETH_TICK_NS_P": 40,
+                             "GPTP_ETH_CYC_PER_OCTET_P": 2}}
+#: ...and to the observer, whose expected distance is 45 octets in those clocks.
+_PHY_MODEL_OBSERVER = {"gmii": {},
+                       "mii": {"p_ETH_CYC_PER_OCTET_P": 2,
+                               "p_TXTS_DELTA_EXP_P": 45 * 2}}
 
 
 def _mac_tx_egress_octets(nb, crossed):
@@ -2094,18 +2132,23 @@ class MilanMAC(LiteXModule):
         # with `set_property IOB TRUE` above because an unlocked GMII launch is a
         # per-seed clock-to-out lottery on this board, and a second load on those
         # nets would defeat the packing. `LiteEthPHYGMIITX` registers
-        # `sink.valid`/`sink.data` straight into the pads on the same edge and
-        # holds `sink.ready` at 1, so this seam and the pad are one register stage
-        # apart, which the closed-loop bench MEASURES rather than assumes.
+        # `sink.valid`/`sink.data` straight into the pads on the same edge, so this
+        # seam and the pad are one register stage apart, which the closed-loop
+        # bench MEASURES rather than assumes.
+        # `LiteEthPHYMIITX` holds each octet for two clocks and raises `ready` on
+        # the second, so the observer takes `ready` too and states that shape
+        # (#829). On GMII `ready` is a flop that is 1 from the first clock after
+        # reset, and the observer's own reset covers that reset, so no octet is
+        # held there.
         #
         # RTL, not glue: the record has to carry a measured cycle distance and an
         # ordered position across a clock-domain crossing, and glue is what has
         # tied working blocks off in this file before (`i_mac_events = 0`).
         # It runs in `maceth_tx` - the MAC's own transmit-side domain, whose reset
-        # is `ResetSignal("eth_tx") | eth_rst`, the same reset that clears the
-        # LiteEth transmit side and the PHY stage. That is what makes "the
-        # observer was reset with the frames it was watching" a fact of the
-        # wiring rather than a claim.
+        # is `ResetSignal("eth_tx") | eth_rst`, the reset that clears the LiteEth
+        # transmit side. That is what makes "the observer was reset with the
+        # frames it was watching" a fact of the wiring rather than a claim.
+        # `eth_rst` also clears the PHY stage on GMII and does not reach it on MII.
         self.gptp_txrec_valid = Signal(name="gptp_txrec_valid")
         self.gptp_txrec_kind  = Signal(name="gptp_txrec_kind")
         self.gptp_txrec_oidx  = Signal(12, name="gptp_txrec_oidx")
@@ -2119,9 +2162,11 @@ class MilanMAC(LiteXModule):
         self.gptp_txseal_ack  = Signal(name="gptp_txseal_ack")
         self.gptp_txobs_ovr   = Signal(16, name="gptp_txobs_ovr")
         self.specials += Instance("KL_gptp_gmii_launch",
+            **_PHY_MODEL_OBSERVER[phy_model],
             i_eth_clk_i     = ClockSignal("maceth_tx"),
             i_eth_rst_n     = ~ResetSignal("maceth_tx"),
             i_gmii_tvalid_i = self.phy.sink.valid,
+            i_gmii_tready_i = self.phy.sink.ready,
             i_gmii_tdata_i  = self.phy.sink.data,
             i_dp_clk_i      = ClockSignal(milan_cd),
             i_dp_rst_n      = ~ResetSignal(milan_cd),
@@ -2195,6 +2240,8 @@ class MilanMAC(LiteXModule):
             # (#787); Instance reads the p_ prefix.
             p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),
             p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],
+            **{f"p_{name}": value
+               for name, value in _PHY_MODEL_LAUNCH[phy_model].items()},
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,
@@ -3281,9 +3328,35 @@ class CtrlMailbox(LiteXModule):
             **mbx, **dps)
 
 
+class CtrlReboot(LiteXModule):
+    """The split placement's AECP REBOOT reset port (#871): one bit the firmware sets once its
+    REBOOT's frames have left (sw/firmware/ctrl/plat/ctrl_plat.h).
+
+    It is the request the processor's reboot_req_o makes in the all-fabric
+    placement: a level, held until the configuration reload resets it.
+    KL_reboot_ctrl takes it at reboot_req_i and runs #787's reset unchanged:
+    the drain, the egress wait, the PHY hold and IPROG
+    (docs/design/REBOOT_RESET.md). Any cycle it reads 1 starts that reset,
+    so a later write of 0 cancels nothing. No mailbox register carries it, so
+    the contract is unchanged (docs/design/MAILBOX_SPLIT.md).
+    """
+
+    def __init__(self) -> None:
+        self.req = CSRStorage(1, name="req", description="write 1: reset the end station as an AECP REBOOT "
+                                                        "(IEEE 1722.1-2021 7.4.43); held until the reload")
+
+
+def add_ctrl_reboot(soc: SoCCore) -> Signal:
+    """Add the REBOOT reset port's CSR bank, pinned below the mailbox's record mover's (n_locs - 4; a
+    new bank must not move an old one); return its level, in `sys`."""
+    soc.csr.add("ctrl_reboot", n=soc.csr.n_locs - 4)
+    soc.ctrl_reboot = CtrlReboot()
+    return soc.ctrl_reboot.req.storage
+
+
 def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: object = None) -> None:
-    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt, and with
-    a split datapath `dp` the crossing to its ctl ports."""
+    """Add the mailbox's sources, its Wishbone window, its CSR bank and its interrupt, the REBOOT
+    reset port, and with a split datapath `dp` the crossing to its ctl ports and its REBOOT request."""
     for f in _CTRL_MAILBOX_SOURCES + (_CTRL_SPLIT_MAILBOX_SOURCES if dp is not None else []):
         platform.add_source(str(REPO_ROOT / f))
     # A NEW CSR BANK MUST NOT MOVE AN OLD ONE (the ppmem note above): pinned
@@ -3298,6 +3371,10 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int, dp: obje
         soc.irq.add("ctrl_mbx", use_loc_if_exists=True)
     else:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
+    # the REBOOT request into the datapath's clock, as the PHY hold crosses out of it (#871, #787)
+    reboot = add_ctrl_reboot(soc)
+    if dp is not None:
+        soc.specials += MultiReg(reboot, dp.reboot_req, odomain=dp.milan_cd)
 
 
 # ---- #640 M8a: the split placement's control-firmware memory -------------------------------------
@@ -3341,7 +3418,8 @@ def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
                                   f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
                                   f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
     soc.ctrl_image = ctrl_memory.read_elf(firmware)
-    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+    # a ledgered image at its own entry, by its symbols; every other image at the 56-RAMB36 budget (#923)
+    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image, ledgered=ctrl_memory.own_point(soc.ctrl_image))
     for region, banks, words, mode in (
             (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
             (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
@@ -3823,7 +3901,7 @@ class MilanSoC(SoCCore):
             # length word read as garbage). The compiled divisor is the one with
             # margin; skip the calibration so it actually holds.
             self.add_constant("SPIFLASH_SKIP_FREQ_INIT")
-            self._add_flashboot_constants(flashboot)
+            self._add_flashboot_constants(flashboot, flash_module)
 
         if with_milan:
             # AXI-Lite bridge from the CPU bus to the Milan CSR window.
@@ -4338,10 +4416,15 @@ class MilanSoC(SoCCore):
                              rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
         return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
-    def _add_flashboot_constants(self, manifest_name):
-        """Emit the product flash constants and deployment manifest."""
+    def _add_flashboot_constants(self, manifest_name, flash_module):
+        """Emit the product flash constants and deployment manifest.
+
+        `flash_module` is the litespi module the SoC drives the flash with;
+        the manifest names it and its JEDEC ID so deploy.sh can refuse a
+        board whose flash reads otherwise (#911)."""
         # A build must never emit a flash map that cannot be erased safely.
-        problems = check_flash_map()
+        layout = flashboot_layout(self.platform.device)
+        problems = check_flash_map(layout)
         if problems:
             raise ValueError("FLASHBOOT flash map is inconsistent:\n  " +
                              "\n  ".join(problems))
@@ -4356,6 +4439,8 @@ class MilanSoC(SoCCore):
                                   "complete": False,
                                   "flash_size": FLASH_SIZE,
                                   "erase_block": FLASH_ERASE_BLOCK,
+                                  "flash_device": flash_module.name,
+                                  "flash_jedec_id": flash_jedec_id(flash_module),
                                   "images": [],
                                   # deploy.sh includes these boundaries in its
                                   # per-image write ceilings, so a manifest can
@@ -4376,12 +4461,12 @@ class MilanSoC(SoCCore):
             return
         # the gateware slot is not a BIOS-copied image, but deploy.sh needs it
         # in the json for slot ceilings + `flash` targeting
-        eb = FLASHBOOT_LAYOUT["bitstream"]
+        eb = layout["bitstream"]
         self._flashboot_layout["images"].append(
             {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"],
              "budget": eb["size"]})
         for name in images:
-            e = FLASHBOOT_LAYOUT[name]
+            e = layout[name]
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_ADDR",   e["addr"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_SIZE",   e["size"])
@@ -4504,6 +4589,12 @@ def main() -> None:
                     help="target board: ax7101 (Alinx, 1G GMII, QSPI flashboot) or "
                          "arty (Digilent Arty A7-100: 100M MII DP83848, serial boot, "
                          "second Milan node for AVDECC interop).")
+    ap.add_argument("--fpga-part", default=None,
+                    choices=BOARD_PARTS,
+                    help="the die the ax7101 board is fitted with (#911): "
+                         "omitted is the AX7101's XC7A100T; xc7a200t-fbg484-2 "
+                         "is the same board in the pin-compatible FBG484 "
+                         "footprint")
     ap.add_argument("--l2-bytes", default=None, type=_parse_l2_bytes,
                     help="shared-L2 bytes; omit or use 0 for the cacheless VexiiRiscv product")
     ap.add_argument("--milan-clk-freq", default=None, type=float,
@@ -4911,13 +5002,15 @@ def main() -> None:
                    AUDIO_IF_WORD_BITS_DEFAULT))
 
     if args.board == "arty":
+        if args.fpga_part is not None:
+            ap.error("--fpga-part names a die of the ax7101 board, not the arty")
         # Digilent Arty A7-100: same xc7a100t die (csg324-1), 100 MHz clkin,
         # MT41K128M16 DDR3, DP83848 MII 10/100 PHY, FT2232 = JTAG+UART on one
         # cable. Second Milan node for AVDECC/Milan interop (100M CBS point).
         from litex_boards.platforms import digilent_arty
         platform = digilent_arty.Platform(variant="a7-100", toolchain="vivado")
     else:
-        platform = alinx_ax7101.Platform()
+        platform = alinx_ax7101.Platform(part=args.fpga_part)
     # QSPI-bootable bitstreams (user directive 2026-07-12): compress (a 100t
     # frame is 3.65 MiB raw — the 16 MiB flash only fits it compressed) and
     # pin the SPI config settings the ARTY's flash part supports. ARTY ONLY:
@@ -5089,11 +5182,12 @@ def main() -> None:
     if args.software_profile == "baremetal":
         if _desc_blob is None:
             raise RuntimeError("baremetal firmware requires the protocol-processor entity image")
-        if len(_desc_blob) > FLASHBOOT_AEM["size"]:
+        _aem_slot = flashboot_layout(platform.device)["aem"]
+        if len(_desc_blob) > _aem_slot["size"]:
             raise RuntimeError(
                 f"entity image is {len(_desc_blob)} bytes, larger than the "
-                f"{FLASHBOOT_AEM['size']}-byte baremetal flash slot")
-        soc.add_constant("MILAN_AEM_FLASH_OFFSET", FLASHBOOT_AEM["offset"])
+                f"{_aem_slot['size']}-byte baremetal flash slot")
+        soc.add_constant("MILAN_AEM_FLASH_OFFSET", _aem_slot["offset"])
         soc.add_constant("MILAN_AEM_IMAGE_BYTES", len(_desc_blob))
         soc.add_constant("MILAN_AEM_IMAGE_CRC32",
                          binascii.crc32(_desc_blob) & 0xFFFF_FFFF)

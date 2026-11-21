@@ -19,7 +19,8 @@ def _compile(build_dir: Path, spec: dict) -> None:
     header = build_dir / 'probe_config.hpp'
     header.write_text('#pragma once\n#include <cstdint>\n' + ''.join(
         f'constexpr std::uint64_t {name} = {value};\n' for name, value in (
-            ('sys_hz', spec['sys_hz']), ('cpu_hz', spec['cpu_hz']), ('tdm_hz', spec['tdm_hz']))))
+            ('sys_hz', spec['sys_hz']), ('cpu_hz', spec['cpu_hz']), ('tdm_hz', spec['tdm_hz']),
+            ('station_mac', spec['station_mac']))))
     argv = ['verilator', '--cc', '--exe', '--build', '-j', '8', '-Wno-fatal', '-Werror-USERERROR',
             '-Wno-BLKANDNBLK', '-Wno-WIDTH', '-Wno-COMBDLY', '-Wno-CASEINCOMPLETE',
             '--top-module', 'sim', '--Mdir', str(build_dir / 'native'), '-O3',

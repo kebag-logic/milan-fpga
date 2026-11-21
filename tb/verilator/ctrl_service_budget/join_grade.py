@@ -10,8 +10,8 @@ no horizon) and neither the periodic nor the LeaveAll timer ran out between them
 timer armed at the first commit gave, since lwSRP arms it at a commit alone. A run-out with nothing to send releases
 nothing, and the MRPDU a later request then sends at once (its join timer idle) ends no interval. The harness reports
 each group's shortest and longest and its MRP timers' run-outs by outcome (run.py, JOINS); a group with an interval
-under LEAST_MS or over MOST_MS, or a run-out whose build is late or absent (mrpdu_grade.FAILING), fails the run
-whatever findings it records.
+under LEAST_MS or over MOST_MS, or a run-out whose build is late or absent or whose owner the testbench did not record
+at the expiry (mrpdu_grade.FAILING), fails the run whatever findings it records.
 """
 from __future__ import annotations
 
@@ -65,18 +65,37 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
 
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
-    MOST_MS; and every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one
-    named with its timer, its time and how far its first frame or build, or the log's end, lies past it."""
+    MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
+    with its timer, its time, its owner, the owner's transmit opportunity (mrpdu_grade.anchor) and how far the owner's
+    first frame or the first build, or the log's end, lies past that, and each unowned one
+    with whether the testbench recorded its owner unresolved or recorded none; and every LeaveAll
+    timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
+    named."""
     every = intervals(log)
     over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
-    builds, _, sent, last = mrpdu_grade.index(log)
+    last = mrpdu_grade.index(log)[3]
+    ms = lambda cycle: round(cycle * 1000 / log.sys_hz, 3)
     runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
     for entry, kind, outcome in mrpdu_grade.outcomes(log):
         runs[outcome] += 1
         if outcome in mrpdu_grade.FAILING:
-            frames = mrpdu_grade.released(log, entry)
-            after = frames[0][0] if frames else next((b for b in builds if b > entry), last)
-            failing.append(dict(kind=kind, outcome=outcome, at_ms=round(entry * 1000 / log.sys_hz, 3),
-                                after_ms=round((after - entry) * 1000 / log.sys_hz, 3)))
+            # from its owner's first transmit opportunity, to what its late judgement rests on (mrpdu_grade.settle), or
+            # the log's end
+            start = mrpdu_grade.anchor(log, entry)
+            at, by = mrpdu_grade.late_at(log, entry) if outcome == 'late' else (None, 'owner')
+            after = at if at is not None else last
+            failing.append(dict(kind=kind, outcome=outcome, by=by, who=mrpdu_grade.recorded_owner(log, entry),
+                                at_ms=ms(entry), from_ms=ms(start),
+                                after_ms=round((after - start) * 1000 / log.sys_hz, 3),
+                                **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
+                                   if outcome == 'unowned' else {})))
+    alls = mrpdu_grade.leave_alls(log)
+    leave_all = dict(runs={o: sum(1 for r in alls if r['outcome'] == o) for o in mrpdu_grade.LEAVE_ALL_OUTCOMES},
+                     failing=[dict(outcome=r['outcome'], who=r.get('who'), at_ms=ms(r['at']),
+                                   recorded=r.get('recorded', True),
+                                   **{f'{k}_ms': ms(r[k]) for k in ('opportunity', 'first', 'sent')
+                                      if r.get(k) is not None})
+                              for r in alls if r['outcome'] in mrpdu_grade.LEAVE_ALL_FAILING])
     return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
-                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing)
+                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing,
+                leave_all=leave_all)

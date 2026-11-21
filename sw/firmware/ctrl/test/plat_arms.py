@@ -7,10 +7,15 @@
             console under AddressSanitizer, whose report fails the test it is in;
   platboot  the boot and composition of ctrl_plat.c, at the shipping shape with
             one and with two AVB interfaces, on the mailbox model, F1's flash
-            model and the host bus (test_plat_boot.cpp);
+            model and the host bus (test_plat_boot.cpp), and the PHY poll on a
+            pin-level Clause-22 peer behind that bus, alone and composed
+            (test_plat_phy.cpp, #919);
   plattrace the CSR initialisation against milan_baremetal.c's own, compiled on
             the host as builder gate 35 compiles it, for every shipped config,
-            with its planted controls (plat_trace.py).
+            with its planted controls (plat_trace.py);
+  platmap   ctrl_plat_gen.py's bus map and the PHY's rows (#919): all three
+            give their addresses, none gives 0 for each (no MDIO, so the poll
+            arms nothing), some but not all are refused, naming what is missing.
 """
 from __future__ import annotations
 
@@ -27,6 +32,9 @@ import fw_gtest
 SHIPPING = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 #: The platform's sources each arm measures.
 CSR_CONSOLE = ("plat/ctrl_plat_csr.c", "plat/ctrl_plat_console.c")
+#: The PHY poll (#919), which reads the saved-state store's step and its generated shape, so the arms that compose
+#: the store build it: platboot, which also runs its own suite (test_plat_phy.cpp), and platrv32.
+PHY = "plat/ctrl_plat_phy.c"
 
 
 def nvm_tree(tree: Tree) -> Path:
@@ -89,7 +97,7 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
     firmware = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
     firmware += [tree.src / "aecp" / n for n in (*AECP_SOURCES, "aecp_mbx.c", "aecp_face.c", "aecp_nvm.c")]
     firmware += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c",
-                                        "plat/ctrl_plat.c", *CSR_CONSOLE)]
+                                        "plat/ctrl_plat.c", *CSR_CONSOLE, PHY)]
     firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
     models = [tree.src / n for n in HOST if n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
     label = f"-DPLAT_TEST_SHAPE=\"{SHIPPING.stem} if{interfaces}\""
@@ -102,10 +110,56 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
         # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
         objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
-                                       [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp"], out / "tests")
+                                       [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp",
+                                        HERE / "test_plat_phy.cpp"], out / "tests")
     except fw_gtest.BuildError as exc:
         raise Refusal(str(exc)) from exc
     return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))
+
+
+#: The sink-format arm's shapes (#946), each with the AAF Stream Inputs above 0 it holds: 8x8/1if, whose inputs 1
+#: to 7 each have a receive-monitor context of their own, and the shipping 1x1/1if, which has none.
+SINK_SHAPES = ((ROOT / "configs/endstation_ax7101_8x8.yaml", 7), (SHIPPING, 0))
+
+
+def arm_platsinks(tree: Tree, config: Path, aaf_above_0: int) -> Outcome:
+    """Each AAF Stream Input above 0 holds its current format in its receive-monitor context (#946): ctrl_plat.c's
+    boot and composition at one interface, built as arm_platboot builds it, with the sink suite
+    (test_plat_sinks.cpp). The platform's units are those the tree holds, the PHY poll's among them where it has
+    one."""
+    from aecp_arms import AECP_SOURCES
+    from ctrl_arms import lwsrp_pin
+    from srp_arms import LWSRP_SOURCES, prepared
+    out = tree.out / f"platsinks-{config.stem}"
+    variant, inc = prepared(tree, 1, out, config)
+    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+    lw = ROOT / "third_party/lwSRP"
+    lwsrp_pin(lw)
+    inc += ["-DLWSRP_MILAN=1", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}"]
+    store = nvm_tree(tree)
+    plat = [n for n in ("plat/ctrl_plat.c", *CSR_CONSOLE, "plat/ctrl_plat_phy.c") if (tree.src / n).is_file()]
+    firmware = [source(variant if n.startswith("mbx/") else tree.src, tree.stack, n) for n in PORTABLE]
+    firmware += [tree.src / "aecp" / n for n in (*AECP_SOURCES, "aecp_mbx.c", "aecp_face.c", "aecp_nvm.c")]
+    firmware += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c", *plat)]
+    firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
+    models = [tree.src / n for n in HOST if n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
+    labels = [f"-DPLAT_TEST_SHAPE=\"{config.stem} if1\"", f"-DPLAT_SINKS_MIN={aaf_above_0}"]
+    try:
+        objs = fw_gtest.compile_c(tree.build, C_FLAGS, inc, firmware, out / "fw")
+        objs += fw_gtest.compile_c(tree.build, C_FLAGS, inc, models, out / "models", measured=False)
+        objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
+                                   [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
+        # the stack's ACMPDU builder (acmp_fake.hpp) for S2's bind, last, so it shadows no firmware header
+        objs += fw_gtest.compile_tests(tree.build, [*inc, *labels, f"-I{STACK_TESTS}"],
+                                       [HERE / "plat_bus.cpp", HERE / "test_plat_sinks.cpp"], out / "tests")
+    except fw_gtest.BuildError as exc:
+        raise Refusal(str(exc)) from exc
+    return execute("platsinks", link(tree, f"test_plat_sinks_{config.stem}", objs))
+
+
+def sink_arms(tree: Tree) -> list[Outcome]:
+    """The sink-format arm at each of its shapes, as the suites and the coverage run run it."""
+    return [arm_platsinks(tree, config, n) for config, n in SINK_SHAPES]
 
 
 #: The compiler's 64-bit logical shift, which no field write of the split platform calls (tsn-c-stack#27).
@@ -138,7 +192,7 @@ def arm_platrv32(tree: Tree, require: bool) -> Outcome:
     sources += [tree.src / "aecp" / n for n in (*AECP_SOURCES, "aecp_mbx.c", "aecp_face.c", "aecp_nvm.c")]
     sources += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c",
                                        "plat/mbx_plat_mmio.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat.c",
-                                       *CSR_CONSOLE)]
+                                       *CSR_CONSOLE, PHY)]
     sources += [store / "nvm_klj2.c", store / "nvm_store.c", store / "plat/nvm_flash_litespi.c"]
     sources += [lw / "src" / n for n in LWSRP_SOURCES]
     objects = []
@@ -171,10 +225,52 @@ def arm_plattrace(tree: Tree) -> Outcome:
     return plat_trace.arm(tree.src, tree.out / "plattrace")
 
 
+#: The PHY's three rows in the platform's map fixture (ctrl_plat_csr.csv), and the macros they give.
+PHY_MAP = (("milan_mac_phy_mdio_w", "CTRL_PLAT_PHY_MDIO_W"), ("milan_mac_phy_mdio_r", "CTRL_PLAT_PHY_MDIO_R"),
+           ("milan_mac_link_status", "CTRL_PLAT_LINK_STATUS"))
+
+
+def map_run(tree: Tree, rows: list[str], out: Path) -> tuple[int, str, dict[str, int]]:
+    """ctrl_plat_gen.py map on a csr.csv of `rows`: its exit status, its stderr and each macro it defined."""
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "csr.csv").write_text("\n".join(rows) + "\n")
+    res = run([sys.executable, "-B", str(tree.src / "plat/ctrl_plat_gen.py"), "map", str(out / "csr.csv"),
+               "-o", str(out / "map.h")])
+    header = (out / "map.h").read_text() if res.returncode == 0 else ""
+    words = (ln.split() for ln in header.splitlines())
+    defined = {w[1]: int(w[2].rstrip("u"), 16) for w in words
+               if len(w) == 3 and w[0] == "#define" and w[2].startswith("0x")}
+    return res.returncode, res.stderr, defined
+
+
+def arm_platmap(tree: Tree) -> Outcome:
+    """The bus map's PHY rows (#919), each check in the campaign's `[FAIL] <test>: <words>` form."""
+    fixture = [ln for ln in (HERE / "ctrl_plat_csr.csv").read_text().splitlines() if ln and not ln.startswith("#")]
+    rows = {ln.split(",")[1]: int(ln.split(",")[2], 16) for ln in fixture}
+    without = [ln for ln in fixture if ln.split(",")[1] not in dict(PHY_MAP)]
+    out = tree.out / "platmap"
+    checks: list[tuple[str, bool, str]] = []
+    rc, _, defined = map_run(tree, fixture, out / "all")
+    checks.append(("PlatMap.M1AllThreeRowsGiveTheirAddresses", rc == 0 and all(defined.get(m) == rows[r]
+                   for r, m in PHY_MAP), f"M1 the PHY's three rows give their addresses (exit {rc}, {defined})"))
+    rc, _, defined = map_run(tree, without, out / "none")
+    checks.append(("PlatMap.M2NoRowsGiveZero", rc == 0 and all(defined.get(m) == 0 for _, m in PHY_MAP),
+                   f"M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit {rc}, {defined})"))
+    for missing, _ in PHY_MAP:
+        rc, err, _ = map_run(tree, [ln for ln in fixture if ln.split(",")[1] != missing], out / f"no-{missing}")
+        checks.append(("PlatMap.M3SomeRowsAreRefused", rc == 2 and missing in err,
+                       f"M3 some but not all of the PHY's rows are refused, naming {missing} (exit {rc})"))
+    failures = sum(not ok for _, ok, _ in checks)
+    log = [f"  [{'PASS' if ok else 'FAIL'}] {test}: {words}" for test, ok, words in checks]
+    log += [f"== ctrl split platform bus map: checks: {len(checks)}   failures: {failures} ==",
+            f"RESULT: {'FAIL' if failures else 'PASS'}"]
+    return Outcome("platmap", 1 if failures else 0, "\n".join(log))
+
+
 def all_arms(tree: Tree, require_rv32: bool) -> list[Outcome]:
     """Every platform arm, as the suites run them."""
     return [arm_plat(tree), arm_platboot(tree, 1), arm_platboot(tree, 2), arm_platrv32(tree, require_rv32),
-            arm_plattrace(tree)]
+            arm_plattrace(tree), arm_platmap(tree)]
 
 
 def coverage_arms(tree: Tree) -> list[Outcome]:

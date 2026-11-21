@@ -9,7 +9,10 @@
 // observed clock count; run.py grades them. It also reports each call of a
 // traced function (SPAN: the commit of its entry to the commit of its return
 // address) and each entry of a called one (CALL), the saved-state store's
-// steps and the owners they reach (#665). BUDGET_JOURNAL_IN, a file of the
+// steps and the owners they reach (#665), and each MRP timer's expiry with the
+// participant that owns it, read off the CPU's register file at the timer
+// callback's entry and at its participant's creation (note_owner; PR #934).
+// BUDGET_JOURNAL_IN, a file of the
 // journal's bytes, is loaded over the flash image at the journal; at the end
 // the journal's bytes are written to BUDGET_JOURNAL_OUT.
 #include "Vsim.h"
@@ -23,6 +26,7 @@
 #include <cstdlib>
 #include <deque>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -113,6 +117,16 @@ public:
         host_sample(dut);
         if (rx_commit(dut)) {
             std::printf("RXC %llu %u\n", ull(sys_), rx_channel(dut));
+        }
+        // A record its channel's bucket had no token for is held (#917): its hold, in its commit's place, and
+        // its commit at the channel's next refill, which grade.py credits to the frame that channel holds.
+        if (rx_hold(dut)) {
+            std::printf("RXH %llu %u\n", ull(sys_), rx_channel(dut));
+        }
+        if (const unsigned released = rx_release(dut)) {
+            for (unsigned c = 0; c < n_ch; ++c) {
+                if ((released >> c) & 1u) std::printf("RXR %llu %u\n", ull(sys_), c);
+            }
         }
         if (evt_write(dut)) {
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
@@ -296,8 +310,20 @@ private:
             const auto programmed = flash_.programmed_bytes;
             const auto op = flash_.deselect(sys_);
             if (op) {
-                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, flash_.programmed_bytes - programmed);
+                const auto bytes = flash_.programmed_bytes - programmed;
+                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, bytes);
                 flash_write_at_ = sys_;
+                // the bytes a page program left in the device, so a save's container is read off the log (#920,
+                // save_burst.py)
+                if (op == 0x02) {
+                    std::string text;
+                    char b[3];
+                    for (std::uint32_t a = address; a < address + bytes; ++a) {
+                        std::snprintf(b, sizeof b, "%02x", flash_.byte(a));
+                        text += b;
+                    }
+                    std::printf("FLASHDATA %llu %06x %s\n", ull(sys_), address, text.c_str());
+                }
             }
         }
         flash_cs_ = dut.flash_cs;
@@ -331,9 +357,19 @@ private:
                 pass_.step = true;
                 pass_.aged = pass_.aged || !pass_.mbx_seen;
             }
-            // A function entry a probe starts at (a test-only entry's call), by its symbol.
+            // A function entry a probe starts at (a test-only entry's call), by its symbol; an MRP timer's
+            // expiry with its owner, read off its own argument at the entry (owner_of); an MRPDU's build with its
+            // participant, read off its slot at the entry (builder_of).
             for (unsigned e = 0; e < n_entries; ++e)
-                if (last_pc_ == entry_pc[e]) std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
+                if (last_pc_ == entry_pc[e]) {
+                    if (entry_owned[e])
+                        std::printf("ENTRY %llu %s %s\n", ull(sys_), entry_name[e], owner_of(dut).c_str());
+                    else if (entry_pc[e] == build_pc)
+                        std::printf("ENTRY %llu %s %s\n", ull(sys_), entry_name[e], builder_of(dut).c_str());
+                    else
+                        std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
+                }
+            note_owner(dut);
         }
         if (trap_valid(dut)) {
             ++traps_;
@@ -399,6 +435,55 @@ private:
         }
         for (unsigned c = 0; c < n_calls; ++c)
             if (last_pc_ == call_pc[c]) std::printf("CALL %llu %llu %s\n", ull(sys_), ull(cpu_), call_name[c]);
+    }
+
+    // The MRP participants' registry (#665, PR #934): lwSRP's three timers of a participant share one argument,
+    // its port's timer_arg, which mrp_app_create registers with shlan_timer_init (the LeaveAll timer's, cb
+    // on_la_timer) inside msrp_app_create or mvrp_app_create; srp_mbx.c's create_participants creates an
+    // interface's MSRP, then its MVRP, then publishes that interface's Domain, mbx_pub_domain(index, false, ...).
+    // Each argument is bound there, at its participant's creation, to its interface and application, so a timer's
+    // expiry names its owner by its own argument (a0 at the callback's entry), never by an output after it. A
+    // creation that does not end in that publication of exactly one MSRP and one MVRP binds nothing (unbound).
+    void note_owner(const Vsim& dut) {
+        if (last_pc_ == msrp_create_pc) {
+            creating_ = 1;
+        } else if (last_pc_ == mvrp_create_pc) {
+            creating_ = 2;
+        } else if (last_pc_ == timer_init_pc && reg(dut, 11) == la_timer_pc && creating_) {
+            pending_.push_back({reg(dut, 12), creating_});
+        } else if (last_pc_ == pub_domain_pc && reg(dut, 11) == 0u && !pending_.empty()) {
+            const std::uint32_t index = reg(dut, 10);
+            const bool pair = pending_.size() == 2 && pending_[0].app != pending_[1].app && index < n_if;
+            for (const auto& p : pending_) {
+                std::string who = pair ? "if" + std::to_string(index) + (p.app == 1 ? " MSRP" : " MVRP") : "unbound";
+                if (pair) owners_[p.arg] = who;
+                else owners_.erase(p.arg);
+                std::printf("PARTICIPANT %llu %08x %s\n", ull(sys_), p.arg, who.c_str());
+            }
+            pending_.clear();
+            creating_ = 0;
+        }
+    }
+
+    // A timer callback's owner, by its argument (a0): the participant the registry bound it to, or unresolved.
+    std::string owner_of(const Vsim& dut) const {
+        const std::uint32_t arg = reg(dut, 10);
+        const auto at = owners_.find(arg);
+        if (at != owners_.end()) return at->second;
+        char buf[32];
+        std::snprintf(buf, sizeof buf, "unresolved %08x", arg);
+        return buf;
+    }
+
+    // A build's participant (#665, PR #934): srp_mbx.c's build_mrpdu(m, i, slot) builds exactly one participant's
+    // MRPDU, slot 2n interface n's MSRP and 2n + 1 its MVRP (participant), its slot a2 at the entry; a slot past the
+    // point's interfaces is unresolved.
+    std::string builder_of(const Vsim& dut) const {
+        const std::uint32_t slot = reg(dut, 12);
+        if (slot / 2u < n_if) return "if" + std::to_string(slot / 2u) + (slot % 2u ? " MVRP" : " MSRP");
+        char buf[32];
+        std::snprintf(buf, sizeof buf, "unresolved %08x", slot);
+        return buf;
     }
 
     // The code words fetched before the mailbox opened (boot) and after it (service).
@@ -654,6 +739,12 @@ private:
     std::uint64_t sys_ = 0, cpu_ = 0, instr_ = 0, passes_ = 0, wait_from_ = 0;
     unsigned now_ms_ = 0;
     std::uint32_t last_pc_ = 0;
+    // The participants' registry (note_owner): the application being created (1 MSRP, 2 MVRP), the LeaveAll
+    // timers' arguments it registered, and each bound argument's owner (`if0 MSRP`).
+    struct Pending { std::uint32_t arg; unsigned app; };
+    unsigned creating_ = 0;
+    std::vector<Pending> pending_;
+    std::map<std::uint32_t, std::string> owners_;
     struct OpenSpan { bool active; std::uint32_t ret; std::uint64_t sys, cpu; };
     std::array<OpenSpan, n_spans> spans_{};
     unsigned module_ = n_modules;

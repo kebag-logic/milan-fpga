@@ -10,9 +10,11 @@
 //               subtype and message_type), FILTER_MISMATCH for a control
 //               EtherType no tuple holds, the accept terms (eq_bound on the
 //               arrival interface's bound-talker table), the record
-//               committed whole or dropped (RX_DROP for size or space,
-//               RATE_DROP for an empty bucket), one token per refill period
-//               up to the burst;
+//               committed whole or dropped (RX_DROP for size or space), one
+//               token per refill period up to the burst, a record its bucket
+//               has no token for held past RX_HEAD and committed by the next
+//               refill, which it spends, and RATE_DROP for one that finds the
+//               bucket empty behind a held record (#917);
 //   KL_mbx_tx   the record whose SEQ comes first modulo 2^16 among each
 //               channel's oldest, scanned from the channel after the one
 //               served last (so equal SEQs go round-robin), a record checked
@@ -260,7 +262,12 @@ static void one_ms(struct mbx_model *m)
 		struct mbx_model_channel *ch = &m->ch[c];
 		if ((uint32_t)ch->refill + 1u >= refill_ms[c]) {
 			ch->refill = 0;
-			if (ch->tokens < burst[c]) {
+			if (ch->rx_held_words != 0u) {
+				// the held record takes the refill's token
+				ch->rx_head = (uint16_t)(ch->rx_head + ch->rx_held_words);
+				ch->rx_held_words = 0;
+				ch->rx_pass = (uint16_t)(ch->rx_pass + 1u);
+			} else if (ch->tokens < burst[c]) {
 				ch->tokens++;
 			}
 		} else {
@@ -505,9 +512,13 @@ static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *fr
 	return false;
 }
 
-static void rx_commit(struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len, unsigned interface)
+// The record written at RX_HEAD (no record is held when one is stored);
+// committed when the bucket holds a token, otherwise held past RX_HEAD for
+// the next refill (#917). True when committed.
+static bool rx_store(struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len, unsigned interface)
 {
 	struct mbx_model_channel *ch = &m->ch[c];
+	uint16_t words = (uint16_t)(MBX_RX_HDR_WORDS + (len + 3u) / 4u);
 	*ring_word(m, rx_base[c], rx_words[c], ch->rx_head) =
 		mbx_place((uint32_t)len, MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH) |
 		mbx_place(interface, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) |
@@ -517,9 +528,14 @@ static void rx_commit(struct mbx_model *m, unsigned c, const uint8_t *frame, siz
 		*ring_word(m, rx_base[c], rx_words[c], (uint32_t)ch->rx_head + MBX_RX_HDR_WORDS + (uint32_t)(k / 4u)) =
 			ring_lanes_pack(frame + k, len - k > 4u ? 4u : (unsigned)(len - k));
 	}
-	ch->rx_head = (uint16_t)(ch->rx_head + MBX_RX_HDR_WORDS + (len + 3u) / 4u);
+	if (ch->tokens == 0u) {
+		ch->rx_held_words = words;
+		return false;
+	}
+	ch->rx_head = (uint16_t)(ch->rx_head + words);
 	ch->rx_pass = (uint16_t)(ch->rx_pass + 1u);
 	ch->tokens--;
+	return true;
 }
 
 bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface)
@@ -538,20 +554,21 @@ bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigne
 		return false;
 	}
 	struct mbx_model_channel *ch = &m->ch[c];
-	uint32_t used = (uint16_t)(ch->rx_head - ch->rx_tail);
-	uint32_t free_words = used > rx_words[c] ? 0u : rx_words[c] - used;
+	// the space past a held record; a tail ahead of RX_HEAD leaves none
+	uint32_t committed = (uint16_t)(ch->rx_head - ch->rx_tail);
+	uint32_t used = (uint16_t)(ch->rx_head + ch->rx_held_words - ch->rx_tail);
+	uint32_t free_words = used > rx_words[c] || committed > rx_words[c] ? 0u : rx_words[c] - used;
 	if (len > max_frame[c] || MBX_RX_HDR_WORDS + (len + 3u) / 4u > free_words) {
 		ch->rx_drop = sat16(ch->rx_drop);
 		m->err = true;
 		return false;
 	}
-	if (ch->tokens == 0u) {
+	if (ch->tokens == 0u && ch->rx_held_words != 0u) {
 		ch->rate_drop = sat16(ch->rate_drop);
 		m->err = true;
 		return false;
 	}
-	rx_commit(m, c, frame, len, interface);
-	return true;
+	return rx_store(m, c, frame, len, interface);
 }
 
 // ---- the inputs the gPTP plane and the PHY drive ----------------------------------

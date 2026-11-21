@@ -8,14 +8,19 @@ window, SRP's Listener registration, MAAP's DA gate and a range MAAP loses). The
 8x8/2if (ENTITY), the one-interface campaign at 1x1/1if (test_ctrl_firmware.run_srp_mutants selects them by name). One
 defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) and at once; a lapse withdraws, its
 licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two
-LeaveAllTime periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, Table 10-7), whether it changed while declared or
-while lapsed, after the latest Leave THE TRANSMIT allows, and held across a reset; an admission change swaps in place;
-a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until lwSRP
-takes its Leave; THE TRANSMIT's call publishes
-within srp_bounds.h's terms; the entry refuses before attach and on reentry; and the composition feeds each interface's
-DA gate and range. The source's frames carry the stream_id its Talker declares (#905): the MAAP adapter writes each
-source's SRC_SID before its DA_GATE bit first opens, each word in its own register, again before each reopening,
-read from the source port, and only while the bit is clear (KL_mbx_pkg.sv SRC_SID_LO).
+of the longest LeaveAll periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951), whether it changed while
+declared or while lapsed, after the latest Leave THE TRANSMIT allows, and held across a reset, never at the two
+LeaveAllTime periods it was before #951, alone or after a range lost to a conflict; an admission change swaps in
+place; a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until
+lwSRP takes its Leave; THE TRANSMIT's call publishes within srp_bounds.h's terms; the entry refuses before attach and
+on reentry; and the composition feeds each interface's DA gate and range. The source's frames carry the stream_id
+its Talker declares (#905): the MAAP adapter writes each source's SRC_SID before its DA_GATE bit first opens, each
+word in its own register, again before each reopening, read from the source port, and only while the bit is clear
+(KL_mbx_pkg.sv SRC_SID_LO). Each change of a source's
+declaration its STREAM_OUTPUT shows is noticed for its GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22):
+a declaration, a withdrawal, a type swapped in place (only once made) and an adopted Domain's other VID, and nothing
+else, a reset that declares an unchanged source again included; the SRP delivery takes the record and an attach
+starts with none (ctrl_app_srp.c).
 """
 from __future__ import annotations
 
@@ -31,8 +36,8 @@ ENTITY = "endstation_ax7101_8x8"
 VALID = "Talker.ValidSourceDeclaresAtOnceAndNothingBefore"
 LAPSE = "Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing"
 AGAIN = "Talker.UnchangedDestinationIsDeclaredAgainAtOnce"
-CHANGED = "Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriods"
-LATEST = "Talker.ChangedDestinationWaitsTwoLeaveAllTimePeriodsAfterTheLatestLeave"
+CHANGED = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods"
+LATEST = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave"
 MOVED = "Talker.DestinationChangeWhileValidWithdrawsTheOld"
 ADMIT = "Talker.AdmissionChangeSwapsTheTypeInPlace"
 RESET = "Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne"
@@ -40,6 +45,12 @@ ENTRY = "Talker.GateEntryRecordsOnlyWhatChanged"
 REFUSED = "Talker.RefusedDeclarationIsDeclaredAgain"
 TERMS = "Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin"
 WITHDRAWN = "Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt"
+NOTICED = "Talker.DeclarationAndWithdrawalAreNoticed"
+SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
+VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
+RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
+TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
+TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
 LISTENER = "SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow"
 LOST = "SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff"
@@ -57,9 +68,11 @@ WITHDRAWS = "        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed 
 WAITS = "        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;\n"
 DECLARES = ("        if (valid && !waits && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u || "
             "admitted != was)) {\n")
-#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two LeaveAllTime periods, a JoinTime and THE TRANSMIT's
-#: MRPDU by every source, rounded up to the centisecond.
-REDECLARE = "#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
+#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two of the longest LeaveAll periods (#951), a JoinTime and
+#: THE TRANSMIT's MRPDU by every source, rounded up to the centisecond.
+REDECLARE = "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
+#: the hold-off before #951: two LeaveAllTime periods, the shortest two LeaveAll periods can be (10.7.4.3).
+TWO_LEAVEALLTIME = REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "2u * SRP_LEAVEALL_CS")
 LICENCE = ("            if (i->active[n]) {\n                i->active[n] = false;\n                ++m->stops;\n"
            "                publish_licence(i);\n                m->config.licence(m->config.ctx,i->index,n,false);\n"
            "            }\n")
@@ -74,12 +87,27 @@ LEAVE = ("            if (mrp_mad_leave(i->msrp,0,was ? MSRP_ATTR_TYPE_TALKER_AD
          "                i->talkers &= ~bit;\n                m->held_cs[n] = SRP_REDECLARE_CS;\n            }\n")
 FEED = ("        (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],"
         "app->maap.ifs[interface].core.base);\n")
+#: what declare_sources notices of each source's declaration (#936), as srp_mbx.c holds it.
+NOTICE_MOVED = "    uint32_t moved = (i->talkers ^ i->shown) | ((advertise ^ i->shown_advertise) & kept);\n"
+VID_MOVED = "    if (i->domain.vid != i->shown_vid) {\n        moved |= kept;\n    }\n"
+ADVERTISE = ("        if (i->admitted[n]) {\n            used += slope;\n            advertise |= bit;\n"
+             "        }\n")
+#: the attach's clear of the record an earlier composition left (#936), as ctrl_app_srp.c holds it.
+ATTACH_CLEARS = ("        // a recomposed application keeps no record of the SRP instance it attached before (#936)\n"
+                 "        app->srp_noticed = 0u;\n")
+#: the SRP delivery's take of each interface's record (#936), as ctrl_app_srp.c holds it.
+TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n"
+        "        noticed = noticed || app->srp->ifs[interface].noticed != 0u;\n"
+        "        app->srp_noticed |= app->srp->ifs[interface].noticed;\n"
+        "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
+#: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
+OWED = "    bool pending = noticed;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every Talker declaration defect, built with srp_mutants.Defect: the declarations', then the entry's and the
     stream_id's, in that order."""
-    return declaration_defects(kind) + entry_defects(kind)
+    return declaration_defects(kind) + entry_defects(kind) + notice_defects(kind)
 
 
 def planter(kind: Callable[..., T]) -> Callable[..., T]:
@@ -111,19 +139,23 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "no Talker of a changed destination is declared before the hold-off ends"),
         d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
           "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
-          "a changed destination waits two LeaveAllTime periods after the Leave"),
-        d("talker-hold-off-one-leaveall", CHANGED, "#define SRP_REDECLARE_CS (2u * 1000u + SRP_JOIN_CS",
-          "#define SRP_REDECLARE_CS (1000u + SRP_JOIN_CS",
+          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
+        d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
+          REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
           "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
+          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
         d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
           REDECLARE.replace(" + (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
-          "the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave"),
+          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
         d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
-          "#define SRP_REDECLARE_CS (2u * 1000u)\n",
-          "the changed destination comes no sooner than two LeaveAllTime periods after the Leave"),
+          "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
+          "the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave"),
         d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
           REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
-          "the changed destination comes no sooner than two LeaveAllTime periods after the latest Leave"),
+          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
         d("talker-hold-off-never-ends", CHANGED,
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
@@ -216,4 +248,43 @@ def entry_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "SRC_SID is written only while the source's DA_GATE bit is clear", path=MAAP),
         d("talker-sid-written-mark-kept", SID_AGAIN, "\tm->sid_written &= (uint16_t)~may;\n", "",
           "both SRC_SID words are written again between the bit's closing and its reopening", path=MAAP),
+    )
+
+
+def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """What a source's STREAM_OUTPUT GET_STREAM_INFO notice is raised from (#936; Milan v1.2 5.4.5.2, Table 5.22):
+    declare_sources' record of each declaration, withdrawal, type swap and VID change against what was last shown
+    (srp_mbx.c), and the SRP delivery's take of it (ctrl_app_srp.c)."""
+    d = planter(kind)
+    return (
+        d("talker-notice-declaration-missed", NOTICED, NOTICE_MOVED,
+          NOTICE_MOVED.replace("(i->talkers ^ i->shown)", "(i->shown & ~i->talkers)"), "a declaration is noticed"),
+        d("talker-notice-withdrawal-missed", NOTICED, NOTICE_MOVED,
+          NOTICE_MOVED.replace("(i->talkers ^ i->shown)", "(i->talkers & ~i->shown)"), "a withdrawal is noticed"),
+        d("talker-notice-record-dropped", NOTICED, "    i->noticed |= moved;\n", "    (void)moved;\n",
+          "a declaration is noticed"),
+        d("talker-notice-every-declared-source", SWAP_NOTICED, "    i->noticed |= moved;\n",
+          "    i->noticed |= moved | i->talkers;\n", "a Talker Failed withdrawn is noticed"),
+        d("talker-notice-swap-missed", SWAP_NOTICED, NOTICE_MOVED, "    uint32_t moved = (i->talkers ^ i->shown);\n",
+          "a type swapped in place is noticed"),
+        d("talker-notice-refused-swap-noticed", SWAP_NOTICED, ADVERTISE,
+          "        if (i->admitted[n]) {\n            used += slope;\n        }\n"
+          "        if (admitted && (i->talkers & bit) != 0u) {\n            advertise |= bit;\n        }\n",
+          "a swap lwSRP refuses is not noticed until it is made"),
+        d("talker-notice-vid-missed", VID_NOTICED, VID_MOVED, "", "a declared Talker carrying another VID is noticed"),
+        d("talker-notice-vid-on-every-domain", VID_NOTICED, VID_MOVED,
+          VID_MOVED.replace("if (i->domain.vid != i->shown_vid) {", "if (i->domain.vid != i->shown_vid || how == "
+                                                                     "SRP_DECLARE_EVERY) {"),
+          "a Domain that keeps the VID notices nothing"),
+        d("talker-notice-reset-forgets-what-was-shown", RESET_NOTICED, "    withdraw_declared(i->index);\n",
+          "    withdraw_declared(i->index);\n    i->shown = 0u;\n",
+          "a source a reset declares again unchanged is not noticed"),
+        d("talker-notice-not-taken", TAKEN, TAKE, "", "a probe's declaration notices its source", path=APP),
+        d("talker-notice-kept-across-a-recomposition", TAKEN, ATTACH_CLEARS, "",
+          "an attached SRP instance starts with no record", path=APP),
+        d("talker-notice-record-kept", TAKEN, TAKE,
+          TAKE.replace("        app->srp->ifs[interface].noticed = 0u;\n", ""), "the SRP delivery takes SRP's record",
+          path=APP),
+        d("talker-notice-owed-unreported", TAKEN_PASS, OWED, "    bool pending = false;\n    (void)noticed;\n",
+          "owes its notice", path=APP),
     )

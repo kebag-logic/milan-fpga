@@ -67,7 +67,12 @@ or `make dp-build`, with DP_SRC and the objdir overridden) and run. A mutant
 is caught only when the leg FAILS by its own verdict (a `[FAIL]` line or a
 tally with failures, read by scripts/suite_tally.py) AND the named check is
 among the failures; a crash or an abort is not a catch. Each leg's positive
-control is its clean build, run again here.
+control is its clean build, run again here. Before it, the campaign makes the
+generated inputs each selected leg reads (its LEGS entry's last field)
+through that suite's own rules, and refuses the leg when one is still absent:
+every build keeps them with `-o`, and a fresh clone has made none outside
+milan_dp, so the listener leg ran with no ROM, microcode or entity image and
+failed its control (#929).
 
 What bounds a run: no host-time deadline. The leg is cycle-bounded by
 construction (each AEM command waits a fixed number of cycles for its answer,
@@ -102,7 +107,8 @@ SHADOW_RTL = HERE / "../../../hdl/milan/KL_pp_shadow.sv"
 #: to the recipe as PP_DIR; the submodule checkout is never edited
 PP_HDL = HERE / "../../../protocol-processor/hdl"
 #: each leg's suite, build target, objdir variable, clean objdir, executable,
-#: the arguments it runs with and the generated inputs its build may not remake
+#: the arguments it runs with and the generated inputs its build may not remake,
+#: which prepare() makes first
 LEGS = {
     "dynmap": (HERE, "dynmap-build", "DYNMAP_MDIR", "obj_dynmap",
                "Vmilan_dp_dynmap", (), ("ltn_rom.hex", "ucode.hex")),
@@ -452,6 +458,20 @@ MUTATIONS = [
 ]
 
 
+def prepare(leg: str) -> str | None:
+    """Make the generated inputs `leg` reads, through its suite's own rules, so every build of it (the clean
+    control's and each mutant's, which keep them with `-o`) reads the inputs of this tree. None when each is
+    there, else why not: a fresh clone has made none outside milan_dp, and a leg built without them runs with
+    no ROM, microcode or entity image (#929)."""
+    suite, *_rest, keep = LEGS[leg]
+    out = subprocess.run(["make", "-s", "-C", str(suite), *keep], capture_output=True, text=True, check=False)
+    missing = [name for name in keep if not (suite / name).is_file()]
+    if out.returncode != 0 or missing:
+        return (f"its suite did not make {', '.join(missing or keep)} (make rc {out.returncode}: "
+                f"{(out.stdout + out.stderr)[-500:].strip()})")
+    return None
+
+
 def build(leg: str, dp_path: Path, mdir: Path,
           shadow_path: Path | None = None, log: list[str] | None = None,
           pp_dir: Path | None = None) -> Path | None:
@@ -621,6 +641,12 @@ def main() -> int:
         work = Path(td)
         for leg in dict.fromkeys(m[0] for m in mutations):
             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
+            unmade = prepare(leg)
+            if unmade is not None:
+                fails += 1
+                print(f"[FAIL] the {leg} leg's inputs are not made: {unmade} - its mutant results are "
+                      f"meaningless")
+                continue
             clean = suite / clean_mdir / exe_name
             exe = clean if clean.is_file() else build(leg, DP_RTL, work / f"obj_clean_{leg}",
                                                       None, None)

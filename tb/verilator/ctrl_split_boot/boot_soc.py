@@ -19,6 +19,11 @@ devices the platform adds, so this one adds them:
     answers it from a register file and logs every access with its cycle;
   - the UART, MilanSoC's own `sim` UART, whose stream the testbench reads and
     writes.
+  - the PHY's MDIO bit-bang pair and link-status word (#919), named as the
+    product's MilanMAC names them (milan_mac_phy_mdio_w and _r, LiteEth's
+    LiteEthPHYMDIO, its input through the same two-register synchroniser;
+    milan_mac_link_status, at its reset value), their pins on pads: the
+    testbench is the PHY, and reads each publication.
 
 The datapath is not built: the window answers as the datapath's reset
 registers do where the boot reads them (ID, VERSION) and from gate 35's seeded
@@ -43,6 +48,8 @@ from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv  # noqa: E402
 from litex.soc.integration.builder import Builder  # noqa: E402
 from litex.soc.integration.soc import SoCRegion  # noqa: E402
 from litex.soc.interconnect import wishbone  # noqa: E402
+from litex.soc.interconnect.csr import CSRStatus, CSRStorage  # noqa: E402
+from migen.genlib.cdc import MultiReg  # noqa: E402
 
 milan_soc = split_soc.milan_soc
 capture_soc = split_soc.capture_soc
@@ -60,6 +67,26 @@ class CsrWindow(LiteXModule):
                       self.bus.dat_r.eq(pads.dat_r), self.bus.ack.eq(pads.ack)]
 
 
+#: The PHY boundary's signals on the testbench's pads (#919): MDIO's three pins (MDC, the output enable, the driven
+#: bit), the PHY's reply, and the link-status word with its write strobe.
+PHY_FIELDS = (('pins', 3), ('reply', 1), ('status', 4), ('publish', 1))
+#: milan_mac_link_status's reset value, as milan_soc.py's MilanMAC resets its fields on a gmii board: link up (bit 0),
+#: 1000 Mb/s (speed 0b10 at bits 2:1) and full duplex (bit 3).
+LINK_STATUS_RESET = 1 | 0b10 << 1 | 1 << 3
+
+
+class PhyBoundary(LiteXModule):
+    """The PHY's MDIO pair and the link-status word, the pins on pads (#919)."""
+
+    def __init__(self, pads: object) -> None:
+        self.phy_mdio_w = CSRStorage(3, name='phy_mdio_w')
+        self.phy_mdio_r = CSRStatus(1, name='phy_mdio_r')
+        self.link_status = CSRStorage(4, reset=LINK_STATUS_RESET, name='link_status')
+        self.comb += [pads.pins.eq(self.phy_mdio_w.storage), pads.status.eq(self.link_status.storage),
+                      pads.publish.eq(self.link_status.re)]
+        self.specials += MultiReg(pads.reply, self.phy_mdio_r.status)
+
+
 def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
     """Refuse an export that places a device of the flash port elsewhere than the split SoC's map, which is where
     the image addresses it."""
@@ -70,7 +97,8 @@ def refuse_deviation(csr_csv: Path, flash_map: Path) -> None:
 
 #: The platform image's ledgered points (ctrl_memory.LEDGERED), each named only at its own point: the boot SoC plans
 #: that point's image to the override's tiles, as the image's own link does (run.image), and every other to 56.
-PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
+PLATFORM_LEDGERED = {('endstation_ax7101_8x8', 1): 'platform-8x8-one-interface',
+                     ('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) -> dict:
@@ -84,6 +112,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
     platform = split_soc.platform_for(contract, n_if)
     platform.add_extension([('milan_csr', 0, *[Subsignal(n, Pins(w)) for n, w in CSR_FIELDS])])
+    platform.add_extension([('phy', 0, *[Subsignal(n, Pins(w)) for n, w in PHY_FIELDS])])
     cpu = split_soc.CpuPatches('cover')
     geometry = split_soc.fetch_l1_geometry('split')
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
@@ -108,6 +137,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, flash_map: Path) ->
         soc.milan_csr = CsrWindow(platform.request('milan_csr'))
         soc.bus.add_slave('milan_csr', soc.milan_csr.bus, region=SoCRegion(
             origin=milan_soc.MILAN_CSR_BASE, size=milan_soc.MILAN_CSR_SIZE, cached=False))
+        soc.milan_mac = PhyBoundary(platform.request('phy'))
         builder = Builder(soc, output_dir=str(build_dir), compile_software=False, compile_gateware=False,
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()

@@ -37,6 +37,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+#: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
           '8x8-1if': ('endstation_ax7101_8x8', 1)}
 
@@ -47,10 +48,53 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
     script.write_text(group.script())
     log = out / f'{group.name}.log'
     argv = [str(build_dir / 'native/Vsim'), str(script), flash]
+    # a group that grades the journal a cut leaves has the testbench write it at the script's end (save_burst.py)
+    env = dict(os.environ, BUDGET_JOURNAL_OUT=str(journal_of(out, group))) if group.save.get('journal') else None
     print('COMMAND', shlex.join(argv), flush=True)
     with log.open('w') as sink:
-        subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False)
+        subprocess.run(argv, cwd=build_dir / 'gateware', stdout=sink, stderr=subprocess.STDOUT, check=False, env=env)
     return log
+
+
+def journal_of(out: Path, group: object) -> Path:
+    """The journal a group's run leaves, when its save asks for it (save_burst.py)."""
+    return out / f'{group.name}.journal'
+
+
+def burst_misses(results: list[dict]) -> list[str]:
+    """Each name of a burst or a change in flight not durable within its target, or missing at the cut, and a next
+    save that waited past the first idle step (save_burst.misses), named by its group."""
+    import save_burst
+    return [m for g in results if g.get('burst') for m in save_burst.misses(g['burst'], g['group'])]
+
+
+def burst_lines(results: list[dict]) -> list[str]:
+    """One BURST line for each graded burst or change in flight: its names' worst time to durable, its target."""
+    out = []
+    for g in results:
+        b = g.get('burst')
+        if not b:
+            continue
+        worst = f"{b['worst_ms']:.3f} ms" if b['worst_ms'] is not None else 'never'
+        tail = (f", the cut's container sequence {b['cut_seq']}, {len(b['cut_missing'])} name(s) missing" if
+                b['kind'] == 'burst' else f", {b['next_steps']['steps']} steps to the next save's erase "
+                f"(want {b['next_steps']['want']})")
+        verdict = 'OVER' if save_misses_of(b, g['group']) else 'within'
+        out.append(f"BURST {g['group']}: {b['names']} name(s), the latest durable {worst} after its response (name "
+                   f"{b['worst_ordinal']}; target {b['target_ms']:,} ms), {len(b['saves'])} save(s){tail} {verdict}")
+    return out
+
+
+def print_bursts(results: list[dict]) -> None:
+    """Each burst's and change in flight's BURST line (burst_lines), as the run prints it."""
+    for line in burst_lines(results):
+        print(line)
+
+
+def save_misses_of(burst: dict, group: str) -> list[str]:
+    """save_burst.misses of one group's burst."""
+    import save_burst
+    return save_burst.misses(burst, group)
 
 
 def verdict_word(r: dict) -> str:
@@ -145,10 +189,12 @@ def stated_misses(results: list[dict]) -> list[str]:
     every source charge it (whole_grade.held, round_grade.held); each pass's polls base and each of the polls' heavy
     items dearer than its stated cost, and each SRP record's own apply dearer than its retry's (poll_grade.held); each
     tier-2 slice longer than CTRL_LOOP_SLICE_US (slice_grade.held, THE TIERS); each join interval outside 181.0 to
-    239.0 ms, Table 4.3's JoinTime less T_egress at each end; and each MRP timer's run-out whose build is late or
-    absent (join_grade.held, mrpdu_grade.resolve)."""
+    239.0 ms, Table 4.3's JoinTime less T_egress at each end; each MRP timer's run-out whose build is late past its
+    participant's transmit opportunity, or absent, or whose owner the testbench did not record at the expiry
+    (join_grade.held, mrpdu_grade.resolve); and each LeaveAll timer's
+    run-out whose LeaveAll went past its first transmit opportunity, late after it, or not at all
+    (mrpdu_grade.leave_alls)."""
     import join_grade
-    import mrpdu_grade
     import poll_grade
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
@@ -171,11 +217,51 @@ def stated_misses(results: list[dict]) -> list[str]:
              for g in results for o in g['passes'].get('slices', {}).get('over', [])] +
             [f"{g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}), outside {join_grade.LEAST_MS} to "
              f"{join_grade.MOST_MS} ms" for g in results for o in g['passes'].get('joins', {}).get('over', [])] +
-            [f"{g['group']}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms, " +
-             (f"its first frame or build {o['after_ms']:.3f} ms after it, past THE TRANSMIT's "
-              f"{mrpdu_grade.LATE_MS} ms (late)" if o['outcome'] == 'late' else
-              f"no build after it though the log runs on {o['after_ms']:.3f} ms (absent)")
-             for g in results for o in g['passes'].get('joins', {}).get('failing', [])])
+            [run_out_miss(g['group'], o) for g in results for o in g['passes'].get('joins', {}).get('failing', [])] +
+            [leave_all_miss(g['group'], o)
+             for g in results for o in g['passes'].get('joins', {}).get('leave_all', {}).get('failing', [])])
+
+
+def run_out_miss(group: str, o: dict) -> str:
+    """An MRP timer's run-out whose owner's frame or build is late past the owner's transmit opportunity, or absent, or
+    whose owner the testbench did not record at the expiry (join_grade.held, mrpdu_grade.resolve), as a finding names
+    it, with its owner and the owner's opportunity."""
+    import mrpdu_grade
+    at = f"{group}: the {o['kind']} timer's run-out at {o['at_ms']:.3f} ms"
+    if o['outcome'] == 'unowned':
+        return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
+            ' at the expiry (owner unresolved)'
+    opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
+    if o['outcome'] == 'late' and o.get('by') == 'bound':
+        return (at + f" ({o.get('who')}): no frame or build of its owner's within THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+                f"ms of {opp}, a build {o['after_ms']:.3f} ms after it (late)")
+    if o['outcome'] == 'late':
+        return (at + f" ({o.get('who')}): its owner's first frame or build {o['after_ms']:.3f} ms after {opp}, past "
+                f"THE TRANSMIT's {mrpdu_grade.LATE_MS} ms (late)")
+    return at + f" ({o.get('who')}): no build after it though the log runs on {o['after_ms']:.3f} ms past {opp} " \
+        '(absent)'
+
+
+def leave_all_miss(group: str, o: dict) -> str:
+    """A LeaveAll timer's run-out whose owner's LeaveAll went past its first transmit opportunity, late after it, or
+    not at all, or whose owner was not recorded at the expiry (mrpdu_grade.leave_alls), as a finding names it."""
+    import mrpdu_grade
+    at = f"{group}: the LeaveAll timer's run-out at {o['at_ms']:.3f} ms"
+    if o['outcome'] == 'unowned':
+        return (at + (", its owner recorded unresolved at the expiry" if o.get('recorded') else
+                      ", no owner recorded at the expiry") + ' (LeaveAll owner unresolved)')
+    head = f"{at} ({o['who']}): "
+    if o['outcome'] == 'absent':
+        return (head + f"no MRPDU of its owner after it though the log runs on past its first transmit opportunity at "
+                f"{o['opportunity_ms']:.3f} ms and THE TRANSMIT's bound (LeaveAll absent)")
+    if o['outcome'] == 'skipped':
+        went = (f"the LeaveAll went at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after it"
+                if 'sent_ms' in o else 'no LeaveAll followed')
+        return (head + f"its first transmit opportunity at {o['opportunity_ms']:.3f} ms sent an MRPDU without the "
+                f"LeaveAll at {o['first_ms']:.3f} ms, and {went} (LeaveAll past its first transmit opportunity)")
+    return (head + f"its LeaveAll at {o['sent_ms']:.3f} ms, {o['sent_ms'] - o['opportunity_ms']:.3f} ms after its "
+            f"first transmit opportunity at {o['opportunity_ms']:.3f} ms, past THE TRANSMIT's {mrpdu_grade.LATE_MS} "
+            f"ms (LeaveAll late)")
 
 
 #: What each kind of tier-2 slice holds (slice_grade.slices), as a finding names it.
@@ -199,6 +285,9 @@ def print_joins(results: list[dict]) -> None:
     for g in results:
         j = g['passes'].get('joins') or {}
         runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
+        alls = ', '.join(f'{n} {outcome}' for outcome, n in
+                         ((j.get('leave_all') or {}).get('runs') or {}).items() if n)
+        runs += f"; LeaveAll timers' run-outs by their LeaveAll: {alls}" if alls else ''
         if j.get('count'):
             print(f"JOINS {g['group']}: {j['count']} join interval(s), the shortest {j['shortest']:.3f} ms and the "
                   f"longest {j['longest']:.3f} ms, against {join_grade.LEAST_MS} to {join_grade.MOST_MS}; MRP "
@@ -259,10 +348,19 @@ def save_misses(results: list[dict]) -> list[str]:
 
 
 def notices(results: list[dict]) -> list[dict]:
-    """Every retried notice's row (notice_window.py), measured, with its group."""
+    """Every retried notice's row (notice_window.py) and every declared or withdrawn Talker's (talker_notice.py),
+    measured, with its group."""
     import notice_window
+    import talker_notice
+    paths = (notice_window.PATH, notice_window.QUEUED, *talker_notice.PATHS)
     return [dict(r, group=g['group']) for g in results for r in g['probes']
-            if r.get('status') == 'measured' and r['path'][0] in (notice_window.PATH, notice_window.QUEUED)]
+            if r.get('status') == 'measured' and r['path'][0] in paths]
+
+
+def talker_row(n: dict) -> bool:
+    """Whether a notice row is a declared or withdrawn Talker's, timed from its event (talker_notice.py)."""
+    import talker_notice
+    return n['path'][0] in talker_notice.PATHS
 
 
 def notice_misses(results: list[dict], interfaces: int) -> list[str]:
@@ -272,7 +370,9 @@ def notice_misses(results: list[dict], interfaces: int) -> list[str]:
     import notice_window
     import scenario
     rows = notices(results)
-    late = [f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
+    late = [f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit, over its bound "
+            f"{n['budget_ms']:g} ms" if talker_row(n) else
+            f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
             for n in rows if not n['within_budget']]
     # a group that holds its load across the timers times an MRPDU they owe (mrpdu_grade.py)
     for g in results:
@@ -288,11 +388,43 @@ def notice_misses(results: list[dict], interfaces: int) -> list[str]:
     return late
 
 
-def notice_table(results: list[dict]) -> list[str]:
-    """The retried notices' section of the table: each from its port's answer to its last recipient's commit."""
-    rows = notices(results)
+def talker_table(results: list[dict]) -> list[str]:
+    """The declared and withdrawn Talkers' section of the table: each from its event's commit to its last recipient's
+    commit (talker_notice.py)."""
+    rows = [n for n in notices(results) if talker_row(n)]
     if not rows:
         return []
+    lines = ['', "A declared or withdrawn Talker's STREAM_OUTPUT notice, from its event's commit to the last "
+             "recipient's commit (talker_notice.py; FR_NFR.md 3.4.1):", '',
+             '| Row | Event committed, sys | Last recipient committed, sys | Recipients | ms | Bound ms | Verdict |',
+             '|---|---:|---:|---:|---:|---:|---|']
+    for n in rows:
+        lines.append(f"| `{n['probe']}` | {n['start_sys']} | {n['end_sys']} | {n['fanout']['recipients']} | "
+                     f"{n['ms']:.3f} | {n['budget_ms']:g} | {'within' if n['within_budget'] else 'OVER'} |")
+    worst = max(rows, key=lambda n: n['ms'])
+    lines += ['', f"Latest: {worst['ms']:.3f} ms, {worst['probe']}."]
+    return lines
+
+
+def print_notices(results: list[dict]) -> None:
+    """A NOTICE line for each notice row: a retried notice from its port's answer, a declared or withdrawn Talker's
+    from its event's commit (talker_notice.py), each to its last recipient's commit."""
+    for n in notices(results):
+        if talker_row(n):
+            print('NOTICE', f"{n['probe']}: committed {n['ms']:.3f} ms after its event's commit at sys "
+                  f"{n['start_sys']}, the last of {n['fanout']['recipients']} recipients at sys {n['end_sys']} "
+                  f"(bound {n['budget_ms']:g} ms)", 'within' if n['within_budget'] else 'OVER')
+            continue
+        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
+              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
+              'within' if n['within_budget'] else 'OVER')
+
+
+def notice_table(results: list[dict]) -> list[str]:
+    """The retried notices' section of the table: each from its port's answer to its last recipient's commit."""
+    rows = [n for n in notices(results) if not talker_row(n)]
+    if not rows:
+        return talker_table(results)
     lines = ['', "Retried notices, from the port's answer to the last recipient's commit (notice_window.py; "
              'ctrl_loop.h, THE RETRY):', '', '| Group | ms | Bound ms | Recipients | Events held at the answer | '
              'Verdict |', '|---|---:|---:|---:|---:|---|']
@@ -301,7 +433,7 @@ def notice_table(results: list[dict]) -> list[str]:
                      f"{n['ahead']} | {'within' if n['within_budget'] else 'OVER'} |")
     worst = max(rows, key=lambda n: n['ms'])
     lines += ['', f"Latest: {worst['ms']:.3f} ms, {worst['group']}."]
-    return lines
+    return lines + talker_table(results)
 
 
 def save_table(results: list[dict]) -> list[str]:
@@ -318,6 +450,27 @@ def save_table(results: list[dict]) -> list[str]:
         gap = f"{s['longest_gap_ms']:.3f}" if s['longest_gap_ms'] is not None else '-'
         lines.append(f"| {s['group']} | {durable} | {s['bound_ms']:,} | {s['steps']} | {s.get('flight') or '-'} | "
                      f"{gap} | {'yes' if s['flooded'] else 'no'} | {'within' if s['within'] else 'OVER'} |")
+    return lines
+
+
+def burst_table(results: list[dict]) -> list[str]:
+    """The bursts' and the changes in flight's section of the table (save_burst.py): each name's latest time from its
+    response to durable against the target, the saves, and the cut's container or the next save's start."""
+    rows = [(g['group'], g['burst']) for g in results if g.get('burst')]
+    if not rows:
+        return []
+    lines = ['', "Names from their response to durable (save_burst.py; #920, #665's ruling of "
+             '2026-11-15, item 1):', '',
+             '| Group | Names | Latest, ms (name) | Target ms | Saves | Not durable | Over | At the cut, '
+             'or the next save | Verdict |', '|---|---:|---:|---:|---:|---|---|---|---|']
+    for group, b in rows:
+        worst = (f"{b['worst_ms']:.3f} ({b['worst_ordinal']})" if b['worst_ms'] is not None else
+                 f"never ({b['worst_ordinal']})")
+        end = (f"sequence {b['cut_seq']}, {len(b['cut_missing'])} missing" if b['kind'] == 'burst' else
+               f"{b['next_steps']['steps']} steps (want {b['next_steps']['want']}), {b['next_steps']['gap_ms']} ms")
+        lines.append(f"| {group} | {b['names']} | {worst} | {b['target_ms']:,} | {len(b['saves'])} | "
+                     f"{', '.join(map(str, b['never'])) or '-'} | {', '.join(map(str, b['over'])) or '-'} | {end} | "
+                     f"{'OVER' if save_misses_of(b, group) else 'within'} |")
     return lines
 
 
@@ -400,6 +553,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += share_table(results)
     lines += aged_table(results)
     lines += save_table(results)
+    lines += burst_table(results)
     lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
@@ -456,12 +610,10 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
-                        help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
-                        "block's stream, avb, path and counters), shutdown-entry (the SHUTDOWN "
-                        "path's test-only input), answering-later (the face block's stream observation answers "
-                        "from NOW_MS notice_window.ANSWER_MS: the retried notice's row) or valid-destinations "
-                        "(the fixture's ACMP source port valid once MAAP holds the range: SRP's Talker "
-                        "declarations, #895)")
+                        help='a labelled test-code arm: answering-ports (the observation ports answer), '
+                        'shutdown-entry (the SHUTDOWN input), answering-later (the retried notice), '
+                        'answering-every-port, valid-destinations (#895), talker-notices (#936) or declaring-outputs '
+                        "(every STREAM_OUTPUT declaring, #943); build.py's VARIANTS states each")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')
@@ -519,11 +671,18 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     legal notice's group that measured no such notice is refused (long_notice.missing)."""
     import grade
     import long_notice
+    import shape_costs
+    # the costs the passes, polls and slices are held to are the image's shape's: what its builder states for the
+    # configuration and interfaces it was built at (THE SHAPES, #894's shape ruling, item (b)); a
+    # self-test's spec, which names no configuration, is at the shipping shape's streams
+    shape = shape_costs.of_config(ROOT / 'configs' / f"{spec['shape']}.yaml", spec['interfaces'], ROOT) \
+        if 'shape' in spec else None
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
         refusals += unstated(group)
         try:
-            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], spec['interfaces'])
+            result = grade.grade(log.read_text(), group, spec['sys_hz'], spec['cpu_hz'], shape or spec['interfaces'],
+                                 journal_of(out, group) if group.save.get('journal') else None)
         except grade.Refusal as error:
             refusals.append(str(error))
             continue
@@ -611,6 +770,9 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
               f'refusal(s)')
         return 0 if caught else 1
+    import talker_notice
+    if args.mutation in talker_notice.CONTROLS:
+        return talker_notice.declared_verdict(args, groups, refusals, late)
     if args.mutation in builder.SRP_CONTROLS:
         # caught where every group's longest timer-driven MRPDU is over its bound, each named by its group
         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
@@ -707,7 +869,13 @@ def all_groups(point: object, spec: dict) -> list:
         return notice_window.every_groups(point, spec)
     if spec.get('variant') == 'valid-destinations':
         import talker_window
-        return talker_window.groups(point)
+        return talker_window.groups(point, spec)
+    if spec.get('variant') == 'talker-notices':
+        import talker_notice
+        return talker_notice.groups(point)
+    if spec.get('variant') == 'declaring-outputs':
+        import declaring_outputs
+        return declaring_outputs.groups(point, spec)
     return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 
@@ -778,7 +946,8 @@ def main() -> int:
         print('BUDGET', line)
     for line in shares:
         print('SHARE', line)
-    late = save_misses(results)
+    late = save_misses(results) + burst_misses(results)
+    print_bursts(results)
     stepped = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
     if stepped:
         group, top = max(stepped, key=lambda r: r[1]['cycles'])
@@ -799,10 +968,7 @@ def main() -> int:
               f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",
               f"{s['steps']} steps, longest gap between flash steps {s['longest_gap_ms']} ms)",
               'within' if s['within'] else 'OVER')
-    for n in notices(results):
-        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
-              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
-              'within' if n['within_budget'] else 'OVER')
+    print_notices(results)
     tally = counts(results)
     passes = sum(g['passes']['share']['passes'] for g in results)
     idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
@@ -817,11 +983,14 @@ def main() -> int:
     for line in stated:
         print('STATED', line)
     import build as builder
+    import declaring_outputs
+    late += notice_misses(results, n_if) + declaring_outputs.findings(spec, out, groups)
+    if args.mutation in declaring_outputs.CONTROLS:
+        return declaring_outputs.verdict(args, out, late, refusals)
     if args.mutation in builder.REFERENCE_CONTROLS:
         return reference_verdict(args, results, refusals, reference_run(args, build_dir, shape, n_if))
     return verdict(args, groups, refusals, misses, shares,
-                   late + notice_misses(results, n_if)
-                   + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))
+                   late + (stated if args.mutation in ('none', *builder.AGED_CONTROLS, *builder.POLL_CONTROLS) else []))
 
 
 if __name__ == '__main__':

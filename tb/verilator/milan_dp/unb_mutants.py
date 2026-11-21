@@ -60,8 +60,8 @@ EXE_NAME = "Vmilan_dp_notify"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
-#: the ACMP lane's request to the processor's TX arbiter, verbatim at the pin
-PP_ACMP_REQ = "  assign arb_req_w[LANE_ACMP_C]     = laneq_acmp_cnt_r != 4'd0;"
+#: the ACMP lane's request, which arb_req_w passes to the TX arbiter, verbatim at the pin
+PP_ACMP_REQ = "  assign arb_want_w[LANE_ACMP_C]     = laneq_acmp_cnt_r != 4'd0;"
 #: ...held 6,000 cycles after the lane fills. The listener has queued its
 #: response and gone idle, so the bind level falls, the unlock is counted and
 #: its push (about +2,300 and +3,060 cycles) is requested on the AECP lane
@@ -71,8 +71,8 @@ PP_ACMP_HELD = """  logic [12:0] acmp_hold_cyc_r;
     if (!rst_n || (laneq_acmp_cnt_r == 4'd0)) acmp_hold_cyc_r <= 13'd6000;
     else if (acmp_hold_cyc_r != 13'd0)        acmp_hold_cyc_r <= acmp_hold_cyc_r - 13'd1;
   end
-  assign arb_req_w[LANE_ACMP_C]     = (laneq_acmp_cnt_r != 4'd0)
-                                    && (acmp_hold_cyc_r == 13'd0);"""
+  assign arb_want_w[LANE_ACMP_C]     = (laneq_acmp_cnt_r != 4'd0)
+                                     && (acmp_hold_cyc_r == 13'd0);"""
 #: KL_crf_rx's unbind arm, verbatim
 CRF_FALL = "      if (w_bind_fall_w && locked_o) begin\n"
 CRF_FALL_DROP = CRF_FALL + "        locked_o       <= 1'b0;\n"

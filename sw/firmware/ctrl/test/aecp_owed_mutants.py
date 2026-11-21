@@ -32,8 +32,9 @@ ROWS = (
      (QD, "(c) slots without the queue's operations")),
     # THE RETRY waits on the queue as on every other notice owed, and the queue's fan-out leaves a held notice whole
     ('owed-round-beside-the-queue', 'aecp.c',
-     'return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u;',
-     'return a->response_owed || a->notify || a->waiting || a->start_pending;',
+     'return a->response_owed || a->notify || a->waiting || a->start_pending || a->owed_count != 0u || '
+     'a->reboot != 0u;',
+     'return a->response_owed || a->notify || a->waiting || a->start_pending || a->reboot != 0u;',
      (ROUND, 'the round waits while the owed-notice queue holds a notice')),
     ('owed-fan-over-the-held-notice', 'aecp.c', 'a->notify ? NULL : a->response)', 'a->response)',
      (QF, "the queue's frame by frame beside the held notice, and the long one past the fan's")),

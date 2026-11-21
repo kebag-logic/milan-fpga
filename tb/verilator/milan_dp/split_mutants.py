@@ -4,8 +4,8 @@
 """split_mutants.py - the split leg's planted defects, each caught by the check it names (#665).
 
 Each arm plants one defect into a copy of one source of the split placement's
-control path (the datapath's split branch, KL_mbx_cdc, its window or
-KL_ctrl_split), builds the split leg through its own recipe (make build-split
+control path (the datapath's split branch and the #839 transmit gate on its
+control lane, KL_mbx_cdc, its window or KL_ctrl_split), builds the split leg through its own recipe (make build-split
 with the copy in place of the source: DP_SRC, CDC_SRC, CDCW_SRC or CTLS_SRC)
 into a directory of its own, and runs it. The arm is caught when the run
 fails and prints FAIL beside the label of the check the arm names. A clean
@@ -80,6 +80,22 @@ ARMS = (
      "          end else if (!d_wait_i) begin",
      "          end else begin",
      "[WIN] ...and that word is not the empty one"),
+    # #927: the split registers the EDIT record's capture-source word, which is
+    # sound only while the window holds the fields a clock before req rises
+    ("a request raised in the clock its fields load", CDCW,
+     "        IDLE_S: if (in_p_w) st_r <= PRE_S;",
+     "        IDLE_S: if (in_p_w) st_r <= REQ_S;",
+     "[EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted"),
+    ("the record's word registered a clock late", DP,
+     "    assign amap_edit_out_enc_w = enc_r;",
+     "    logic [13:0] enc_q_r;\n"
+     "    always_ff @(posedge axis_clk) enc_q_r <= enc_r;\n"
+     "    assign amap_edit_out_enc_w = enc_q_r;",
+     "[EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted"),
+    ("the record's word encoded from its stream channel", DP,
+     "      else              enc_r <= amap_edit_out_encode(amap_edit_co_w,",
+     "      else              enc_r <= amap_edit_out_encode(amap_edit_sc_w,",
+     "[EDIT] the ADD writes cluster 2's word into channel 1"),
     ("a tap that hands out the media subtypes", CTLS,
      "  assign accept_w = ((etype_w == ET_1722_C)\n"
      "                     && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)\n"
@@ -144,6 +160,16 @@ ARMS = (
      "      .rx_drops_o       (),\n      .tx_frames_o      (pp_tx_frames_w)\n    );\n"
      "    assign pp_rx_drops_w = 8'd0;",
      "[RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count"),
+    ("the control lane past the station MAC transmit gate", DP,
+     "  assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;\n"
+     "  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;",
+     "  assign pp_tx_tvalid_w    = pp_txs_tvalid_w;\n"
+     "  assign pp_txs_tready_w   = pp_tx_tready_w;",
+     "[TX] the gate holds the committed frame before the station MAC is written (#839)"),
+    ("the station MAC transmit gate opened by one half", DP,
+     "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;",
+     "  assign tx_sa_ok_w = mac_alo_wr_r | mac_ahi_wr_r;",
+     "[TX] ...and with its low half alone"),
 )
 
 

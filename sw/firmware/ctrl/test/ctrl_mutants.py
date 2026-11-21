@@ -29,6 +29,7 @@ import mbx_dma_mutants
 import plat_arms
 import loop_step_mutants
 import plat_mutants
+import sink_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
 from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
@@ -304,9 +305,11 @@ MUTANTS = (
            ("\tfor (unsigned i = 0; i < bytes; ++i) {\n"
             "\t\tp[i] = (uint8_t)(value >> (8u * (bytes - 1u - i)));\n\t}\n"),
            "platrv32", "", "the 64-bit shift helper (tsn-c-stack#27)"),
-    Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
-           "\tif (ch->tokens == 0u && false) {",
-           "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 the frames past it count in RATE_DROP"),
+    Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u && ch->rx_held_words != 0u) {",
+           "\tif (ch->tokens == 0u && ch->rx_held_words != 0u && false) {",
+           "model", "Suite/MbxModelGroup.PassesOnTheModel/RateLimit", "T0 only the frame behind the held one counts"),
+    Mutant("model-drop-instead-of-hold", "host/mbx_model.c", "\tif (ch->tokens == 0u && ch->rx_held_words != 0u) {",
+           "\tif (ch->tokens == 0u) {", "model", MODEL_GROUP + "HeldNotDropped", "B0 fifty AECP commands"),
     Mutant("seq-not-stamped", "mbx/mbx.c", "\ttx_seq = (uint16_t)(tx_seq + 1u);\n", "",
            "port", "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
            "D3 ACMP, ACMP, AECP committed by the driver"),
@@ -591,7 +594,7 @@ MUTANTS = (
 #: store suite proves with nvm_mutants.unnamed_checks). The core's tests are
 #: the stack's (#697).
 NAMED_SOURCES = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp",
-                 *plat_mutants.SOURCES)
+                 *plat_mutants.SOURCES, *sink_mutants.SOURCES)
 #: The stack's own defect table, which its CI plants against its tests: a test
 #: of the stack's that this table does not name is named by a defect there.
 STACK_TABLE = STACK / "tests/mutations.json"
@@ -622,6 +625,7 @@ MUTANTS += mbx_dma_mutants.MUTANTS
 MUTANTS += plat_mutants.mutants(Mutant)
 MUTANTS += loop_step_mutants.mutants(Mutant)
 MUTANTS += maap_gate_mutants.MUTANTS
+MUTANTS += sink_mutants.mutants(Mutant)
 
 MUTANTS += (
     Mutant("pin-adp-short-discovery", ADP_C,
@@ -953,13 +957,14 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
-            "entity": ctrl_arms.arm_entity,
+            "entity": ctrl_arms.arm_entity, "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "maap": ctrl_arms.arm_maap, "maap_debug": ctrl_arms.arm_maap_debug, "maap_if2": ctrl_arms.arm_maap_if2,
-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
+            "platsinks8": lambda tree: plat_arms.arm_platsinks(tree, *plat_arms.SINK_SHAPES[0]),
+            "platsinks1": lambda tree: plat_arms.arm_platsinks(tree, *plat_arms.SINK_SHAPES[1]),
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
             "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
-            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True)}
+            "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True), "platmap": plat_arms.arm_platmap}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()

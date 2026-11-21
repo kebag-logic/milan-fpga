@@ -15,6 +15,7 @@
 #include "aecp_entity_gen.h"
 #include "aecp_image.h"
 #include "ctrl_plat_io.h"
+#include "mbx_hal.h"
 #include "nvm_store.h"
 #include "wire.h"
 
@@ -126,6 +127,92 @@ static uint32_t random_value(void *ctx)
 	return mbx_now_ms();
 }
 
+// ---- the receive monitor's formats on the datapath CSR window (#946) -------
+//
+// The monitor judges every PDU of a stream above 0 against its context's
+// format words, which nothing but this window writes, and a PDU not in them is
+// UNSUPPORTED_FORMAT and discarded (Milan v1.2 Table 5.6, 4.4.2.2). So each
+// AAF STREAM_INPUT above 0 (ctrl_plat_csr_sink_context) holds the current
+// format in force, the one a controller reads (aecp_face.h, applied): written
+// after the open's acknowledged publication, and then by each change the core
+// keeps, in the change itself, before the core answers it. The core keeps a
+// change the face applied at once, and one it does again after IN_PROGRESS;
+// one it undoes leaves the values the contexts already hold.
+//
+// A context's format moves only while its input is unbound. SET_STREAM_FORMAT
+// and SET_CONFIGURATION refuse a bound input (STREAM_IS_RUNNING), and a change
+// that waits is not applied while an input whose context it moves is bound:
+// one bound meanwhile leaves it undone, and the core keeps the values in force
+// and answers ENTITY_MISBEHAVING at AECP_WAIT_MS (aecp.h, applied; IEEE
+// 1722.1-2021 7.4.9). A stream reaches a context only once its binding's
+// stream_id is published, after the probe, so whenever one is published its
+// context holds the current format.
+
+#define STREAM_INPUT 5u  // IEEE 1722.1-2021 Table 7-1
+
+// The face's change and applied ports this wraps, and whether the core is
+// doing a waiting change again: the applied port found it applied
+static struct {
+	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
+	bool (*applied)(void *);
+	bool redo;
+} sinks;
+
+// The model's STREAM_INPUTs with a context of their own in the configuration
+// in force whose context a change of `kind` moves: a SET_STREAM_FORMAT's its
+// own, a SET_CONFIGURATION's every one (it refuses any bound input,
+// aecp_commands.c), any other change's none. Each takes its current format
+// there (write), or the result is whether one is bound.
+static bool sinks_of(enum aecp_change kind, uint16_t type, uint16_t index, bool write)
+{
+	const struct aecp *core = &ctrl_plat.aecp.core;
+	const struct aecp_model *m = core->cfg.model;
+	bool every = kind == AECP_CHANGE_CONFIGURATION;
+	bool one = kind == AECP_CHANGE_FORMAT && type == STREAM_INPUT;
+	bool bound = false;
+	for (size_t n = 0; n < m->count; ++n) {
+		const struct aecp_descriptor *d = &m->descriptors[n];
+		uint64_t format = 0;
+		if ((every || (one && d->index == index)) &&
+		    ctrl_plat_csr_sink_context(d->value, d->length, d->configuration, core->configuration, &format)) {
+			if (write) {
+				ctrl_plat_csr_sink_format(ctrl_plat.env->csr, d->index, format);
+			} else {
+				// an input with a context is one of ACMP's sinks: the generated shape's
+				struct acmp_sink_view v = {0};
+				(void)acmp_view(&ctrl_plat.app.acmp.acmp, d->index, &v);
+				bound |= v.bound;
+			}
+		}
+	}
+	return bound;
+}
+
+// The face's applied port, wrapped: a waiting change that would move a bound
+// input's context is not applied. Applied, the core does it again at once,
+// before any other port (aecp.c, the waiting command: the change it noted)
+static bool sink_applied(void *ctx)
+{
+	const struct aecp *core = &ctrl_plat.aecp.core;
+	bool applied = sinks.applied(ctx) &&
+		       !(core->waiting && sinks_of(core->noted, core->noted_type, core->noted_index, false));
+	sinks.redo = applied && core->waiting;
+	return applied;
+}
+
+// The face's change port, wrapped: a change the core keeps, one done again or
+// one the face applied (else the core waits, the change undone), moves its
+// contexts now
+static void sink_changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t index)
+{
+	bool redo = sinks.redo;
+	sinks.redo = false;
+	sinks.changed(ctx, kind, type, index);
+	if (redo || sinks.applied(ctx)) {
+		(void)sinks_of(kind, type, index, true);
+	}
+}
+
 // ---- SRP -------------------------------------------------------------------
 
 static void licence(void *ctx, unsigned interface, unsigned n, bool active)
@@ -154,6 +241,43 @@ static void configure_sources(struct ctrl_plat *p)
 	p->srp_config.link_rate_bps = p->env->link_rate_bps;
 	p->srp_config.licence = licence;
 	p->srp_config.ctx = p;
+}
+
+// ---- the REBOOT (ctrl_plat.h) ----------------------------------------------
+
+// Each channel's take, behind the REBOOT's gate: from its SUCCESS no received
+// frame of any channel is taken, so no command reaches a protocol. A frame
+// stays in its ring, and the mailbox drops whole one that then finds no room
+// (RX_DROP), as the processor's top discards every frame from that point
+// (protocol-processor 06_aecp_engine.md 6.11; REQ-FWX-001; #871).
+static bool taking(void *ctx)
+{
+	const struct ctrl_loop_rx *own = ctx;
+	return !aecp_reboot_accepted(&ctrl_plat.aecp.core) && (own->ready == NULL || own->ready(own->ctx));
+}
+
+static void taken(void *ctx, const struct mbx_frame *f)
+{
+	const struct ctrl_loop_rx *own = ctx;
+	own->fn(own->ctx, f);
+}
+
+static void gate(struct ctrl_plat *p)
+{
+	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+		p->rx[ch] = p->app.loop.rx[ch];
+		if (p->rx[ch].fn != NULL) {
+			(void)ctrl_loop_bind_rx(&p->app.loop, ch, taken, &p->rx[ch]);
+			ctrl_loop_set_rx_ready(&p->app.loop, ch, taking);
+		}
+	}
+}
+
+// A channel's ring has handed every frame committed to it to the datapath
+static bool drained(unsigned ch)
+{
+	const uint32_t at = MBX_CH_BASE + ch * MBX_CH_STRIDE;
+	return (uint16_t)mbx_hal_read32(at + MBX_CH_REG_TX_TAIL) == (uint16_t)mbx_hal_read32(at + MBX_CH_REG_TX_HEAD);
 }
 
 // ---- the boot --------------------------------------------------------------
@@ -216,6 +340,7 @@ static bool compose(struct ctrl_plat *p)
 	p->aecp_config.map_count = AECP_ENTITY_MAPS;
 	p->aecp_config.events = events;
 	p->aecp_config.latency = latency;
+	p->aecp_config.reboot = p->env->reboot != 0u;
 #if AECP_MBX_OWED_SLOTS != 0u
 	p->aecp_config.owed = owed;
 	p->aecp_config.owed_slots = AECP_MBX_OWED_SLOTS;
@@ -223,6 +348,12 @@ static bool compose(struct ctrl_plat *p)
 #endif
 	p->aecp_platform = (struct aecp_ports){.random = random_value};
 	aecp_face_init(&p->face, &p->aecp_platform);
+	// the receive monitor's formats follow the face's changes (#946)
+	sinks.changed = p->face.ports.changed;
+	sinks.applied = p->face.ports.applied;
+	sinks.redo = false;
+	p->face.ports.changed = sink_changed;
+	p->face.ports.applied = sink_applied;
 	return ctrl_app_compose(&p->app, &p->config) &&
 	       ctrl_app_compose_aecp(&p->app, &p->bridge, &p->aecp, &p->aecp_config, &p->face.ports, &p->state) &&
 	       ctrl_app_aecp_attach_face(&p->bridge, &p->face);
@@ -239,6 +370,8 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 		return reach(p, CTRL_PLAT_IDENTITY, "Milan split: CSR identity mismatch; fabric remains disabled\r\n");
 	}
 	ctrl_plat_csr_policy(env->csr, env->policy);
+	// past the identity check: the PHY's link is published on every path from here (ctrl_plat.h, THE PHY)
+	ctrl_plat_phy_arm(&p->phy, &env->phy, env->flash->now_us, env->flash->ctx);
 	if (!maap_owner(p)) {
 		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: MAAP port refused; entity disabled\r\n");
 	}
@@ -258,12 +391,13 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// store's tick is the loop's first centisecond consumer, bound before the
 	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
 	// step it owes is THE STEP, taken in a pass that took no input and has
-	// room (ctrl_loop.h)
+	// room (ctrl_loop.h); the PHY poll's frames are that step's too, in a call whose
+	// store takes no step of its save (ctrl_plat_phy.h)
 	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAME_RUNS, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
 	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);
-	(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);
+	(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);
 	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}
@@ -275,16 +409,80 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	if (!ctrl_app_open_aecp(&p->bridge)) {
 		return reach(p, CTRL_PLAT_AECP, "Milan split: AECP not released; entity disabled\r\n");
 	}
+	// every interface acknowledged the face: each input's format in force, before any stream is bound (#946),
+	// every one, as a configuration's change writes them
+	(void)sinks_of(AECP_CHANGE_CONFIGURATION, 0, 0, true);
 	// Step 9: ADP last, once AECP and ACMP accept requests
 	ctrl_app_release_adp(&p->app);
+	// With a reset port, every channel's take behind the REBOOT's gate
+	if (p->aecp_config.reboot) {
+		gate(p);
+	}
 	return reach(p, CTRL_PLAT_READY, CTRL_PLAT_READY_LINE);
+}
+
+// Once the loop has stopped for a REBOOT, the store alone, on its own
+// centisecond, and its F_NVM, which the drain reads. No frame or event is
+// taken, so nothing becomes dirty and no journal write starts during the PHY
+// hold, when the reload may read the flash (docs/design/REBOOT_RESET.md
+// section 4; #871).
+static void quiet(struct ctrl_plat *p)
+{
+	const uint32_t now = mbx_now_ms();
+	if ((uint32_t)(now - p->quiet_ms) >= 10u) {
+		p->quiet_ms = now;
+		nvm_store_service();
+	}
+	uint32_t restore = 0;
+	uint32_t nvm = 0;
+	bool dirty = false;
+	ctrl_app_aecp_store_words(nvm_store_status(), &restore, &nvm, &dirty);
+	aecp_face_status(&p->face, restore, nvm, dirty);
+	(void)aecp_face_poll(&p->face);
+	(void)ctrl_plat_console_poll(&p->console);
+}
+
+// Once the REBOOT's frames are out (aecp_reboot_due), the loop is not serviced
+// again, so no channel starts another transmission (REQ-FWX-001). Once every
+// other channel's ring has drained, ADP's SHUTDOWN: each advertising interface
+// sends ENTITY_DEPARTING (Milan v1.2 5.6.3.3), so nothing follows it. Once
+// those have left too, the reset port (IEEE 1722.1-2021 7.4.43).
+static void depart(struct ctrl_plat *p)
+{
+	quiet(p);
+	if (p->reboot == 1u) {
+		for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
+			if (ch != MBX_CH_ADP && !drained(ch)) {
+				return;
+			}
+		}
+		adp_mbx_set_enable(&p->app.adp, false);
+		p->reboot = 2u;
+	} else if (p->reboot == 2u) {
+		bool owed = false;
+		for (unsigned i = 0; i < MBX_N_IF; ++i) {
+			(void)adp_poll(&p->app.adp.ifs[i].adp);
+			owed = owed || p->app.adp.ifs[i].adp.departing_owed != 0u;
+		}
+		if (owed || !drained(MBX_CH_ADP)) {
+			return;
+		}
+		ctrl_plat_io_write32(p->env->reboot, 1u);
+		p->reboot = 3u;
+	}
 }
 
 void ctrl_plat_step(void)
 {
-	if (ctrl_plat.stage == CTRL_PLAT_READY) {
-		ctrl_loop_step(&ctrl_plat.app.loop);
-	} else {
+	if (ctrl_plat.stage != CTRL_PLAT_READY) {
 		(void)ctrl_plat_console_poll(&ctrl_plat.console);
+		// a refused stage's turn has no loop and no store step: a frame has the turn's share (THE PHY)
+		(void)ctrl_plat_phy_step(&ctrl_plat.phy, CTRL_LOOP_SHARE_US);
+	} else if (ctrl_plat.reboot != 0u) {
+		depart(&ctrl_plat);
+	} else if (aecp_reboot_due(&ctrl_plat.aecp.core)) {
+		ctrl_plat.reboot = 1u;
+	} else {
+		ctrl_loop_step(&ctrl_plat.app.loop);
 	}
 }

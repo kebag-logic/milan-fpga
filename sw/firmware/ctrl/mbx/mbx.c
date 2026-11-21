@@ -26,6 +26,7 @@
 
 #include "mbx_hal.h"
 #include "mbx_wire.h"
+#include "../plat/ctrl_cc.h"
 #ifdef CTRL_MBX_BASE
 #include "../plat/mbx_mmio.h"
 #endif
@@ -391,6 +392,12 @@ static const struct window windows[MBX_WINDOWS] = {
 
 enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t *request, uint64_t *data)
 {
+	return mbx_win_ask(interface, window, request, 0u, MBX_WIN_REQUEST_WORDS, data);
+}
+
+enum mbx_status mbx_win_ask(unsigned interface, unsigned window, const uint32_t *request, unsigned from, unsigned to,
+			    uint64_t *data)
+{
 	if (interface >= MBX_N_IF || window >= MBX_WINDOWS) {
 		return MBX_STATUS_BAD;
 	}
@@ -398,7 +405,7 @@ enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t
 	if (WIN_BUSY(mbx_bus_read32(face_reg(interface, w->status)))) {
 		return MBX_STATUS_FULL;
 	}
-	for (unsigned k = 0; k < w->words; ++k) {
+	for (unsigned k = from; k < to && k < w->words; ++k) {
 		mbx_bus_write32(face_reg(interface, w->request[k]), request[k]);
 	}
 	mbx_bus_write32(face_reg(interface, w->go), mbx_place(1u, MBX_CTR_CMD_GO_LSB, MBX_CTR_CMD_GO_WIDTH));
@@ -524,7 +531,10 @@ static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, ui
 	}
 }
 
-bool mbx_tx_commit(unsigned ch)
+// A record's commit: its payload's move judged, then its head advanced (mbx_tx_commit). Mbx_tx_begin ends the
+// record before its own through it inline, so a transmit calls nothing and saves no registers for a call (#665:
+// a notice's recipients each paid for both).
+static CTRL_CC_INLINE bool tx_commit(unsigned ch)
 {
 	struct tx_ring *t = &tx[ch];
 	const uint16_t moving = t->moving;
@@ -545,6 +555,11 @@ bool mbx_tx_commit(unsigned ch)
 	return true;
 }
 
+bool mbx_tx_commit(unsigned ch)
+{
+	return tx_commit(ch);
+}
+
 enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
 {
 	if (ch >= MBX_N_CH) {
@@ -556,7 +571,7 @@ enum mbx_status mbx_tx_begin(unsigned ch, unsigned interface, const uint8_t *fra
 	}
 	// the record before it, which also ends its move: a window access waits for a move, and that wait can hold the
 	// move up. A record whose move failed is reported for itself, and nothing is started after it (#665)
-	if (!mbx_tx_commit(ch)) {
+	if (!tx_commit(ch)) {
 		return MBX_STATUS_LOST;
 	}
 	const uint32_t words = t->words;

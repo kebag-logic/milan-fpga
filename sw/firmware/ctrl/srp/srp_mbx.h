@@ -30,6 +30,12 @@ struct srp_sink {
     uint8_t desired;
     uint8_t declared;
     uint8_t registered_kinds; // copied indication state: bit 0 Failed, bit 1 Advertise
+    // The kinds registered for its StreamID whatever their destination and VID, the same bits, as the registrar walk
+    // copies them: a final unbinding with both holds the latest (#925, srp_mbx_bind).
+    uint8_t stream_kinds;
+    // The kind (that bit) of its StreamID's latest Talker registration on the interface, 0 none, which decides while
+    // both kinds are registered (#925, listener_kind).
+    uint8_t latest_kind;
     // Latest continuous kind before the first withdrawal of this binding.
     // A later receive cannot erase that withdrawal before ACMP consumes it.
     uint8_t feedback_kind;
@@ -59,11 +65,17 @@ struct srp_interface {
     bool link;
     bool vlan_sent;
     bool domain_owed;
-    // The registrar, an indication or a binding changed what snapshot copies
-    // since it last walked the registrar: it walks only then (#665).
+    // A Talker's indication, a declaration or a binding changed what snapshot
+    // copies since it last walked the registrar: it walks only then (#665). A
+    // Listener's change is copied where lwSRP reports it, with no walk, and a
+    // Registrar change owes none, each such change of what the walk copies
+    // coming with an indication (#930).
     bool stale;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
-    // only then (#665).
+    // only then (#665). It is set where one may arise: an attribute's change
+    // into a state mrp_reclaim frees, or one a receive created and left in the
+    // state of its creation (srp_mbx.c, moved and apply_receive; #665's
+    // ruling of 2026-11-20, item 3).
     bool reclaim;
     // Polls left until a reset's new participants are built, the first of them
     // the reset's own pass; receive waits until then (#665, srp_bounds.h).
@@ -80,11 +92,26 @@ struct srp_interface {
     uint32_t talkers;
     uint32_t readdressed;
     bool sources_owed;
+    // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of its declaration (#936; Milan v1.2 5.4.5.2, Table 5.22:
+    // the Talker declaration state, the failure code, the stream VLAN ID), bit s source s: shown and shown_advertise
+    // hold talkers and its Talker Advertises as declare_sources last published them, shown_vid the VID they carry,
+    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID
+    // since the composition last took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
+    uint32_t shown;
+    uint32_t shown_advertise;
+    uint32_t noticed;
+    uint16_t shown_vid;
     // srp_mbx_gate's base at its last call, once one was taken: a call with
     // that base and the gate it left changes nothing, so it returns at once
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
     // sources' destinations, and init clears both fields.
     bool gate_seen;
+    // The changes out of the state an attribute is created in that lwSRP
+    // reported in the receive now applying, one for each attribute it
+    // created that changed (moved, apply_receive; #665's ruling of
+    // 2026-11-20, item 3): at most the attribute blocks of the pool, under
+    // 256. Here, in the room before gate_base's alignment.
+    uint8_t fresh;
     uint64_t gate_base;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
@@ -99,6 +126,23 @@ struct srp_mbx_config {
     // srp_mbx_gate (#895).
     bool sources_valid;
 };
+// Pool counts are derived from the compiled entity shape. The caller owns
+// the statically declared arena and binds it through shlan_port_bind_pool.
+#define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
+#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
+#define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
+#define SRP_POOL_N_CLASSES 3u
+#define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
+// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, and
+// the kind registered latest, which its next binding takes (#925, srp_mbx_bind). Each registration is an lwSRP
+// attribute, whose instance takes a medium or large block (it is over the small class's 64 bytes), and a StreamID is
+// held only while both of its own are, so half the pool's medium and large blocks bound the StreamIDs held.
+struct srp_held {
+    struct msrp_stream_id stream_id;
+    uint8_t interface;
+    uint8_t latest_kind;
+};
+#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS) / 2u)
 struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
@@ -130,20 +174,17 @@ struct srp_mbx {
     // The centiseconds each source's withdrawal still holds a changed
     // destination back (#895, declare_sources).
     uint16_t held_cs[CTRL_SRP_SOURCES];
+    // The StreamIDs held, the first held_count of held (#925, srp_held).
+    uint8_t held_count;
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
     // Ethernet header before it, so a frame is never copied (#665).
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
+    // After them, as it is read only through a scan from its start (#925).
+    struct srp_held held[SRP_HELD_STREAMS];
 };
-// Pool counts are derived from the compiled entity shape. The caller owns
-// the statically declared arena and binds it through shlan_port_bind_pool.
-#define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
-#define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_N_CLASSES 3u
-#define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);

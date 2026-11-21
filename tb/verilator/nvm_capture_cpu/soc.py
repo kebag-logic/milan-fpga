@@ -182,5 +182,8 @@ def build(args: argparse.Namespace) -> Path:
             'tdm_hz': tdm_hz or 24576000, 'shape': args.shape, 'captures': args.captures,
             'mutation': args.mutation, 'traffic': args.traffic,
             'raw_bytes': raw_bytes, 'records': records,
+            # The station the controller traffic addresses, as the firmware
+            # built from this config writes it (#840).
+            'station_mac': int(config['platform']['mac_address'].replace(':', ''), 16),
         }, indent=2))
     return args.build_dir

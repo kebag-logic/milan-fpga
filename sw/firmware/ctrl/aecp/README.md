@@ -17,7 +17,19 @@ references are IEEE 1722.1-2021 7.4, 7.5 and 9.3, Milan v1.2 5.4, and
 
 [`aecp.h`](aecp.h) is a portable C11 API over caller-owned storage and typed
 environment ports. The core has no register, mailbox, image-file, heap, thread
-or operating-system dependency. [`aecp_image.c`](aecp_image.c) validates the
+or operating-system dependency at run time. At compile time it reads one header
+outside its own:
+[`ctrl_loop.h`](../loop/ctrl_loop.h)'s table of shapes, for what a refused
+attempt costs THE RETRY's round at the image's shape (`AECP_ATTEMPT_US`;
+[#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1), and calls nothing that it or the
+mailbox header it includes declares. [`aecp.c`](aecp.c), the one unit that charges
+that cost, includes the table before `aecp.h` and says it charges one
+(`AECP_CHARGES_ATTEMPTS`); `aecp.h` refuses a unit that says so without the table
+in force, in its `#error`'s THE SHAPES words, and the AECP campaign plants both
+(`attempt-charged-without-the-shapes`, `attempt-charged-before-the-shapes`). The
+host suite compiles the core at its arm's interfaces' own contract, and
+`test_aecp.cpp` asserts it (`MBX_N_IF == AECP_TEST_INTERFACES`), so the shape whose
+costs it charges is the one its arm configures. [`aecp_image.c`](aecp_image.c) validates the
 generated AEM image and exposes descriptor spans; [`aecp_entity.py`](aecp_entity.py)
 uses the existing builder generators and derives capacities from their output.
 Every advertised descriptor is served by READ_DESCRIPTOR. Names and scalar
@@ -95,6 +107,19 @@ uses this unchanged core and mailbox adapter, two registered recipients,
 and a two-millisecond transmit stall at both descriptor shapes.
 See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.
 Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
+A STREAM_OUTPUT's GET_STREAM_INFO event (STREAM_INFO, bit 0) comes from SRP on the split (#936).
+SRP records each change of a source's Talker declaration: a declaration, a withdrawal,
+a type swapped in place, or another VID. The application bridge (`ctrl_app_aecp.c`) raises it.
+Its planted defects are [`aecp_notice_mutants.py`](../test/aecp_notice_mutants.py)'s.
+The [SRP README](../srp/README.md) states the rule, as Table 5.22 and IEEE 7.5.2 require it.
+The bridge also answers what the split datapath's face cannot of a STREAM_OUTPUT it reports declaring (#943;
+Milan v1.2 5.4.2.10.2, Tables 5.8, 5.11 and 5.12), in every response and notice.
+Its `stream_dest_mac` is the Talker's MAAP address, the ACMP source port's that PROBE_TX_RESPONSE carries.
+REGISTERING (`flags_ex`) is set while SRP registers a matching Listener on the output's interface, of any declaration.
+REGISTERING_FAILED (`0x00000040`) is set while that Listener is Asking Failed. Undeclared, all three read 0, as the fabric answers.
+A brief observation, a running check's, stays the face's, and an output map edit's check of its stream is one (`aecp_maps.c`, `idle`).
+A Listener's registration change raises no notice of its own yet; the next response or notice carries it.
+`AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) plants its defects.
 Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
@@ -114,10 +139,11 @@ A notice is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), 
 The event loop calls it in a pass that took no input and dispatched no centisecond, or once `aecp_retry_aged` reports a notice waiting and the pace the round before it set has passed in a tier-2 slice of a pass given whole, after an aged step or a build, only once tier 1's and SRP's records are served (THE TIERS in [`ctrl_loop.h`](../loop/ctrl_loop.h), #894); beside held work a round is a queue's first notice alone, tier 1's (`retry_first`, set again only once that round's notice is sent).
 A round spends what its pass has left of THE SHARE at `AECP_ROUND_COLD_US` once, `AECP_NOTICE_US` a notice and `AECP_ATTEMPT_US` a refused attempt, and starts no attempt with less than a notice's time left (`aecp.c`, `scan`), so it puts no pass over the share.
 The first two are the line over every round the CPU budget harness measured, plus 5 %, and the harness fails any round dearer than its notices and refused attempts at those costs ([`round_grade.py`](../../../../tb/verilator/ctrl_service_budget/round_grade.py)).
+A round's cold start and a refused attempt are stated for each shape (THE SHAPES in [`ctrl_loop.h`](../loop/ctrl_loop.h)), never by the interface count: 85 and 34 us at 1x1/1if, 185 and 34 us at both two-interface shapes, and at 8x8/1if 165 and 25 us, the line over its rounds measured plus 5 % ([#894's round 3 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6878014227), item 1).
 A round tries each port once, `AECP_ROUND_PORTS` at most: a port is a window read, which answers for all it serves or for none, so what a refusal skipped stays due and the next round tries the next of them.
 While records wait a round takes `AECP_ROUND_YIELD_NOTICES`, its first `AECP_ROUND_YIELDS` rounds beside records.
 So once the port answers, its notice is built at its next retry, within `AECP_RETRY_MAX_MS`, under any input.
-A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once: the first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 140 ms at 1x1/1if (`queued_bound.py`'s rule, the built design's row rounded up to the next 5 ms and never over 140, for the row's 136.65 ms by every source at the slice rule's 900 us, [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 130 ms on #894's head, decision D's 125 ms rounded up from its row after #908's cuts by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2) and 62 ms at 8x8/2if ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
+A datapath reset can leave `AECP_NOTICES_MOST` notices pending at once, each kept in its descriptor's event, so none is dropped. At one interface it is the image's own descriptors' count, which the shape header states (`srp_entity.py`: 12 at 1x1/1if, 40 at 8x8/1if; [#894's round 2 ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(iv)), and at two 40, the 8x8's; a build whose descriptors hold more fails (`aecp_mbx.c`). The first is committed within `AECP_QUEUED_FIRST_MS` of its port's answer, 20 ms at 1x1/1if and 22 ms at 8x8/2if, and every notice queued behind it within `AECP_QUEUED_MS`, 140 ms at 1x1/1if (`queued_bound.py`'s rule, the built design's row rounded up to the next 5 ms and never over 140, for the row's 136.65 ms by every source at the slice rule's 900 us, [#895's ruling of 2026-11-15](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6892130675), item 1; 135 ms on AECP's REBOOT's merge on #894's head, its row 134.74 ms by every source, #871; 130 ms on #894's head, decision D's 125 ms rounded up from its row after #908's cuts by [#894's amendment of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6862465874) to its contingent ruling, item 2), 130 ms at 8x8/1if, and 62 ms at 8x8/2if, stated for each shape (THE SHAPES, `ctrl_loop.h`, `CTRL_LOOP_QUEUED_MS`), never by the interface count, so 1x1/1if's figure is never 8x8/1if's ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)). Under THE TIERS these are rows by every source ([`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)), held at 1x1/1if by the flip check ([`flip_grade.py`](../../../../tb/verilator/ctrl_service_budget/flip_grade.py)); at 8x8/2if the stated figures stand, and its rows by every source are reported, not held, by the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872.
 `aecp_retry` waits, and `aecp_retry_aged` reports nothing, while a response or notice is owed, the owed-notice queue holds one, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
 
 **The owed-notice queue** (#894; IEEE 1722.1-2021 7.5.2 and 9.3.5.4, Milan v1.2 5.4.5.1 and 5.4.5.2).
@@ -171,6 +197,43 @@ its notification. `counters`, `stream`, `avb` and `format` read through the
 windows, each read bounded; one with no answer fails its port. `random` and
 `path` stay the platform's.
 
+`edit` is the datapath's map store
+([#923](https://github.com/kebag-logic/milan-fpga/issues/923)). An ADD or
+REMOVE_AUDIO_MAPPINGS the core accepts reaches it before the core's map
+moves: one transaction of the mappings that change the map, each once, in
+command order. The face runs the release processor's walk on interface 0's
+`EDIT` window, the one store the render reads: begin, validate each record,
+begin the commit, commit each record, finish. A refused begin answers
+NOT_SUPPORTED, a refused record or commit-begin BAD_ARGUMENTS, and a beat with
+no answer before the commit is reserved ENTITY_MISBEHAVING; each aborts, and
+the core then changes nothing and answers that status (Milan v1.2 5.4.2.27,
+5.4.2.28). An accepted commit-begin reserves the commit, so the beats after it
+never refuse: the release's engine has each record's commit and the finish
+complete without back-pressure (`KL_aecp_engine.sv`, the transaction face). A
+commit or finish with no answer within the window's bound has therefore been
+taken and only its reply is lost: the face counts it (`unanswered`), goes on
+with the next record, and the edit stands in the store as in the core's map.
+Delivery loss after the commit-begin is outside that contract and has no
+recovery here. `EDIT_REQ` is written once a transaction and each beat writes
+only what moves (`mbx_win_ask`). The store's edit face waits from reset until
+the restore's terminal and its boot sweep, so a begin with no answer is asked
+once more. So GET_AUDIO_MAP, the format verdict's survival check and the
+render all read the same mappings after every command. The port is optional:
+an integrator with no store of its own names none, and the core's map is then
+the only one.
+
+`ctrl_app_open_aecp()` commits the restored maps the same way, after the
+acknowledged publication that carries the restore's terminal and the restored
+formats and before AECP opens (`aecp_restore_commit`). The store then holds
+each dynamic port's reset set as the restored formats clip it, so each port of
+the configuration in force whose map differs has that set removed, and, every
+removal done, its own set added: a stream channel one output port gave up and
+another took is free when the taker's set is added (Milan v1.2 5.3.10.1). A
+port the store refuses keeps what the store holds: its reset set where the
+removal is refused, else its reset set added back, or none where that is
+refused too. SET_CONFIGURATION moves no map: maps are a configuration's, and
+every shipped model has one.
+
 `ctrl_app_aecp_attach_face()` hands the face the saved-state store's status
 before AECP opens and on every change, and turns the face block's events into
 the core's notifications. `ctrl_app_open_aecp()` publishes every setting with
@@ -179,6 +242,23 @@ publication; otherwise it opens nothing and returns false. A commit the
 datapath has not acknowledged leaves its interface owed and the loop awake
 until a poll publishes it whole; until then every state-changing command is
 refused.
+
+REBOOT (IEEE 1722.1-2021 7.4.43; [#871](https://github.com/kebag-logic/milan-fpga/issues/871))
+is answered only where `aecp_config.reboot` says the platform resets the
+entity; elsewhere it is NOT_IMPLEMENTED. The routes are the processor's, in
+its order. A command shorter than Figure 7-68's four bytes is BAD_ARGUMENTS,
+another type NOT_SUPPORTED (no MEMORY_OBJECT firmware image exists) and
+another ENTITY index NO_SUCH_DESCRIPTOR. Another controller's lock is
+ENTITY_LOCKED (7.4.43.2), and a change the platform has not applied
+ENTITY_MISBEHAVING. A SUCCESS is notified to every other registered
+controller (7.5.2; Milan v1.2 5.4.5.2). From it no command is taken and no
+probe or notification is started, by the poll or by THE RETRY's round, and
+`aecp_reboot_accepted` is true: the platform then takes no received frame of
+any channel, as the processor's top discards every frame from its SUCCESS
+(REQ-FWX-001). `aecp_reboot_due` turns true once the owed-notice queue is
+empty and every frame owed has completed, the REBOOT's last; the platform
+then sends ENTITY_DEPARTING and nothing else, and resets
+([plat](../plat/README.md#the-ports)).
 
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement
@@ -326,7 +406,10 @@ exclusion. The face's 59 defects each fail a named `Core`, `Face`,
 - the store's status after open, or `CLOSED` not a failure;
 - a full sink table ignored;
 - an owed commit that lets the loop sleep;
-- a counter-change event missed.
+- a counter-change event missed;
+- the saved state's format restore reading the verdict's survival bit
+  against the map store's reset set before the open, or not reading it once
+  open ([REQUIREMENTS.md](../../../../REQUIREMENTS.md), the persisted inventory).
 
 The rest cover the acknowledgement:
 

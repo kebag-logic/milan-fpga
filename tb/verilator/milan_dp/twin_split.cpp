@@ -34,7 +34,14 @@
 // (#867, srptx.hpp) and writes what srptx_grade.py grades:
 //   Vmilan_dp_twin_sp --srptx wire|hold|licence <capture.json> [--ms N]
 //                     [--peer-leave-all-ms N]   (licence only)
+//
+// With --maps it runs the platform's audio maps on the render store instead
+// (#923, maps_main): each check prints PASS or FAIL with its label and words;
+// --plant no-edit cuts the core's edit port after the boot.
+//   Vmilan_dp_twin_sp --maps [--plant no-edit]
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -45,6 +52,7 @@
 #include <vector>
 
 #include "Vtb_split_top.h"
+#include "Vtb_split_top___024root.h"
 #include "verilated.h"
 
 #include "srp_entity_gen.h"
@@ -507,6 +515,191 @@ int srptx_main(const std::string& name, const char* path, std::uint32_t run_ms) 
     return half.host_timeouts() == 0 && r.layout_error.empty() ? 0 : 1;
 }
 
+//! ---- --maps (#923): the platform firmware's audio maps on the split datapath's render store ----
+
+//! The render map store's byte for input key k (milan_datapath.sv amap_in_store_r: {valid, 0, stream[2:0],
+//! channel[2:0]} a key, the input port's key its cluster), whatever width Verilator gives the store.
+template <class T> unsigned store_byte(const T& v, unsigned k) {
+    return static_cast<unsigned>((static_cast<std::uint64_t>(v) >> (8u * k)) & 0xFFu);
+}
+template <std::size_t W> unsigned store_byte(const VlWide<W>& v, unsigned k) {
+    return (v[k / 4u] >> (8u * (k % 4u))) & 0xFFu;
+}
+
+class Maps {
+ public:
+    Maps(SplitHalf& half, twin::Capture& cap) : half_(half), cap_(cap) {}
+
+    //! One check: PASS or FAIL with its label and its words, one line each.
+    void check(bool ok, const char* label, const std::string& words) {
+        std::printf("%s [%s] %s\n", ok ? "PASS" : "FAIL", label, words.c_str());
+        failed_ += ok ? 0u : 1u;
+    }
+    unsigned failed() const { return failed_; }
+
+    //! An AEM command and its response's status, or -1 with none within 60 ms; then THE PACE's 10 ms.
+    int ask(std::uint16_t command_type, const std::vector<std::uint8_t>& payload, twin::Frame* out = nullptr) {
+        const std::uint16_t seq = seq_++;
+        const std::size_t from = cap_.frames.size();
+        half_.mac_rx(twin::aem(command_type, payload, seq));
+        const std::vector<twin::Stimulus> none;
+        std::size_t next = 0;
+        int status = -1;
+        for (unsigned ms = 0; ms < 60 && status < 0; ++ms) {
+            millisecond(half_, none, &next, &cap_);
+            for (std::size_t k = from; k < cap_.frames.size() && status < 0; ++k) {
+                const twin::Frame& f = cap_.frames[k].bytes;
+                std::uint16_t t = 0;
+                std::size_t at = 0;
+                if (twin::ethertype(f, &t, &at) && t == twin::kEtherAvtp && at + 24 <= f.size() &&
+                    f[at] == twin::kSubAecp && (f[at + 1] & 0xFu) == 1u && (f[at + 20] << 8 | f[at + 21]) == seq &&
+                    (f[at + 22] << 8 | f[at + 23]) == command_type) {
+                    status = f[at + 2] >> 3;
+                    if (out != nullptr) out->assign(f.begin() + static_cast<std::ptrdiff_t>(at), f.end());
+                }
+            }
+        }
+        for (unsigned ms = 0; ms < 10; ++ms) millisecond(half_, none, &next, &cap_);
+        return status;
+    }
+
+    //! GET_AUDIO_MAP of STREAM_PORT_INPUT 0, page 0: its mappings, each {stream, channel, cluster, cluster_channel}.
+    std::vector<std::array<unsigned, 4>> get_map() {
+        std::vector<std::uint8_t> p = twin::descriptor(14, 0);
+        p.resize(8, 0);
+        twin::Frame r;
+        std::vector<std::array<unsigned, 4>> rows;
+        if (ask(0x002B, p, &r) != 0 || r.size() < 36) return {{9999, 0, 0, 0}};
+        const unsigned count = static_cast<unsigned>(r[32] << 8 | r[33]);
+        for (unsigned k = 0; k < count && 36 + 8 * k + 8 <= r.size(); ++k) {
+            const std::uint8_t* m = r.data() + 36 + 8 * k;
+            rows.push_back({static_cast<unsigned>(m[0] << 8 | m[1]), static_cast<unsigned>(m[2] << 8 | m[3]),
+                            static_cast<unsigned>(m[4] << 8 | m[5]), static_cast<unsigned>(m[6] << 8 | m[7])});
+        }
+        return rows;
+    }
+
+    //! The render store's mappings of STREAM_PORT_INPUT 0's clusters, as GET_AUDIO_MAP reports them, in cluster order.
+    std::vector<std::array<unsigned, 4>> store() const {
+        std::vector<std::array<unsigned, 4>> rows;
+        for (unsigned k = 0; k < kClusters; ++k) {
+            const unsigned b = store_byte(half_.dut()->rootp->tb_split_top__DOT__u_dp__DOT__amap_in_store_r, k);
+            if (b & 0x80u) rows.push_back({(b >> 3) & 7u, b & 7u, k, 0});
+        }
+        return rows;
+    }
+
+    //! GET_AUDIO_MAP's mappings and the store's, the same set.
+    void agree(const char* label, const std::string& after) {
+        auto got = get_map();
+        auto held = store();
+        std::sort(got.begin(), got.end(), [](auto& x, auto& y) { return x[2] < y[2]; });
+        check(got == held, label, "GET_AUDIO_MAP and the render store agree " + after);
+    }
+
+    //! SET_STREAM_FORMAT of STREAM_INPUT 0 to its declared format at `channels` channels.
+    int set_channels(unsigned channels) {
+        const std::uint64_t format = (kInFormat & ~(std::uint64_t(1023) << 22)) | (std::uint64_t(channels) << 22);
+        std::vector<std::uint8_t> p = twin::descriptor(5, 0);
+        for (unsigned k = 0; k < 8; ++k) p.push_back(static_cast<std::uint8_t>(format >> (56 - 8 * k)));
+        return ask(0x0008, p);
+    }
+
+    //! ADD (0x002C) or REMOVE (0x002D) of `rows` at STREAM_PORT_INPUT 0.
+    int edit(std::uint16_t command_type, const std::vector<std::array<unsigned, 4>>& rows) {
+        std::vector<std::uint8_t> p = twin::descriptor(14, 0);
+        p.push_back(static_cast<std::uint8_t>(rows.size() >> 8));
+        p.push_back(static_cast<std::uint8_t>(rows.size()));
+        p.push_back(0);
+        p.push_back(0);
+        for (auto& r : rows)
+            for (unsigned v : r) {
+                p.push_back(static_cast<std::uint8_t>(v >> 8));
+                p.push_back(static_cast<std::uint8_t>(v));
+            }
+        return ask(command_type, p);
+    }
+
+    //! STREAM_INPUT 0's declared format and STREAM_PORT_INPUT 0's clusters at the twin's shape.
+    static constexpr std::uint64_t kInFormat = TWIN_IN0_FMT;
+    static constexpr unsigned kClusters = 8;
+
+ private:
+    SplitHalf& half_;
+    twin::Capture& cap_;
+    std::uint16_t seq_ = 0x9230;
+    unsigned failed_ = 0;
+};
+
+//! The --maps run: the platform's boot on the split half, then each map check, the saved map at the next boot.
+//! With --plant no-edit the core's edit port is cut after the boot, the defect #923 found, and every check that reads
+//! the store must fail.
+int maps_main(const std::string& plant) {
+    if (!plant.empty() && plant != "no-edit") {
+        std::fprintf(stderr, "FAIL --maps plants no-edit alone, not %s\n", plant.c_str());
+        return 2;
+    }
+    auto ctx = std::make_unique<VerilatedContext>();
+    const auto dut = std::make_unique<Vtb_split_top>(ctx.get());
+    SplitHalf half(dut.get());
+    current() = &half;
+    twin::Capture cap;
+    half.reset();
+    half.capture(&cap);
+    static Env env;
+    if (ctrl_plat_boot(&env.env) != CTRL_PLAT_READY) {
+        std::fprintf(stderr, "FAIL the platform stopped its boot: %s\n", half.console().c_str());
+        return 2;
+    }
+    if (plant == "no-edit") ctrl_plat.aecp.ports.edit = nullptr;
+    Maps m(half, cap);
+    using Rows = std::vector<std::array<unsigned, 4>>;
+    Rows identity;
+    for (unsigned c = 0; c < Maps::kClusters; ++c) identity.push_back({0, c, c, 0});
+    m.check(m.store() == identity, "MAPS-BOOT", "the render store holds the boot map, eight identity mappings");
+    m.agree("MAPS-BOOT", "at boot");
+    m.check(m.set_channels(4) == 7, "MAPS-REFUSED",
+            "with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS");
+    m.check(m.edit(0x002D, identity) == 0, "MAPS-REMOVE", "REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS");
+    m.check(m.store().empty(), "MAPS-STORE", "the removal reached the render store");
+    m.agree("MAPS-STORE", "after the removal");
+    for (unsigned channels : {1u, 2u, 4u, 6u}) {
+        m.check(m.set_channels(channels) == 0, "MAPS-FORMAT",
+                "once the mappings are removed, a narrowing SET_STREAM_FORMAT to " + std::to_string(channels) +
+                    (channels == 1 ? " channel" : " channels") + " answers SUCCESS");
+    }
+    m.check(m.set_channels(7) == 7, "MAPS-FORMAT", "7 channels, a format the input does not support, is refused");
+    m.check(m.set_channels(8) == 0, "MAPS-FORMAT", "the declared 8 channels answer SUCCESS");
+    const Rows edited{{0, 1, 0, 0}, {0, 0, 1, 0}, {0, 2, 2, 0}};
+    m.check(m.edit(0x002C, edited) == 0, "MAPS-ADD", "ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS");
+    m.check(m.store() == edited, "MAPS-EDIT", "an edited map reached the render store");
+    m.agree("MAPS-EDIT", "after the addition");
+    m.check(m.set_channels(2) == 7, "MAPS-REFUSED",
+            "with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS");
+    // the saved map: once its save is durable, a power cycle and the next boot restore it to the store
+    const unsigned saved = nvm_store_status()->commits_ok;
+    const std::vector<twin::Stimulus> none;
+    std::size_t next = 0;
+    for (unsigned ms = 0; ms < 20000 && nvm_store_status()->commits_ok == saved; ++ms) millisecond(half, none, &next, &cap);
+    m.check(nvm_store_status()->commits_ok != saved, "MAPS-SAVED", "the edited map's save is durable");
+    // the power cycle: SRP's participants released as the image's end releases them, the RTL reset, the flash
+    // powered on again with what it holds, and the platform's boot from the start
+    srp_mbx_destroy(&ctrl_plat.srp);
+    half.reset();
+    nvm_fmodel_power_on();
+    const ctrl_plat_stage again = ctrl_plat_boot(&env.env);
+    m.check(again == CTRL_PLAT_READY, "MAPS-SAVED",
+            "the platform boots again from the saved state (stage " + std::to_string(static_cast<int>(again)) + ")");
+    if (again != CTRL_PLAT_READY) std::printf("console: %s\n", half.console().c_str());
+    m.check(m.store() == edited, "MAPS-SAVED", "the saved map, restored at boot, reached the render store");
+    m.agree("MAPS-SAVED", "after the restore");
+    dut->final();
+    std::printf("maps%s: %u failed, %u host timeouts, %u ms, %u EDIT and GSI beats with no answer since the boot\n",
+                plant.empty() ? "" : (" planted " + plant).c_str(), m.failed(), half.host_timeouts(), half.ms(),
+                ctrl_plat.face.unanswered);
+    return m.failed() == 0 && half.host_timeouts() == 0 ? 0 : 1;
+}
+
 //! --srptx SCENARIO CAPTURE, then each option with its value: --ms N, --peer-leave-all-ms N.
 bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
     if (argc < 4 || argc % 2 != 0 || std::strcmp(argv[1], "--srptx") != 0) return false;
@@ -526,6 +719,13 @@ bool srptx_args(int argc, char** argv, std::uint32_t* run_ms) {
 int main(int argc, char** argv) {
     std::uint32_t run_ms = 0;
     if (srptx_args(argc, argv, &run_ms)) return srptx_main(argv[2], argv[3], run_ms);
+    if (argc >= 2 && std::strcmp(argv[1], "--maps") == 0) {
+        if (argc != 2 && !(argc == 4 && std::strcmp(argv[2], "--plant") == 0)) {
+            std::fprintf(stderr, "usage: %s --maps [--plant no-edit]\n", argv[0]);
+            return 2;
+        }
+        return maps_main(argc == 4 ? argv[3] : "");
+    }
     const std::string planted = argc == 4 && std::strcmp(argv[2], "--plant") == 0 ? argv[3] : "";
     if (argc != 2 && planted.empty()) {
         std::fprintf(stderr, "usage: %s <capture.json> [--plant NAME]\n", argv[0]);

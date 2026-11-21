@@ -11,6 +11,13 @@
 //   C3  the status words, read in milan_status_handler()'s order
 //   C4  the time of day: snapshot first, HI LO HI, a torn read retried, and
 //       a read that never agrees refused after CTRL_PLAT_TOD_TRIES
+//   C5  a STREAM_INPUT's format into its receive-monitor context (#946): the
+//       selection read, the listener selection of the input, FMT_LO then
+//       FMT_HI with the format's halves, then the selection written back
+//   C6  which STREAM_INPUT has a receive-monitor context there (#946): an AAF
+//       input above 0 on AVB_INTERFACE 0, with its current format; not input
+//       0, a CRF input, another type, another interface or configuration, or a
+//       short descriptor
 //   K1  milan_status answers the grader's two lines and the time, field for
 //       field, with AEM loaded or disabled
 //   K2  milan_gettime answers TAI_NS, or no number when the read is torn
@@ -27,6 +34,8 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "fw_gtest.hpp"
 #include "plat_bus.hpp"
@@ -113,6 +122,69 @@ TEST_F(Plat, C4TimeOfDayIsSnapshotThenAgreeingHighWords) {
     ns = 7;
     EXPECT_FALSE(ctrl_plat_csr_tod(kCsr, &ns)) << "C4 a read that never agrees is refused";
     EXPECT_EQ(ns, 7u) << "C4 a refused read writes no time";
+}
+
+TEST_F(Plat, C5SinkFormatSelectsTheInputWritesItsFormatAndRestores) {
+    using Writes = std::vector<std::pair<std::uint32_t, std::uint32_t>>;
+    // a selection another writer left: talker 3 (MAAP's destination writes select dir 1)
+    bus().csr[CTRL_PLAT_CSR_STRM_SEL] = 0x103u;
+    ctrl_plat_csr_sink_format(kCsr, 5u, 0x0205022002006000ull);
+    EXPECT_EQ(bus().writes(), (Writes{{0x800u, 5u}, {0x824u, 0x02006000u}, {0x828u, 0x02050220u}, {0x800u, 0x103u}}))
+        << "C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back";
+    ASSERT_FALSE(bus().log.empty());
+    EXPECT_TRUE(!bus().log[0].write && bus().log[0].address == kCsr + CTRL_PLAT_CSR_STRM_SEL)
+        << "C5 the selection is read before the window is moved";
+    bus().reset();
+    bus().csr[CTRL_PLAT_CSR_STRM_SEL] = 0u;
+    ctrl_plat_csr_sink_format(kCsr, 7u, 0x0205022000806000ull);
+    EXPECT_EQ(bus().writes(), (Writes{{0x800u, 7u}, {0x824u, 0x00806000u}, {0x828u, 0x02050220u}, {0x800u, 0u}}))
+        << "C5 another input and format, the park selection written back";
+}
+
+// A STREAM_INPUT descriptor's bytes (IEEE 1722.1-2021 7.2.6): type, index, current_format, avb_interface_index.
+std::vector<std::uint8_t> input_descriptor(std::uint16_t type, std::uint16_t index, std::uint64_t format,
+                                           std::uint16_t interface) {
+    std::vector<std::uint8_t> d(136u, 0xA5u);
+    const auto put = [&](std::size_t at, std::uint64_t v, unsigned bytes) {
+        for (unsigned k = 0; k < bytes && at + k < d.size(); ++k) {
+            d[at + k] = static_cast<std::uint8_t>(v >> (8u * (bytes - 1u - k)));
+        }
+    };
+    put(0, type, 2);
+    put(2, index, 2);
+    put(74, format, 8);
+    put(126, interface, 2);
+    return d;
+}
+
+TEST_F(Plat, C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero) {
+    constexpr std::uint64_t kAaf = 0x0205022002006000ull;
+    constexpr std::uint64_t kCrf = 0x041060010000BB80ull;
+    std::uint64_t format = 0;
+    auto d = input_descriptor(5u, 3u, kAaf, 0u);
+    EXPECT_TRUE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 an AAF input above 0 has a context";
+    EXPECT_EQ(format, kAaf) << "C6 ...and its current format is read";
+    // the length is the descriptor's own; the buffer is longer, so a bound read wrong is a check's to catch
+    d = input_descriptor(5u, 7u, 0x0205022000806000ull, 0u);
+    EXPECT_TRUE(ctrl_plat_csr_sink_context(d.data(), 128u, 0u, 0u, &format))
+        << "C6 a descriptor just long enough to hold its interface";
+    EXPECT_EQ(format, 0x0205022000806000ull) << "C6 ...and its current format is read";
+    d = input_descriptor(5u, 0u, kAaf, 0u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 not input 0";
+    d = input_descriptor(5u, 8u, kCrf, 0u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 not a CRF input";
+    d = input_descriptor(6u, 3u, kAaf, 0u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 not a STREAM_OUTPUT";
+    d = input_descriptor(5u, 3u, kAaf, 1u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), d.size(), 0u, 0u, &format)) << "C6 not another interface's input";
+    d = input_descriptor(5u, 3u, kAaf, 0u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), d.size(), 1u, 0u, &format))
+        << "C6 not an input of a configuration not in force";
+    EXPECT_TRUE(ctrl_plat_csr_sink_context(d.data(), d.size(), 1u, 1u, &format))
+        << "C6 an input of configuration 1 when it is in force";
+    d = input_descriptor(5u, 3u, kAaf, 0u);
+    EXPECT_FALSE(ctrl_plat_csr_sink_context(d.data(), 127u, 0u, 0u, &format))
+        << "C6 not a descriptor too short to hold its interface";
 }
 
 TEST_F(Plat, K1MilanStatusAnswersTheGradersLines) {

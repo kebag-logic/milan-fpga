@@ -23,6 +23,7 @@ import arm_path
 import build
 import flip_grade
 import grade
+import held
 import join_grade
 import load_grade
 import long_notice
@@ -38,6 +39,9 @@ import run
 import save_grade
 import save_window
 import scenario
+import selftest_mutants_burst
+import selftest_mutants_mrp
+import shape_costs
 import share
 import whole_grade
 
@@ -77,6 +81,16 @@ def _work_steps_unaged(log: grade.Log) -> grade.Log:
     work = {p.index for p in log.passes}
     log.stepped = [(i, s, c, st, aged and i not in work) for i, s, c, st, aged in log.stepped]
     return log
+
+
+def _load_polls_nearest(root: Path, point: str, table: dict | None = None, f: Callable = load_grade.stated) -> dict:
+    """load_grade.stated with a NEAREST point's polls at its nearest point's, as before they were keyed on the shape."""
+    c, near = f(root, point, table), load_grade.NEAREST.get(point, point)
+    if near != point:
+        polls, own = poll_grade.stated_us(load_grade.POINTS[near]['n_if']), (table or load_grade.GRADED)[near]
+        c.update({key: own.get(key, polls[k]) for k in load_grade.ITEMS
+                  for key in ('base' if k == 'base' else f'item.{k}',) if k != 'mrpdu'})
+    return c
 
 
 def _first_pass_only() -> list:
@@ -226,6 +240,18 @@ def _start_with(rule: Callable) -> Patches:
         hit = rule(self, probe, after, before)
         return original(self, probe, interface, after, before) if hit == 'unchanged' else hit
     return lambda: [patch.object(grade.Grader, 'start', start)]
+
+
+def _flip_check_without_tx_held() -> list:
+    """flip_grade.main as if its --check findings left out tx_held's: while main runs, and only then, tx_held finds
+    nothing; every other caller of tx_held, the self-test's own controls among them, keeps it."""
+    original = flip_grade.main
+
+    def main() -> int:
+        """The mutant main: the original, with tx_held returning nothing for its duration."""
+        with patch.object(flip_grade, 'tx_held', lambda *a, **k: []):
+            return original()
+    return [patch.object(flip_grade, 'main', main)]
 
 
 def _tag_ignored(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
@@ -441,6 +467,7 @@ def _reuse_unchecked() -> Patches:
 
 
 MUTANTS: dict[str, Patches] = {
+    **selftest_mutants_burst.MUTANTS,
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
     'marker: a timer path starts one millisecond after its deadline': _start_with(_timer_late),
@@ -451,6 +478,14 @@ MUTANTS: dict[str, Patches] = {
     'marker: the first required output ends the path': lambda: [patch.object(grade, 'combine_ends', min)],
     'marker: a receive commit goes to the oldest pending frame (earlier rule)':
         lambda: [patch.object(grade, 'owner', _owner_oldest)],
+    # #917: the attribution before held records, a commit given to the frame whose last byte passed last
+    "marker: a held record's commit goes to the last frame ended (earlier rule)":
+        lambda: [patch.object(held, 'release',
+                              lambda log, pending, ch, cycle: grade.owner(pending, cycle, log.refused))],
+    "marker: a later frame's commit overtakes the record its channel holds (no ordering guard)":
+        lambda: [patch.object(held, 'overtaken', lambda log, ch, cycle: None)],
+    "marker: a held record's commit before its hold is taken (no ordering guard)":
+        lambda: [patch.object(held, 'follows_hold', lambda ch, held_at, cycle: None)],
     'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
     "answers: a response's status is not checked": lambda: [patch.object(
         answers, 'differs', lambda kind, got, want, f=answers.differs: f(kind, (got[0], want[1]), want))],
@@ -483,6 +518,26 @@ MUTANTS: dict[str, Patches] = {
     'flip: read on the column graded with tsn-c-stack#32': lambda: [patch.object(
         flip_grade, 'COLUMN', load_grade.STATED_US_DONOR)],
     'flip: 8x8/2if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP', {'8x8/2if': 0.80})],
+    'flip: 8x8/1if held to a looser ceiling': lambda: [patch.object(flip_grade, 'FLIP',
+                                                                    {'8x8/2if': 0.70, '8x8/1if': 0.80})],
+    "flip: --check does not call tx_held, so 8x8/1if's THE TRANSMIT figure goes unheld": _flip_check_without_tx_held,
+    'shapes: the slice and builds keyed on the interface count alone (earlier rule)': lambda: [patch.object(
+        shape_costs, 'of_config', lambda config, n_if, root=shape_costs.ROOT: shape_costs.shape(n_if, root))],
+    "shapes: a shape not listed taken at the shipping shape's costs": lambda: [patch.object(
+        shape_costs, 'at', lambda given, root=shape_costs.ROOT, texts=None, f=shape_costs.at:
+        f(given if shape_costs.shape(given, root, texts) in shape_costs.listed(shape_costs.text_of(root, texts))
+          else shape_costs.interfaces(given), root, texts))],
+    'shapes: the slice held at the interface count (earlier rule)': lambda: [patch.object(
+        slice_grade, 'stated_us', lambda interfaces, f=slice_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: a pass given whole held to its builds at the interface count (earlier rule)': lambda: [patch.object(
+        whole_grade, 'stated_us', lambda interfaces, f=whole_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    "shapes: an owed MRPDU held to the interface count's build of one (earlier rule)": lambda: [patch.object(
+        poll_grade, 'stated_us', lambda interfaces, f=poll_grade.stated_us: f(shape_costs.interfaces(interfaces)))],
+    'shapes: the slice cap not held': lambda: [patch.object(shape_costs, 'SLICE_MOST_US', 10_000)],
+    "shapes: 8x8/1if's polls held at the interface count's (earlier rule)": lambda: [patch.dict(
+        poll_grade.STATED_US, {shape_costs.of_point('8x8/1if'): poll_grade.ONE})],
+    "load: 8x8/1if's polls at 8x8/2if's, the nearest point's (earlier rule)": lambda: [patch.object(
+        load_grade, 'stated', _load_polls_nearest)],
     'load: 8x8/2if held by the merge gate again (earlier rule)': lambda: [patch.object(
         load_grade, 'CEILING', {'1x1/1if': 0.70, '8x8/2if': 0.70})],
     'load: 1x1/1if held with tsn-c-stack#32 alone (earlier rule)': lambda: [patch.object(
@@ -720,10 +775,10 @@ MUTANTS: dict[str, Patches] = {
     "save: the in-flight change waits for every step of the save in flight": lambda: [patch.object(
         save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
             image, records, age, flight) + (60 if flight else 0))],
-    "save: the in-flight change's wait not its first-dirty window where that is longer": lambda: [patch.object(
-        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
-            image, records, age) if flight is None else 30 * (save_window.steps(image, flight) - 2
-                                                             + save_window.steps(image, records)) + 10)],
+    "save: the in-flight change waits for its own first-dirty window where that is longer (earlier rule)": lambda: [
+        patch.object(save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age) if flight is None else max(1000, 30 * (save_window.steps(image, flight) - 2))
+            + 30 * save_window.steps(image, records) + 10)],
     'save: the second change timed to the save in flight': lambda: [patch.object(
         save_grade, 'first_save', lambda log, n=0, f=save_grade.first_save: f(log, 0))],
     'save: a second change not marked while the save is in flight is graded': lambda: [patch.object(
@@ -775,6 +830,10 @@ MUTANTS: dict[str, Patches] = {
         mrpdu_grade, 'commits', lambda grader, entry: [])],
     "transmit: a timer's row starts at its entry, not at the deadline": lambda: [patch.object(
         mrpdu_grade, 'ticks', lambda log: [c for c, _ in log.entries])],
+    "transmit: THE TRANSMIT's row held one over CTRL_LOOP_TX_BOUND_MS": lambda: [patch.object(
+        mrpdu_grade, 'BUDGET_MS', mrpdu_grade.BUDGET_MS + 1)],
+    "transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule)": lambda: [patch.object(
+        mrpdu_grade, 'wait_ms', lambda: 0.0)],
     "notice: a queued notice's bound is the first's": lambda: [patch.object(
         notice_window, 'queued_ms', lambda interfaces: scenario.T_SVC_MS)],
     "notice: the first of a queue is held to the queue's bound": lambda: [patch.object(
@@ -787,6 +846,10 @@ MUTANTS: dict[str, Patches] = {
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: dict(f(interfaces), attempt=0))],
     "round: one point's costs at both": lambda: [patch.object(
         round_grade, 'stated_us', lambda interfaces, f=round_grade.stated_us: f(2))],
+    "round: 8x8/1if's round costs at the interface count's (earlier rule)": lambda: [patch.object(
+        round_grade, 'stated_us', lambda given, f=round_grade.stated_us: f(shape_costs.interfaces(given)))],
+    "round: a round held at its point's interface count, not the image's shape (earlier rule)": lambda: [patch.object(
+        round_grade, 'held', lambda log, given, f=round_grade.held: f(log, shape_costs.interfaces(given)))],
     'round: the notices it built are not counted': lambda: [patch.object(round_grade, 'BUILT', 'aecp:none')],
     'round: calls outside it are counted': lambda: [patch.object(
         round_grade, 'inside', lambda cycles, start, end: len(cycles))],
@@ -849,37 +912,7 @@ MUTANTS: dict[str, Patches] = {
     'polls: the declined offers held to no bound': lambda: [patch.object(
         poll_grade, 'held', lambda log, n, f=poll_grade.held: (lambda r: dict(r, over=[
             o for o in r['over'] if o['kind'] != poll_grade.DECLINES]))(f(log, n)))],
-    'joins: no join interval held to its range': lambda: [patch.object(
-        join_grade, 'held', lambda log, f=join_grade.held: dict(f(log), over=[]))],
-    'joins: the range from the armed 190 ms': lambda: [patch.object(join_grade, 'LEAST_MS', 190.0)],
-    "joins: an MRPDU a join timer did not release taken for a join's": lambda: [patch.object(
-        join_grade, 'released', lambda log: {c: max((e for e, n in log.entries if n == join_grade.JOIN and e < c),
-                                                    default=c) for c, _, _, _ in log.tx})],
-    "joins: a periodic or LeaveAll timer's MRPDU taken for a join's": lambda: [patch.object(join_grade, 'OTHERS', ())],
-    "joins: the participants' applications not told apart": lambda: [patch.dict(
-        join_grade.APPLICATIONS, {0x22EA: 'MRP', 0x88F5: 'MRP'})],
-    'joins: any two MRPDUs, with no join timer between': lambda: [patch.object(
-        join_grade, 'intervals', lambda log: [(ms, who, end) for ms, who, end in (
-            ((b - a) * 1000 / log.sys_hz, 'if0 MRP', b) for a, b in zip(
-                *(lambda c: (c, c[1:]))(sorted(c for c, ch, _, fr in log.tx if ch == scenario.CH['srp']))))])],
-    "joins: a run-out's builds sought within 100 ms of it (earlier rule)": lambda: [patch.object(
-        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: f(log, entry) if any(
-            entry < c < entry + log.sys_hz // 10 for c, n in log.entries if n == mrpdu_grade.BUILD) else
-        ('empty', []))],
-    "joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted": lambda: [
-        patch.object(join_grade, 'LEAST_MS', 180.0), patch.object(join_grade, 'MOST_MS', 240.0)],
-    'joins: a late build taken for an on-time one': lambda: [patch.object(mrpdu_grade, 'LATE_MS', 10 ** 6)],
-    "joins: a late build's run-out not failing the run": lambda: [patch.object(mrpdu_grade, 'FAILING', ('absent',))],
-    'joins: an absent build taken for an unresolved one': lambda: [patch.object(
-        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
-            lambda r: ('unresolved', r[1]) if r[0] == 'absent' else r)(f(log, entry)))],
-    'joins: an unresolved build taken for one that owes nothing': lambda: [patch.object(
-        mrpdu_grade, 'resolve', lambda log, entry, f=mrpdu_grade.resolve: (
-            lambda r: ('empty', r[1]) if r[0] == 'unresolved' else r)(f(log, entry)))],
-    "joins: a frame its build left owed not the build's": lambda: [patch.object(
-        mrpdu_grade, 'index', lambda log, f=mrpdu_grade.index: (lambda builds, passes, sent, last: (
-            builds, passes, [s for s in sent if any(q.start_sys <= s[0] < mrpdu_grade.end_of(log, q) and any(
-                q.start_sys <= c < mrpdu_grade.end_of(log, q) for c in builds) for q in passes)], last))(*f(log)))],
+    **selftest_mutants_mrp.MUTANTS,
     'polls: the declined offers held to three a send': lambda: [patch.object(
         poll_grade, 'offered', lambda traced, sends, limits, f=poll_grade.offered: f(traced, sends + 1, limits))],
     "polls: one point's costs at both": lambda: [patch.object(

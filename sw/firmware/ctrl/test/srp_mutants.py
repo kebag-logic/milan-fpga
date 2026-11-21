@@ -12,6 +12,9 @@ import srp_compare_mutants
 import srp_retry_mutants
 import srp_transmit_mutants
 import srp_talker_mutants
+import srp_listener_mutants
+import srp_kind_mutants
+import srp_reclaim_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -62,9 +65,11 @@ DEFECTS = (
            'i->listener_present[n] = true;', 'i->listener_present[n] = v[8] == 2u || v[8] == 3u;',
            'registered Listener controls only its source interface gate',
            suite='test_acmp_mbx.cpp'),
+    # #930: a withdrawal's presence is copied where lwSRP reports its Registrar change, no longer by the walk.
     Defect('four-way-f3b-withdrawal-stale',
            'AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate',
-           'memset(i->listener_present,0,sizeof(i->listener_present));', '',
+           'i->listener_present[n] = t->reg_to != MRP_REG_STATE_MT;',
+           'i->listener_present[n] = i->listener_present[n] || t->reg_to != MRP_REG_STATE_MT;',
            'registered Listener controls only its source interface gate',
            suite='test_acmp_mbx.cpp'),
     Defect(
@@ -80,18 +85,20 @@ DEFECTS = (
     Defect(
         name='short-leave',
         test='LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #930: a Listener's declaration is copied by its indication (listener), no longer by the registrar walk.
     Defect(
         name='asking-is-ready',
         test='RegisteredListenerSubtypeChangeRevokesPermission',
-        old='v[8] == 2 || v[8] == 3',
-        new='v[8] == 1 || v[8] == 2 || v[8] == 3',
+        old='i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||',
+        new=('i->registered[n] = declaration == MSRP_LISTENER_DECL_ASKING_FAILED || '
+             'declaration == MSRP_LISTENER_DECL_READY ||'),
         needle='adapter.ifs[0].active[0]',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -110,8 +117,9 @@ DEFECTS = (
     Defect(
         name='failed-listener-ready',
         test='SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer',
-        old='sink->desired = 1;',
-        new='sink->desired = 2;',
+        # the walk's registered Failed, which listener_kind maps since #925
+        old='return (kinds & 1u) != 0u ? 1u : kinds;',
+        new='return (kinds & 1u) != 0u ? 2u : kinds;',
         needle='declared',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -217,11 +225,12 @@ DEFECTS = (
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #930: as asking-is-ready, at the Listener's indication.
     Defect(
         name='readyfailed-ignored',
         test='ReadyFailedAndUninterestingStreamsAreSeparated',
-        old='v[8] == 2 || v[8] == 3',
-        new='v[8] == 2',
+        old='                               declaration == MSRP_LISTENER_DECL_READY_FAILED;',
+        new='                               false;',
         needle='Actual function call count',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -307,6 +316,18 @@ DEFECTS = (
         suite='srp_mbx.cpp',
         debug=False,
     ),
+    # #929: the startup and dispatch tests at the 8x8 entity. The first two plants touch only sources past the 1x1
+    # entity's two, so only its nine can catch them; the third is duplicate-tick-owner where the test reaches its
+    # second attachment only with a pool sized to the shape
+    Defect('startup-8x8-sources-past-two-undeclared', 'StartupDeclaresTalkersDomainAndVlan',
+           'const bool valid = (i->gate & bit) != 0u;', 'const bool valid = (i->gate & bit) != 0u && n < 2u;',
+           "each source's three Talker declarations and no other", entity='endstation_ax7101_8x8'),
+    Defect('startup-8x8-failure-code-past-two', 'StartupDeclaresTalkersDomainAndVlan',
+           'value.failure_info[8] = i->sources[n].allocated ? 1 : 2;',
+           'value.failure_info[8] = i->sources[n].allocated || n >= 2u ? 1 : 2;',
+           "source 2's failure code", entity='endstation_ax7101_8x8'),
+    Defect('duplicate-tick-owner-8x8', 'OneLoopOwnsTheGlobalCentisecondDispatch',
+           '!m->loop && !timer_owner &&', '!m->loop &&', 'srp_mbx_attach', entity='endstation_ax7101_8x8'),
     Defect(
         name='binding-debug-guard',
         test='SynchronousBindingFromOutputAsserts',
@@ -398,8 +419,8 @@ DEFECTS = (
     Defect(
         name='latency-leave-origin',
         test='SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         suite='srp_latency.cpp',
     ),
@@ -431,8 +452,8 @@ DEFECTS = (
     Defect(
         name='walk-leave-shortened',
         test='SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener',
-        old='i->msrp,0,SRP_JOIN_CS,500,1000',
-        new='i->msrp,0,SRP_JOIN_CS,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS',
+        new='i->msrp,0,SRP_JOIN_CS,400,SRP_LEAVEALL_CS',
         needle='Unexpected mock function call',
         suite='srp_walk.cpp',
     ),
@@ -682,7 +703,7 @@ DEFECTS = (
            'r->pending = true;', 'r->pending = true; (void)deliver(app);',
            'callback only queues the binding', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-poll-adds-access','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
-           'bool pending = false;', 'bool pending = false; (void)mbx_irq_status();',
+           'bool pending = noticed;', 'bool pending = noticed; (void)mbx_irq_status();',
            'binding poll makes no mailbox access', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('binding-interface-lost','SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface',
            'app->srp,interface,sink,r->bound',
@@ -931,9 +952,13 @@ DEFECTS += srp_transmit_mutants.defects(Defect)
 DEFECTS += srp_retry_mutants.defects(Defect)
 DEFECTS += srp_compare_mutants.defects(Defect)
 DEFECTS += srp_talker_mutants.defects(Defect)
+DEFECTS += srp_listener_mutants.defects(Defect)
+DEFECTS += srp_kind_mutants.defects(Defect)
+DEFECTS += srp_reclaim_mutants.defects(Defect)
 
-def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
-    """Run every mutation in a reusable isolated checkout; true means a failure."""
+def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+    """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
+    config, at either interface count (#930: 8x8/1if); otherwise the two-interface campaign plants each at its own."""
     build=fw_gtest.Build(jobs=jobs)
     failed=False
     root.mkdir(parents=True,exist_ok=True)
@@ -950,9 +975,10 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> boo
         target.write_text(source)
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
-            entity={"config": ROOT/"configs"/(d.entity+".yaml")} if d.entity and interfaces==2 else {}
+            config=entity or (d.entity if interfaces==2 else "")
+            at={"config": ROOT/"configs"/(config+".yaml")} if config else {}
             result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,
-                           debug=d.debug,test=(d.suite, selected),**entity)
+                           debug=d.debug,test=(d.suite, selected),**at)
             ok=caught(selected,d.needle,result)
             (root/(d.name+".log")).write_text(result.log)
             print(f"[{'ok' if ok else 'ESCAPED'}] {d.name}: {d.test} / {d.needle}",flush=True)

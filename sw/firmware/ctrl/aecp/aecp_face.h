@@ -32,9 +32,18 @@
 //             ordinal, through the GSI window (kind 2), at most the core's
 //             capacity (AECP_PATH_ITEMS): a count past it fails the port
 //             (IEEE 1722.1-2021 7.4.41.2; #897)
-//   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15)
-// Every window read is bounded (mbx_win_read); a read that finds no answer
-// fails its port. random is the platform's, forwarded.
+//   format    SET_STREAM_FORMAT's verdict through the GSI window (kind 0, selector 15):
+//             exactly 3 from the open on; before it, the saved state's restore,
+//             supported alone (bit 1 reads the map store's reset set)
+//   edit      an accepted ADD or REMOVE_AUDIO_MAPPINGS, and the restored maps,
+//             into the datapath's map store through interface 0's EDIT window,
+//             the transaction the release's processor ran: begin, validate
+//             each record, begin the commit, commit each record, finish, or
+//             abort; a refusal answers NOT_SUPPORTED (no dynamic map there) or
+//             BAD_ARGUMENTS, no answer ENTITY_MISBEHAVING, the store unchanged
+//             (#923; Milan v1.2 5.4.2.27, 5.4.2.28)
+// Every window read is bounded (mbx_win_read, mbx_win_ask); a read that finds
+// no answer fails its port. random is the platform's, forwarded.
 #ifndef CTRL_AECP_FACE_H
 #define CTRL_AECP_FACE_H
 #include "aecp.h"

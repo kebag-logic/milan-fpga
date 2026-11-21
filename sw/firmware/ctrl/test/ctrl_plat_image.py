@@ -40,13 +40,14 @@ import fw_rv32
 
 ROOT = CTRL.parents[2]
 PLAT_SOURCES = ("plat/mbx_plat_mmio.c", "plat/ctrl_mem.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat_csr.c",
-                "plat/ctrl_plat_console.c", "plat/ctrl_plat.c", "plat/ctrl_plat_main.c")
+                "plat/ctrl_plat_console.c", "plat/ctrl_plat_phy.c", "plat/ctrl_plat.c", "plat/ctrl_plat_main.c")
 #: What the image must hold for the platform's boot to have been linked, not discarded.
 REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_csr_identity",
             "ctrl_plat_csr_policy", "ctrl_plat_console_poll", "maap_csr_allocation", "ctrl_app_compose",
             "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp",
             "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
-            "nvm_store_tick", "nvm_store_step", "ctrl_loop_step"}
+            "nvm_store_tick", "nvm_store_step", "ctrl_loop_step", "ctrl_plat_phy_arm", "ctrl_plat_phy_step",
+            "ctrl_plat_phy_store_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.SPLIT_RV32_FLAGS); the map's replaces it. The record
 #: mover's bank stays there: the SoC pins it at that address (milan_soc.add_ctrl_mailbox).
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
@@ -129,7 +130,8 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED),
                         help="plan a ledgered point's image to its ledgered tiles (ctrl_memory.LEDGERED); the "
-                             "platform's is platform-8x8-two-interfaces, and any other image is refused")
+                             "platform's are platform-8x8-one-interface and platform-8x8-two-interfaces, and "
+                             "any other image is refused")
     parser.add_argument("--libc", type=Path, required=True)
     parser.add_argument("--compiler-runtime", type=Path, required=True)
     return parser.parse_args()
@@ -195,7 +197,9 @@ def main() -> int:
                     for name, length, addr in re.findall(r"^(\.\S+)\s+(0x[0-9a-f]+)\s+(0x[0-9a-f]+)", size, re.M)}
         if any(name not in sections for name in (".text", ".rodata", ".bss", ".stack")):
             raise Refusal("missing measured sections")
-        plan = image.ctrl_memory.plan(image.ctrl_memory.read_elf(elf), ledgered=args.ledgered_point)
+        linked = image.ctrl_memory.read_elf(elf)
+        # the point named, else the entry whose symbols the image carries, as the product SoC build plans it
+        plan = image.ctrl_memory.plan(linked, ledgered=args.ledgered_point or image.ctrl_memory.own_point(linked))
         report = {"shape": args.config.stem, "interfaces": args.interfaces, "entry": "plat/ctrl_plat_main.c",
                   "sections": {name: length for name, (_, length) in sections.items()},
                   "largest_bss": largest_bss(symbols, sections, members), "ctrl_plat_members": members,
