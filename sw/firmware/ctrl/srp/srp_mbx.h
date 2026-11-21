@@ -59,6 +59,10 @@ struct srp_interface {
     bool listener_present[CTRL_SRP_SOURCES];
     bool active[CTRL_SRP_SOURCES];
     bool stop_owed[CTRL_SRP_SOURCES];
+    // The Listener declaration registered for each source's stream on this interface as its indication last copied it
+    // (IEEE 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed; 0, Ignore, at a registration's end), what
+    // its STREAM_OUTPUT shows while the source's DA gate is open: a change there is noticed too (#957, listener).
+    uint8_t declaration[CTRL_SRP_SOURCES];
     uint16_t rx_mark;
     bool discard_prefix;
     bool link_seen;
@@ -102,10 +106,6 @@ struct srp_interface {
     uint32_t shown_advertise;
     uint32_t noticed;
     uint16_t shown_vid;
-    // The Listener declaration registered for each source's stream on this interface as its indication last copied it
-    // (IEEE 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed; 0, Ignore, at a registration's end), what
-    // its STREAM_OUTPUT shows while the source's DA gate is open: a change there is noticed too (#957, listener).
-    uint8_t declaration[CTRL_SRP_SOURCES];
     // srp_mbx_gate's base at its last call, once one was taken: a call with
     // that base and the gate it left changes nothing, so it returns at once
     // (#895). Only srp_mbx_init and srp_mbx_gate write the gate and the
