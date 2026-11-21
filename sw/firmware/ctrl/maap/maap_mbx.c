@@ -65,7 +65,8 @@ static void refresh_demand(struct maap_mbx *m)
 // opened, by the start or the poll (#905): each it holds for that waits in
 // sid_wait for the poll, and each it lets open spends its written mark. Every
 // caller publishes the gate it returns.
-static uint32_t declaring(struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)
+// Out of line: the split placement's hot list names its section (plat/ctrl_split.ld).
+static CTRL_CC_NOINLINE uint32_t declaring(struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)
 {
 	uint32_t gate = 0u;
 	if (m->acmp != NULL && interface < MBX_N_IF) {
