@@ -228,7 +228,8 @@ module tb_split_top
     .gsi_kind_o(gsi_kind), .gsi_sel_o(gsi_sel), .gsi_ord_o(gsi_ord), .gsi_prop_o(gsi_prop),
     .gsi_ans_p_i(gsi_ans_p), .gsi_ans_tag_i(gsi_ans_tag), .gsi_ans_data_i(gsi_ans_data),
     .ctr_chg_p_i(ctr_chg_p), .ctr_chg_type_i(ctr_chg_type), .ctr_chg_index_i(ctr_chg_index),
-    .avb_chg_p_i(avb_chg_p), .asp_chg_p_i(asp_chg_p), .amap_wr_p_i(amap_wr_p));
+    .avb_chg_p_i(avb_chg_p), .asp_chg_p_i(asp_chg_p), .amap_wr_p_i(amap_wr_p),
+    .pub_gptp_o(pub_gptp), .ts_valid_i(m_ts_valid), .ts_data_i(m_ts_data), .ts_take_p_o(m_ts_take));
 
   // ---- the datapath side's ctl nets ----------------------------------------------
   logic [S-1:0] d_da_gate, d_licence, d_talker_decl, d_pt_offset_v, d_fmt_out_v;
@@ -263,6 +264,11 @@ module tb_split_top
   logic d_rx_valid, d_rx_ready, d_rx_last, d_tx_valid, d_tx_ready, d_tx_last;
   logic [7:0] d_rx_data, d_tx_data;
 
+  //! contract 2.5's gPTP nets: the publication and the timestamp records, through the crossing
+  logic [MBX_PUB_GPTP_WORDS_C*32-1:0] pub_gptp, d_gptp_pub;
+  logic m_ts_valid, m_ts_take, d_gptp_pub_p, d_ts_valid, d_ts_take;
+  logic [MBX_TS_REC_BITS_C-1:0] m_ts_data, d_ts_data;
+
   KL_mbx_cdc u_cdc (
     .sys_clk_i(sys_clk), .sys_rst_n, .dp_clk_i(dp_clk), .dp_rst_n,
     .m_pub_da_gate_i(pub_da_gate), .m_pub_licence_i(pub_licence), .m_pub_talker_decl_i(pub_talker_decl),
@@ -294,6 +300,9 @@ module tb_split_top
     .m_avb_chg_p_o(avb_chg_p), .m_asp_chg_p_o(asp_chg_p), .m_amap_wr_p_o(amap_wr_p),
     .m_link_up_o(m_link_up), .m_gm_change_p_o(m_gm_change_p), .m_gm_id_o(m_gm_id),
     .m_gptp_domain_o(m_gptp_domain),
+    .m_pub_gptp_i(pub_gptp), .m_ts_valid_o(m_ts_valid), .m_ts_data_o(m_ts_data), .m_ts_take_p_i(m_ts_take),
+    .d_pub_gptp_o(d_gptp_pub), .d_pub_gptp_p_o(d_gptp_pub_p), .d_ts_valid_i(d_ts_valid), .d_ts_data_i(d_ts_data),
+    .d_ts_take_p_o(d_ts_take),
     .d_pub_da_gate_o(d_da_gate), .d_pub_licence_o(d_licence), .d_pub_talker_decl_o(d_talker_decl),
     .d_pub_src_sid_o(d_src_sid), .d_pub_idle_slope_bps_o(d_idle_slope_bps), .d_pub_dom_vid_o(d_dom_vid),
     .d_pub_dom_prio_o(d_dom_prio), .d_pub_dom_adopted_o(d_dom_adopted), .d_pub_bound_o(d_bound),
@@ -378,7 +387,9 @@ module tb_split_top
     .o_ctl_gsi_data(d_gsi_data), .o_ctl_gsi_wait(d_gsi_wait),
     .o_ctl_ctr_chg_valid(d_ctr_chg_valid), .o_ctl_ctr_chg_type(d_ctr_chg_type),
     .o_ctl_ctr_chg_index(d_ctr_chg_index), .o_ctl_avb_chg_p(d_avb_chg_p), .o_ctl_asp_chg_p(d_asp_chg_p),
-    .o_ctl_amap_wr_p(d_amap_wr_p));
+    .o_ctl_amap_wr_p(d_amap_wr_p),
+    .i_ctl_gptp_pub(d_gptp_pub), .i_ctl_gptp_pub_p(d_gptp_pub_p), .o_ctl_ts_valid(d_ts_valid),
+    .o_ctl_ts_data(d_ts_data), .i_ctl_ts_take(d_ts_take));
 
   // ---- the probes --------------------------------------------------------------------
   localparam int unsigned NSRC = $bits(u_dp.pp_cd_acmp_declaring_w);

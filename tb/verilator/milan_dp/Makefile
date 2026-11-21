@@ -200,7 +200,8 @@ GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
        $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
-       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/ieee8021as/gptp_tsu/KL_gptp_tsu.sv
 
 SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_arb_mux.v \

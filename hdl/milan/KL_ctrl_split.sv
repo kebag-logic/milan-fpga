@@ -49,7 +49,11 @@
 module KL_ctrl_split #(
     parameter int unsigned TDATA_WIDTH_P   = 64,
     //! the tap's FIFO, in bytes: the wrapper's own (KL_pp_shadow)
-    parameter int unsigned RX_FIFO_BYTES_P = 4096
+    parameter int unsigned RX_FIFO_BYTES_P = 4096,
+    //! gPTP in firmware (#884, #665 F6; milan_datapath GPTP_SW_EN_P): the tap
+    //! also passes the IEEE 802.1AS frames, the mailbox's gptp channel
+    //! (contract 2.5). 0 keeps the fabric plane's: they never reach the mailbox.
+    parameter bit GPTP_P = 1'b0
 ) (
     input  wire                        clk_i,        //! the datapath's clock
     input  wire                        rst_n,        //! synchronous active-low reset
@@ -92,6 +96,8 @@ module KL_ctrl_split #(
   localparam logic [15:0] ET_1722_C = 16'h22F0;
   localparam logic [15:0] ET_MSRP_C = 16'h22EA;
   localparam logic [15:0] ET_MVRP_C = 16'h88F5;
+  localparam logic [47:0] DA_GPTP_C = 48'h01_80_C2_00_00_0E;   //! IEEE 802.1AS-2020 Table 11-3
+  localparam logic [15:0] ET_GPTP_C = 16'h88F7;                //! IEEE 802.1AS-2020 11.3.5
   //! the AVTP control subtypes the mailbox has a channel for
   localparam logic [7:0]  ST_ADP_C  = 8'hFA;
   localparam logic [7:0]  ST_AECP_C = 8'hFB;
@@ -124,7 +130,8 @@ module KL_ctrl_split #(
                      && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)
                          || (subtype_w == ST_ACMP_C) || (subtype_w == ST_MAAP_C)))
                  || ((da_r == DA_MSRP_C) && (etype_w == ET_MSRP_C))
-                 || ((da_r == DA_MVRP_C) && (etype_w == ET_MVRP_C));
+                 || ((da_r == DA_MVRP_C) && (etype_w == ET_MVRP_C))
+                 || (GPTP_P && (da_r == DA_GPTP_C) && (etype_w == ET_GPTP_C));
 
   logic                     fw_valid_w, fw_last_w, fw_user_w, fw_ready_w;
   logic [TDATA_WIDTH_P-1:0] fw_data_w;

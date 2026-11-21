@@ -535,7 +535,7 @@ class MilanNIC(LiteXModule):
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, ctrl_split=False):
+                 entity_gen_dir=None, ctrl_split=False, gptp_sw=False):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
@@ -555,6 +555,7 @@ class MilanNIC(LiteXModule):
                            audio_word_bits=audio_word_bits,
                            pps=pps,
                            gptp_plane=gptp_plane,
+                           gptp_sw=gptp_sw,
                            gptp_ingress_lat_ns=gptp_ingress_lat_ns,
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
                            loopback_lane=loopback_lane,
@@ -869,6 +870,7 @@ def add_milan_datapath(host: Module, platform: object,
                        audio_word_bits: int = AUDIO_IF_WORD_BITS_DEFAULT,
                        pps: bool = False,
                        gptp_plane: bool | None = None,
+                       gptp_sw: bool = False,
                        gptp_ingress_lat_ns: int = 0,
                        gptp_egress_lat_ns: int = 0,
                        loopback_lane: bool = False,
@@ -1027,6 +1029,13 @@ def add_milan_datapath(host: Module, platform: object,
     # its export is unchanged. milan_datapath defaults CTRL_SPLIT_P to 0.
     if ctrl_split:
         dp_params["p_CTRL_SPLIT_P"] = 1
+    # #884, #665 F6: gPTP in firmware, emitted only when selected, so no other
+    # build's generated top .v changes. The split's firmware owns the protocol;
+    # the datapath keeps the timestamp unit and the PHC (milan_datapath GPTP_SW_EN_P).
+    if gptp_sw:
+        if gptp_plane or not ctrl_split:
+            raise ValueError("gPTP in firmware needs the split placement and no fabric gPTP plane")
+        dp_params["p_GPTP_SW_EN_P"] = 1
     # issue #358: emitted ONLY when non-zero, so every board that applies no
     # correction keeps a byte-identical generated top .v and no existing
     # bitstream changes by this option existing - the same additive
@@ -2947,7 +2956,9 @@ _CTRL_MAILBOX_SOURCES = [
 # processor, no KL_maap) and its ctl ports bind the mailbox through
 # KL_mbx_cdc. Neither list below is added to an all-fabric build, so its
 # export is unchanged.
-_CTRL_SPLIT_DATAPATH_SOURCES = ["hdl/milan/KL_ctrl_split.sv"]
+_CTRL_SPLIT_DATAPATH_SOURCES = ["hdl/milan/KL_ctrl_split.sv",
+                                # gPTP in firmware's timestamp unit (milan_datapath GPTP_SW_EN_P, #884)
+                                "hdl/ieee8021as/gptp_tsu/KL_gptp_tsu.sv"]
 _CTRL_SPLIT_MAILBOX_SOURCES = ["hdl/milan/mailbox/KL_mbx_cdc_window.sv", "hdl/milan/mailbox/KL_mbx_cdc.sv"]
 #: milan_datapath's CTRL_ENTRIES_P: the sources and sinks per interface each
 #: per-entry ctl bus carries. The contract must carry exactly this many.
@@ -2985,7 +2996,12 @@ CTRL_SPLIT_PORTS = (
     ("i_ctl_gsi_prop", 64, False), ("o_ctl_gsi_data", 64, True), ("o_ctl_gsi_wait", 1, True),
     ("o_ctl_ctr_chg_valid", 1, True), ("o_ctl_ctr_chg_type", 16, True), ("o_ctl_ctr_chg_index", 16, True),
     ("o_ctl_avb_chg_p", 1, True), ("o_ctl_asp_chg_p", 1, True), ("o_ctl_amap_wr_p", 1, True),
+    # contract 2.5 (#884): the firmware's gPTP publication and the timestamp unit's records
+    ("i_ctl_gptp_pub", 22 * 32, False), ("i_ctl_gptp_pub_p", 1, False),
+    ("o_ctl_ts_valid", 1, True), ("o_ctl_ts_data", 86, True), ("i_ctl_ts_take", 1, False),
 )
+#: a timestamp unit's record on the crossing: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} (MBX_TS_REC_BITS_C)
+CTRL_SPLIT_TS_REC_BITS = 86
 #: KL_mbx_cdc's datapath side, port by port: the ctl port it binds
 _CTRL_CDC_DP = {
     "d_pub_da_gate_o": "i_ctl_pub_da_gate", "d_pub_licence_o": "i_ctl_pub_licence",
@@ -3017,6 +3033,8 @@ _CTRL_CDC_DP = {
     "d_ctr_chg_index_i": "o_ctl_ctr_chg_index", "d_avb_chg_p_i": "o_ctl_avb_chg_p",
     "d_asp_chg_p_i": "o_ctl_asp_chg_p", "d_amap_wr_p_i": "o_ctl_amap_wr_p", "d_link_up_i": "o_ctl_link_up",
     "d_gm_change_p_i": "o_ctl_gm_change_p", "d_gm_id_i": "o_ctl_gm_id", "d_gptp_domain_i": "o_ctl_gptp_domain",
+    "d_pub_gptp_o": "i_ctl_gptp_pub", "d_pub_gptp_p_o": "i_ctl_gptp_pub_p", "d_ts_valid_i": "o_ctl_ts_valid",
+    "d_ts_data_i": "o_ctl_ts_data", "d_ts_take_p_o": "i_ctl_ts_take",
 }
 #: KL_mbx_cdc's mailbox side, port by port: the KL_mbx face port it binds
 _CTRL_CDC_MBX = {
@@ -3045,6 +3063,7 @@ _CTRL_CDC_MBX = {
     "m_gsi_ans_tag_o": "gsi_ans_tag_i", "m_gsi_ans_data_o": "gsi_ans_data_i",
     "m_ctr_chg_p_o": "ctr_chg_p_i", "m_ctr_chg_type_o": "ctr_chg_type_i", "m_ctr_chg_index_o": "ctr_chg_index_i",
     "m_avb_chg_p_o": "avb_chg_p_i", "m_asp_chg_p_o": "asp_chg_p_i", "m_amap_wr_p_o": "amap_wr_p_i",
+    "m_ts_valid_o": "ts_valid_i", "m_ts_data_o": "ts_data_i", "m_ts_take_p_i": "ts_take_p_o",
 }
 #: ...and the face status bits it packs: F_RESTORE's and F_NVM's, low bit first
 _CTRL_CDC_RESTORE = ("fw_restore_busy_o", "fw_restore_done_o", "fw_restore_fail_o", "fw_restore_blank_o",
@@ -3187,6 +3206,9 @@ def ctrl_mailbox_face_ports(contract: object) -> dict:
         out.update({f"i_{lw}_ans_p_i": 0, f"i_{lw}_ans_tag_i": 0, f"i_{lw}_ans_data_i": 0})
     out.update({"i_ctr_chg_p_i": 0, "i_ctr_chg_type_i": 0, "i_ctr_chg_index_i": 0, "i_avb_chg_p_i": 0,
                 "i_asp_chg_p_i": 0, "i_amap_wr_p_i": 0})
+    if mailbox_face.has_timestamp(contract):
+        # contract 2.5: no timestamp unit offers a record unless the split's crossing binds one
+        out.update({"i_ts_valid_i": 0, "i_ts_data_i": 0, "o_ts_take_p_o": Signal(n_if)})
     return out
 
 
@@ -3257,6 +3279,10 @@ class CtrlMailbox(LiteXModule):
             o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks, name="mbx_pub_sid_valid"),
             o_pub_started_o=Signal(n_if * contract.pub_sinks, name="mbx_pub_started"),
             o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64, name="mbx_pub_sid"))
+        import mailbox_model
+        if mailbox_model.gptp_words(contract):
+            # contract 2.5: the gPTP publication's words, one port (sw/mailbox/mailbox_skeleton.py)
+            pub["o_pub_gptp_o"] = Signal(n_if * len(mailbox_model.gptp_words(contract)) * 32, name="mbx_pub_gptp")
         face = ctrl_mailbox_face_ports(contract)
         side = dict(i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
                     i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
@@ -3297,7 +3323,8 @@ class CtrlMailbox(LiteXModule):
         side.update(i_link_up_i=link, i_gm_change_p_i=gm_p, i_gm_id_i=gm_id, i_gptp_domain_i=gm_dom)
         regs = {r.name: r for r in contract.face_registers}
         widths = {"fw_ack_p_i": 1, "ctr_chg_p_i": 1, "ctr_chg_type_i": 16, "ctr_chg_index_i": 16,
-                  "avb_chg_p_i": 1, "asp_chg_p_i": 1, "amap_wr_p_i": 1}
+                  "avb_chg_p_i": 1, "asp_chg_p_i": 1, "amap_wr_p_i": 1, "ts_valid_i": 1,
+                  "ts_data_i": CTRL_SPLIT_TS_REC_BITS}
         for w in contract.face_windows:
             lw = w.name.lower()
             widths |= {f"{lw}_ans_p_i": 1, f"{lw}_ans_data_i": 32 * len(w.data),
@@ -3324,6 +3351,7 @@ class CtrlMailbox(LiteXModule):
             i_m_pub_dom_prio_i=pub["o_pub_dom_prio_o"], i_m_pub_dom_adopted_i=pub["o_pub_dom_adopted_o"],
             i_m_pub_bound_i=pub["o_pub_bound_o"], i_m_pub_sid_valid_i=pub["o_pub_sid_valid_o"],
             i_m_pub_started_i=pub["o_pub_started_o"], i_m_pub_sid_i=pub["o_pub_sid_o"],
+            i_m_pub_gptp_i=pub["o_pub_gptp_o"],
             o_m_link_up_o=link, o_m_gm_change_p_o=gm_p, o_m_gm_id_o=gm_id, o_m_gptp_domain_o=gm_dom,
             **mbx, **dps)
 
@@ -3634,6 +3662,7 @@ class MilanSoC(SoCCore):
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
+                 gptp_sw=False,
                  **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
@@ -3656,6 +3685,12 @@ class MilanSoC(SoCCore):
         # fail closed at deployment.
         if not with_milan:
             self._gptp_owner = "none"
+        elif gptp_sw:
+            # gPTP in the split firmware (#884, #665 F6): the fabric keeps the
+            # timestamp unit and the PHC; the protocol and the servo are software
+            if gptp_plane or not ctrl_mailbox:
+                raise ValueError("--sw-gptp needs --ctrl-mailbox and no fabric gPTP plane")
+            self._gptp_owner = "software"
         elif gptp_plane is True:
             self._gptp_owner = "fabric"
         elif gptp_plane is False:
@@ -4106,6 +4141,7 @@ class MilanSoC(SoCCore):
                                   # #665: the mailbox SoC is the
                                   # split placement, CTRL_SPLIT_P = 1
                                   ctrl_split=bool(ctrl_mailbox),
+                                  gptp_sw=bool(gptp_sw),
                                   milan_clk_hz=int(milan_clk_freq or sys_clk_freq),
                                   num_streams=int(num_streams),
                                   audio_if_slots=int(audio_if_slots),
@@ -4613,6 +4649,11 @@ def main() -> None:
                             help="use the fabric gPTP plane (the product "
                                  "default for every Milan software profile) and the builder's "
                                  "MAC/priority/clock-specific ROM")
+    gptp_group.add_argument("--sw-gptp", dest="sw_gptp", action="store_true",
+                            help="gPTP in the split firmware (#884, #665 F6; the owner's "
+                                 "decision of 2026-11-21 on #872): no fabric gPTP plane, the "
+                                 "port's timestamp unit and the PHC kept in fabric. Needs "
+                                 "--ctrl-mailbox")
     gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
                             action="store_false",
                             help="elaborate the option-off comparison plane. "
@@ -4933,11 +4974,15 @@ def main() -> None:
                  "placement's; under --ctrl-mailbox, --full builds the MAC and the flash only")
     if args.ctrl_firmware is not None and not args.ctrl_firmware.is_absolute():
         args.ctrl_firmware = REPO_ROOT / args.ctrl_firmware
+    if getattr(args, "sw_gptp", False):
+        if not args.ctrl_mailbox:
+            ap.error("--sw-gptp needs --ctrl-mailbox: gPTP in firmware is the split placement's")
+        args.fabric_gptp = False
     if args.fabric_gptp is None:
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
         ap.error("--fabric-gptp requires the Milan datapath")
-    if not args.fabric_gptp and not args.no_milan:
+    if not args.fabric_gptp and not args.no_milan and not args.sw_gptp:
         # No refusal, one loud fact (#259): with the fabric plane off there is
         # NO gPTP owner in this image. The elaboration stays available as the
         # verification-only option-off comparison.
@@ -5057,6 +5102,7 @@ def main() -> None:
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
                    gptp_plane=args.fabric_gptp,
+                   gptp_sw=args.sw_gptp,
                    gptp_ingress_lat_ns=args.gptp_ingress_lat_ns,
                    gptp_egress_lat_ns=args.gptp_egress_lat_ns,
                    loopback_lane=args.loopback_lane,
