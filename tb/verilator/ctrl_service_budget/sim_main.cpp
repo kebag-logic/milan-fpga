@@ -134,6 +134,15 @@ public:
         }
         egress_sample(dut);
         ingress_sample(dut);
+        if constexpr (has_ts) {
+            for (unsigned i = 0; i < n_if; ++i) {
+                if (ts_take(dut, i) && !ts_q_[i].empty()) {
+                    ts_q_[i].pop_front();
+                    ts_shown_n_[i] = ~std::size_t{0};   // show the next head
+                }
+            }
+            peer_tick();
+        }
         flash_sample(dut);
         cpu_sample(dut);
         run_script();
@@ -161,6 +170,18 @@ public:
             for (unsigned i = 0; i < n_if; ++i) set_gm(dut, i, gm_id_[i], gm_domain_[i]);
             gm_dirty_ = false;
             changed = true;
+        }
+        if constexpr (has_ts) {
+            for (unsigned i = 0; i < n_if; ++i) {
+                const bool valid = !ts_q_[i].empty();
+                if (valid != ts_shown_[i] || (valid && ts_q_[i].size() != ts_shown_n_[i])) {
+                    const TsRec r = valid ? ts_q_[i].front() : TsRec{};
+                    set_ts(dut, i, valid, r.egress, r.ok, r.type, r.seq, r.ns);
+                    ts_shown_[i] = valid;
+                    ts_shown_n_[i] = ts_q_[i].size();
+                    changed = true;
+                }
+            }
         }
         put(dut.flash_tx_ready, bool(!flash_pending_ && dut.flash_cs));
         put(dut.flash_rx_valid, bool(flash_pending_ && sys_ >= flash_at_));
@@ -211,7 +232,8 @@ public:
     }
 
 private:
-    struct Frame { unsigned interface; std::vector<std::uint8_t> bytes; std::string tag = "-"; };
+    struct Frame { unsigned interface; std::vector<std::uint8_t> bytes; std::string tag = "-";
+                   std::uint64_t ts_ns = 0; };   // contract 2.5: the stamp the timestamp unit gives it, 0: its arrival
     struct Sent { unsigned interface; std::vector<std::uint8_t> bytes; };
 
     void host_sample(Vsim& dut) {
@@ -220,7 +242,11 @@ private:
         host_.add(sys_ - host_req_at_);
         const unsigned word = dut.mbx_host_addr;
         if (host_we_) {
-            if (word == filter_en_word && host_wdata_) filter_open_ = true;
+            if (word == filter_en_word) {
+                // the channel gate the image writes, each bit named by the contract's channel table (grade.py)
+                std::printf("OPEN %llu %x\n", ull(sys_), host_wdata_);
+                if (host_wdata_) filter_open_ = true;
+            }
             for (unsigned ch = 0; ch < n_ch; ++ch)
                 if (word == tx_head_word(ch)) { ++tx_commits_[ch]; std::printf("TXC %llu %u %u\n", ull(sys_), ch, host_wdata_); }
             if (word == tmr_cmd_word) ++tmr_writes_.at(host_wdata_ & 0xffu).at(host_wdata_ >> 30);
@@ -245,6 +271,12 @@ private:
         for (auto byte : egress_) { std::snprintf(b, sizeof b, "%02x", byte); hex += b; }
         std::printf("WIRE %llu %u %u %s\n", ull(sys_), unsigned(dut.mbx_tx_if),
                     unsigned(dut.mbx_tx_ch), hex.c_str());
+        if (dut.mbx_tx_ch == gptp_ch) {
+            // the launch: the frame's first byte, len cycles of this byte stream ago
+            const std::uint64_t t = ns_now() - (egress_.size() - 1) * (1000000000ull / sys_hz);
+            ts_note(unsigned(dut.mbx_tx_if), true, egress_, t);
+            peer_react(unsigned(dut.mbx_tx_if), egress_, t);
+        }
         auto& kept = last_wire_.at(dut.mbx_tx_ch);
         kept.push_back({unsigned(dut.mbx_tx_if), egress_});
         if (kept.size() > 32) kept.pop_front();
@@ -265,9 +297,12 @@ private:
         gm_pulse_ = 0;
         dp_pulse_[0] = dp_pulse_[1] = dp_pulse_[2] = 0;
         if (frames_.empty() || sys_ < ingress_at_ || !dut.mbx_rx_valid || !dut.mbx_rx_ready) return;
-        if (offset_ == 0)
+        if (offset_ == 0) {
             std::printf("RXS %llu %u %zu %s\n", ull(sys_), frames_.front().interface,
                         frames_.front().bytes.size(), frames_.front().tag.c_str());
+            const Frame& fr = frames_.front();
+            ts_note(fr.interface, false, fr.bytes, fr.ts_ns ? fr.ts_ns : ns_now());
+        }
         if (++offset_ < frames_.front().bytes.size()) return;
         std::printf("RXE %llu\n", ull(sys_));
         frames_.pop_front();
@@ -661,6 +696,13 @@ private:
                 armed_ = false;
                 std::printf("STEP %llu %zu wait %s%s\n", ull(sys_), step_, s.args.at(0).c_str(),
                             met ? "" : " TIMEOUT");
+            } else if (s.op == "gptp") {
+                // gptp <gm|slave> <interface>: the gPTP peer on that interface (#884), a grandmaster that
+                // syncs this entity or a slave this entity syncs; both answer and send Pdelay_Req
+                peer_.on = true;
+                peer_.gm = s.args.at(0) == "gm";
+                peer_.iface = std::stoul(s.args.at(1));
+                peer_.next_sync = peer_.next_ann = peer_.next_preq = ns_now();
             } else if (s.op == "frame") {
                 // frame <if> <hex> [tag]
                 Frame f{unsigned(std::stoul(s.args.at(0))), {}};
@@ -768,6 +810,107 @@ private:
     std::vector<std::uint8_t> egress_;
     std::array<std::deque<Sent>, n_ch> last_wire_;  // the newest frames each channel sent, with their interface
     std::deque<Frame> frames_;
+    // ---- contract 2.5: the timestamp unit's model and a gPTP peer (#884, #665 F6) ----
+    // The unit stamps every IEEE 802.1AS event message (messageType 0 to 3) on the gptp channel's ingress and
+    // egress with this bench's time, ns; a peer frame carries the stamp the peer's link would give it.
+    struct TsRec { bool egress = false, ok = true; unsigned type = 0, seq = 0; std::uint64_t ns = 0; };
+    std::array<std::deque<TsRec>, n_if> ts_q_;
+    std::array<bool, n_if> ts_shown_{};
+    std::array<std::size_t, n_if> ts_shown_n_{};
+    std::uint64_t ns_now() const { return sys_ * (1000000000ull / sys_hz); }
+    void ts_note(unsigned iface, bool egress, const std::vector<std::uint8_t>& f, std::uint64_t ns) {
+        if (!has_ts || iface >= n_if || f.size() < 46 || f[12] != 0x88 || f[13] != 0xF7 || (f[14] & 0x0F) > 3) return;
+        ts_q_[iface].push_back({egress, true, unsigned(f[14] & 0x0F), unsigned(f[44] << 8 | f[45]), ns});
+    }
+    struct Peer {
+        bool on = false, gm = true;
+        unsigned iface = 0;
+        std::uint64_t next_sync = 0, next_ann = 0, next_preq = 0;
+        unsigned sync_seq = 0, ann_seq = 0, preq_seq = 0;
+    } peer_;
+    static constexpr std::uint64_t peer_clock = 0x02AABBFFFE000001ull;
+    static constexpr std::uint64_t peer_delay_ns = 500, peer_turn_ns = 20000;
+    static void be(std::vector<std::uint8_t>& f, std::size_t at, std::uint64_t v, unsigned n) {
+        for (unsigned k = 0; k < n; ++k) f[at + k] = std::uint8_t(v >> (8 * (n - 1 - k)));
+    }
+    static void ts10(std::vector<std::uint8_t>& f, std::size_t at, std::uint64_t ns) {
+        be(f, at, ns / 1000000000ull, 6);
+        be(f, at + 6, ns % 1000000000ull, 4);
+    }
+    // a peer message: majorSdoId 1, versionPTP 2, the peer's port identity (IEEE 802.1AS-2020 10.6.2)
+    static std::vector<std::uint8_t> peer_msg(unsigned type, unsigned ptp_len, unsigned seq, unsigned control,
+                                              int logi) {
+        std::vector<std::uint8_t> f(14 + ptp_len, 0);
+        be(f, 0, 0x0180C200000Eull, 6);
+        be(f, 6, 0x02AABB000001ull, 6);
+        be(f, 12, 0x88F7, 2);
+        f[14] = std::uint8_t(0x10 | type);
+        f[15] = 0x12;
+        be(f, 16, ptp_len, 2);
+        be(f, 34, peer_clock, 8);
+        be(f, 42, 1, 2);
+        be(f, 44, seq, 2);
+        f[46] = std::uint8_t(control);
+        f[47] = std::uint8_t(logi);
+        return f;
+    }
+    void peer_send(std::vector<std::uint8_t> f, std::uint64_t ts_ns) {
+        frames_.push_back(Frame{peer_.iface, std::move(f), "gptp", ts_ns});
+    }
+    // the image launched a gPTP frame: a Pdelay_Req is answered as from a 500 ns link and a 20 us turnaround
+    void peer_react(unsigned iface, const std::vector<std::uint8_t>& f, std::uint64_t t1) {
+        if (!peer_.on || iface != peer_.iface || f.size() < 54 || (f[14] & 0x0F) != 0x2) return;
+        const unsigned seq = unsigned(f[44] << 8 | f[45]);
+        const std::uint64_t t2 = t1 + peer_delay_ns, t3 = t2 + peer_turn_ns;
+        auto resp = peer_msg(0x3, 54, seq, 5, 0x7F);
+        resp[20] = 0x02;   // twoStepFlag
+        ts10(resp, 48, t2);
+        std::copy(f.begin() + 34, f.begin() + 44, resp.begin() + 58);   // requestingPortIdentity
+        peer_send(resp, t3 + peer_delay_ns);
+        auto fu = peer_msg(0xA, 54, seq, 5, 0x7F);
+        ts10(fu, 48, t3);
+        std::copy(f.begin() + 34, f.begin() + 44, fu.begin() + 58);
+        peer_send(fu, 0);
+    }
+    // the peer's own messages, each at its Milan v1.2 Table 4.1 interval
+    void peer_tick() {
+        if (!peer_.on) return;
+        const std::uint64_t now = ns_now();
+        if (now >= peer_.next_preq) {
+            peer_.next_preq += 1000000000ull;
+            peer_send(peer_msg(0x2, 54, ++peer_.preq_seq, 5, 0), now + peer_delay_ns);
+        }
+        if (now >= peer_.next_ann) {
+            peer_.next_ann += 1000000000ull;
+            auto a = peer_msg(0xB, 64 + 12, ++peer_.ann_seq, 5, 0);
+            a[48 + 13] = peer_.gm ? 100 : 250;   // grandmasterPriority1: better, or worse, than the image's 248
+            a[48 + 14] = 248;
+            a[48 + 15] = 0x22;
+            be(a, 48 + 16, 0x436A, 2);
+            a[48 + 18] = 248;
+            be(a, 48 + 19, peer_clock, 8);
+            a[48 + 29] = 0xA0;
+            be(a, 14 + 64, 0x0008, 2);
+            be(a, 14 + 66, 8, 2);
+            be(a, 14 + 68, peer_clock, 8);
+            peer_send(a, 0);
+        }
+        if (peer_.gm && now >= peer_.next_sync) {
+            peer_.next_sync += 125000000ull;
+            auto sy = peer_msg(0x0, 44, ++peer_.sync_seq, 0, -3);
+            sy[20] = 0x02;
+            peer_send(sy, now + peer_delay_ns);
+            auto fu = peer_msg(0x8, 76, peer_.sync_seq, 2, -3);
+            ts10(fu, 48, now);
+            be(fu, 58, 0x0003, 2);
+            be(fu, 60, 28, 2);
+            fu[62] = 0x00;
+            fu[63] = 0x80;
+            fu[64] = 0xC2;
+            fu[67] = 1;
+            peer_send(fu, 0);
+        }
+    }
     std::size_t offset_ = 0;
     std::uint64_t ingress_at_ = 0, gap_ = 20;
     bool tx_ready_ = true;
@@ -813,6 +956,7 @@ void initialize(Vsim& dut) {
     dut.mbx_avb_chg = 0;
     dut.mbx_asp_chg = 0;
     dut.mbx_amap_wr = 0;
+    for (unsigned i = 0; i < n_if; ++i) set_ts(dut, i, false, false, false, 0, 0, 0);
     dut.flash_tx_ready = 0;
     dut.flash_rx_valid = 0;
     dut.eval();

@@ -66,8 +66,10 @@ PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'w
 #: FR_NFR.md 3.4.1's approved T_svc (owner, 2026-10-29), its ceilings, and each family's budget,
 #: min(T_svc, ceiling), restated here on purpose: a changed value or table must fail.
 T_SVC = 20.0
-CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 20.0}
-BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0}
+CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 20.0,
+            'gptp': 10.0}
+BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0,
+           'gptp': 10.0}
 #: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
 #: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
@@ -86,9 +88,15 @@ def fixture_group(oracle: dict) -> scenario.Group:
     return scenario.fixture_groups(scenario.Point(**oracle['point']))[0]
 
 
+def fixture_clocks(oracle: dict) -> tuple[int, int]:
+    """The system and CPU clocks the committed trace was recorded at (write_fixture pins them): its cycles are graded
+    at its own SoC's clocks, not at the synthetic logs' SYS_HZ and CPU_HZ."""
+    return oracle['clocks']['sys_hz'], oracle['clocks']['cpu_hz']
+
+
 def regraded(oracle: dict, text: str | None = None) -> dict:
     """The committed trace (or a planted copy of it), graded now."""
-    return grade.grade(text or FIXTURE_LOG.read_text(), fixture_group(oracle), SYS_HZ, CPU_HZ)
+    return grade.grade(text or FIXTURE_LOG.read_text(), fixture_group(oracle), *fixture_clocks(oracle))
 
 
 def headline(result: dict) -> dict:
@@ -103,8 +111,10 @@ def headline(result: dict) -> dict:
 
 
 def synthetic(lines: list[str]) -> str:
-    """A minimal log in the testbench's line format, completed."""
-    return '\n'.join([*lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
+    """A minimal log in the testbench's line format, completed; its image's channel gate is the committed trace's
+    (sim_main.cpp prints every FILTER_EN write, OPEN, and the grader reads the opened channels from it)."""
+    gate = sum(1 << c.ident for c in grade.CONTRACT.channels if c.name in grade.fixture_opened())
+    return '\n'.join([f'OPEN 0 {gate:x}', *lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
 
 
 def one(log: str, probe: scenario.Probe) -> dict:
@@ -198,10 +208,10 @@ def fixture_checks() -> list[Check]:
     group = fixture_group(oracle)
     group.load.pop('maap')
     out.append(('a window short of its defined load is refused although it declares it',
-                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, SYS_HZ, CPU_HZ)), ''))
+                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, *fixture_clocks(oracle))), ''))
     # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
     smaller = dict(grade.defined_load('fixture'), maap=0)
-    with patch.object(grade, 'defined_load', lambda name: smaller):
+    with patch.object(grade, 'defined_load', lambda name, opened=None: smaller):
         refused = refusal(lambda: regraded(oracle))
     out.append(('a composed window that committed more than its load is refused', "'maap': 1" in refused,
                 refused or 'accepted'))
@@ -401,7 +411,7 @@ def composition_checks() -> list[Check]:
         lines = ['MARK 1000 composed', *received(ACMP, '-', 1100), *received(ACMP, '-', second),
                  f'PASS 1 1500 750 100 instr=10 store_mbx=1 W 1550:{tail:x}:14',
                  f'PASS 2 2000 1000 100 instr=10 store_mbx=1 W 2050:{tail:x}:28', 'MARK 100000 composed_end']
-        with patch.object(grade, 'defined_load', lambda name: {'acmp': 2}):
+        with patch.object(grade, 'defined_load', lambda name, opened=None: {'acmp': 2}):
             rows = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['probes']
         got.append([(r['probe'].split('.', 1)[1], r['ahead']) for r in rows])
     want = [[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 1)],
@@ -438,7 +448,7 @@ def window_checks() -> list[Check]:
     lines = ['MARK 1000 composed', *[f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
                                      in enumerate(((2000, 100), (5000, 900), (20000, 300)), 1)],
              'MARK 100000 composed_end', 'PASS 4 200000 100000 5000 instr=10 store_mbx=1 W 200100:1:0']
-    with patch.object(grade, 'defined_load', lambda name: {}):
+    with patch.object(grade, 'defined_load', lambda name, opened=None: {}):
         passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
     got = (passes['composed']['cycles'], passes['composed']['passes'], passes['worst']['cycles'])
     out.append(("the composed maximum is the window's longest pass, wherever it falls", got[:2] == (900, 3), str(got)))
@@ -502,6 +512,46 @@ def points(oracle: dict) -> list[scenario.Point]:
     """The oracle's one-interface point and the same entity with two interfaces."""
     one_if = scenario.Point(**oracle['point'])
     return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
+
+
+def opened_checks() -> list[Check]:
+    """#884's ruling, A and B: a row's defined load covers the channels the image opened, read from its FILTER_EN
+    write (sim_main.cpp's OPEN lines), and an opened channel with no load frame is refused."""
+    out = []
+    log = grade.parse(FIXTURE_LOG.read_text(), SYS_HZ, CPU_HZ)
+    opened = grade.opened_channels(log)
+    out.append(("the fixture's image opened its five channels, gptp unopened",
+                opened == frozenset({'adp', 'acmp', 'aecp', 'maap', 'srp'}), str(sorted(opened))))
+    with_gptp = opened | {'gptp'}
+    gptp = next(c for c in grade.CONTRACT.channels if c.name == 'gptp')
+    want = min(gptp.burst, grade.room('gptp'))
+    load = grade.defined_load('backlog-adp', with_gptp)
+    out.append(('an image that opens gptp carries its admitted burst in the composed rows',
+                load.get('gptp') == want and {k: v for k, v in load.items() if k != 'gptp'} ==
+                grade.defined_load('backlog-adp', opened), str(load)))
+    out.append(('an unopened channel carries no defined load', 'gptp' not in grade.defined_load('backlog-adp', opened),
+                str(grade.defined_load('backlog-adp', opened))))
+    frame = grade.LOAD_FRAME_BYTES.pop('gptp')
+    try:
+        grade.defined_load('backlog-adp', with_gptp)
+        refused = False
+    except grade.Refusal as exc:
+        refused = 'no load frame defines' in str(exc)
+    finally:
+        grade.LOAD_FRAME_BYTES['gptp'] = frame
+    out.append(('an opened channel with no load frame is refused', refused, ''))
+    bare = grade.parse('\n'.join(ln for ln in FIXTURE_LOG.read_text().splitlines() if not ln.startswith('OPEN ')) + '\n',
+                       SYS_HZ, CPU_HZ)
+    try:
+        grade.opened_channels(bare)
+        refused = False
+    except grade.Refusal:
+        refused = True
+    out.append(('a log with no FILTER_EN write is refused, never read as every channel', refused, ''))
+    last = grade.parse(FIXTURE_LOG.read_text() + 'OPEN 1 3\n', SYS_HZ, CPU_HZ)
+    out.append(("the image's last gate is the one read", grade.opened_channels(last) == frozenset({'adp', 'acmp'}),
+                str(sorted(grade.opened_channels(last)))))
+    return out
 
 
 def load_checks() -> list[Check]:
@@ -919,7 +969,7 @@ def cache_build_checks() -> list[Check]:
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *window_checks(), *opened_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),
@@ -938,11 +988,14 @@ def write_fixture(log: Path, build_json: Path) -> None:
     text = log.read_text()
     records = re.findall(r'^EVW \d+ \d+ ([0-9a-f]+)$', text, re.M)
     deadlines = {int(records[k + 2], 16) for k in range(0, len(records) - 3, 4)}
+    # the saved-state store's traced calls (SPAN, CALL) are nvm_split_target's, which the fixture's rows never read
     kept = [line for line in text.splitlines()
-            if not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in deadlines]
+            if not line.startswith(('SPAN ', 'CALL '))
+            and (not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in deadlines)]
     FIXTURE_LOG.write_text('\n'.join(kept) + '\n')
     oracle = dict(point=dict(label='fixture', shape=p.shape, interfaces=p.interfaces, entity_id=p.entity_id,
                              mac=p.mac, sources=p.sources, sinks=p.sinks),
+                  clocks=dict(sys_hz=spec['sys_hz'], cpu_hz=spec['cpu_hz']),
                   fixture_sha256=hashlib.sha256(FIXTURE_LOG.read_bytes()).hexdigest(), rows={})
     graded = grade.grade(FIXTURE_LOG.read_text(), scenario.fixture_groups(p)[0], spec['sys_hz'], spec['cpu_hz'])
     for r in graded['probes']:

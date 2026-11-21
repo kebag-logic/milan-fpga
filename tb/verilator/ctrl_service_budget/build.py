@@ -323,7 +323,7 @@ def ledgered_point(shape: str, n_if: int) -> str | None:
 
 
 def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', variant: str | Variant = 'none',
-             flash_map: Path | None = None) -> Path:
+             flash_map: Path | None = None, gptp: bool = False) -> Path:
     """The runtime archives, then the linked split image (a planted copy for a control,
     or the labelled variant arm), planned as the ledgered point at that point only, its flash
     port on flash_map (gen_flash_port.py's) or, without one, on the RV32 stand-ins."""
@@ -341,10 +341,11 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', v
     entry = [str(ROOT / 'sw/firmware/ctrl/test/ctrl_srp_image.py')]
     if variant != 'none':
         entry = [str(HERE / 'fixture_variant.py'), str(variant_fixture(out, variant))]
-    ledgered = ledgered_point(shape, n_if)
+    # an image with gPTP is not the ledgered image: it is planned by its own symbols (#884 measures its memory)
+    ledgered = None if gptp else ledgered_point(shape, n_if)
     run([sys.executable, '-B', *entry,
          '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
-         '--with-aecp', '--layout', 'split', '--output', str(image), *source,
+         '--with-aecp', *(['--with-gptp'] if gptp else []), '--layout', 'split', '--output', str(image), *source,
          *([] if ledgered is None else ['--ledgered-point', ledgered]),
          *([] if flash_map is None else ['--flash-map', str(flash_map)]),
          '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
@@ -682,6 +683,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
               f"constexpr std::uint32_t step_pc = 0x{table[STEP_SYMBOL]:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
+              # contract 2.5: the gptp channel's id (n_ch when the contract has none) and the timestamp pads
+              f"constexpr unsigned gptp_ch = {spec.get('gptp_ch', spec['channels'])}u;",
+              f"constexpr bool has_ts = {'true' if spec.get('has_ts') else 'false'};",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
               f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
               f"constexpr unsigned ev_words = {spec['ev_words']}u;",
@@ -706,6 +710,26 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     if not any(name == 'lsu_cmd_id' for name, *_ in rows):
         lines += ['inline unsigned lsu_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned lsu_rsp_id(const Vsim&) { return 0u; }']
+    # contract 2.5: one timestamp unit's record on interface i's pads, {EGRESS, OK, MSG_TYPE, SEQ, NS} with NS
+    # lowest, 86 bits an interface; and its take pulse
+    if spec.get('has_ts'):
+        lines += ['inline void set_ts(Vsim& dut, unsigned i, bool valid, bool egress, bool ok, unsigned type, '
+                  'unsigned seq, std::uint64_t ns) {',
+                  '    const unsigned b = 86u * i;',
+                  '    auto put = [&](unsigned at, unsigned n, std::uint64_t v) {',
+                  '        for (unsigned k = 0; k < n; ++k) {',
+                  '            const unsigned bit = b + at + k;',
+                  '            auto& w = dut.mbx_ts_data[bit / 32u];',
+                  '            w = (w & ~(1u << (bit % 32u))) | (static_cast<std::uint32_t>((v >> k) & 1u) << (bit % 32u));',
+                  '        }',
+                  '    };',
+                  '    put(0, 64, ns); put(64, 16, seq); put(80, 4, type); put(84, 1, ok); put(85, 1, egress);',
+                  '    dut.mbx_ts_valid = (dut.mbx_ts_valid & ~(1u << i)) | (static_cast<unsigned>(valid) << i);',
+                  '}',
+                  'inline bool ts_take(const Vsim& dut, unsigned i) { return (dut.mbx_ts_take >> i) & 1u; }']
+    else:
+        lines += ['inline void set_ts(Vsim&, unsigned, bool, bool, bool, unsigned, unsigned, std::uint64_t) {}',
+                  'inline bool ts_take(const Vsim&, unsigned) { return false; }']
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
@@ -834,6 +858,9 @@ class Core:
     fetch_l1: str = 'split'
     xip: bool = False
     cpu_cd: str | None = None
+    #: the image carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884, contract 2.5): it opens the gptp
+    #: channel, and the testbench's timestamp unit stamps its event messages
+    gptp: bool = False
 
 
 #: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30; milan_soc.CTRL_CPU_CD): the
@@ -880,12 +907,12 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     import split_soc
     build_dir.mkdir(parents=True, exist_ok=True)
     flash = flash_map(build_dir / split_soc.FLASH_MAP, shape)
-    elf = firmware(build_dir, shape, n_if, mutation, variant, flash)
+    elf = firmware(build_dir, shape, n_if, mutation, variant, flash, core.gptp)
     rom_elf, flash_image = elf, None
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses(flash)['flash'])
     table = symbols(elf)
-    with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
+    with split_soc.ledgered_plan(None if core.gptp else ledgered_point(shape, n_if)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
     refused = cpu_clock_refusals(spec)
     if refused:
@@ -903,6 +930,9 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     regs = {r.name: r.offset for r in contract.registers}
     tick = next(e for e in contract.event_types if e.name == 'TICK')
     count = next(f for w in tick.words if w.index == 1 for f in w.fields if f.name == 'COUNT')
+    gptp_ch = next((c.ident for c in contract.channels if c.name == 'gptp'), len(contract.channels))
+    spec.update(gptp=core.gptp, gptp_ch=gptp_ch,
+                has_ts=any(e.name == 'TIMESTAMP' for e in contract.event_types))
     spec.update(channels=len(contract.channels), filter_en=regs['FILTER_EN'], tmr_cmd=regs['TMR_CMD'],
                 evt_tail=regs['EVT_TAIL'], ev_words=contract.ev_words,
                 ev_tick=dict(type=tick.value, count_lsb=count.lsb, count_width=count.width),

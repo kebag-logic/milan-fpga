@@ -96,7 +96,15 @@ CEILING_MS = {
     'notify': 24.0,   # Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: the related 240 ms interval
     'maap': 50.0,     # IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms probe interval x 10 %
     'srp': 20.0,      # T_svc, the owner's ruling of 2026-11-06 (#665): over the 18 ms of JoinTime 180 ms x 10 %
+    # PROVISIONAL, OWNER DECIDES (#884 round 1; NFR-SCOUT-03: each gPTP path states and tests its firmware bound):
+    # the 10 ms Pdelay turnaround IEEE 802.1AS-2011 B.2.3 holds a responder to, itself, not a 10 % of it, since no
+    # gPTP timeout bounds the responder's path; Milan v1.2 4.2.6.2.6 tolerates 15 ms. No existing row reads it.
+    'gptp': 10.0,
 }
+#: The families the per-pass share is not derived from (share.bound_ms). THE SHARE is the approved T_svc over ten
+#: passes (ctrl_loop.h); a provisional family entering it would halve the share every row is held to, a change
+#: to approved bounds. gptp's own rows hold its path to its 10 ms; whether the share follows is OWNER DECIDES.
+SHARE_EXCLUDED = frozenset({'gptp'})
 
 
 @dataclass
@@ -991,9 +999,11 @@ def fixture_groups(p: Point) -> list[Group]:
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
     import held   # #917's held record: held.py imports this module
+    import gptp_group   # contract 2.5's gPTP groups (#884): gptp_group.py imports this module
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
-              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p)]
+              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p),
+              *gptp_group.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

@@ -176,7 +176,10 @@ def platform_for(contract: object, n_if: int) -> object:
                   ('tx_valid', 1), ('tx_ready', 1), ('tx_data', 8), ('tx_last', 1), ('tx_if', w['interface']),
                   ('tx_ch', w['channel']), ('host_req', 1), ('host_we', 1), ('host_addr', w['addr']),
                   ('host_wdata', 32), ('host_ack', 1), ('host_rdata', 32), ('ms_tick', 1),
-                  ('avb_chg', n_if), ('asp_chg', n_if), ('amap_wr', n_if)]
+                  ('avb_chg', n_if), ('asp_chg', n_if), ('amap_wr', n_if),
+                  # contract 2.5: the timestamp unit's records, which the testbench's model of it offers
+                  *([('ts_valid', n_if), ('ts_data', 86 * n_if), ('ts_take', n_if)] if has_timestamp(contract)
+                    else [])]
     flash_fields = [('cs', 1), ('tx_valid', 1), ('tx_ready', 1), ('tx_data', 32), ('tx_len', 6),
                     ('tx_width', 4), ('rx_valid', 1), ('rx_ready', 1), ('rx_data', 32)]
     platform.add_extension([('mbx', 0, *[Subsignal(n, Pins(width)) for n, width in mbx_fields]),
@@ -212,6 +215,8 @@ class StimulusMailbox(LiteXModule):
         # The datapath's three coalesced change events (mailbox.yaml event types 6 to 8) on the testbench's pads, so a
         # group can post them and their sinks' cost be measured (#894); idle unless a script pulses one (DATAPATH_PADS)
         face.update({name: getattr(pads, pad) for name, pad in DATAPATH_PADS.items()})
+        if has_timestamp(contract):
+            face.update(i_ts_valid_i=pads.ts_valid, i_ts_data_i=pads.ts_data, o_ts_take_p_o=pads.ts_take)
         self.specials += Instance('KL_mbx',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
             i_host_req_i=h['req'], i_host_we_i=h['we'], i_host_addr_i=h['addr'], i_host_wdata_i=h['wdata'],
@@ -274,7 +279,9 @@ def unread_publication(contract: object, n_if: int) -> dict[str, object]:
                 o_pub_bound_o=Signal(n_if * contract.pub_sinks),
                 o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
                 o_pub_started_o=Signal(n_if * contract.pub_sinks),
-                o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
+                o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64),
+                # contract 2.5: the gPTP publication's words, unread as CtrlMailbox's crossing reads them
+                **({'o_pub_gptp_o': Signal(n_if * len(gptp_words(contract)) * 32)} if gptp_words(contract) else {}))
 
 
 #: The face block's datapath change inputs the testbench drives (sim_main.cpp, `datapath`), each a pad of the mbx
@@ -295,6 +302,21 @@ FACE_IDLE_INPUTS = dict(
     i_ctr_chg_p_i=0, i_ctr_chg_type_i=0, i_ctr_chg_index_i=0, i_avb_chg_p_i=0, i_asp_chg_p_i=0, i_amap_wr_p_i=0)
 
 
+#: contract 2.5: the timestamp units' inputs, which CtrlMailbox holds idle with no datapath, and the StimulusMailbox
+#: drives from the testbench's pads in their place
+TS_IDLE_INPUTS = dict(i_ts_valid_i=0, i_ts_data_i=0)
+
+
+def has_timestamp(contract: object) -> bool:
+    """The contract carries the TIMESTAMP event (minor 5): KL_mbx takes the timestamp units' records."""
+    return any(e.name == 'TIMESTAMP' for e in contract.event_types)
+
+
+def gptp_words(contract: object) -> list:
+    """The publication block's gPTP words (minor 5), in offset order."""
+    return sorted((r for r in contract.pub_registers if r.name.startswith('GPTP_')), key=lambda r: r.offset)
+
+
 def face_ports(contract: object, n_if: int) -> dict[str, object]:
     """The face block's ports (contract 2.3) as CtrlMailbox connects them, at n_if interfaces:
     every output a named Signal of its generated width, left unread (ctrl_mailbox_face_ports),
@@ -302,10 +324,11 @@ def face_ports(contract: object, n_if: int) -> dict[str, object]:
     from mailbox_model import with_interfaces
     ports = milan_soc.ctrl_mailbox_face_ports(with_interfaces(contract, n_if))
     held = {name: value for name, value in ports.items() if name.startswith('i_')}
-    if held != FACE_IDLE_INPUTS:
+    idle = {**FACE_IDLE_INPUTS, **(TS_IDLE_INPUTS if has_timestamp(contract) else {})}
+    if held != idle:
         raise RuntimeError('the face inputs differ from those CtrlMailbox holds idle: '
                            f'{sorted(set(held.items()) ^ set(FACE_IDLE_INPUTS.items()))}')
-    return {**ports, **FACE_IDLE_INPUTS}
+    return {**ports, **idle}
 
 
 def face_ack_cycles(contract: object) -> int:

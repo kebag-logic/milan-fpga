@@ -23,8 +23,10 @@ SHARE_PASSES = 10
 
 
 def bound_ms() -> float:
-    """The smallest bound every input shares: the least of min(T_svc, ceiling) over the families."""
-    return min(min(scenario.T_SVC_MS, ceiling) for ceiling in scenario.CEILING_MS.values())
+    """The smallest bound every input shares: the least of min(T_svc, ceiling) over the families, less the
+    provisional ones (scenario.SHARE_EXCLUDED)."""
+    return min(min(scenario.T_SVC_MS, ceiling) for family, ceiling in scenario.CEILING_MS.items()
+               if family not in scenario.SHARE_EXCLUDED)
 
 
 def share_ms() -> float:
