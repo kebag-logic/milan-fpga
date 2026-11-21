@@ -27,16 +27,16 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages |
 |---|---:|
-| current | 186 |
+| current | 187 |
 | stale | 16 |
 | superseded | 0 |
 | obsolete | 21 |
-| **total** | **223** |
+| **total** | **224** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
 | archive | 22 | 1 | 0 | 0 | 21 | 0 |
-| design | 28 | 27 | 1 | 0 | 0 | 0 |
+| design | 29 | 28 | 1 | 0 | 0 | 0 |
 | findings | 23 | 23 | 0 | 0 | 0 | 0 |
 | module READMEs | 88 | 88 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
@@ -95,7 +95,7 @@ Areas follow the directory tree.
 - [.github](#github) (1)
 - [avdecc](#avdecc) (1)
 - [docs](#docs) (10)
-- [docs/design](#docsdesign) (18)
+- [docs/design](#docsdesign) (19)
 - [docs/development](#docsdevelopment) (1)
 - [docs/diagrams](#docsdiagrams) (1)
 - [docs/findings](#docsfindings) (23)
@@ -163,6 +163,7 @@ Areas follow the directory tree.
 | [docs/design/CSR_REGISTER_NOTES.md](design/CSR_REGISTER_NOTES.md) | maintainer | CSR register design notes | `hdl/milan`, `configs`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | maintainer | Grandmaster loss and recovery | `tb/verilator/milan_dp_gm_steps`, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | maintainer | Fabric gPTP plane | `tb/verilator/gptp_txts`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/GPTP_SOFTWARE.md](design/GPTP_SOFTWARE.md) | maintainer | gPTP in firmware | `sw/firmware/ctrl`, `tb/verilator/ctrl_service_budget`, `hdl/ieee8021as/gptp_plane`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
 | [docs/design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) | maintainer | MAAP in fabric - design + reference contract (task #18) | `hdl/ieee1722/maap`, `hdl/milan`, `tb/verilator/maap`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 | [docs/design/MAILBOX_SPLIT.md](design/MAILBOX_SPLIT.md) | firmware developer | Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0) | `sw/firmware/ctrl`, `sw/mailbox`, `hdl/milan/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 | [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
@@ -430,7 +431,7 @@ Areas follow the directory tree.
 | [tb/verilator/csr/README.md](../tb/verilator/csr/README.md) | verification | CSR verification harness (`milan_csr` AXI4-Lite control plane) | `tb/verilator/csr`, `hdl/common/csr`, `tb/common` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_reboot/README.md](../tb/verilator/ctrl_reboot/README.md) | verification | REBOOT simulation (#871) | `tb/verilator/ctrl_reboot`, `hdl/milan`, `tb/tools`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_region_decode/README.md](../tb/verilator/ctrl_region_decode/README.md) | verification | Region-decode simulation (#791) | `tb/verilator/ctrl_region_decode`, `tb/verilator/ctrl_service_budget`, `sw/litex` | current | no recorded contradiction | area lane | module READMEs |
-| [tb/verilator/ctrl_service_budget/README.md](../tb/verilator/ctrl_service_budget/README.md) | verification | Split CPU service budget | `tb/verilator/ctrl_service_budget`, `tb/verilator/nvm_split_target`, `scripts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/ctrl_service_budget/README.md](../tb/verilator/ctrl_service_budget/README.md) | verification | Split CPU service budget | `tb/verilator/ctrl_service_budget`, `tb/verilator/nvm_split_target`, `scripts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_service_hooks/README.md](../tb/verilator/ctrl_service_hooks/README.md) | verification | The F2-F5 timing hooks on the target core (#665 S5) | `tb/verilator/ctrl_service_hooks`, `tb/verilator/ctrl_service_budget`, `tb/verilator/ctrl_split_boot`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/ctrl_split_boot/README.md](../tb/verilator/ctrl_split_boot/README.md) | verification | Split boot simulation (#665 S3) | `tb/verilator/ctrl_split_boot`, `scripts`, `tb/verilator/ctrl_service_budget`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/fw_service_budget/README.md](../tb/verilator/fw_service_budget/README.md) | verification | Firmware service-budget measurement | `tb/verilator/fw_service_budget`, `tb/verilator/nvm_capture_cpu`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |

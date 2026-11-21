@@ -146,10 +146,25 @@ struct gptp_vector {
 };
 
 struct gptp_counters {
-	uint32_t rx, rx_bad, tx, tx_full;
-	uint32_t pd_done, pd_lost, pd_late, pd_multi, pd_resp;
-	uint32_t sync_rx, sync_used, fu_lost, steps, ann_rx, ann_bad, rto_sync, rto_ann;
-	uint32_t ts_lost, ts_unmatched;
+	uint32_t rx;
+	uint32_t rx_bad;
+	uint32_t tx;
+	uint32_t tx_full;
+	uint32_t pd_done;
+	uint32_t pd_lost;
+	uint32_t pd_late;
+	uint32_t pd_multi;
+	uint32_t pd_resp;
+	uint32_t sync_rx;
+	uint32_t sync_used;
+	uint32_t fu_lost;
+	uint32_t steps;
+	uint32_t ann_rx;
+	uint32_t ann_bad;
+	uint32_t rto_sync;
+	uint32_t rto_ann;
+	uint32_t ts_lost;
+	uint32_t ts_unmatched;
 };
 
 struct gptp_port {
@@ -164,15 +179,31 @@ struct gptp_port {
 	enum gptp_role role;
 	// peer delay initiator (11.2.19)
 	struct {
-		bool in_flight, t1_ok, resp_ok, fu_ok, t4_ok, multi, ceased;
-		uint16_t seq, done_seq;
+		bool in_flight;
+		bool t1_ok;
+		bool resp_ok;
+		bool fu_ok;
+		bool t4_ok;
+		bool multi;
+		bool ceased;
+		uint16_t seq;
+		uint16_t done_seq;
 		uint8_t done_responder[10];
-		uint64_t t1, t2, t3, t4;
+		uint64_t t1;
+		uint64_t t2;
+		uint64_t t3;
+		uint64_t t4;
 		uint8_t responder[10];
-		uint32_t sent_ms, next_ms, cease_end_ms;
-		uint8_t lost, good, multi_run;
-		uint64_t w3[GPTP_NRR_WINDOW], w4[GPTP_NRR_WINDOW];
-		uint8_t w_n, w_head;
+		uint32_t sent_ms;
+		uint32_t next_ms;
+		uint32_t cease_end_ms;
+		uint8_t lost;
+		uint8_t good;
+		uint8_t multi_run;
+		uint64_t w3[GPTP_NRR_WINDOW];
+		uint64_t w4[GPTP_NRR_WINDOW];
+		uint8_t w_n;
+		uint8_t w_head;
 		int32_t nrr_q32;     // neighborRateRatio - 1, in units of 2^-32
 		bool nrr_ok;
 		int32_t d[3];
@@ -182,10 +213,13 @@ struct gptp_port {
 	} pd;
 	// peer delay responder (11.2.20): one request answered at a time
 	struct {
-		bool resp_owed, fu_owed, t2_ok;
+		bool resp_owed;
+		bool fu_owed;
+		bool t2_ok;
 		uint16_t seq;
 		uint8_t requester[10];
-		uint64_t t2, t3;
+		uint64_t t2;
+		uint64_t t3;
 		uint32_t sent_ms;
 	} rsp;
 	// the best master heard on the port (10.3) and the port's own vector
@@ -199,10 +233,12 @@ struct gptp_port {
 	} ann;
 	// slave: one Sync waits for its Follow_Up
 	struct {
-		bool have, have_ts;
+		bool have;
+		bool have_ts;
 		uint16_t seq;
 		uint64_t t_rx;
-		uint32_t rx_ms, last_ms;
+		uint32_t rx_ms;
+		uint32_t last_ms;
 		bool fu_early;       // the Follow_Up came before the Sync's ingress stamp
 		int8_t log_sync;     // the Sync's logMessageInterval: the servo's gains follow it
 		uint64_t fu_origin;
@@ -211,8 +247,11 @@ struct gptp_port {
 	} slv;
 	// master: Sync, its Follow_Up, Announce
 	struct {
-		uint16_t sync_seq, ann_seq;
-		uint32_t next_sync_ms, next_ann_ms, sync_sent_ms;
+		uint16_t sync_seq;
+		uint16_t ann_seq;
+		uint32_t next_sync_ms;
+		uint32_t next_ann_ms;
+		uint32_t sync_sent_ms;
 		bool fu_owed;
 		uint16_t fu_seq;
 	} mst;
@@ -223,11 +262,13 @@ struct gptp_port {
 		uint8_t in_band;     // consecutive pairs inside the tracking band, while slewing
 		bool gains_ok;       // kp and ki hold the gains of gains_log's interval
 		int8_t gains_log;
-		int64_t kp, ki;      // Q16 addend units a nanosecond, derived (gptp.c, the servo)
+		int64_t kp;      // Q16 addend units a nanosecond, derived (gptp.c, the servo)
+		int64_t ki;
 		int64_t integ;       // integral term, addend units, Q16
 		int32_t trim;        // the applied addend
 		bool have_prev;
-		uint64_t prev_rx, prev_gm;
+		uint64_t prev_rx;
+		uint64_t prev_gm;
 	} srv;
 	// ingress stamps read before their frame, by (messageType, sequenceId)
 	struct {

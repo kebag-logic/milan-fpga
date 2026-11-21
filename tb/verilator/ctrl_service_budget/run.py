@@ -39,9 +39,7 @@ ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
 #: 8x8-1if is the flip's 8x8 measurement point (#665 ruling item 1), one interface of the 8x8 shape.
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2),
-          '8x8-1if': ('endstation_ax7101_8x8', 1),
-          # #884: the 1x1 shape at two interfaces, the gPTP ports' second port measured inside the memory budget
-          '1x1-2if': ('endstation_ax7101_1x1_tdm8', 2)}
+          '8x8-1if': ('endstation_ax7101_8x8', 1)}
 
 
 def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
@@ -609,9 +607,7 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--record-budget-findings', action='store_true')
     parser.add_argument('--record-share-findings', action='store_true',
                         help='record a work pass over the per-pass share (share.py) instead of failing the run')
-    parser.add_argument('--with-gptp', action='store_true',
-                        help='the image carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884, contract '
-                        "2.5): it opens the gptp channel, and only the gptp groups (gptp_group.py) stage its peer")
+    parser.add_argument('--with-gptp', action='store_true', help='gPTP in the image (contract 2.5, gptp_group.py)')
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
@@ -823,12 +819,11 @@ def reference_run(args: argparse.Namespace, build_dir: Path, shape: str, n_if: i
             spec = builder.reused(where)
         except (RuntimeError, OSError, KeyError, ValueError) as error:
             return [], [f'the reference build: {error}']
-        if built_as(spec) != (shape, n_if, args.cpu_regions, 'none', args.variant, args.fetch_l1, args.xip,
-                              getattr(args, 'with_gptp', False)):
+        if built_as(spec) != selected(argparse.Namespace(**{**vars(args), 'mutation': 'none'}), shape, n_if):
             return [], ["the reference build is not this point's unplanted image"]
     else:
         spec = builder.build(where, shape, n_if, mutation='none', variant=args.variant,
-                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=getattr(args, 'with_gptp', False)))
+                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=args.with_gptp))
     control = builder.MUTATIONS[args.mutation][3]
     groups = [g for g in all_groups(scenario.point(args.point, spec), spec) if g.name == control]
     out = where / 'results'
@@ -888,8 +883,7 @@ def all_groups(point: object, spec: dict) -> list:
 def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
     """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm. Its CPU
     clock is the split CPU's on the bus clock, which build.reused holds every build to."""
-    return (shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip,
-            getattr(args, 'with_gptp', False))
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip, args.with_gptp
 
 
 def built_as(spec: dict) -> tuple:
@@ -925,7 +919,7 @@ def main() -> int:
     else:
         try:
             spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
-                                 core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=getattr(args, 'with_gptp', False)))
+                                 core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=args.with_gptp))
         except builder.ClockRefusal as error:
             print(f'REFUSED {error}')
             return 1

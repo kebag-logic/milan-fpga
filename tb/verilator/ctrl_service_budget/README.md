@@ -508,6 +508,12 @@ A backlog window opens only on a drained event ring (`scenario.OPEN_WINDOW`, the
 Its fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits (`mailbox.yaml`, `KL_mbx_evt.sv`), so with k records held only 16 - k + 1 of them commit: the defined load needs a ring the core has drained, which no fixed wait gives a CPU whose pass is longer than that wait.
 The self-test counts every window's stimulus against the same loads, restated, so a scenario that drops a channel from its stimulus and from its own declaration together still fails.
 
+The defined load covers the channels the image opened, not every channel the contract names (#884, contract 2.5's `gptp` channel).
+The testbench prints each `FILTER_EN` write as `OPEN <cycle> <gate>`, and `channel_gate.py` reads the image's last gate, each bit named by the contract's channel table.
+A log with no `FILTER_EN` write is refused, never read as every channel.
+An opened channel with no load frame in `grade.LOAD_FRAME_BYTES` is refused too, so the rule cannot hide load.
+An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst of Follow_Up records.
+
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
 A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither its budget nor its ceiling.
@@ -519,7 +525,9 @@ A run that did not include every backlog row names the rows not run, and its fig
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 20 ms.
-Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family but gptp.
+The gptp family's 10 ms is provisional until the owner rules (#884): it is the Pdelay turnaround of IEEE 802.1AS-2011 B.2.3 itself, not a tenth of it, and only `gptp_group.py`'s probe reads it.
+It does not enter THE SHARE (`share.EXCLUDED`), which stays the approved T_svc over ten passes, 2 ms.
 A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
 A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 

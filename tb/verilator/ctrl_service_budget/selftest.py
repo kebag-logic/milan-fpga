@@ -16,8 +16,8 @@ of an absent log, the reuse attestation, the instruction cache's observers and X
 arm the run builds, records and reuses run on temporary files. Then each rule is mutated in turn, and a named check
 must fail; a mutant of a headline figure (the worst pass, the composed maximum, a pass bound) fails on that figure.
 
-Regenerate the fixture only through its generator, from a fresh 'fixture' group run at 1x1 on the cacheless core it
-was recorded on (--fetch-l1 none):
+Regenerate the fixture only through its generator, from a fresh 'fixture' group run at 1x1 on the split SoC it was
+recorded on (the default --fetch-l1 split), whose FILTER_EN write is the gate #884's ruling A reads (OPEN):
 
     python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
 """
@@ -47,6 +47,7 @@ import selftest_mutants  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
+from selftest_opened import fixture_clocks, fixture_open, opened_checks, planted_probe  # noqa: E402
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
 from selftest_held import held_checks  # noqa: E402
@@ -56,9 +57,9 @@ from selftest_share import (burst_checks, clock_checks, held_load_checks, save_c
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
-#: The grader's two clocks: the fixture's, recorded with the CPU on the Milan clock at half the bus
-#: clock, so a conversion that confuses them fails. The product's split CPU runs on the bus clock
-#: itself (#665; selftest_share.clock_checks).
+#: The synthetic logs' two clocks: the CPU at half the bus clock, so a conversion that confuses them fails. The
+#: committed trace is graded at the clocks it was recorded at (selftest_opened.fixture_clocks): the product's split
+#: CPU runs on the bus clock itself (#665; selftest_share.clock_checks).
 SYS_HZ, CPU_HZ = 100_000_000, 50_000_000
 PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_budget', 'within_ceiling',
           'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_budget',
@@ -88,15 +89,9 @@ def fixture_group(oracle: dict) -> scenario.Group:
     return scenario.fixture_groups(scenario.Point(**oracle['point']))[0]
 
 
-def fixture_clocks(oracle: dict) -> tuple[int, int]:
-    """The system and CPU clocks the committed trace was recorded at (write_fixture pins them): its cycles are graded
-    at its own SoC's clocks, not at the synthetic logs' SYS_HZ and CPU_HZ."""
-    return oracle['clocks']['sys_hz'], oracle['clocks']['cpu_hz']
-
-
-def regraded(oracle: dict, text: str | None = None) -> dict:
-    """The committed trace (or a planted copy of it), graded now."""
-    return grade.grade(text or FIXTURE_LOG.read_text(), fixture_group(oracle), *fixture_clocks(oracle))
+def regraded(oracle: dict, text: str | None = None, group: scenario.Group | None = None) -> dict:
+    """The committed trace (or a planted copy of it), graded now, as its own group or as group."""
+    return grade.grade(text or FIXTURE_LOG.read_text(), group or fixture_group(oracle), *fixture_clocks(oracle))
 
 
 def headline(result: dict) -> dict:
@@ -111,10 +106,8 @@ def headline(result: dict) -> dict:
 
 
 def synthetic(lines: list[str]) -> str:
-    """A minimal log in the testbench's line format, completed; its image's channel gate is the committed trace's
-    (sim_main.cpp prints every FILTER_EN write, OPEN, and the grader reads the opened channels from it)."""
-    gate = sum(1 << c.ident for c in grade.CONTRACT.channels if c.name in grade.fixture_opened())
-    return '\n'.join([f'OPEN 0 {gate:x}', *lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
+    """A minimal log in the testbench's line format, completed, its image's gate the committed trace's (OPEN)."""
+    return '\n'.join([fixture_open(), *lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
 
 
 def one(log: str, probe: scenario.Probe) -> dict:
@@ -184,12 +177,12 @@ def fixture_checks() -> list[Check]:
     got = headline(result)
     out.append(('fixture passes: worst pass and composed maximum', got == oracle['passes'],
                 differences(got, oracle['passes'])))
-    # A planted over-budget path in the recorded trace: the BIND_RX response moved past its 20 ms budget.
-    row = oracle['rows']['fixture.bind_rx.if0']
+    # A planted over-budget path in the recorded trace: a response moved past its 20 ms budget (planted_probe).
+    name, row = planted_probe(fixture_group(oracle), oracle['rows'], FIXTURE_LOG.read_text())
     late = row['start_sys'] + 2_000_001
     planted = re.sub(rf'^TXC {row["end_sys"]} ', f'TXC {late} ', FIXTURE_LOG.read_text(), count=1, flags=re.M)
     planted = re.sub(rf'\b{row["end_sys"]}:', f'{late}:', planted)
-    hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}['fixture.bind_rx.if0']
+    hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}[name]
     caught = hit.get('status') == 'measured' and hit.get('within_budget') is False and hit.get('sys_cycles', 0) > 2e6
     out.append(('planted over-budget path is caught', caught, str({k: hit.get(k) for k in PINNED})))
     # A composed load with one channel left out (the MAAP record's commit deleted) is refused by name.
@@ -208,7 +201,7 @@ def fixture_checks() -> list[Check]:
     group = fixture_group(oracle)
     group.load.pop('maap')
     out.append(('a window short of its defined load is refused although it declares it',
-                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, *fixture_clocks(oracle))), ''))
+                "'maap': 0" in refusal(lambda: regraded(oracle, '\n'.join(dropped) + '\n', group)), ''))
     # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
     smaller = dict(grade.defined_load('fixture'), maap=0)
     with patch.object(grade, 'defined_load', lambda name, opened=None: smaller):
@@ -512,46 +505,6 @@ def points(oracle: dict) -> list[scenario.Point]:
     """The oracle's one-interface point and the same entity with two interfaces."""
     one_if = scenario.Point(**oracle['point'])
     return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
-
-
-def opened_checks() -> list[Check]:
-    """#884's ruling, A and B: a row's defined load covers the channels the image opened, read from its FILTER_EN
-    write (sim_main.cpp's OPEN lines), and an opened channel with no load frame is refused."""
-    out = []
-    log = grade.parse(FIXTURE_LOG.read_text(), SYS_HZ, CPU_HZ)
-    opened = grade.opened_channels(log)
-    out.append(("the fixture's image opened its five channels, gptp unopened",
-                opened == frozenset({'adp', 'acmp', 'aecp', 'maap', 'srp'}), str(sorted(opened))))
-    with_gptp = opened | {'gptp'}
-    gptp = next(c for c in grade.CONTRACT.channels if c.name == 'gptp')
-    want = min(gptp.burst, grade.room('gptp'))
-    load = grade.defined_load('backlog-adp', with_gptp)
-    out.append(('an image that opens gptp carries its admitted burst in the composed rows',
-                load.get('gptp') == want and {k: v for k, v in load.items() if k != 'gptp'} ==
-                grade.defined_load('backlog-adp', opened), str(load)))
-    out.append(('an unopened channel carries no defined load', 'gptp' not in grade.defined_load('backlog-adp', opened),
-                str(grade.defined_load('backlog-adp', opened))))
-    frame = grade.LOAD_FRAME_BYTES.pop('gptp')
-    try:
-        grade.defined_load('backlog-adp', with_gptp)
-        refused = False
-    except grade.Refusal as exc:
-        refused = 'no load frame defines' in str(exc)
-    finally:
-        grade.LOAD_FRAME_BYTES['gptp'] = frame
-    out.append(('an opened channel with no load frame is refused', refused, ''))
-    bare = grade.parse('\n'.join(ln for ln in FIXTURE_LOG.read_text().splitlines() if not ln.startswith('OPEN ')) + '\n',
-                       SYS_HZ, CPU_HZ)
-    try:
-        grade.opened_channels(bare)
-        refused = False
-    except grade.Refusal:
-        refused = True
-    out.append(('a log with no FILTER_EN write is refused, never read as every channel', refused, ''))
-    last = grade.parse(FIXTURE_LOG.read_text() + 'OPEN 1 3\n', SYS_HZ, CPU_HZ)
-    out.append(("the image's last gate is the one read", grade.opened_channels(last) == frozenset({'adp', 'acmp'}),
-                str(sorted(grade.opened_channels(last)))))
-    return out
 
 
 def load_checks() -> list[Check]:
@@ -969,7 +922,8 @@ def cache_build_checks() -> list[Check]:
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *opened_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *window_checks(), *opened_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(),
+            *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),
@@ -988,7 +942,6 @@ def write_fixture(log: Path, build_json: Path) -> None:
     text = log.read_text()
     records = re.findall(r'^EVW \d+ \d+ ([0-9a-f]+)$', text, re.M)
     deadlines = {int(records[k + 2], 16) for k in range(0, len(records) - 3, 4)}
-    # the saved-state store's traced calls (SPAN, CALL) are nvm_split_target's, which the fixture's rows never read
     kept = [line for line in text.splitlines()
             if not line.startswith(('SPAN ', 'CALL '))
             and (not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in deadlines)]

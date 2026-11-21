@@ -11,14 +11,14 @@ The product line keeps the [fabric plane](GPTP_PLANE.md) until the gPTP qualific
 
 ## Contents
 
-- **[Ownership](#ownership)** — What leaves the fabric, what stays, and who owns each piece.
-- **[The timestamp unit](#the-timestamp-unit)** — The two stamp points, the reconstruction and its guards, the record FIFO.
-- **[Contract 2.5](#contract-25)** — The gptp channel, the TIMESTAMP event and the gPTP publication.
-- **[The firmware port](#the-firmware-port)** — One IEEE 802.1AS end station an interface, behind a HAL.
-- **[Why not flexPTP as it is](#why-not-flexptp-as-it-is)** — The measured reasons for a fixed-point core.
-- **[Service bounds](#service-bounds)** — What each gPTP path is held to, and what is provisional.
-- **[Verification](#verification)** — The benches, their planted defects and the closed loop.
-- **[Open items](#open-items)** — What this round leaves, and what the owner decides.
+- **[Ownership](#ownership)** -- What leaves the fabric, what stays, and who owns each piece.
+- **[The timestamp unit](#the-timestamp-unit)** -- The two stamp points, the reconstruction and its guards, the record FIFO.
+- **[Contract 2.5](#contract-25)** -- The gptp channel, the TIMESTAMP event and the gPTP publication.
+- **[The firmware port](#the-firmware-port)** -- One IEEE 802.1AS end station an interface, behind a HAL.
+- **[Why not flexPTP as it is](#why-not-flexptp-as-it-is)** -- The measured reasons for a fixed-point core.
+- **[Service bounds](#service-bounds)** -- What each gPTP path is held to, and what is provisional.
+- **[Verification](#verification)** -- The benches, their planted defects and the closed loop.
+- **[Open items](#open-items)** -- What is left on this line, and what the owner decides.
 
 ## Ownership
 
@@ -133,7 +133,7 @@ That build is RV32IM, `-Os`, OS-less, every port hook stubbed.
 
 The split hart has no FPU and its image links no libm.
 Two ports would need a donor change to flexPTP's global state.
-So this round ports a minimal fixed-point core behind the same HAL.
+So this line ports a minimal fixed-point core behind the same HAL.
 flexPTP's 802.1AS decisions informed it: asCapable rules, the delay median, the rate window.
 Adopting flexPTP itself instead is an owner decision.
 
@@ -149,6 +149,10 @@ NFR-SCOUT-03 requires each gPTP path to state and test its firmware service boun
 
 The 10 ms row is a new family, `gptp`, in the harness.
 No existing row reads it, and the owner decides it.
+It stays out of THE SHARE, which remains the approved T_svc over ten passes.
+
+A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
+An image without gPTP opens five, so every existing row is unchanged ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
 
 ## Verification
 
@@ -169,4 +173,6 @@ Its peer is an independent model with its own clock.
 - The 8x8 images with gPTP exceed the memory ledger: 58.5 and 63.5 RAMB36.
 - A second PHC and timestamp unit come with the second MAC.
 - The pad-oracle bench, `tb/verilator/gptp_txts`, still grades the plane's ledger, not the unit.
+- The publication census elaborates the split with the plane; it rules the gPTP ports (`census_split.GPTP_SW_ONLY`), and a `GPTP_SW_EN_P` shape is owed.
+- The rows model counts no gPTP work: `gptp/` links only into a `--with-gptp` image, and no row's image is one.
 - The bench qualification of the 802.1AS clauses is owed before this line ships.

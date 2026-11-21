@@ -20,13 +20,17 @@ import scenario
 
 #: The passes that must fit the tightest bound (ctrl_loop.h, THE SHARE).
 SHARE_PASSES = 10
+#: The families the share is not derived from. THE SHARE is the approved T_svc over SHARE_PASSES passes; a
+#: provisional family entering it would halve the share every row is held to, a change to approved bounds. The
+#: gptp family (scenario.CEILING_MS, #884) holds its own rows to its 10 ms; whether the share follows is the owner's.
+EXCLUDED = frozenset({'gptp'})
 
 
 def bound_ms() -> float:
     """The smallest bound every input shares: the least of min(T_svc, ceiling) over the families, less the
-    provisional ones (scenario.SHARE_EXCLUDED)."""
+    provisional ones (EXCLUDED)."""
     return min(min(scenario.T_SVC_MS, ceiling) for family, ceiling in scenario.CEILING_MS.items()
-               if family not in scenario.SHARE_EXCLUDED)
+               if family not in EXCLUDED)
 
 
 def share_ms() -> float:

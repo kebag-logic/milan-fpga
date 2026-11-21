@@ -169,12 +169,14 @@ struct mbx_model {
 	uint16_t ctr_epoch_ms;
 	// the timestamp units' FIFOs (contract 2.5): KL_gptp_tsu's depth, one per interface
 	struct mbx_model_ts {
-		bool egress, ok;
+		bool egress;
+		bool ok;
 		uint8_t msg_type;
 		uint16_t seq;
 		uint64_t ns;
 	} ts[MBX_N_IF][MBX_MODEL_TS_DEPTH];
-	uint8_t ts_head[MBX_N_IF], ts_count[MBX_N_IF];
+	uint8_t ts_head[MBX_N_IF];
+	uint8_t ts_count[MBX_N_IF];
 	uint16_t ts_drop[MBX_N_IF];                     // records a full FIFO lost (the CSR's GPTP_DROPW[31:16])
 	uint8_t tx_last_ch;
 	bool tx_paused;

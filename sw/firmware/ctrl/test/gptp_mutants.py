@@ -47,8 +47,11 @@ MUTANTS = (
     Mutant("delay-without-nrr", C, "d = (int64_t)rtt + (((int64_t)rtt * p->pd.nrr_q32) >> 32) - (int64_t)turn;",
            "d = (int64_t)rtt - (int64_t)turn;", ARM,
            "Scripted.RateRatioAndDelayWithAFastNeighbor", "the delay ignores the neighbor's rate"),
-    Mutant("cease-one-late", C, "if (++p->pd.multi_run >= GPTP_CEASE_N) {\n\t\t\tp->pd.ceased = true;\n\t\t\tp->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;\n\t\t}\n\t\treturn;",
-           "if (++p->pd.multi_run > GPTP_CEASE_N) {\n\t\t\tp->pd.ceased = true;\n\t\t\tp->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;\n\t\t}\n\t\treturn;",
+    Mutant("cease-one-late", C,
+           "if (++p->pd.multi_run >= GPTP_CEASE_N) {\n\t\t\tp->pd.ceased = true;\n"
+           "\t\t\tp->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;\n\t\t}\n\t\treturn;",
+           "if (++p->pd.multi_run > GPTP_CEASE_N) {\n\t\t\tp->pd.ceased = true;\n"
+           "\t\t\tp->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;\n\t\t}\n\t\treturn;",
            ARM, "Scripted.MultipleRespondersCeaseAndALinkToggleResumes", "Pdelay_Req still sent during the cease"),
     Mutant("cease-survives-link-toggle", C, "\tp->pd.ceased = false;     // each link edge", "\t// each link edge", ARM,
            "Scripted.MultipleRespondersCeaseAndALinkToggleResumes", "the link toggle did not end the cease"),
@@ -59,7 +62,8 @@ MUTANTS = (
            "Scripted.LoopedPathAndStepsRemoved255AreDiscarded", "a path holding thisClock was used"),
     Mutant("sync-timeout-500", H, "#define GPTP_SYNC_RTO_MS 375u", "#define GPTP_SYNC_RTO_MS 500u", ARM,
            "Scripted.SyncReceiptTimeoutAgesTheGrandmaster", "no Sync for 375 ms did not age the grandmaster"),
-    Mutant("sync-any-source", C, "if (p->role != GPTP_ROLE_SLAVE || memcmp(f + F_SRC, p->ann.v.src, 10))\n\t\treturn;   // Sync only",
+    Mutant("sync-any-source", C,
+           "if (p->role != GPTP_ROLE_SLAVE || memcmp(f + F_SRC, p->ann.v.src, 10))\n\t\treturn;   // Sync only",
            "if (p->role != GPTP_ROLE_SLAVE)\n\t\treturn;   // Sync only", ARM,
            "Scripted.SyncFromAnotherPortIsIgnored", "another port's Sync displaced the master's pending Sync"),
     Mutant("linkup-threshold-lost", C, "p->srv.linkup ? GPTP_STEP_LINKUP_NS : GPTP_STEP_LOCKED_NS",
@@ -89,9 +93,11 @@ MUTANTS = (
     Mutant("late-stamp-unpaired", C, "} else if (msg_type == GPTP_MSG_PDELAY_REQ && p->rsp.resp_owed",
            "} else if (0 && msg_type == GPTP_MSG_PDELAY_REQ && p->rsp.resp_owed", ARM,
            "Scripted.ResponderTakesAStampThatComesAfterItsFrame", "a stamp read after its frame was never paired"),
-    Mutant("slave-timer-stale", C, "\t\tp->slv.last_ms = p->now_ms;   // the sync receipt timer starts", "\t\tp->slv.last_ms = p->slv.last_ms;   // the sync receipt timer starts",
+    Mutant("slave-timer-stale", C, "\t\tp->slv.last_ms = p->now_ms;   // the sync receipt timer starts",
+           "\t\tp->slv.last_ms = p->slv.last_ms;   // the sync receipt timer starts",
            ARM, "Net.SlaveLocksToTheGrandmaster", "not inside 100 ns of the grandmaster by 15 s"),
-    Mutant("own-frames-used", C, "if (from_self(p, frame))\n\t\treturn;", "if (from_self(p, frame) && 0)\n\t\treturn;", ARM,
+    Mutant("own-frames-used", C, "if (from_self(p, frame))\n\t\treturn;", "if (from_self(p, frame) && 0)\n\t\treturn;",
+           ARM,
            "Scripted.OwnResponseIsIgnored", "asCapable from its own responses"),
     Mutant("link-loss-keeps-ascap", C, "\tp->pd.as_capable = false;        // a link loss", "\t// a link loss", ARM,
            "Scripted.LinkDownClearsAsCapableAtOnce", "asCapable came back with the link before any exchange"),
@@ -112,6 +118,8 @@ def planted_tree(base: Path, mutant: Mutant | None) -> Path:
 
 
 def run_one(out: Path, mutant: Mutant | None) -> tuple[str, bool, str]:
+    """One arm under out/<name>: the unplanted port must pass; a planted one must fail its named test with its
+    words. Returns the name, whether it did, and the line that says so."""
     name = mutant.name if mutant else "baseline"
     base = out / name
     if base.exists():
@@ -135,6 +143,7 @@ def run_one(out: Path, mutant: Mutant | None) -> tuple[str, bool, str]:
 
 
 def main() -> int:
+    """The baseline, then every planted defect in parallel; any survivor, miss or refusal fails the campaign."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--build-dir", type=Path)
     ap.add_argument("--jobs", type=int, default=8)

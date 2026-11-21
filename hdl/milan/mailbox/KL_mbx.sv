@@ -161,7 +161,7 @@ module KL_mbx
   input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i,   //! an edit's commit beat changed the live map
   // the timestamp units' records (minor 5), one at a time per interface
   input  wire  [MBX_N_IF_C-1:0] ts_valid_i,   //! a record waits on ts_data_i
-  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i,   //! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} per interface
+  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i,   //! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP} per interface, STAMP the PHC's 64-bit time
   output logic [MBX_N_IF_C-1:0] ts_take_p_o   //! one-cycle pulse: the record was posted
 );
 

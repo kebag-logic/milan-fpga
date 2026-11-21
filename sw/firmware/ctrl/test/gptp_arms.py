@@ -29,6 +29,7 @@ FLOAT_SYMBOLS = ("__adddf3", "__subdf3", "__muldf3", "__divdf3", "__addsf3", "__
 
 
 def include(tree: Tree) -> tuple[str, ...]:
+    """The port's include directory, for the host and the RV32 builds."""
     return (f"-I{tree.src / 'gptp'}",)
 
 
@@ -89,4 +90,5 @@ def arm_gptp_rv32(tree: Tree, require: bool) -> Outcome:
 
 
 def all_arms(tree: Tree, require_rv32: bool = False) -> list[Outcome]:
+    """Both arms; require_rv32 refuses a tree with no RV32 compiler instead of skipping its arm."""
     return [arm_gptp(tree), arm_gptp_rv32(tree, require_rv32)]

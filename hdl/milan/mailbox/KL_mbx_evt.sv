@@ -84,7 +84,7 @@ module KL_mbx_evt
   input  wire  [MBX_N_IF_C-1:0]         amap_wr_p_i,        //! one-cycle pulse per interface: an edit's commit changed the live map
 
   input  wire  [MBX_N_IF_C-1:0]         ts_valid_i,         //! a timestamp unit's record waits on ts_data_i
-  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i, //! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS} per interface
+  input  wire  [MBX_N_IF_C*MBX_TS_REC_BITS_C-1:0] ts_data_i, //! {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP} per interface, STAMP the PHC's 64-bit time
   output logic [MBX_N_IF_C-1:0]         ts_take_p_o,        //! one-cycle pulse: that record was taken for posting
 
   input  wire  [15:0]                   evt_tail_words_i,   //! EVT_TAIL, words the core consumed
@@ -282,7 +282,7 @@ module KL_mbx_evt
         w3_w = now_ms_i << MBX_EV_TIMER_W3_NOW_MS_LSB_C;
       end
       SRC_TS_S: begin
-        // the record's layout on ts_data_i: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS}, NS lowest
+        // the record's layout on ts_data_i: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP}, STAMP lowest, in ns
         w1_w = mbx_place_f(32'(ts[79:64]), MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB_C, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH_C)
              | mbx_place_f(32'(ts[83:80]), MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB_C, MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH_C)
              | mbx_place_f(32'(ts[85]), MBX_EV_TIMESTAMP_W1_EGRESS_LSB_C, MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH_C)

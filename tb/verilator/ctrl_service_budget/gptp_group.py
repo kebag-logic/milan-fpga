@@ -35,6 +35,14 @@ def pdelay_req(seq: int) -> bytes:
     return bytes(f)
 
 
+def hits(frames: list[tuple[int, bytes]], args: list[str]) -> list[int]:
+    """The cycles of the frames that are an IEEE 802.1AS message (EtherType 0x88F7) of messageType args[1] and, when
+    args[2] is given, of that sequenceId in hex: a probe's `gptp:<ch>:<messageType>[:<sequenceId>]` end."""
+    seq = int(args[2], 16) if len(args) > 2 else None
+    return [c for c, fr in frames if len(fr) > 45 and fr[12:14] == b'\x88\xf7'
+            and fr[14] & 0xF == int(args[1]) and (seq is None or int.from_bytes(fr[44:46], 'big') == seq)]
+
+
 def groups(p: Point, build: dict) -> list[Group]:
     """A grandmaster peer and a slave peer on interface 0, the entity's ports up for SIM_MS each."""
     if not build.get('gptp'):

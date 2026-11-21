@@ -39,7 +39,8 @@ extern "C" {
 
 namespace {
 
-int checks = 0, failures = 0;
+int checks = 0;
+int failures = 0;
 void check(bool ok, const std::string &what, double got = 0, double exp = 0)
 {
 	checks++;
@@ -78,15 +79,23 @@ uint64_t ts10_get(const Bytes &f, size_t at)
 // ---- the peer: an independent model of a one-port 802.1AS time-aware system -------------------------------------
 struct Peer {
 	bool gm;                       // grandmaster (priority1 100), or a slave (250)
-	long double ppm, base_ns;      // its clock: base_ns + t * (1 + ppm 1e-6 + trim)
+	long double ppm;      // its clock: base_ns + t * (1 + ppm 1e-6 + trim)
+	long double base_ns;
 	long double trim = 0;          // its own servo's rate correction (the slave)
 	long double t_base = 0;
 	uint64_t clock_id = 0x02AABBFFFE000001ull;
-	uint16_t sync_seq = 0, ann_seq = 0, preq_seq = 0;
-	long double next_sync = 0, next_ann = 0, next_preq = 0;
+	uint16_t sync_seq = 0;
+	uint16_t ann_seq = 0;
+	uint16_t preq_seq = 0;
+	long double next_sync = 0;
+	long double next_ann = 0;
+	long double next_preq = 0;
 	// its own Pdelay as initiator
 	uint16_t req_seq = 0;
-	long double t1 = 0, t4 = 0, t2 = 0, t3 = 0;
+	long double t1 = 0;
+	long double t4 = 0;
+	long double t2 = 0;
+	long double t3 = 0;
 	bool have_resp = false;
 	std::vector<double> delays;
 	// as a slave: the master's Sync waiting for its Follow_Up
@@ -125,7 +134,8 @@ struct Pending { long double t_ns; Bytes f; };   // a frame the peer sends, arri
 struct Bench {
 	Vtb_gptp_sw t;
 	uint64_t now_ps = 0;
-	uint64_t next_dp = 0, next_eth = 0;   // the next rising edge of each clock
+	uint64_t next_dp = 0;   // the next rising edge of each clock
+	uint64_t next_eth = 0;
 	bool eth_on = false;
 	uint64_t eth_until_ps = 0;
 	// firmware
@@ -164,7 +174,7 @@ struct Bench {
 			if (std::getenv("GPTP_SW_DEBUG") && rx_frame.size() > 45)
 				std::printf("    TAP type %x seq %u due %.1f at %.1f ns, PHC %llu\n", rx_frame[14] & 0xF,
 					    unsigned(rd(rx_frame, 44, 2)), double(to_dut.front().t_ns), double(ns()),
-					    (unsigned long long)t.phc_ns_o);
+					    static_cast<unsigned long long>(t.phc_ns_o));
 			to_dut.pop_front();
 			rx_at = 0;
 			rx_busy = true;
@@ -208,7 +218,7 @@ struct Bench {
 					    uint16_t(hi & 0xFFFFu), ns_v);
 			if (std::getenv("GPTP_SW_DEBUG"))
 				std::printf("    STAMP %s ok %u type %x seq %u ns %llu at %.1f\n", ((hi >> 21) & 1u) ? "egress" : "ingress",
-					    (hi >> 20) & 1u, (hi >> 16) & 0xFu, hi & 0xFFFFu, (unsigned long long)ns_v, double(ns()));
+					    (hi >> 20) & 1u, (hi >> 16) & 0xFu, hi & 0xFFFFu, static_cast<unsigned long long>(ns_v), double(ns()));
 			t.ts_take_i = 1;
 		}
 	}
@@ -275,7 +285,8 @@ struct Bench {
 	}
 
 	// the firmware's loop, every 50 us; NOW_MS every millisecond
-	uint64_t next_service_ps = 0, next_ms_ps = 0;
+	uint64_t next_service_ps = 0;
+	uint64_t next_ms_ps = 0;
 	unsigned dbg_used = 0;
 	void service()
 	{
@@ -472,9 +483,9 @@ int main(int argc, char **argv)
 		Bench b;
 		b.start(true, 40.0L, 1'000'000'000'000.0L);
 		b.run_until(4.2e9L);
-		std::printf("pd t1 %llu t2 %llu t3 %llu t4 %llu delay %d lost %u done %u\n", (unsigned long long)b.g.port[0].pd.t1,
-			    (unsigned long long)b.g.port[0].pd.t2, (unsigned long long)b.g.port[0].pd.t3,
-			    (unsigned long long)b.g.port[0].pd.t4, b.g.port[0].pd.delay_ns, b.g.port[0].ctr.pd_lost,
+		std::printf("pd t1 %llu t2 %llu t3 %llu t4 %llu delay %d lost %u done %u\n", static_cast<unsigned long long>(b.g.port[0].pd.t1),
+			    static_cast<unsigned long long>(b.g.port[0].pd.t2), static_cast<unsigned long long>(b.g.port[0].pd.t3),
+			    static_cast<unsigned long long>(b.g.port[0].pd.t4), b.g.port[0].pd.delay_ns, b.g.port[0].ctr.pd_lost,
 			    b.g.port[0].ctr.pd_done);
 		return 0;
 	}
@@ -507,7 +518,7 @@ int main(int argc, char **argv)
 		std::printf("[ SLAVE ] role %d, asCapable %d, GM %016llx, steps %u, lock (PHC within 100 ns of the GM) %.1f s, "
 			    "then worst |offset| %.1f ns; pdelay %d ns; ts lost %u\n",
 			    int(gptp_port_role(&b.g.port[0])), int(b.g.port[0].pub.as_capable),
-			    (unsigned long long)b.g.port[0].pub.gm_id, b.g.port[0].ctr.steps, lock, worst,
+			    static_cast<unsigned long long>(b.g.port[0].pub.gm_id), b.g.port[0].ctr.steps, lock, worst,
 			    b.g.port[0].pub.pdelay_ns, unsigned(b.t.ts_lost_o));
 		for (size_t i = 0; i < trace.size(); i += 10)
 			std::printf("    t=%4.1f s  PHC - GM = %14.1f ns   (the port: %s)\n", trace[i].first, trace[i].second,
@@ -544,7 +555,7 @@ int main(int argc, char **argv)
 		std::printf("[ MASTER ] role %d, asCapable %d, GM %016llx, peer slave pairs %zu, lock (peer within 100 ns "
 			    "of the PHC) %.1f s, then worst |offset| %.1f ns; peer's link delay %.1f ns\n",
 			    int(gptp_port_role(&b.g.port[0])), int(b.g.port[0].pub.as_capable),
-			    (unsigned long long)b.g.port[0].pub.gm_id, b.peer.slave_offsets.size(), lock, worst,
+			    static_cast<unsigned long long>(b.g.port[0].pub.gm_id), b.peer.slave_offsets.size(), lock, worst,
 			    b.peer.delays.empty() ? -1.0 : b.peer.delays.back());
 		for (size_t i = 0; i < trace.size(); i += 10)
 			std::printf("    t=%4.1f s  PHC - peer = %14.1f ns\n", trace[i].first, trace[i].second);

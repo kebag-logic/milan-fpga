@@ -29,6 +29,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import answers
+import channel_gate
+import gptp_group
 import held
 import join_grade
 import mrpdu_grade
@@ -42,8 +44,8 @@ import scenario
 import shape_costs
 import share
 import whole_grade
+from refusal import Refusal
 
-HERE = Path(__file__).resolve().parent
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
 EVENT = {e.value: e.name for e in scenario.CONTRACT.event_types}
@@ -58,21 +60,14 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: never from the stimulus: an ADPDU is 68 bytes after the Ethernet header (IEEE 1722.1-2021
 #: 6.2.1) and an ACMPDU 56 (Milan v1.2 5.5.2.2); a READ_DESCRIPTOR command (7.4.5.1), a MAAPDU
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
-#: to the 60-byte frame minimum.
-LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60,
-                    # contract 2.5 (#884): a Follow_Up with its information TLV, 76 bytes after the Ethernet
-                    # header (IEEE 802.1AS-2020 11.4.4), the message a slave port's servo runs on
-                    'gptp': 14 + 76}
+#: to the 60-byte frame minimum. A gPTP Follow_Up with its TLV is 76 (IEEE 802.1AS-2020 11.4.4; #884).
+LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60, 'gptp': 14 + 76}
 #: The backlog rows (MAILBOX_SPLIT.md:773-778): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
 #: self-test's short window. A save's windows (save_window.py) carry their backlog row's.
 COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
-
-
-class Refusal(RuntimeError):
-    """A log or a probe the grader cannot accept; the message names the rule."""
 
 
 @dataclass
@@ -119,8 +114,7 @@ class Log:
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
     writes: list[tuple[int, int, int]] = field(default_factory=list)
-    #: cycle and value of each FILTER_EN write the image made (sim_main.cpp's OPEN): its channel gate
-    opened: list[tuple[int, int]] = field(default_factory=list)
+    opened: list[tuple[int, int]] = field(default_factory=list)  # cycle, gate of each FILTER_EN write (OPEN)
     tx: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     commits: list[tuple[int, int, int]] = field(default_factory=list)    # cycle, channel, head of each TX_HEAD write
     wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
@@ -192,7 +186,7 @@ def entry(log: Log, kind: str, rest: list[str]) -> None:
 
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
     """Every observation line; a line the testbench does not print is refused."""
-    log = Log(sys_hz, cpu_hz)
+    log = Log(sys_hz, cpu_hz, opened=channel_gate.writes(text))
     pending_rx: list[tuple[int, str, int, int]] = []   # interface, tag, bytes, last byte of frames not yet committed
     rxs = (0, '-', 0)
     evt: dict[int, tuple[int, int]] = {}
@@ -232,8 +226,6 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             if addr % 4 == 3 and all(a in evt for a in range(addr - 3, addr + 1)):
                 words = [evt.pop(a)[1] for a in range(addr - 3, addr + 1)]
                 log.records.append((cycle, words))
-        elif kind == 'OPEN':
-            log.opened.append((int(rest[0]), int(rest[1], 16)))
         elif kind == 'TXC':
             commits.append((int(rest[0]), int(rest[1]), int(rest[2])))
         elif kind == 'WIRE':  # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
@@ -280,7 +272,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA', 'OPEN'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -434,10 +426,7 @@ class Grader:
             if kind == 'resp':
                 hits = [c for c, fr in frames if response_sequence(fr) == int(args[1], 16)]
             elif kind == 'gptp':
-                # gptp:<ch>:<messageType>[:<sequenceId hex>]: an IEEE 802.1AS message of that type (#884)
-                seq = int(args[2], 16) if len(args) > 2 else None
-                hits = [c for c, fr in frames if len(fr) > 45 and fr[12:14] == b'\x88\xf7'
-                        and fr[14] & 0xF == int(args[1]) and (seq is None or int.from_bytes(fr[44:46], 'big') == seq)]
+                hits = gptp_group.hits(frames, args)
             elif kind in ('maap', 'adp'):
                 subtype = 0xFE if kind == 'maap' else 0xFA
                 hits = [c for c, fr in frames if len(fr) > 16 and fr[14] == subtype and fr[15] & 0xF == int(args[1])]
@@ -748,28 +737,9 @@ def room(channel: str) -> int:
     return ch.rx_words // (RX_HEADER_WORDS + (LOAD_FRAME_BYTES[channel] + 3) // 4)
 
 
-def opened_channels(log: Log) -> frozenset[str]:
-    """The channels the image under test opened: the bits of the last FILTER_EN it wrote (ctrl_loop_open writes the
-    gate of every channel it bound), each named by the contract's generated channel table (mailbox.yaml ids), never a
-    hand list (#884's ruling, A). A log with no FILTER_EN write is refused: its image's channels are not known."""
-    gates = [value for _, value in log.opened if value]
-    if not gates:
-        raise Refusal('the log records no FILTER_EN write: the channels its image opened are not known')
-    return frozenset(ch.name for ch in CONTRACT.channels if (gates[-1] >> ch.ident) & 1)
-
-
-def fixture_opened() -> frozenset[str]:
-    """The channels the committed trace's image opened (selftest.py's fixture.log): the opened set of a caller that
-    grades no log of its own."""
-    return opened_channels(parse((HERE / 'fixture.log').read_text(), 1, 1))
-
-
 def defined_load(name: str, opened: frozenset[str] | None = None) -> dict[str, int]:
     """The population a composed row's window must commit, from the contract alone and never from the stimulus's
-    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc), over the channels the image opened (`opened`, read from
-    its log by opened_channels; by default the committed trace's): a channel the image never opens carries no
-    defined load, and an opened channel with no load frame is refused, so the rule cannot hide load (#884's ruling,
-    A and B). With gptp unopened every existing row's population is unchanged.
+    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc), over the channels the image opened (channel_gate.loaded).
 
     Every receive channel carries what one instant admits: its token bucket's burst, unless its ring holds fewer records
     of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills the ring's room. Grandmaster changes fill the event
@@ -780,11 +750,7 @@ def defined_load(name: str, opened: frozenset[str] | None = None) -> dict[str, i
     name = save_window.row(name)
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
-    opened = fixture_opened() if opened is None else opened
-    unframed = sorted(ch for ch in opened if ch not in LOAD_FRAME_BYTES)
-    if unframed:
-        raise Refusal(f'{name}: the image opens {unframed}, which no load frame defines (LOAD_FRAME_BYTES)')
-    channels = [ch for ch in CONTRACT.channels if ch.name in opened]
+    channels = channel_gate.loaded(name, opened, LOAD_FRAME_BYTES)
     if name == 'fixture':
         return {**{ch.name: 1 for ch in channels}, 'GM': 2}
     load = {ch.name: min(ch.burst, room(ch.name)) for ch in channels}
@@ -918,7 +884,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     got = population(grader.log, start, end)
     held = grader.events_held(start)
     check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held,
-               opened_channels(grader.log))
+               channel_gate.opened(grader.log.opened))
     save_phase(grader.log, group.name, start)
     aged = save_grade.aged_window(grader, group, start, end)
     inside = composed_passes(grader.log, start, end)

@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 84 modules · 83 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 85 modules · 84 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,8 +32,8 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "ieee8021q", "ieee8021as", "common", "milan"]
     y-axis "modules" 0 --> 41
-    bar [40, 1, 8, 9, 10, 16]
-    bar [39, 1, 8, 9, 10, 16]
+    bar [40, 1, 8, 10, 10, 16]
+    bar [39, 1, 8, 10, 10, 16]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -43,7 +43,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | IEEE 1722 (AVTP) | 40 | 39 | 0 | 31 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
-| IEEE 802.1AS | 9 | 9 | 0 | 0 | 0 | 0 |
+| IEEE 802.1AS | 10 | 10 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 | Milan integration | 16 | 16 | 0 | 0 | 0 | 0 |
 
@@ -125,15 +125,16 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_gptp_gmii_launch` | `ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `tsn_fuzz` | 8.4.3 |
+| ✅ `KL_gptp_gmii_launch` | `ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv` | `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `tsn_fuzz` | 8.4.3 |
 | ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.4.3 |
 | ✅ `KL_gptp_txret` | `ieee8021as/gptp_plane/KL_gptp_txret.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.4.3 |
 | ✅ `KL_gptp_txticket` | `ieee8021as/gptp_plane/KL_gptp_txticket.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_gptp_tsu` | `ieee8021as/gptp_tsu/KL_gptp_tsu.sv` | `gptp_sw` · `gptp_tsu` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `gptp_tables` · `milan_dp` · `milan_dp_mclk` · `tsn_fuzz` · ➰capture_coherence,milan_dp_render | -- |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `milan_dp` · `ptp_sync` · `ptp_ts` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `ptp_ts` | -- |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `ptp_ts` | -- |
-| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.2 |
+| ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.2 |
 
 ## Common / integration
 
@@ -143,9 +144,9 @@ _CSR, CDC, RMON, utilities_
 |---|---|---|---|
 | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `capture_coherence` · `i2spb` · `media_phase` · `milan_dp` · `milan_dp_render` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_mclk | -- |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |

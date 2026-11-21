@@ -86,17 +86,17 @@ module KL_gptp_tsu #(
     //! ---- the launch observer's records, already in this domain
     input  wire                       rec_valid_i,
     input  wire                       rec_kind_i,   //! 0 = frame, 1 = echo
-    input  wire [TXTS_OIDX_W_P-1:0]   rec_oidx_i,
-    input  wire [TXTS_GEN_W_P-1:0]    rec_gen_i,
-    input  wire [3:0]                 rec_type_i,
-    input  wire [15:0]                rec_seq_i,
-    input  wire [TXTS_DELTA_W_P-1:0]  rec_delta_i,
-    input  wire                       rec_abort_i,
+    input  wire [TXTS_OIDX_W_P-1:0]   rec_oidx_i,   //! the observer's position, unused: records are keyed
+    input  wire [TXTS_GEN_W_P-1:0]    rec_gen_i,    //! the generation the observer adopted
+    input  wire [3:0]                 rec_type_i,   //! the frame's messageType
+    input  wire [15:0]                rec_seq_i,    //! the frame's sequenceId
+    input  wire [TXTS_DELTA_W_P-1:0]  rec_delta_i,  //! the observer's measured distance, against TXTS_DELTA_EXP_P
+    input  wire                       rec_abort_i,  //! the launch was aborted: no measurement
     //! ---- the seal offered to the observer
     output logic                      seal_req_o,
     output logic [TXTS_GEN_W_P-1:0]   seal_gen_o,
     input  wire                       seal_ack_i,
-    //! ---- the records: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS}, NS lowest
+    //! ---- the records: {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP}, STAMP lowest, the PHC's 64-bit time
     output logic                      ts_valid_o,
     output logic [85:0]               ts_data_o,
     input  wire                       ts_take_p_i,

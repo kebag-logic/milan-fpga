@@ -247,7 +247,7 @@ Some reset values depend on these parameters.
 | `N_LISTENERS_P` | `N_STREAMS` | 1 |
 | `N_TALKERS_P` | `N_STREAMS` | 1 |
 | `SRP_LSN0_ROW_P` | `SRP_LSN0_ROW_C` | 2 |
-| `GPTP_PLANE_EN_P` | `GPTP_PLANE_EN_P` | 1 |
+| `GPTP_PLANE_EN_P` | `GPTP_OWNER_C` | 1 |
 | `MILAN_CLK_FREQ_HZ_P` | `MILAN_CLK_FREQ_HZ` | 50,000,000 |
 | `CHMAP_RDBK_P` | `3` | 3 |
 | `PPS_P` | `PPS_P` | 0 |

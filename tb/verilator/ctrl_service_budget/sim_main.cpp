@@ -823,7 +823,8 @@ private:
         ts_q_[iface].push_back({egress, true, unsigned(f[14] & 0x0F), unsigned(f[44] << 8 | f[45]), ns});
     }
     struct Peer {
-        bool on = false, gm = true;
+        bool on = false;
+        bool gm = true;
         unsigned iface = 0;
         std::uint64_t next_sync = 0, next_ann = 0, next_preq = 0;
         unsigned sync_seq = 0, ann_seq = 0, preq_seq = 0;

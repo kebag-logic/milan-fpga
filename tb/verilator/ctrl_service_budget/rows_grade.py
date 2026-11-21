@@ -108,9 +108,10 @@ OTHERS = ('aecp', 'acmp', 'adp', 'maap')
 #: refused for storage (the docstring).
 RETAINED_ROWS = ('R4',)
 #: The contract's event types (mailbox.yaml event_types) the rows count, each by its source, and those they do not,
-#: the datapath change records no group stages (the docstring).
+#: the datapath change records no group stages (the docstring), and TIMESTAMP, which KL_mbx posts only to an image
+#: with gPTP in firmware (contract 2.5, #884), no row's.
 EVENTS = {'TIMER': 'timers', 'LINK': 'links', 'GM': 'gm', 'TICK': 'ticks'}
-EXCLUDED = ('COUNTERS_CHANGED', 'AVB_INFO_CHANGED', 'AS_PATH_CHANGED', 'AMAP_LIVE_WRITE')
+EXCLUDED = ('COUNTERS_CHANGED', 'AVB_INFO_CHANGED', 'AS_PATH_CHANGED', 'AMAP_LIVE_WRITE', 'TIMESTAMP')
 #: The constants the method reads from the loop's and AECP's headers.
 NAMES = ('CTRL_LOOP_DRAIN_US', 'CTRL_LOOP_RX_PER_PASS', 'CTRL_LOOP_STEP_AGE', 'CTRL_LOOP_STEP_PASS_US',
          'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_PASS_US', 'CTRL_LOOP_SHARE_US', 'CTRL_LOOP_SHARE_MARGIN_US',

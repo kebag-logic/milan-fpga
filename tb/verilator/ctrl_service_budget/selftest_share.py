@@ -30,6 +30,7 @@ from unittest.mock import patch
 import yaml
 
 import build
+import channel_gate
 import grade
 import run
 import save_grade
@@ -493,7 +494,7 @@ def held_checks() -> list[Check]:
     wrong = []
     # rule A: the receive channels the image opened (its FILTER_EN), not every channel the contract names; the
     # save images open no gptp channel, so a load that left out an opened channel is still a wrong row here
-    opened = {name: n for name, n in scenario.CH.items() if name in grade.fixture_opened()}
+    opened = {name: n for name, n in scenario.CH.items() if name in channel_gate.fixture()}
     for name, n in opened.items():
         ch = scenario.CONTRACT.channels[n]
         times = seen.get(name, [])

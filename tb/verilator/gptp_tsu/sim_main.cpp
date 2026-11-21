@@ -19,7 +19,8 @@
 
 namespace {
 
-int checks = 0, failures = 0;
+int checks = 0;
+int failures = 0;
 
 void check(bool ok, const char *what, unsigned long long got = 0, unsigned long long exp = 0)
 {
@@ -31,7 +32,8 @@ void check(bool ok, const char *what, unsigned long long got = 0, unsigned long 
 }
 
 struct Rec {
-	bool egress, ok;
+	bool egress;
+	bool ok;
 	unsigned type;
 	unsigned seq;
 	uint64_t ns;
@@ -39,7 +41,7 @@ struct Rec {
 
 Rec decode(const VlWide<3> &w)
 {
-	// {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, NS}, NS lowest: 86 bits over three words
+	// {EGRESS, OK, MSG_TYPE, SEQUENCE_ID, STAMP}, STAMP lowest: 86 bits over three words
 	uint64_t ns = (uint64_t(w[1]) << 32) | w[0];
 	uint32_t hi = w[2];
 	return {bool((hi >> 21) & 1), bool((hi >> 20) & 1), (hi >> 16) & 0xF, hi & 0xFFFF, ns};

@@ -50,7 +50,8 @@ static uint64_t get64(const uint8_t *a)
 // wire timestamp, a completed exchange, a lock, a change of Sync interval.
 static uint64_t udiv64(uint64_t n, uint64_t d)
 {
-	uint64_t q = 0, r = 0;
+	uint64_t q = 0;
+	uint64_t r = 0;
 	for (int i = 63; i >= 0; i--) {
 		r = (r << 1) | ((n >> i) & 1u);
 		if (r >= d) {
@@ -325,7 +326,9 @@ static int32_t median3(const int32_t *d, unsigned n)
 {
 	if (n < 3)
 		return d[n - 1];
-	int32_t a = d[0], b = d[1], c = d[2];
+	int32_t a = d[0];
+	int32_t b = d[1];
+	int32_t c = d[2];
 	if ((a <= b && b <= c) || (c <= b && b <= a))
 		return b;
 	if ((b <= a && a <= c) || (c <= a && a <= b))
@@ -335,7 +338,8 @@ static int32_t median3(const int32_t *d, unsigned n)
 
 static void pd_complete(struct gptp_port *p)
 {
-	uint64_t rtt, turn;
+	uint64_t rtt;
+	uint64_t turn;
 	int64_t d;
 	p->pd.in_flight = false;
 	p->pd.done_seq = p->pd.seq;
@@ -466,7 +470,8 @@ static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_
 	int64_t offset = (int64_t)(t_rx - gm_rx);     // local time minus grandmaster time
 	// the interval's PHC ticks: 2^log_sync s at cfg.phc_clk_hz, log_sync held to Milan's -3 and its neighbours
 	int64_t ticks = (int64_t)p->cfg.phc_clk_hz;
-	int64_t kp, ki;
+	int64_t kp;
+	int64_t ki;
 	if (log_sync < -5)
 		log_sync = -5;
 	if (log_sync > 0)

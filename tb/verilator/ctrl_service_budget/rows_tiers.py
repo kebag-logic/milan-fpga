@@ -206,10 +206,10 @@ def bounds_at(i: Inputs) -> dict[str, float]:
 
 def served(root: Path, texts: dict[str, str] | None = None) -> tuple[tuple[str, ...], str]:
     """The channels the loop serves, each a module's ctrl_loop_bind_rx of a contract channel in the firmware's sources
-    (not its tests), named as mailbox.yaml names them, and THE DRAIN's channel (drain_ch)."""
+    (not tests, nor gptp/: only a --with-gptp image links it, #884) as mailbox.yaml names them, and THE DRAIN's."""
     firmware = root / 'sw/firmware/ctrl'
     files = {str(p.relative_to(root)): p.read_text() for p in sorted(firmware.glob('*/*.c'))
-             if p.parent.name not in ('test', 'host')}
+             if p.parent.name not in ('test', 'host', 'gptp')}
     files.update(texts or {})
     text = '\n'.join(files.values())
     bound = sorted({m.lower() for m in re.findall(r'ctrl_loop_bind_rx\(\s*\w+\s*,\s*MBX_CH_([A-Z]+)\s*,', text)})

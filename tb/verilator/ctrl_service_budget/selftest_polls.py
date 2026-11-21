@@ -384,7 +384,7 @@ def reference_run_check(name: str) -> Check:
     and runs the control's group alone there."""
     calls: list = []
     planted = argparse.Namespace(mutation=name, variant=build.MUTATIONS[name][4], point='8x8', cpu_regions='cover',
-                                 fetch_l1='split', xip=False, reuse_build=False, regrade=False)
+                                 fetch_l1='split', xip=False, reuse_build=False, regrade=False, with_gptp=False)
     groups = [scenario.Group(build.MUTATIONS[name][3]), scenario.Group('other')]
     spec = dict(flash_image='-')
     with tempfile.TemporaryDirectory() as tmp, \
