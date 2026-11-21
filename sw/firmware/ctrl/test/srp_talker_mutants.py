@@ -7,10 +7,12 @@ its own words: srp_talker.cpp's (SRP alone) or test_acmp_mbx.cpp's SrpGate (the 
 window, SRP's Listener registration, MAAP's DA gate and a range MAAP loses). The two-interface campaign plants them at
 8x8/2if (ENTITY), the one-interface campaign at 1x1/1if (test_ctrl_firmware.run_srp_mutants selects them by name). One
 defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) and at once; a lapse withdraws, its
-licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two
-of the longest LeaveAll periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951), whether it changed while
-declared or while lapsed, after the latest Leave THE TRANSMIT allows, and held across a reset, never at the two
-LeaveAllTime periods it was before #951, alone or after a range lost to a conflict; an admission change swaps in
+licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one is held from its
+Leave's request for two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's MRPDU, so it reaches the
+wire no later than the two periods (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951, #956), whether it changed while
+declared or while lapsed, at the latest THE TRANSMIT allows, and held across a reset; never at the two LeaveAllTime
+periods it was before #951, alone or after a range lost to a conflict, nor with #951's terms added past the two
+periods, nor a centisecond short of the hold-off or with its terms taken twice; an admission change swaps in
 place; a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until
 lwSRP takes its Leave; THE TRANSMIT's call publishes within srp_bounds.h's terms; the entry refuses before attach and
 on reentry; and the composition feeds each interface's DA gate and range. The source's frames carry the stream_id
@@ -37,7 +39,7 @@ VALID = "Talker.ValidSourceDeclaresAtOnceAndNothingBefore"
 LAPSE = "Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing"
 AGAIN = "Talker.UnchangedDestinationIsDeclaredAgainAtOnce"
 CHANGED = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods"
-LATEST = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave"
+LATEST = "Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest"
 MOVED = "Talker.DestinationChangeWhileValidWithdrawsTheOld"
 ADMIT = "Talker.AdmissionChangeSwapsTheTypeInPlace"
 RESET = "Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne"
@@ -68,11 +70,14 @@ WITHDRAWS = "        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed 
 WAITS = "        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;\n"
 DECLARES = ("        if (valid && !waits && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u || "
             "admitted != was)) {\n")
-#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two of the longest LeaveAll periods (#951), a JoinTime and
-#: THE TRANSMIT's MRPDU by every source, rounded up to the centisecond.
-REDECLARE = "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
-#: the hold-off before #951: two LeaveAllTime periods, the shortest two LeaveAll periods can be (10.7.4.3).
-TWO_LEAVEALLTIME = REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "2u * SRP_LEAVEALL_CS")
+#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two of the longest LeaveAll periods (#951) with a JoinTime
+#: and THE TRANSMIT's MRPDU by every source, rounded up to the centisecond, counted inside them (#956).
+REDECLARE = "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
+#: #951's hold-off: both terms added past the two periods, about 30.2 s at one interface.
+ADDED = REDECLARE.replace(" - SRP_JOIN_CS - ", " + SRP_JOIN_CS + ")
+#: the hold-off before #951: two LeaveAllTime periods, the shortest two LeaveAll periods can be (10.7.4.3), and both
+#: terms added.
+TWO_LEAVEALLTIME = ADDED.replace("2u * SRP_LEAVEALL_LONGEST_CS", "2u * SRP_LEAVEALL_CS")
 LICENCE = ("            if (i->active[n]) {\n                i->active[n] = false;\n                ++m->stops;\n"
            "                publish_licence(i);\n                m->config.licence(m->config.ctx,i->index,n,false);\n"
            "            }\n")
@@ -139,23 +144,40 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "no Talker of a changed destination is declared before the hold-off ends"),
         d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
           "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
-          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
         d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
           REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
           "no Talker of a changed destination is declared before the hold-off ends"),
         d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
           "no Talker of a changed destination is declared before the hold-off ends"),
         d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
-          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
+        d("talker-hold-off-adds-its-terms", CHANGED, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal"),
+        d("talker-hold-off-adds-its-terms-at-the-latest", LATEST, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-adds-its-terms-after-a-conflict", LOST, REDECLARE, ADDED,
+          "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict"),
+        d("talker-hold-off-a-centisecond-short", CHANGED, REDECLARE, REDECLARE.replace(" / 10u)", " / 10u - 1u)"),
+          "TALKER_DECL holds a changed destination withdrawn while it waits"),
+        d("talker-hold-off-takes-its-terms-twice", CHANGED, REDECLARE,
+          REDECLARE.replace(" - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)",
+                            " - 2u * (SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u))"),
+          "no Talker of a changed destination is declared before the hold-off ends"),
         d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
-          REDECLARE.replace(" + (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
+          REDECLARE.replace(" - (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
         d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
           "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave"),
+          "a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE "
+          "TRANSMIT's term after its Leave's request"),
         d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
           REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
         d("talker-hold-off-never-ends", CHANGED,
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
