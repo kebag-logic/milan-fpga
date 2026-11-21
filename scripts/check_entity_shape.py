@@ -682,19 +682,28 @@ def check_firmware_version(builder: ModuleType) -> None:
     print("\n== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==")
     g = load_aem_store()
     major, minor = g.rtl_version(RTL.csr)
+    split_major, _ = g.rtl_version(RTL.csr, "split")
     print(f"  milan_csr VERSION: 0x{major:04X}_{minor:04X} "
-          f"-> major {major}, minor {minor}")
+          f"-> major {major}, minor {minor}; a split image's major "
+          f"{split_major} (VERSION_SPLIT_MAJOR, #665 S13)")
 
     # 1. no config re-declares it. An agreeing copy is still a second answer
-    #    to "what version is this", and it is the copy controllers get.
+    #    to "what version is this", and it is the copy controllers get. The
+    #    emitted string is the one the config's placement reads, and each
+    #    placement recipe re-derives it (a split image reads major 0x0003).
     for p in all_configs():
         cfg = builder.load_config(p)
         raw = builder.yaml.safe_load(read_text(p))["entity"]
+        rev = cfg["entity"]["firmware_rev"]
         ck(f"{cfg['name']}: config declares no firmware_version",
            "firmware_version" in raw, False)
         ck(f"{cfg['name']}: emitted firmware_version",
            cfg["entity"]["firmware_version"],
-           g.firmware_version_string(cfg["entity"]["firmware_rev"], RTL.csr))
+           g.firmware_version_string(rev, RTL.csr, cfg["control"]["placement"]))
+        for placement in builder.CONTROL_PLACEMENTS:
+            ck(f"{cfg['name']}: firmware_version at the {placement} recipe",
+               builder.with_placement(cfg, placement)["entity"]["firmware_version"],
+               g.firmware_version_string(rev, RTL.csr, placement))
 
     # 2. the DESCRIPTOR BYTES the tracked shape's owner generates. Generated
     #    in memory: the tracked ROM and the TB golden are deleted, so there
@@ -704,7 +713,8 @@ def check_firmware_version(builder: ModuleType) -> None:
         ck("tracked shape names an owning config whose descriptors can be "
            "generated", False, True)
         return
-    want = g.firmware_version_string(owner["entity"]["firmware_rev"], RTL.csr)
+    want = g.firmware_version_string(owner["entity"]["firmware_rev"], RTL.csr,
+                                     owner["control"]["placement"])
     rom_o, dir_o = svh_rom(builder.emit_aem_rom_svh(
         owner, builder.emit_aem_overlay(owner)))
     what = f"generated ROM ({owner['name']})"

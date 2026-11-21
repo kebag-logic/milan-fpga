@@ -4537,8 +4537,9 @@ def _load_soc(cfg, cons):
 
 
 #: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
-#: all-fabric, the default until the flip: the protocol processor and KL_maap
-#: in the datapath. split: the bare-metal control firmware through the
+#: all-fabric, the default when a config states none: the protocol processor
+#: and KL_maap in the datapath. split, which the AX7101 configs state since the
+#: flip (#665 S13): the bare-metal control firmware through the
 #: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with
 #: CTRL_SPLIT_P = 1. The two placements build from one tree, one recipe and one
 #: config file, differing in this key alone.
@@ -6242,14 +6243,15 @@ def build(config_path: str, outdir: str | None = None,
     `placement` when one is given. Returns dict with the emitted paths +
     in-memory artifacts (for tests).
 
-    The split recipe writes its artifacts beside the config's own, under
-    OUTDIR/<config-stem>/, where its argv's --ctrl-firmware already points,
-    and takes no tracked ownership: the shape include and the sweep fragment
-    stay the all-fabric build's until the flip (#665 S13), so a sweep or a
-    named recipe never builds the split by accident (gate 23o)."""
-    if placement == "split" and (write_rtl or write_fragment):
-        raise ConfigError("the split recipe writes no tracked file: --write-rtl and --write-fragment "
-                          "stay with the config's all-fabric build until the flip (#665 S13)")
+    A placement recipe writes its artifacts beside the config's own, under
+    OUTDIR/<config-stem>/, where a split argv's --ctrl-firmware already
+    points, and takes no tracked ownership: the shape include and the sweep
+    fragment stay the build of the config's own control.placement (the AX7101
+    configs' split since the flip, #665 S13), so a sweep or a named recipe
+    never builds the other placement by accident (gate 23o)."""
+    if placement is not None and (write_rtl or write_fragment):
+        raise ConfigError("the placement recipe writes no tracked file: --write-rtl and --write-fragment "
+                          "stay with the config's own control.placement (#665 S13)")
     art = _derive_artifacts(config_path, placement)
     cfg = art.cfg
     d, out = _write_artifact_dir(art, outdir)

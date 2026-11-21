@@ -23326,14 +23326,20 @@ def _prune_contract(got, rows):
     return bad
 
 
-def _config_argv(name):
-    """(cfg, the config's OWN emitted argv, with --entity-gen-dir attached).
+def _config_argv(name, placement="all-fabric"):
+    """(cfg, the config's emitted argv at `placement`, with --entity-gen-dir attached).
+
+    The gates that run milan_soc.py on a config elaborate its all-fabric build
+    unless they ask for another placement: the AX7101 configs ship the split
+    since the flip (#665 S13), whose argv names a platform image these
+    elaborations do not link (gate 23m gives its split cases a synthetic one),
+    and the all-fabric build stays built and gated.
 
     eb.build() writes both the generated include dir the argv points at and
     the processor-memory reservation milan_soc.py reads, so it runs first.
     """
-    cfg = eb.load_config(CONFIGS[name])
-    eb.build(CONFIGS[name], OUT)
+    cfg = eb.with_placement(eb.load_config(CONFIGS[name]), placement)
+    eb.build(CONFIGS[name], OUT, placement=placement)
     gen = ROOT / "configs/generated" / cfg["name"]
     assert gen.is_dir(), \
         f"{gen}: this config has no generated include dir"
@@ -23878,13 +23884,19 @@ def test_clock_plan_instance_gate_bites() -> None:
 #  or a derivation that moves on either side, turns it red.
 
 
-#: gate 23m's split cases (#665): a config with control.placement:
-#: split, labelled "<config>+split". Its argv's --ctrl-firmware names a
+#: gate 23m's placement cases (#665): a config at control.placement: split,
+#: its own where it ships the split (SPLIT_SHIPPING) or labelled
+#: "<config>+split", and a split-shipping config's all-fabric build,
+#: labelled "<config>+all-fabric". A split argv's --ctrl-firmware names a
 #: synthetic image the split SoC's control memory accepts
 #: (sw/litex/test_ctrl_memory.py's GOOD layout), so the run reaches the
 #: datapath Instance with no firmware build.
 SPLIT_SUFFIX = "+split"
-SPLIT_CASES = ("ax7101_1x1_tdm8",)
+FABRIC_SUFFIX = "+all-fabric"
+#: The tracked configs that ship the split placement since the flip (#665
+#: S13): the two AX7101 shapes its bench gate qualified. Every other tracked
+#: config is all-fabric (gate 23n).
+SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8")
 
 
 def _split_cfg(cfg):
@@ -23895,11 +23907,15 @@ def _split_cfg(cfg):
 
 
 def _case_argv(name, elf_dir, python):
-    """(cfg, argv) of a gate 23m case: a config's own, or its split variant with a synthetic firmware,
-    written by `python` (the LiteX interpreter test_ctrl_memory.py imports under)."""
-    if not name.endswith(SPLIT_SUFFIX):
+    """(cfg, argv) of a gate 23m case: a config at its own placement, its all-fabric build, or its split
+    variant; a split argv names a synthetic firmware written by `python` (the LiteX interpreter
+    test_ctrl_memory.py imports under)."""
+    if name.endswith(FABRIC_SUFFIX):
+        return _config_argv(name[:-len(FABRIC_SUFFIX)], "all-fabric")
+    own = name[:-len(SPLIT_SUFFIX)] if name.endswith(SPLIT_SUFFIX) else name
+    if not name.endswith(SPLIT_SUFFIX) and own not in SPLIT_SHIPPING:
         return _config_argv(name)
-    base, _argv = _config_argv(name[:-len(SPLIT_SUFFIX)])
+    base, _argv = _config_argv(own, "split")
     cfg = _split_cfg(base)
     argv = eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg["name"])]
     code = ("import sys; from pathlib import Path; import test_ctrl_memory as t; "
@@ -23936,7 +23952,7 @@ def test_datapath_params_match_the_instance() -> None:
         return
     cfgs, runs = {}, []
     with tempfile.TemporaryDirectory() as elf_dir:
-        for name in [*CONFIGS, *(c + SPLIT_SUFFIX for c in SPLIT_CASES)]:
+        for name in [*CONFIGS, *(c + FABRIC_SUFFIX for c in SPLIT_SHIPPING)]:
             cfgs[name], argv = _case_argv(name, elf_dir, python)
             runs.append((name, argv))
         t0 = time.time()
@@ -24170,23 +24186,35 @@ def test_image_identity_gate() -> None:
 
 #  gate 23n (#665) - control.placement: ONE KEY, BOTH PLACEMENTS.
 #
-#  Every tracked config is all-fabric: it states no CTRL_SPLIT_P and emits no
-#  split flag, so its argv, fragment and shape are what they were. Its split
-#  variant differs in exactly CTRL_SPLIT_P = 1 and the trailing
+#  The configs in SPLIT_SHIPPING ship the split placement since the flip
+#  (#665 S13); every other tracked config is all-fabric. Each config's
+#  all-fabric variant states no CTRL_SPLIT_P and emits no split flag, so its
+#  argv, fragment and shape are what they were before the flip. Its split
+#  variant differs from that in exactly CTRL_SPLIT_P = 1 and the trailing
 #  --ctrl-mailbox --ctrl-firmware <the split image>, a path under the
-#  config's own builder output. A bad value, an unknown key and a key that
-#  is not a mapping are refused by name.
+#  config's own builder output, and the config emits its own placement's
+#  variant. A bad value, an unknown key and a key that is not a mapping are
+#  refused by name.
+
+
+def _fabric_cfg(cfg):
+    """cfg with control.placement: all-fabric."""
+    out = copy.deepcopy(cfg)
+    out["control"] = {"placement": "all-fabric"}
+    return out
 
 
 def _placement_findings(builder, cfgs):
     """Every way the placement key's emission departs from the gate's contract."""
     out = []
     for name, cfg in cfgs.items():
-        params, argv = builder.datapath_params(cfg), builder.emit_soc_argv(cfg)
-        if cfg["control"] != {"placement": "all-fabric"}:
-            out.append(f"{name}: a tracked config is {cfg['control']}, not all-fabric")
+        own = "split" if name in SPLIT_SHIPPING else "all-fabric"
+        if cfg["control"] != {"placement": own}:
+            out.append(f"{name}: a tracked config is {cfg['control']}, not {own}")
+        fabric = _fabric_cfg(cfg)
+        params, argv = builder.datapath_params(fabric), builder.emit_soc_argv(fabric)
         if "CTRL_SPLIT_P" in params or {"--ctrl-mailbox", "--ctrl-firmware"} & set(argv):
-            out.append(f"{name}: an all-fabric config states the split")
+            out.append(f"{name}: its all-fabric variant states the split")
         split = _split_cfg(cfg)
         sp, sa = builder.datapath_params(split), builder.emit_soc_argv(split)
         if sp != {**params, "CTRL_SPLIT_P": 1}:
@@ -24196,14 +24224,22 @@ def _placement_findings(builder, cfgs):
             out.append(f"{name}+split: its argv differs from the config's by more than the split flags")
         if fw != f"sw/builder/out/{split['name']}/{builder.CTRL_FIRMWARE_ELF}":
             out.append(f"{name}+split: --ctrl-firmware names {fw}, not the split image under its builder output")
+        mine = (sp, sa) if own == "split" else (params, argv)
+        if (builder.datapath_params(cfg), builder.emit_soc_argv(cfg)) != mine:
+            out.append(f"{name}: the config does not emit its own placement's variant")
     return out
 
 
 def test_control_placement_key() -> None:
-    """gate 23n - control.placement: all-fabric by default, split differing in the key alone."""
+    """gate 23n - control.placement: the AX7101 configs split since the flip, the rest all-fabric, the two
+    placements differing in the key alone."""
     cfgs = {name: eb.load_config(str(path)) for name, path in CONFIGS.items()}
     bad = _placement_findings(eb, cfgs)
     assert not bad, "gate 23n:\n  " + "\n  ".join(bad)
+    # negative control: the flip reverted in one shipping config is a finding
+    reverted = {**cfgs, "ax7101_8x8": _fabric_cfg(cfgs["ax7101_8x8"])}
+    assert any("ax7101_8x8: a tracked config is {'placement': 'all-fabric'}, not split" in f
+               for f in _placement_findings(eb, reverted)), "gate 23n accepted the flip reverted at 8x8"
     doc = yaml.safe_load(CONFIGS["ax7101_1x1_tdm8"].read_text())
     with tempfile.TemporaryDirectory() as tmp:
         for value, words in (({"placement": "both"}, "control.placement 'both' is not one of all-fabric, split"),
@@ -24223,24 +24259,55 @@ def test_control_placement_key() -> None:
     fabric.ctrl_firmware_path = lambda cfg: "sw/firmware/milan_baremetal/milan_baremetal.elf"
     assert any("not the split image" in f for f in _placement_findings(fabric, cfgs)), (
         "gate 23n accepted a split key that links the fabric firmware")
-    print(f"  [gate 23n] {len(cfgs)} configs all-fabric, each split variant differing in CTRL_SPLIT_P = 1 and "
-          f"--ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key "
-          f"naming the fabric firmware refused")
+    print(f"  [gate 23n] {len(cfgs)} configs, {len(SPLIT_SHIPPING)} shipping the split, each split variant "
+          f"differing from its all-fabric one in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split "
+          f"image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused; the flip "
+          f"reverted at 8x8 refused")
 
 
-#  gate 23o (#665 S9) - THE SPLIT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
+#  gate 23o (#665 S9, S13) - THE PLACEMENT RECIPE: A CONFIG'S OWN SHAPE, ONE KEY SET.
 #
-#  `endstation_builder.py <cfg> --placement split` builds a shipped config at
-#  the split placement without editing it. Its loaded config must equal what
-#  the same file stating `control: {placement: split}` loads to (the loader is
-#  the oracle, not the recipe's own copy), every shape artifact it writes must
-#  be byte for byte the all-fabric build's, its soc_params.json must carry
-#  that loaded config's argv, and no tracked file may change: the shape
-#  include and the sweep fragment stay the all-fabric build's until the flip.
+#  `endstation_builder.py <cfg> --placement P` builds a shipped config at
+#  placement P without editing it, in both directions since the flip (the
+#  AX7101 configs state split, so their all-fabric build is the recipe). Its
+#  loaded config must equal what the same file stating `control: {placement:
+#  P}` loads to (the loader is the oracle, not the recipe's own copy), every
+#  shape artifact the two placements write must be byte for byte equal but
+#  for the ENTITY's firmware_version, which follows VERSION's major (2.96.0
+#  all-fabric, 3.96.0 split, #665 S13) in the two artifacts that carry it and
+#  nowhere else, its soc_params.json must carry that loaded config's argv,
+#  and no tracked file may change: the recipe takes no tracked ownership.
 
 #: The shape artifacts a placement must not touch, by build() path label.
 RECIPE_SHAPE_ARTIFACTS = ("aem_overlay", "lwsrp_table", "lwsrp_svh", "csr_defaults_svh", "adp_shape_svh",
                           "platform_shape", "aem_rom_svh", "gptp_ucode", "nvm_split")
+#: The two that carry the ENTITY's firmware_version (IEEE 1722.1-2021 7.2.1 Table 7-2, offset 116), the one
+#: field the placements differ in: the overlay's JSON key, and the ROM's 64 octets.
+RECIPE_VERSION_ARTIFACTS = ("aem_overlay", "aem_rom_svh")
+
+
+def _with_version(node, old, new):
+    """Parsed JSON `node` with every firmware_version key that reads `old` set to `new`."""
+    if isinstance(node, dict):
+        return {k: new if k == "firmware_version" and v == old else _with_version(v, old, new)
+                for k, v in node.items()}
+    if isinstance(node, list):
+        return [_with_version(v, old, new) for v in node]
+    return node
+
+
+def _version_field_only(label, fabric, split, versions):
+    """Whether two placements' artifact `label` are equal but for the ENTITY's firmware_version strings
+    `versions` (all-fabric, split): the overlay's every firmware_version key, the ROM's 64-octet field."""
+    if label == "aem_overlay":
+        a, b = json.loads(fabric), json.loads(split)
+        return a != b and _with_version(a, *versions) == b
+    octets = lambda text: bytes(int(h, 16) for h in re.findall(r"8'h([0-9A-Fa-f]{2})", text))  # noqa: E731
+    a, b = octets(fabric.decode()), octets(split.decode())
+    field = lambda v: v.encode() + bytes(64 - len(v))  # noqa: E731
+    at = a.find(field(versions[0]))
+    return (at >= 0 and a.count(field(versions[0])) == 1 and len(a) == len(b)
+            and a[:at] + field(versions[1]) + a[at + 64:] == b)
 
 
 def _tracked_generated():
@@ -24251,27 +24318,37 @@ def _tracked_generated():
 
 
 def _recipe_findings(builder, name, path, tmp):
-    """Every way the split recipe of one config departs from gate 23o's contract."""
+    """Every way the placement recipe of one config, in both directions, departs from gate 23o's contract."""
     out, before = [], _tracked_generated()
     doc = yaml.safe_load(path.read_text())
-    stated = Path(tmp) / "stated" / path.name
-    stated.parent.mkdir(parents=True, exist_ok=True)
-    stated.write_text(yaml.safe_dump(dict(doc, control={"placement": "split"})))
-    want = eb.load_config(str(stated))
-    got = builder.with_placement(eb.load_config(str(path)), "split")
     drop = lambda c: {k: v for k, v in c.items() if k != "source"}  # noqa: E731
-    if drop(got) != drop(want):
-        keys = sorted(k for k in set(got) | set(want) if k != "source" and got.get(k) != want.get(k))
-        out.append(f"{name}: the recipe's config differs from the file stating the key in {keys}")
-    fabric = eb.build(str(path), str(Path(tmp) / "fabric"))
-    split = builder.build(str(path), str(Path(tmp) / "split"), placement="split")
+    built = {}
+    for placement in eb.CONTROL_PLACEMENTS:
+        stated = Path(tmp) / f"stated-{placement}" / path.name
+        stated.parent.mkdir(parents=True, exist_ok=True)
+        stated.write_text(yaml.safe_dump(dict(doc, control={"placement": placement})))
+        want = eb.load_config(str(stated))
+        got = builder.with_placement(eb.load_config(str(path)), placement)
+        if drop(got) != drop(want):
+            keys = sorted(k for k in set(got) | set(want) if k != "source" and got.get(k) != want.get(k))
+            out.append(f"{name}: the {placement} recipe's config differs from the file stating the key in {keys}")
+        built[placement] = builder.build(str(path), str(Path(tmp) / placement), placement=placement)
+        argv = json.loads(Path(built[placement]["paths"]["soc_params"]).read_text())["argv"]
+        if argv != eb.emit_soc_argv(want):
+            out.append(f"{name}: the {placement} recipe's soc_params.json argv is not the stated config's")
+    fabric, split = built["all-fabric"], built["split"]
+    rev = eb.load_config(str(path))["entity"]["firmware_rev"]
+    versions = tuple(eb.rtl_firmware_version(rev, placement) for placement in eb.CONTROL_PLACEMENTS)
     for label in RECIPE_SHAPE_ARTIFACTS:
         a, b = fabric["paths"].get(label), split["paths"].get(label)
-        if (a is None) != (b is None) or (a and Path(a).read_bytes() != Path(b).read_bytes()):
-            out.append(f"{name}: the recipe's {label} is not the all-fabric build's")
-    argv = json.loads(Path(split["paths"]["soc_params"]).read_text())["argv"]
-    if argv != eb.emit_soc_argv(want):
-        out.append(f"{name}: the recipe's soc_params.json argv is not the stated config's")
+        if (a is None) != (b is None):
+            out.append(f"{name}: the placements' {label} are not both built")
+        elif a and label in RECIPE_VERSION_ARTIFACTS:
+            if not _version_field_only(label, Path(a).read_bytes(), Path(b).read_bytes(), versions):
+                out.append(f"{name}: the placements' {label} differ in more than the firmware_version "
+                           f"{versions[0]} -> {versions[1]}")
+        elif a and Path(a).read_bytes() != Path(b).read_bytes():
+            out.append(f"{name}: the split recipe's {label} is not the all-fabric build's")
     if _tracked_generated() != before:
         out.append(f"{name}: the recipe changed a tracked file")
     return out
@@ -24285,13 +24362,15 @@ def test_placement_recipe() -> None:
             bad += _recipe_findings(eb, name, path, Path(tmp) / name)
         assert not bad, "gate 23o:\n  " + "\n  ".join(bad)
         path = CONFIGS["ax7101_1x1_tdm8"]
-        for kwargs in ({"write_rtl": True}, {"write_fragment": True}):
-            try:
-                eb.build(str(path), str(Path(tmp) / "own"), placement="split", **kwargs)
-            except eb.ConfigError as exc:
-                assert "the split recipe writes no tracked file" in str(exc), f"gate 23o: {kwargs} refused: {exc}"
-            else:
-                raise AssertionError(f"gate 23o: the split recipe took tracked ownership with {kwargs}")
+        for placement in eb.CONTROL_PLACEMENTS:
+            for kwargs in ({"write_rtl": True}, {"write_fragment": True}):
+                try:
+                    eb.build(str(path), str(Path(tmp) / "own"), placement=placement, **kwargs)
+                except eb.ConfigError as exc:
+                    assert "the placement recipe writes no tracked file" in str(exc), (
+                        f"gate 23o: {placement} {kwargs} refused: {exc}")
+                else:
+                    raise AssertionError(f"gate 23o: the {placement} recipe took tracked ownership with {kwargs}")
         try:
             eb.with_placement(eb.load_config(str(path)), "both")
         except eb.ConfigError as exc:
@@ -24301,17 +24380,32 @@ def test_placement_recipe() -> None:
         # negative controls: a recipe that also changes another key, and one that leaves the key unset
         plants = {"the recipe also changes the UART baud rate": lambda cfg, p, real=eb.with_placement: {
                       **real(cfg, p), "constraints": dict(cfg["constraints"], uart_baudrate=9600)},
-                  "the recipe leaves the placement all-fabric": lambda cfg, p: cfg}
+                  "the recipe leaves the config's own placement": lambda cfg, p: cfg}
         for why, recipe in plants.items():
             planted = types.SimpleNamespace(with_placement=recipe,
                                             build=lambda *a, recipe=recipe, **k: _planted_build(recipe, *a, **k))
             found = _recipe_findings(planted, "ax7101_1x1_tdm8", path, Path(tmp) / why.replace(" ", "-"))
             assert any("differs from the file stating the key" in f for f in found), (
                 f"gate 23o accepted a recipe in which {why}: {found}")
-    print(f"  [gate 23o] {len(CONFIGS)} configs: the split recipe loads to the config stating "
-          f"control.placement: split, writes the all-fabric build's {len(RECIPE_SHAPE_ARTIFACTS)} shape "
-          f"artifacts byte for byte and the stated argv, and changes no tracked file; --write-rtl, "
-          f"--write-fragment and an unknown placement refused by name; 2 planted recipes refused")
+        # negative controls of the version-only comparison: a difference past the firmware_version field
+        versions = ("2.96.0", "3.96.0")
+        rom = lambda v, tail: "".join(f"8'h{x:02X}," for x in b"head" + v.encode() + bytes(64 - len(v)) + tail)  # noqa: E731
+        overlay = lambda v, n: json.dumps({"entity": {"firmware_version": v, "name": n}}).encode()  # noqa: E731
+        assert _version_field_only("aem_rom_svh", rom(versions[0], b"t").encode(), rom(versions[1], b"t").encode(),
+                                   versions), "gate 23o: the version-only ROM comparison refused the field alone"
+        assert not _version_field_only("aem_rom_svh", rom(versions[0], b"t").encode(),
+                                       rom(versions[1], b"u").encode(), versions), (
+            "gate 23o: the version-only ROM comparison accepted a byte past the field")
+        assert _version_field_only("aem_overlay", overlay(versions[0], "a"), overlay(versions[1], "a"), versions)
+        assert not _version_field_only("aem_overlay", overlay(versions[0], "a"), overlay(versions[1], "b"),
+                                       versions), "gate 23o: the version-only overlay comparison accepted a name"
+        assert not _version_field_only("aem_overlay", overlay(versions[0], "a"), overlay(versions[0], "a"),
+                                       versions), "gate 23o: the version-only overlay comparison accepted no change"
+    print(f"  [gate 23o] {len(CONFIGS)} configs: each placement recipe loads to the config stating it, writes "
+          f"the stated argv and changes no tracked file; the two placements' {len(RECIPE_SHAPE_ARTIFACTS)} shape "
+          f"artifacts byte for byte equal but for the firmware_version in {len(RECIPE_VERSION_ARTIFACTS)}; "
+          f"--write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes and 3 "
+          f"planted artifacts refused")
 
 
 def _planted_build(recipe, config_path, outdir=None, **kwargs):

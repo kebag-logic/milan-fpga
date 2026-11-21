@@ -653,6 +653,20 @@ def _prove_rtl_regressions(builder: ModuleType, base_dp: str,
                     lambda: gate.check_firmware_version(builder))
     finally:
         restore()
+    # 7b. the same defect for a split image (#665 S13): VERSION_SPLIT_MAJOR
+    #     moves and a split config's descriptor keeps the old major. Read the
+    #     literal out of the RTL for the same reason as above.
+    cur = re.search(r"(parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h)"
+                    r"([0-9A-Fa-f_]+)", base_csr)
+    if not cur:
+        raise SystemExit("SELF-TEST SETUP: no VERSION_SPLIT_MAJOR parameter in milan_csr")
+    restore = with_rtl(csr_text=mutate(
+        base_csr, cur.group(0), cur.group(1) + "0004"))
+    try:
+        expect_fail("milan_csr VERSION_SPLIT_MAJOR moved out from under a split entity model",
+                    lambda: gate.check_firmware_version(builder))
+    finally:
+        restore()
 
 
 def _prove_config_defects(builder: ModuleType, base_cfg: str) -> None:
