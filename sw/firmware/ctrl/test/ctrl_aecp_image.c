@@ -13,6 +13,9 @@
 #ifdef CTRL_IMAGE_SRP
 #include "srp_mbx.h"
 #endif
+#ifdef CTRL_IMAGE_GPTP
+#include "gptp_mbx.h"
+#endif
 
 static struct ctrl_app image_app;
 static const struct adp_entity image_entity = ADP_ENTITY_GEN_INIT;
@@ -66,6 +69,17 @@ static struct aecp_face image_face;
 static struct aecp_owed image_owed[AECP_MBX_OWED_SLOTS];
 #endif
 
+#ifdef CTRL_IMAGE_GPTP
+// gPTP in firmware (#884): one end station port an interface. This fixture has
+// no datapath CSR window, so its PHC is a word of RAM a write: the split's PHC
+// writes the CSR's PTP block instead (REQ-PTP-01..04), a store or three more.
+static struct gptp_mbx image_gptp;
+static volatile int32_t image_phc_trim[MBX_N_IF];
+static volatile int64_t image_phc_moved[MBX_N_IF];
+static void phc_adjfine(void *ctx, unsigned i, int32_t addend) { (void)ctx; image_phc_trim[i] = addend; }
+static void phc_step(void *ctx, unsigned i, int64_t delta) { (void)ctx; image_phc_moved[i] += delta; }
+static const struct gptp_mbx_phc image_phc = {NULL, phc_adjfine, phc_step};
+#endif
 int main(void)
 {
     if (!aecp_image_load(&image_model,aecp_entity_image,sizeof aecp_entity_image,AECP_ENTITY_CRC,
@@ -102,6 +116,19 @@ int main(void)
         !ctrl_app_compose_aecp(&image_app,&image_aecp_bridge,&image_aecp,&aecp,
             &image_face.ports,&image_state) ||
         !ctrl_app_aecp_attach_face(&image_aecp_bridge,&image_face)) return 5;
+#ifdef CTRL_IMAGE_GPTP
+    {
+        struct gptp_config g[MBX_N_IF];
+        for (unsigned i=0;i<MBX_N_IF;++i) {
+            uint64_t mac=image_entity.mac+i;
+            g[i]=(struct gptp_config){.priority1=GPTP_P1_DEFAULT,.priority2=GPTP_P2_DEFAULT,.phc_clk_hz=50000000u};
+            // the EUI-64 of the interface's MAC (IEEE 802.1AS-2020 8.5.2.2)
+            g[i].clock_id=((mac>>24)<<40)|(0xFFFEull<<24)|(mac&0xFFFFFFull);
+            for (unsigned b=0;b<6;++b) g[i].mac[b]=(uint8_t)(mac>>(8*(5-b)));
+        }
+        if (!gptp_mbx_attach(&image_gptp,&image_app.loop,g,&image_phc)) return 7;
+    }
+#endif
     aecp_nvm_init(&image_state,&image_aecp.core,image_names,AECP_ENTITY_NAME_RUNS,
         image_map_scratch,AECP_ENTITY_MAP_MAX);
     acmp_nvm_init(&image_binding,&image_app.acmp.acmp,NVM_G_BIND,&image_state.port);

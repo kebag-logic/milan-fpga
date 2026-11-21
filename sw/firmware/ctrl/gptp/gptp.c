@@ -44,10 +44,33 @@ static uint64_t get64(const uint8_t *a)
 
 #define NS_PER_S 1000000000ull
 
+// A 64-bit quotient by shift and subtract. The split hart (RV32IM) has no 64-bit
+// divide and the split image refuses libgcc's (#665: ctrl_srp_image.py's object
+// audit), so the port divides 64 bits only here, and only on its slow paths: a
+// wire timestamp, a completed exchange, a lock, a change of Sync interval.
+static uint64_t udiv64(uint64_t n, uint64_t d)
+{
+	uint64_t q = 0, r = 0;
+	for (int i = 63; i >= 0; i--) {
+		r = (r << 1) | ((n >> i) & 1u);
+		if (r >= d) {
+			r -= d;
+			q |= 1ull << i;
+		}
+	}
+	return q;
+}
+
+static int64_t sdiv64(int64_t n, int64_t d)
+{
+	uint64_t q = udiv64(n < 0 ? 0u - (uint64_t)n : (uint64_t)n, d < 0 ? 0u - (uint64_t)d : (uint64_t)d);
+	return ((n < 0) != (d < 0)) ? -(int64_t)q : (int64_t)q;
+}
+
 // Timestamp (10.6.2.4 via 6.4.3.4): 48-bit seconds, then 32-bit nanoseconds
 void gptp_ts_put(uint8_t *at, uint64_t ns)
 {
-	uint64_t s = ns / NS_PER_S;
+	uint64_t s = udiv64(ns, NS_PER_S);
 	put16(at, (uint16_t)(s >> 32));
 	put32(at + 2, (uint32_t)s);
 	put32(at + 6, (uint32_t)(ns - s * NS_PER_S));
@@ -65,7 +88,7 @@ int32_t gptp_addend_of_ppm(int32_t ppm, uint32_t clk_hz)
 	// expression the fabric engine's integrator clamp and KL_gptp_txret's
 	// envelope both use, rounded half up
 	uint64_t num = (uint64_t)(ppm < 0 ? -ppm : ppm) * (1ull << 24) * 1000u + clk_hz / 2u;
-	int32_t u = (int32_t)(num / clk_hz);
+	int32_t u = (int32_t)udiv64(num, clk_hz);
 	return ppm < 0 ? -u : u;
 }
 
@@ -244,6 +267,10 @@ static void bmca(struct gptp_port *p)
 	if (p->cfg.priority1 != 255u) {
 		uint64_t path = p->cfg.clock_id;
 		become(p, GPTP_ROLE_MASTER);
+		if (p->pub.slew) {
+			p->pub.slew = false;   // becoming grandmaster completes any correction (gptp-processor #75)
+			p->pub_dirty = true;
+		}
 		pub_set_gm(p, p->cfg.clock_id, p->cfg.clock_id);
 		pub_set_path(p, &path, 1);
 		pub_set_flags(p, true, true);   // becoming grandmaster sets the verdict
@@ -344,7 +371,7 @@ static void pd_complete(struct gptp_port *p)
 			int64_t d3 = (int64_t)(p->pd.t3 - p->pd.w3[o]);
 			int64_t d4 = (int64_t)(p->pd.t4 - p->pd.w4[o]);
 			if (d4 > 0 && d3 > 0) {
-				int64_t q = ((d3 - d4) * (int64_t)(1ll << 32)) / d4;
+				int64_t q = sdiv64((d3 - d4) * (int64_t)(1ll << 32), d4);
 				p->pd.nrr_q32 = (int32_t)q;
 				p->pd.nrr_ok = true;
 			}
@@ -354,7 +381,7 @@ static void pd_complete(struct gptp_port *p)
 	rtt = p->pd.t4 - p->pd.t1;
 	turn = p->pd.t3 - p->pd.t2;
 	d = (int64_t)rtt + (((int64_t)rtt * p->pd.nrr_q32) >> 32) - (int64_t)turn;
-	d /= 2;
+	d = (d < 0) ? -((-d) >> 1) : (d >> 1);   // halved toward zero, no divide
 	if (p->pd.d_n < 3u) {
 		p->pd.d[p->pd.d_n++] = (int32_t)d;
 	} else {
@@ -445,14 +472,21 @@ static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_
 	if (log_sync > 0)
 		log_sync = 0;
 	ticks >>= -log_sync;
-	kp = ((int64_t)GKP_Q16 << 24) / ticks;
-	ki = ((int64_t)GKI_Q16 << 24) / ticks;
+	if (!p->srv.gains_ok || p->srv.gains_log != log_sync) {
+		p->srv.kp = sdiv64((int64_t)GKP_Q16 << 24, ticks);
+		p->srv.ki = sdiv64((int64_t)GKI_Q16 << 24, ticks);
+		p->srv.gains_log = log_sync;
+		p->srv.gains_ok = true;
+	}
+	kp = p->srv.kp;
+	ki = p->srv.ki;
 	int64_t thresh = p->srv.linkup ? GPTP_STEP_LINKUP_NS : GPTP_STEP_LOCKED_NS;
 	int64_t lim = (int64_t)p->adj_max;
 	p->ctr.sync_used++;
 	p->pub.offset_ns = (int32_t)offset;
 	p->srv.linkup = false;   // every consumed pair locks the servo
 	if (offset > thresh || offset < -thresh) {
+		// a step starts no slew and holds one in progress (gptp-processor #75)
 		p->hal.phc_step(p->hal.ctx, p->index, -offset);
 		p->ctr.steps++;
 		p->pub.disc++;
@@ -469,17 +503,29 @@ static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_
 		// that cancels its own error is the applied one less the measured one
 		int64_t dl = (int64_t)(t_rx - p->srv.prev_rx), dg = (int64_t)(gm_rx - p->srv.prev_gm);
 		if (dg > 0 && dl - dg < dg && dg - dl < dg) {
-			int64_t q32 = ((dl - dg) * (int64_t)(1ll << 32)) / dg;   // local fast by q32 * 2^-32
-			int64_t u = (q32 * 1000000000ll) / ((int64_t)p->cfg.phc_clk_hz * 256);
+			int64_t q32 = sdiv64((dl - dg) * (int64_t)(1ll << 32), dg);   // local fast by q32 * 2^-32
+			int64_t u = sdiv64(q32 * 1000000000ll, (int64_t)p->cfg.phc_clk_hz * 256);
 			p->srv.integ = clamp64((int64_t)p->srv.trim - u, lim) * 65536;
 			p->srv.seeded = true;
 		}
+	}
+	// the slew-active level (gptp-processor #75): an outside-band pair starts or
+	// continues a correction, two consecutive pairs inside the band complete it
+	if (offset > GPTP_SLEW_SETTLED_NS || offset < -GPTP_SLEW_SETTLED_NS) {
+		p->srv.in_band = 0;
+		if (!p->pub.slew) {
+			p->pub.slew = true;
+			p->pub_dirty = true;
+		}
+	} else if (p->pub.slew && ++p->srv.in_band >= 2u) {
+		p->pub.slew = false;
+		p->pub_dirty = true;
 	}
 	p->srv.prev_rx = t_rx;
 	p->srv.prev_gm = gm_rx;
 	p->srv.have_prev = true;
 	p->srv.integ = clamp64(p->srv.integ - ki * offset, lim * 65536);
-	p->srv.trim = (int32_t)clamp64((p->srv.integ - kp * offset) / 65536, lim);
+	p->srv.trim = (int32_t)clamp64((p->srv.integ - kp * offset) >> 16, lim);
 	p->hal.phc_adjfine(p->hal.ctx, p->index, p->srv.trim);
 	p->pub_dirty = true;
 	pub_set_flags(p, p->pd.as_capable, true);

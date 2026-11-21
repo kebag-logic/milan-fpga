@@ -83,6 +83,7 @@ enum gptp_msg_type {
 #define GPTP_STEP_LINKUP_NS 20000      // link-up step threshold (gptp-processor #68)
 #define GPTP_STEP_LOCKED_NS 100000     // locked step threshold (ibid.)
 #define GPTP_RATE_PPM 200              // rate trim and integrator bound, ppm (ibid.)
+#define GPTP_SLEW_SETTLED_NS 100       // the tracking band's half-width (gptp-processor #75)
 #define GPTP_PD_LATE_NS 15006181ull    // a Pdelay_Resp later than this after its request is lost (gptp-processor #100; Milan v1.2 4.2.6.2.6)
 #define GPTP_PDELAY_MS 1000u           // Pdelay_Req interval, Milan v1.2 4.2.6.2.2 Table 4.1
 #define GPTP_SYNC_MS 125u              // Sync interval, ibid.
@@ -114,6 +115,7 @@ struct gptp_pub {
 	uint8_t domain;          // gptp_domain_number
 	bool as_capable;         // 802.1AS-2020 10.2.5.1
 	bool sync_ok;            // the synchronization verdict (a consumed pair, or grandmaster duty)
+	bool slew;               // a transient offset correction is in progress (gptp-processor #75)
 	uint8_t disc;            // counts discontinuities (a PHC step, a grandmaster change), modulo 256
 	int32_t pdelay_ns;       // neighborPropDelay, ns
 	uint8_t path_count;      // pathTrace entries, at most GPTP_PATH_MAX
@@ -218,6 +220,10 @@ struct gptp_port {
 	struct {
 		bool linkup;         // the next pair is the first since asCapable rose
 		bool seeded;         // the integrator holds a measured frequency since the last step
+		uint8_t in_band;     // consecutive pairs inside the tracking band, while slewing
+		bool gains_ok;       // kp and ki hold the gains of gains_log's interval
+		int8_t gains_log;
+		int64_t kp, ki;      // Q16 addend units a nanosecond, derived (gptp.c, the servo)
 		int64_t integ;       // integral term, addend units, Q16
 		int32_t trim;        // the applied addend
 		bool have_prev;

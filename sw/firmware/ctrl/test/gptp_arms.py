@@ -63,6 +63,9 @@ def arm_gptp_rv32(tree: Tree, require: bool) -> Outcome:
     open_syms = symbols(tool + "nm", objs, True)
     stray = sorted(open_syms - RV32_LIBC - {"memcmp"} - fw_rv32.HELPERS)
     floats = sorted(open_syms & set(FLOAT_SYMBOLS))
+    # the split image's own rule (ctrl_srp_image.py's object audit): RV32M makes the 32-bit helpers and the 64-bit
+    # multiply instructions, so an object for the split hart calls no multiply or divide helper (#665)
+    muldiv = sorted(open_syms & fw_rv32.MULDIV_HELPERS)
     findings = fw_rv32.object_findings(cc, objs, "rv32im")
     size = run([tool + "size", "-t", *map(str, objs)])
     if size.returncode:
@@ -72,14 +75,15 @@ def arm_gptp_rv32(tree: Tree, require: bool) -> Outcome:
              f"  size (text data bss dec): {' '.join(total)}",
              f"  undefined: {', '.join(sorted(open_syms))}"]
     failed = 0
-    for what, names in (("soft-float or libm", floats), ("other runtime", stray)):
+    for what, names in (("soft-float or libm", floats), ("other runtime", stray),
+                        ("software multiply or divide", muldiv)):
         if names:
             failed = 1
             lines.append(f"  [FAIL] GptpRv32.NoStrayRuntime: the port references {what} symbols: {', '.join(names)}")
     for finding in findings:
         failed = 1
         lines.append(f"  [FAIL] GptpRv32.ObjectChecks: {finding}")
-    checks = 3
+    checks = 4
     lines.append(f"== {LABEL}, RV32IM objects: checks: {checks}   failures: {failed} ==")
     return Outcome("gptp_rv32", failed, "\n".join(lines))
 
