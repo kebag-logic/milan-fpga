@@ -8152,34 +8152,59 @@ class NxnDatapathHarness {
     // 5.3.8.10) and its own share of the depacketizer's output, the render
     // path's input (its DEPKT tally, LCTX w11). The bench found the first
     // input of two starved: the parser gave each PDU to the highest matching
-    // context only. Inputs 4, 6 and 7 are taken through the CSR window, as
-    // the split firmware takes them; it runs last, so no later section reads
-    // the state it leaves.
+    // context only. A controller binds inputs 4 and 6 to one talker over
+    // ACMP, then 7 as well, then unbinds 4; each probe is answered with the
+    // talker's stream_id. The inputs' formats are written through the CSR
+    // window while they are unbound, as the split firmware writes them
+    // (#946). It runs last, so no later section reads the state it leaves.
     // ======================================================================
-    void fan_bind(int s, bool on) {
-        axi_write(A_STRM_SEL, static_cast<uint32_t>(s) & 0xF);    // dir=0 idx=s
-        if (!on) { axi_write(A_SW_CTRL, 0); return; }             // evict: the zero sid
-        axi_write(A_SW_SID_LO, 0x005B000Au);                      // the talker's {5B 00 00 00 00 5B 00 0A}
-        axi_write(A_SW_SID_HI, 0x5B000000u);
-        axi_write(A_SW_FMT_LO, FMT_LO);
-        axi_write(A_SW_FMT_HI, FMT_HI);
-        axi_write(A_SW_CTRL, (RT_RETIRED << 1) | 1u);              // en, the retired route bit
+    const uint8_t fan_sid_[8] = {0x5B, 0, 0, 0, 0, 0x5B, 0, 0x0A};
+    const uint8_t fan_talker_[8] = {0x02, 0, 0, 0, 0, 0x5B, 0, 0};
+    const uint8_t fan_dmac_[6] = {0x91, 0xE0, 0xF0, 0x00, 0x5B, 0x0A};
+    //! CONNECT_RX_COMMAND (bind, 1) or DISCONNECT_RX_COMMAND (unbind, 0) of listener_unique_id s to the talker's
+    //! unique_id 0; a bind's probe is answered with the talker's stream_id
+    void fan_acmp(int s, bool bind) {
+        uint8_t f[72]; memset(f, 0, sizeof f);
+        const uint8_t mc[6] = {0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
+        memcpy(f, mc, 6);
+        const uint8_t csrc[6] = {0x68, 0x05, 0xCA, 0x95, 0xB2, 0xD1};
+        memcpy(f + 6, csrc, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = bind ? 0x06 : 0x08;
+        f[16] = 0x00; f[17] = 44;
+        for (int i = 26; i < 34; i++) f[i] = static_cast<uint8_t>(i);   // the controller
+        memcpy(f + 34, fan_talker_, 8);
+        const uint8_t us[8] = {0x02, 0x00, 0x00, 0xFF, 0xFE, 0x00, 0x00, 0x01};
+        memcpy(f + 42, us, 8);
+        f[52] = 0x00; f[53] = static_cast<uint8_t>(s);                  // listener_unique_id
+        f[62] = 0x94; f[63] = static_cast<uint8_t>(0x80 + s + (bind ? 0 : 0x10));
+        probe_seen_luid[s] = false;
+        inject(f, 70, 3000);
+        if (!bind) return;
+        char nm[96];
+        snprintf(nm, sizeof nm, "[FAN] binding input %d: the listener launched its PROBE_TX", s);
+        ck(nm, probe_seen_luid[s] ? 1 : 0, 1);
+        answer_probe(s, fan_sid_, fan_dmac_, fan_talker_, 0);
     }
-    struct FanSnap { uint32_t frx, pdus; };
+    //! an input's FRAMES_RX in the CSR window, its DEPKT tally, and its FRAMES_RX as a controller reads it,
+    //! GET_COUNTERS of the STREAM_INPUT through the processor (Table 7-157 @44)
+    struct FanSnap { uint32_t frx, pdus, gc; };
+    uint16_t fan_gc_seq_ = 0x4940;
     FanSnap fan_read(int s) {
         axi_write(A_STRM_SEL, static_cast<uint32_t>(s) & 0xF);
         snap_and_wait();
-        return {axi_read(A_SW_CNT0 + 9*4), axi_read(A_SW_PDUS) & 0xFFFFu};
+        FanSnap n{axi_read(A_SW_CNT0 + 9*4), axi_read(A_SW_PDUS) & 0xFFFFu, 0};
+        const std::vector<uint8_t> r = aecp_xact(0x0029, fan_gc_seq_++, {0x00, 0x05, 0x00, static_cast<uint8_t>(s)});
+        n.gc = (r.size() >= 174 && aecp_status(r) == 0) ? ctr_word(r, 11) : 0xDEADBEEFu;
+        return n;
     }
     //! `n` PDUs of the talker, then every input in `on` counted each and received each, and every input in
     //! `off` neither; the shared PCMRX total counts one PDU per receiving input
     void fan_round(const char* tag, int n, std::initializer_list<int> on, std::initializer_list<int> off) {
-        const uint8_t sidT[8] = {0x5B, 0, 0, 0, 0, 0x5B, 0, 0x0A};
         std::array<FanSnap, 8> b{};
         for (int s : on) b[s] = fan_read(s);
         for (int s : off) b[s] = fan_read(s);
         const uint32_t pc0 = axi_read(A_PCMRX_CNT);
-        for (int k = 0; k < n; k++) inject(mkaaf(sidT, fan_seq_++, 2, static_cast<uint8_t>(0x20 + k)), 120);
+        for (int k = 0; k < n; k++) inject(mkaaf(fan_sid_, fan_seq_++, 2, static_cast<uint8_t>(0x20 + k)), 120);
         for (int i = 0; i < 2600; i++) step();                    // past one Table 5.6 interval commit
         char nm[120];
         for (int s : on) {
@@ -8188,6 +8213,8 @@ class NxnDatapathHarness {
             ck(nm, a.frx - b[s].frx, static_cast<uint32_t>(n));
             snprintf(nm, sizeof nm, "[FAN] %s: input %d receives every PDU (its DEPKT tally)", tag, s);
             ck(nm, a.pdus - b[s].pdus, static_cast<uint32_t>(n));
+            snprintf(nm, sizeof nm, "[FAN] %s: GET_COUNTERS of input %d answers its FRAMES_RX", tag, s);
+            ck(nm, a.gc, a.frx);
         }
         for (int s : off) {
             const FanSnap a = fan_read(s);
@@ -8200,17 +8227,21 @@ class NxnDatapathHarness {
     uint8_t fan_seq_ = 0x10;
     void prove_one_stream_bound_to_several_inputs() {
         if (kNstreamsTb < 8) return;
-        printf("-- [FAN] #948: one talker stream bound to inputs 4 and 6, then 7 as well, then 4 unbound --\n");
-        for (int s : {4, 6, 7}) fan_bind(s, false);
-        fan_bind(4, true);
-        fan_bind(6, true);
-        for (int i = 0; i < 400; i++) step();                     // the bind walks
+        printf("-- [FAN] #948: one talker stream bound over ACMP to inputs 4 and 6, then 7 as well, then 4 unbound --\n");
+        // the earlier sections' window overrides of 4, 6 and 7 released to their ACMP aliases (an eviction with
+        // nothing staged), and each input's format written while it is unbound
+        for (int s : {4, 6, 7}) {
+            axi_write(A_STRM_SEL, static_cast<uint32_t>(s));
+            axi_write(A_SW_CTRL, 0);
+            axi_write(A_SW_FMT_LO, FMT_LO);
+            axi_write(A_SW_FMT_HI, FMT_HI);
+        }
+        fan_acmp(4, true);
+        fan_acmp(6, true);
         fan_round("two inputs on one stream", 4, {4, 6}, {7});
-        fan_bind(7, true);
-        for (int i = 0; i < 400; i++) step();
+        fan_acmp(7, true);
         fan_round("three inputs on one stream", 4, {4, 6, 7}, {});
-        fan_bind(4, false);
-        for (int i = 0; i < 400; i++) step();
+        fan_acmp(4, false);
         fan_round("input 4 unbound", 4, {6, 7}, {4});
     }
 
