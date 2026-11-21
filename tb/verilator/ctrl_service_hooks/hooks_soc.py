@@ -68,9 +68,10 @@ CPU_CLOCK_KEYS = {'sys': 'sys_clk_hz', 'milan': 'milan_clk_hz'}
 #: The windows the answering arm answers.
 ANSWERED = ('CTR', 'GSI')
 #: The CSR window's words the testbench of the split boot simulation answers (its Bench): ID 'MILN', VERSION
-#: 0x0002_0060 (decision D2), and PTP_CMD's snapshot strobe (bit 2) with the two TOD_RD words it latches.
+#: 0x0003_0060 (a split image's since the flip, #665 S13), and PTP_CMD's snapshot strobe (bit 2) with the two TOD_RD
+#: words it latches.
 CSR_ID = (0x000, 0x4D494C4E)
-CSR_VERSION = (0x004, 0x00020060)
+CSR_VERSION = (0x004, 0x00030060)
 PTP_CMD = 0x520
 PTP_SNAPSHOT_BIT = 2
 TOD_RD = (0x530, 0x534)

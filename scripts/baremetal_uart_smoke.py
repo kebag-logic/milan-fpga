@@ -122,10 +122,13 @@ def grade(status_text: str, first_time_text: str,
     checks = [
         ("id-miln", status["id"] == 0x4D494C4E,
          f"ID=0x{status['id']:08X} VERSION=0x{status['version']:08X}"),
+        # major 2 is the all-fabric placement's, 3 a split image's (#665 S13); the
+        # minor is one flat ordinal across both, so the gPTP publication's 0x0056
+        # bounds either
         ("version-gptp-publication",
-         status["version"] >> 16 == 2 and
+         status["version"] >> 16 in (2, 3) and
          (status["version"] & 0xFFFF) >= 0x0056,
-         f"VERSION=0x{status['version']:08X} (need major 2, minor >= 0x0056)"),
+         f"VERSION=0x{status['version']:08X} (need major 2 or 3, minor >= 0x0056)"),
         ("aem-image", status["aem"] == "loaded",
          f"AEM={status['aem']}"),
         ("fabric-enabled", bool(status["ptp"] & 1) and
@@ -244,7 +247,7 @@ class Console:
 
 
 def self_test() -> None:
-    """Grade the grader against a known-good transcript and 13 broken ones.
+    """Grade the grader against two known-good transcripts and 15 broken ones.
 
     Every arm mutates ONE field of a passing status and asserts that exactly
     the check owning that field turns red, so a check cannot silently stop
@@ -278,6 +281,14 @@ def self_test() -> None:
         return {check_name: ok for check_name, ok, _detail in results}[name]
 
     assert not verdict(status.replace("00020056", "00020055"),
+                       "version-gptp-publication")
+    # a split image's major 3 (#665 S13) passes at the same minor and is held
+    # to it; a major neither placement reads fails
+    assert verdict(status.replace("00020056", "00030056"),
+                   "version-gptp-publication")
+    assert not verdict(status.replace("00020056", "00030055"),
+                       "version-gptp-publication")
+    assert not verdict(status.replace("00020056", "00040056"),
                        "version-gptp-publication")
     assert not verdict(status.replace("AEM=loaded", "AEM=disabled"),
                        "aem-image")
@@ -324,7 +335,7 @@ def self_test() -> None:
     assert PROMPT_RE.search(prompt) and PROMPT_RE.search("litex> ")
     assert gptp_locked(status) and not gptp_locked(unhealthy)
     assert not gptp_locked("ID=not-a-status")
-    print("BAREMETAL UART SMOKE SELF-TEST: PASS (13 negative arms, 4 reboot arms)")
+    print("BAREMETAL UART SMOKE SELF-TEST: PASS (15 negative arms, 4 reboot arms)")
 
 
 def main() -> int:
