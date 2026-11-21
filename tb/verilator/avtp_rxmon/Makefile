@@ -32,9 +32,9 @@ NXFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
          -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
-       $(A)/avtp_stream_parser.sv $(A)/KL_stream_table.sv \
+       $(PARSER_SRC) $(A)/KL_stream_table.sv \
        $(RXMON_SRC) \
-       $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
+       $(DEPKT_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_nx_wrap.sv
@@ -48,6 +48,8 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
 # and the N=4 stack (#765), which for #775's two-copy defects also builds this
 # leg from a mutated engine and reference.
 RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv
+PARSER_SRC ?= $(A)/avtp_stream_parser.sv
+DEPKT_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv
 REF_SRC   ?= reference/KL_avtp_rx_monitor_ctx_ref.sv
 LS_MDIR   ?= obj_ls
 NX_MDIR   ?= obj_nx
@@ -69,6 +71,8 @@ run:
 	python3 format_mutants.py
 	$(MAKE) ctxfmt
 	python3 ctxfmt_mutants.py
+	$(MAKE) fanout
+	python3 fanout_mutants.py
 nx-build:
 	$(VERILATOR) $(NXFLAGS) --Mdir $(NX_MDIR) $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
 # #946: each Stream Input's format in its LCTX context at the 8x8 shape's eight

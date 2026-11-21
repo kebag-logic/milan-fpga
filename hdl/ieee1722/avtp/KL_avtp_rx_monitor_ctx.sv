@@ -112,8 +112,10 @@
 //! watchdog in flops, stream-0 legacy outputs via write-through shadows.
 //! PDU bundles wait and are served from one 4-entry ring, and GET_COUNTERS
 //! reads one write-through counter table by sink and column (#640 M6).
-//! `pdu_accept_p_o`+`pdu_accept_idx_o` = the depacketizer's per-stream
-//! commit verdict.
+//! A bundle names every context bound to its stream_id, and the walker
+//! serves the one bundle to each in turn (#948). `pdu_enq_p_o` tells the
+//! depacketizer a PDU was queued, and `pdu_done_p_o`+`pdu_done_mask_o`
+//! which of its contexts accepted it.
 
 `default_nettype none
 
@@ -131,7 +133,10 @@ module KL_avtp_rx_monitor_ctx #(
 
   //! --- per-frame pulse bundle from avtp_stream_parser -------------------
   input  wire         match_valid_i,     //! one-cycle pulse per matched frame
-  input  wire [3:0]   match_index_i,     //! matched stream index s
+  //! every table entry the frame's stream_id matched: IEEE 1722.1-2021 8.2
+  //! lets each sink bind on its own, so one stream may be the source of
+  //! several contexts, and each bound one is served the PDU (#948)
+  input  wire [N_LISTENERS_P-1:0] match_vec_i,
   input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
@@ -171,7 +176,7 @@ module KL_avtp_rx_monitor_ctx #(
   input  wire         depkt_pdu_p_i,     //! payload PDU emitted pulse
   input  wire [3:0]   depkt_pdu_idx_i,   //! its stream index
   input  wire         depkt_drop_p_i,    //! overflow-dropped frame pulse
-  input  wire [3:0]   depkt_drop_idx_i,  //! its stream index
+  input  wire [N_LISTENERS_P-1:0] depkt_drop_mask_i, //! the inputs that lost it
 
   //! --- LCTX window port (P11 CSR window / TB; engine-arbitrated) --------
   input  wire         lctx_wr_en_i,      //! write request (poll wr_rdy)
@@ -208,8 +213,14 @@ module KL_avtp_rx_monitor_ctx #(
   //! marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12).
   //! Coalescing and spacing of 1 second belong to the notification scheduler.
   output logic [N_LISTENERS_P-1:0] dirty_p_o,
-  output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
+  output logic        pdu_accept_p_o,    //! per-context accept verdict pulse
   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
+  //! the depacketizer's commit (#948): a PDU was queued, one cycle after its
+  //! match pulse, so its verdicts follow in queue order; each queued PDU's
+  //! verdicts end in one done pulse naming the contexts that accepted it
+  output logic        pdu_enq_p_o,
+  output logic        pdu_done_p_o,
+  output logic [N_LISTENERS_P-1:0] pdu_done_mask_o,
   output logic [7:0]  wire_chans_o,      //! RENDER stream's wire channels
   //! chmap follow-up 3: EVERY context's wire_chans as packed 4-bit fields
   //! (the render crossbar's per-stream de-interleave truth; 0 = stream
@@ -304,7 +315,11 @@ module KL_avtp_rx_monitor_ctx #(
   //! RAM): every read is of a slot written by its own pulse first.
   localparam int unsigned PQ_DEPTH_C = 4;
   pdu_evt_t          pq_ring_r [PQ_DEPTH_C];
-  logic [IDXW_C-1:0] pq_s_r    [PQ_DEPTH_C];   //! stream field, for the prefetch
+  //! the bundle's contexts: every bound one its stream_id matched (#948)
+  logic [N_LISTENERS_P-1:0] pq_v_r [PQ_DEPTH_C];
+  //! the in-service bundle's contexts not yet served, and those that
+  //! accepted it so far: the walker serves the one bundle to each (#948)
+  logic [N_LISTENERS_P-1:0] rem_r, acc_r;
   logic [1:0]        pq_wp_r, pq_rp_r, cur_idx_r;
   logic [1:0]        pq_cnt_r;
   //! Milan 1.3 5.3.8.10 tv tallies as per-context FLOPS - counted at the
@@ -427,12 +442,20 @@ module KL_avtp_rx_monitor_ctx #(
   wire               late_w  = tsd_w < 0;
   wire               early_w = !late_w &&
                        (unsigned'(tsd_w) > (pres_ofs_i + EARLY_MARGIN_NS_C));
-  wire [IDXW_C-1:0]  midx_w  = match_index_i[IDXW_C-1:0];
-  wire               penq_w  = match_valid_i && bound_i[midx_w] &&
+  wire [N_LISTENERS_P-1:0] mvec_w = match_vec_i & bound_i;
+  wire               penq_w  = match_valid_i && (mvec_w != '0) &&
                                (pq_cnt_r != 2'd2);
+  //! the lowest context of a set, the walker's serving order
+  function automatic [IDXW_C-1:0] lowest(input [N_LISTENERS_P-1:0] v);
+    lowest = '0;
+    for (int k = N_LISTENERS_P-1; k >= 0; k--) if (v[k]) lowest = IDXW_C'(k);
+  endfunction
+  function automatic [N_LISTENERS_P-1:0] onehot(input [IDXW_C-1:0] k);
+    onehot = N_LISTENERS_P'(1) << k;
+  endfunction
   pdu_evt_t          new_evt_w;
   always_comb begin : new_evt_pack
-    new_evt_w = '{s: midx_w, subtype: subtype_i, seq: seq_num_i,
+    new_evt_w = '{s: lowest(mvec_w), subtype: subtype_i, seq: seq_num_i,
                   tu: ts_uncertain_i, tv: ts_valid_i, mr: media_restart_i,
                   ts: avtp_ts_i,
                   fsh: fsh_i, tsd: unsigned'(tsd_w), late: late_w,
@@ -452,15 +475,19 @@ module KL_avtp_rx_monitor_ctx #(
       if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) depkt_any_w = 1'b1;
   end : pend_scans
 
-  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0);
+  //! the in-service bundle's next context comes first, so one bundle's
+  //! verdicts end before the next bundle's begin (#948)
+  wire pcont_w = (mst_r == M_IDLE_S) && (rem_r != '0);
+  wire pdisp_w = (mst_r == M_IDLE_S) && (rem_r == '0) && (pq_cnt_r != '0);
   //! fresh-PDU fast dispatch: an idle walker takes the live pulse bundle
-  //! directly (skips the queue hop - the depacketizer commit window on
-  //! short PDUs is the reason: accept must land before the frame's tlast)
-  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0);
+  //! directly (skips the queue hop, so a single context's verdict lands as
+  //! early as it can)
+  wire pdisp_new_w = (mst_r == M_IDLE_S) && (rem_r == '0) && penq_w &&
+                     (pq_cnt_r == '0);
   //! interval-commit dispatch, same M_IDLE_S priority slot the FSM uses
   //! (below depkt, above the window read) - defined ONCE so the FSM branch
   //! and the flag-fold block can never disagree about the drain cycle
-  wire iv_go_w = (mst_r == M_IDLE_S) && !pdisp_w && !pdisp_new_w &&
+  wire iv_go_w = (mst_r == M_IDLE_S) && !pcont_w && !pdisp_w && !pdisp_new_w &&
                  (bind_pend_r == '0) && (sil_pend_r == '0) &&
                  !depkt_any_w &&
                  (iv_res_list_r == '0) && (iv_pend_r != '0);
@@ -472,12 +499,16 @@ module KL_avtp_rx_monitor_ctx #(
   end : iv_pick
   //! the window read gets the port only when the engine is fully idle
   wire ext_rd_go_w = lctx_rd_en_i && (mst_r == M_IDLE_S) && !penq_w &&
-                     (pq_cnt_r == '0) && (bind_pend_r == '0) &&
+                     (pq_cnt_r == '0) && (rem_r == '0) && (bind_pend_r == '0) &&
                      (sil_pend_r == '0) &&
                      (iv_pend_r == '0) && (iv_res_list_r == '0) &&
                      !depkt_any_w;
-  //! stream index being dispatched this idle cycle (drives the prefetch)
-  wire [IDXW_C-1:0] disp_s_w = pdisp_new_w ? midx_w : pq_s_r[pq_rp_r];
+  //! the contexts of the bundle being dispatched this idle cycle, and the
+  //! one served now, its lowest (drives the prefetch)
+  wire [N_LISTENERS_P-1:0] disp_v_w = pcont_w     ? rem_r
+                                    : pdisp_new_w ? mvec_w
+                                    :               pq_v_r[pq_rp_r];
+  wire [IDXW_C-1:0] disp_s_w = lowest(disp_v_w);
 
   //! the ring's one write port: EVERY accepted pulse lands at pq_wp_r, the
   //! fast-dispatched one too (it is served from there from the next cycle,
@@ -820,7 +851,9 @@ module KL_avtp_rx_monitor_ctx #(
       pq_wp_r     <= '0;
       pq_rp_r     <= '0;
       cur_idx_r   <= '0;
-      for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_s_r[q] <= '0;
+      for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_v_r[q] <= '0;
+      rem_r       <= '0;
+      acc_r       <= '0;
       for (int s2 = 0; s2 < N_LISTENERS_P; s2++) begin
         tv_cnt_r[s2]  <= '0;
         tnv_cnt_r[s2] <= '0;
@@ -867,6 +900,9 @@ module KL_avtp_rx_monitor_ctx #(
       dirty_p_o        <= '0;
       pdu_accept_p_o   <= 1'b0;
       pdu_accept_idx_o <= '0;
+      pdu_enq_p_o      <= 1'b0;
+      pdu_done_p_o     <= 1'b0;
+      pdu_done_mask_o  <= '0;
       wire_chans_o     <= '0;
       last_ts_o        <= '0;
       last_tsd_o       <= '0;
@@ -876,6 +912,8 @@ module KL_avtp_rx_monitor_ctx #(
     else begin
       dirty_p_o       <= '0;
       pdu_accept_p_o  <= 1'b0;
+      pdu_done_p_o    <= 1'b0;
+      pdu_enq_p_o     <= penq_w;
       lctx_rd_valid_o <= 1'b0;
 
       // ---- PDU bundle ring (enqueue/dispatch, race-free; a fast-
@@ -884,7 +922,7 @@ module KL_avtp_rx_monitor_ctx #(
       //! a dispatch serves the fresh slot (fast path) or the oldest waiting
       //! one, and the read pointer passes it either way
       if (penq_w) begin
-        pq_s_r[pq_wp_r] <= midx_w;
+        pq_v_r[pq_wp_r] <= mvec_w;
         pq_wp_r         <= pq_wp_r + 2'd1;
       end
       if (pdisp_new_w || pdisp_w) begin
@@ -911,7 +949,7 @@ module KL_avtp_rx_monitor_ctx #(
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
-        if (depkt_drop_p_i && (32'(depkt_drop_idx_i) == s) &&
+        if (depkt_drop_p_i && depkt_drop_mask_i[s] &&
             !(&ddrop_pend_r[s]))
           ddrop_pend_r[s] <= ddrop_pend_r[s] + 3'd1;
         //! silence watchdog: ms-tick flop scan (spec timer rule)
@@ -940,11 +978,14 @@ module KL_avtp_rx_monitor_ctx #(
           inc_rd_q_r  <= 1'b0;
           wrph_r      <= '0;
           zero_idx_r  <= '0;
-          if (pdisp_new_w || pdisp_w) begin
+          if (pcont_w || pdisp_new_w || pdisp_w) begin
             //! PDU first: a same-cycle bind still wins overall because its
             //! reset walk runs after the PDU walk (flat-monitor ordering)
-            //! the bundle itself is served from the ring (cur_idx_r above)
+            //! the bundle itself is served from the ring (cur_idx_r above),
+            //! to each of its contexts in turn, lowest first (#948)
             ev_s_r <= disp_s_w;
+            rem_r  <= disp_v_w & ~onehot(disp_s_w);
+            if (!pcont_w) acc_r <= '0;
             if (disp_s_w == '0) begin
               fmt_r <= fmt0_i;              //! stream-0 format alias
               mst_r <= M_PFRD3_S;           //! (covers the w8 read latency)
@@ -1019,10 +1060,20 @@ module KL_avtp_rx_monitor_ctx #(
             //! timestamp word is written.
             monst_r <= {ram_q_r[31:8], cur_w.seq};
             mst_r   <= M_PSEQ_S;
+            //! the bundle's last context: its verdicts are complete (#948)
+            if (rem_r == '0) begin
+              pdu_done_p_o    <= 1'b1;
+              pdu_done_mask_o <= acc_r;
+            end
           end
           else begin
             pdu_accept_p_o     <= 1'b1;
             pdu_accept_idx_o   <= 4'(ev_s_r);
+            acc_r              <= acc_r | onehot(ev_s_r);
+            if (rem_r == '0) begin
+              pdu_done_p_o    <= 1'b1;
+              pdu_done_mask_o <= acc_r | onehot(ev_s_r);
+            end
             chans_sh_r[ev_s_r] <= p_chans_w;
             sil_ms_r[ev_s_r]   <= '0;
             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
@@ -1074,7 +1125,7 @@ module KL_avtp_rx_monitor_ctx #(
               ddrop_pend_r[ev_s_r] <= ddrop_pend_r[ev_s_r]
                                       - 3'(ddrop_add_r)
                                       + ((depkt_drop_p_i &&
-                                          32'(depkt_drop_idx_i) == 32'(ev_s_r))
+                                          depkt_drop_mask_i[ev_s_r])
                                          ? 3'd1 : 3'd0);
               inc_rd_q_r <= 1'b0;
               w11_mode_r <= 1'b0;

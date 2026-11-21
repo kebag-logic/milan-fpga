@@ -6,7 +6,8 @@
 //! Verilator harness wrapper for the multi-stream lane-A RX stack
 //! (docs/overview/ARCHITECTURE.md): KL_stream_table (N=4) -> avtp_stream_parser ->
 //! KL_avtp_rx_monitor_ctx (LCTX) -> KL_aaf_rx_depacketizer (tuser tag) ->
-//! KL_pcm_route (routing policy). The exact milan_datapath pairing at N=4.
+//! KL_pcm_route (routing policy). The exact milan_datapath pairing at N=4,
+//! except the stop gate: every stack input is started here.
 
 `default_nettype none
 
@@ -102,6 +103,7 @@ module avtp_rxmon_nx_wrap #(
   //! (sim_ctxfmt.cpp, #946) reaches contexts 4 to 7 instead of folding them
   localparam int unsigned MIDXW_C = (N_STREAMS_P <= 1) ? 1 : $clog2(N_STREAMS_P);
   wire [MIDXW_C-1:0] midx_w;
+  wire [N_STREAMS_P-1:0] mvec_w;
   wire [31:0] ts_w;
   wire [63:0] fsh_w;
   wire [64*N_STREAMS_P-1:0] tbl_sid_w;
@@ -125,7 +127,8 @@ module avtp_rxmon_nx_wrap #(
     .s_tdata_i (s_tdata_i), .s_tkeep_i (s_tkeep_i),
     .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
     .match_valid_o (match_w),
-    .match_index_o (midx_w), .stream_id_o (), .avtp_ts_o (ts_w),
+    .match_index_o (midx_w), .match_vec_o (mvec_w),
+    .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (tv_w),
     .media_restart_o (mr_w),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
@@ -134,14 +137,18 @@ module avtp_rxmon_nx_wrap #(
   );
 
   wire        depkt_pdu_p_w, depkt_drop_p_w;
-  wire [3:0]  depkt_pdu_idx_w, depkt_drop_idx_w;
+  wire [3:0]  depkt_pdu_idx_w;
+  wire [N_STREAMS_P-1:0] depkt_drop_mask_w;
+  //! the monitor's verdicts for the depacketizer (#948)
+  wire        enq_p_w, done_p_w;
+  wire [N_STREAMS_P-1:0] done_mask_w;
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS_P), .CLK_FREQ_HZ_P (CLK_FREQ_HZ_P),
     .IVAL_CYC_P (IVAL_CYC_P)
   ) u_mon (
     .clk_i (clk), .rst_n (resetn),
-    .match_valid_i (match_w), .match_index_i (4'(midx_w)),
+    .match_valid_i (match_w), .match_vec_i (mvec_w),
     .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .ts_valid_i (tv_w),
     .media_restart_i (mr_w),
@@ -153,7 +160,7 @@ module avtp_rxmon_nx_wrap #(
     .clk_src_i (clk_src_i), .servo_conv_i (servo_conv_i),
     .render_sel_i (render_sel_o),
     .depkt_pdu_p_i (depkt_pdu_p_w), .depkt_pdu_idx_i (depkt_pdu_idx_w),
-    .depkt_drop_p_i (depkt_drop_p_w), .depkt_drop_idx_i (depkt_drop_idx_w),
+    .depkt_drop_p_i (depkt_drop_p_w), .depkt_drop_mask_i (depkt_drop_mask_w),
     .lctx_wr_en_i (lctx_wr_en_i), .lctx_wr_addr_i (lctx_wr_addr_i),
     .lctx_wr_data_i (lctx_wr_data_i), .lctx_wr_rdy_o (lctx_wr_rdy_o),
     .lctx_rd_en_i (lctx_rd_en_i), .lctx_rd_addr_i (lctx_rd_addr_i),
@@ -174,6 +181,8 @@ module avtp_rxmon_nx_wrap #(
     .dirty_p_o (dirty_p_o),
     .pdu_accept_p_o (pdu_accept_p_o),
     .pdu_accept_idx_o (pdu_accept_idx_o),
+    .pdu_enq_p_o (enq_p_w), .pdu_done_p_o (done_p_w),
+    .pdu_done_mask_o (done_mask_w),
     .wire_chans_o (wire_chans_o),
     .last_ts_o (last_ts_o), .last_tsd_o ()
   );
@@ -183,19 +192,19 @@ module avtp_rxmon_nx_wrap #(
   wire [3:0]  dp_tuser_w;
   wire        dp_tready_w;
 
-  KL_aaf_rx_depacketizer u_depkt (
+  KL_aaf_rx_depacketizer #(.N_STREAMS_P (N_STREAMS_P)) u_depkt (
     .clk_i (clk), .rst_n (resetn),
     .s_tdata_i (s_tdata_i), .s_tkeep_i (s_tkeep_i),
     .s_tvalid_i (s_tvalid_i), .s_tready_i (1'b1), .s_tlast_i (s_tlast_i),
-    .pdu_accept_p_i (pdu_accept_p_o),
-    .pdu_accept_idx_i (pdu_accept_idx_o),
+    .pdu_enq_p_i (enq_p_w), .pdu_done_p_i (done_p_w),
+    .pdu_done_mask_i (done_mask_w),
     .m_axis_tdata (dp_tdata_w), .m_axis_tkeep (),
     .m_axis_tvalid (dp_tvalid_w), .m_axis_tlast (dp_tlast_w),
     .m_axis_tuser (dp_tuser_w),
     .m_axis_tready (dp_tready_w),
     .pdus_o (pcm_pdus_o), .drops_o (pcm_drops_o),
     .pdu_out_p_o (depkt_pdu_p_w), .pdu_out_idx_o (depkt_pdu_idx_w),
-    .drop_p_o (depkt_drop_p_w), .drop_idx_o (depkt_drop_idx_w)
+    .drop_p_o (depkt_drop_p_w), .drop_mask_o (depkt_drop_mask_w)
   );
 
   assign dp_tvalid_o = dp_tvalid_w && dp_tready_w;
