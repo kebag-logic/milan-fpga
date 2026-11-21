@@ -208,7 +208,7 @@ def _source_fact_cases(fx):
             ledger, version_text.replace("16'h0002", "16'h0003"),
             command_text))))
     cases.append(("source split major missing", any(
-        "cannot locate VERSION_SPLIT_MAJOR" in item
+        "cannot locate VERSION and VERSION_SPLIT_MAJOR" in item
         for item in check_source_facts(
             ledger, version_text.split("\n")[0], command_text))))
     cases.append(("source inventory drift", any(

@@ -24389,7 +24389,8 @@ def test_placement_recipe() -> None:
                 f"gate 23o accepted a recipe in which {why}: {found}")
         # negative controls of the version-only comparison: a difference past the firmware_version field
         versions = ("2.96.0", "3.96.0")
-        rom = lambda v, tail: "".join(f"8'h{x:02X}," for x in b"head" + v.encode() + bytes(64 - len(v)) + tail)  # noqa: E731
+        field = lambda v: v.encode() + bytes(64 - len(v))  # noqa: E731
+        rom = lambda v, tail: "".join(f"8'h{x:02X}," for x in b"head" + field(v) + tail)  # noqa: E731
         overlay = lambda v, n: json.dumps({"entity": {"firmware_version": v, "name": n}}).encode()  # noqa: E731
         assert _version_field_only("aem_rom_svh", rom(versions[0], b"t").encode(), rom(versions[1], b"t").encode(),
                                    versions), "gate 23o: the version-only ROM comparison refused the field alone"

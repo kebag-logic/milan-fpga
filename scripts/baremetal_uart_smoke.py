@@ -285,11 +285,14 @@ def self_test() -> None:
     # a split image's major 3 (#665 S13) passes at the same minor and is held
     # to it; a major neither placement reads fails
     assert verdict(status.replace("00020056", "00030056"),
-                   "version-gptp-publication")
+                   "version-gptp-publication"), \
+        "a split image's VERSION major 3 was refused"
     assert not verdict(status.replace("00020056", "00030055"),
-                       "version-gptp-publication")
+                       "version-gptp-publication"), \
+        "a split image below minor 0x0056 was accepted"
     assert not verdict(status.replace("00020056", "00040056"),
-                       "version-gptp-publication")
+                       "version-gptp-publication"), \
+        "a VERSION major neither placement reads was accepted"
     assert not verdict(status.replace("AEM=loaded", "AEM=disabled"),
                        "aem-image")
     assert not verdict(status.replace("001bc5fffe001122",
