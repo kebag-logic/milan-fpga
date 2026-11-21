@@ -1,0 +1,87 @@
+# job docs_gates start 2026-11-21T22:48:24Z head 4ceba3d40e3b94e9bda2407e64ef906c283b63a4
+# cmd: sh $REVIEWS/948-r877-1-packet/scripts/gates.sh
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 223 md files + 1913 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### rc=0 :: python3 scripts/docs_check.py
+### python3 scripts/check_em_dash.py --base 15168e14
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+### rc=2 :: python3 scripts/check_em_dash.py --base 15168e14
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (1755 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+### rc=0 :: python3 scripts/check_doc_paths.py
+### python3 scripts/docs_inventory.py --check
+documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+### rc=0 :: python3 scripts/docs_inventory.py --check
+### python3 scripts/check_rtl_source_lists.py
+RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+### rc=0 :: python3 scripts/check_rtl_source_lists.py
+### python3 scripts/check_soc_sources.py
+SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+### rc=0 :: python3 scripts/check_soc_sources.py
+### python3 scripts/measure_naming.py --check
+superproject            89   2608    375       2742          241        206     385      313          3         72
+total                  141   4525    688       4828          385        327     656      561          4         95
+
+95 candidate(s): 91 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (4525 ports and 688 parameters scanned, 385 with no //! and so not judged here, 561 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+### rc=0 :: python3 scripts/measure_naming.py --check
+### python3 scripts/check_port_contracts.py
+port contract gate: OK (4525 first-party port(s): hdl 2608, gptp-processor 127, protocol-processor 1790; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hierarchical observation(s)
+### rc=0 :: python3 scripts/check_port_contracts.py
+### python3 scripts/measure_fail_fast.py --check
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:167  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:248  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 3 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 80, 3 and 0
+### rc=0 :: python3 scripts/measure_fail_fast.py --check
+### python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1591 first-party file(s) read)
+### rc=0 :: python3 scripts/check_todo_ownership.py
+### python3 scripts/measure_test_evidence.py --check
+Verilator scheduling: 65 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (67 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 67
+### rc=0 :: python3 scripts/measure_test_evidence.py --check
+### python3 scripts/check_hygiene.py --check
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1518 file(s))
+### rc=0 :: python3 scripts/check_hygiene.py --check
+### python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+### rc=0 :: python3 scripts/check_sv_idiom.py
+### python3 scripts/check_cpp_idiom.py
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+### rc=0 :: python3 scripts/check_cpp_idiom.py
+### python3 scripts/check_py_idiom.py
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+### rc=0 :: python3 scripts/check_py_idiom.py
+### python3 scripts/lint_rtl.py --check
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:259:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:508:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+### rc=0 :: python3 scripts/lint_rtl.py --check
+# end 2026-11-21T22:49:53Z rc=0

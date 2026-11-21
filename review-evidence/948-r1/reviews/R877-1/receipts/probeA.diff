@@ -1,0 +1,26 @@
+--- hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv	2026-11-21 23:38:10.437282233 +0100
++++ probe/KL_aaf_rx_depacketizer.sv	2026-11-21 23:45:35.213055185 +0100
+@@ -349,6 +349,23 @@
+     end
+   end : verdict_queue
+ 
++  // ---- disposable review probe (not part of the design) ----
++  logic [RQ_LOG2_C:0] pr_rq_max_r; logic [IDXQ_LOG2_C-1:0] pr_iq_max_r;
++  wire [RQ_LOG2_C:0] pr_rq_occ_w = rq_ap_r - rq_rp_r;
++  wire [IDXQ_LOG2_C-1:0] pr_iq_occ_w = idxq_wp_r - idxq_rp_r;
++  always_ff @(posedge clk_i) begin : review_probe
++    if (!rst_n) begin pr_rq_max_r <= '0; pr_iq_max_r <= '0; end
++    else begin
++      if (pr_rq_occ_w > pr_rq_max_r) begin pr_rq_max_r <= pr_rq_occ_w; $display("PROBE-RQ-MAX %0d", pr_rq_occ_w); end
++      if (pr_iq_occ_w > pr_iq_max_r) begin pr_iq_max_r <= pr_iq_occ_w; $display("PROBE-IQ-MAX %0d", pr_iq_occ_w); end
++      if (pdu_enq_p_i && (pr_rq_occ_w == 3'(1 << RQ_LOG2_C)) && !retire_w) $display("PROBE-RQ-OVERFLOW");
++      if (pr_rq_occ_w > 3'(1 << RQ_LOG2_C)) $display("PROBE-RQ-OCC-ILLEGAL %0d", pr_rq_occ_w);
++      if (pdu_done_p_i && (rq_vp_r == rq_ap_r)) $display("PROBE-DONE-WITHOUT-ENQ");
++      if ((rq_vp_r - rq_rp_r) > (rq_ap_r - rq_rp_r)) $display("PROBE-VP-PAST-AP");
++      if (idxq_pop_w && !sq_ne_w) $display("PROBE-IQ-UNDERFLOW");
++    end
++  end : review_probe
++
+   // ------------------------------------------------------------------ //
+   // Read side: re-parse the buffered header, strip 38/42 bytes via a     //
+   // hold-register rotation, emit exactly ceil(data_len/8) payload beats  //

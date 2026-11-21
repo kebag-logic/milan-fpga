@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-11-21 23:38:10.449386253 +0100
++++ probe/milan_datapath.sv	2026-11-21 23:46:36.169577132 +0100
+@@ -7901,7 +7901,7 @@
+   //! ...and the same gate on the depacketizer's verdict, input by input: a
+   //! stopped input's share of a PDU is discarded, the others receive it
+   wire [N_STREAMS-1:0] avtprx_deliver_w =
+-      avtprx_done_mask_w & ~acmpl_stopped_v_w[N_STREAMS-1:0];
++      avtprx_done_mask_w & ~{N_STREAMS{|(avtprx_done_mask_w & acmpl_stopped_v_w[N_STREAMS-1:0])}};
+ 
+   KL_avtp_rx_monitor_ctx #(
+     .N_LISTENERS_P (N_STREAMS),

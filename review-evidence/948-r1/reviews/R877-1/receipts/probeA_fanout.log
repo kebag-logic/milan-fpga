@@ -1,0 +1,431 @@
+# job probeA_fanout start 2026-11-21T22:45:41Z head 4ceba3d40e3b94e9bda2407e64ef906c283b63a4
+# cmd: sh -c make -s -C tb/verilator/avtp_rxmon fanout-build DEPKT_SRC=$REVIEWS/948-r877-1-packet/scratch/probeA/KL_aaf_rx_depacketizer.sv FO_MDIR=$REVIEWS/948-r877-1-packet/scratch/probeA/obj && cd tb/verilator/avtp_rxmon && $REVIEWS/948-r877-1-packet/scratch/probeA/obj/Vavtp_rxmon_fanout
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:112:50: Instance has missing pin: 'bound_v_i'
+  112 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:74:40: ... Location of port declaration
+   74 |   input  wire [N_LISTENERS_P-1:0]      bound_v_i,    
+      |                                        ^~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:112:50: Instance has missing pin: 'sid_v_i'
+  112 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:75:40: ... Location of port declaration
+   75 |   input  wire [64*N_LISTENERS_P-1:0]   sid_v_i,      
+      |                                        ^~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:112:50: Instance has missing pin: 'bind_fall_o'
+  112 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:87:39: ... Location of port declaration
+   87 |   output logic [N_LISTENERS_P-1:0]    bind_fall_o   
+      |                                       ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:149:5: Instance has missing pin: 'bind_fall_i'
+  149 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:155:35: ... Location of port declaration
+  155 |   input  wire [N_LISTENERS_P-1:0] bind_fall_i,   
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:149:5: Instance has missing pin: 'wire_chans_all_o'
+  149 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:228:38: ... Location of port declaration
+  228 |   output logic [N_LISTENERS_P*4-1:0] wire_chans_all_o,
+      |                                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:149:5: Instance has missing pin: 'diag_idx_i'
+  149 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:240:38: ... Location of port declaration
+  240 |   input  wire [3:0]                  diag_idx_i,
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:149:5: Instance has missing pin: 'diag_col_i'
+  149 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:241:38: ... Location of port declaration
+  241 |   input  wire [3:0]                  diag_col_i,   
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:149:5: Instance has missing pin: 'diag_q_o'
+  149 |   ) u_mon (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:242:38: ... Location of port declaration
+  242 |   output logic [31:0]                diag_q_o,     
+      |                                      ^~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:195:56: Instance has missing pin: 'hdr_p_o'
+  195 |   KL_aaf_rx_depacketizer #(.N_STREAMS_P (N_STREAMS_P)) u_depkt (
+      |                                                        ^~~~~~~
+                     $REVIEWS/948-r877-1-packet/scratch/probeA/KL_aaf_rx_depacketizer.sv:117:23: ... Location of port declaration
+  117 |   output logic        hdr_p_o,             
+      |                       ^~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:195:56: Instance has missing pin: 'hdr_ts_o'
+  195 |   KL_aaf_rx_depacketizer #(.N_STREAMS_P (N_STREAMS_P)) u_depkt (
+      |                                                        ^~~~~~~
+                     $REVIEWS/948-r877-1-packet/scratch/probeA/KL_aaf_rx_depacketizer.sv:121:23: ... Location of port declaration
+  121 |   output logic [31:0] hdr_ts_o,            
+      |                       ^~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:195:56: Instance has missing pin: 'hdr_tv_o'
+  195 |   KL_aaf_rx_depacketizer #(.N_STREAMS_P (N_STREAMS_P)) u_depkt (
+      |                                                        ^~~~~~~
+                     $REVIEWS/948-r877-1-packet/scratch/probeA/KL_aaf_rx_depacketizer.sv:122:23: ... Location of port declaration
+  122 |   output logic        hdr_tv_o,            
+      |                       ^~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:61:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   61 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module KL_stream_table #(
+      |        ^~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:122:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  122 | module KL_avtp_rx_monitor_ctx #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: $REVIEWS/948-r877-1-packet/scratch/probeA/KL_aaf_rx_depacketizer.sv:78:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   78 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_pcm_route.sv:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module KL_pcm_route #(
+      |        ^~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:62:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   62 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.967 MB sources in 11 modules, into 0.777 MB in 7 C++ files needing 0.002 MB
+- Verilator: Walltime 8.371 s (elab=0.025, cvt=0.115, bld=8.167); cpu 0.179 s on 32 threads; allocated 667.012 MB
+== one stream bound to several Stream Inputs, N=8 (#948) ==
+
+[FO1] inputs 0 and 1 bound to one talker stream: each receives every PDU
+PROBE-RQ-MAX 1
+PROBE-IQ-MAX 1
+  [ ok ] [FO1] accept verdicts: input 0 = 4
+  [ ok ] [FO1] payloads reach the depacketizer's output under the input's index: input 0 = 4
+  [ ok ] [FO1] payloads equal the sent ones, byte for byte, in order: input 0 = 4
+  [ ok ] [FO1] FRAMES_RX counts them: input 0 = 4
+  [ ok ] [FO1] the DEPKT tally counts them: input 0 = 4
+  [ ok ] [FO1] MEDIA_LOCKED: input 0 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 0 = 0
+  [ ok ] [FO1] accept verdicts: input 1 = 4
+  [ ok ] [FO1] payloads reach the depacketizer's output under the input's index: input 1 = 4
+  [ ok ] [FO1] payloads equal the sent ones, byte for byte, in order: input 1 = 4
+  [ ok ] [FO1] FRAMES_RX counts them: input 1 = 4
+  [ ok ] [FO1] the DEPKT tally counts them: input 1 = 4
+  [ ok ] [FO1] MEDIA_LOCKED: input 1 = 1
+  [ ok ] [FO1] SEQ_NUM_MISMATCH stays 0: input 1 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 5 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 5 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO1] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO1] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO1] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO2] input 5 bound to the same stream as well: each of the three receives every PDU
+  [ ok ] [FO2] accept verdicts: input 0 = 4
+  [ ok ] [FO2] payloads reach the depacketizer's output under the input's index: input 0 = 4
+  [ ok ] [FO2] payloads equal the sent ones, byte for byte, in order: input 0 = 4
+  [ ok ] [FO2] FRAMES_RX counts them: input 0 = 4
+  [ ok ] [FO2] the DEPKT tally counts them: input 0 = 4
+  [ ok ] [FO2] accept verdicts: input 1 = 4
+  [ ok ] [FO2] payloads reach the depacketizer's output under the input's index: input 1 = 4
+  [ ok ] [FO2] payloads equal the sent ones, byte for byte, in order: input 1 = 4
+  [ ok ] [FO2] FRAMES_RX counts them: input 1 = 4
+  [ ok ] [FO2] the DEPKT tally counts them: input 1 = 4
+  [ ok ] [FO2] accept verdicts: input 5 = 4
+  [ ok ] [FO2] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO2] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO2] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO2] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO2] MEDIA_LOCKED of the input bound last: input 5 = 1
+  [ ok ] [FO2] an unbound input: no accept verdict: input 2 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 2 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 2 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 3 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 3 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 3 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 4 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 4 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 4 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 6 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 6 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 6 = 0
+  [ ok ] [FO2] an unbound input: no accept verdict: input 7 = 0
+  [ ok ] [FO2] an unbound input: no payload: input 7 = 0
+  [ ok ] [FO2] an unbound input: FRAMES_RX unchanged: input 7 = 0
+
+[FO3] input 1 unbound: inputs 0 and 5 go on receiving, input 1 receives nothing
+  [ ok ] [FO3] accept verdicts: input 0 = 4
+  [ ok ] [FO3] payloads reach the depacketizer's output under the input's index: input 0 = 4
+  [ ok ] [FO3] payloads equal the sent ones, byte for byte, in order: input 0 = 4
+  [ ok ] [FO3] FRAMES_RX counts them: input 0 = 4
+  [ ok ] [FO3] the DEPKT tally counts them: input 0 = 4
+  [ ok ] [FO3] accept verdicts: input 5 = 4
+  [ ok ] [FO3] payloads reach the depacketizer's output under the input's index: input 5 = 4
+  [ ok ] [FO3] payloads equal the sent ones, byte for byte, in order: input 5 = 4
+  [ ok ] [FO3] FRAMES_RX counts them: input 5 = 4
+  [ ok ] [FO3] the DEPKT tally counts them: input 5 = 4
+  [ ok ] [FO3] the unbound input: no accept verdict: input 1 = 0
+  [ ok ] [FO3] the unbound input: no payload: input 1 = 0
+  [ ok ] [FO3] the unbound input: FRAMES_RX unchanged: input 1 = 0
+
+[FO4] per-input verdicts on one PDU: input 5 at 2 channels, inputs 0 and 1 at 8
+  [ ok ] [FO4] an 8-channel input: accept verdicts: input 0 = 10
+  [ ok ] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 0 = 10
+  [ ok ] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 0 = 10
+  [ ok ] [FO4] an 8-channel input: FRAMES_RX counts them: input 0 = 10
+  [ ok ] [FO4] an 8-channel input: the DEPKT tally counts them: input 0 = 10
+  [ ok ] [FO4] an 8-channel input: accept verdicts: input 1 = 10
+  [ ok ] [FO4] an 8-channel input: payloads reach the depacketizer's output under the input's index: input 1 = 10
+  [ ok ] [FO4] an 8-channel input: payloads equal the sent ones, byte for byte, in order: input 1 = 10
+  [ ok ] [FO4] an 8-channel input: FRAMES_RX counts them: input 1 = 10
+  [ ok ] [FO4] an 8-channel input: the DEPKT tally counts them: input 1 = 10
+  [ ok ] [FO4] the 2-channel input: no accept verdict: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: no payload: input 5 = 0
+  [ ok ] [FO4] the 2-channel input: FRAMES_RX unchanged: input 5 = 0
+  [ ok ] [FO4] the 2-channel input counts UNSUPPORTED_FORMAT: input 5 = 1
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 0 = 0
+  [ ok ] [FO4] an 8-channel input counts no UNSUPPORTED_FORMAT: input 1 = 0
+  a gap of three sequence numbers
+  [ ok ] [FO4] after the gap: accept verdicts: input 0 = 1
+  [ ok ] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 0 = 1
+  [ ok ] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 0 = 1
+  [ ok ] [FO4] after the gap: FRAMES_RX counts them: input 0 = 1
+  [ ok ] [FO4] after the gap: the DEPKT tally counts them: input 0 = 1
+  [ ok ] [FO4] SEQ_NUM_MISMATCH counts the gap: input 0 = 1
+  [ ok ] [FO4] STREAM_INTERRUPTED counts the gap: input 0 = 1
+  [ ok ] [FO4] after the gap: accept verdicts: input 1 = 1
+  [ ok ] [FO4] after the gap: payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] [FO4] after the gap: payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] [FO4] after the gap: FRAMES_RX counts them: input 1 = 1
+  [ ok ] [FO4] after the gap: the DEPKT tally counts them: input 1 = 1
+  [ ok ] [FO4] SEQ_NUM_MISMATCH counts the gap: input 1 = 1
+  [ ok ] [FO4] STREAM_INTERRUPTED counts the gap: input 1 = 1
+  [ ok ] [FO4] the 2-channel input's SEQ_NUM_MISMATCH stays: input 5 = 0
+
+[FO5] talker A on inputs 0 and 1, talker B on input 2, their PDUs back to back
+PROBE-IQ-MAX 2
+  [ ok ] [FO5] talker A's input: accept verdicts: input 0 = 3
+  [ ok ] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 0 = 3
+  [ ok ] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 0 = 3
+  [ ok ] [FO5] talker A's input: FRAMES_RX counts them: input 0 = 3
+  [ ok ] [FO5] talker A's input: the DEPKT tally counts them: input 0 = 3
+  [ ok ] [FO5] talker A's input: accept verdicts: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads reach the depacketizer's output under the input's index: input 1 = 3
+  [ ok ] [FO5] talker A's input: payloads equal the sent ones, byte for byte, in order: input 1 = 3
+  [ ok ] [FO5] talker A's input: FRAMES_RX counts them: input 1 = 3
+  [ ok ] [FO5] talker A's input: the DEPKT tally counts them: input 1 = 3
+  [ ok ] [FO5] talker B's input: accept verdicts: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads reach the depacketizer's output under the input's index: input 2 = 3
+  [ ok ] [FO5] talker B's input: payloads equal the sent ones, byte for byte, in order: input 2 = 3
+  [ ok ] [FO5] talker B's input: FRAMES_RX counts them: input 2 = 3
+  [ ok ] [FO5] talker B's input: the DEPKT tally counts them: input 2 = 3
+  [ ok ] [FO5] nothing dropped: input 0 = 0
+
+[FO6] all eight inputs bound to one talker stream
+  [ ok ] [FO6] accept verdicts: input 0 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 0 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 0 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 0 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 0 = 3
+  [ ok ] [FO6] accept verdicts: input 1 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 1 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 1 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 1 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 1 = 3
+  [ ok ] [FO6] accept verdicts: input 2 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 2 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 2 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 2 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 2 = 3
+  [ ok ] [FO6] accept verdicts: input 3 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 3 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 3 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 3 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 3 = 3
+  [ ok ] [FO6] accept verdicts: input 4 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 4 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 4 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 4 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 4 = 3
+  [ ok ] [FO6] accept verdicts: input 5 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 5 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 5 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 5 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 5 = 3
+  [ ok ] [FO6] accept verdicts: input 6 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 6 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 6 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 6 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 6 = 3
+  [ ok ] [FO6] accept verdicts: input 7 = 3
+  [ ok ] [FO6] payloads reach the depacketizer's output under the input's index: input 7 = 3
+  [ ok ] [FO6] payloads equal the sent ones, byte for byte, in order: input 7 = 3
+  [ ok ] [FO6] FRAMES_RX counts them: input 7 = 3
+  [ ok ] [FO6] the DEPKT tally counts them: input 7 = 3
+  [ ok ] [FO6] nothing dropped: input 0 = 0
+
+[FO7] a 4-channel PDU inputs 0 and 1 discard, then an 8-channel one, back to back
+  [ ok ] [FO7] the 8-channel PDU: accept verdicts: input 0 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 0 = 1
+  [ ok ] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 0 = 1
+  [ ok ] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 0 = 1
+  [ ok ] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 0 = 1
+  [ ok ] [FO7] the 8-channel PDU: accept verdicts: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: FRAMES_RX counts them: input 1 = 1
+  [ ok ] [FO7] the 8-channel PDU: the DEPKT tally counts them: input 1 = 1
+  [ ok ] [FO7] the 4-channel PDU counts UNSUPPORTED_FORMAT: input 1 = 1
+
+[FO8] a 64-byte frame of the stream, then a full PDU with no gap between them
+PROBE-RQ-MAX 2
+  [ ok ] [FO8] both PDUs are judged (the short one counts in FRAMES_RX): input 0 = 2
+  [ ok ] [FO8] only the full PDU reaches the depacketizer's output: input 0 = 1
+  [ ok ] [FO8] ...with its own payload: input 0 = 1
+  [ ok ] [FO8] both PDUs are judged (the short one counts in FRAMES_RX): input 1 = 2
+  [ ok ] [FO8] only the full PDU reaches the depacketizer's output: input 1 = 1
+  [ ok ] [FO8] ...with its own payload: input 1 = 1
+
+[FO9] eight inputs on one stream: a full PDU, six 64-byte frames with no gap, then two full PDUs
+PROBE-RQ-MAX 3
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 0 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 0 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 0 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 1 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 1 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 1 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 2 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 2 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 2 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 3 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 3 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 3 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 4 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 4 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 4 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 5 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 5 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 5 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 6 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 6 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 6 = 5
+  [ ok ] [FO9] only the three full PDUs reach the depacketizer's output: input 7 = 3
+  [ ok ] [FO9] ...each its own payload, in order: input 7 = 3
+  [ ok ] [FO9] FRAMES_RX counts exactly the PDUs the input accepted: input 7 = 5
+
+[FO10] eight inputs on one stream: thirty full PDUs with no gap, more than the store holds
+PROBE-IQ-MAX 3
+PROBE-IQ-MAX 4
+PROBE-IQ-MAX 5
+PROBE-IQ-MAX 6
+PROBE-IQ-MAX 7
+  [ ok ] [FO10] the store dropped frames (the case is live): input 0 = 1
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 = 15
+  [ ok ] [FO10] the input counts drops: input 0 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 0 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 0 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 = 15
+  [ ok ] [FO10] the input counts drops: input 1 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 1 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 = 15
+  [ ok ] [FO10] the input counts drops: input 2 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 2 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 = 15
+  [ ok ] [FO10] the input counts drops: input 3 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 3 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 = 15
+  [ ok ] [FO10] the input counts drops: input 4 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 4 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 = 15
+  [ ok ] [FO10] the input counts drops: input 5 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 5 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 = 15
+  [ ok ] [FO10] the input counts drops: input 6 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 6 = 11
+  [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 = 15
+  [ ok ] [FO10] the input counts drops: input 7 = 1
+  [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 = 4
+  [ ok ] [FO10] each delivered payload is a sent one, in order: input 7 = 11
+
+======================================================================
+FANOUT N=8: 239 checks, 0 failures
+RESULT: PASS
+# end 2026-11-21T22:45:50Z rc=0
