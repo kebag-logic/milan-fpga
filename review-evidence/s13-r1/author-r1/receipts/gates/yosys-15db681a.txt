@@ -1,0 +1,34 @@
+HEAD 15db681a start 19:24:04 yosys Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+shard 0 rc=0: stream-net bindings checked: 29 (rx_axis_fabric: 15, MAC transmit stream: 3)   violations: 0 TAP-PURITY RESULT: PASS 
+shard 1 rc=0: RESULT: PASS structural checks: skipped in this worker 
+shard 2 rc=0: RESULT: PASS structural checks: skipped in this worker 
+shard 3 rc=0: RESULT: PASS structural checks: skipped in this worker 
+END rc=0 20:23:16
+== shard 0 (syn/yosys/run.sh --shard 0/4): rc 0
+  negative self-test: checker flags the broken fixture (2 violations) - OK
+  negative self-test: checker flags the broken MAC-site fixture (3 violations) - OK
+--------------------------------------------------------------
+pure observers: 4 file(s)   tap readers: 4 file(s)   MAC-site observers: 1 file(s)
+stream-net bindings checked: 29 (rx_axis_fabric: 15, MAC transmit stream: 3)   violations: 0
+TAP-PURITY RESULT: PASS
+== shard 1 (syn/yosys/run.sh --shard 1/4): rc 0
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] KL_pp_shadow           cells=1268784
+--------------------------------------------------------------
+tops: 1   pass: 1   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+== shard 2 (syn/yosys/run.sh --shard 2/4): rc 0
+  [PASS] axis_fifo              cells=133594
+  [PASS] axis_arb_mux           cells=177
+--------------------------------------------------------------
+tops: 31   pass: 31   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+== shard 3 (syn/yosys/run.sh --shard 3/4): rc 0
+  [PASS] KL_mbx_dma             cells=2376
+  [PASS] axis_demux             cells=96
+--------------------------------------------------------------
+tops: 30   pass: 30   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

@@ -1,0 +1,28 @@
+# hcompare2.py: this head's (f7139ce1) re-measure of the groups that read the ENTITY descriptor and of control (the boot, the AEM image's CRC check), run.py --reuse-build with the formal options on hbuild.sh's arm images, against the measured runs (1x1/1if at 8c5e2b4f, 8x8/1if at 92de01f7, whose 8x8/1if images the train showed equal at 8c5e2b4f), every leaf of each group's result compared (cycles, start and end on sys, passes, instructions, regions, modules)
+== 1x1/1if
+answering-ports/aecp-reboot (measured part2): 5 probes, IDENTICAL
+declaring-outputs/aecp-outputs (measured part0): 7 probes, IDENTICAL
+none/aecp-fanout (measured part3): 9 probes, IDENTICAL
+none/aecp-held (measured part2): 1 probes, IDENTICAL
+none/aecp-largest-notice (measured part19): 5 probes, IDENTICAL
+none/aecp (measured part15): 26 probes, IDENTICAL
+none/control (measured part0): 3 probes, IDENTICAL
+groups compared: 7, identical: 7
+rc=0
+== 8x8/1if
+answering-ports/aecp-reboot (measured part14): 5 probes, IDENTICAL
+declaring-outputs/aecp-outputs (measured part0): 14 probes, IDENTICAL
+none/aecp-fanout (measured part9): 7 probes, IDENTICAL
+none/aecp-held (measured part13): 1 probes, IDENTICAL
+none/aecp (measured part11): 26 probes, IDENTICAL
+none/control (measured part8): 3 probes, IDENTICAL
+groups compared: 6, identical: 6
+rc=0
+
+# the runs' own verdict lines:
+1x1/answering-ports.subset.log: 1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 109 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+1x1/declaring-outputs.subset.log: 1 groups graded, 0 refusals, 0 budget misses (0 of 7 probe instances, 0 of 5 paths), 0 of 387 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+1x1/none.subset.log: 5 groups graded, 0 refusals, 0 budget misses (0 of 44 probe instances, 0 of 43 paths), 0 of 529 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+8x8-1if/answering-ports.subset.log: 1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 108 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+8x8-1if/declaring-outputs.subset.log: 1 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 5 paths), 0 of 399 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+8x8-1if/none.subset.log: 4 groups graded, 0 refusals, 0 budget misses (0 of 37 probe instances, 0 of 36 paths), 0 of 417 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)

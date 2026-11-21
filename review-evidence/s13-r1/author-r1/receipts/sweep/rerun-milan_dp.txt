@@ -1,0 +1,31 @@
+# milan_dp rerun alone (its sweep run was killed by the wall clock): suite1.sh at ee4c1a9c, make -C tb/verilator/milan_dp, 4 h limit
+HEAD ee4c1a9c milan_dp start 21:16:07
+== make rc=0 22:13:02
+== verdict rc=0
+checks: 14085   in-suite failures: 0
+== tally rc=0
+milan_dp.log: 3164065 B, sha256 795057077d9648170e10ae22d3e5cd96ca449df65efd2d340c1d0c2115299a7e, kept in scratch; its VERSION lines and last 20 lines:
+  [PASS] VERSION                            got=0x00020060 exp=0x00020060
+  [PASS] VERSION major (VERSION >> 16), all-fabric got=0x00000002 exp=0x00000002
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live 
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live 
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 233.892, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 66.13, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 233.902, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.01}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 264.361, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 30.459, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 264.362, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.001}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 417.595, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 153.233, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 419.005, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 1.41}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 480.761, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 61.756, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 480.761, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 634.873, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 154.112, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 634.881, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.008}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 661.781, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 26.9, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 661.781, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 866.601, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 204.82, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 866.727, "state": "idle", "idle_s": 0.126}
+
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/tmp/s13-a815/plant/smoke_planted.py", line 405, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/s13-a815/plant/smoke_planted.py", line 369, in main
+    self_test()
+    ~~~~~~~~~^^
+  File "/tmp/s13-a815/plant/smoke_planted.py", line 287, in self_test
+    assert verdict(status.replace("00020056", "00030056"),
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "version-gptp-publication"), \
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a split image's VERSION major 3 was refused

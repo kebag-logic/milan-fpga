@@ -1,0 +1,93 @@
+# bitdiff.py <bench 8x8/1if 7d903412> <flip 8x8/1if, 822e3af0, the gating recipe, ExtraPostPlacementOpt>
+A 3825992 B, header 252 B, 571 regions; B 3825992 B, header 252 B, 571 regions
+differing bytes: 93
+  header  offset       69  A 63 B 61  
+  header  offset       70  A 31 B 35  
+  header  offset       71  A 32 B 39  
+  header  offset       72  A 38 B 65  
+  header  offset       73  A 39 B 36  
+  header  offset       74  A 34 B 33  
+  header  offset       75  A 35 B 37  
+  header  offset       76  A 38 B 31  
+  header  offset       92  A 63 B 64  
+  header  offset       93  A 32 B 39  
+  header  offset       94  A 33 B 63  
+  header  offset       95  A 62 B 33  
+  header  offset       96  A 35 B 62  
+  header  offset       98  A 37 B 31  
+  header  offset       99  A 37 B 39  
+  header  offset      100  A 31 B 37  
+  header  offset      101  A 34 B 30  
+  header  offset      102  A 65 B 30  
+  header  offset      103  A 32 B 30  
+  header  offset      104  A 65 B 64  
+  header  offset      105  A 66 B 35  
+  header  offset      106  A 38 B 33  
+  header  offset      107  A 37 B 63  
+  header  offset      108  A 36 B 33  
+  header  offset      109  A 61 B 36  
+  header  offset      110  A 62 B 33  
+  header  offset      111  A 61 B 32  
+  header  offset      112  A 64 B 66  
+  header  offset      113  A 64 B 62  
+  header  offset      114  A 37 B 31  
+  header  offset      115  A 61 B 38  
+  header  offset      116  A 64 B 38  
+  header  offset      117  A 62 B 35  
+  header  offset      118  A 37 B 32  
+  header  offset      119  A 35 B 66  
+  header  offset      120  A 36 B 64  
+  header  offset      122  A 32 B 34  
+  header  offset      123  A 37 B 34  
+  header  offset      124  A 35 B 66  
+  header  offset      125  A 63 B 66  
+  header  offset      126  A 38 B 64  
+  header  offset      127  A 36 B 34  
+  header  offset      129  A 61 B 30  
+  header  offset      130  A 61 B 32  
+  header  offset      131  A 33 B 64  
+  header  offset      132  A 65 B 39  
+  header  offset      133  A 62 B 61  
+  header  offset      134  A 35 B 34  
+  header  offset      135  A 35 B 32  
+  header  offset      136  A 36 B 31  
+  header  offset      137  A 61 B 36  
+  header  offset      138  A 62 B 38  
+  header  offset      139  A 33 B 64  
+  header  offset      140  A 62 B 33  
+  header  offset      141  A 39 B 32  
+  header  offset      142  A 35 B 63  
+  header  offset      143  A 31 B 65  
+  header  offset      144  A 39 B 30  
+  header  offset      145  A 62 B 32  
+  header  offset      146  A 30 B 61  
+  header  offset      147  A 37 B 32  
+  header  offset      148  A 66 B 37  
+  header  offset      149  A 36 B 37  
+  header  offset      150  A 66 B 64  
+  header  offset      151  A 65 B 36  
+  header  offset      152  A 61 B 33  
+  header  offset      153  A 31 B 34  
+  header  offset      154  A 30 B 34  
+  header  offset      155  A 36 B 30  
+  header  offset      185  A 30 B 31  
+  header  offset      193  A 32 B 35  
+  header  offset      194  A 38 B 33  
+  header  offset      196  A 32 B 33  
+  header  offset      197  A 30 B 36  
+  packet  offset  3823920  A 2a B bb  CRC
+  packet  offset  3823921  A 99 B 94  CRC
+  packet  offset  3823922  A c7 B bd  CRC
+  packet  offset  3823923  A ce B d6  CRC
+  frame data: 7 of 9464 frames differ (FDRI payload starts at byte 460)
+    frame   7736: words [6], 1 bit(s)
+    frame   7792: words [42], 1 bit(s)
+    frame   8636: words [61, 71, 81], 3 bit(s)
+    frame   8764: words [71], 1 bit(s)
+    frame   8892: words [51, 71], 2 bit(s)
+    frame   9020: words [20, 36, 40, 51, 91, 97], 6 bit(s)
+    frame   9060: words [90], 1 bit(s)
+# header strings (A bench, B flip):
+alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=c1289458;SW_HDR_SHA256=c23b587714e2ef876abadd7adb7566275c86caa3eb556ab3b9519b07f6fea106
+alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=a59e6371;SW_HDR_SHA256=d9c3b8197000d53c3632fb18852fd644ffd4c02d9a42168d32ce02a277d63440
+# expected content bits: the CRC's lui 10 and addi 3, '2'->'3' 1, VERSION 0x00020060->0x00030060 1: 15

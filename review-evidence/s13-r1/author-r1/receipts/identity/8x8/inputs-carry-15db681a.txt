@@ -1,0 +1,19 @@
+# compare_inputs.py: the 8x8/1if image's inputs at head 15db681a (carry.sh: gprep.sh and the recipe's milan_soc.py without --build) against the built image's at 822e3af0
+EQUAL   argv.txt
+EQUAL   sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf: loaded sections (loaded bytes differing: 0)
+EQUAL   aem_desc.bin
+EQUAL   aem_desc.json
+EQUAL   aem_desc.map
+EQUAL   csr.csv
+EQUAL   csr.json
+EQUAL   flashboot_layout.json (without the binding a Vivado build adds and the ELF's whole-file hash)
+EQUAL   gateware/alinx_ax7101.tcl
+EQUAL   gateware/alinx_ax7101.v (outside its comments)
+EQUAL   gateware/alinx_ax7101.xdc (its 7 clock-group pairs as a set, every other line in order)
+EQUAL   gateware/alinx_ax7101_mem.init
+EQUAL   gateware/alinx_ax7101_rom_bank0.init
+EQUAL   gateware/alinx_ax7101_rom_bank1.init
+EQUAL   gateware/build_alinx_ax7101.sh
+EQUAL   image_manifest.json (without the binding a Vivado build adds and the ELF's whole-file hash)
+16 inputs compared, 0 differ
+rc=0

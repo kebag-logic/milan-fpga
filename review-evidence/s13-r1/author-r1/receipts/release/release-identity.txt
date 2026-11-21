@@ -1,0 +1,35 @@
+# the AX7101 1x1 release (all-fabric) export: base 59b09884 (build.sh ax7101 --dry-run, its default) vs head f7139ce1 (BUILD_PLACEMENT=all-fabric build.sh ax7101 --dry-run), each milan_soc.py command without --build (release_export.sh); cmp_export.py with each export's roots replaced
+files: A 3876 B 3876 only A 21 only B 21
+equal after normalisation: 3748 differ: 107
+  differs: gateware/alinx_ax7101.v (equal outside its comments)
+  differs: litex.log
+software/ files differing: 105
+gateware/ files differing: 1
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_ctype_ctype_.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_errno_errno.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memcpy-asm.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memmove.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memset.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strcmp.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strcpy.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strlen.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_stdio_fgetc.o
+  only A: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_base_ax7101_software_include_.._picolibc_src_libc_stdio_fputc.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_ctype_ctype_.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_errno_errno.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memcpy-asm.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memmove.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_memset.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strcmp.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strcpy.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_machine_riscv_strlen.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_stdio_fgetc.o
+  only B: software/libc/minimal__data-2_milan_tmp_s13-a815_rel_head_ax7101_software_include_.._picolibc_src_libc_stdio_fputc.o
+-- LOADED
+LOADED software/bios/bios.bin base 603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf head 603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf EQUAL
+LOADED aem_desc.bin base bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180 head bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180 EQUAL
+LOADED gateware/alinx_ax7101_mem.init base d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335 head d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335 EQUAL
+LOADED gateware/alinx_ax7101_rom.init base 621133bbfe82d92ce986f9b4228a2a68fe5797e019815b75dbca1602d87b2c83 head 621133bbfe82d92ce986f9b4228a2a68fe5797e019815b75dbca1602d87b2c83 EQUAL
+LOADED gateware/alinx_ax7101_sram.init base e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 head e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 EQUAL
+-- the milan_soc.py argv, each export's root replaced:
+argv identical

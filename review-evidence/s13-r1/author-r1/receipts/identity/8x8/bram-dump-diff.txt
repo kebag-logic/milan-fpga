@@ -1,0 +1,27 @@
+# bramdump.tcl over the two routed checkpoints (bench 7d903412's alinx_ax7101_route.dcp, flip 822e3af0's): every block RAM cell's name, type, LOC and INIT* properties; bramdiff.py
+64abc3dba89380031a0bf43b72e2e09788ea27f0bae899f16aacd57468923c8d  1076660 B  bench.bram (kept in scratch)
+496b2bcd5e33848241f1bcbb0d4b7c2ea75dedfa9f87231aa76b565ed1b4d21c  1076660 B  flip.bram (kept in scratch)
+block RAM cells: A 111 B 111; only A 0, only B 0
+cells whose type or LOC differ: 0
+  milan_datapath/csr/sweep_cnt_reg_rep RAMB18_X1Y48: INITP_00 bit(s) [2]
+  rom_bank0_dat0_reg_0_0 RAMB36_X3Y18: INIT_70 bit(s) [29]
+  rom_bank0_dat0_reg_0_15 RAMB36_X3Y15: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_16 RAMB36_X2Y15: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_18 RAMB36_X2Y17: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_19 RAMB36_X0Y16: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_21 RAMB36_X0Y17: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_22 RAMB36_X0Y18: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_23 RAMB36_X3Y19: INIT_48 bit(s) [130, 131]
+  rom_bank0_dat0_reg_0_24 RAMB36_X3Y12: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_25 RAMB36_X0Y20: INIT_48 bit(s) [131]
+  rom_bank0_dat0_reg_0_29 RAMB36_X1Y17: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_30 RAMB36_X3Y14: INIT_48 bit(s) [130]
+  rom_bank0_dat0_reg_0_31 RAMB36_X3Y13: INIT_48 bit(s) [131]
+INIT bits differing: 15
+rc=1 (a difference exists; the 15 bits below are all of it)
+
+# the rom bank init files the two builds wrote, word by word:
+bank0: 3 word(s) differ <  18563:d6dd77b7 <  18564:4b978793 >  18563:b730f7b7 >  18564:c9178793 <  28702:36392e32 >  28702:36392e33 
+bank1: 0 word(s) differ 
+
+# reading: the CSR's defaults ROM: 1 bit, VERSION 0x00020060 -> 0x00030060; rom_bank0 slices at INIT_48: 13 bits, the AECP_ENTITY_CRC lui/addi immediates (words 18563-18564: 10 + 3); at INIT_70: 1 bit, the firmware string's '2' -> '3' (word 28702). 15 bits, the 15 frame bits of bitstream-bitdiff.txt. Netlist, placement and routing: all 149 Vivado phase checksums equal (vivado-phase-checksums.txt).

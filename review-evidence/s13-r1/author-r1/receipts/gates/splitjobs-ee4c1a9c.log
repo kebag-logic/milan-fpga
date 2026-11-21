@@ -1,0 +1,71 @@
+HEAD ee4c1a9c start 20:29:22
+python3 split_cdc_check.py --selftest
+[ok]   the tracked sources: 253 sinks read their own domain
+[ok]   planted the publication block wired straight across: 
+       a crossing without a primitive: output d_pub_sid_o (dp) reads m_pub_sid_i (sys)
+[ok]   planted the LINK level taken straight across: 
+       a crossing without a primitive: flop driving m_link_up_o (sys) reads d_link_up_i (dp)
+[ok]   planted the settings read without their capture: 
+       a crossing without a primitive: output d_cur_config_o (dp) reads m_fw_cur_config_i (sys)
+[ok]   planted a window's answer taken straight across: 
+       a crossing without a primitive: output m_ctr_ans_data_o (sys) reads u_ctr.ans_r (dp)
+[ok]   planted the held bus taken on every datapath cycle: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the commit level, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the request pulse, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads fw_send_q_r, m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken while the pulse is low: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted a datapath flop other than fw_r sampling the held bus: 
+       a crossing without a primitive: flop ev_dom_r (dp) reads m_fw_identify_i (sys)
+[ok]   planted a destination reset from the other domain: 
+       a crossing without a primitive: u_pub.dest_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a source reset from the other domain: 
+       a crossing without a primitive: u_fw_ack.src_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a primitive clocked by a level: 
+       a clock that is not a clock input: u_fw_ack.dest_clk reads m_fw_send_i
+checks: 13   failures: 0
+== split-cdc rc=0
+split_parallel: make -j8 split from a clean tree at ee4c1a9ccb61b255afeb35fb675e1429e8851f63: make -j8 split rc 0, as expected (passes)
+  checks: 148   failures: 0
+split_parallel: PASS
+== split_parallel rc=0
+ok   control: the tracked sources pass the split leg
+ok   a class-D consumer on a G tie-off: caught by [PUB] DA_GATE.OPEN reaches the talker's declaration predicate
+ok   the licence on its ACTIVE term alone: caught by [PUB] ...and its admitted term
+ok   the licence on the next source's ACTIVE term: caught by [POL] LICENCE bit s alone reaches ACTIVE as bit s alone
+ok   the CRF source's licence term on source 0's gate: caught by [POL] the CRF source's licence term reads the gate's top bit
+ok   a stream_id taken without SID_VALID: caught by [PUB] a stream_id without SID_VALID never reaches the listener
+ok   a publication that never crosses again: caught by [PUB] the stream_id reaches the listener once SID_VALID is set, within 60 mailbox cycles
+ok   a setting taken before its commit: caught by [FACE] a setting not committed does not reach the datapath
+ok   a commit never acknowledged: caught by [FACE] the commit is acknowledged within MBX_FACE_ACK_CYCLES
+ok   a setting on the wrong datapath port: caught by [FACE] F_CLOCK.SOURCE_INDEX reaches the media clock's selector
+ok   an answer under another tag: caught by [WIN] CTR closes DONE, not TIMEOUT
+ok   an answer taken while the datapath waits: caught by [WIN] ...and that word is not the empty one
+ok   a request raised in the clock its fields load: caught by [EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted
+ok   the record's word registered a clock late: caught by [EDIT] phase 4: the next beat's held mapping 0 -> 0 is accepted
+ok   the record's word encoded from its stream channel: caught by [EDIT] the ADD writes cluster 2's word into channel 1
+ok   a tap that hands out the media subtypes: caught by [RX] ...and the tap hands out no frame
+ok   a serializer that drops a frame's last byte: caught by [RX] its record's length is the frame's
+ok   a packer that reverses the lanes: caught by [TX] ...byte for byte
+ok   the LINK level held low: caught by [LINK] the datapath's effective link reaches LINK.UP
+ok   the Talker declaration published as FAILED: caught by [PUB] TALKER_DECL.DECLARED reaches the declaration state as ADVERTISE
+ok   a tap that refuses MSRP: caught by [TAP] MSRP at 01-80-C2-00-00-0E is handed out whole, and counted
+ok   a tap that refuses MVRP: caught by [TAP] MVRP at 01-80-C2-00-00-21 is handed out whole, and counted
+ok   a tap that refuses MAAP: caught by [TAP] MAAP (0x22F0, subtype 0xFE) is handed out whole, and counted
+ok   a tap that takes MSRP at any address: caught by [TAP] MSRP's EtherType at MVRP's group address is refused
+ok   a drop count read from the FIFO's tready: caught by [TAP] a burst past the FIFO's 4,096 bytes counts the frames it lost
+ok   a drop count that counts refused frames: caught by [TAP] ...and not the refused frames a full FIFO turns away
+ok   a drop count that misses a frame kept at its second beat: caught by [TAP] every frame of the burst is handed out or counted lost
+ok   a drop count that wraps: caught by [TAP] the count saturates at 255
+ok   a drop count that counts runts: caught by [TAP] ...nor the one-beat runts a full FIFO turns away
+ok   the datapath's drop count tied off: caught by [RX] a burst at the MAC past the tap's FIFO is counted in the datapath's drop count
+ok   the control lane past the station MAC transmit gate: caught by [TX] the gate holds the committed frame before the station MAC is written (#839)
+ok   the station MAC transmit gate opened by one half: caught by [TX] ...and with its low half alone
+ok   a split datapath whose CSR keeps the all-fabric VERSION: caught by [ID] the split datapath reads VERSION major 0x0003 (VERSION >> 16)
+split mutants: 32 of 32 caught by the check each names
+== split_mutants rc=0
+END 20:56:51

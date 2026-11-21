@@ -1,0 +1,15 @@
+# the 14 suites the sweep's wall clock killed (result UNKNOWN there), each rerun alone (suite1.sh: make -C tb/verilator/<suite> as run_all_suites.sh runs it, the sweep's environment, a 4 h limit; then suite_tally.py --verdict on its log)
+milan_dp (ee4c1a9c): == make rc=0 22:13:02 == verdict rc=0 checks: 14085   in-suite failures: 0 
+gptp_shadow (80af65ef): == make rc=0 22:28:46 == verdict rc=0  checks: 326   in-suite failures: 0
+gptp_tables (80af65ef): == make rc=0 22:32:36 == verdict rc=0  checks: 36   in-suite failures: 0
+milan_dp_gm_steps (80af65ef): == make rc=0 22:37:20 == verdict rc=0  checks: 202   in-suite failures: 0
+milan_dp_render (80af65ef): == make rc=0 22:41:00 == verdict rc=0  checks: 347   in-suite failures: 0
+aaf_clock_meter (80af65ef): == make rc=0 22:43:04 == verdict rc=0  checks: 471   in-suite failures: 0
+avtp_rxmon (80af65ef): == make rc=0 22:35:27 == verdict rc=0  checks: 678   in-suite failures: 0
+capture_coherence (80af65ef): == make rc=0 22:38:45 == verdict rc=0  checks: 21721   in-suite failures: 0
+maap (80af65ef): == make rc=0 22:47:00 == verdict rc=0  checks: 251   in-suite failures: 0
+crf_rx (80af65ef): == make rc=0 22:23:32 == verdict rc=0  checks: 18007   in-suite failures: 0
+follow_ring (80af65ef): == make rc=0 22:22:27 == verdict rc=0  checks: 97   in-suite failures: 0
+media_phase (80af65ef): == make rc=0 22:24:03 == verdict rc=0  checks: 386   in-suite failures: 0
+mmcm_servo (80af65ef): == make rc=0 22:33:42 == verdict rc=0  checks: 320   in-suite failures: 0
+reboot_ctrl (80af65ef): == make rc=0 22:14:53 == verdict rc=0  checks: 298   in-suite failures: 0

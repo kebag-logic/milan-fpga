@@ -1,0 +1,96 @@
+# bitdiff.py <bench 1x1/1if c7189218> <flip 1x1/1if, 822e3af0, the gating recipe, ExtraPostPlacementOpt>
+A 3825992 B, header 252 B, 571 regions; B 3825992 B, header 252 B, 571 regions
+differing bytes: 103
+  header  offset       69  A 37 B 32  
+  header  offset       70  A 62 B 32  
+  header  offset       71  A 32 B 39  
+  header  offset       72  A 61 B 33  
+  header  offset       73  A 62 B 31  
+  header  offset       74  A 38 B 30  
+  header  offset       75  A 33 B 61  
+  header  offset       76  A 30 B 39  
+  header  offset       92  A 61 B 34  
+  header  offset       93  A 63 B 37  
+  header  offset       94  A 35 B 65  
+  header  offset       95  A 31 B 61  
+  header  offset       96  A 65 B 32  
+  header  offset       97  A 39 B 65  
+  header  offset       98  A 63 B 62  
+  header  offset       99  A 37 B 38  
+  header  offset      100  A 38 B 66  
+  header  offset      101  A 33 B 31  
+  header  offset      102  A 36 B 30  
+  header  offset      103  A 38 B 33  
+  header  offset      104  A 35 B 34  
+  header  offset      105  A 61 B 33  
+  header  offset      106  A 31 B 34  
+  header  offset      107  A 39 B 30  
+  header  offset      108  A 35 B 30  
+  header  offset      109  A 39 B 64  
+  header  offset      110  A 34 B 61  
+  header  offset      111  A 33 B 30  
+  header  offset      112  A 65 B 39  
+  header  offset      113  A 35 B 33  
+  header  offset      114  A 63 B 62  
+  header  offset      115  A 32 B 66  
+  header  offset      116  A 36 B 32  
+  header  offset      117  A 31 B 39  
+  header  offset      118  A 37 B 39  
+  header  offset      119  A 65 B 37  
+  header  offset      120  A 66 B 63  
+  header  offset      121  A 34 B 64  
+  header  offset      122  A 66 B 32  
+  header  offset      123  A 32 B 34  
+  header  offset      124  A 35 B 36  
+  header  offset      125  A 33 B 35  
+  header  offset      126  A 39 B 63  
+  header  offset      127  A 33 B 35  
+  header  offset      128  A 65 B 38  
+  header  offset      129  A 37 B 39  
+  header  offset      131  A 32 B 34  
+  header  offset      132  A 31 B 37  
+  header  offset      133  A 38 B 64  
+  header  offset      134  A 66 B 62  
+  header  offset      135  A 30 B 31  
+  header  offset      136  A 63 B 37  
+  header  offset      137  A 34 B 35  
+  header  offset      138  A 62 B 39  
+  header  offset      139  A 32 B 65  
+  header  offset      140  A 34 B 65  
+  header  offset      141  A 65 B 61  
+  header  offset      142  A 66 B 32  
+  header  offset      143  A 66 B 32  
+  header  offset      144  A 62 B 64  
+  header  offset      145  A 39 B 62  
+  header  offset      146  A 64 B 63  
+  header  offset      147  A 61 B 39  
+  header  offset      148  A 66 B 39  
+  header  offset      149  A 64 B 31  
+  header  offset      150  A 34 B 63  
+  header  offset      151  A 65 B 39  
+  header  offset      152  A 32 B 62  
+  header  offset      153  A 36 B 66  
+  header  offset      154  A 34 B 65  
+  header  offset      155  A 34 B 66  
+  header  offset      185  A 30 B 31  
+  header  offset      191  A 38 B 37  
+  header  offset      193  A 32 B 35  
+  header  offset      194  A 33 B 38  
+  header  offset      196  A 30 B 35  
+  header  offset      197  A 38 B 35  
+  packet  offset  3823920  A dc B 0c  CRC
+  packet  offset  3823921  A 43 B e4  CRC
+  packet  offset  3823922  A cc B d5  CRC
+  packet  offset  3823923  A 01 B 2e  CRC
+  frame data: 7 of 9464 frames differ (FDRI payload starts at byte 460)
+    frame   7826: words [1, 3, 8], 3 bit(s)
+    frame   7954: words [11, 13, 16], 4 bit(s)
+    frame   8082: words [17], 1 bit(s)
+    frame   8692: words [58], 1 bit(s)
+    frame   8726: words [87, 88], 2 bit(s)
+    frame   8822: words [20], 1 bit(s)
+    frame   8854: words [62, 67, 68, 72, 73, 78, 79], 10 bit(s)
+# header strings (A bench, B flip):
+alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=7b2ab830;SW_HDR_SHA256=ac51e9c783685a195943e5c2617ef4f25393e7f218f0c4b24effb9dafd4e2644
+alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=229310a9;SW_HDR_SHA256=47ea2eb8f10343400da093bf2997cd2465c589f47db1759eea22dbc991c9bfef
+# expected content bits: lui 0x38a807b7->0xdb1df7b7 14, addi 0x32378793->0xab578793 6, '2'->'3' 1, VERSION 0x00020060->0x00030060 1: 22

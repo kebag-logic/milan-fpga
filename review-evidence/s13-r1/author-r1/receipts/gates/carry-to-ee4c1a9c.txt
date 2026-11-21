@@ -1,0 +1,10 @@
+# what changed between each run's head and the final head ee4c1a9c, over what that run reads
+== the firmware gate (f7139ce1): sw/firmware configs avdecc hdl sw/builder/endstation_builder.py sw/mailbox/mailbox.yaml third_party
+(empty: nothing)
+== the CPU-budget harness images and re-measure (f7139ce1): tb/verilator/ctrl_service_budget sw/firmware configs hdl avdecc sw/builder/endstation_builder.py
+(empty: nothing)
+== the sweep, the split boot, the twin, ctrl_boundary, Yosys, xvlog, BDD (15db681a): every path
+ docs/ENDSTATION_BUILDER.md |  2 +-
+ sw/builder/test_builder.py | 93 ++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 67 insertions(+), 28 deletions(-)
+== the images' inputs (822e3af0 built; carried to 15db681a by compare_inputs.py): every path after 15db681a, above

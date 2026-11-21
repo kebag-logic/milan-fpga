@@ -1,0 +1,16 @@
+# elfdiff.py <bench 1x1/1if ctrl_app.elf> <flip 1x1/1if ctrl_app.elf>
+# bench c873a0aa8b9c39a003d7a78616c83d6469935debb5bb1107ad477b900ee607fb (8c5e2b4f, gate15)
+# flip  afc1a9cd5604a696f82fa794d48fdd02166ba3062129f7a46640fc64244cf9ed (822e3af0)
+.text        0x00000000  113088 B  5 byte(s) differ
+    0x00012255..0x00012257  A 07a838  B f71ddb  in ctrl_plat_generated_image+0x19
+    0x0001225a..0x0001225b  A 3732  B 57ab  in ctrl_plat_generated_image+0x1e
+.rodata      0x0001b9c0   13214 B  1 byte(s) differ
+    0x0001c0b4..0x0001c0b4  A 32  B 33  in aecp_entity_image+0x184
+.data        0x10000000     128 B  EQUAL
+loaded bytes differing: 6
+rc=1
+# the differing .text words, disassembled (bench, then flip):
+   12254:	38a807b7          	lui	a5,0x38a80
+   12258:	32378793          	addi	a5,a5,803 # 38a80323 <_stack_top+0x28a72583>
+   12254:	db1df7b7          	lui	a5,0xdb1df
+   12258:	ab578793          	addi	a5,a5,-1355 # db1deab5 <_stack_top+0xcb1d0d15>

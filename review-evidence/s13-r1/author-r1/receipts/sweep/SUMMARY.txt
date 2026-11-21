@@ -1,0 +1,79 @@
+# the full sweep at 15db681a (native-shards.py, 4 shards, run_all_suites.sh --shard k/4), with the 14 wall-clock kills rerun alone (reruns.txt)
+== shard 0
+PASS     adp_tx
+PASS     avtp_parser
+PASS     cbs
+PASS     cls
+PASS     csr
+PASS     gptp_txts
+PASS     i2spb
+TIMEOUT  milan_dp   (4800s wall clock - result UNKNOWN, not a failure)
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+suites: 15   passed: 14   failed: 0   timed out: 1
+checks: 347806   in-suite failures: 0
+== shard 1
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+TIMEOUT  gptp_shadow   (1800s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  gptp_tables   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     link_guard
+PASS     mac_rmon
+PASS     mbx
+TIMEOUT  milan_dp_gm_steps   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     milan_dp_mclk
+TIMEOUT  milan_dp_render   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     mmcm_servo_autorepair
+PASS     render_queue
+PASS     shaper_core
+PASS     tcam
+PASS     tkdiag
+suites: 17   passed: 13   failed: 0   timed out: 4
+checks: 2046580   in-suite failures: 0
+== shard 2
+PASS     aaf
+TIMEOUT  aaf_clock_meter   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     aaf_latency_taps
+TIMEOUT  avtp_rxmon   (1800s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  capture_coherence   (2400s wall clock - result UNKNOWN, not a failure)
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+TIMEOUT  maap   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+suites: 17   passed: 13   failed: 0   timed out: 4
+checks: 262436   in-suite failures: 0
+== shard 3
+PASS     aaf_audio_loop
+PASS     avtp_stream
+PASS     cdc
+PASS     chmap_capture
+TIMEOUT  crf_rx   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     crf_tx
+TIMEOUT  follow_ring   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     ifg
+PASS     media_nco
+TIMEOUT  media_phase   (1400s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  mmcm_servo   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     pcmlpf
+TIMEOUT  reboot_ctrl   (300s wall clock - result UNKNOWN, not a failure)
+PASS     tdm
+PASS     tdm_render
+PASS     tsn_fuzz
+suites: 16   passed: 11   failed: 0   timed out: 5
+checks: 21029   in-suite failures: 0
+== totals: 51 PASS in the sweep, 0 FAIL, 14 TIMEOUT, every TIMEOUT rerun alone and passed
