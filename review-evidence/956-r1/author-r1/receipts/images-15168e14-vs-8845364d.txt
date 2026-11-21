@@ -1,0 +1,73 @@
+# Split images: base 15168e14 (the flip train's head) against the code head 8845364d
+# plat_images.sh (the target platform's image at every ledger point, plat_ledger.py, then the size fixture's four) and
+# budget_images.py (the CPU budget harness's twelve images); imgdiff.py per image; nm -S per function
+
+## plat_ledger.py
+### base (tree 15168e14a1fe709b9ab5336acd6daf54e4d6e0a4 dirty 0 start )
+POINT 1x1-if1: rom 126,432 B, sram 56,736 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 128,032 B, sram 59,040 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19712 B: PASS
+POINT 8x8-if1: rom 139,208 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+POINT 8x8-if2: rom 140,784 B, sram 115,504 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+plat_ledger: PASS (0 finding(s))
+fixture rcs: fixture-1x1-if1=0 fixture-1x1-if2=0 fixture-8x8-if1=0 fixture-8x8-if2=0 
+### head4 (tree 8845364d53f9a7851e8953f7fddc4c2fed2040b7 dirty 1 start )
+POINT 1x1-if1: rom 126,472 B, sram 56,736 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 128,072 B, sram 59,040 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19712 B: PASS
+POINT 8x8-if1: rom 139,248 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+POINT 8x8-if2: rom 140,824 B, sram 115,504 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+plat_ledger: PASS (0 finding(s))
+fixture rcs: fixture-1x1-if1=0 fixture-1x1-if2=0 fixture-8x8-if1=0 fixture-8x8-if2=0 
+
+## objects that differ, and function sizes that differ (bytes)
+- plat/plat/1x1-if1: differ: 35-srp_mbx.o; function sizes: [35-srp_mbx.o: < listener 132 > listener 172 ]
+- plat/plat/1x1-if2: differ: 35-srp_mbx.o; function sizes: [35-srp_mbx.o: < listener 132 > listener 172 ]
+- plat/plat/8x8-if1: differ: 20-ctrl_plat.o, 30-ctrl_app_aecp.o, 34-ctrl_app_srp.o, 35-srp_mbx.o; function sizes: [35-srp_mbx.o: < listener 128 > listener 168 ]
+- plat/plat/8x8-if2: differ: 20-ctrl_plat.o, 30-ctrl_app_aecp.o, 34-ctrl_app_srp.o, 35-srp_mbx.o; function sizes: [35-srp_mbx.o: < listener 128 > listener 168 ]
+- plat/fixture-1x1-if1: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- plat/fixture-1x1-if2: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- plat/fixture-8x8-if1: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 4248 > image_srp 4256 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- plat/fixture-8x8-if2: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 5352 > image_srp 5368 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/1x1/none/image: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- budget/1x1/answering-every-port/image: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- budget/1x1/answering-ports/image: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- budget/1x1/valid-destinations/image: differ: 30-srp_mbx.o; function sizes: [30-srp_mbx.o: < listener 132 > listener 172 ]
+- budget/8x8-1if/none/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 4248 > image_srp 4256 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8-1if/answering-every-port/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 4248 > image_srp 4256 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8-1if/answering-ports/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 4248 > image_srp 4256 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8-1if/valid-destinations/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 4248 > image_srp 4256 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8/none/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 5352 > image_srp 5368 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8/answering-every-port/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 5352 > image_srp 5368 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8/answering-ports/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 5352 > image_srp 5368 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+- budget/8x8/valid-destinations/image: differ: 15-ctrl_aecp_image.o, 25-ctrl_app_aecp.o, 29-ctrl_app_srp.o, 30-srp_mbx.o; function sizes: [15-ctrl_aecp_image.o: < image_srp 5352 > image_srp 5368 ] [30-srp_mbx.o: < listener 128 > listener 168 ]
+
+## harness image sha256 (point arm sha256)
+### base
+1x1 none 1d38aa279c0ef4d222a6a7b1433f3e74348b26e02db105e32ff8a37961dadd80
+1x1 answering-every-port 3514124c76ee6886ba258762a2e8e84045a501c3dd84473e1b60e1da7a1047ff
+1x1 answering-ports 125ea3309dff1a423e9ef06250b8301a0e29d66e01ae6771da4e55b5244c74ed
+1x1 valid-destinations 0ef0bb72fe64b722aa09e71fcf00df2707f5d3f58bc550ac1cec8842a7c1be0c
+8x8-1if none d4dee38514018583bc0541b85387d02d5b31f74fa8d7365cd03459eae9f63d69
+8x8-1if answering-every-port 678a116855e94bf5638b11494c0d3e3df938407b536c55dc49df17dcbcefa333
+8x8-1if answering-ports a69e9773300aa49f6727ebdcce5e0f5168d73c8ceb1cce0aa42d21c91c50abab
+8x8-1if valid-destinations 717afd504c22f19735189d2f8c3a19296e64809dba53183004221ef30604813a
+8x8 none c0f27283adcff15973511bd5093d9054aeeeeac44c49c9899f57d542ae12b8f9
+8x8 answering-every-port 196e71fc8c24456dcb206ec724390c6479e726427fe96ab155928eb64a981c0a
+8x8 answering-ports 85d0f4b60063af4fc90fa4fe5a9971e1bea1100ca27c97e70dbc0b762671b548
+8x8 valid-destinations 908833abd34a450dd7bd26ef2777beb16a75e7ecd4f00f57675fa40b159112ba
+### head 8845364d
+1x1 none 1677f5be5a89e5a06e66378eace4d5d5b1a8eea7182b66db3ac1854fc086a9ec
+1x1 answering-every-port 58f5b8b9552a35dc573ce03dc2bca47d7254b338ccb1877d8c3bb07669719051
+1x1 answering-ports 0cf739a26e66128afd70d5cfbe5cb5f9a8903d579e9eb413ebb49cc7c47c0f63
+1x1 valid-destinations e910e0898c81d9165f1184675fd1119db662554e6bb614780798690ed76cf426
+8x8-1if none 1a99471c8e49d945f085937dfbbc2eeaa1ec4bd20484098eafc354fc8aad6c92
+8x8-1if answering-every-port 422e8f264bfe985e85ffee63d826861f09cf9d6d4335d49cf1d18a0044c6f3a5
+8x8-1if answering-ports 59861013a19ffd0770f796898c7729ae7f73874a24beb10e852a6065fb92b00f
+8x8-1if valid-destinations e31a9bc211056a36f272ac5e5244655388244cc36e7273e5af93c631a29363bf
+8x8 none b5e2e0ee8a9c28bddb510e9d9473aaf3aeb9f0f89a9ca7d777df58968f95c849
+8x8 answering-every-port 3aebcae3bc2f96bd4e55f877d2adeb956777751faa0b1df08afa3c32e7de83c0
+8x8 answering-ports 66a2b521fb5302d2a717f4856533bef56ad9e0f9762d6180ab9ebd95171fe82f
+8x8 valid-destinations 4bef73c839f07216fdfe01eeffbe897f3ac1f1e621f315081dafc17cef6fa62c
+
+## 8x8/1if platform image sections
+base .text 113020 0;.rodata 25662 113024;.data 520 268435456;.bss 89392 268436032;
+head4 .text 113060 0;.rodata 25662 113064;.data 520 268435456;.bss 89392 268436032;

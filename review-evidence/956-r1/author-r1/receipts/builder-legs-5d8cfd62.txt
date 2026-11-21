@@ -1,0 +1,23 @@
+# docs.yml's two end-station builder legs at 5d8cfd62, on their own clone (ci_builder_legs.py run 0 and run 1 -- python3 sw/builder/test_builder.py --require-rv32)
+# 0d80f0ed after it changes one sentence of docs/design/SPLIT_CONTROL_MEMORY.md, no input of the builder. Also run at 03d9d519: both the same.
+# A first try was refused before any gate ran: the clone's submodule origins were local paths, not .gitmodules' (synced; no fetch)
+
+## leg 0
+HEAD 5d8cfd62 dirty 0 leg 0 start 20:39:20
+SUBSET: 1 of 113 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+ALL GATES PASS EXCEPT 1 NOT RUN
+END rc=0 21:10:15
+
+## leg 1
+HEAD 5d8cfd62 dirty 0 leg 1 start 21:10:15
+SUBSET: 112 of 113 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (<host> - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+END rc=0 21:24:25
+
+## receipts
+builder-leg-0.json sha256 d440ec1efc70db4f6f3af8ef6e3b2e5be903a29d4d151b0c83aec5d88cbac0f6 4592 B
+builder-leg-1.json sha256 8d9755d7db88943768a9f16de0fa8fcf377cbcf5137b7f17db4c0e17bbdbba6a 16596 B

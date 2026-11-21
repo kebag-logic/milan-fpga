@@ -1,0 +1,60 @@
+# #956 restated tests at commit f15c6e16 (tests only) with srp_mbx.c at the flip train's value (#951's: 2 x longest LeaveAll + JoinTime + transmit)
+
+## f-t1 (ARM srp-srp_talker-if1-endstation_ax7101_1x1_tdm8 rc 1)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:322: Failure
+Expected equality of these values:
+    Which is: 0
+    Which is: 1
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:337: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30630 vs 30400
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods (18 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:395: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 31155 vs 30700
+[  FAILED  ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest (10 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:423: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30630 vs 30400
+[  FAILED  ] Talker.DestinationChangeWhileValidWithdrawsTheOld (10 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:528: Failure
+Expected: (adv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (10 ms)
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 16 checks, exit 1)
+
+## f-t2 (ARM srp-srp_talker-if2-endstation_ax7101_8x8 rc 1)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:322: Failure
+Expected equality of these values:
+    Which is: 0
+    Which is: 1
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:322: Failure
+Expected equality of these values:
+    Which is: 0
+    Which is: 1
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:337: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30700 vs 30400
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:337: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30700 vs 30400
+[  FAILED  ] Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods (25 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:395: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 31295 vs 30700
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:395: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 31295 vs 30700
+[  FAILED  ] Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest (12 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:423: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30700 vs 30400
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:423: Failure
+Expected: (adv->time_ms) <= (at+kTwoLongestLeaveAllMs), actual: 30700 vs 30400
+[  FAILED  ] Talker.DestinationChangeWhileValidWithdrawsTheOld (12 ms)
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:528: Failure
+Expected: (adv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne (12 ms)
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 16 checks, exit 1)
+
+## f-g2 (ARM srp-test_acmp_mbx-if2-endstation_ax7101_8x8 rc 1)
+<repo>/sw/firmware/ctrl/test/srp_gate.hpp:367: Failure
+Expected: true
+<repo>/sw/firmware/ctrl/test/srp_gate.hpp:369: Failure
+Expected: (wire) != (0u), actual: 0 vs 0
+[  FAILED  ] SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff (24 ms)
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 9 checks, exit 1)

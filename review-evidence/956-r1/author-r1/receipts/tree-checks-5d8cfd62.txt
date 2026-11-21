@@ -1,0 +1,41 @@
+# The tree's load, flip and shape checks at the final head 5d8cfd62
+
+## load grade.py --check
+| 8x8/2if | 0.799 | 0.757 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 390 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.061, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 0.744 | 0.704 | the flip check, 0.75 at the pin (flip_grade.py) | 1.01x | 345 | srp 0.225, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.032, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, rec.adp 0.013, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.511, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.508, its ceiling 0.70
+RESULT: PASS
+
+## flip grade.py --check --point 8x8 1if
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.86 ms (tx_held; the hold-off counts the figure)
+RESULT: PASS
+
+## flip grade.py --check --point 1x1 1if
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+
+## shape costs.py --check
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS
+
+## flip_grade.py --check (every point), base 15168e14 against the final head 5d8cfd62: RESULT FAIL at both, the 8x8/2if
+## rows reported (owed to #872); the outputs differ only as below
+--- base 15168e14
++++ head 5d8cfd62
+@@ -42 +42 @@
+-HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.81 ms (tx_held; the hold-off adds the figure)
++HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.86 ms (tx_held; the hold-off counts the figure)

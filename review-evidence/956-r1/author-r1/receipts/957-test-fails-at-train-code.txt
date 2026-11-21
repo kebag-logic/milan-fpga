@@ -1,0 +1,88 @@
+# #957 test AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice against the train's firmware (test only), aecp_arms.py --app
+
+## 1x1 1if
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (8 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (6 ms)
+RESULT: FAIL
+failure blocks: 26
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:991: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+
+## 1x1 2if
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (4 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (8 ms)
+RESULT: FAIL
+failure blocks: 26
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:991: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+
+## 8x8 1if
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (16 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (25 ms)
+RESULT: FAIL
+failure blocks: 138
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:991: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+--
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:985: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u

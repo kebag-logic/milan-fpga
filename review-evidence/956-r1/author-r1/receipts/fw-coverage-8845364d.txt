@@ -1,0 +1,61 @@
+# fw_coverage.py --selftest and --check --jobs 4 at 8845364d (booked unit)
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] the stack's sources and headers are measured, its tests and examples are not: no finding
+[ok] an exception edge is not a branch: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+[ok] gcc: a compensating swap, the control measurement: no finding
+[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+coverage self-test: 29 of 29 planted cases read as planted
+== selftest rc=0 15:09:13
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] ctrl coverage run
+[ok] ctrl_nvm coverage run
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+file                                                 lines    branches   after exclusions
+sw/firmware/ctrl/acmp/acmp_mbx.c                 106/106      42/42      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/acmp/acmp_nvm.c                  38/38       10/10      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp.c                     642/642     562/562     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_commands.c            497/497     415/415     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_face.c                220/220     198/198     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_image.c                77/77       80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_maps.c                344/344     421/422     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_mbx.c                 140/140      76/76      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_nvm.c                 118/119      93/94      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_state.c                63/63       69/69      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app.c                   54/55       43/46      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_aecp.c             190/190     154/154     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_srp.c               96/96       80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/loop/ctrl_loop.c                203/203     216/216     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_csr.c                  39/39       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_mbx.c                 161/161      94/94      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx.c                       368/368     194/194     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx_wire.h                   22/22       12/12      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_cc.h                    5/5         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_mem.c                 167/167      80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat.c                224/226     109/116     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_console.c        119/119      68/68      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_csr.c             69/69       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_mmio.c             5/5         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_phy.c            182/182     174/174     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_dma.h                   14/14        8/8       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_mmio.h                   7/7         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_plat_mmio.c              8/8         0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_pool.c                114/114      68/68      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/srp/srp_mbx.c                   803/803     725/728     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_klj2.c                  212/213     120/124     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 510/510     311/320     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    108/108      63/64      lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/include/wire.h            14/14        2/2       lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/acmp.c               847/847     436/436     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+== check rc=0 15:21:26
+END rc=0 15:21:26

@@ -1,0 +1,134 @@
+# The final #957 tests (8845364d's test_aecp.cpp and srp_talker.cpp) against the train's firmware: srp_mbx.c at 0369cbb7 (#956 only) and srp_mbx.h at 15168e14, put in the working tree for the run and restored after it
+
+## AppOutputs, 1x1 at one interface
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (7 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (11 ms)
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+failure blocks: 32
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 0
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 1
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:996: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+    Which is: 1
+the notice carries the new REGISTERING: output 0, Ready appears
+
+## AppOutputs, 1x1 at two interfaces
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (12 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (12 ms)
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+failure blocks: 32
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 0
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 1
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:996: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+    Which is: 1
+the notice carries the new REGISTERING: output 0, Ready appears
+
+## AppOutputs, 8x8 at one interface
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (28 ms)
+[  FAILED  ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (31 ms)
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+failure blocks: 144
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 0
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:990: Failure
+Expected equality of these values:
+  seen[m].count[c]
+    Which is: 0
+  m==n?1u:0u
+    Which is: 1
+a Listener registration change is one notice of its STREAM_OUTPUT to every registered controller: output 0, Ready appears, output 0, controller 1
+<repo>/sw/firmware/ctrl/test/test_aecp.cpp:996: Failure
+Expected equality of these values:
+  seen[n].flags_ex
+    Which is: 4294967295
+  ex
+    Which is: 1
+the notice carries the new REGISTERING: output 0, Ready appears
+
+## Talker, 1x1/1if
+[  FAILED  ] Talker.ListenerRegistrationChangeIsNoticed (1 ms)
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+failure blocks: 6
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:820: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 2
+a Listener Ready appearing is noticed
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:835: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 2
+a Listener Ready Failed replacing a Ready is noticed
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:837: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 2
+a Listener Asking Failed replacing a Ready Failed is noticed
+
+## Talker, 8x8/2if
+[  FAILED  ] Talker.ListenerRegistrationChangeIsNoticed (13 ms)
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+failure blocks: 12
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:820: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 256
+a Listener Ready appearing is noticed
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:835: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 256
+a Listener Ready Failed replacing a Ready is noticed
+<repo>/sw/firmware/ctrl/test/srp_talker.cpp:837: Failure
+Expected equality of these values:
+  taken(i)
+    Which is: 0
+  1u<<n
+    Which is: 256
+a Listener Asking Failed replacing a Ready Failed is noticed

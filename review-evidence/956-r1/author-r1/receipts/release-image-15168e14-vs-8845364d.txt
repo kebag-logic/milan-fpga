@@ -1,0 +1,63 @@
+# Release (all-fabric) AX7101 1x1 export, the launcher's dry run without --build (release.sh), base 15168e14 and head 8845364d
+# built back to back in one clone path and environment (release2/)
+
+## IMAGES.sha256, base then head (raw)
+### 15168e14 (rev 15168e14 porcelain 0 start 15:05:14 end 15:05:27 files 10 elaboration rc 0 )
+7920b9c6708ad2e034a02244b33ff40f83accac6905275d973d5c2bbcb1b33d6  ax7101/gateware/alinx_ax7101.v
+d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335  ax7101/gateware/alinx_ax7101_mem.init
+621133bbfe82d92ce986f9b4228a2a68fe5797e019815b75dbca1602d87b2c83  ax7101/gateware/alinx_ax7101_rom.init
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ax7101/gateware/alinx_ax7101_sram.init
+603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf  ax7101/software/bios/bios.bin
+4b3bc5e863fe91bdd6ed377722769febc66f13b5f3b6c841a722d2651644ca66  ax7101/software/bios/bios.elf
+8b9ba21a126de703fe1f8d2d4e18f2260aaa5041503ea1887c1aa49acfa7ea0a  ax7101/software/libmilan_baremetal/libmilan_baremetal.a
+3fdc894061142ad32b51946633e2c96f677ad81c3964eb4383a07569960c9f89  ax7101/software/bios/bios.elf (disassembly)
+514a45dde0e25b05e07bdccb00c88009a012b1c8062d246189bccda59b5aa083  ax7101/gateware/alinx_ax7101.v (outside its // comment lines)
+2d18fad2cef79eda1a3edaa1ebce4c34cda35713387d73de0d50e006db8cc3ba  ax7101/software/libmilan_baremetal/libmilan_baremetal.a member milan_baremetal.o
+### 8845364d (rev 8845364d porcelain 0 start 15:05:28 end 15:05:44 files 10 elaboration rc 0 )
+634a57ae6b60ee18acb4ddf35548c65d56f63da14486be01b9fd2d9c17633dfe  ax7101/gateware/alinx_ax7101.v
+d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335  ax7101/gateware/alinx_ax7101_mem.init
+621133bbfe82d92ce986f9b4228a2a68fe5797e019815b75dbca1602d87b2c83  ax7101/gateware/alinx_ax7101_rom.init
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ax7101/gateware/alinx_ax7101_sram.init
+603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf  ax7101/software/bios/bios.bin
+4b3bc5e863fe91bdd6ed377722769febc66f13b5f3b6c841a722d2651644ca66  ax7101/software/bios/bios.elf
+8b9ba21a126de703fe1f8d2d4e18f2260aaa5041503ea1887c1aa49acfa7ea0a  ax7101/software/libmilan_baremetal/libmilan_baremetal.a
+3fdc894061142ad32b51946633e2c96f677ad81c3964eb4383a07569960c9f89  ax7101/software/bios/bios.elf (disassembly)
+e46c3cee498997692b3d7a9c843a9d9bf007f3d356eb20740aad514f1ba2c00b  ax7101/gateware/alinx_ax7101.v (outside its // comment lines)
+2d18fad2cef79eda1a3edaa1ebce4c34cda35713387d73de0d50e006db8cc3ba  ax7101/software/libmilan_baremetal/libmilan_baremetal.a member milan_baremetal.o
+
+## diff of the two lists
+1c1
+< 7920b9c6708ad2e034a02244b33ff40f83accac6905275d973d5c2bbcb1b33d6  ./ax7101/gateware/alinx_ax7101.v
+---
+> 634a57ae6b60ee18acb4ddf35548c65d56f63da14486be01b9fd2d9c17633dfe  ./ax7101/gateware/alinx_ax7101.v
+9c9
+< 514a45dde0e25b05e07bdccb00c88009a012b1c8062d246189bccda59b5aa083  ./ax7101/gateware/alinx_ax7101.v (outside its // comment lines)
+---
+> e46c3cee498997692b3d7a9c843a9d9bf007f3d356eb20740aad514f1ba2c00b  ./ax7101/gateware/alinx_ax7101.v (outside its // comment lines)
+
+## the gateware with the CPU netlist's per-run name hash normalised and its two generation-time comments dropped
+base 2a9b16a29c213cc6f60782e30b960d415a4cb8b57d40187c401dde2a1acf5656
+head 2a9b16a29c213cc6f60782e30b960d415a4cb8b57d40187c401dde2a1acf5656
+IDENTICAL
+
+## the name hash is per run, not per revision: the base exported three times
+15:05:14 base VexiiRiscvLitex_51441e8e624d466e4d684909eab0ac11
+15:06 base VexiiRiscvLitex_305ad1f91f967e62f5ea1528dbfcd4bd
+15:05:28 head VexiiRiscvLitex_a9fd738e8aaf90f85971cee1e1adf9a0
+
+## every other exported file compared byte for byte
+differs: ./ax7101/csr.csv
+differs: ./ax7101/gateware/alinx_ax7101.tcl
+differs: ./ax7101/gateware/alinx_ax7101.v
+differs: ./ax7101/litex.log
+differs: ./ax7101/software/include/generated/csr.h
+differs: ./ax7101/software/include/generated/git.h
+differs: ./ax7101/software/include/generated/mem.h
+differs: ./ax7101/software/include/generated/soc.h
+files: 3876
+
+Every file listed as differing differs only in LiteX's "Auto-generated ... on <time>" line (csr.csv, csr.h, git.h,
+mem.h, soc.h, litex.log), the netlist's per-run name (alinx_ax7101.tcl's read_verilog, the .v), or the .v's two time
+comments; bios.bin, bios.elf and its disassembly, libmilan_baremetal.a and its member, and the rom, mem and sram init
+files are byte-identical. A first base export at 13:40 in a booked unit gave another milan_baremetal.o than every
+export since, of either revision, in this session's environment; only the back-to-back pair above is compared.
