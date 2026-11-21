@@ -2121,7 +2121,7 @@ RTL name: `A_GPTP_PDELAY`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_PDELAY_NS` | R | X | reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value. |
+| 31:0 | `GPTP_PDELAY_NS` | R | X | reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers GET_AVB_INFO from the snapshot it published last. |
 
 ### ACMPL_DBG register (offset 0x6E8) [reset = 0xXXXXXXXX]
 
@@ -2452,7 +2452,7 @@ RTL name: `A_AS2_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. |
+| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the parent with the firmware's gPTP port, whose published snapshot keeps it. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#as2_lo-offset-0x730).
 
@@ -2466,7 +2466,7 @@ RTL name: `A_AS2_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. |
+| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the parent with the firmware's gPTP port, whose published snapshot keeps it. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#as2_hi-offset-0x734).
 
@@ -3247,8 +3247,8 @@ RTL name: `A_ASP_CMD`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:8 | `RESERVED` | R | 0 | Reserved. |
-| 7:4 | `ASP_GEN` | R | X | fabric publication generation. |
-| 3:0 | `ASP_COUNT` | R | X | path count; option OFF reads zero and all writes are discarded. |
+| 7:4 | `ASP_GEN` | R | X | fabric publication generation; under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0. |
+| 3:0 | `ASP_COUNT` | R | X | path count; option OFF reads zero and all writes are discarded. Under gPTP in firmware (`--sw-gptp`) it reads 0: the narrowed status block publishes no path trace (#884's ruling of 2026-11-21, item 7), and the firmware answers GET_AS_PATH from the snapshot it published last. |
 
 ## 0x7E8  -  gPTP plane drop diagnostics
 
@@ -3273,7 +3273,7 @@ RTL name: `A_GPTP_DROPW`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `GPTP_TAP_DROP` | R | X | tap-FIFO drop count. |
+| 31:16 | `GPTP_TAP_DROP` | R | X | tap-FIFO drop count. Under gPTP in firmware (`--sw-gptp`): egress records the timestamp unit's FIFO could not hold (KL_gptp_tsu); a received frame's stamp rides in its gptp record and is never dropped apart from its frame. |
 | 15:0 | `GPTP_RX_DROP` | R | X | parser refusal count; both 16-bit wrapping; option OFF reads zero. |
 
 ### GPTP_DROPE register (offset 0x7EC) [reset = 0xXXXXXXXX]
@@ -3286,7 +3286,7 @@ RTL name: `A_GPTP_DROPE`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `GPTP_TXTS_LOST` | R | X | `GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one. |
+| 31:16 | `GPTP_TXTS_LOST` | R | X | `GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one. Under gPTP in firmware (`--sw-gptp`): the timestamp unit's egress records with OK clear, which it posts as TIMESTAMP events too. |
 | 15:0 | `GPTP_EV_DROP` | R | X | events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context. Both 16-bit wrapping; option OFF reads zero. |
 
 ## 0x7F0  -  applied gPTP timestamp latency corrections

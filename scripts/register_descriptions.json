@@ -2667,7 +2667,7 @@
       "name": "gPTP parent, low word",
       "purpose": "Parent clockIdentity bits 31 to 0, coherent with AS2_HI.",
       "fields": {
-        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers from its parentDS from the snapshot it published last."
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the parent with the firmware's gPTP port, whose published snapshot keeps it."
       },
       "notes": [],
       "record": "as2_lo-offset-0x730"
@@ -2676,7 +2676,7 @@
       "name": "gPTP parent, high word",
       "purpose": "Parent clockIdentity bits 63 to 32, coherent with AS2_LO.",
       "fields": {
-        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the value with the firmware's gPTP port, which answers from its parentDS from the snapshot it published last."
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. Under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0: the narrowed status block (#884's ruling of 2026-11-21, item 7) leaves the parent with the firmware's gPTP port, whose published snapshot keeps it."
       },
       "notes": [],
       "record": "as2_hi-offset-0x734"
@@ -3240,8 +3240,8 @@
       "name": "AS_PATH status",
       "purpose": "Generation and length of the fabric's selected PathTrace.",
       "fields": {
-        "ASP_GEN": "fabric publication generation",
-        "ASP_COUNT": "path count; option OFF reads zero and all writes are discarded."
+        "ASP_GEN": "fabric publication generation; under gPTP in firmware (`--sw-gptp`, `GPTP_SW_EN_P`) it reads 0.",
+        "ASP_COUNT": "path count; option OFF reads zero and all writes are discarded. Under gPTP in firmware (`--sw-gptp`) it reads 0: the narrowed status block publishes no path trace (#884's ruling of 2026-11-21, item 7), and the firmware answers GET_AS_PATH from the snapshot it published last."
       },
       "notes": []
     },

@@ -129,14 +129,18 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-Three images may plan past the budget, each only as its own point (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and the owner's rule of 2026-11-15 as [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) applies it, which #665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235) keeps for the composed flip train: the control memory's ROM may overflow as debt owed to S14).
-Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image, a shipping one. [Section 5](#5-fit) ledgers all three as owed to lane S14:
+Six images may plan past the budget, each only as its own point (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and the owner's rule of 2026-11-15 as [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) applies it, which #665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235) keeps for the composed flip train: the control memory's ROM may overflow as debt owed to S14).
+Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image, a shipping one. [Section 5](#5-fit) ledgers all three as owed to lane S14.
+The other three are 8x8 images with gPTP in firmware, ledgered by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 4: the gPTP ports' memory at 8x8 and above is debt with a ledger entry, owed to S14 or a second hart's own memory, and fit and timing gate it ([gPTP in firmware](GPTP_SOFTWARE.md#memory)):
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.0 |
+| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 19,008 B | 58.5 |
+| `8x8-one-interface-gptp` | the size fixture's, one interface, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 8 B, `image_gptp` of 1,096 B | 59.0 |
+| `8x8-two-interfaces-gptp` | the size fixture's, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 16 B, `image_gptp` of 2,136 B | 64.0 |
+| `platform-8x8-one-interface-gptp` | the target platform's, one interface, built `--with-gptp` (the image of an SoC built `--sw-gptp`) | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,096 B | 62.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -159,7 +163,8 @@ With the largest legal record's cut ([section 13](#the-largest-legal-record-on-t
 The platform's two-interface entry is 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946): its `rom` is 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its 115,504 B of `sram`, with `ctrl_plat` unchanged.
 It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
 Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
-Each image is refused half a tile past its entry, at 61.0, 63.5 and 58.5.
+Contract 2.5 (#884: the gptp channel's table entries and the face's gPTP answer port) adds 64 B to `ctrl_plat` at every point but 8x8 with two interfaces, where it takes the padding, and 200 B of `rom` at 8x8 with one interface: 139,408 B, 144 B past the 139,264 B that 58.0 holds beside its 98,224 B of `sram`, so the one-interface entry is 58.5, with `ctrl_plat` at 19,008 B, by the owner's rule of 2026-11-15 (at `dev-soft-core-optimisation` `59b09884` it is 139,208 B and 18,944 B, within 58.0).
+Each image is refused half a tile past its entry, at 61.0, 63.5 and 59.0.
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -688,6 +693,18 @@ The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120
 | 8x8, two interfaces (largest) | 140,008 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 1,304 B of `rom` left |
 
 The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
+
+**On the gPTP-in-firmware line** (#884, contract 2.5; `plat_ledger.py` at `40bd7738`, every point PASS and its nine controls as required):
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+|---|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 126,632 / 56,800 | 45.0 | 18,112 | within 56 |
+| 1x1, two interfaces | 128,208 / 59,104 | 46.0 | 19,776 | within 56 |
+| 8x8, one interface (shipping) | 139,408 / 98,224 | 58.5 | 19,008 | at its entry's 58.5, S14's debt, 1,904 B of `rom` left |
+| 8x8, one interface, gPTP in firmware | 151,952 / 99,328 | 62.0 | 20,096 | at its entry's 62.0, #884's debt, 1,648 B of `rom` left |
+| 8x8, two interfaces (largest) | 140,952 / 115,568 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 360 B of `rom` left |
+
+gPTP in firmware adds 12,544 B of `rom` and 1,104 B of `sram` to the 8x8 one-interface platform image (the ports, the adapter and the PTP block's driver; `ctrl_plat` 1,088 B more, the adapter a member): 3.5 RAMB36.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.

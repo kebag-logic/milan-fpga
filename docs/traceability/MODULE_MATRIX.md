@@ -171,7 +171,7 @@ _datapath + top wrappers_
 | ✅ `KL_mbx_rx` | `milan/mailbox/KL_mbx_rx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_tx` | `milan/mailbox/KL_mbx_tx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_wb` | `milan/mailbox/KL_mbx_wb.sv` | `mbx` | -- |
-| ✅ `KL_ctrl_split` | `milan/KL_ctrl_split.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_ctrl_split` | `milan/KL_ctrl_split.sv` | `gptp_sw` · `gptp_tsu` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_nvm_backend` | `milan/KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 34.3, 34.4 |
