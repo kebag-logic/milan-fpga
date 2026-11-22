@@ -1,0 +1,23 @@
+head-clean PASSES [] []
+base-clean PASSES [] []
+base-plant PASSES [] []
+head-plant FAILS ['adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+head-draw-none FAILS ['adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+head-arm-advertise-period FAILS ['adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+head-arm-twice-the-draw FAILS ['adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+head-stays-waiting FAILS ['adp_debug', 'adp_release', 'adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+     A2 with the new current_configuration_index (6.2.2.18)
+head-no-new-draw PASSES [] []
+head-delay-max-500 FAILS ['adp_tests'] ['AdpCore.A9DrawKinds']
+     A9 and both reach near their maxima
+     A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+head-delay-max-8000 FAILS ['adp_tests'] ['AdpCore.A0toA2Schedule']
+     A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+head-plant-without-kind-conjunct PASSES [] []
+head-symbolic-bound-delay-max-8000 PASSES [] []

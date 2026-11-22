@@ -1,0 +1,281 @@
+[
+  {
+    "name": "head-clean",
+    "tree": "head",
+    "edits": [],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  },
+  {
+    "name": "base-clean",
+    "tree": "base",
+    "edits": [],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  },
+  {
+    "name": "base-plant",
+    "tree": "base",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  },
+  {
+    "name": "head-plant",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-draw-none",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-arm-advertise-period",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-arm-twice-the-draw",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-stays-waiting",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_debug",
+      "adp_release",
+      "adp_tests"
+    ],
+    "ctest_summary": "70% tests passed, 3 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)",
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)",
+      "A2 with the new current_configuration_index (6.2.2.18)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-no-new-draw",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  },
+  {
+    "name": "head-delay-max-500",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "include/adp.h",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A9DrawKinds"
+    ],
+    "adp_failure_messages": [
+      "A9 and both reach near their maxima",
+      "A9 the two kinds are distinct: the 0..4 s draws pass 2 s"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-delay-max-8000",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "include/adp.h",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 8,
+    "ctest_failed": [
+      "adp_tests"
+    ],
+    "ctest_summary": "90% tests passed, 1 tests failed out of 10",
+    "adp_core_rc": 1,
+    "adp_failed_tests": [
+      "AdpCore.A0toA2Schedule"
+    ],
+    "adp_failure_messages": [
+      "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
+    ],
+    "status": "FAILS"
+  },
+  {
+    "name": "head-plant-without-kind-conjunct",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "src/adp.c",
+        "matches": 1
+      },
+      {
+        "path": "tests/test_adp.cpp",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  },
+  {
+    "name": "head-symbolic-bound-delay-max-8000",
+    "tree": "head",
+    "edits": [
+      {
+        "path": "tests/test_adp.cpp",
+        "matches": 1
+      },
+      {
+        "path": "include/adp.h",
+        "matches": 1
+      }
+    ],
+    "build_rc": 0,
+    "ctest_rc": 0,
+    "ctest_failed": [],
+    "ctest_summary": null,
+    "adp_core_rc": 0,
+    "adp_failed_tests": [],
+    "adp_failure_messages": [],
+    "status": "PASSES"
+  }
+]
