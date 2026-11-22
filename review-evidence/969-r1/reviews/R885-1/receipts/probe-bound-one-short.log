@@ -1,0 +1,60 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/out-p-bound-one-short/checkout/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+ARM 0:srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8 rc=1
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (3 ms)
+    [  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (1 ms)
+    [  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (1 ms)
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+    [  PASSED  ] 91 tests.
+    [  FAILED  ] 4 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+    [  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+    [  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+ARM 1:srp-srp_mbx-if1-endstation_ax7101_8x8 rc=1
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (10 ms)
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+    [  PASSED  ] 93 tests.
+    [  FAILED  ] 2 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+ARM 2:srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8 rc=1
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (4 ms)
+    [  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (1 ms)
+    [  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (1 ms)
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+    [  PASSED  ] 92 tests.
+    [  FAILED  ] 4 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+    [  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+    [  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+ARM 3:srp-srp_mbx-if2-endstation_ax7101_8x8 rc=1
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (6 ms)
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+    [  PASSED  ] 94 tests.
+    [  FAILED  ] 2 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+    [  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+ARM 4:platsinks rc=1
+    [  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled (109 ms)
+    [  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (31 ms)
+    [  PASSED  ] 12 tests.
+    [  FAILED  ] 2 tests, listed below:
+    [  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+    [  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+ARM 5:platsinks rc=1
+    [  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled (12 ms)
+    [  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (3 ms)
+    [  PASSED  ] 12 tests.
+    [  FAILED  ] 2 tests, listed below:
+    [  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+    [  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+SOME-FAIL

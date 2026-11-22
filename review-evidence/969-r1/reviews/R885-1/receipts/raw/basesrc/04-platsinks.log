@@ -1,0 +1,705 @@
+[==========] Running 14 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (2 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (1 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[       OK ] Sinks.S5AChangeOfAnotherKindWritesNoContext (1 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[       OK ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[       OK ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (1 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (1 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (1 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[       OK ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (1 ms)
+[ RUN      ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+[       OK ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext (1 ms)
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (8 ms)
+[----------] 12 tests from Sinks (24 ms total)
+
+[----------] 2 tests from Early
+[ RUN      ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1189: Failure
+Expected: (first) != (nullptr), actual: NULL vs (nullptr)
+S13 a Talker Advertise registered before the restored binding settled: an MRPDU follows the probe's answer, input 2
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: an MRPDU follows the probe's answer, input 2
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1189: Failure
+Expected: (first) != (nullptr), actual: NULL vs (nullptr)
+S13 a Talker Advertise registered before the restored binding settled: an MRPDU follows the probe's answer, input 3
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: an MRPDU follows the probe's answer, input 3
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Advertise registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 0
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 1
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1189: Failure
+Expected: (first) != (nullptr), actual: NULL vs (nullptr)
+S13 a Talker Failed registered before the restored binding settled: an MRPDU follows the probe's answer, input 2
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: an MRPDU follows the probe's answer, input 2
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1189: Failure
+Expected: (first) != (nullptr), actual: NULL vs (nullptr)
+S13 a Talker Failed registered before the restored binding settled: an MRPDU follows the probe's answer, input 3
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: an MRPDU follows the probe's answer, input 3
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 4
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 5
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 6
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 7
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: the Listener is declared within a JoinTime of the probe's answer, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO shows REGISTERING, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1197: Failure
+Expected equality of these values:
+  (flags & 0x40u) != 0u
+    Which is: false
+  failed
+    Which is: true
+S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 8
+
+  [FAIL] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled: S13 a Talker Failed registered before the restored binding settled: GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input 8
+[  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled (67 ms)
+[ RUN      ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 0
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 0
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 0
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 1
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 1
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 1
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 2
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 2
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 2
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 2
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 2
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 2
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 3
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 3
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 3
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 3
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 3
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 3
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 4
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 4
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 4
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 5
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 5
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 5
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 6
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 6
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 6
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 7
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 7
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 7
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1190: Failure
+Expected equality of these values:
+  listener_of(first, acmp_test::kSid + v)
+    Which is: 0
+  kind
+    Which is: 2
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next MRPDU, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1192: Failure
+Value of: declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs)
+  Actual: false
+Expected: true
+S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 8
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: the Listener is declared within a JoinTime of the probe's answer, input 8
+<packet>/scratch/basesrc/sw/firmware/ctrl/test/test_plat_sinks.cpp:1196: Failure
+Expected equality of these values:
+  flags_ex & 1u
+    Which is: 0
+  1u
+    Which is: 1
+S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 8
+
+  [FAIL] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: S14 a BIND_RX while bound to a stream declared all along: GET_STREAM_INFO shows REGISTERING, input 8
+[  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (25 ms)
+[----------] 2 tests from Early (93 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 2 test suites ran. (117 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+[  FAILED  ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+
+ 2 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 14   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 14 checks, exit 1)

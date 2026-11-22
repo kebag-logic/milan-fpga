@@ -1,0 +1,8 @@
+# MSRP messages the CPU budget harness sends (tb/verilator/ctrl_service_budget at f863258d), attribute type first: 3 Listener, 4 Domain; no 1 (Talker Advertise) or 2 (Talker Failed)
+tb/verilator/ctrl_service_budget/talker_window.py:88:        ready = f.mrp_message(3, f.be(p.mac << 16 | n, 8), [1], four_packed=[2])
+tb/verilator/ctrl_service_budget/scenario.py:657:        ready_listener = f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])
+tb/verilator/ctrl_service_budget/scenario.py:663:        bad = bytearray(f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])]))
+tb/verilator/ctrl_service_budget/scenario.py:667:        domain = f.mrp_message(4, f.domain_value(6, 4, 3), [1])
+tb/verilator/ctrl_service_budget/scenario.py:693:    return f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])])
+tb/verilator/ctrl_service_budget/scenario.py:949:    bad = bytearray(f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])]))
+tb/verilator/ctrl_service_budget/talker_notice.py:105:    return f.msrp(scenario.BRIDGE_MAC, [f.mrp_message(3, f.be(OTHER_STREAM, 8), [1], four_packed=[2])])

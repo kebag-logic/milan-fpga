@@ -1,0 +1,18 @@
+Note: Google Test filter = Early.*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Early
+[ RUN      ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+[       OK ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled (15 ms)
+[ RUN      ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[       OK ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (3 ms)
+[ RUN      ] Early.ZControlUnbindThenBindToTheSameStreamDeclaresWithinOneTransmit
+[       OK ] Early.ZControlUnbindThenBindToTheSameStreamDeclaresWithinOneTransmit (3 ms)
+[----------] 3 tests from Early (22 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (22 ms total)
+[  PASSED  ] 3 tests.
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
