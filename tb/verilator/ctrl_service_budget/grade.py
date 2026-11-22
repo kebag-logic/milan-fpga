@@ -140,6 +140,7 @@ class Log:
     modules: dict[str, int] = field(default_factory=dict)
     code: dict[str, str] = field(default_factory=dict)
     traps: list[str] = field(default_factory=list)
+    txready: list[tuple[int, int]] = field(default_factory=list)  # cycle, the egress held (0) or returned (1)
     errors: list[str] = field(default_factory=list)
     result: str = ''
     #: The last run of idle passes ends in the pass the script's end cut short (sim_main.cpp
@@ -272,7 +273,9 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
+        elif kind == 'TXREADY':
+            log.txready.append((int(rest[0]), int(rest[1])))
+        elif kind in ('FLASH', 'REPLY', 'PC', 'FETCH', 'FLASHDATA'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)

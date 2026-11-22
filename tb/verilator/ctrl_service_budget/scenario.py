@@ -681,10 +681,20 @@ OWED_ROUND_MS = 200
 
 def named_groups(p: Point, build: dict) -> list[Group]:
     """Groups no arm runs, taken only where --groups names them (run.py select): measurements whose grading is not
-    ruled yet (#872). srp-owed holds the egress past THE TRANSMIT's bound with the SRP ring full, so the MRP timers'
-    run-outs of the hold are late by the hold (mrpdu_grade.py); it stays out of the arm until a ruling says how they
-    are graded, as #894's ruling did for backlog-owed's rows."""
-    return [owed_mrpdu_group(p), retained_group(p)] if build.get('variant', 'none') == 'none' else []
+    ruled yet (#872). srp-retained's pool floods a receive filter that #872's rule 4 (its rulings of 2026-11-21) caps;
+    the valid-destinations arm's srp-owed-declared stages the largest owed MRPDU that arm's declarations make, the
+    measurement rule 1 restates item.mrpdu at (talker_window.owed_declared)."""
+    if build.get('variant') == 'valid-destinations':
+        import talker_window
+        return [talker_window.owed_declared(p)]
+    return [retained_group(p)] if build.get('variant', 'none') == 'none' else []
+
+
+def owed_groups(p: Point, build: dict) -> list[Group]:
+    """Arm A's srp-owed (owed_mrpdu_group): it holds the egress past THE TRANSMIT's bound with the SRP ring full, and
+    the MRP timers' run-outs the hold makes late are graded held, each within JoinTime of the egress's return
+    (mrpdu_grade.settle; #872's rulings of 2026-11-21, rule 2, on #894's held-egress precedent)."""
+    return [owed_mrpdu_group(p)] if build.get('variant', 'none') == 'none' else []
 
 
 def medium_blocks(p: Point) -> int:
@@ -740,20 +750,26 @@ def owed_mrpdu_group(p: Point) -> Group:
     for i in range(p.interfaces):
         g.add(f'link {i} 1')
     g.add(f'wait cycles {300 * MS}')
-    domain = f.mrp_message(4, f.domain_value(6, 3, 2), [1], leave_all=True)
-    vid = f.mrp_message(1, f.be(2, 2), [1], leave_all=True, list_length=False)
-    for _ in range(rounds):
-        for i in range(p.interfaces):
-            g.add(f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}',
-                  f'frame {i} {f.ethernet(f.MVRP_DA, BRIDGE_MAC, f.ETH_MVRP, bytes(1) + vid + bytes(2)).hex()}')
-        g.add(f'wait cycles {OWED_ROUND_MS * MS}')
-    g.add('mark room', 'txready 1', f'wait cycles {100 * MS}', 'wait quiet 3 within 50000000')
+    owed_rounds(g, p)
     for i in range(p.interfaces):
         change = f.mrp_message(4, f.domain_value(6, 4, 3), [1])
         g.probe(Probe(f'srp.owed_domain.if{i}', 'Domain RX -> declarations after an owed MRPDU (JoinTime wait)', 'srp',
                       f'rxc:{srp}', [f'pub:{pub_word(i, "SR_DOMAIN")}', f'tx:{srp}'], wait_ms=200.0),
                 f'frame {i} {f.msrp(BRIDGE_MAC, [change]).hex()}', wait=f'tx {srp} 1 within {300 * MS}')
     return g
+
+
+def owed_rounds(g: Group, p: Point) -> None:
+    """srp-owed's rounds with the egress held (owed_mrpdu_group): on each interface a LeaveAll on both participants a
+    JoinTime apart, each re-declaring the default Domain and its VID, then the egress returned."""
+    domain = f.mrp_message(4, f.domain_value(6, 3, 2), [1], leave_all=True)
+    vid = f.mrp_message(1, f.be(2, 2), [1], leave_all=True, list_length=False)
+    for _ in range(OWED_ROUNDS // p.interfaces):
+        for i in range(p.interfaces):
+            g.add(f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}',
+                  f'frame {i} {f.ethernet(f.MVRP_DA, BRIDGE_MAC, f.ETH_MVRP, bytes(1) + vid + bytes(2)).hex()}')
+        g.add(f'wait cycles {OWED_ROUND_MS * MS}')
+    g.add('mark room', 'txready 1', f'wait cycles {100 * MS}', 'wait quiet 3 within 50000000')
 
 
 def admission(channel: str, frame: bytes) -> dict:
@@ -1080,5 +1096,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
-              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p)]
+              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p),
+              *owed_groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

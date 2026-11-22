@@ -232,6 +232,11 @@ def run_out_miss(group: str, o: dict) -> str:
         return at + (', its owner recorded unresolved' if o.get('recorded') else ', no owner recorded') + \
             ' at the expiry (owner unresolved)'
     opp = f"the owner's transmit opportunity at {o.get('from_ms', o['at_ms']):.3f} ms"
+    if o['outcome'] == 'late' and o.get('back_ms') is not None:
+        # its opportunity in a held egress: late past JoinTime of the return (#872's rulings of 2026-11-21, rule 2)
+        what = 'a build' if o.get('by') == 'bound' else "its owner's first frame or build"
+        return (at + f" ({o.get('who')}): {opp} in a held egress returned at {o['back_ms']:.3f} ms; {what} "
+                f"{o['held_after_ms']:.3f} ms after the return, past JoinTime {mrpdu_grade.HELD_JOIN_MS} ms (late)")
     if o['outcome'] == 'late' and o.get('by') == 'bound':
         return (at + f" ({o.get('who')}): no frame or build of its owner's within THE TRANSMIT's {mrpdu_grade.LATE_MS} "
                 f"ms of {opp}, a build {o['after_ms']:.3f} ms after it (late)")
@@ -280,8 +285,9 @@ def print_slices(results: list[dict]) -> None:
 
 def print_joins(results: list[dict]) -> None:
     """Each group's JOINS line: its join intervals' count, shortest and longest (join_grade.py; #894's contingent
-    ruling of 2026-11-13, item 4)."""
+    ruling of 2026-11-13, item 4); and a HELD line for each held run-out and each join interval ending on one's frame."""
     import join_grade
+    import mrpdu_grade
     for g in results:
         j = g['passes'].get('joins') or {}
         runs = ', '.join(f'{n} {outcome}' for outcome, n in (j.get('runs') or {}).items() if n)
@@ -294,6 +300,14 @@ def print_joins(results: list[dict]) -> None:
                   f"timers' run-outs: {runs}")
         elif runs:
             print(f"JOINS {g['group']}: no join interval; MRP timers' run-outs: {runs}")
+        # each held run-out by name, and each join interval its hold lengthened (#872's rulings of 2026-11-21, rule 2)
+        for h in j.get('held') or []:
+            first = f"its first frame at {h['first_ms']:.3f} ms" if h.get('first_ms') is not None else 'its build'
+            print(f"HELD {g['group']}: the {h['kind']} timer's run-out at {h['at_ms']:.3f} ms ({h['who']}), its owner's "
+                  f"opportunity at {h['from_ms']:.3f} ms in a held egress returned at {h['back_ms']:.3f} ms; {first}, "
+                  f"within JoinTime {mrpdu_grade.HELD_JOIN_MS} ms of the return")
+        for o in j.get('held_over') or []:
+            print(f"HELD {g['group']}: a join interval of {o['ms']:.3f} ms ({o['who']}) ending on a held run-out's frame")
 
 
 def saves(results: list[dict]) -> list[dict]:

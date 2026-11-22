@@ -52,15 +52,16 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
     """The synthetic logs' grader; tx_record is selftest.py's, the ring writes and commit of one TX record."""
     ms, ratio, srp = sys_hz // 1000, sys_hz // cpu_hz, scenario.CH['srp']
 
-    def graded(sends: tuple, timers: tuple, ordinary: tuple = (), empty: tuple = ()) -> tuple[list[dict], dict]:
+    def graded(sends: tuple, timers: tuple, ordinary: tuple = (), empty: tuple = (),
+               txready: tuple = ()) -> tuple[list[dict], dict]:
         """A held group's log with a TICK every centisecond from 900 ms to 1,500 ms: its MRPDUs (ms, EtherType,
         LeaveAll, interface), each committed at its ms after its build, in a pass of its own; its timers' entries
         (ms, callback, owner) just after their ms's TICK, the owner as the testbench records it at the expiry (a
         participant, `unresolved`, or None for no record); passes with no build at the ms in ordinary; and builds
         that send nothing, each in a pass of its own, at the ms in empty, each an ms or (ms, participant). Each build
         names its participant at its entry as the testbench records it, a send's its MRPDU's and an empty build its
-        own where one is given (none recorded otherwise). Its timer rows and its join intervals and run-outs
-        (join_grade.held)."""
+        own where one is given (none recorded otherwise); the egress held (0) or returned (1) at each (ms, value) in
+        txready. Its timer rows and its join intervals and run-outs (join_grade.held)."""
         lines, word = ['MARK 1000 save.change'], 0
         for at in range(900, 1_501, 10):
             lines += [f'EVW {at * ms} {n} {w:08x}' for n, w in enumerate((mrpdu_grade.TICK, 1, 0, 0))]
@@ -77,6 +78,7 @@ def harness(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int,
         lines += [f'PASS {at} {at * ms - 3000} {(at * ms - 3000) // ratio} {5000 // ratio} instr=10'
                   for at in sorted({at for at, _, _, _ in sends} | set(ordinary) | {at for at, _ in idle})]
         lines += [f'ENTRY {at * ms + 100} {name}' + (f' {who}' if who else '') for at, name, who in timers]
+        lines += [f'TXREADY {at * ms} {value}' for at, value in txready]
         log = grade.parse(synthetic(lines), sys_hz, cpu_hz)
         group = scenario.Group('leaveall', save=dict(loaded=True, origin='save.change'))
         return mrpdu_grade.rows(grade.Grader(log), group), join_grade.held(log)
@@ -106,7 +108,7 @@ def leave_all_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz:
     graded = harness(synthetic, sys_hz, cpu_hz, tx_record)
     single, one = single_checks(graded)
     return single + overlap_checks(graded) + record_checks(graded, one) + anchor_checks(graded) + \
-        foreign_checks(graded) + builder_checks(graded)
+        foreign_checks(graded) + builder_checks(graded) + held_checks(graded)
 
 
 def single_checks(graded: Graded) -> tuple[list[Check], list[str]]:
@@ -400,3 +402,42 @@ def builder_checks(graded: Graded) -> list[Check]:
             ("the owner's own build before its transmit opportunity settles nothing: its MRPDU at the opportunity is "
              "released and times its row, for either application on either interface",
              pick('early') == want('early'), str(pick('early')))]
+
+
+def held_checks(graded: Graded) -> list[Check]:
+    """A run-out the held egress made late (mrpdu_grade.settle, hold_end; #872's rulings of 2026-11-21, rule 2, on
+    #894's held-egress precedent): judged again from the egress's return, it is held, named and passes where its
+    owner's frame comes within JoinTime of the return, and late past it; one whose opportunity falls outside a hold is
+    late as before. MSRP's commit at 1,000 ms arms its join timer to the 1,180 ms TICK, its opportunity; its next
+    MRPDU at 1,260 ms is 80 ms past it, and 260 ms after the last, outside the join range."""
+    join = JOIN
+    timer = ((1_180, join, 'if0 MSRP'),)
+    late_frame = ((1_000, MSRP, False, 0), (1_260, MSRP, False, 0))
+    cases = dict(
+        free=graded(late_frame, timer),
+        held=graded(late_frame, timer, txready=((1_100, 0), (1_259, 1))),
+        # the egress back 205 ms before the owner's MRPDU
+        past=graded(((1_000, MSRP, False, 0), (1_405, MSRP, False, 0)), timer, txready=((1_100, 0), (1_200, 1))),
+        # a hold that ends before the opportunity, and another after the MRPDU
+        ended=graded(late_frame, timer, txready=((1_100, 0), (1_150, 1), (1_300, 0), (1_310, 1))),
+        # held again before the return: a repeated 0 inside the hold
+        repeated=graded(late_frame, timer, txready=((1_100, 0), (1_200, 0), (1_259, 1))))
+    got = {k: ([o for o, n in h['runs'].items() if n], [(f['outcome'], f['from_ms']) for f in h['failing']],
+               [(x['kind'], x['who'], x['from_ms'], x['back_ms'], x['first_ms']) for x in h['held']],
+               [o['ms'] for o in h['over']], [o['ms'] for o in h['held_over']]) for k, (_, h) in cases.items()}
+    late = (['late'], [('late', 1180.001)], [], [260.0], [])
+    held = (['held'], [], [('join', 'if0 MSRP', 1180.001, 1259.0, 1260.0)], [], [260.0])
+    want = dict(free=late, held=held, past=(['late'], [('late', 1180.001)], [], [405.0], []), ended=late,
+                repeated=held)
+    said = named_late(cases['held'][1]) + named_late(cases['past'][1])
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    return [("a run-out the held egress made late is held, named and passes where its owner's MRPDU comes within "
+             "JoinTime of the egress's return, and its join interval across the hold is named apart; late past JoinTime "
+             "of the return, or where its opportunity falls outside a hold, as without one", got == want and
+             mrpdu_grade.HELD_JOIN_MS == 200.0 and 'held' not in mrpdu_grade.FAILING and
+             said == ["c: the join timer's run-out at 1180.001 ms (if0 MSRP): the owner's transmit opportunity at "
+                      "1180.001 ms in a held egress returned at 1200.000 ms; its owner's first frame or build 205.000 "
+                      "ms after the return, past JoinTime 200.0 ms (late)"] and
+             run.verdict(args, [scenario.Group('c')], [], [], [], named_late(cases['held'][1])) == 0,
+             str((got, said)))]

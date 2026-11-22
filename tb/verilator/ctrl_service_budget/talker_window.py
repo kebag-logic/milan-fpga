@@ -116,3 +116,18 @@ def groups(p: scenario.Point, build: dict | None = None) -> list[scenario.Group]
                    wait=f'tx {srp} 1 within {300 * ms}')
     loss.add(f'wait cycles {RANGE_MS * ms}', 'wait quiet 3 within 2000000')
     return [window, loss] + ([held(p, build)] if build is not None else [])
+
+
+def owed_declared(p: scenario.Point) -> scenario.Group:
+    """listening, then srp-owed's held LeaveAll rounds (scenario.owed_rounds): the egress held once every source's
+    Talker is declared beside a registered Listener, so each join timer's run-out rebuilds every declaration of its
+    participant, the SRP ring runs out of room and the poll resends the largest MRPDU this arm's declarations make
+    (poll_items' mrpdu item): the measurement #872's rule 1 restates item.mrpdu at (its rulings of 2026-11-21). A named
+    group (scenario.named_groups); its held run-outs are graded held (mrpdu_grade.settle, rule 2)."""
+    rounds = scenario.OWED_ROUNDS // p.interfaces
+    g = scenario.Group('srp-owed-declared', sim_ms=650 + 2600 + 330 * p.sources + 300 + scenario.OWED_ROUND_MS * rounds
+                       + 1500)
+    listening(g, p)
+    g.add(f'wait cycles {300 * scenario.MS}', 'txready 0', f'wait cycles {2 * scenario.MS}')
+    scenario.owed_rounds(g, p)
+    return g

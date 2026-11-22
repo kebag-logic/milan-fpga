@@ -63,28 +63,52 @@ def intervals(log: grade.Log) -> list[tuple[float, str, int]]:
     return sorted(out)
 
 
+def hold_spans(log: grade.Log, out: list[dict], judged: list[tuple[int, str, str]]) -> tuple[list[dict], list[dict]]:
+    """The join intervals outside the range (out), split: those that fail the run, and those that end on the frame of
+    a held run-out (judged, mrpdu_grade.outcomes), whose interval spans the egress's hold and which the held rule judges
+    instead (#872's rulings of 2026-11-21, rule 2)."""
+    held_by = {entry for entry, _, outcome in judged if outcome == 'held'}
+    by = released(log)
+    return [o for o in out if by.get(o['end_sys']) not in held_by], [o for o in out if by.get(o['end_sys']) in held_by]
+
+
 def held(log: grade.Log) -> dict:
     """The group's join intervals: how many, the shortest and the longest in ms, and each outside LEAST_MS to
-    MOST_MS; every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
+    MOST_MS, but one that ends on a held run-out's frame, named apart (held_over); every MRP timer's run-out by its outcome (mrpdu_grade.resolve, no horizon), each late or absent one named
     with its timer, its time, its owner, the owner's transmit opportunity (mrpdu_grade.anchor) and how far the owner's
     first frame or the first build, or the log's end, lies past that, and each unowned one
-    with whether the testbench recorded its owner unresolved or recorded none; and every LeaveAll
+    with whether the testbench recorded its owner unresolved or recorded none; each held one named with its owner's
+    opportunity, the egress's return and the owner's first frame (#872's rulings of 2026-11-21, rule 2); and every LeaveAll
     timer's run-out by its owner's LeaveAll (mrpdu_grade.leave_alls), each skipped, late, absent or unowned one
     named."""
     every = intervals(log)
-    over = [dict(ms=round(ms, 3), who=who, end_sys=end) for ms, who, end in every if not LEAST_MS <= ms <= MOST_MS]
     last = mrpdu_grade.index(log)[3]
     ms = lambda cycle: round(cycle * 1000 / log.sys_hz, 3)
-    runs, failing = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), []
-    for entry, kind, outcome in mrpdu_grade.outcomes(log):
+    judged = mrpdu_grade.outcomes(log)
+    over, spans = hold_spans(log, [dict(ms=round(n, 3), who=who, end_sys=end) for n, who, end in every
+                                   if not LEAST_MS <= n <= MOST_MS], judged)
+    runs, failing, held_runs = dict.fromkeys(mrpdu_grade.OUTCOMES, 0), [], []
+    for entry, kind, outcome in judged:
         runs[outcome] += 1
+        if outcome == 'held':
+            # recorded by name, not graded late (#872's rulings of 2026-11-21, rule 2)
+            who = mrpdu_grade.recorded_owner(log, entry)
+            start = mrpdu_grade.opportunity(log, who, entry)
+            frames = mrpdu_grade.released(log, entry)
+            held_runs.append(dict(kind=kind, who=who, at_ms=ms(entry), from_ms=ms(start),
+                                  back_ms=ms(mrpdu_grade.hold_end(log, start)),
+                                  first_ms=ms(frames[0][0]) if frames else None))
         if outcome in mrpdu_grade.FAILING:
             # from its owner's first transmit opportunity, to what its late judgement rests on (mrpdu_grade.settle), or
             # the log's end
             start = mrpdu_grade.anchor(log, entry)
             at, by = mrpdu_grade.late_at(log, entry) if outcome == 'late' else (None, 'owner')
             after = at if at is not None else last
+            # a late run-out judged again from a held egress's return names the return (mrpdu_grade.settle)
+            back = mrpdu_grade.hold_end(log, start) if outcome == 'late' else None
             failing.append(dict(kind=kind, outcome=outcome, by=by, who=mrpdu_grade.recorded_owner(log, entry),
+                                **({'back_ms': ms(back), 'held_after_ms': round((after - back) * 1000 / log.sys_hz, 3)}
+                                   if back is not None else {}),
                                 at_ms=ms(entry), from_ms=ms(start),
                                 after_ms=round((after - start) * 1000 / log.sys_hz, 3),
                                 **({'recorded': any((entry, n) in log.owners for n in mrpdu_grade.TIMERS)}
@@ -97,5 +121,6 @@ def held(log: grade.Log) -> dict:
                                       if r.get(k) is not None})
                               for r in alls if r['outcome'] in mrpdu_grade.LEAVE_ALL_FAILING])
     return dict(count=len(every), shortest=round(every[0][0], 3) if every else None,
-                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing,
+                longest=round(every[-1][0], 3) if every else None, over=over, runs=runs, failing=failing, held=held_runs,
+                held_over=spans,
                 leave_all=leave_all)

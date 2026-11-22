@@ -30,6 +30,13 @@ participant's callback, running join timer, build or frame never defers a run-ou
 absent or unowned run-out fails the run (join_grade.held); an unresolved one is counted and named, never taken for one
 that owes nothing.
 
+A run-out late by THE TRANSMIT's bound whose owner's opportunity falls while the testbench holds the egress (TXREADY
+0; sim_main.cpp, txready) is judged again from the egress's return (hold_end): `held` where the owner's first frame, or
+the owner's build that sends nothing, comes within JoinTime (HELD_JOIN_MS) of the return, and `late` past it. A held
+run-out passes and is named (join_grade.held): #872's rulings of 2026-11-21, rule 2, on #894's held-egress precedent;
+IEEE 802.1Q-2018 10.7.11, Milan v1.2 Table 4.3. A run-out whose egress is still held at the log's end is judged as any
+other.
+
 A LeaveAll timer's run-out owes its owner's LeaveAll (leave_alls). The owner is the participant the testbench recorded
 at the expiry itself, read off the callback's own argument and bound to an interface and an application at the
 participant's creation (grade.Log.owners; sim_main.cpp, owner_of and note_owner), never inferred from an output after
@@ -69,6 +76,10 @@ BUDGET_MS = LATE_MS
 #: CTRL_LOOP_JOIN_CS (ctrl_loop.h): the centiseconds of the join timer a participant's commit arms; the TICK that runs
 #: it out is the participant's next transmit opportunity (IEEE 802.1Q-2018 10.7.4.1).
 JOIN_CS = join_cs(_HEADER)
+#: JoinTime in ms (IEEE 802.1Q-2018 Table 10-7; Milan v1.2 Table 4.3): the most a run-out whose owner's transmit
+#: opportunity falls while the egress is held may wait past the egress's return (held; #872's rulings of 2026-11-21,
+#: rule 2, on #894's held-egress precedent).
+HELD_JOIN_MS = 200.0
 #: The MRP applications by their MRPDUs' EtherType (IEEE 802.1Q-2018 Table 10-2, 35.2.2.1).
 APPLICATIONS = {0x22EA: 'MSRP', 0x88F5: 'MVRP'}
 #: MSRP's Listener attribute, whose vectors carry FourPackedEvents after their ThreePackedEvents (lwSRP's mrp_pdu.c,
@@ -80,7 +91,7 @@ LEAVE_ALL = 'on_la_timer'
 LEAVE_ALL_OUTCOMES = ('sent', 'skipped', 'late', 'absent', 'unresolved', 'unowned')
 LEAVE_ALL_FAILING = ('skipped', 'late', 'absent', 'unowned')
 #: The outcomes of a timer's run-out (resolve), and those that fail a run.
-OUTCOMES = ('released', 'empty', 'late', 'absent', 'unresolved', 'unowned')
+OUTCOMES = ('released', 'empty', 'held', 'late', 'absent', 'unresolved', 'unowned')
 FAILING = ('late', 'absent', 'unowned')
 
 
@@ -194,7 +205,7 @@ def released(log: grade.Log, entry: int) -> list[tuple[int, int]]:
     """commits' frames, from the log alone: what the timer that ran out at entry released, late or not (join_grade.py
     too); an unowned run-out's too, which fails the run whatever its builds sent."""
     outcome, frames = resolve(log, entry)
-    return frames if outcome in ('released', 'late', 'unowned') else []
+    return frames if outcome in ('released', 'held', 'late', 'unowned') else []
 
 
 def end_of(log: grade.Log, p: grade.Pass) -> int:
@@ -247,9 +258,22 @@ def settle(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, i
     it is never taken for the owner's empty build. A build before the owner's opportunity, or another participant's,
     never settles it. With none settling by the bound, the first build past it makes the run-out late; with no build
     after it at all, the log's end decides absent or unresolved (horizon)."""
+    outcome = judge(log, entry, who, None)
+    if outcome[0] == 'late':
+        # an opportunity the held egress made it miss: judged again from the egress's return, within JoinTime
+        back = hold_end(log, opportunity(log, who, entry))
+        if back is not None:
+            return judge(log, entry, who, back)
+    return outcome
+
+
+def judge(log: grade.Log, entry: int, who: str, back: int | None) -> tuple[str, list[tuple[int, int]], int | None, str]:
+    """settle's judgement of the owned run-out at entry: with back None, from the owner's opportunity within THE
+    TRANSMIT's bound; with back the egress's return (hold_end), from back within JoinTime, `held` in place of
+    `released` and `empty`."""
     builds, _, _, last = index(log)
-    bound = int(LATE_MS * log.sys_hz / 1000)
     start = opportunity(log, who, entry)
+    bound = int((LATE_MS if back is None else HELD_JOIN_MS) * log.sys_hz / 1000)
     past = None
     for k in range(bisect_right(builds, entry), len(builds)):
         b = builds[k]
@@ -257,16 +281,34 @@ def settle(log: grade.Log, entry: int, who: str) -> tuple[str, list[tuple[int, i
         if kind is not None:
             mine, since = served(log, entry, who, run_from(log, k)[1])
             if mine:
-                late = mine[0][0] > since + bound
-                return ('late' if late else 'released'), mine, mine[0][0] if late else None, 'owner'
+                late = mine[0][0] > (since if back is None else back) + bound
+                return ('late' if late else 'released' if back is None else 'held'), mine, \
+                    mine[0][0] if late else None, 'owner'
             if kind == 'own':
-                late = b > anchor(log, entry) + bound
-                return ('late' if late else 'empty'), [], b if late else None, 'owner'
-        if past is None and b > start + bound:
+                late = b > (anchor(log, entry) if back is None else back) + bound
+                return ('late' if late else 'empty' if back is None else 'held'), [], b if late else None, 'owner'
+        if past is None and b > (start if back is None else back) + bound:
             past = b
     if past is not None:
         return 'late', [], past, 'bound'
     return ('absent' if last > horizon(log, entry, who) + bound else 'unresolved'), [], None, 'owner'
+
+
+def hold_end(log: grade.Log, cycle: int) -> int | None:
+    """Where the egress returns, the next TXREADY 1, when it is held at bus cycle `cycle` (the last TXREADY at or
+    before it a 0; sim_main.cpp, txready), else None. A late run-out whose owner's opportunity falls in a hold is
+    `held` where its owner's frame or build comes within JoinTime of that return (settle), and late past it: #872's rulings of
+    2026-11-21, rule 2, on #894's held-egress precedent (IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3)."""
+    held = False
+    for c, value in sorted(log.txready):
+        if c > cycle:
+            if held and value == 1:
+                return c
+            if not held:
+                return None
+        else:
+            held = value == 0
+    return None
 
 
 def candidate(log: grade.Log, b: int, who: str, start: int) -> str | None:

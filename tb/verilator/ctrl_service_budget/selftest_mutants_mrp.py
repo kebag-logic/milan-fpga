@@ -81,6 +81,23 @@ MUTANTS: dict[str, Callable[[], list]] = {
             mrpdu_grade.opportunity(log, other, entry) for other in whose] or [entry]))],
     "transmit: the participant's join timer run out a centisecond early": lambda: [patch.object(
         mrpdu_grade, 'JOIN_CS', mrpdu_grade.JOIN_CS - 1)],
+    "held: a run-out the held egress made late never judged from the egress's return": lambda: [patch.object(
+        mrpdu_grade, 'hold_end', lambda log, cycle: None)],
+    "held: a held run-out's MRPDU past JoinTime of the return taken for held": lambda: [patch.object(
+        mrpdu_grade, 'HELD_JOIN_MS', 10 ** 6)],
+    'held: a held run-out failing the run': lambda: [patch.object(mrpdu_grade, 'FAILING', ('late', 'absent', 'unowned',
+                                                                                         'held'))],
+    "held: any later return taken for the hold's, though the hold ended before the opportunity": lambda: [patch.object(
+        mrpdu_grade, 'hold_end', lambda log, cycle: next((c for c, v in sorted(log.txready) if c > cycle and v == 1),
+                                                         None))],
+    "held: a repeated hold read as the egress's return": lambda: [patch.object(
+        mrpdu_grade, 'hold_end', lambda log, cycle: next((c for c, v in sorted(log.txready) if c > cycle), None) if any(
+            c <= cycle for c, v in log.txready) and [v for c, v in sorted(log.txready) if c <= cycle][-1] == 0
+        else None)],
+    'held: a join interval across the hold failing the run': lambda: [patch.object(
+        join_grade, 'hold_spans', lambda log, out, judged: (out, []))],
+    'held: any join interval outside the range named apart, the run-out late or not': lambda: [patch.object(
+        join_grade, 'hold_spans', lambda log, out, judged: ([], out))],
     'leaveall: a LeaveAll past its first transmit opportunity not failing the run': lambda: [patch.object(
         mrpdu_grade, 'LEAVE_ALL_FAILING', ('late', 'absent'))],
     "leaveall: a late LeaveAll not failing the run": lambda: [patch.object(
