@@ -1,0 +1,21 @@
+# the hot section (_ctrl_hot_start .. _ctrl_hot_end) of the platform images (plat_ledger's), base dd163e41 against the final head f02d44cd, every function by its offset in the section and its size (hotcmp.py), then every text symbol (symcmp.py)
+## 1x1/1if
+hot section: base 0x8c..0xde04 (56696 B, 261 functions); head 0x8c..0xde14 (56712 B, 261 functions)
+functions at a different offset or size: 152; the first: base (26852, 536, 'reset_interface') head (26852, 552, 'reset_interface')
+resized: [('reset_interface', 536, 552)]
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [380], [584]), ('reset_interface', [536], [552]), ('srp_mbx_bind', [912], [932]), ('talker_changed', [328], [520])]
+new: ['kept_visited'] gone: []
+moved: 409 of 497
+base .text ['  0 .text         0001b9c0  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bd70  00000000  00000000  00001000  2**2']
+## 8x8/1if
+hot section: base 0x8c..0xddb8 (56620 B, 261 functions); head 0x8c..0xddc8 (56636 B, 261 functions)
+functions at a different offset or size: 152; the first: base (26828, 552, 'reset_interface') head (26828, 568, 'reset_interface')
+resized: [('reset_interface', 552, 568)]
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [344], [576]), ('reset_interface', [552], [568]), ('srp_mbx_bind', [896], [916]), ('talker_changed', [348], [524])]
+new: ['kept_visited'] gone: []
+moved: 409 of 497
+base .text ['  0 .text         0001b97c  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bd20  00000000  00000000  00001000  2**2']
+## the shifted functions: every hot function after reset_interface in the section, each 16 B later; none resized but reset_interface (+16 B, its zeroing of the kept count)
+## for comparison, the round-1 head f863258d against the base: 0 hot functions at another offset or size

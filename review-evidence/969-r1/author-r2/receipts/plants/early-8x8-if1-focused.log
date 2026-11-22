@@ -1,0 +1,32 @@
+planting ['feedback-early-talker-ignored', 'feedback-early-rebind-ignored', 'feedback-early-bound-first-sink-only', 'feedback-early-unbounded', 'feedback-early-any-kind-kept', 'feedback-early-count-forgets', 'feedback-early-count-adds', 'feedback-early-left-uncounted', 'feedback-early-freed-uncounted', 'feedback-early-unbinding-uncounted', 'feedback-early-reset-counted', 'feedback-early-end-unowed', 'feedback-early-unregistered-unowed', 'feedback-early-left-seen-unowed', 'feedback-early-refresh-counted-again', 'feedback-early-latest-unheld']
+[ok] feedback-early-talker-ignored [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ESCAPED] feedback-early-unbinding-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+Note: Google Test filter = SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[       OK ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound (0 ms)
+[----------] 1 test from SrpEarlyTalker (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] feedback-early-reset-counted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+[ok] feedback-early-latest-unheld [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+CAMPAIGN FAILED

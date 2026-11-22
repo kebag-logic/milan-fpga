@@ -1,0 +1,23 @@
+Note: Google Test filter = SrpEarlyTalker.Review*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (2 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (1 ms)
+[----------] 5 tests from SrpEarlyTalker (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP mailbox: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+ARM srp-review_probes-if1-endstation_ax7101_8x8 rc 0

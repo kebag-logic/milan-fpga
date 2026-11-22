@@ -1,0 +1,30 @@
+wrote <scratch>/r2/build/cnew-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_1x1_tdm8-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r2/build/cnew-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_1x1_tdm8-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r2/build/cnew-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_1x1_tdm8-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+IsFreedIsCountedNoMore (5 ms)
+[ RUN      ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[       OK ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce (0 ms)
+[ RUN      ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput
+[       OK ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput (2 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput
+[       OK ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput (0 ms)
+[----------] 18 tests from SrpEarlyTalker (35 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+[----------] 3 tests from SrpStaleCountProbe (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 21 tests from 2 test suites ran. (39 ms total)
+[  PASSED  ] 21 tests.
+== ctrl SRP mailbox: checks: 21   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (21 tests, 0 failures, exit 0)
+ARM srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8 rc 0

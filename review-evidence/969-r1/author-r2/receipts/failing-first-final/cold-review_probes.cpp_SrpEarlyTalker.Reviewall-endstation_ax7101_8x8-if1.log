@@ -1,0 +1,96 @@
+Note: Google Test filter = SrpEarlyTalker.Review*
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (2 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (1 ms)
+[----------] 5 tests from SrpEarlyTalker (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+
+ 2 FAILED TESTS
+== ctrl SRP mailbox: checks: 5   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 5 checks, exit 1)
+ARM srp-review_probes-if1-endstation_ax7101_8x8 rc 1

@@ -1,0 +1,129 @@
+wrote <scratch>/r2/build/cold-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_8x8-if2/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/r2/build/cold-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_8x8-if2/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/r2/build/cold-srp_mbx.cpp:SrpEarlyTalker.*:SrpStaleCountProbe.*-endstation_ax7101_8x8-if2/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+ailure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a Leave kept for a StreamID never registered, freed: every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: ACMP is told, input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a Leave kept for a StreamID never registered, freed: every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce (2 ms)
+[ RUN      ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput
+[       OK ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput (3 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput
+[       OK ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput (2 ms)
+[----------] 18 tests from SrpEarlyTalker (54 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: ACMP is told, input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: ACMP is told, input 8
+<scratch>/r2/cold/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (3 ms)
+[----------] 3 tests from SrpStaleCountProbe (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 21 tests from 2 test suites ran. (61 ms total)
+[  PASSED  ] 16 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 5 FAILED TESTS
+== ctrl SRP mailbox: checks: 21   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 21 checks, exit 1)
+ARM srp-srp_mbx-if2-endstation_ax7101_8x8 rc 1

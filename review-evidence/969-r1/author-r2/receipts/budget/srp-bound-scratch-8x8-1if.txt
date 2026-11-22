@@ -1,0 +1,19 @@
+# scratch comparison, not committed (bound_window.py, in a scratch copy of the final clone 2bfa95b4: its firmware is f02d44cd's): every STREAM_INPUT bound to its own stream through BIND_RX and the talker's PROBE_TX_RESPONSE, then one MRPDU declaring every input's Talker Advertise (kept_window's streams), at 8x8/1if; run.py's own verdict lines, then kept_grade.py's
+STEPS 2784 passes carry the store's step; the longest 109,180 CPU cycles (1.092 ms), srp-bound; the longest step 78,364 (0.784 ms), srp-bound
+SLICES 33697 tier-2 slices; the longest SRP's records 157,372, THE TRANSMIT's build 109,015, THE RETRY's round 10,888 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp-bound: 6 join interval(s), the shortest 188.106 ms and the longest 190.587 ms, against 181.0 to 239.0; MRP timers' run-outs: 20 released, 14 empty
+1 groups graded, 0 refusals, 0 budget misses (0 of 1 probe instances, 0 of 1 paths), 1 of 5756 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+STATED srp-bound: a pass's polls base of 65,000 CPU cycles, over its stated 30,000
+STATED srp-bound: a walk item of 14,587 CPU cycles, over its stated 12,000
+STATED srp-bound: an SRP record's apply of 152,856 CPU cycles, over its stated 37,500
+STATED srp-bound: a tier-2 slice of SRP's records of 157,372 CPU cycles, over the stated slice 147,500
+rc=1
+## kept_grade.py (its probe prefix widened to srp.bound_ in the scratch copy; run on the group's log under the name it reads)
+POINT endstation_ax7101_8x8, 1 interface(s): shape (1, 9, 9)
+RECORD srp.bound_advertise.if0: 1 record(s), the dearest 153,208 CPU cycles, 1610 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD the group: 1 record(s), the dearest 153,208 CPU cycles, 1610 us by the rule, against 375 us
+BUILD build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD build-one: the heaviest pass 101,786 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+FINDING srp.bound_advertise.if0: a record of 153,208 cycles, 1610 us by the rule, over the unit 375 us
+kept_grade: FAIL (1 finding(s))
+## the bindings took: the first SRP frame after the probe's mark declares all 9 streams' Listener (StreamIDs 0c0d0e0f10020000 .. 0008)

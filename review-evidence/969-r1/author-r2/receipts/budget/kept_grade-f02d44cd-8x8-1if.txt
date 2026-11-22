@@ -1,0 +1,12 @@
+# kept_grade.py on the srp-kept group of the CPU budget harness's build at 8x8-1if (clean clone f02d44cd, run.py --groups srp-kept,srp,acmp-cmd,fixture,backlog,backlog-owed)
+POINT endstation_ax7101_8x8, 1 interface(s): shape (1, 9, 9)
+RECORD srp.kept_advertise.if0: 2 record(s), the dearest 137,352 CPU cycles, 1445 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_recount.if0: 1 record(s), the dearest 68,692 CPU cycles, 725 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_failed.if0: 1 record(s), the dearest 142,909 CPU cycles, 1505 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD the group: 4 record(s), the dearest 142,909 CPU cycles, 1505 us by the rule, against 375 us
+BUILD build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD build-one: the heaviest pass 82,768 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+FINDING srp.kept_advertise.if0: a record of 137,352 cycles, 1445 us by the rule, over the unit 375 us
+FINDING srp.kept_recount.if0: a record of 68,692 cycles, 725 us by the rule, over the unit 375 us
+FINDING srp.kept_failed.if0: a record of 142,909 cycles, 1505 us by the rule, over the unit 375 us
+kept_grade: FAIL (3 finding(s))

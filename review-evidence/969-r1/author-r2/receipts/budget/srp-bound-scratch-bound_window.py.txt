@@ -1,0 +1,36 @@
+"""Scratch comparison (not committed): every STREAM_INPUT bound to its own stream through BIND_RX and the talker's
+PROBE_TX_RESPONSE, then one MRPDU declaring every input's Talker Advertise, as kept_window.py declares them unbound."""
+from __future__ import annotations
+
+import frames as f
+import kept_window
+import scenario
+
+NAME = 'srp-bound'
+
+
+def answer(i: int, k: int) -> str:
+    """The talker's PROBE_TX_RESPONSE naming stream k (kept_window's streams)."""
+    acmp_ch = scenario.CH['acmp']
+    return (f'reply {i} {acmp_ch} 15:{f.ACMP["PROBE_TX"]:02x} 6={scenario.TALKER_A_MAC:012x} '
+            f'15={f.ACMP["PROBE_TX_RESPONSE"]:02x} 16={44:04x} 18={kept_window.STREAM + k:016x} '
+            f'54={kept_window.STREAM_DA + k:012x} 66=0002')
+
+
+def groups(p: scenario.Point) -> list[scenario.Group]:
+    """Bind every sink, then the vector of their Talkers."""
+    srp, acmp, ms, n = scenario.CH['srp'], scenario.CH['acmp'], scenario.MS, p.sinks
+    g = scenario.Group(NAME, sim_ms=650 + 2600 + 400 * n + 3000)
+    scenario.ready(g, p)
+    g.add(f'wait cycles {2600 * ms}', 'wait quiet 3 within 2000000')
+    for k in range(n):
+        i = k % p.interfaces
+        g.add(f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", k, 0x6000 + k).hex()}',
+              f'wait tx {acmp} 2 within {40 * ms}', 'wait quiet 3 within 2000000', answer(i, k),
+              f'wait cycles {300 * ms}', 'wait quiet 3 within 2000000')
+    for i in range(p.interfaces):
+        g.probe(scenario.Probe(f'srp.bound_advertise.if{i}', 'Talker Advertise RX for every input, bound',
+                               'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
+                f'frame {i} {kept_window.declared(0, n).hex()}', wait=f'cycles {30 * ms}')
+    g.add(f'wait cycles {1000 * ms}', 'wait quiet 3 within 2000000')
+    return [g]

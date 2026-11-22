@@ -1,0 +1,11 @@
+# the srp-kept group's LeaveAll and the build that carries the kept Talkers (results/srp-kept.log, its SRP TX
+# frames decoded vector by vector): the entity's LeaveAll MRPDU, then the next MRPDU, which answers it with In for
+# every kept Talker (an observed attribute in LO, IEEE 802.1Q-2018 Table 10-3), one value a vector
+1x1/1if  14.213 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+1x1/1if  14.404 s   92 B  type 1: 2 vectors (streams 1, 2: stream 0 left, stream 2 kept in its place), type 4: 1
+8x8/1if  14.253 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+8x8/1if  14.443 s  288 B  type 1: 9 vectors (streams 1 .. 9), type 4: 1
+# the heaviest pass given whole to a build of one MRPDU in the group (whole_grade.held, kept_grade.py's BUILD line):
+# 39,123 CPU cycles at 1x1/1if against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US 735 us), 82,768 at 8x8/1if
+# against 147,500 (1475 us); run.py: "LeaveAll timers' run-outs by their LeaveAll: 2 sent" at each point, no late,
+# skipped or absent run-out

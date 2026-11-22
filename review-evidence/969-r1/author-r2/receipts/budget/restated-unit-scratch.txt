@@ -1,0 +1,72 @@
+# a scratch copy of the final clone (2bfa95b4), nothing committed: ctrl_loop.h's CTRL_LOOP_SRP_UNIT_US and load_grade.py's record.srp restated by the stated rule to the srp-kept group's dearest record, 390 us at 1x1/1if (36,859 CPU cycles) and 1505 us at 8x8/1if (142,909), then the graders
+=== flip_grade.py --check --point 1x1/1if
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.21 | 20 | -6.79 | 5 | aecp 4.000, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 86.37 | 90 | -3.63 | 47 | srp 12.480, passes 12.455, others 12.300 |
+| 1x1/1if | R6 | 83.98 | 90 | -6.02 | 45 | srp 12.480, others 12.020, passes 11.925 |
+| 1x1/1if | first | 14.69 | 20 | -5.31 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 185.89 | 130 | +55.89 | 107 | srp 46.800, passes 28.355, others 18.745 |
+| 1x1/1if | R4L | 203.43 | 238 | -34.57 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.01 | 30 | -0.99 | 17 | aecp 5.250, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.46 | 30 | -2.54 | 13 | others 6.915, aecp 5.250, passes 3.445 |
+| 1x1/1if | MAAP | 27.56 | 30 | -2.44 | 13 | others 6.930, aecp 5.250, passes 3.445 |
+| 1x1/1if | tx | 33.39 | 49 | -15.61 | 17 | others 8.350, aecp 5.500, passes 4.505 |
+| 1x1/1if | txL | 47.83 | 49 | -1.17 | 23 | aecp 10.600, others 9.410, item.aecp 7.245 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 390 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 1505 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+OVER 1x1/1if last: under the tiers (slice 950 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 185.89 ms, over its bound 130 ms; the largest term srp 46.80 ms
+OVER 1x1/1if: the last queued notice 185.89 ms, past the amendment's 140 ms: the owner's
+OVER the shape (1, 9, 9): an SRP record of 1505 us, over its slice of 1475 us
+RESULT: FAIL
+rc=0
+=== flip_grade.py --check --point 8x8/1if
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 1.309 | 0.75 | 1.74x | srp 0.790, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 390 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 1505 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.65 ms (tx_held; the hold-off adds the figure)
+OVER 8x8/1if: the load 1.309 at the pin is over the flip ceiling 0.75
+OVER the shape (1, 9, 9): an SRP record of 1505 us, over its slice of 1475 us
+RESULT: FAIL
+rc=0
+=== load_grade.py --check
+| Point | Load at the pin | Load at the donor's measured costs (the pin carries tsn-c-stack#32) | Ceiling | Compute for 0.70 (with tsn-c-stack#32) | A pass's own cost, us | Terms by share (with tsn-c-stack#32) |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1/1if | 0.564 | 0.561 | 0.70, both columns | 1.00x | 265 | srp 0.224, rec.acmp 0.053, rec.aecp 0.050, ticks 0.049, item.aecp 0.034, steps 0.033, item.reclaim 0.026, timers 0.019, item.acmp 0.017, item.mrpdu 0.015, item.acmp_declined 0.012, rec.adp 0.011, builds 0.008, rec.maap 0.006, item.walk 0.004, notices 0.002, gm 0.000 |
+| 8x8/2if | 0.799 | 0.757 | the flip check, 0.70 at the pin (flip_grade.py) | 1.08x | 390 | srp 0.219, item.aecp 0.063, rec.acmp 0.061, timers 0.061, ticks 0.059, rec.aecp 0.053, item.mrpdu 0.051, item.reclaim 0.042, steps 0.034, item.acmp 0.027, builds 0.026, item.acmp_declined 0.015, item.walk 0.013, rec.adp 0.013, notices 0.011, rec.maap 0.008, gm 0.001 |
+| 8x8/1if | 1.309 | 1.268 | the flip check, 0.75 at the pin (flip_grade.py) | 1.81x | 345 | srp 0.790, rec.acmp 0.061, ticks 0.059, item.aecp 0.059, rec.aecp 0.053, item.reclaim 0.041, steps 0.034, timers 0.032, item.mrpdu 0.031, item.acmp 0.027, item.acmp_declined 0.020, builds 0.016, rec.adp 0.013, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+| 32x32/2if | 2.175 | 1.684 | reported: the more-compute image, #872 | 2.41x | 590 | srp 0.519, item.mrpdu 0.315, builds 0.158, item.reclaim 0.109, ticks 0.101, timers 0.088, rec.acmp 0.085, item.aecp 0.078, item.acmp 0.048, rec.aecp 0.043, notices 0.037, steps 0.034, item.walk 0.031, rec.adp 0.027, rec.maap 0.010, gm 0.000, item.acmp_declined 0.000 |
+HELD 1x1/1if at the pin: the load 0.564, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.561, its ceiling 0.70
+OVER 8x8/1if: its own record.srp is stated 1505 us, not its measurement's 375 us by the rule (35,547 CPU cycles, the valid-destinations arm, srp-talker-held)
+RESULT: FAIL
+rc=0
+=== shape_costs.py --check
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 390 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 1505 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+FINDING the shape (1, 9, 9): an SRP record of 1505 us, over its slice of 1475 us
+RESULT: FAIL
+rc=0

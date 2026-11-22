@@ -1,0 +1,50 @@
+# the base's route reference: the flip lane's (PR #960) round-1 signoffs of the split images whose inputs equal those at 62477be4, an ancestor of this lane's base dd163e41 (the 11 commits between change docs, scripts, the resource sweep and the CPU budget harness only: no firmware, HDL, builder or config file, so no image input); the same recipe and the same three directives; copied, not re-run here
+## 1x1/1if ExtraPostPlacementOpt
+Slow_85C: WNS +0.131 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.131 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.131 ns, WHS +0.036 ns
+## 1x1/1if ExtraTimingOpt
+Slow_85C: WNS +0.002 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.002 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor NOT met
+worst corner WNS +0.002 ns, WHS +0.036 ns
+## 1x1/1if AltSpreadLogic_high
+Slow_85C: WNS +0.046 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.046 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.046 ns, WHS +0.036 ns
+## 8x8/1if ExtraPostPlacementOpt
+Slow_85C: WNS +0.176 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.176 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.523 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.523 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.176 ns, WHS +0.036 ns
+## 8x8/1if ExtraTimingOpt
+Slow_85C: WNS +0.059 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.059 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.059 ns, WHS +0.036 ns
+## 8x8/1if AltSpreadLogic_high
+Slow_85C: WNS +0.150 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.150 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.150 ns, WHS +0.036 ns
+## round 1's head (f6f83166 images), ExtraPostPlacementOpt
+1x1/1if: worst corner WNS +0.437 ns, WHS +0.017 ns
+8x8/1if: worst corner WNS +0.058 ns, WHS +0.036 ns
+## this round's final firmware (f02d44cd images), ExtraPostPlacementOpt
+1x1/1if: worst corner WNS +0.128 ns, WHS +0.032 ns
+8x8/1if: worst corner WNS +0.096 ns, WHS +0.036 ns
+## the rom's structural change against the base at both shapes: one 2 KiB bank more (a RAMB18, half a tile); base 126,432 B (1x1/1if) and 139,208 B (8x8/1if) fit the banks without it, the final 127,376 B and 140,136 B need it
