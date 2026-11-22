@@ -2465,6 +2465,9 @@ TEST_F(SrpEarlyTalker, AResetLeavesNoKeptRegistrationCounted) {
     for (bool vector : {true,false}) {
         settle(); advance(400);
         offer(talker(0xe0u,kAdvertise,kJoinIn)); quiet(400);
+        // a refresh: the count before it sees the kept one registered, so nothing is pending when the reset comes and
+        // only the reset's own zeroing leaves the count it destroyed behind
+        offer(talker(0xe0u,kAdvertise,kJoinIn)); quiet(400);
         ASSERT_EQ(adapter.kept_count[0],1u)<<"one registration kept, below the bound";
         mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle(); advance(400);
         offer(every_input(vector)); quiet(400);
