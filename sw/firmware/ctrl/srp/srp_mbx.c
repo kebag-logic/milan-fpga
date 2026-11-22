@@ -1275,9 +1275,14 @@ static bool poll(void *ctx)
     if (!enter(m)) {
         return false;
     }
+    // Each interface's level in this poll (#973): a DOWN as the LINK register reads it, so a link lost while a full
+    // ring holds its LINK record back fails closed at once; an UP only once the loop has dispatched one, or while the
+    // interface holds one (ctrl_loop_link_up). The register can rise after the loop took this pass's events, and a
+    // reset on that level would make the LINK the next pass dispatches a repeated UP, which resets the interface
+    // again (on_event): a first UP would lose the clean startup participants it keeps, and a later one reset twice.
     bool links[MBX_N_IF];
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
-        links[n] = mbx_link_up(n);
+        links[n] = mbx_link_up(n) && (m->ifs[n].link || ctrl_loop_link_up(m->loop, n));
     }
     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
     const unsigned turn = m->build_turn % MBX_N_IF;

@@ -15,6 +15,7 @@ import srp_talker_mutants
 import srp_listener_mutants
 import srp_kind_mutants
 import srp_reclaim_mutants
+import srp_link_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -835,8 +836,9 @@ DEFECTS = (
            'SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)',
            'pass funds the independently measured poll envelope', path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-poll-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
-           '        links[n] = mbx_link_up(n);\n',
-           '        links[n] = mbx_link_up(n);\n        (void)mbx_irq_status();\n',
+           '        links[n] = mbx_link_up(n) && (m->ifs[n].link || ctrl_loop_link_up(m->loop, n));\n',
+           '        links[n] = mbx_link_up(n) && (m->ifs[n].link || ctrl_loop_link_up(m->loop, n));\n'
+           '        (void)mbx_irq_status();\n',
            'one link read per interface', path='srp/srp_mbx.c', suite='srp_app.cpp'),
     Defect('srp-send-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            '    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {',
@@ -955,6 +957,7 @@ DEFECTS += srp_talker_mutants.defects(Defect)
 DEFECTS += srp_listener_mutants.defects(Defect)
 DEFECTS += srp_kind_mutants.defects(Defect)
 DEFECTS += srp_reclaim_mutants.defects(Defect)
+DEFECTS += srp_link_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that

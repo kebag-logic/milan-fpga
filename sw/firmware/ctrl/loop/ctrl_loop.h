@@ -597,6 +597,7 @@ struct ctrl_loop {
 	bool tier1_done;                // the last ordinary pass left tier 1 holding no record it would take (THE TIERS)
 	bool drained;                   // and THE DRAIN's channel holding none after its slice
 	uint32_t rx_left;               // the channels whose take this pass ended on a limit, records left (bit ch)
+	uint32_t link_level;            // the level the last LINK record dispatched carried, bit i interface i (#973)
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);
@@ -623,6 +624,14 @@ bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_trans
 // centisecond consumer is bound, and only then open the bound channels.
 // False when the bitstream carries another contract (nothing is opened).
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF]);
+
+// An interface's link level as the last LINK record the loop dispatched for it carried, down before any (#973). The
+// LINK register can rise after the loop took a pass's events, so a module that reads it later in that pass sees a
+// level no LINK has carried yet; a module whose LINK handling keys on the level it last took compares this instead.
+static inline bool ctrl_loop_link_up(const struct ctrl_loop *l, unsigned interface)
+{
+	return ((l->link_level >> interface) & 1u) != 0u;
+}
 
 // One service pass; returns the events and records it handled, plus one when
 // output, centiseconds, a retry or a build are still owed, or one when it was
