@@ -112,7 +112,7 @@ Attach reads each interface's current mailbox link level.
 Polling reconciles that level even without another LINK record.
 A held DOWN record can disappear when the level recovers.
 The poll takes a DOWN as the LINK register reads it, so a link lost while a full ring holds its record fails closed.
-It takes an UP only once the loop has dispatched one (`ctrl_loop_link_up`), or while the interface holds one (#973).
+It takes an UP only while the last LINK the loop dispatched carried one, or attach read one (`link_carried`, #973).
 The register can rise after the loop took a pass's events, before SRP's poll reads it.
 A reset on that level would make the next pass's LINK a repeated UP, which resets the interface again.
 So a first UP would lose the clean startup participants, and a later UP would reset twice.
