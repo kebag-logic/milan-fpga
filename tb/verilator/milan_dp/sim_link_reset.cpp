@@ -18,7 +18,7 @@
 // identity check and CSR policy (ctrl_plat_csr.c, built for the host with the
 // shape's generated policy), each access an AXI4-Lite transaction on the
 // datapath's CSR window, at --boot-ms. They program the station address and
-// enable the fabric MAAP engine, so the fabric's own transmitters can send.
+// the fabric's media policy, as the firmware does before its PHY poll arms.
 // The firmware's publication is a write of the word, link up at 1000 Mb/s full
 // duplex as the PHY poll publishes the shipping PHY's, at --publish-ms.
 //
@@ -34,8 +34,9 @@
 //                   boot refused at the CSR identity check, before the PHY poll
 //                   arms: no frame in the window
 // Probes, read only (linkreset_probes.vlt): eff_link_w, which the gPTP plane's
-// port enable, KL_maap's port operational and o_ctl_link_up (the mailbox's
-// LINK level) all are; cfg_sw_link (LINK_CTRL[0]) and linkg_est_w (the guard).
+// port enable and o_ctl_link_up (the mailbox's LINK level, which the split's
+// firmware MAAP, ADP and SRP follow) both are, the split building no KL_maap;
+// cfg_sw_link (LINK_CTRL[0]) and linkg_est_w (the guard's estimate).
 // The MAC behind the boundary is the shared launch observer
 // (gptp_launch_observer.hpp), the SoC's KL_gptp_gmii_launch interface, without
 // which the plane never unseals. The gPTP plane's timebase is compressed as
@@ -287,7 +288,7 @@ int main(int argc, char** argv) {
     check.that("LINK_CTRL[0] qualifies the link throughout (its reset, 1)", b.sw_down == 0);
     check.that("the link guard's estimate qualifies the link throughout (the PHY's clocks retained)", b.est_down == 0);
     check.dec("no frame crosses the MAC boundary before the firmware's publication", before, 0);
-    check.that("the effective link (gPTP port enable, KL_maap, mailbox LINK) stays down before the publication",
+    check.that("the effective link (the gPTP port enable, the mailbox LINK) stays down before the publication",
                publish_ms == 0 ? !b.eff_seen_up : (!b.eff_seen_up || b.eff_first_up >= crossed));
     check.dec("o_ctl_link_up, the mailbox's LINK level, stays down before the publication", b.ctl_up_before, 0);
     if (publish_ms != 0) {

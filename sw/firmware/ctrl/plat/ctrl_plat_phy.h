@@ -9,8 +9,8 @@
 // Without it that word keeps its reset value, link down where the poll owns it
 // (#972), and no consumer of the datapath's effective link (the AVB_INTERFACE
 // LINK_UP and LINK_DOWN counters and their GET_COUNTERS notification, the gPTP
-// plane's port enable, the fabric MAAP engine, the mailbox's LINK level and
-// event) sees a link.
+// plane's port enable, the mailbox's LINK level and event, which the split's
+// MAAP, ADP and SRP follow) sees a link.
 //
 // THE POLL, as the release's: no PHY found, one address probed per
 // opportunity (PHYID1, register 2), a miss publishing link down and moving to
@@ -62,8 +62,8 @@
 // down (milan_soc.py's MilanMAC, sw/litex/mac_link_status.py), and arming
 // publishes link down again before the poll's first frame, for a CPU reset
 // alone (LiteX's cpu_rst), which keeps the word. So the datapath's effective
-// link, which the gPTP plane's port, the fabric MAAP engine and the mailbox's
-// LINK level follow, is down from the datapath's reset until a poll publishes
+// link, which the gPTP plane's port and the mailbox's LINK level follow (the
+// split builds no fabric MAAP engine), is down from reset until a poll publishes
 // the PHY's verified link: nothing is sent on a link the advertisement then
 // renegotiates, on a reload that kept the PHY's link, or by a boot refused
 // before the arm (the CSR identity check), and ADP starts DOWN and draws its
