@@ -126,6 +126,8 @@ It runs two threads where the route used 32, because the host is shared.
 
 [`soc_sweep.py`](../../syn/resmap/soc_sweep.py) runs `sw/litex/milan_soc.py` without `--build` for each SoC variant in the plan.
 Each variant is the shipping configuration's SoC arguments with the named flags changed.
+The plan names the control placement those arguments are taken at: all-fabric, the placement these figures were recorded at.
+The AX7101 configurations ship the split since #665; its platform image is not built by this sweep, which refuses, before any export, an argument list naming an image the export tree does not hold.
 A refused variant is recorded with its refusal.
 An accepted one is priced twice, flattened: the CPU netlist alone, and the LiteX top with every non-LiteX module replaced by a black box.
 

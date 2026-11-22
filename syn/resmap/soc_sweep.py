@@ -6,9 +6,14 @@ recipe's refusals, and price the CPU core and the SoC top in Yosys.
 
 The variants are the `soc` section of syn/resmap/sweep_plan.json. Each one is
 the shipping configuration's own SoC argument list (the builder's
-soc_params.json) with the named flags changed, run through sw/litex/milan_soc.py
-WITHOUT --build, from the scratch export syn/resmap/yosys_sweep.py `shapes`
-wrote. A variant the script refuses is recorded here with its refusal line, and
+soc_params.json, at the placement the section names) with the named flags
+changed, run through sw/litex/milan_soc.py WITHOUT --build, from the scratch
+export syn/resmap/yosys_sweep.py `shapes` wrote. The section names the
+all-fabric placement, the one the recorded figures were taken at; the AX7101
+configurations ship the split since #665. An argument list that names a
+platform image (the split's --ctrl-firmware) is refused before any export
+unless that image is in the export tree: no export leans on an earlier,
+unrelated firmware build. A variant the script refuses is recorded here with its refusal line, and
 this script prices only what the recipe accepts. The refused CPU, cache and L2
 variants were priced separately, from a scratch-only copy of the recipe with the
 refusal removed (never committed; issue #649's round-2 ruling): the findings page
@@ -57,6 +62,22 @@ def plan_variants(plan: dict) -> dict:
     return plan["soc"]["variants"]
 
 
+def plan_placement(plan: dict) -> str:
+    """The control placement the soc section prices; the plan must name it (#665)."""
+    placement = plan["soc"].get("placement")
+    if not isinstance(placement, str) or not placement:
+        raise yosys_sweep.PlanError("the soc section names no control placement")
+    return placement
+
+
+def missing_images(argv: list[str], tree: Path) -> list[str]:
+    """Each platform image the SoC arguments name (--ctrl-firmware) that is not a file, a relative path read
+    against the export tree as milan_soc.py reads it against its repository."""
+    named = [argv[i + 1] for i, flag in enumerate(argv[:-1]) if flag == "--ctrl-firmware"]
+    named += ["(no value)"] if argv[-1:] == ["--ctrl-firmware"] else []
+    return [path for path in named if not (tree / path).is_file()]
+
+
 def variant_argv(base: list[str], spec: dict) -> list[str]:
     """The shipping SoC arguments with each `set` flag's value replaced or appended, and `add` flags appended."""
     argv = list(base)
@@ -80,18 +101,23 @@ def git_listable(tree: Path) -> None:
             subprocess.run(argv, cwd=checkout, check=True)
 
 
-def prepare(work: Path) -> list[str]:
-    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments."""
+def prepare(work: Path, placement: str) -> list[str]:
+    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments at
+    `placement`; refused when they name a platform image the tree does not hold."""
     tree = work / "tree"
     git_listable(tree)
     out = work / "builder-out"
     config = tree / "configs" / f"{yosys_sweep.BASE_CONFIG}.yaml"
-    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config)],
-                   cwd=tree, capture_output=True, check=True)
+    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config),
+                    "--placement", placement], cwd=tree, capture_output=True, check=True)
     link = tree / "sw" / "builder" / "out"
     if not link.exists():
         link.symlink_to(out)
     params = json.loads((out / yosys_sweep.BASE_CONFIG / "soc_params.json").read_text())
+    missing = missing_images(params["argv"], tree)
+    if missing:
+        raise yosys_sweep.PlanError(f"the {placement} SoC arguments name platform image(s) {missing} that the "
+                                    "export tree does not hold; the sweep builds none (#665)")
     return [*params["argv"], "--entity-gen-dir", str(tree / "configs/generated" / yosys_sweep.BASE_CONFIG)]
 
 
@@ -104,8 +130,8 @@ def compiler_triple() -> str:
 
 def command_export(work: Path, plan: dict, names: list[str], tools: argparse.Namespace) -> int:
     """Run milan_soc.py without --build for each variant and record its outcome."""
-    base = prepare(work)
-    env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
+    base = prepare(work, plan_placement(plan))
+    env ={**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
            "PATH": f"{tools.sdk / 'bin'}:{Path(tools.litex_python).parent}:{os.environ['PATH']}"}
     records = {}
     for name, spec in plan_variants(plan).items():
@@ -260,6 +286,25 @@ def selftest() -> int:
         (Path(tmp) / "names.txt").write_text("\n".join(plan_variants(plan)))
         if "ship" not in plan_variants(plan):
             problems.append("the plan has no shipping SoC variant")
+        if plan_placement(plan) != "all-fabric":
+            problems.append(f"the plan prices the {plan_placement(plan)} SoC, not the all-fabric one its "
+                            "recorded figures were taken at")
+        try:
+            plan_placement({"soc": {"variants": {}}})
+            problems.append("a soc section that names no placement was accepted")
+        except yosys_sweep.PlanError:
+            pass
+        image = Path(tmp) / "sw/builder/out/cfg/ctrl_app.elf"
+        split = ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/cfg/ctrl_app.elf"]
+        for label, argv, want in (("an absent platform image", split, ["sw/builder/out/cfg/ctrl_app.elf"]),
+                                  ("a platform image flag with no value", split[:2], ["(no value)"]),
+                                  ("an all-fabric argument list", ["--xlen", "32"], [])):
+            if missing_images(argv, Path(tmp)) != want:
+                problems.append(f"{label}: missing images {missing_images(argv, Path(tmp))}, want {want}")
+        image.parent.mkdir(parents=True)
+        image.write_bytes(b"\x7fELF")
+        if missing_images(split, Path(tmp)):
+            problems.append("a platform image present in the tree was reported missing")
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"soc_sweep self-test: {'PASS' if not problems else 'FAIL'}")
@@ -287,7 +332,11 @@ def main() -> int:
         if args.sdk is None:
             print("export needs --sdk")
             return 2
-        return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
+        try:
+            return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
+        except yosys_sweep.PlanError as refusal:
+            print(f"soc_sweep: export refused: {refusal}")
+            return 2
     return command_price(work, args.names)
 
 
