@@ -1,0 +1,21 @@
+== python3 scripts/docs_inventory.py --check
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+== python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+== python3 scripts/measure_test_evidence.py --check
+
+TEST-EVIDENCE RATCHET: PASS (67 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 67
+rc=0
+== python3 scripts/suite_shards.py --selftest
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+rc=0
+== python3 scripts/ci_suite_pieces_selftest.py
+pp_shadow: refused masked failing log
+pp_shadow: refused missing executed log
+suite pieces: 65 parents, 83 scheduled units, all controls PASS
+rc=0

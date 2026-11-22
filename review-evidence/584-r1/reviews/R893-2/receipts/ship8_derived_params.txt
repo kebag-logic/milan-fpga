@@ -1,0 +1,5 @@
+Transcribed from this round's clean `make ship8` run at 64d539f1 (generated files under the suite's obj_ship8_aem/, removed after the run):
+ship8.gflags: -GN_STREAMS=8 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=32 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GAUDIO_IF_RENDER_SLOTS_P=1 -GLOOPBACK_P=0 -GI2SPB_P=0 -GLPF_P=0
+ship8_geometry.hpp: kCfgStreams=8 kCfgWireChans=8 kCfgBusSlots=32 kCfgRenderSlots=1 kCfgLoopback=0 kCfgDacLane=0 kCfgListenerFormat=0x0205022002006000
+soc_params.json argv (render-relevant subset): --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --audio-interface-render 1 --talker-wire-chans 8 (no --loopback-lane); also --ctrl-mailbox (split placement, not read by ship8_params.py)
+The Makefile recipe `cmp`s the builder's adp_shape_defaults.svh with the tracked one before deriving; it passed.

@@ -1,0 +1,18 @@
+1096c1096,1101
+<     run_pdus(kLeadPdus);
+---
+>     {
+>         const Window w0 = decode_a_window(kLeadPdus, 0, 1);
+>         std::printf("  [probe] B3 from rebind: %ld frames, rendered %ld, silent %ld, other %ld, first event %ld, events at loss %ld -> %s\n",
+>                     w0.frames, w0.rendered, w0.silent, w0.wrong_source, w0.first_event, events_at_loss,
+>                     (w0.first_event >= 0 && w0.first_event < events_at_loss) ? "STALE RENDERED" : "no stale");
+>     }
+1129c1134,1139
+<     run_pdus(kLeadPdus);
+---
+>     {
+>         const Window w0 = decode_a_window(kLeadPdus, 0, 0);
+>         std::printf("  [probe] Z3 from rebind: %ld frames, rendered %ld, silent %ld, other %ld, first event %ld, events at reset %ld -> %s\n",
+>                     w0.frames, w0.rendered, w0.silent, w0.wrong_source, w0.first_event, events_at_reset,
+>                     (w0.first_event >= 0 && w0.first_event < events_at_reset) ? "STALE RENDERED" : "no stale");
+>     }

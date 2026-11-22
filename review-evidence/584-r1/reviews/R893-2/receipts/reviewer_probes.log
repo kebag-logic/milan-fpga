@@ -1,0 +1,30 @@
+zerofill_copies_slot0: rc=1 == ship8_render: checks: 124   failures: 8 ==
+  [FAIL] P3 POWER-ON RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] R1 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] R2 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] U4 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] X3 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] B1 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] B3 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+  [FAIL] Z3 RENDER: slots 1-31 carry zero in every frame got=119 exp=0
+epoch_unqualified: rc=1 == ship8_render: checks: 124   failures: 3 ==
+  [FAIL] B1: a bind fall on stream 5, which the lane does not render, opens no epoch got=2 exp=1
+  [FAIL] B2: the bind fall on stream 0, which the lane renders, opens one epoch got=3 exp=2
+  [FAIL] B3: the rebind opened no further epoch   got=3 exp=2
+remove_as_add: rc=1 == ship8_render: checks: 124   failures: 35 ==
+  [FAIL] R1: ADD stream 0 channel 5 on port 0 succeeds got=7 exp=0
+  [FAIL] R1: GET_AUDIO_MAP on all eight ports reads the issued route record got=7 exp=8
+  [FAIL] R1: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=9 exp=10
+  [FAIL] R1: the lane's stream mask names port 0's stream alone got=0x1 exp=0x0
+  [FAIL] R1 RENDER: slot 0 carries stream 0 channel 5 in every frame got=0 exp=119
+  [FAIL] R1 RENDER: no other source and no silence in slot 0 got=119 exp=0
+  [FAIL] R2: REMOVE stream 0 channel 5 from port 0 succeeds got=7 exp=0
+  [FAIL] R2: ADD stream 3 channel 2 on port 0 succeeds got=7 exp=0
+  [FAIL] R2: GET_AUDIO_MAP on all eight ports reads the issued route record got=7 exp=8
+  [FAIL] R2: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=9 exp=10
+  [FAIL] R2: the lane's stream mask names port 0's stream alone got=0x1 exp=0x0
+  [FAIL] R2 RENDER: slot 0 carries stream 3 channel 2 in every frame got=0 exp=119
+
+real	2m25.955s
+user	11m55.789s
+sys	0m12.744s
