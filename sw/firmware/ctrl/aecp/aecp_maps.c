@@ -525,7 +525,8 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 			mark(&e, v, BARRED, BARRED);
 		}
 	}
-	// Each mapping's checks in its turn, so the port is read as each was before.
+	// Each mapping's checks stay in command order; idle reuses only a stream's
+	// successful observation from this edit (#963).
 	size_t additions = 0;
 	for (size_t n = 0; n < steps; ++n) {
 		unsigned held = e.flags[e.rep[n]];
