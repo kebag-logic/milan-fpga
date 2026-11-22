@@ -573,22 +573,17 @@ struct Available {
     uint64_t gm;
 };
 
-// The ADP frames the model sent since the last call, read before its capture wraps.
+// The ENTITY_AVAILABLEs the model sent since the last call, read before its capture wraps.
 struct Wire {
     uint32_t seen = 0;
     std::vector<Available> available;
-    unsigned departing = 0;
 
     void take() {
         for (; seen < model.tx_sent; ++seen) {
             const struct mbx_model_tx* f = mbx_model_tx_frame(&model, seen);
-            if (f == nullptr || f->channel != MBX_CH_ADP || f->interface != 0u || f->len < ADP_FRAME_BYTES) {
-                continue;
-            }
-            if ((f->bytes[15] & 0x0Fu) == ADP_MSG_ENTITY_AVAILABLE) {
+            if (f != nullptr && f->channel == MBX_CH_ADP && f->interface == 0u && f->len >= ADP_FRAME_BYTES &&
+                (f->bytes[15] & 0x0Fu) == ADP_MSG_ENTITY_AVAILABLE) {
                 available.push_back(Available{f->now_ms, wire_be32(f->bytes + 50), wire_be64(f->bytes + 54)});
-            } else {
-                departing++;
             }
         }
     }
@@ -812,7 +807,8 @@ void gm_change_after_first(void) {
                 "after LINK_UP, the new grandmaster's the latest %u ms after the change\n",
                 static_cast<unsigned>(first.worst), static_cast<unsigned>(change_to_new.worst));
     EXPECT_TRUE(within) << "G4 the first ENTITY_AVAILABLE leaves within 1 s of LINK_UP, a grandmaster change to come";
-    EXPECT_TRUE(change_to_new.values.size() >= 4u) << "G4 the grandmaster changed in WAITING in most runs";
+    EXPECT_TRUE(change_to_new.values.size() >= 4u)
+        << "G4 the grandmaster changed in WAITING and was announced in runs of at least four different delays";
     EXPECT_TRUE(announced) << "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once and "
                               "is announced by a new one, its next index";
 }
