@@ -279,8 +279,8 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
     i->stale = i->stale || bound;
     // A StreamID none binds is held while both its kinds stay registered, or from a registration it was kept for: a
     // leave of either ends that, and the registration latest decides while it holds, as it does for a bound StreamID
-    // (#969; #925, srp_held). lwSRP reports every registration's end, its leave timer's too, whatever the receive filter
-    // answers. Past the table's bound, nothing more is held, and a binding of both kinds with no latest takes Failed.
+    // (#969; #925, srp_held). lwSRP reports every registration's end, its leave timer's too, whatever the receive
+    // filter answers. Past the table's bound nothing more is held; a binding of both kinds with no latest takes Failed.
     struct srp_mbx *m = i->owner;
     struct srp_held *h = bound ? NULL : held_stream(m,i->index,v->stream_id.bytes);
     if (registered && !bound && h == NULL && m->held_count < SRP_HELD_STREAMS) {
@@ -485,9 +485,9 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     // Observe the previous complete event from copied indication data only.
     // Atomic replacement stays continuous; Lv then New remains two events.
     // Only a bound Talker's indication changes what listener_kind reads, and it marks the interface stale
-    // (talker_changed), which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with its capture made, so
-    // while the interface is not stale the previous event changed no sink and this pass would change nothing: it runs
-    // from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3).
+    // (talker_changed), which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with
+    // its capture made, so while the interface is not stale the previous event changed no sink and this pass would
+    // change nothing: it runs from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3).
     const unsigned sinks = i->stale ? CTRL_SRP_SINKS : 0u;
     for (unsigned k = 0; k < sinks; ++k) {
         struct srp_sink *s = &i->sinks[k];
