@@ -1,0 +1,122 @@
+[==========] Running 15 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[       OK ] Sinks.S5AChangeOfAnotherKindWritesNoContext (0 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[       OK ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (0 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[       OK ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[       OK ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (0 ms)
+[ RUN      ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+[       OK ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext (0 ms)
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (1 ms)
+[----------] 12 tests from Sinks (6 ms total)
+
+[----------] 3 tests from Streams
+[ RUN      ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1220: Failure
+Expected equality of these values:
+  final_status(kSetStreamFormat, seq)
+    Which is: 0
+  static_cast<int>(kStreamIsRunning)
+    Which is: 12
+S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+
+  [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1220: Failure
+Expected equality of these values:
+  final_status(kSetStreamFormat, seq)
+    Which is: 0
+  static_cast<int>(kStreamIsRunning)
+    Which is: 12
+S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+
+  [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+[  FAILED  ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile (0 ms)
+[ RUN      ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1258: Failure
+Expected equality of these values:
+  final_status(kSetStreamFormat, seq)
+    Which is: 0
+  static_cast<int>(kStreamIsRunning)
+    Which is: 12
+S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 0
+
+  [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 0
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1258: Failure
+Expected equality of these values:
+  final_status(kSetStreamFormat, seq)
+    Which is: 0
+  static_cast<int>(kStreamIsRunning)
+    Which is: 12
+S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 1
+
+  [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 1
+[  FAILED  ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile (1 ms)
+[ RUN      ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered (3 ms)
+[----------] 3 tests from Streams (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 2 test suites ran. (11 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile
+[  FAILED  ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+
+ 3 FAILED TESTS
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 15   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 15 checks, exit 1)

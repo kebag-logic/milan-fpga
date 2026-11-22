@@ -1,0 +1,174 @@
+[
+  {
+    "name": "waiting-change-not-redone",
+    "path": "aecp/aecp.c",
+    "old": "\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n",
+    "new": "",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "done again once applied"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-success-not-notified",
+    "path": "aecp/aecp.c",
+    "old": "a->notify = status == AECP_SUCCESS;",
+    "new": "a->notify = false;",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "the final response, then its notification"
+      ],
+      [
+        "Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt",
+        "the response, its notification and the notification that waited"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-failure-notified",
+    "path": "aecp/aecp.c",
+    "old": "a->notify = status == AECP_SUCCESS;",
+    "new": "a->notify = true;",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "one final response, no notification"
+      ],
+      [
+        "Face.ALateCommitIsOwedAndPublishedAgainWhole",
+        "one final response, no notification"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-failure-not-republished",
+    "path": "aecp/aecp.c",
+    "old": "\t\taecp_note(a, a->noted, a->noted_type, a->noted_index);\n\t\ta->notify = status == AECP_SUCCESS;\n",
+    "new": "\t\ta->notify = status == AECP_SUCCESS;\n",
+    "checks": [
+      [
+        "Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt",
+        "the interface that took it is given the value in force again"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-failure-reports-the-request",
+    "path": "aecp/aecp.c",
+    "old": "refuse(a, status);",
+    "new": "finish(a, status, a->held_bytes - 38u);",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "the values in force, as IN_PROGRESS reported them"
+      ],
+      [
+        "Face.ALateCommitIsOwedAndPublishedAgainWhole",
+        "with the value in force"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-unchecked",
+    "path": "aecp/aecp.c",
+    "old": "unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;",
+    "new": "unsigned status = taken ? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile"
+      ],
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "STREAM_INPUT 0: the check is made again"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-other-command",
+    "path": "aecp/aecp_commands.c",
+    "old": "return a->noted == AECP_CHANGE_FORMAT ?",
+    "new": "return a->noted == AECP_CHANGE_CONFIGURATION ?",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-input-judged-by-streaming",
+    "path": "aecp/aecp_commands.c",
+    "old": "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;",
+    "new": "running(a, 6u, a->noted_index) : AECP_SUCCESS;",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-unobservable-taken",
+    "path": "aecp/aecp_commands.c",
+    "old": "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;",
+    "new": "(running(a, a->noted_type, a->noted_index) == AECP_STREAM_IS_RUNNING ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS) : AECP_SUCCESS;",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, not observable once applied"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-refusal-done-again",
+    "path": "aecp/aecp.c",
+    "old": "\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n",
+    "new": "\t\tif (taken) {\n\t\t\tswap(a);\n\t\t}\n",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a refused waiting SET_STREAM_FORMAT stays undone: STREAM_INPUT 0, bound meanwhile"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-refusal-notified",
+    "path": "aecp/aecp.c",
+    "old": "a->notify = status == AECP_SUCCESS;",
+    "new": "a->notify = taken;",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "STREAM_INPUT 0, bound meanwhile: one final response, no notification"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "again-refusal-misbehaving",
+    "path": "aecp/aecp.c",
+    "old": "refuse(a, status);",
+    "new": "refuse(a, AECP_ENTITY_MISBEHAVING);",
+    "checks": [
+      [
+        "Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied",
+        "a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile"
+      ]
+    ],
+    "caught": true
+  }
+]

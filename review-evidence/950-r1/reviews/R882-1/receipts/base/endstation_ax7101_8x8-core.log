@@ -1,0 +1,68 @@
+Note: Google Test filter = Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:1719: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  c.status
+    Which is: 12
+a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:1723: Failure
+Value of: briefs.empty()
+  Actual: true
+Expected: false
+STREAM_INPUT 0: the check is made again
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0: the check is made again
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:1730: Failure
+Expected equality of these values:
+  sent.size()
+    Which is: 2
+  1u
+    Which is: 1
+STREAM_INPUT 0, bound meanwhile: one final response, no notification
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0, bound meanwhile: one final response, no notification
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:1733: Failure
+Expected equality of these values:
+  state()
+    Which is: { '\0', '\x5' (5), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+  before
+    Which is: { '\0', '\x5' (5), '\0', '\0', 'S' (83, 0x53), 't' (116, 0x74), 'r' (114, 0x72), 'e' (101, 0x65), 'a' (97, 0x61), 'm' (109, 0x6D), ' ' (32, 0x20), 'I' (73, 0x49), 'n' (110, 0x6E), ' ' (32, 0x20), '0' (48, 0x30), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', ... }
+a refused waiting SET_STREAM_FORMAT stays undone: STREAM_INPUT 0, bound meanwhile
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: a refused waiting SET_STREAM_FORMAT stays undone: STREAM_INPUT 0, bound meanwhile
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 9
+status for command 8
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: status for command 8
+<review-checkout>/sw/firmware/ctrl/test/test_aecp.cpp:1712: Failure
+Value of: a.waiting
+  Actual: false
+Expected: true
+STREAM_INPUT 0: the change waits
+
+  [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0: the change waits
+[  FAILED  ] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied (1 ms)
+[----------] 1 test from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

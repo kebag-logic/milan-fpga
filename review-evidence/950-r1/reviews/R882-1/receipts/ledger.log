@@ -1,0 +1,12 @@
+[milan] --ctrl-firmware <scratch>/ledger/image-0-0-198592-268435456-None-None-13594-243-None-18944-29480.elf: {"rom": {"bytes": 32548, "banks": [32768], "RAMB36": 8, "RAMB18": 0}, "sram": {"bytes": 206848, "banks": [131072, 65536, 8192, 2048], "RAMB36": 50, "RAMB18": 1}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+PASS the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 60.5))
+PASS `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2])
+PASS the platform-8x8-two-interfaces override plans its own point's image: 63.0 RAMB36, against the 56-RAMB36 budget and its ledgered 63.0 ((63.0, 56, 'platform-8x8-two-interfaces', 63.0))
+PASS `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2, 2])
+PASS the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 58.5))
+PASS `plan --ledgered-point platform-8x8-one-interface` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 2, 2, 2, 2])
+PASS the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (Plan(rom_bytes=32548, ram_bytes=206848, rom_banks=(32768,), ram_banks=(131072, 65536, 8192, 2048), budget=58.5, ledgered='platform-8x8-one-interface'))
+PASS the product SoC build refuses the platform-8x8-one-interface point's image half a tile past (allocation over budget: 59 RAMB36 (rom 32548 bytes in 32768, sram 208896 bytes in 208896) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+PASS the product SoC build refuses the platform-8x8-one-interface point's image with a ctrl_plat of another size (allocation over budget: 58.5 RAMB36 (rom 32548 bytes in 32768, sram 206848 bytes in 206848) exceeds the 56-RAMB36 budget)
+PASS widened 59.0 entry detected by independent ledger facts
+PASS focused ledger: 58.5 accepted, 59.0 refused; widened-entry control caught

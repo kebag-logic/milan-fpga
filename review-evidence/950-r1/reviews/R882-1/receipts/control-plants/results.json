@@ -1,0 +1,79 @@
+[
+  {
+    "name": "again-unchecked-onto-a-stream",
+    "arm": "platsinks8",
+    "test": "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile",
+    "needle": "S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0",
+    "caught": true
+  },
+  {
+    "name": "again-unchecked-onto-a-stream",
+    "arm": "platsinks8",
+    "test": "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile",
+    "needle": "S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 0",
+    "caught": true
+  },
+  {
+    "name": "again-unchecked-onto-a-stream",
+    "arm": "platsinks1",
+    "test": "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile",
+    "needle": "S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0",
+    "caught": true
+  },
+  {
+    "name": "again-unchecked-onto-a-stream",
+    "arm": "platsinks1",
+    "test": "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile",
+    "needle": "S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 0",
+    "caught": true
+  },
+  {
+    "name": "again-of-stream-zero",
+    "arm": "platsinks1",
+    "test": "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile",
+    "needle": "S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1",
+    "caught": true
+  },
+  {
+    "name": "again-of-stream-zero",
+    "arm": "platsinks1",
+    "test": "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile",
+    "needle": "S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 1",
+    "caught": true
+  },
+  {
+    "name": "asking-failed-unreported",
+    "arm": "platsinks8",
+    "test": "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered",
+    "needle": "T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1",
+    "caught": true
+  },
+  {
+    "name": "asking-failed-unreported",
+    "arm": "platsinks1",
+    "test": "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered",
+    "needle": "T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1",
+    "caught": true
+  },
+  {
+    "name": "asking-failed-any-listener",
+    "arm": "platsinks8",
+    "test": "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered",
+    "needle": "T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 2",
+    "caught": true
+  },
+  {
+    "name": "asking-failed-without-a-listener",
+    "arm": "platsinks8",
+    "test": "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered",
+    "needle": "T1 no REGISTERING_FAILED with no Listener registered: output 0",
+    "caught": true
+  },
+  {
+    "name": "asking-failed-of-output-zero",
+    "arm": "platsinks8",
+    "test": "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered",
+    "needle": "T1 no other output carries output 0's Listener: output 1, Asking Failed",
+    "caught": true
+  }
+]

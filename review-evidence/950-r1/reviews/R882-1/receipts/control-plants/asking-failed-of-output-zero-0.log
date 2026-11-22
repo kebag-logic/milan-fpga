@@ -1,0 +1,336 @@
+[==========] Running 15 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (1 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (0 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[       OK ] Sinks.S5AChangeOfAnotherKindWritesNoContext (1 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[       OK ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[       OK ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[       OK ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (1 ms)
+[ RUN      ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+[       OK ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext (0 ms)
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (6 ms)
+[----------] 12 tests from Sinks (17 ms total)
+
+[----------] 3 tests from Streams
+[ RUN      ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile
+[       OK ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile (1 ms)
+[ RUN      ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile
+[       OK ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile (6 ms)
+[ RUN      ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 1, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 1, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 2, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 2, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 3, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 3, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 4, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 4, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 5, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 5, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 6, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 6, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 7, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 7, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 8, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 8, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 1, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 1, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 2, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 2, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 3, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 3, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 4, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 4, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 5, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 5, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 6, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 6, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 7, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 7, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1297: Failure
+Expected equality of these values:
+  flags(m)
+    Which is: 64
+  0u
+    Which is: 0
+T1 no other output carries output 0's Listener: output 8, Asking Failed
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 8, Asking Failed
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 2, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 2, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 2, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 2, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 3, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 3, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 3, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 3, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 4, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 4, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 4, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 4, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 5, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 5, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 5, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 5, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 6, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 6, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 6, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 6, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 7, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 7, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 7, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 7, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 8, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 8, declaration 1
+<review-checkout>/sw/firmware/ctrl/test/test_plat_sinks.cpp:1307: Failure
+Expected equality of these values:
+  flags(n)
+    Which is: 0
+  failed ? kRegisteringFailed : 0u
+    Which is: 64
+T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 8, declaration 1
+
+  [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 8, declaration 1
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered (60 ms)
+[----------] 3 tests from Streams (68 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 2 test suites ran. (85 ms total)
+[  PASSED  ] 14 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+
+ 1 FAILED TEST
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 15   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 15 checks, exit 1)
