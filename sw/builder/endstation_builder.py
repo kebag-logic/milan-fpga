@@ -193,7 +193,8 @@ CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback", "unrouted")
 
 #: audio_interface.cluster_mapping.render_ports (#584): which STREAM_PORT_INPUTs
 #: own the physical render channels under role-pools. `every` is D8's model and
-#: the default; `first` binds them in order to the first input ports' clusters.
+#: the default; `first` binds every one of them to STREAM_PORT_INPUT 0's
+#: clusters, in order.
 RENDER_PORTS = ("every", "first")
 
 #: role -> AUDIO_CLUSTER object_name template (D10). {n} is the index WITHIN
@@ -1592,7 +1593,8 @@ class ClusterRules:
                       (task #65), so a loopback cluster may be a power-on
                       source.
       render_ports    which input ports own the physical render channels
-                      (#584): `every` (D8) or `first` (bound in order).
+                      (#584): `every` (D8) or `first` (all to input port 0,
+                      in order).
     """
     policy: str
     iface_channels: int
@@ -1656,10 +1658,11 @@ def _role_pool(rules, direction, port_index, widths, render_from=0):
 
     WHICH INPUT PORTS OWN THE PHYSICAL RENDER CHANNELS is the config's
     `render_ports` (#584). Under `every` (D8, the default) each input port
-    carries all of them. Under `first` they bind in order across the input
-    ports, the wire-truth rule D2 states per direction: `render_from` is how
-    many the earlier input ports took, so a channel is owned by one cluster
-    and its render key is never the projection of two. A single-listener
+    carries all of them. Under `first` every one of them binds to
+    STREAM_PORT_INPUT 0's clusters, in order, the wire-truth rule D2 states
+    per direction: `render_from` is how many the earlier input ports took (port
+    0 takes them all), so a channel is owned by one cluster and its render key
+    is never the projection of two. A single-listener
     shape (the 1x1) is the same under both: its port 0 takes them all.
 
     An input port left with none owns ONE `unrouted` mono cluster: Milan
@@ -4451,8 +4454,9 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
     # #584: WHICH STREAM_PORT_INPUTs OWN THE PHYSICAL RENDER CHANNELS. `every`
     # (D8, the default) gives each port its own copy of them, so a render key
     # is the projection of one cluster per port and the last edit drives it;
-    # `first` binds them in order to the first input ports' clusters (D2's
-    # wire-truth rule), so each render key is the projection of ONE cluster.
+    # `first` binds every one of them to STREAM_PORT_INPUT 0's clusters, in
+    # order (D2's wire-truth rule), so each render key is the projection of ONE
+    # cluster.
     render_ports = cm.get("render_ports")
     if render_ports is not None:
         if render_ports not in RENDER_PORTS:

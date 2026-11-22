@@ -733,9 +733,9 @@ every pool width is read out of the platform declaration:
 **Which input ports own the render channels** is `cluster_mapping.render_ports`
 (#584). `every`, the default, gives each input port its own copy of the
 `physical` render pool, so a render key is the projection of one cluster per
-port and the last accepted edit drives it. `first` binds the render channels in
-order to the first input ports' clusters, so each render key is the projection
-of exactly one cluster. A port that gets no physical render channel owns one
+port and the last accepted edit drives it. `first` binds every physical render
+channel to STREAM_PORT_INPUT 0's clusters, in order, so each render key is the
+projection of exactly one cluster. A port that gets no physical render channel owns one
 `unrouted` mono cluster, `Unrouted S<p>`: `signal_type` INVALID and
 `signal_index` 0 (as every input cluster), and no projection in
 `ADP_DMAP_IN_RPHYS_C`. Milan v1.2 5.3.3.8 asks for a cluster, not a jack, and
@@ -749,16 +749,36 @@ important value**: a build declares only what it backs. The 8x8 declared
 `{capture: 0, render: 0}` on 2026-07-28, when the AX7101 had no TDM header.
 The J11 header has since carried the TDM bus (`tdm`, with `tdm.dout` on
 J11.5, as the 1x1 TDM8 build renders it), and since #584 the 8x8 declares
-`render: 1`: the **first** render channel only, by the owner's decision of
-2026-11-22. Its TDM32 bus could back only a full 32-slot lane, which the
-crossbar's 8-key TDM window cannot, so `KL_tdm_render_master` frames the
-bus's 32 slots (`BUS_SLOTS_P`), stores slot 0 alone and serializes zero in
-slots 1-31; the datapath and the builder accept a master lane narrower than
-its bus, and a slave lane stays full-width. The capture direction stays 0.
+`render: 1`: the **first** render channel only. Its TDM32 bus could back only
+a full 32-slot lane, which the crossbar's 8-key TDM window cannot, so
+`KL_tdm_render_master` frames the bus's 32 slots (`BUS_SLOTS_P`), stores slot 0
+alone and serializes zero in slots 1-31; the datapath and the builder accept a
+master lane narrower than its bus, and a slave lane stays full-width. The
+capture direction stays 0.
+
+**Pending owner disposition (#584).** The owner's decision of 2026-11-22 asked
+to back the input model with the loopback lane and the first TDM8 channel
+only. This build departs from that wording in two ways, stated in
+[#584's decision comment](https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7077045073)
+and awaiting the owner's disposition there:
+
+- **No input cluster is backed by the loopback lane, and the 8x8 builds no
+  loopback lane** (`fabric.loopback_lane: false`, as before #584). The lane's
+  feed is the depacketizer clone of every received stream, which no input
+  mapping steers, so an input cluster named for it would claim a route no
+  mapping can make. Ports 1-7 own `Unrouted S<p>` clusters, which reach no
+  pin; they are not loopback clusters.
+- **The first render channel is slot 0 of the 8x8's TDM32 bus**, `TDM32 Out 0`,
+  standing for the decision's first TDM8 channel: the 8x8's bus is TDM32, and
+  it has no TDM8 bus.
+
+If the owner requires loopback-backed input clusters, the model and the lane
+posture change in a later round. `tb/verilator/milan_dp_render`'s `ship8` case
+grades this posture at the pins.
 
 That is *why* the loopback pool matters rather than being a nicety: with
-no capture cluster, the loopback clusters are the only source that can hand a
-8x8 talker per-channel-distinct audio.
+no capture cluster, the loopback clusters are the only source that can hand an
+8x8 talker per-channel-distinct audio, on a build that has the lane.
 
 **Power-on fall-through.** Only one segment can be the power-on source, so a
 static AUDIO_MAP uses the first backed segment: `physical`, then (talker)
@@ -862,6 +882,12 @@ with no way to tell a pilot tone from a dead TDM slot from a loopback lane.
 | `pilot` | `"Pilot Tone"` |
 | `loopback` | `"Loopback S<s> ch <c>"` — the received stream channel it offers |
 | `unrouted` | `"Unrouted S<p>"`: an input port's destination that reaches no pin (#584) |
+
+An `Unrouted S<p>` cluster is never named for the loopback lane: no input
+mapping steers that lane's feed, so a loopback name on an input cluster would
+claim a route a mapping cannot make. On the 8x8 its use for ports 1-7, and
+`TDM32 Out 0` standing for the first TDM8 channel, await the owner's
+disposition on #584 (D8).
 
 **Clause basis — and why this is free.** 1722.1-2021 6.2.2.8 lists
 `object_name` among the fields that do **not** constitute "the structure of
@@ -1086,7 +1112,7 @@ Line numbers are those of the cited file at the time of writing.
 | 16b | `audio_interface.cluster_mapping.pools.{pilot,loopback}` | D8 role pools, read ONLY by `role-pools` (declaring them under another policy is a `ConfigError`). Widths become the port's cluster block (`_role_pool`, line 1286; `cluster_layout`, line 1409); `pilot`/`loopback` are talker-port-only. The static AUDIO_MAP is written against the first backed segment in `physical`, `loopback`, `pilot`, `virtual` order; part of the model hash (line 3088) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM: each port's `clusters` count and `pool` segments carry the widths (`aem_specs.py` lines 250, 255 and 142), as does the `audio_clusters` list (lines 268 and 272); scratch for the overlay's `cluster_pools` entry (line 4396), which nothing reads |
 | 16c | cluster ROLE (derived, D10) | AUDIO_CLUSTER `object_name`: `I2S Out 0` / `TDM16 In 3` / `Virtual Out 5` / `Pilot Tone` / `Loopback S3 ch 1`. **Excluded from the model hash**: 6.2.2.8 lists `object_name` among the fields that do not constitute model structure, so a rename never moves `entity_model_id` | 1722.1 7.2.16, 6.2.2.8 | AEM |
 | 16d | `audio_interface.cluster_mapping.fabric.loopback_lane` | `--loopback-lane` (line 4069) -> `milan_datapath` `LOOPBACK_P` (`milan_soc.py` line 917), the rx -> talker LOOP bucket; and the overlay `cluster_fabric` word that decides whether a loopback cluster may be the power-on source (`aem_specs.py` line 139). One declaration, so the map cannot name a lane the bitstream lacks (gate 23e) | - | SoC; AEM |
-| 16f | `audio_interface.cluster_mapping.render_ports` | Which STREAM_PORT_INPUTs own the `physical` render channels under `role-pools` (#584): `every` (D8, the default) gives each input port its own copy; `first` binds them in order to the first input ports' clusters, so each render key is the projection of one cluster, and a port they do not reach owns one `unrouted` cluster. Read only by `role-pools` (a `ConfigError` under another policy); hashed into `entity_model_id` only when declared | Milan v1.2 5.3.3.8; 1722.1 7.2.19, 6.2.2.8 | AEM, `ADP_DMAP_IN_RPHYS_C` |
+| 16f | `audio_interface.cluster_mapping.render_ports` | Which STREAM_PORT_INPUTs own the `physical` render channels under `role-pools` (#584): `every` (D8, the default) gives each input port its own copy; `first` binds every physical render channel to STREAM_PORT_INPUT 0's clusters, in order, so each render key is the projection of one cluster, and a port they do not reach owns one `unrouted` cluster. Read only by `role-pools` (a `ConfigError` under another policy); hashed into `entity_model_id` only when declared | Milan v1.2 5.3.3.8; 1722.1 7.2.19, 6.2.2.8 | AEM, `ADP_DMAP_IN_RPHYS_C` |
 | 16e | `audio_interface.channel_names` | AUDIO_CLUSTER `object_name` for channel k of every port (`_ClusterNaming`, line 1507); 6.2.2.8-excluded, so names never move a hash-derived id | 1722.1 7.2.16, 6.2.2.8 | AEM (`aem_specs.py` lines 267 to 272) |
 | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`); the stream count behind `--num-streams` (line 4038) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM (`aem_specs.py` line 236); SoC (`milan_soc.py` line 831) |
 | 17a | `streams.listeners[].name` / `streams.talkers[].name` | STREAM_INPUT / STREAM_OUTPUT `object_name` (default `Stream In k` / `Stream Out k`, line 1221); the `lwsrp_table.json` row names; 6.2.2.8-excluded | 1722.1 7.2.6, 6.2.2.8 | AEM (`aem_assemble.py` lines 210 and 220) |
@@ -1129,7 +1155,7 @@ Line numbers are those of the cited file at the time of writing.
 | 43a | `srp.tspec.interval_frames` | Only `1`, matching the fixed wire TSpec. Other values refuse. | Milan v1.2 4.3.3.2 Table 4.4 | fixed-profile validator |
 | 43b | `srp.tspec.max_frame_bytes` | Validated 16-bit legacy `LWSRP_TSPEC` scratch field. Under derived policy it changes neither wire TSpec nor the build budget. | [Register map](reference/REGISTER_MAP.md) | explicit legacy scratch |
 | 44 | `srp.rtl_table` | Boolean builder-publication ownership: the selected config writes `hdl/common/csr/gen/lwsrp_csr_defaults.svh`. Gate 20a checks tracked header equality and consumption. | Builder artifact ownership | live builder switch |
-| 45 | `model_lint_waivers` | Passed through unread: the overlay's `model_lint_waivers`, then the kl-aem-image document's `lint_waivers`. The protocol processor's `gen_desc_image.build()` validates each one (one lint check on one descriptor scope, with a reason naming its tracking issue), lists it in the layout report (`aem_desc.map`) and refuses it once stale. Only `endstation_ax7101_8x8.yaml` declares one (#584). | protocol-processor docs/architecture/07 section 3.1 (model lint) | packer lint; `aem_desc.map` |
+| 45 | `model_lint_waivers` | Passed through unread: the overlay's `model_lint_waivers`, then the kl-aem-image document's `lint_waivers`. The protocol processor's `gen_desc_image.build()` validates each one (one lint check on one descriptor scope, with a reason naming its tracking issue), lists it in the layout report (`aem_desc.map`) and refuses it once stale. No tracked configuration declares one: the 8x8's L1 waiver went when each of its STREAM_PORT_INPUTs gained a cluster (#584). | protocol-processor docs/architecture/07 section 3.1 (model lint) | packer lint; `aem_desc.map` |
 
 72 rows. Three rows carry *planned* marks, and a config validates and builds
 under each rather than erroring: row 14's JACK/EXTERNAL_PORT descriptors

@@ -219,9 +219,9 @@ audio_interface:
                                      # no projection. Was 0 (2026-07-28), when
                                      # the board had no TDM header.
   cluster_mapping:
-    render_ports: first              # #584: the physical render channels
-                                     # bind in order to the FIRST input
-                                     # ports' clusters, so the one render
+    render_ports: first              # #584: every physical render channel
+                                     # binds to STREAM_PORT_INPUT 0's
+                                     # clusters, in order, so the one render
                                      # channel above is STREAM_PORT_INPUT 0's
                                      # cluster alone and its render key is
                                      # never the projection of two clusters

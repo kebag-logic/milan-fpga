@@ -87,9 +87,9 @@ The two formulas are that count for two config families:
 - **#823's <!-- fig:t32_names -->907<!-- /fig -->** is the TDM8 family: <!-- fig:tdm8_const -->11<!-- /fig --> + <!-- fig:tdm8_per_stream -->28<!-- /fig --> per stream pair.
   Each listener port carries <!-- fig:t32_in_cl -->8<!-- /fig --> physical clusters, and each talker port <!-- fig:t32_out_cl -->17<!-- /fig -->: a pilot, 8 physical and 8 loopback.
 - **The census's <!-- fig:p32_names -->427<!-- /fig -->** is the 8x8 family: <!-- fig:census_const -->11<!-- /fig --> + <!-- fig:census_per_stream -->13<!-- /fig --> per pair.
-  That board routes no physical audio, so a listener port carries no cluster (the L1 waiver, until #584) and a talker port <!-- fig:p32_out_cl -->9<!-- /fig -->.
+  Each listener port carries <!-- fig:p32_in_cl -->1<!-- /fig --> cluster (#584: port 0's is the first TDM render channel, the others are unrouted) and each talker port <!-- fig:p32_out_cl -->9<!-- /fig -->.
 - The difference is <!-- fig:per_stream_diff -->15<!-- /fig --> clusters per stream pair.
-  #584 adds input clusters to the 8x8 family, so its count grows toward the TDM8 one.
+  Before #584 the 8x8 family was 11 + 12 x N: its listener ports owned no cluster, under an L1 waiver #584 removed. The one cluster each listener port now owns is the thirteenth name of each pair.
 
 ## 2. The record space
 
