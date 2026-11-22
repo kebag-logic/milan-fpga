@@ -763,6 +763,17 @@ At 8x8/2if the figures are interface 0's, then interface 1's.
 | MAAP ANNOUNCE | 1.50 (4.23) | 4.17 (8.86) / 2.90 (9.41) | 64 / 65 |
 | MAAP conflicting PROBE -> DEFEND | 0.71 (2.02) | 1.72 (8.05) / 1.97 (8.23) | 47 / 48 |
 
+The Talkers SRP keeps for StreamIDs no binding holds (#969; `srp_mbx.c` `keep_talker`, `count_kept`) run in a group
+of their own, `srp-kept` ([`kept_window.py`](kept_window.py)), in arm A at every point. On every interface it
+declares every STREAM_INPUT's Talker Advertise in one MRPDU before any binding (the fixture binds none), so each is
+kept; one of them leaves, and past its leave timer a receive of one stream more than the inputs counts the kept
+again after the block's return, keeps one in the freed place and refuses the rest past the bound; the LeaveAll
+timer then runs out with the kept present, so the build that sends the LeaveAll carries them; and after a link
+down and up, a reset, every input's Talker Failed in one MRPDU is kept. [`kept_grade.py`](kept_grade.py) holds
+each of the group's SRP records (`srp_mbx:receive`) to `CTRL_LOOP_SRP_UNIT_US` at the build's shape by the stated
+rule, and each pass given whole to a build to its stated cost, as `whole_grade.py` does; `--selftest` plants a
+record one cycle past the unit and a probe with no record.
+
 ### Backlog rows
 
 Every backlog group's composed window carries every receive channel's admitted burst at once and fifteen grandmaster changes, alternating the interfaces.
