@@ -1,0 +1,14 @@
+adp-plants: exit 0
+adp: exit 0
+docs-check: exit 0
+forced-base: exit 0
+forced-head: exit 1
+guard: exit 0
+integrity: exit 0
+native-controls: exit 0
+phy-plants: exit 0
+plat1: exit 0
+plat2: exit 0
+forced-head exit 1 is the expected reproduction of R890-1-F1, not a passing product check.
+All other listed checks must exit zero.
+Builds and planted copies under scratch/ are not publishable.

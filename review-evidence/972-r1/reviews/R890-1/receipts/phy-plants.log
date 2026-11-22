@@ -1,0 +1,760 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+=== plat-phy-boot-restarts-whatever-held / platboot1 ===
+[==========] Running 55 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 24 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (33 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (4 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (3 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (6 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (4 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (4 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (3 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[----------] 24 tests from Boot (83 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (5 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (1 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (32 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (23 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (10 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (113 ms)
+[----------] 8 tests from Phy (194 ms total)
+
+[----------] 23 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:496: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 3
+  restarts
+    Which is: 2
+P11 a PHY that holds the advertisement at boot is not restarted
+
+  [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is not restarted
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:498: Failure
+Value of: w.size() == 2u && w[0].reg == 9u && w[1].reg == 4u
+  Actual: false
+Expected: true
+P11 a PHY that holds the advertisement at boot is written, registers 9 and 4, and nothing else
+
+  [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is written, registers 9 and 4, and nothing else
+[  FAILED  ] PlatPhy.P11TheBootAdvertisesGigabitOnly (2 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:876: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 1
+  0u
+    Which is: 0
+P19 the boot restarts no negotiation the PHY already holds
+
+  [FAIL] PlatPhy.P19TheBootFormsTheLinkOnce: P19 the boot restarts no negotiation the PHY already holds
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:878: Failure
+Value of: w.size() == 2u && w[0].reg == 9u && w[0].value == 0x0200u && w[1].reg == 4u && w[1].value == 0x0001u
+  Actual: false
+Expected: true
+P19 the boot writes the advertisement all the same, 9 then 4, and no restart
+
+  [FAIL] PlatPhy.P19TheBootFormsTheLinkOnce: P19 the boot writes the advertisement all the same, 9 then 4, and no restart
+[  FAILED  ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:916: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 1
+  0u
+    Which is: 0
+P21 the boot restarts nothing: the PHY holds the advertisement
+
+  [FAIL] PlatPhy.P21TheOutcomeStandsBehindTheBoot: P21 the boot restarts nothing: the PHY holds the advertisement
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:918: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P21 THE OUTCOME owes the restart the boot did not take
+
+  [FAIL] PlatPhy.P21TheOutcomeStandsBehindTheBoot: P21 THE OUTCOME owes the restart the boot did not take
+[  FAILED  ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[----------] 23 tests from PlatPhy (13 ms total)
+
+[----------] Global test environment tear-down
+[==========] 55 tests from 3 test suites ran. (291 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[  FAILED  ] PlatPhy.P19TheBootFormsTheLinkOnce
+[  FAILED  ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+
+ 3 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 55   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 55 checks, exit 1)
+KILL plat-phy-boot-restarts-whatever-held PlatPhy.P19TheBootFormsTheLinkOnce: True
+KILL plat-phy-boot-restarts-whatever-held PlatPhy.P11TheBootAdvertisesGigabitOnly: True
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+=== plat-phy-arm-publishes-nothing / platboot1 ===
+[==========] Running 55 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 24 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (22 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (2 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (3 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (2 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (18 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (3 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (2 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (4 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (1 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[----------] 24 tests from Boot (76 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (1 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1407: Failure
+Expected equality of these values:
+  counters.down
+    Which is: 0
+  1u
+    Which is: 1
+L2 a PHY up at boot: the arm's link down and the first poll's link up, one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a PHY up at boot: the arm's link down and the first poll's link up, one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1408: Failure
+Expected equality of these values:
+  counters.up
+    Which is: 0
+  1u
+    Which is: 1
+L2 a PHY up at boot: the arm's link down and the first poll's link up, one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a PHY up at boot: the arm's link down and the first poll's link up, one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1411: Failure
+Expected equality of these values:
+  counters.down
+    Which is: 1
+  2u
+    Which is: 2
+L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1412: Failure
+Expected equality of these values:
+  counters.up
+    Which is: 1
+  2u
+    Which is: 2
+L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1415: Failure
+Expected equality of these values:
+  counters.down
+    Which is: 2
+  3u
+    Which is: 3
+L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1416: Failure
+Expected equality of these values:
+  counters.up
+    Which is: 2
+  3u
+    Which is: 3
+L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1418: Failure
+Expected equality of these values:
+  counters.up + counters.down
+    Which is: 4
+  6u
+    Which is: 6
+L2 a steady link moves neither
+
+  [FAIL] Phy.L2EveryEdgeIsCounted: L2 a steady link moves neither
+[  FAILED  ] Phy.L2EveryEdgeIsCounted (24 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (31 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_boot.cpp:1458: Failure
+Expected equality of these values:
+  edges.size()
+    Which is: 0
+  2u
+    Which is: 2
+L4 the port enable falls as the poll arms and rises with its first publication
+
+  [FAIL] Phy.L4ReturnEndsTheCeaseWithinAPoll: L4 the port enable falls as the poll arms and rises with its first publication
+[  FAILED  ] Phy.L4ReturnEndsTheCeaseWithinAPoll (3 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (4 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (169 ms)
+[----------] 8 tests from Phy (237 ms total)
+
+[----------] 23 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (5 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:897: Failure
+Expected equality of these values:
+  peer.published.size()
+    Which is: 0
+  pubs + 1u
+    Which is: 1
+P20 arming publishes link down
+
+  [FAIL] PlatPhy.P20TheArmPublishesLinkDownFirst: P20 arming publishes link down
+[  FAILED  ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[----------] 23 tests from PlatPhy (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 55 tests from 3 test suites ran. (330 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Phy.L2EveryEdgeIsCounted
+[  FAILED  ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[  FAILED  ] PlatPhy.P20TheArmPublishesLinkDownFirst
+
+ 3 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 55   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 55 checks, exit 1)
+KILL plat-phy-arm-publishes-nothing PlatPhy.P20TheArmPublishesLinkDownFirst: True
+KILL plat-phy-arm-publishes-nothing Phy.L4ReturnEndsTheCeaseWithinAPoll: True
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+=== plat-phy-outcome-unchecked / platboot1 ===
+[==========] Running 55 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 24 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (10 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (2 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (2 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (1 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (2 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (1 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (1 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[----------] 24 tests from Boot (35 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (1 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (1 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (14 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (14 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (7 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (2 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (50 ms)
+[----------] 8 tests from Phy (92 ms total)
+
+[----------] 23 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:778: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P18 the outcome's restart is counted
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:781: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P18 one extra restart
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 one extra restart
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:782: Failure
+Expected equality of these values:
+  peer.active_speed
+    Which is: 100
+  0u
+    Which is: 0
+P18 no link at 100 after recovery
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 no link at 100 after recovery
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:783: Failure
+Expected equality of these values:
+  peer.active_anar & 0x03e0u
+    Which is: 480
+  0u
+    Which is: 0
+P18 no link at 100 after recovery
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 no link at 100 after recovery
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:786: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P18 one extra restart
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 one extra restart
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:787: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P18 the outcome's restart is counted
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:794: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P18 an incomplete negotiation owes no restart
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 an incomplete negotiation owes no restart
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:797: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  2u
+    Which is: 2
+P18 a negotiation completed below 1000BASE-T owes a restart
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 a negotiation completed below 1000BASE-T owes a restart
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:799: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  2u
+    Which is: 2
+P18 a negotiation completed below 1000BASE-T owes a restart
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 a negotiation completed below 1000BASE-T owes a restart
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:800: Failure
+Expected equality of these values:
+  peer.active_speed
+    Which is: 100
+  0u
+    Which is: 0
+P18 no link at 100 after recovery
+
+  [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 no link at 100 after recovery
+[  FAILED  ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (1 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:811: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P18 the outcome's restart is counted
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the outcome's restart is counted
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:815: Failure
+Expected equality of these values:
+  restart_writes(*this, from)
+    Which is: 0
+  1u
+    Which is: 1
+P18 one restart a poll, paced like the poll, poll 2
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 one restart a poll, paced like the poll, poll 2
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:816: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  k < 4u ? k : 3u
+    Which is: 2
+P18 the outcome's restart is counted, poll 2
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the outcome's restart is counted, poll 2
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:815: Failure
+Expected equality of these values:
+  restart_writes(*this, from)
+    Which is: 0
+  1u
+    Which is: 1
+P18 one restart a poll, paced like the poll, poll 3
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 one restart a poll, paced like the poll, poll 3
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:816: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  k < 4u ? k : 3u
+    Which is: 3
+P18 the outcome's restart is counted, poll 3
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the outcome's restart is counted, poll 3
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:815: Failure
+Expected equality of these values:
+  restart_writes(*this, from)
+    Which is: 0
+  1u
+    Which is: 1
+P18 one restart a poll, paced like the poll, poll 4
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 one restart a poll, paced like the poll, poll 4
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:816: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  k < 4u ? k : 3u
+    Which is: 3
+P18 the outcome's restart is counted, poll 4
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the outcome's restart is counted, poll 4
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:818: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P18 the fourth restart write takes
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the fourth restart write takes
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:819: Failure
+Expected equality of these values:
+  peer.active_speed
+    Which is: 100
+  0u
+    Which is: 0
+P18 no link at 100 after recovery
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 no link at 100 after recovery
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:831: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 65534
+  0xffffu
+    Which is: 65535
+P18 the count saturates at 0xffff
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:833: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 65534
+  0xffffu
+    Which is: 65535
+P18 the count saturates at 0xffff
+
+  [FAIL] PlatPhy.P18OneRestartAPollUntilOneTakes: P18 the count saturates at 0xffff
+[  FAILED  ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:918: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  1u
+    Which is: 1
+P21 THE OUTCOME owes the restart the boot did not take
+
+  [FAIL] PlatPhy.P21TheOutcomeStandsBehindTheBoot: P21 THE OUTCOME owes the restart the boot did not take
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:920: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P21 and the next poll takes it
+
+  [FAIL] PlatPhy.P21TheOutcomeStandsBehindTheBoot: P21 and the next poll takes it
+$REVIEWS/r890-1-972/sw/firmware/ctrl/test/test_plat_phy.cpp:921: Failure
+Expected equality of these values:
+  peer.active_speed
+    Which is: 100
+  0u
+    Which is: 0
+P21 so a 100BASE-TX-only partner has no link
+
+  [FAIL] PlatPhy.P21TheOutcomeStandsBehindTheBoot: P21 so a 100BASE-TX-only partner has no link
+[  FAILED  ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[----------] 23 tests from PlatPhy (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 55 tests from 3 test suites ran. (136 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[  FAILED  ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[  FAILED  ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+
+ 3 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 55   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 55 checks, exit 1)
+KILL plat-phy-outcome-unchecked PlatPhy.P18TheRestartIsVerifiedByItsOutcome: True
+KILL plat-phy-outcome-unchecked PlatPhy.P18OneRestartAPollUntilOneTakes: True
+KILL plat-phy-outcome-unchecked PlatPhy.P21TheOutcomeStandsBehindTheBoot: True
+PLANTS 3; missed named kills 0
