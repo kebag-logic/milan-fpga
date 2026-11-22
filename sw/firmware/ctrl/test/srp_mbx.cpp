@@ -2200,6 +2200,29 @@ protected:
     }
     // The time passes with no talker MRPDU: the talker's applicant is quiet.
     void quiet(unsigned ms) { advance(ms); }
+    // One MRPDU declaring the Talker Advertise (JoinIn) of streams 0 .. CTRL_SRP_SINKS-1, as a bridge re-declares them
+    // after a link flap: one vector of them, each value its predecessor's plus one (IEEE 802.1Q-2018 35.2.2.8.4), or
+    // one message each.
+    std::vector<uint8_t> every_input(bool vector) {
+        auto f=talker(0,kAdvertise,kJoinIn);
+        if (!vector) {
+            for (unsigned k=1;k<CTRL_SRP_SINKS;++k) f=then(f,talker(k,kAdvertise,kJoinIn));
+            return f;
+        }
+        const unsigned n=CTRL_SRP_SINKS;
+        f.resize(46u);                          // the headers and the FirstValue
+        wire_put_be(f.data()+19,n,2);           // NumberOfValues, no LeaveAll
+        wire_put_be(f.data()+17,29u+(n+2u)/3u,2); // the AttributeListLength
+        for (unsigned k=0;k<n;k+=3u) {
+            f.push_back(static_cast<uint8_t>(kJoinIn*36u+(k+1u<n ? kJoinIn*6u : 0u)+(k+2u<n ? kJoinIn : 0u)));
+        }
+        f.insert(f.end(),{0,0,0,0});            // the list's EndMark and the MRPDU's
+        return f;
+    }
+    // Every input bound now to its stream declares it: the receive kept each one's registration.
+    void expect_every_input_declares(const std::string &words) {
+        for (unsigned k=0;k<CTRL_SRP_SINKS;++k) expect_bound_declares(k,k,kAdvertise,words);
+    }
 };
 
 // Registration, then binding: every STREAM_INPUT's Talker is declared shortly after power-on, the talker is then
@@ -2325,6 +2348,9 @@ TEST_F(SrpEarlyTalker, AnUnboundRegistrationIsKeptAndCountedAgainstTheBound) {
     offer(talker(mine,kAdvertise,kJoinIn)); advance(kJoinMs);
     ASSERT_EQ(sink(0).declared,kAdvertise);
     for (unsigned k=1;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    // a refresh of one kept: the count before it sees every one kept registered, so none is pending when the binding
+    // changes, and the unbinding alone owes the next count
+    offer(talker(1,kAdvertise,kJoinIn)); quiet(400);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); advance(kJoinMs);
     const unsigned full=ctrl_pool_in_use(&pool);
     offer(talker(past,kAdvertise,kJoinIn));
@@ -2418,6 +2444,119 @@ TEST_F(SrpEarlyTalker, RegistrationsKeptBeforeABindingAreBoundedByTheInputs) {
                       d.time_ms<=start+kJoinMs && std::equal(d.value.begin(),d.value.end(),sid.bytes));
     }
     EXPECT_TRUE(sent)<<"past the bound, the talker's next declaration: on the wire within a JoinTime";
+}
+
+// One receive declaring every STREAM_INPUT's Talker, in one vector or one message each, is kept whole into a fresh
+// registrar: the bound is one for each input.
+TEST_F(SrpEarlyTalker, OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar) {
+    for (bool vector : {true,false}) {
+        settle(); advance(400);
+        offer(every_input(vector)); quiet(400);
+        expect_every_input_declares(vector ? "a fresh registrar keeps one vector of every input"
+                                           : "a fresh registrar keeps one receive of every input");
+        TearDown(); SetUp();
+    }
+}
+
+// A reset destroys the participants and what they kept: the new ones keep nothing, so the count the next receive starts
+// from holds none, and one receive of every input after it (a bridge re-declaring after a link flap) is kept whole
+// (#969, create_participants).
+TEST_F(SrpEarlyTalker, AResetLeavesNoKeptRegistrationCounted) {
+    for (bool vector : {true,false}) {
+        settle(); advance(400);
+        offer(talker(0xe0u,kAdvertise,kJoinIn)); quiet(400);
+        ASSERT_EQ(adapter.kept_count[0],1u)<<"one registration kept, below the bound";
+        mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle(); advance(400);
+        offer(every_input(vector)); quiet(400);
+        expect_every_input_declares(vector ? "after a reset, one vector of every input is kept whole"
+                                           : "after a reset, one receive of every input is kept whole");
+        TearDown(); SetUp();
+    }
+}
+
+// A kept registration that left holds its place until mrp_reclaim frees its block (AKeptRegistrationThatLeftHolds...),
+// and below the bound as at it, the count after that return holds it no more: its end leaves the count pending, so one
+// receive of every input after it is kept whole, a moment after the Leave as past the Leave's timer.
+TEST_F(SrpEarlyTalker, AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore) {
+    for (unsigned wait : {400u,5100u}) {
+        for (bool vector : {true,false}) {
+            settle(); advance(400);
+            offer(talker(0xe0u,kAdvertise,kJoinIn)); quiet(400);
+            ASSERT_EQ(adapter.kept_count[0],1u)<<"one registration kept, below the bound";
+            offer(talker(0xe0u,kAdvertise,kLv)); quiet(wait);
+            offer(every_input(vector)); quiet(400);
+            expect_every_input_declares(vector
+                                            ? "a kept one freed below the bound: one vector of every input is kept"
+                                            : "a kept one freed below the bound: one receive of every input is kept");
+            TearDown(); SetUp();
+        }
+    }
+}
+
+// A Leave of a StreamID no registration had is kept too, and lwSRP creates its attribute with no registration, which
+// mrp_reclaim frees with no indication: kept since the count, it leaves the count pending, so the count after the
+// return holds it no more and one receive of every input after it is kept whole.
+TEST_F(SrpEarlyTalker, AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed) {
+    settle(); advance(400);
+    offer(talker(0xe1u,kAdvertise,kLv));
+    ASSERT_EQ(adapter.kept_count[0],1u)<<"a Leave of a StreamID never registered is kept";
+    quiet(400);
+    offer(every_input(true)); quiet(400);
+    expect_every_input_declares("a Leave kept for a StreamID never registered, freed: every input is kept");
+}
+
+// A kept registration refreshed is the one kept, counted once, within one receive as across receives: the talker's
+// JoinIn again takes no more of the bound, and the rest of the inputs' Talkers are kept beside it.
+TEST_F(SrpEarlyTalker, AKeptRegistrationRefreshedIsCountedOnce) {
+    for (bool one_receive : {true,false}) {
+        settle(); advance(400);
+        if (one_receive) {
+            auto f=then(talker(0,kAdvertise,kJoinIn),talker(0,kAdvertise,kJoinIn));
+            for (unsigned k=1;k<CTRL_SRP_SINKS;++k) f=then(f,talker(k,kAdvertise,kJoinIn));
+            offer(f);
+        } else {
+            offer(talker(0,kAdvertise,kJoinIn));
+            for (unsigned n=0;n<3u;++n) receive_before_poll(talker(0,kAdvertise,kJoinIn));
+            EXPECT_EQ(adapter.kept_count[0],1u)<<"a kept registration refreshed is counted once";
+            for (unsigned k=1;k<CTRL_SRP_SINKS;++k) receive_before_poll(talker(k,kAdvertise,kJoinIn));
+            settle();
+        }
+        quiet(400);
+        expect_every_input_declares(one_receive
+                                        ? "a kept registration refreshed in one receive, the rest kept beside it"
+                                        : "a kept registration refreshed, the rest kept beside it");
+        TearDown(); SetUp();
+    }
+}
+
+// Unbound Talkers at the receive rate leave the bound StreamIDs their blocks: at most the bound is kept, nothing is
+// refused, no walk is owed, and every input bound later declares its own Talker's registration.
+TEST_F(SrpEarlyTalker, AFloodOfUnboundTalkersStarvesNoBoundInput) {
+    settle(); advance(400);
+    const auto before=ctrl_pool_in_use(&pool);
+    const auto refused=adapter.refused;
+    const auto walks=adapter.walks;
+    for (unsigned k=0;k<1000u;++k) { offer(talker(0x40u+(k%128u),kAdvertise,kJoinIn)); advance(2); }
+    EXPECT_LE(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a flood keeps at most the bound";
+    EXPECT_EQ(adapter.refused,refused)<<"a flood is refused nothing";
+    EXPECT_EQ(adapter.walks,walks)<<"unbound registrations owe no walk";
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+        bind_stream(k,k); settle();
+        offer(talker(k,kAdvertise,kJoinIn)); advance(kJoinMs);
+        EXPECT_EQ(sink(k).declared,kAdvertise)<<"a flood starves no bound input: input "<<k;
+    }
+}
+
+// UNBIND_RX then BIND_RX to the same stream declares at once on every input (the issue's control).
+TEST_F(SrpEarlyTalker, AnUnbindingThenABindingDeclaresAtOnceOnEveryInput) {
+    settle(); advance(400);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+        bind_stream(k,k); settle();
+        offer(talker(k,kAdvertise,kJoinIn)); advance(kJoinMs);
+        ASSERT_EQ(sink(k).declared,kAdvertise);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,nullptr,nullptr,0)); settle(); advance(kJoinMs);
+        expect_bound_declares(k,k,kAdvertise,"UNBIND_RX then BIND_RX declares at once");
+    }
 }
 
 }
