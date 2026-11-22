@@ -144,9 +144,9 @@ _CSR, CDC, RMON, utilities_
 |---|---|---|---|
 | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `mbx` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `capture_coherence` · `i2spb` · `media_phase` · `milan_dp` · `milan_dp_render` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_mclk | -- |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_sw` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `mbx` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
@@ -162,8 +162,8 @@ _datapath + top wrappers_
 |---|---|---|---|
 | ✅ `KL_mbx` | `milan/mailbox/KL_mbx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_axil` | `milan/mailbox/KL_mbx_axil.sv` | `mbx` | -- |
-| ✅ `KL_mbx_cdc` | `milan/mailbox/KL_mbx_cdc.sv` | `milan_dp` | -- |
-| ✅ `KL_mbx_cdc_window` | `milan/mailbox/KL_mbx_cdc_window.sv` | `milan_dp` | -- |
+| ✅ `KL_mbx_cdc` | `milan/mailbox/KL_mbx_cdc.sv` | `mbx` · `milan_dp` | -- |
+| ✅ `KL_mbx_cdc_window` | `milan/mailbox/KL_mbx_cdc_window.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_dma` | `milan/mailbox/KL_mbx_dma.sv` | `mbx` | -- |
 | ✅ `KL_mbx_evt` | `milan/mailbox/KL_mbx_evt.sv` | `mbx` · `milan_dp` | -- |
 | 📦 `KL_mbx_pkg` | `milan/mailbox/KL_mbx_pkg.sv` | -- | -- |

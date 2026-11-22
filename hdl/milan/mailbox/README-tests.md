@@ -12,8 +12,8 @@ hand-edit. Part of the Milan integration family; rolled up in
 |---|---|---|---|
 | ✅ `KL_mbx` | `KL_mbx.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_axil` | `KL_mbx_axil.sv` | `mbx` | -- |
-| ✅ `KL_mbx_cdc` | `KL_mbx_cdc.sv` | `milan_dp` | -- |
-| ✅ `KL_mbx_cdc_window` | `KL_mbx_cdc_window.sv` | `milan_dp` | -- |
+| ✅ `KL_mbx_cdc` | `KL_mbx_cdc.sv` | `mbx` · `milan_dp` | -- |
+| ✅ `KL_mbx_cdc_window` | `KL_mbx_cdc_window.sv` | `mbx` · `milan_dp` | -- |
 | ✅ `KL_mbx_dma` | `KL_mbx_dma.sv` | `mbx` | -- |
 | ✅ `KL_mbx_evt` | `KL_mbx_evt.sv` | `mbx` · `milan_dp` | -- |
 | 📦 `KL_mbx_pkg` | `KL_mbx_pkg.sv` | -- | -- |
