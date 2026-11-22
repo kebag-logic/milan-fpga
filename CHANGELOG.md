@@ -65,6 +65,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A link-up after a pass's events no longer resets twice.
 - A first UP keeps the clean startup participants.
 - A DOWN still fails closed from the LINK register.
+- Re-attach follows an up link with no LINK owed.
 
 ## Unreleased - the Mark II split ships
 

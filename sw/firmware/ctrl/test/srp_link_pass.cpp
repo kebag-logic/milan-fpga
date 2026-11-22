@@ -6,9 +6,11 @@
 // pass. A link that comes up in between reads up in the register before any LINK has carried it. Were the poll to
 // take that level, it would reset the interface on it, and the LINK the next pass dispatches would be a repeated UP,
 // which resets the interface again: so a first UP would lose the clean startup participants it keeps (on_event), and
-// any later UP would reset the interface twice. Each test moves interface 0's link at one phase: before a pass, from a
-// sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a poll
-// after SRP's. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if (srp_arms.link_pass_arms).
+// any later UP would reset the interface twice. Four tests move interface 0's link at one phase each: before a pass,
+// from a sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a
+// poll after SRP's. Another raises it while the event ring is full, and two re-attach SRP, with the link's DOWN record
+// elided and with a later UP. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if
+// (srp_arms.link_pass_arms).
 #include "srp_fixture.hpp"
 FW_TALLY_LABEL("ctrl SRP link inside a pass");
 namespace {
