@@ -8162,8 +8162,11 @@ class NxnDatapathHarness {
     // each again (Milan v1.2 5.3.8.7): the stopped input discards its share of
     // each PDU while the other input sharing the stream receives every one,
     // and the stopped input's FRAMES_RX still counts each, a PDU received on
-    // this Stream Input (Table 5.6). It runs last, so no later section reads
-    // the state it leaves.
+    // this Stream Input (Table 5.6). Last, inputs 6 and 7 take the shortest
+    // Base format, one channel at 48 kHz (Milan v1.2 Table 6.1: 24 octets, a
+    // 62-octet frame, 66 behind a C-VLAN tag), whose frames end before the
+    // monitor's enqueue pulse, and each receives every PDU. It runs last, so
+    // no later section reads the state it leaves.
     // ======================================================================
     const uint8_t fan_sid_[8] = {0x5B, 0, 0, 0, 0, 0x5B, 0, 0x0A};
     const uint8_t fan_talker_[8] = {0x02, 0, 0, 0, 0, 0x5B, 0, 0};
@@ -8242,6 +8245,36 @@ class NxnDatapathHarness {
         ck(nm, axi_read(A_PCMRX_CNT) - pc0, static_cast<uint32_t>(n) * static_cast<uint32_t>(on.size()));
     }
     uint8_t fan_seq_ = 0x10;
+    //! `n` PDUs of the talker at one channel, 62-octet frames, or 66 behind a C-VLAN tag, then every input in `on`
+    //! counted each and received each, and the shared PCMRX total counts one PDU per receiving input (#948)
+    void fan_round_one_channel(const char* tag, int n, bool vlan, std::initializer_list<int> on) {
+        std::array<FanSnap, 8> b{};
+        for (int s : on) b[s] = fan_read(s);
+        const uint32_t pc0 = axi_read(A_PCMRX_CNT);
+        for (int k = 0; k < n; k++) {
+            const uint8_t* u = mkaaf(fan_sid_, fan_seq_++, 1, static_cast<uint8_t>(0x40 + k));
+            if (vlan) {
+                uint8_t f[66];
+                memcpy(f, u, 12);
+                f[12] = 0x81; f[13] = 0x00; f[14] = 0x60; f[15] = 0x02;   // C-VLAN, PCP 3, VID 2
+                memcpy(f + 16, u + 12, 50);
+                inject(f, 66);
+            } else {
+                inject(u, 62);
+            }
+        }
+        for (int i = 0; i < 2600; i++) step();                    // past one Table 5.6 interval commit
+        char nm[120];
+        for (int s : on) {
+            const FanSnap a = fan_read(s);
+            snprintf(nm, sizeof nm, "[FAN] %s: input %d's FRAMES_RX counts every PDU", tag, s);
+            ck(nm, a.frx - b[s].frx, static_cast<uint32_t>(n));
+            snprintf(nm, sizeof nm, "[FAN] %s: input %d receives every PDU (its DEPKT tally)", tag, s);
+            ck(nm, a.pdus - b[s].pdus, static_cast<uint32_t>(n));
+        }
+        snprintf(nm, sizeof nm, "[FAN] %s: the depacketizer emits one PDU per receiving input", tag);
+        ck(nm, axi_read(A_PCMRX_CNT) - pc0, static_cast<uint32_t>(n) * static_cast<uint32_t>(on.size()));
+    }
     //! STOP_STREAMING (0x0023) or START_STREAMING (0x0022) of STREAM_INPUT s over AECP
     uint16_t fan_ss_seq_ = 0x4980;
     void fan_stream(int s, bool start) {
@@ -8278,6 +8311,19 @@ class NxnDatapathHarness {
         fan_round("three inputs on one stream", 4, {4, 6, 7}, {});
         fan_acmp(4, false);
         fan_round("input 4 unbound", 4, {6, 7}, {4});
+        // inputs 6 and 7 unbound, their format written at one channel of 48 kHz, and bound again
+        fan_acmp(6, false);
+        fan_acmp(7, false);
+        for (int s : {6, 7}) {
+            axi_write(A_STRM_SEL, static_cast<uint32_t>(s));
+            axi_write(A_SW_CTRL, 0);
+            axi_write(A_SW_FMT_LO, (1u << 22) | (6u << 12));
+            axi_write(A_SW_FMT_HI, FMT_HI);
+        }
+        fan_acmp(6, true);
+        fan_acmp(7, true);
+        fan_round_one_channel("one channel at 48 kHz, 62-octet frames", 4, false, {6, 7});
+        fan_round_one_channel("one channel at 48 kHz, 66-octet tagged frames", 4, true, {6, 7});
     }
 
     // ======================================================================

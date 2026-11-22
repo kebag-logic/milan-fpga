@@ -5,10 +5,12 @@
 // the frame boundaries of each PDU's output for every payload length, read out
 // once for each input that accepted it.
 //
-// The harness plays the monitor: an enqueue pulse in the frame's flight (the
-// parser matches on beat 7), then a done pulse naming the accepting inputs, in
-// enqueue order, some cycles later (before or after the frame's end). The
-// consumer stalls at random, or at each PDU's last two beats, or never.
+// The harness plays the monitor: an enqueue pulse a fixed number of cycles
+// after the frame's eighth beat on the tap (the parser matches on it; in the
+// datapath the pulse comes three cycles on, after the tlast of a frame of ten
+// beats or fewer), then a done pulse naming the accepting inputs, in enqueue
+// order, some cycles later (before or after the frame's end). The consumer
+// stalls at random, or at each PDU's last two beats, or never.
 //
 //   [DT1] a 64-octet payload is eight beats with one tlast, and a 65-octet
 //         one nine beats with one, its last beat lying in the hold
@@ -27,6 +29,16 @@
 //         the last beat, untagged and tagged: nothing of the PDU is read out,
 //         drops_o counts the frame, drop_p_o names its accepting inputs, and
 //         the next PDU arrives whole
+//   [DT4] frames of eight, nine and ten beats (the Ethernet minimum up to 80
+//         octets), every payload length that fits, untagged and tagged, the
+//         enqueue pulse three cycles after the eighth beat (the datapath's
+//         latency, after the tlast of each) and one cycle after: two such
+//         PDUs with a frame between them whose PDU was not queued, then an
+//         ordinary PDU, to one, two or no inputs, with and without stalls.
+//         Each queued PDU reaches each of its inputs whole, under its index,
+//         the unqueued frame reaches none, and nothing is dropped. The Milan
+//         v1.2 1-channel 48 kHz Base PDU (24 octets: a 62-octet frame, 66
+//         tagged) is three beats with one tlast
 //
 // Usage: make -C tb/verilator/avtp_rxmon depkt
 
@@ -76,6 +88,7 @@ class Depkt {
         control_and_probe();
         every_length();
         frames_short_of_their_payload();
+        short_frames();
         std::printf("\n======================================================================\n");
         std::printf("DEPKT: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -104,6 +117,10 @@ class Depkt {
 
     // the monitor's done pulses still owed, in enqueue order: {cycle due, mask}
     std::deque<std::pair<long, unsigned>> owed;
+    // its enqueue pulses still owed: {cycle due, mask, the done pulse's lag after it}
+    struct Enq { long due; unsigned mask; int lag; };
+    std::deque<Enq> enq_owed;
+    int enq_lat = 1;                       // cycles from the tap's eighth beat to the enqueue pulse
     long now = 0;
 
     void ck(const char* t, long have, long exp) {
@@ -125,6 +142,12 @@ class Depkt {
     // one clock: drive the consumer's tready and the owed done pulse, sample the output, then the edge
     void cycle() {
         d->clk_i = 0;
+        d->pdu_enq_p_i = 0;
+        if (!enq_owed.empty() && enq_owed.front().due <= now) {
+            d->pdu_enq_p_i = 1;
+            owed.emplace_back(now + enq_owed.front().lag, enq_owed.front().mask);
+            enq_owed.pop_front();
+        }
         d->pdu_done_p_i = 0;
         if (!owed.empty() && owed.front().first <= now) {
             d->pdu_done_p_i = 1;
@@ -200,8 +223,8 @@ class Depkt {
         return Frame{f, true, mask, p, whole};
     }
 
-    // the tap: one beat a cycle, the enqueue pulse on beat 8 (one after the parser's match on beat 7), the done
-    // pulse `lag` cycles after it
+    // the tap: one beat a cycle, the enqueue pulse enq_lat cycles after beat 7 (the parser's match), the done
+    // pulse `lag` cycles after that
     void feed(const Frame& fr, int lag, int gap) {
         const size_t beats = (fr.octets.size() + 7) / 8;
         for (size_t b = 0; b < beats; b++) {
@@ -213,11 +236,10 @@ class Depkt {
             d->s_tkeep_i = n == 8 ? 0xFF : ((1u << n) - 1);
             d->s_tvalid_i = 1;
             d->s_tlast_i = b + 1 == beats;
-            d->pdu_enq_p_i = fr.queued && b == 8;
-            if (fr.queued && b == 8) owed.emplace_back(now + lag, fr.mask);
+            if (fr.queued && b == 7) enq_owed.push_back(Enq{now + enq_lat, fr.mask, lag});
             cycle();
         }
-        d->s_tvalid_i = 0; d->s_tlast_i = 0; d->pdu_enq_p_i = 0;
+        d->s_tvalid_i = 0; d->s_tlast_i = 0;
         for (int i = 0; i < gap; i++) cycle();
     }
 
@@ -226,7 +248,7 @@ class Depkt {
         int idle = 0;
         while (idle < 300) {
             cycle();
-            idle = (d->m_axis_tvalid || !owed.empty()) ? 0 : idle + 1;
+            idle = (d->m_axis_tvalid || !owed.empty() || !enq_owed.empty()) ? 0 : idle + 1;
         }
     }
 
@@ -370,6 +392,55 @@ class Depkt {
                 }
             }
         }
+    }
+
+    void short_frames() {
+        std::printf("\n[DT4] frames of 8 to 10 beats, the pulse 3 cycles after the eighth beat, then 1 after\n");
+        long cases = 0;
+        long good = 0;
+        for (int lat : {3, 1}) {
+            enq_lat = lat;
+            for (bool vlan : {false, true}) {
+                const unsigned hdr = vlan ? 42 : 38;
+                for (unsigned n = 1; hdr + n <= 80; n++) {
+                    for (unsigned mask : {0x1u, 0x5u, 0x0u}) {
+                        for (Stall st : {Stall::kNone, Stall::kRandom}) {
+                            stall = st;
+                            // the Ethernet minimum, 60 octets, padded after the payload
+                            const unsigned extra = hdr + n < 60 ? 60 - hdr - n : 0;
+                            tail_beats = (n + 7) / 8;
+                            std::vector<Frame> fs;
+                            fs.push_back(frame(payload(n), vlan, extra, mask));
+                            fs.push_back(frame(payload(n), vlan, extra, 0x2));
+                            fs.back().queued = false;              // no bound input holds its stream_id
+                            fs.push_back(frame(payload(n), vlan, extra, mask ^ 0x3));
+                            fs.push_back(frame(payload(192), false, 0, 0x8));
+                            char tag[120];
+                            std::snprintf(tag, sizeof tag, "[DT4] %u octets%s, %zu beats, inputs %X, pulse %d on:", n,
+                                          vlan ? " tagged" : "", (fs[0].octets.size() + 7) / 8, mask, lat);
+                            cases++;
+                            if (grade(tag, fs, 2 + static_cast<int>(rng.below(16)), false)) good++;
+                        }
+                    }
+                }
+            }
+        }
+        stall = Stall::kNone;
+        ck("[DT4] cases whose every output frame is whole, in order, under its index", good, cases);
+        enq_lat = 3;
+        for (bool vlan : {false, true}) {
+            outs.clear();
+            feed(frame(payload(24), vlan, 0, 1), 3, 0);
+            drain();
+            char t[140];
+            std::snprintf(t, sizeof t, "[DT4] the 1-channel 48 kHz Base PDU%s (a %u-octet frame): one output frame",
+                          vlan ? " tagged" : "", vlan ? 66u : 62u);
+            ck(t, static_cast<long>(outs.size()), 1);
+            std::snprintf(t, sizeof t, "[DT4] the 1-channel 48 kHz Base PDU%s: 3 beats, tlast on the last",
+                          vlan ? " tagged" : "");
+            ck(t, outs.empty() ? 0 : static_cast<long>(outs[0].data.size() / 8), 3);
+        }
+        enq_lat = 1;
     }
 };
 

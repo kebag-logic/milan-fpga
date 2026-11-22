@@ -28,15 +28,16 @@
 //   [FO6] all eight inputs bound to one stream: each receives every PDU
 //   [FO7] a PDU no bound input accepts, then one they do, back to back: the
 //         first is delivered to no input, the second to each
-//   [FO8] a frame that ends on its eighth beat, the one the parser matches
-//         on, then a full PDU with no gap: the short frame is gone before
-//         its PDU is queued, so it is delivered to no input, and the full
-//         one is delivered to each, its own payload
+//   [FO8] a frame cut off on its eighth beat, the one the parser matches
+//         on, then a full PDU with no gap: the cut frame's PDU is queued and
+//         counted, and the frame, short of its payload, is delivered to no
+//         input and is one DEPKT drop for each; the full one is delivered to
+//         each, its own payload
 //   [FO9] eight inputs on one stream: a full PDU, six such frames with no
-//         gap, then two full PDUs: the burst fills the engine's ring with
-//         lost PDUs behind the committed one's verdicts, and each input
-//         receives exactly the three full PDUs, its FRAMES_RX counting
-//         exactly the PDUs it accepted
+//         gap, then two full PDUs: the burst fills the engine's ring behind
+//         the committed one's verdicts, and each input receives exactly the
+//         three full PDUs, its FRAMES_RX counting exactly the PDUs it
+//         accepted
 //   [FO10] eight inputs on one stream, thirty full PDUs with no gap: each
 //         frame is read out eight times, so the store overflows; every PDU
 //         an input accepted is delivered to it, in order, or counted as one
@@ -55,6 +56,16 @@
 //         reaches each input as one frame of ceil(length/8) beats,
 //         zero-padded, with one tlast, and the other stream's PDUs keep
 //         their own boundaries and index
+//   [FO14] frames of eight, nine and ten beats, the Ethernet minimum up to
+//         80 octets: every payload remainder (INT_16BIT, INT_24BIT and
+//         INT_32BIT formats of one channel), the Milan v1.2 1-channel 48 kHz
+//         Base format among them, untagged and behind a C-VLAN tag, to two
+//         inputs, back to back, with another stream's PDUs to a third input
+//         between them: each reaches each input whole, its own tlast and
+//         index. The parser matches on the eighth beat and the monitor's
+//         enqueue pulse comes three cycles later, after such a frame's tlast.
+//         Short PDUs off the inputs' frame size are still discarded whole and
+//         counted as UNSUPPORTED_FORMAT
 //   [FO13] frames that end short of their stream_data_length, by words and
 //         by one octet: each input counts the PDU (its header is whole) but
 //         receives none of it, the frame is one DEPKT drop for each, and
@@ -62,6 +73,7 @@
 //
 // Usage: make -C tb/verilator/avtp_rxmon fanout   (built at N_STREAMS_P=8)
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdio>
@@ -122,6 +134,7 @@ class FanOut {
         a_pdu_off_its_inputs_frame_size_is_discarded_whole();
         payload_tails_that_are_not_whole_beats();
         frames_short_of_their_payload();
+        frames_of_eight_to_ten_beats();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -541,6 +554,8 @@ class FanOut {
                static_cast<long>(got[s].size() - b.pdus[s]), 1);
             ck("[FO8] ...with its own payload", s,
                got[s].size() > b.pdus[s] && got[s][b.pdus[s]] == sent[0] ? 1 : 0, 1);
+            ck("[FO8] the cut frame, short of its payload, is one DEPKT drop", s,
+               ((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - b.ddrop[s], 1);
         }
     }
 
@@ -549,9 +564,10 @@ class FanOut {
         for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, true);
         cyc(200);
         const Snap b = snap();
-        // the full PDU is committed and its eight verdicts outlast the burst behind it; each queued 64-byte frame is
-        // gone before its PDU is queued, and once the engine's ring is full the later ones are not queued at all, so
-        // three PDUs wait at once behind the committed one's verdicts and none of the short frames reaches an input
+        // the full PDU is committed and its eight verdicts outlast the burst behind it; each 64-byte frame whose PDU
+        // is queued is dropped, short of its payload, and once the engine's ring is full the later ones are not queued
+        // at all, so three PDUs wait at once behind the committed one's verdicts and none of the short frames reaches
+        // an input
         std::vector<Pdu> sent;
         sent.push_back(payload());
         feed(aaf(0, 8, sent.back()), 0);
@@ -745,6 +761,70 @@ class FanOut {
             ck(t, s, ((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - b.ddrop[s], cut);
         }
         ck("[FO13] the depacketizer counts each short frame as dropped", 0, dut->pcm_drops_o - drops, cut);
+    }
+    void frames_of_eight_to_ten_beats() {
+        std::printf("\n[FO14] frames of 8 to 10 beats: inputs 0 and 1 on talker A, input 2 on talker B between\n");
+        bind(2, kTalkerB, true);
+        cyc(200);
+        // one channel each: INT_16BIT 2..42 octets, INT_24BIT 3..39, INT_32BIT 24 (Milan v1.2 Table 6.1's 48 kHz
+        // Base format of one channel), 32 and 40. Untagged a frame is 38 + n octets, tagged 42 + n, and at least the
+        // Ethernet minimum of 60: eight beats up to 64 octets, nine up to 72, ten up to 80
+        const Fmt sizes[] = {
+            {0x04, 16, 1, 1}, {0x04, 16, 1, 2}, {0x04, 16, 1, 3}, {0x04, 16, 1, 5}, {0x04, 16, 1, 13},
+            {0x04, 16, 1, 14}, {0x04, 16, 1, 15}, {0x04, 16, 1, 17}, {0x04, 16, 1, 18}, {0x04, 16, 1, 19},
+            {0x04, 16, 1, 21}, {0x03, 24, 1, 1}, {0x03, 24, 1, 3}, {0x03, 24, 1, 5}, {0x03, 24, 1, 7},
+            {0x03, 24, 1, 9}, {0x03, 24, 1, 11}, {0x03, 24, 1, 13}, {0x02, 32, 1, 6}, {0x02, 32, 1, 8},
+            {0x02, 32, 1, 10},
+        };
+        for (const Fmt& fm : sizes) {
+            rebind_as({0, 1}, kTalkerA, fm);
+            for (bool vlan : {false, true}) {
+                const unsigned n = fm.octets();
+                const unsigned octets = std::max((vlan ? 42u : 38u) + n, 60u);
+                std::printf("  %u octets (format %u, %u samples)%s: a %u-octet frame, %u beats\n", n, fm.format, fm.spf,
+                            vlan ? ", tagged" : "", octets, (octets + 7) / 8);
+                char tag[96];
+                std::snprintf(tag, sizeof tag, "[FO14] %u octets%s:", n, vlan ? " tagged" : "");
+                const Snap b = snap();
+                std::vector<Pdu> sa;
+                std::vector<Pdu> sb;
+                // the MAC pads a frame to the Ethernet minimum after its payload
+                auto short_frame = [&](unsigned m, Pdu* keep) {
+                    const Pdu p = payload(m);
+                    if (keep) *keep = padded(p);
+                    std::vector<uint8_t> f = aaf_as(0, fm, p, vlan);
+                    if (f.size() < 60) f.resize(60, 0);
+                    return f;
+                };
+                // two back to back, the second starting on the cycle after the first's tlast, inside the three
+                // cycles before the first's enqueue pulse; then one with talker B's PDU two cycles behind it; each
+                // pair after the gap the monitor's walk of two inputs takes
+                for (int headroom : {0, 80, 2}) {
+                    sa.emplace_back();
+                    feed(short_frame(n, &sa.back()), headroom);
+                }
+                sb.push_back(payload());
+                feed(aaf_as(1, kPcm32x8, sb.back(), vlan), 80);
+                // two PDUs of the stream off the inputs' frame size, one octet each way, in frames as short
+                for (unsigned m : {n + 1, n > 1 ? n - 1 : n + 2}) feed(short_frame(m, nullptr), 80);
+                sa.emplace_back();
+                feed(short_frame(n, &sa.back()));
+                cyc(800);
+                flush_iv();
+                for (int s : {0, 1}) {
+                    received(tag, s, b, sa);
+                    char tu[120];
+                    std::snprintf(tu, sizeof tu, "%s the two off-size PDUs count UNSUPPORTED_FORMAT", tag);
+                    ck(tu, s, lctx_rd(s, W_UF) - b.uf[s] > 0 ? 1 : 0, 1);
+                }
+                char tb[120];
+                std::snprintf(tb, sizeof tb, "%s talker B's input between them:", tag);
+                received(tb, 2, b, sb);
+            }
+        }
+        rebind_as({0, 1}, kTalkerA, kPcm32x8);
+        bind(2, kTalkerB, false);
+        cyc(200);
     }
 };
 
