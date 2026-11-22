@@ -1,0 +1,27 @@
+COMMAND ['python3', '-I', '<PUBLIC_PACKET>/author-r2/receipts/identity/tools/rmutants.py', '<PUBLIC_PACKET>/author-r2/receipts/identity', '<REVIEW_PACKET>/scratch/replay-plants']
+== a configuration bit outside the ROM frames (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1: MISSED
+   FAIL  shipping/1x1/flip/alinx_ax7101.bit: ccebded5aed6625f is 68e5308bf397df08 (round 1's flip image, the gating recipe at 822e3af0 (#665 issuecomment-7070924358; round-1 receipts identity/1x1/artifacts.sha256.txt))
+   FAIL  1x1 cells dump: present for both checkpoints
+== the part name in the .bit header (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1: CAUGHT
+   FAIL  1x1 .bit: outside the frames, only the design name's SW_CRC and SW_HDR_SHA256 text, the date, the time and the CRC register write differ (unexpected: ["header 'b' (part)"])
+== one more instruction byte in the platform image (shipping/8x8/flip/ctrl_app.elf)
+   replay exit 1: CAUGHT
+   FAIL  8x8 ctrl_app.elf: 7 loaded bytes differ: the lui/addi pair at 0x100, 0x12208, 0x1220c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+== one ROM word the image does not hold (shipping/1x1/flip/gateware/alinx_ax7101_rom_bank0.init)
+   replay exit 1: CAUGHT
+   FAIL  1x1 flip: the 5 ROM bank init files (126432 B) are the ELF's load segments [('0x0', 126302), ('0x1ed60', 128)], zero beyond
+Traceback (most recent call last):
+  File "<PUBLIC_PACKET>/author-r2/receipts/identity/tools/rmutants.py", line 119, in <module>
+    text_plant(target, plant)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<PUBLIC_PACKET>/author-r2/receipts/identity/tools/rmutants.py", line 32, in text_plant
+    raw = path.read_bytes()
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<REVIEW_PACKET>/scratch/replay-plants/packet/shipping/1x1/dump/flip.cells.xz'

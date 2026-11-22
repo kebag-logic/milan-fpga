@@ -1,0 +1,19 @@
+soc_sweep self-test: PASS
+SELF-TEST FAILED: the plan prices the split SoC, not the all-fabric one its recorded figures were taken at
+soc_sweep self-test: FAIL
+CAUGHT plan split
+SELF-TEST FAILED: the plan: the soc section names no control placement
+soc_sweep self-test: FAIL
+CAUGHT plan missing
+SELF-TEST FAILED: an absent platform image: missing images [], want ['sw/builder/out/cfg/ctrl_app.elf']
+SELF-TEST FAILED: a platform image flag with no value: missing images [], want ['(no value)']
+soc_sweep self-test: FAIL
+CAUGHT missing-image detector disabled
+PREPARE all-fabric with no ELF: accepted, no split flags
+PREPARE split refused: the split SoC arguments name platform image(s) ['sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf'] that the export tree does not hold; the sweep builds none (#665)
+No SoC export directory written
+HARNESS clean: 4 checks passed
+CAUGHT append at both shapes: ['endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv', 'endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv']
+CAUGHT keep config at both shapes: ['endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv', 'endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv']
+HARNESS dangling firmware flag refused
+FOCUSED DELTA PASS

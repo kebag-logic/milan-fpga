@@ -1,0 +1,601 @@
+diff --git a/README.md b/README.md
+index 695a0123af..fd43120b5d 100644
+--- a/README.md
++++ b/README.md
+@@ -293,10 +293,23 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
+ `INSTALLED_BUILD=<exact-current-build> sw/litex/build.sh flash
+ ax7101:<target-builddir>`. The launcher live-reads QSPI to prove the installed
+ bitstream owner, preflights the complete target set, and selects the
+-direction-safe verified write order. The full flow, with the load-bearing rules
+-(matched bitstream/layout/AEM, recovery) in one picture:
+-
+-![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
++direction-safe verified write order.
++
++`sw/litex/build.sh ax7101` builds the shipping split image (#665). Its launch
++needs the split's platform image at `sw/builder/out/<config>/ctrl_app.elf`,
++built by the recipe in
++[sw/firmware/ctrl/plat/README.md](sw/firmware/ctrl/plat/README.md#generated-inputs);
++without it the launch stops and names that path. The split image boots its
++control firmware from ROM
++([boot sequence](docs/ARCHITECTURE_HW_SW_SPLIT.md#2-boot-sequence)), and its
++UART reports VERSION `0x00030060`.
++
++The picture is the all-fabric release flow
++(`BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101`, VERSION `0x00020060`),
++which stays built and gated, with the load-bearing rules (matched
++bitstream/layout/AEM, recovery):
++
++![Build → Flash → Boot → Verify pipeline, all-fabric release](docs/BUILD_FLASH_BOOT.png)
+ 
+ Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
+ [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·
+diff --git a/docs/BUILD_FLASH_BOOT.drawio b/docs/BUILD_FLASH_BOOT.drawio
+index e2ca67867b..b60a6cf47b 100644
+--- a/docs/BUILD_FLASH_BOOT.drawio
++++ b/docs/BUILD_FLASH_BOOT.drawio
+@@ -1,9 +1,9 @@
+ <mxfile host="app.diagrams.net"><diagram name="build-flash-boot"><mxGraphModel dx="1400" dy="900" grid="0" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2002" pageHeight="735" math="0" shadow="0"><root><mxCell id="0"/>
+ <mxCell id="1" parent="0"/>
+-<mxCell id="n2" value="Build → Flash → Boot → Verify — the AX7101 pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=22;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1200" height="34" as="geometry"/></mxCell>
++<mxCell id="n2" value="Build → Flash → Boot → Verify — the AX7101 all-fabric release pipeline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=22;align=left;verticalAlign=top;spacingLeft=10;spacingTop=6;fontColor=#212121;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1200" height="34" as="geometry"/></mxCell>
+ <mxCell id="n3" value="1 · BUILD   —   dev host · Vivado
+ 
+-$ sw/litex/build.sh ax7101
++$ BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101
+   --software-profile baremetal
+   --fabric-gptp --full
+ $ --with-spiflash --flashboot baremetal
+diff --git a/docs/BUILD_FLASH_BOOT.gen.py b/docs/BUILD_FLASH_BOOT.gen.py
+index dbf1bc686b..ac68fecb33 100644
+--- a/docs/BUILD_FLASH_BOOT.gen.py
++++ b/docs/BUILD_FLASH_BOOT.gen.py
+@@ -1,7 +1,9 @@
+ #!/usr/bin/env python3
+ """Generate the AX7101 build→flash→boot→verify pipeline as editable .drawio +
+ rendered .svg. One picture for the integrator: the end-to-end flow that is
+-otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT.
++otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT. It is the
++all-fabric release image's flow (BUILD_PLACEMENT=all-fabric, VERSION 0x00020060);
++the shipping split image (#665) is stated beside it in the README.
+ Render PNG: rsvg-convert -w 2400 BUILD_FLASH_BOOT.svg -o BUILD_FLASH_BOOT.png
+ """
+ import html, sys
+@@ -17,7 +19,7 @@ def esc(s: str) -> str:
+ # (stage, tool, colour, [ (line, is_cmd) ... ])
+ STAGES = [
+  ("1 · BUILD", "dev host · Vivado", GREEN, [
+-   ("sw/litex/build.sh ax7101", 1),
++   ("BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101", 1),
+    ("--software-profile baremetal", 0),
+    ("--fabric-gptp --full", 0),
+    ("--with-spiflash --flashboot baremetal", 1),
+@@ -85,11 +87,12 @@ def svg() -> str:
+     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
+     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" '
+              'fill="#263238">Build → Flash → Boot → Verify — the AX7101 '
+-             'pipeline</text>'%X0)
+-    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, '
+-             'four stages. Each stage lists the real commands (bold) and the '
+-             'load-bearing rules. Details: docs/integration/BUILDING · '
+-             'LITEX_SOC · QSPI_FLASHBOOT.</text>'%X0)
++             'all-fabric release pipeline</text>'%X0)
++    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">The '
++             'all-fabric release image, VERSION 0x00020060; the shipping split '
++             'image (#665, VERSION 0x00030060) is in the README. Bold rows are '
++             'real commands. Details: docs/integration/BUILDING · LITEX_SOC · '
++             'QSPI_FLASHBOOT.</text>'%X0)
+     o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">Persistent '
+              'writes require two exact build identities: live-proven '
+              'installed BIT/LAYOUT and one fully prepared target set.'
+@@ -199,7 +202,7 @@ def drawio() -> str:
+                      '<mxGeometry relative="1" as="geometry"/></mxCell>'
+                      %(i,a,b))
+     add(_Box(X0,20,1200,34),
+-        "Build → Flash → Boot → Verify — the AX7101 pipeline",
++        "Build → Flash → Boot → Verify — the AX7101 all-fabric release pipeline",
+         _Style("none","none",22,1))
+     ids=[]
+     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
+diff --git a/docs/BUILD_FLASH_BOOT.png b/docs/BUILD_FLASH_BOOT.png
+index 081b21833c..07bee7dbb7 100644
+Binary files a/docs/BUILD_FLASH_BOOT.png and b/docs/BUILD_FLASH_BOOT.png differ
+diff --git a/docs/BUILD_FLASH_BOOT.svg b/docs/BUILD_FLASH_BOOT.svg
+index 30877de152..1f41f97706 100644
+--- a/docs/BUILD_FLASH_BOOT.svg
++++ b/docs/BUILD_FLASH_BOOT.svg
+@@ -1,8 +1,8 @@
+ <svg xmlns="http://www.w3.org/2000/svg" width="2002" height="735" viewBox="0 0 2002 735" font-family="Helvetica,Arial,sans-serif">
+ <defs><marker id="fa" markerWidth="16" markerHeight="16" refX="4" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#455A64"/></marker></defs>
+ <rect width="2002" height="735" fill="#FAFAFA"/>
+-<text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>
+-<text x="40" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT.</text>
++<text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 all-fabric release pipeline</text>
++<text x="40" y="88" font-size="15" fill="#546E7A">The all-fabric release image, VERSION 0x00020060; the shipping split image (#665, VERSION 0x00030060) is in the README. Bold rows are real commands. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT.</text>
+ <text x="40" y="112" font-size="15" fill="#546E7A">Persistent writes require two exact build identities: live-proven installed BIT/LAYOUT and one fully prepared target set.</text>
+ <rect x="40" y="150" width="440" height="369" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+ <rect x="40" y="150" width="440" height="56" rx="10" fill="#2E7D32" stroke="#2E7D32"/>
+@@ -10,7 +10,7 @@
+ <text x="58" y="177" font-size="19" font-weight="bold" fill="#ffffff">1 · BUILD</text>
+ <text x="58" y="195" font-size="12.5" fill="#ffffff" fill-opacity="0.92">dev host · Vivado</text>
+ <rect x="52" y="218" width="416" height="30" rx="5" fill="#263238"/>
+-<text x="61" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">sw/litex/build.sh ax7101</text>
++<text x="61" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101</text>
+ <text x="58" y="275" font-size="13" fill="#37474F">--software-profile baremetal</text>
+ <text x="58" y="312" font-size="13" fill="#37474F">--fabric-gptp --full</text>
+ <rect x="52" y="329" width="416" height="30" rx="5" fill="#263238"/>
+diff --git a/docs/DOCUMENTATION_AUDIT.md b/docs/DOCUMENTATION_AUDIT.md
+index 1ce840ec64..99bfd08170 100644
+--- a/docs/DOCUMENTATION_AUDIT.md
++++ b/docs/DOCUMENTATION_AUDIT.md
+@@ -124,7 +124,7 @@ Areas follow the directory tree.
+ | [CHANGELOG.md](../CHANGELOG.md) | maintainer | Milan FPGA product changelog | `tb/verilator/milan_dp`, `tb/verilator/pp_shadow`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | repository contract |
+ | [CONTRIBUTING.md](../CONTRIBUTING.md) | maintainer | Contributing - house rules that keep this repo shippable | `scripts`, `syn/yosys`, `syn/ooc`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | repository contract |
+ | [QUICKSTART.md](../QUICKSTART.md) | all readers | QUICKSTART - clone → green test run in 30 minutes | `syn/yosys`, `tb/verilator`, `third_party/verilog-axis`, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | overview and guides |
+-| [README.md](../README.md) | all readers | milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA | `sw/litex`, `scripts`, `syn/yosys`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 7 finding(s): D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047 | D0 | overview and guides |
++| [README.md](../README.md) | all readers | milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA | `sw/litex`, `scripts`, `sw/builder`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 7 finding(s): D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047 | D0 | overview and guides |
+ | [REQUIREMENTS.md](../REQUIREMENTS.md) | all readers | TSN/Milan FPGA requirements | `sw/firmware/ctrl_nvm`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+ | [THIRD_PARTY.md](../THIRD_PARTY.md) | integrator | Third-party dependencies | `sw/trace`, `scripts`, `third_party/lwSRP` | current | no recorded contradiction | area lane | reference |
+ 
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index ca28d28d40..84282f90a1 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -2,7 +2,7 @@
+ # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
+ 
+ Status: **F0 implemented behind a default-off build switch.**
+-The all-fabric build is unchanged and remains the shipping image.
++The all-fabric build remains available behind its placement switch.
+ 
+ This page designs the fabric's contract with the control-plane firmware.
+ The split integrates before P3.
+@@ -623,7 +623,7 @@ F0's advertiser checks do not establish this listener timing.
+ F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md).
+ Its H-MAAP tests use the FC channel and the existing AAF/CRF CSR allocation output.
+ The page records Annex B coverage, per-event work and host timing assumptions.
+-The shipping all-fabric placement remains unchanged.
++The all-fabric placement remains available.
+ F3 composes it with ADP and ACMP in one app
+ ([the composition](../../sw/firmware/ctrl/README.md#the-composition)).
+ 
+@@ -1801,14 +1801,16 @@ defects, its parallel gate and the two-placement simulation are local.
+ 
+ ### The split image's identity
+ 
+-Since the flip (S13) a split image reads VERSION `0x0003_0060` and an all-fabric
++Since the flip (#665) a split image reads VERSION `0x0003_0060` and an all-fabric
+ one `0x0002_0060`. Before it VERSION was `0x0002_0060` in both, so a split image
+ is also identified another way (#665, decision D2):
+ 
+ - **The recipe.** `endstation_builder.py <config> --placement split` builds a
+   shipped config at the split placement without editing it. Its shape artifacts
+-  are the all-fabric build's byte for byte, and it writes no tracked file
+-  (builder gate 23o).
++  are the all-fabric build's byte for byte but for one field: the ENTITY's
++  `firmware_version` (3.96.0 against 2.96.0, from VERSION's major), in the AEM
++  overlay (`aem_overlay.json`) and the AEM ROM (`aecp_aem_rom.svh`). It writes
++  no tracked file (builder gate 23o, which holds both).
+ - **The ident.** A split image's SoC ident ends in `split`, for example
+   `Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split`. The all-fabric
+   ident is unchanged.
+@@ -2113,8 +2115,8 @@ in parallel, so the entries stay in flip-flops.
+ 
+ Contract 2.4's sixteen source entries (#799) add 1,024 bits of storage at
+ one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
+-read-back. They were not measured with this recipe. No shipping build
+-carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
++read-back. They were not measured with this recipe. The mailbox is only in
++the `--ctrl-mailbox` SoC, the split placement the AX7101 builds ship since #665.
+ 
+ The bound-talker term was measured again with this recipe on 2026-11-10 (#665
+ S9), at one and at two interfaces, on the mailbox RTL of `1d6bf555`, which
+diff --git a/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md b/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+index 6734f9e684..cf3c5d48b9 100644
+--- a/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
++++ b/docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+@@ -126,6 +126,8 @@ It runs two threads where the route used 32, because the host is shared.
+ 
+ [`soc_sweep.py`](../../syn/resmap/soc_sweep.py) runs `sw/litex/milan_soc.py` without `--build` for each SoC variant in the plan.
+ Each variant is the shipping configuration's SoC arguments with the named flags changed.
++The plan names the control placement those arguments are taken at: all-fabric, the placement these figures were recorded at.
++The AX7101 configurations ship the split since #665; its platform image is not built by this sweep, which refuses, before any export, an argument list naming an image the export tree does not hold.
+ A refused variant is recorded with its refusal.
+ An accepted one is priced twice, flattened: the CPU netlist alone, and the LiteX top with every non-LiteX module replaced by a black box.
+ 
+diff --git a/docs/overview/ARCHITECTURE.md b/docs/overview/ARCHITECTURE.md
+index ba552584f0..e1bbe5f061 100644
+--- a/docs/overview/ARCHITECTURE.md
++++ b/docs/overview/ARCHITECTURE.md
+@@ -1,7 +1,7 @@
+ # Architecture
+ 
+ Milan FPGA is a Milan 1.2 end station.
+-The current shipping build places control protocols in fabric.
++The shipping AX7101 build runs control protocols in firmware.
+ 
+ Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
+ AECP includes unsolicited notifications and counter serving.
+@@ -16,7 +16,7 @@ Framing, timestamps, ingress filtering and media remain in fabric.
+ gPTP stays in fabric until F6, then moves to firmware.
+ 
+ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines placement and service timing.
+-The implementation sections below describe today's all-fabric shipping build.
++The implementation sections below describe the all-fabric build.
+ 
+ Machine-checked status rows are defined by the
+ [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+diff --git a/docs/overview/FULL_FPGA_SOLUTION.md b/docs/overview/FULL_FPGA_SOLUTION.md
+index eaf23bce7c..baf8c373dc 100644
+--- a/docs/overview/FULL_FPGA_SOLUTION.md
++++ b/docs/overview/FULL_FPGA_SOLUTION.md
+@@ -1,6 +1,6 @@
+ # Full FPGA solution
+ 
+-The current shipping image uses the all-fabric control placement.
++The all-fabric build remains available behind its placement switch.
+ One bare-metal RV32 core boots and configures that image.
+ 
+ Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
+@@ -16,7 +16,7 @@ Audio, framing, timestamps and ingress filtering remain in fabric.
+ gPTP stays in fabric until F6, then moves to firmware.
+ 
+ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines these requirements.
+-The implementation inventory below describes the current shipping build.
++The implementation inventory below describes the all-fabric build.
+ 
+ Machine-checked status rows are defined by the
+ [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index 47f7262f62..57b65396c5 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -4,7 +4,7 @@ The implementation evidence below describes the all-fabric image.
+ The split placement ships since the flip (#665 S13); its bench gate is on #665.
+ It does not establish firmware-placement acceptance.
+ The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) requires separate timing evidence
+-for each selected control owner before the default changes.
++for each selected control owner; for the flip that evidence is the bench gate on #665.
+ # Milan v1.2 compliance matrix — all five standards, one page
+ 
+ The per-clause compliance position of this end-station against its five
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 981425f978..d3523ab209 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -24,9 +24,9 @@ Rationale and version history are in the [design notes](../design/CSR_REGISTER_N
+ | Section | What it holds |
+ |---|---|
+ | [Reading this page](#reading-this-page) | Verdicts, history notes and how to read the tables. |
+-| [Memory map](#memory-map) | Regions and windows of the shipping SoC. |
++| [Memory map](#memory-map) | Regions and windows of the all-fabric SoC. |
+ | [Access types](#access-types) | The access and reset codes the tables use. |
+-| [Build parameters](#build-parameters) | The parameters the shipping build elaborates. |
++| [Build parameters](#build-parameters) | The parameters the all-fabric build elaborates. |
+ | [0x000 - Identification / IRQ](#0x000-----identification--irq) | Identification, capabilities and the interrupt registers. |
+ | [0x100 - MAC control / status (REQ-MAC-01..03)](#0x100-----mac-control--status--req-mac-0103) | MAC control, link status and the inert PHY reset. |
+ | [0x200 - Statistics (RMON) (REQ-MAC-04)](#0x200-----statistics-rmon--req-mac-04) | RMON counter snapshot and its capability mask. |
+@@ -151,7 +151,10 @@ Design record: [design notes](../design/CSR_REGISTER_NOTES.md#reading-the-regist
+ 
+ ## Memory map
+ 
+-![Memory map of the shipping SoC](../diagrams/memory_map.svg)
++This is the recorded all-fabric SoC's map.
++The shipping split SoC's map is in [SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md#1-memory-map) (#665).
++
++![Memory map of the all-fabric SoC](../diagrams/memory_map.svg)
+ 
+ | Region | Start address | End address | Size | Description |
+ |---|---|---|---|---|
+@@ -242,6 +245,7 @@ A reserved `R/W` field stores bits that drive nothing.
+ Some reset values depend on these parameters.
+ 
+ `milan_datapath` sets them; the export supplies its values.
++The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).
+ 
+ | Parameter | Set from | Value |
+ |---|---|---|
+diff --git a/scripts/gen_register_reference.py b/scripts/gen_register_reference.py
+index 4d10c4ab4c..dab10cd25b 100644
+--- a/scripts/gen_register_reference.py
++++ b/scripts/gen_register_reference.py
+@@ -17,7 +17,7 @@ What is read, and from where:
+     decodes per address, so a reset value is computed the way simulation
+     computes it, and every decoded word must be on the page. `register_fields.py`
+     turns that and the write decodes into fields, named by the RTL.
+-  * the parameters the shipping build elaborates come from the builder
++  * the parameters the recorded (all-fabric) build elaborates come from the builder
+     export's top-level Verilog, recorded with the export's `csr.csv` (memory
+     map, LiteX CSR banks) and `aem_desc.json` (the processor windows) in
+     `scripts/register_map_soc.json`. That file is written by this script from
+diff --git a/scripts/register_page.py b/scripts/register_page.py
+index 27f308df5f..a3c08844f4 100644
+--- a/scripts/register_page.py
++++ b/scripts/register_page.py
+@@ -28,6 +28,7 @@ PAGE = "docs/reference/REGISTER_MAP.md"
+ DIAGRAM_DIR = "docs/diagrams/regmap"
+ MEMORY_MAP_SVG = "docs/diagrams/memory_map.svg"
+ RECORD = "docs/design/CSR_REGISTER_NOTES.md"
++SPLIT_MAP = "docs/design/SPLIT_CONTROL_MEMORY.md#1-memory-map"
+ GENERATOR = "scripts/gen_register_reference.py"
+ DESCRIPTIONS = "scripts/register_descriptions.json"
+ SOC = "scripts/register_map_soc.json"
+@@ -515,9 +516,9 @@ def top_sections(model: Model) -> list[tuple[str, str]]:
+     """(heading, one-line purpose) of every `##` section, in page order."""
+     page = model.descriptions.get("page", {})
+     rows = [("Reading this page", page.get("reading_purpose", "How the verdicts and codes read.")),
+-            ("Memory map", "Regions and windows of the shipping SoC."),
++            ("Memory map", "Regions and windows of the all-fabric SoC."),
+             ("Access types", "The access and reset codes the tables use."),
+-            ("Build parameters", "The parameters the shipping build elaborates.")]
++            ("Build parameters", "The parameters the all-fabric build elaborates.")]
+     rows += [(m.heading, m.purpose) for m in model.modules]
+     rows += [("SoC CSR banks", "The LiteX CSR banks beside the Milan block."),
+              ("Feature status", "Machine-checked status rows for this page.")]
+@@ -648,7 +649,9 @@ def memory_map(model: Model) -> list[str]:
+     """The SoC memory map: regions, the windows inside them, the Milan
+     modules inside the Milan CSR window."""
+     soc, desc = model.soc, model.descriptions
+-    out = ["## Memory map", "", f"![Memory map of the shipping SoC]({relative(MEMORY_MAP_SVG)})", ""]
++    out = ["## Memory map", "", "This is the recorded all-fabric SoC's map.",
++           f"The shipping split SoC's map is in [SPLIT_CONTROL_MEMORY.md]({relative(SPLIT_MAP)}) (#665).", "",
++           f"![Memory map of the all-fabric SoC]({relative(MEMORY_MAP_SVG)})", ""]
+     rows = []
+     for region, start, size, text in soc_windows(soc, desc):
+         rows.append([region, f"`0x{start:08X}`", f"`0x{start + size - 1:08X}`", human_size(size), text])
+@@ -708,12 +711,13 @@ def legend() -> list[str]:
+ 
+ 
+ def parameters(model: Model) -> list[str]:
+-    """The milan_csr parameters the shipping build elaborates."""
++    """The milan_csr parameters the recorded all-fabric build elaborates; the split sets CTRL_SPLIT_P to 1."""
+     rows = [[f"`{name}`", f"`{expr}`", f"{value:,}" if value > 9 else str(value)]
+             for name, expr, value in model.parameters]
+     return ["## Build parameters", "",
+             "Some reset values depend on these parameters.", "",
+-            "`milan_datapath` sets them; the export supplies its values.", ""] + \
++            "`milan_datapath` sets them; the export supplies its values.",
++            "The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).", ""] + \
+         table(["Parameter", "Set from", "Value"], rows)
+ 
+ 
+diff --git a/scripts/register_read_sweep.py b/scripts/register_read_sweep.py
+index 5fc7b9e59d..6c439a3050 100644
+--- a/scripts/register_read_sweep.py
++++ b/scripts/register_read_sweep.py
+@@ -148,7 +148,7 @@ def read_tables(page: list[str]) -> dict[int, tuple[str, list[tuple[str, str]]]]
+ 
+ 
+ def build_parameters(page: list[str]) -> dict[str, int]:
+-    """The `Build parameters` table: the values the shipping build elaborates."""
++    """The `Build parameters` table: the values the recorded all-fabric build elaborates."""
+     out: dict[str, int] = {}
+     start = page.index("## Build parameters")
+     for line in page[start:]:
+diff --git a/syn/resmap/soc_sweep.py b/syn/resmap/soc_sweep.py
+index 4d25315231..bb3c8bea3a 100644
+--- a/syn/resmap/soc_sweep.py
++++ b/syn/resmap/soc_sweep.py
+@@ -6,9 +6,14 @@ recipe's refusals, and price the CPU core and the SoC top in Yosys.
+ 
+ The variants are the `soc` section of syn/resmap/sweep_plan.json. Each one is
+ the shipping configuration's own SoC argument list (the builder's
+-soc_params.json) with the named flags changed, run through sw/litex/milan_soc.py
+-WITHOUT --build, from the scratch export syn/resmap/yosys_sweep.py `shapes`
+-wrote. A variant the script refuses is recorded here with its refusal line, and
++soc_params.json, at the placement the section names) with the named flags
++changed, run through sw/litex/milan_soc.py WITHOUT --build, from the scratch
++export syn/resmap/yosys_sweep.py `shapes` wrote. The section names the
++all-fabric placement, the one the recorded figures were taken at; the AX7101
++configurations ship the split since #665. An argument list that names a
++platform image (the split's --ctrl-firmware) is refused before any export
++unless that image is in the export tree: no export leans on an earlier,
++unrelated firmware build. A variant the script refuses is recorded here with its refusal line, and
+ this script prices only what the recipe accepts. The refused CPU, cache and L2
+ variants were priced separately, from a scratch-only copy of the recipe with the
+ refusal removed (never committed; issue #649's round-2 ruling): the findings page
+@@ -57,6 +62,22 @@ def plan_variants(plan: dict) -> dict:
+     return plan["soc"]["variants"]
+ 
+ 
++def plan_placement(plan: dict) -> str:
++    """The control placement the soc section prices; the plan must name it (#665)."""
++    placement = plan["soc"].get("placement")
++    if not isinstance(placement, str) or not placement:
++        raise yosys_sweep.PlanError("the soc section names no control placement")
++    return placement
++
++
++def missing_images(argv: list[str], tree: Path) -> list[str]:
++    """Each platform image the SoC arguments name (--ctrl-firmware) that is not a file, a relative path read
++    against the export tree as milan_soc.py reads it against its repository."""
++    named = [argv[i + 1] for i, flag in enumerate(argv[:-1]) if flag == "--ctrl-firmware"]
++    named += ["(no value)"] if argv[-1:] == ["--ctrl-firmware"] else []
++    return [path for path in named if not (tree / path).is_file()]
++
++
+ def variant_argv(base: list[str], spec: dict) -> list[str]:
+     """The shipping SoC arguments with each `set` flag's value replaced or appended, and `add` flags appended."""
+     argv = list(base)
+@@ -80,18 +101,23 @@ def git_listable(tree: Path) -> None:
+             subprocess.run(argv, cwd=checkout, check=True)
+ 
+ 
+-def prepare(work: Path) -> list[str]:
+-    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments."""
++def prepare(work: Path, placement: str) -> list[str]:
++    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments at
++    `placement`; refused when they name a platform image the tree does not hold."""
+     tree = work / "tree"
+     git_listable(tree)
+     out = work / "builder-out"
+     config = tree / "configs" / f"{yosys_sweep.BASE_CONFIG}.yaml"
+-    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config)],
+-                   cwd=tree, capture_output=True, check=True)
++    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config),
++                    "--placement", placement], cwd=tree, capture_output=True, check=True)
+     link = tree / "sw" / "builder" / "out"
+     if not link.exists():
+         link.symlink_to(out)
+     params = json.loads((out / yosys_sweep.BASE_CONFIG / "soc_params.json").read_text())
++    missing = missing_images(params["argv"], tree)
++    if missing:
++        raise yosys_sweep.PlanError(f"the {placement} SoC arguments name platform image(s) {missing} that the "
++                                    "export tree does not hold; the sweep builds none (#665)")
+     return [*params["argv"], "--entity-gen-dir", str(tree / "configs/generated" / yosys_sweep.BASE_CONFIG)]
+ 
+ 
+@@ -104,8 +130,8 @@ def compiler_triple() -> str:
+ 
+ def command_export(work: Path, plan: dict, names: list[str], tools: argparse.Namespace) -> int:
+     """Run milan_soc.py without --build for each variant and record its outcome."""
+-    base = prepare(work)
+-    env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
++    base = prepare(work, plan_placement(plan))
++    env ={**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
+            "PATH": f"{tools.sdk / 'bin'}:{Path(tools.litex_python).parent}:{os.environ['PATH']}"}
+     records = {}
+     for name, spec in plan_variants(plan).items():
+@@ -260,6 +286,28 @@ def selftest() -> int:
+         (Path(tmp) / "names.txt").write_text("\n".join(plan_variants(plan)))
+         if "ship" not in plan_variants(plan):
+             problems.append("the plan has no shipping SoC variant")
++        try:
++            if plan_placement(plan) != "all-fabric":
++                problems.append(f"the plan prices the {plan_placement(plan)} SoC, not the all-fabric one its "
++                                "recorded figures were taken at")
++        except yosys_sweep.PlanError as refusal:
++            problems.append(f"the plan: {refusal}")
++        try:
++            plan_placement({"soc": {"variants": {}}})
++            problems.append("a soc section that names no placement was accepted")
++        except yosys_sweep.PlanError:
++            pass
++        image = Path(tmp) / "sw/builder/out/cfg/ctrl_app.elf"
++        split = ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/cfg/ctrl_app.elf"]
++        for label, argv, want in (("an absent platform image", split, ["sw/builder/out/cfg/ctrl_app.elf"]),
++                                  ("a platform image flag with no value", split[:2], ["(no value)"]),
++                                  ("an all-fabric argument list", ["--xlen", "32"], [])):
++            if missing_images(argv, Path(tmp)) != want:
++                problems.append(f"{label}: missing images {missing_images(argv, Path(tmp))}, want {want}")
++        image.parent.mkdir(parents=True)
++        image.write_bytes(b"\x7fELF")
++        if missing_images(split, Path(tmp)):
++            problems.append("a platform image present in the tree was reported missing")
+     for problem in problems:
+         print(f"SELF-TEST FAILED: {problem}")
+     print(f"soc_sweep self-test: {'PASS' if not problems else 'FAIL'}")
+@@ -287,7 +335,11 @@ def main() -> int:
+         if args.sdk is None:
+             print("export needs --sdk")
+             return 2
+-        return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
++        try:
++            return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
++        except yosys_sweep.PlanError as refusal:
++            print(f"soc_sweep: export refused: {refusal}")
++            return 2
+     return command_price(work, args.names)
+ 
+ 
+diff --git a/syn/resmap/sweep_plan.json b/syn/resmap/sweep_plan.json
+index 0da5fdf44d..8de5d46f3b 100644
+--- a/syn/resmap/sweep_plan.json
++++ b/syn/resmap/sweep_plan.json
+@@ -68,7 +68,8 @@
+    ["    enabled: true ", "    enabled: false "]]}
+  },
+  "soc": {
+-  "description": "SoC-side variants: the shipping SoC arguments with the named flags changed. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
++  "description": "SoC-side variants: the shipping SoC arguments at the named placement with the named flags changed. placement: all-fabric is the placement the recorded figures were taken at; the AX7101 configurations ship the split since #665, whose platform image this sweep does not build. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
++  "placement": "all-fabric",
+   "variants": {
+    "ship": {},
+    "axilite": {"set": {"--bus-standard": "axi-lite"}},
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index e35befd491..7893040f95 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -411,7 +411,7 @@ That is a CI change, outside this lane.
+ - **timer0** is LiteX's timer.
+ 
+ The linked image is a size fixture.
+-Its saved-state flash port is compiled against the split SoC's own map ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258)): `build.flash_map` exports `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the point's config, and [`gen_flash_port.py`](../../../sw/firmware/ctrl_nvm/plat/gen_flash_port.py) writes the command master's, `timer0`'s and the flash window's addresses from that export's `csr.csv` (`ctrl_srp_image.py --flash-map`).
++Its saved-state flash port is compiled against the split SoC's own map ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258)): `build.flash_map` exports `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the point's config, naming the point's image in place of the one a split config's argv names (`build.split_argv`), and [`gen_flash_port.py`](../../../sw/firmware/ctrl_nvm/plat/gen_flash_port.py) writes the command master's, `timer0`'s and the flash window's addresses from that export's `csr.csv` (`ctrl_srp_image.py --flash-map`).
+ The SoC places those devices from the same map, its `spiflash` bank laid out as the split SoC's, and refuses a build whose own `csr.csv` places a register the port uses, or the flash window, elsewhere (`split_soc.map_deviations`).
+ The mailbox's address is still a placeholder, read from the fixture's own sources:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index e28fd162bd..f91cb45ec2 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -352,6 +352,23 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', v
+     return image / 'ctrl_app.elf'
+ 
+ 
++def split_argv(argv: list[str], elf: Path) -> list[str]:
++    """`argv` without the --ctrl-mailbox and --ctrl-firmware <image> it carries, then this image's pair once.
++    A split config's own argv names the builder's platform image (#665); the harness links its own, so the
++    export names exactly one image, and the result is the all-fabric config's argv with the pair appended."""
++    kept, skip = [], False
++    for k, arg in enumerate(argv):
++        if skip or arg == '--ctrl-mailbox':
++            skip = False
++            continue
++        if arg == '--ctrl-firmware' and k + 1 == len(argv):
++            raise RuntimeError('the config argv ends in --ctrl-firmware with no image')
++        skip = arg == '--ctrl-firmware'
++        if not skip:
++            kept.append(arg)
++    return [*kept, '--ctrl-mailbox', '--ctrl-firmware', str(elf)]
++
++
+ def soc_export(out: Path, shape: str, elf: Path) -> Path:
+     """The split SoC as milan_soc.py exports it for the shape's config with this image
+     (--ctrl-mailbox --ctrl-firmware, no software, as test_ctrl_memory.py drives it): the directory
+@@ -362,10 +379,11 @@ def soc_export(out: Path, shape: str, elf: Path) -> Path:
+     config = ROOT / 'configs' / (shape + '.yaml')
+     with contextlib.redirect_stdout(io.StringIO()):
+         eb.build(str(config))
+-    argv = [*eb.emit_soc_argv(eb.load_config(str(config))), '--entity-gen-dir', str(ROOT / eb.GEN_CONFIG_DIR / shape)]
++    argv = split_argv([*eb.emit_soc_argv(eb.load_config(str(config))), '--entity-gen-dir',
++                       str(ROOT / eb.GEN_CONFIG_DIR / shape)], elf)
+     soc = out / 'soc'
+-    run([sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv, '--ctrl-mailbox', '--ctrl-firmware',
+-         str(elf), '--no-compile-software', '--output-dir', str(soc)], out / 'soc.log', cwd=ROOT / 'sw/litex')
++    run([sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv, '--no-compile-software',
++         '--output-dir', str(soc)], out / 'soc.log', cwd=ROOT / 'sw/litex')
+     return soc
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index 052e14afef..0ffa8b69d2 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -729,10 +729,11 @@ def reuse_checks() -> list[Check]:
+ 
+ 
+ def build_checks() -> list[Check]:
+-    """The ledgered point is named at its own point only, and every labelled arm and control plant
+-    applies to the checkout's sources (each a scratch copy, never the tree)."""
+-    sys.path.insert(0, str(HERE.parents[2] / 'sw/litex'))
++    """The ledgered point is named at its own point only, every labelled arm and control plant applies to the
++    checkout's sources (scratch copies, never the tree), and the split SoC argv names one image (#665)."""
++    sys.path[:0] = [str(HERE.parents[2] / 'sw/litex'), str(HERE.parents[2] / 'sw/builder')]
+     import ctrl_memory
++    import endstation_builder as eb
+     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
+     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
+               if (shape, n) not in run.POINTS.values()}
+@@ -749,6 +750,11 @@ def build_checks() -> list[Check]:
+                 failed.append(str(error))
+         out.append(("every labelled arm and control plant applies to the checkout's sources", not failed,
+                     '; '.join(failed)))
++    for cfg in (eb.load_config(str(build.ROOT / f'configs/endstation_ax7101_{s}.yaml')) for s in ('1x1_tdm8', '8x8')):
++        got, fabric = build.split_argv(eb.emit_soc_argv(cfg), Path('x.elf')), eb.emit_soc_argv(eb.with_placement(
++            cfg, 'all-fabric'))
++        out.append((f"{cfg['name']}: the split SoC argv names the harness image once, after the all-fabric argv",
++                    got == [*fabric, '--ctrl-mailbox', '--ctrl-firmware', 'x.elf'], str(got[len(fabric) - 1:])))
+     return out
+ 
+ 

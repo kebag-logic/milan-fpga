@@ -1,0 +1,24 @@
+COMMAND ['python3', '-B', '<REVIEW_PACKET>/focused_delta.py', '<REVIEW_CLONE>', '<REVIEW_PACKET>/scratch/prepare']
+soc_sweep self-test: PASS
+SELF-TEST FAILED: the plan prices the split SoC, not the all-fabric one its recorded figures were taken at
+soc_sweep self-test: FAIL
+CAUGHT plan split
+SELF-TEST FAILED: the plan: the soc section names no control placement
+soc_sweep self-test: FAIL
+CAUGHT plan missing
+SELF-TEST FAILED: an absent platform image: missing images [], want ['sw/builder/out/cfg/ctrl_app.elf']
+SELF-TEST FAILED: a platform image flag with no value: missing images [], want ['(no value)']
+soc_sweep self-test: FAIL
+CAUGHT missing-image detector disabled
+Traceback (most recent call last):
+  File "<REVIEW_PACKET>/focused_delta.py", line 29, in <module>
+    argv=s.prepare(work,'all-fabric')
+  File "<REVIEW_CLONE>/syn/resmap/soc_sweep.py", line 111, in prepare
+    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "--placement", placement], cwd=tree, capture_output=True, check=True)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '<REVIEW_PACKET>/scratch/prepare/tree/sw/builder/endstation_builder.py', '-o', '<REVIEW_PACKET>/scratch/prepare/builder-out', '<REVIEW_PACKET>/scratch/prepare/tree/configs/endstation_ax7101_1x1_tdm8.yaml', '--placement', 'all-fabric']' returned non-zero exit status 1.
