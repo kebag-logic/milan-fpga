@@ -1,0 +1,201 @@
+PUBLIC EVIDENCE COMMIT 86911b961e2f83f3dbe29a5dfc7dd628a5474365
+PASS published hashes 314 files
+Commit signature status: N (N means no commit signature; hashes are integrity, not signer authentication)
+PASS contract YAML identical after excluding doc fields
+DELTA 8121e098 to HEAD:
+docs/DOCUMENTATION_AUDIT.md
+docs/design/GPTP_SOFTWARE.md
+docs/traceability/MODULE_MATRIX.md
+hdl/common/README-tests.md
+hdl/milan/mailbox/README-tests.md
+scripts/suite_shards.py
+sw/firmware/ctrl/test/gptp_mutants.py
+sw/firmware/ctrl/test/test_gptp.cpp
+tb/verilator/mbx/README.md
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+DELTA 9d753fa0 to HEAD:
+docs/DOCUMENTATION_AUDIT.md
+docs/design/GPTP_SOFTWARE.md
+docs/traceability/MODULE_MATRIX.md
+hdl/common/README-tests.md
+hdl/milan/mailbox/README-tests.md
+scripts/suite_shards.py
+sw/firmware/ctrl/test/gptp_mutants.py
+sw/firmware/ctrl/test/test_gptp.cpp
+DELTA 64a473be to HEAD:
+docs/DOCUMENTATION_AUDIT.md
+docs/design/GPTP_SOFTWARE.md
+docs/traceability/MODULE_MATRIX.md
+hdl/common/README-tests.md
+hdl/milan/mailbox/README-tests.md
+scripts/suite_shards.py
+sw/firmware/ctrl/test/gptp_mutants.py
+DELTA 333dc7c5 to HEAD:
+docs/traceability/MODULE_MATRIX.md
+hdl/common/README-tests.md
+hdl/milan/mailbox/README-tests.md
+scripts/suite_shards.py
+sw/firmware/ctrl/test/gptp_mutants.py
+DELTA 09c5934a to HEAD:
+sw/firmware/ctrl/test/gptp_mutants.py
+
+RECEIPT gates-8167b70d/xvlog-8167b70d.log
+vivado-slot: slot 1 (/tmp/milan-vivado-slot-1.lock), MemAvailable 39 GB, 2026-11-22T13:49:22+01:00
+xvlog gate: 0 finding(s) across 0 module(s)
+  analysed: 90 tracked .sv/.v file(s) under hdl/ and 52 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@801ef228; gptp-processor@1616fc8f - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 0 finding(s)
+xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+rc=0
+
+RECEIPT gates-8167b70d/SUMMARY.txt
+xvlog                              rc=124  
+
+RECEIPT gptp/gptp_mutants-final.log
+baseline: PASS
+  ok   rate-envelope-dropped: KILLED by Net.AStepOf100msKeepsAsCapableAt1msTurnaround: [FAIL] Net.AStepOf100msKeepsAsCapableAt1msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+RESULT: PASS
+
+RECEIPT harness/egress-ledger-8x8-1if.txt
+# 8x8-1if: the rows the egress decides against their ledger; 59 instance(s) read (59 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.47630 | 63.86 | -0.38370 | yes |
+| `backlog.owed_behind0.if0` | 63.70140 | 64.1 | -0.39860 | yes |
+| `backlog.owed_behind1.if0` | 63.92638 | 64.36 | -0.43362 | yes |
+| `backlog.owed_behind2.if0` | 64.21151 | 64.61 | -0.39849 | yes |
+| `backlog.owed_behind3.if0` | 64.43003 | 64.86 | -0.42997 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.41063 | 62.62 | -0.20937 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.08160 | 62.16 | -0.07840 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+rc=0
+
+RECEIPT harness/cost-8x8-1if.txt
+== gptp-slave.log
+run: link up at sys 11414425, end at 171588083: 1.602 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 262168, gptp_mbx 119555, together 381723: 0.238 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 378; its cycles a pass: max 26409, p95 1260, median 94
+  after the first second: 142 passes, max 24914, median 94; the longest such pass, all modules: 68541
+  the five dearest: sys 11414425: gptp 20765 + gptp_mbx 5644 of 92666, sys 111423181: gptp 21400 + gptp_mbx 3514 of 68541, sys 111211030: gptp 14330 + gptp_mbx 3265 of 58284, sys 123916404: gptp 12478 + gptp_mbx 2328 of 46292, sys 136421375: gptp 6699 + gptp_mbx 2109 of 32212
+== gptp-master.log
+run: link up at sys 11414425, end at 171580174: 1.602 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 218768, gptp_mbx 100094, together 318862: 0.199 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 368; its cycles a pass: max 23045, p95 1217, median 94
+  after the first second: 139 passes, max 11814, median 94; the longest such pass, all modules: 41833
+  the five dearest: sys 11414425: gptp 18372 + gptp_mbx 4673 of 83535, sys 111210667: gptp 14049 + gptp_mbx 3265 of 57807, sys 111422065: gptp 10338 + gptp_mbx 1476 of 41833, sys 141421701: gptp 6721 + gptp_mbx 1171 of 32257, sys 112202163: gptp 6088 + gptp_mbx 848 of 38022
+== gptp-slave.log steady state, 0.602 s from a second after link-up: work passes 217, their gPTP cycles 160720: 0.267 % of the CPU, 267094 cycles a second
+== gptp-master.log steady state, 0.602 s from a second after link-up: work passes 214, their gPTP cycles 134852: 0.224 % of the CPU, 224134 cycles a second
+
+RECEIPT harness/cost-8x8.txt
+== gptp-slave.log
+run: link up at sys 11566996, end at 171727798: 1.602 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 354993, gptp_mbx 142428, together 497421: 0.311 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 379; its cycles a pass: max 33941, p95 2154, median 36
+  after the first second: 143 passes, max 29064, median 36; the longest such pass, all modules: 78079
+  the five dearest: sys 11566996: gptp 23886 + gptp_mbx 10055 of 121616, sys 111580282: gptp 22775 + gptp_mbx 6289 of 78079, sys 111308284: gptp 16139 + gptp_mbx 4451 of 70673, sys 124069495: gptp 13187 + gptp_mbx 3825 of 48859, sys 136584018: gptp 7395 + gptp_mbx 3769 of 38756
+== gptp-master.log
+run: link up at sys 11566996, end at 171727206: 1.602 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 316641, gptp_mbx 106687, together 423328: 0.264 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 368; its cycles a pass: max 30169, p95 1900, median 36
+  after the first second: 139 passes, max 14176, median 36; the longest such pass, all modules: 48075
+  the five dearest: sys 11566996: gptp 21852 + gptp_mbx 8317 of 111266, sys 111316558: gptp 16509 + gptp_mbx 4451 of 71417, sys 111568524: gptp 11500 + gptp_mbx 2676 of 48075, sys 141581189: gptp 7413 + gptp_mbx 1870 of 37163, sys 112303347: gptp 7966 + gptp_mbx 994 of 46388
+== gptp-slave.log steady state, 0.602 s from a second after link-up: work passes 218, their gPTP cycles 211225: 0.351 % of the CPU, 351101 cycles a second
+== gptp-master.log steady state, 0.602 s from a second after link-up: work passes 214, their gPTP cycles 178903: 0.297 % of the CPU, 297378 cycles a second
+
+RECEIPT publication/tb_cdc_pub-on-f15b3a7d-crossing.log
+  [FAIL] the fast crossing landed GEN 2 words 020003001212121222222222, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 2 words 020003001212121222222222, not a commit newer than the last it took
+  [FAIL] the fast crossing landed GEN 3 words 030003002222222233333333, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 3 words 030003002222222233333333, not a commit newer than the last it took
+  [FAIL] a commit while one crosses, then an update begun: the last commit landed, slow
+  [FAIL] a commit while one crosses, then an update begun: the last commit landed, fast
+  [FAIL] the fast crossing landed GEN 4 words 040003004444444455555555, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 4 words 040003004444444455555555, not a commit newer than the last it took
+  [FAIL] the fast crossing landed GEN 7 words 070003007777777788888888, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 7 words 070003007777777788888888, not a commit newer than the last it took
+  [FAIL] an update begun after an idle commit: the last commit landed, slow
+  [FAIL] an update begun after an idle commit: the last commit landed, fast
+== mbx gPTP publication crossing (KL_mbx_cdc): checks: 53   failures: 12 ==
+
+RECEIPT publication/tb_cdc_pub-8121e098-crossing.log
+== mbx gPTP publication crossing (KL_mbx_cdc): checks: 53   failures: 0 ==
+
+RECEIPT publication/split-sw-new.checks
+checks: 152   failures: 0
+rc=0
+
+RECEIPT publication/split-sw-oldcdc.checks
+FAIL [GPTP] a commit while one crosses, then an update begun: the datapath holds the commit whole: got 0x2222222233333333, want 0x2222222222222222
+checks: 152   failures: 1
+rc=2
+
+RECEIPT closedloop/make-gptp_sw-64a473be.log
+[ SLAVE if0 ] role 2, asCapable 1, GM 02aabbfffe000001, steps 1, lock (PHC within 100 ns of its GM) 2.7 s, then worst |offset| 93.0 ns; pdelay 293 ns
+[ SLAVE if1 ] role 2, asCapable 1, GM 02aaccfffe000002, steps 1, lock (PHC within 100 ns of its GM) 2.5 s, then worst |offset| 82.0 ns; pdelay 293 ns
+[ MASTER if0 ] role 3, asCapable 1, GM 001b92fffe000001, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.4 s, then worst |offset| 74.8 ns; peer's link delay 289.0 ns
+[ MASTER if1 ] role 3, asCapable 1, GM 001b92fffe000002, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.1 s, then worst |offset| 96.9 ns; peer's link delay 289.0 ns
+[ FLOOD ] 32 Pdelay_Req every 200 ms from 2.5 s: event messages handed out 977, committed at once 462, refused or held frames 526, received stamped 490, unstamped 0, egress records lost 0; lock 2.9 s, then worst |offset| 95.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 48   failures: 0 ==
+RESULT: PASS
+
+RECEIPT closedloop/gptp_sw_mutants-64a473be.log
+RESULT: PASS
+
+RECEIPT tsu/tsu_mutants-64a473be.log
+RESULT: PASS
+
+ROUTE route-8x8-1if-sw-AltSpreadLogic_high.txt
+# route 8x8/1if --sw-gptp AltSpreadLogic_high at 9d753fa0: 2026-11-22T08:06:20+01:00 to 2026-11-22T08:33:09+01:00, rc 0
+ Slice LUTs                      38184  of    63400
+ Slice Registers                 45890  of   126800
+ Block RAM Tile                   95.5  of      135
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.174 failing 0 WHS 0.131 failing 0
+Slow_0C: WNS 0.174 failing 0 WHS 0.131 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.056 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.056 failing 0
+
+ROUTE route-8x8-1if-sw-ExtraPostPlacementOpt.txt
+# route 8x8/1if --sw-gptp ExtraPostPlacementOpt at 9d753fa0: 2026-11-22T08:43:13+01:00 to 2026-11-22T09:12:28+01:00, rc 0
+ Slice LUTs                      38146  of    63400
+ Slice Registers                 45890  of   126800
+ Block RAM Tile                   95.5  of      135
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.154 failing 0 WHS 0.139 failing 0
+Slow_0C: WNS 0.154 failing 0 WHS 0.139 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.026 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.026 failing 0
+
+ROUTE route-8x8-1if-sw-ExtraTimingOpt.txt
+# route 8x8/1if --sw-gptp ExtraTimingOpt at 9d753fa0: 2026-11-22T08:16:29+01:00 to 2026-11-22T08:43:07+01:00, rc 0
+ Slice LUTs                      38183  of    63400
+ Slice Registers                 45890  of   126800
+ Block RAM Tile                   95.5  of      135
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.220 failing 0 WHS 0.140 failing 0
+Slow_0C: WNS 0.220 failing 0 WHS 0.140 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.056 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.056 failing 0
+
+FIRMWARE shard-0-64a473be.log
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm gptp_ubsan
+    verdict: PASS (52 tests, 0 failures, exit 0)
+    verdict: PASS (52 tests, 0 failures, exit 0)
+    verdict: PASS (52 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+
+FIRMWARE shard-1-64a473be.log.verdicts
+mutants: 826 of 826 caught
+test_ctrl_firmware: PASS
+
+FIRMWARE shard-2-64a473be.log.verdicts
+test_ctrl_firmware: PASS
+
+FIRMWARE shard-3-64a473be.log.verdicts
+test_ctrl_firmware: PASS

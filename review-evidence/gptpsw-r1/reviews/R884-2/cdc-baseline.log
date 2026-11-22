@@ -1,0 +1,28 @@
+  [PASS] an idle commit: the last commit landed, slow
+  [PASS] an idle commit: the last commit landed, fast
+  [PASS] a commit while one crosses, then an update begun: the last commit landed, slow
+  [PASS] a commit while one crosses, then an update begun: the last commit landed, fast
+  [PASS] three commits back to back: the last commit landed, slow
+  [PASS] three commits back to back: the last commit landed, fast
+  [PASS] an update begun after an idle commit: the last commit landed, slow
+  [PASS] an update begun after an idle commit: the last commit landed, fast
+  [PASS] a commit on the edge the crossing takes the one before: the last commit landed, slow
+  [PASS] a commit on the edge the crossing takes the one before: the last commit landed, fast
+  [PASS] GEN at 0xFE: the last commit landed, slow
+  [PASS] GEN at 0xFE: the last commit landed, fast
+  [PASS] GEN at 0xFF: the last commit landed, slow
+  [PASS] GEN at 0xFF: the last commit landed, fast
+  [PASS] GEN wrapped to 0x00: the last commit landed, slow
+  [PASS] GEN wrapped to 0x00: the last commit landed, fast
+  [PASS] GEN at 0x01 after the wrap: the last commit landed, slow
+  [PASS] GEN at 0x01 after the wrap: the last commit landed, fast
+  [PASS] a write that leaves GEN where it was crosses nothing
+  [PASS] reset of both clocks with a crossing in flight: the last commit landed, slow
+  [PASS] reset of both clocks with a crossing in flight: the last commit landed, fast
+  [PASS] reset of the mailbox's clock alone with a crossing in flight: the last commit landed, slow
+  [PASS] reset of the mailbox's clock alone with a crossing in flight: the last commit landed, fast
+== mbx gPTP publication crossing (KL_mbx_cdc): checks: 53   failures: 0 ==
+- <checkout>/tb/verilator/mbx/tb_cdc_pub.sv:210: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 10us; walltime 0.001 s; speed 8.943 ms/s
+- Verilator: cpu 0.001 s on 1 threads; allocated 7 MB

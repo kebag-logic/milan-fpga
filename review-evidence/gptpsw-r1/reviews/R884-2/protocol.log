@@ -1,0 +1,14 @@
+COMMAND: ['gcc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-I<checkout>/sw/firmware/ctrl/gptp', '<packet>/probe_protocol.c', '<checkout>/sw/firmware/ctrl/gptp/gptp.c', '-o', '<packet>/scratch/probe_protocol']
+setup completed pair establishes sync: PASS
+after 720 ms without Follow_Up: priority=248 role=3 sync_ok=1 used=1 rto_sync=1
+loss of completed pairs must expire synchronization: PASS
+setup completed pair establishes sync: PASS
+after 720 ms without Follow_Up: priority=255 role=2 sync_ok=0 used=1 rto_sync=1
+loss of completed pairs must expire synchronization: PASS
+late second responder exchange 1: multi_run=1 ceased=0
+late second responder exchange 2: multi_run=2 ceased=0
+late second responder exchange 3: multi_run=3 ceased=1
+three completed exchanges with two responders must cease requests: PASS
+Follow_Up without required TLV: used=0 sync_ok=0
+Follow_Up without required information TLV must not discipline PHC: PASS
+total failed assertions=0
