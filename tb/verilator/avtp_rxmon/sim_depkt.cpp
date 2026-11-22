@@ -83,7 +83,8 @@ class Depkt {
 
  private:
     std::unique_ptr<Vdepkt_top> d = std::make_unique<Vdepkt_top>();
-    long checks = 0, fails = 0;
+    long checks = 0;
+    long fails = 0;
     Rng rng{0x9E3779B97F4A7C15ull};
     Stall stall = Stall::kNone;
     unsigned pdu_no = 0;
@@ -245,7 +246,8 @@ class Depkt {
     // run frames back to back and grade the outputs; returns true when every output matched
     bool grade(const char* tag, const std::vector<Frame>& fs, int lag, bool print) {
         outs.clear(); out_idx.clear(); drop_masks.clear(); axis_breaks = 0;
-        const unsigned pdus0 = d->pdus_o, drops0 = d->drops_o;
+        const unsigned pdus0 = d->pdus_o;
+        const unsigned drops0 = d->drops_o;
         for (const Frame& f : fs) feed(f, lag, static_cast<int>(rng.below(3)));
         drain();
         const std::vector<Out> e = expected(fs);
@@ -309,7 +311,8 @@ class Depkt {
         const unsigned masks[] = {0x1, 0x5, 0xF, 0x8, 0x0};
         const Stall stalls[] = {Stall::kNone, Stall::kRandom, Stall::kTail};
         const char* sname[] = {"no stall", "random stalls", "stalls at the last two beats"};
-        long cases = 0, good = 0;
+        long cases = 0;
+        long good = 0;
         for (int si = 0; si < 3; si++) {
             stall = stalls[si];
             for (bool vlan : {false, true}) {

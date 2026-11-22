@@ -110,7 +110,7 @@ DTFLAGS = --cc --exe --build -j 0 --top-module KL_aaf_rx_depacketizer --prefix V
 DT_MDIR ?= obj_dt0
 DT_LEAD ?= 0
 depkt-build:
-	$(VERILATOR) $(DTFLAGS) -GPAY_LEAD_CYC_P=$(DT_LEAD) --Mdir $(DT_MDIR) -CFLAGS "-DLEAD_TB=$(DT_LEAD)" \
+	$(VERILATOR) $(DTFLAGS) -GPAY_LEAD_CYC_P=$(DT_LEAD) --Mdir $(DT_MDIR) -CFLAGS "-DLEAD_TB=$(DT_LEAD) -Wall -Wextra" \
 	  $(DEPKT_SRC) sim_depkt.cpp -o Vdepkt
 depkt:
 	$(MAKE) depkt-build DT_LEAD=0 DT_MDIR=obj_dt0

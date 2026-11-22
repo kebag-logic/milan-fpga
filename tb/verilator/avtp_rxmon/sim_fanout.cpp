@@ -92,8 +92,10 @@ constexpr uint64_t fmt(unsigned ch) { return (static_cast<uint64_t>(kFmtHi) << 3
 constexpr uint64_t kTalkerA = 0x0202DEADBEEF0001ull;  // the talker's stream_ids
 //! an AAF PCM format: the sample format (IEEE 1722-2016 Table 9), bit depth, channels and samples per frame
 struct Fmt {
-    uint8_t format, depth;
-    unsigned ch, spf;
+    uint8_t format;
+    uint8_t depth;
+    unsigned ch;
+    unsigned spf;
     unsigned octets() const { return ch * spf * (format == 0x03 ? 3u : format == 0x04 ? 2u : 4u); }
     uint32_t hi() const { return 0x02050000u | (static_cast<uint32_t>(format) << 8) | depth; }
     uint32_t lo() const { return (ch << 22) | (spf << 12); }
@@ -316,7 +318,12 @@ class FanOut {
     struct Snap {
         std::array<long, kStreams> acc;
         std::array<size_t, kStreams> pdus;
-        std::array<uint32_t, kStreams> frx, depkt, ddrop, sm, si, uf;
+        std::array<uint32_t, kStreams> frx;
+        std::array<uint32_t, kStreams> depkt;
+        std::array<uint32_t, kStreams> ddrop;
+        std::array<uint32_t, kStreams> sm;
+        std::array<uint32_t, kStreams> si;
+        std::array<uint32_t, kStreams> uf;
     };
     Snap snap() {
         Snap n{};
