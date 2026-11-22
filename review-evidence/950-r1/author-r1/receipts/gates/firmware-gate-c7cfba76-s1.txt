@@ -1,0 +1,79 @@
+# python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 1/4 --jobs 4 on a clean clone of c7cfba76 (the final firmware): its head, verdict and campaign lines, and the lines of this lane's plants; 832 planted defects caught ([ok]) and 0 escaped in this shard
+HEAD c7cfba76 start 14:47:07
+PASS: 1856 live invocations in exactly one shard; shard sizes [88, 833, 393, 542]
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a double free is refused and counted
+    first: [FAIL] Pool.P5ClassTablesAndArenasRefused: P5 a class of zero-byte blocks is refused
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+    first: [FAIL] LoopBring.L9TablesRefuseNullAndOverflow: L9 a channel bound to no function is refused
+    first: [FAIL] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused: B2 slots past the fabric's timer bank are refused
+    first: [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free into the middle of a block is refused
+    first: [FAIL] Pool.P9BlockIndexByShiftAndByDivide: P9 a free into the middle of a block is refused, stride 48
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 no interface is refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sinks than ACMP_MAX_SINKS are refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 more sources than ACMP_MAX_SOURCES are refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a sink on an interface the entity lacks is refused
+    first: [FAIL] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold: A0 a source on an interface the entity lacks is refused
+[ok] mutant acmp-longer-pdu-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 attaching before ADP bound the adp channel is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the event sink is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a loop with no room for the poll is refused
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 16 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 more interfaces than the mailbox has are refused
+    first: [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+[ok] mutant acmp-kept-offered-on-a-refused-poll (acmp): 10 check(s) failed
+    first: [FAIL] AcmpMailbox.K6ARecordTheDriverRefusesEndsTheRedeliveryCounted: K6 the kept command taken, the refused record counted in rx_bad and the ring left empty
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 4294967295 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpAdapterUnit.B7RefusalsOfTheAdapter: B7 a first slot of 256 is refused: past the bank, wrapping the sum, or truncating to a slot
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 a payload of 21 bytes is refused, the longer ones too, before a byte is read
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+    first: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 10
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an interface past the contract's is refused
+    first: [FAIL] DriverUnit.D13BoundTalkerEntries: D13 an entry past the table's is refused
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+[ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+[ok] mutant maap-valid-minimum-refused (maap): 4 check(s) failed
+[ok] mutant maap-future-version-refused (maap): 3 check(s) failed
+    first: [FAIL] MaapCore.InitAndPreferredRangeBounds: range past pool end is refused
+    first: [FAIL] MbxDma.T2AMoveEndingInErrorIsNotCommitted: T2 a move that ends in ERR is refused
+[ok] mutant mover-fan-lost-reported-as-refused (unit): 2 check(s) failed
+    first: [FAIL] MbxDma.T7AFullCompletionQueueRefusesOnlyOnceTheLastFrameIsCommitted: T7 the last frame is committed before REFUSED, and no completion is kept
+    first: [FAIL] Plat.C1IdentityIsMilnAndReadsVersion: C1 any other ID is refused
+[ok] mutant plat-maap-port-unrefused (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 a refused image stops the boot
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+    first: [FAIL] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 0)
+[ok] mutant plat-map-absent-refused (platmap): 1 check(s) failed
+[ok] mutant plat-phy-refused-stage-unpolled (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+[ok] mutant plat-phy-after-an-idle-step-refused (platboot1): 1 check(s) failed
+    first: [FAIL] Phy.B11ArmedPastTheIdentityCheck: B11 a stage refused past the identity check keeps publishing the link
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a second step is refused
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a step with no function is refused
+    first: [FAIL] LoopBring.L10StepBindingRefusals: L10 a step with no clock is refused
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a second retry client is refused
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no function is refused
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no age is refused
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a second transmit client is refused
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no function is refused
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no age is refused
+[ok] mutant again-unchecked-onto-a-stream (platsinks8, platsinks8, platsinks1, platsinks1): 30 check(s) failed
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+[ok] mutant again-of-stream-zero (platsinks1, platsinks1): 4 check(s) failed
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+[ok] mutant asking-failed-unreported (platsinks8, platsinks1): 22 check(s) failed
+[ok] mutant asking-failed-any-listener (platsinks8): 18 check(s) failed
+[ok] mutant asking-failed-without-a-listener (platsinks8): 306 check(s) failed
+[ok] mutant asking-failed-of-output-zero (platsinks8): 32 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F3 every setting and entry write, and a second commit, is refused while BUSY and counted
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 832 of 832 caught
+test_ctrl_firmware: PASS
+rc=0 end 16:13:44

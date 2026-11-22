@@ -1,0 +1,30 @@
+# python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 2/4 --jobs 4 on a clean clone of 287ca1ee (the final head): its head, verdict and campaign lines, and the lines of this lane's plants; 392 planted defects caught ([ok]) and 0 escaped in this shard
+HEAD 287ca1ee start 00:59:24
+PASS: 1856 live invocations in exactly one shard; shard sizes [88, 833, 393, 542]
+[ok] stream-info-earlier-body-refused: Core.SetStreamInfoTakesTheEarlierBodyOf48Octets
+[ok] stream-info-noop-refused: Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+[ok] root-configuration-refused: Core.RootDescriptorConfigurationIsIgnored
+[ok] app-unbound-start-refused: App.UnboundStartAndStopAreSuccessfulNoOps
+[ok] unapplied-change-not-refused: Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[ok] waiting-change-not-redone: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+[ok] waiting-success-not-notified: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[ok] waiting-failure-notified: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.ALateCommitIsOwedAndPublishedAgainWhole
+[ok] waiting-failure-not-republished: Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[ok] waiting-failure-reports-the-request: Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce:Face.ALateCommitIsOwedAndPublishedAgainWhole
+[ok] attempt-charged-without-the-shapes: Build.refused
+[ok] attempt-charged-before-the-shapes: Build.refused
+[ok] fan-end-refused-taken-as-lost: Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain
+[ok] refused-mid-fan-after-a-taken-frame-taken-as-lost: Core.ARefusedFrameIsSentToItsRecipientAndNoOneElseAgain
+[ok] map-table-each-direction-alone: Build.refused
+[ok] pace-a-refused-edit: Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone
+[ok] restore-refused-reset-unclipped: Core.TheStoresResetSetIsTheClippedOne
+[ok] again-unchecked: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied:Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-other-command: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-input-judged-by-streaming: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-unobservable-taken: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-refusal-done-again: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-refusal-notified: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] again-refusal-misbehaving: Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied
+[ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+test_ctrl_firmware: PASS
+rc=0 end 01:36:44

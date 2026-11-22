@@ -1,0 +1,15 @@
+# the CPU budget harness's tight statements, probed: each arm built as run.py builds it by default (legs.py build: CPU regions cover, the split placement's L1, no XIP) and the named group run alone with the formal measurement's options (--record-budget-findings --record-share-findings), graded by the tree's record_classes.py over that group (its REFUSED lines name the arms a pass omits; only the class lines are read here)
+## base 15168e14: base-15168e14/1x1/answering-ports/part0 base-15168e14/1x1/declaring-outputs/part0
+1x1/1if reported other: the dearest 19,973 CPU cycles, 210 us by the rule, stated 250 us (declaring-outputs aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 23,726 CPU cycles, 250 us by the rule, stated 250 us (declaring-outputs aecp-fanout: command 0x000e)
+1x1/1if reported paced: the dearest 30,839 CPU cycles, 325 us by the rule, stated 315 us (declaring-outputs aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+1x1/1if held paced: the dearest 29,993 CPU cycles, 315 us by the rule, stated 315 us (answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+## head c7cfba76: head-c7cfba76/1x1/answering-ports-aecp-fanout/part0 head-c7cfba76/1x1/declaring-outputs-aecp-fanout/part0 head-c7cfba76/1x1/answering-ports-aecp-largest-notice/part0 head-c7cfba76/1x1/none-aecp-largest-notice/part0
+1x1/1if held long: the dearest 91,737 CPU cycles, 965 us by the rule, stated 975 us (none aecp-largest-notice: the largest legal command's)
+1x1/1if reported other: the dearest 20,272 CPU cycles, 215 us by the rule, stated 250 us (declaring-outputs aecp-fanout: command 0x0010)
+1x1/1if held other: the dearest 23,858 CPU cycles, 255 us by the rule, stated 250 us (declaring-outputs aecp-fanout: command 0x000e)
+1x1/1if reported paced: the dearest 30,309 CPU cycles, 320 us by the rule, stated 315 us (declaring-outputs aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+1x1/1if held paced: the dearest 29,960 CPU cycles, 315 us by the rule, stated 315 us (answering-ports aecp-fanout: REMOVE_AUDIO_MAPPINGS, paced)
+REFUSED 1x1/1if declaring-outputs aecp-fanout: a record of 23,858 CPU cycles, 255 us by the rule, over the other record's 250 us (command 0x000e)
+## head c7cfba76 8x8/1if: head-c7cfba76/8x8-1if/answering-ports-aecp-largest-notice/part0
+8x8/1if held long: the dearest 163,397 CPU cycles, 1720 us by the rule, stated 1720 us (answering-ports aecp-largest-notice: the largest legal command's)

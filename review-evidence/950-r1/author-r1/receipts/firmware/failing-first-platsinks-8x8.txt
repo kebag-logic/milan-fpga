@@ -1,0 +1,31 @@
+# the new platform tests (Streams.*, test_plat_sinks.cpp) on the unfixed tree: the base 15168e14 plus the test commit 9ed4fc95 alone, a clean clone; platsinks arm at 8x8/1if (plat_arms.arm_platsinks), --gtest_filter='Streams.*'
+# each distinct failure's words, with its count
+      1 [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+      1 [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 8
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 0
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 1
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 2
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 3
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 4
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 5
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 6
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 7
+      1 [FAIL] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile: S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once acknowledged: output 8
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 1, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 2, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 3, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 4, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 5, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 6, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 7, declaration 1
+      2 [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 8, declaration 1
+# the tests
+[  FAILED  ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile (4 ms)
+[  FAILED  ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile (14 ms)
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered (110 ms)
+[  FAILED  ] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile
+[  FAILED  ] Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile
+[  FAILED  ] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered
+== ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 3   failures: 3 ==
+RESULT: FAIL

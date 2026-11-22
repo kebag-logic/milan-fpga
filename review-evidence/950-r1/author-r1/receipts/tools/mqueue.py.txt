@@ -1,0 +1,40 @@
+"""mqueue.py REV [POINT...]: launch the full re-measure's unit chunks at REV that are not yet launched, one per free
+8-CPU range cpu_ranges.py picks, until none is free; each chunk a unit milan-950-a811-m-<point>-<arm>-<first> (MemoryMax
+12G). The arms and their parts are the train's full re-measure's (launch6.sh: every arm the harness holds, 64 parts a
+point), each split into chunks of at most 8 parts, the first chunk of an arm building it."""
+import subprocess, sys
+from pathlib import Path
+T = Path('<scratch>')
+rev, points = sys.argv[1], sys.argv[2:] or ['1x1', '8x8-1if']
+ARMS = (('none', 22), ('answering-ports', 22), ('answering-every-port', 6), ('valid-destinations', 3),
+        ('answering-later', 3), ('shutdown-entry', 2), ('talker-notices', 2), ('declaring-outputs', 4))
+clone = T / f'clones/meas-{rev}'
+launched = 0
+#: 8x8/1if's arms of its tightest statements first (valid-destinations' srp-talker-held, answering-later's
+#: notice-retried, the AECP groups), then the rest
+FIRST = ('valid-destinations', 'answering-later', 'declaring-outputs', 'answering-ports')
+for p in points:
+    order = ARMS if p == '1x1' else tuple(sorted(ARMS, key=lambda a: FIRST.index(a[0]) if a[0] in FIRST else 9))
+    for arm, n in order:
+        build = T / f'meas/full-{rev}/{p}/{arm}'
+        for first in range(0, n, 8):
+            last = min(first + 7, n - 1)
+            name = f'm-{p}-{arm}-{first}'
+            marker = T / f'meas/full-{rev}/{p}/{arm}.chunk{first}.launched'
+            if marker.exists():
+                continue
+            pick = subprocess.run(['python3', '<tools>/cpu_ranges.py', 'pick'],
+                                  capture_output=True, text=True)
+            cpus = pick.stdout.strip()
+            if pick.returncode or not cpus:
+                print(f'no free range; {launched} launched this call'); sys.exit(0)
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            args = [str(T / 'tools/mchunk.sh'), str(clone), str(build), p, arm, str(n), str(first), str(last)]
+            if first == 0:
+                args.append('build')
+            env = {'BG_CPUS': cpus, 'BG_MEM': '12G'}
+            subprocess.run(['bash', str(T / 'bin/bgunit.sh'), name, str(T), str(T / f'meas/full-{rev}/{p}/{arm}.chunk{first}.log'), 'bash', *args],
+                           env={**__import__('os').environ, **env}, check=True)
+            marker.write_text(cpus + '\n')
+            launched += 1
+print(f'all chunks launched; {launched} this call')

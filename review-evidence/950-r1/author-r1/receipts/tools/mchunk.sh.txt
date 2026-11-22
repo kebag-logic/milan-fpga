@@ -1,0 +1,19 @@
+#!/bin/bash
+# mchunk.sh CLONE BUILD POINT VARIANT NPARTS FIRST LAST [build]: one unit's share of an arm of the full CPU re-measure
+# at a point, the train's formal measurement (legs.py, its options): with "build", the arm's build and its parts.json
+# (legs.py build: CPU regions cover, the split placement's L1, NPARTS parts balanced by simulated time) first; then
+# parts FIRST..LAST at once, one group at a time each (legs.py run, run.py --reuse-build), each its log and status.
+set -u
+T=<scratch>; . $T/bin/env.sh
+export MAKEFLAGS="-j4 --no-print-directory" PYTHONUNBUFFERED=1
+C=$1 B=$2 P=$3 V=$4 N=$5 F=$6 L=$7 MODE=${8:-}
+mkdir -p $B
+echo "HEAD $(git -C $C rev-parse HEAD) dirty $(git -C $C status --porcelain --untracked-files=no | wc -l) $P $V parts $F-$L of $N $MODE start $(date +%T)"
+if [ "$MODE" = build ]; then
+  python3 -B $T/tools/legs.py build $C $B $P $V $N > $B.build.log 2>&1 || { echo "build rc=$?"; exit 3; }
+  tail -1 $B.build.log
+fi
+for k in $(seq $F $L); do
+  ( python3 -B $T/tools/legs.py run $C $B $P $V $k 1 > $B.part$k.log 2>&1; echo $? > $B.part$k.rc; echo "part $k rc=$(cat $B.part$k.rc) $(date +%T)" ) &
+done
+wait; echo "END $(date +%T)"

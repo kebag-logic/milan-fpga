@@ -1,0 +1,14 @@
+# the core change's code shapes, each the same behaviour, measured at 1x1/1if on the two groups of its tightest statements: the held paced record (answering-ports aecp-fanout; 315 us holds 30,000 cycles) and the held other record (declaring-outputs aecp-fanout; 250 us holds 23,809); each a scratch commit on a clean clone, built and run as the probes are (tight-probes-1x1-8x8.txt). Sizes from the linked answering-ports image (nm -S).
+| shape | aecp_poll bytes | aecp_again | aecp_redo | refuse | .text | paced | other |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| base 15168e14 | 1060 | - | - | 148 | 105384 | 29,993 | 23,726 |
+| f22c1454 (from the held bytes) | 1080 | 116 | - | 148 | 105520 | 30,107 | 23,380 |
+| B (aecp_poll's size kept; aecp_redo) | 1060 | 116 | 92 | 184 | 105628 | 30,224 | 23,423 |
+| B, noted body | 1060 | 40 | 92 | 184 | 105552 | 30,062 | - |
+| c7cfba76 (noted body) | 1080 | 40 | - | 148 | 105444 | 29,960 | 23,858 |
+| noted body after any_running | 1080 | 40 | - | 148 | 105444 | 29,960 | 23,858 |
+| noted body at the file's end | 1080 | 40 | - | 148 | 105444 | 29,960 | 23,857 |
+| noted check, held indices | 1080 | 104 | - | 148 | 105508 | 30,107 | 23,400 |
+| held command, noted indices | 1080 | 52 | - | 148 | 105456 | 30,029 | 23,453 |
+
+# the other placements of the noted body (before aecp_name_offset, aecp_scalar_validate, counters, avb, lock, reboot) measure as after any_running: paced 29,960, other 23,857 or 23,858 (a function's place inside its object moves nothing after the object)

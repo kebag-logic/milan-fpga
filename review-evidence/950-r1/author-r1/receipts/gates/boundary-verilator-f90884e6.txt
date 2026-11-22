@@ -1,0 +1,109 @@
+# firmware-verilator: ctrl_boundary.py --require-rv32 --selftest --only verilator, the LiteX venv's python3, pinned Verilator 5.050, on a clean clone of f90884e6
+HEAD f90884e6 start 17:56:23: ctrl_boundary.py --require-rv32 --selftest --only verilator (the LiteX venv's python3, pinned Verilator 5.050)
+    make -C tb/verilator/mbx: exit 0 (272 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (359 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (806 s)
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (15 s)
+    ctrl_image_selftest.py: exit 0 (41 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (6 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (8 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (14 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (6 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (9 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (14 s)
+    ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 1 interface(s): exit 2, stopped at its link (17 s)
+    ctrl_plat_image.py endstation_ax7101_1x1_tdm8, 2 interface(s): exit 2, stopped at its link (16 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (6 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (8 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (15 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (7 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (8 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (16 s)
+    ctrl_plat_image.py endstation_ax7101_8x8, 1 interface(s): exit 2, stopped at its link (18 s)
+    ctrl_plat_image.py endstation_ax7101_8x8, 2 interface(s): exit 2, stopped at its link (16 s)
+[ok] boundary control the capture holds nothing of the AECP wire comparison: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check shape 1 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check shape 8 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check shape 1 ('--build-only',), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check, another revision checked out: exit 2: REFUSED: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make ci-prepare, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-sidmove8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-sidmove8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-fw, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-sidmove, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make srptx-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin-af, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-sidmove, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-maps, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make srptx, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-f5, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-twin-sp, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-split, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make split-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make twin-maps-plants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 715589c1: include/wire.h
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 1240 compiled sources of 1380 recorded invocations (556 the firmware's, 106 the stack's, 578 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 185 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+rc=0 end 18:34:49

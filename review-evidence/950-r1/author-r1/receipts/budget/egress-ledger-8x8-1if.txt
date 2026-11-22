@@ -1,0 +1,25 @@
+# egress_ledger.py --point 8x8-1if (287ca1ee's harness) over the full re-measure's two parts that run backlog-owed at 8x8/1if (c7cfba76's images): arm A's part3 and the answering-ports arm's part3; then --selftest
+## answering-ports/part3
+# 8x8-1if: the rows the egress decides against their ledger; 45 instance(s) read (45 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.14777 | 63.86 | -0.71223 | yes |
+| `backlog.owed_behind0.if0` | 63.36911 | 64.1 | -0.73089 | yes |
+| `backlog.owed_behind1.if0` | 63.58978 | 64.36 | -0.77022 | yes |
+| `backlog.owed_behind2.if0` | 63.81080 | 64.61 | -0.79920 | yes |
+| `backlog.owed_behind3.if0` | 64.07493 | 64.86 | -0.78507 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.10500 | 62.62 | -0.51500 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.78369 | 62.16 | -0.37631 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+## none/part3
+# 8x8-1if: the rows the egress decides against their ledger; 45 instance(s) read (45 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.24231 | 63.86 | -0.61769 | yes |
+| `backlog.owed_behind0.if0` | 63.44943 | 64.1 | -0.65057 | yes |
+| `backlog.owed_behind1.if0` | 63.65588 | 64.36 | -0.70412 | yes |
+| `backlog.owed_behind2.if0` | 63.86268 | 64.61 | -0.74732 | yes |
+| `backlog.owed_behind3.if0` | 64.06795 | 64.86 | -0.79205 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.25367 | 62.62 | -0.36633 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.60278 | 62.16 | -0.55722 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss

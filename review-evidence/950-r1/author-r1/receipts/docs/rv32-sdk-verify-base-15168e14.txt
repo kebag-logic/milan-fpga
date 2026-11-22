@@ -1,0 +1,4 @@
+# the docs workflow's 'Install and verify the pinned RV32 SDK' step's two commands on a clean clone of the base 15168e14 (python3 scripts/ci_rv32_sdk_selftest.py; scripts/ci_rv32_sdk.py --destination $HOME/br-milan-rv32/host): the same refusal as at the head, this host's SDK has no provenance receipt
+selftest rc=0
+ValueError: missing regular SDK provenance receipt; incomplete install
+verify rc=1

@@ -1,0 +1,29 @@
+# the release (all-fabric) image, base 15168e14 against head c7cfba76: endstation_builder.py <config>, then milan_soc.py with the argv it emits and its software compiled, no gateware (release_image.sh), at the shipping 1x1 and at 8x8; sha256 of bios.bin and bios.elf, the ELF's disassembly and the ELF with debug sections stripped
+## base 15168e14
+head 15168e14a1fe709b9ab5336acd6daf54e4d6e0a4 porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 8 porcelain-after 0
+6d1fbefdb38dadb9caaafd8e761eef13b2938d7674ed88912a8f8150b309475d  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+9190fc470e2ae78ed562c2974a5f3298c2810e7ac6ece98749c23189d55bceaf  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf
+61bcefb4d990f4fade512315eb22ea6dc24ec16bdca8c8982ccf0c65848d751d  ./endstation_ax7101_8x8/software/bios/bios.bin
+1206b9753c22a32b6c6af219a2a9e72617faa3346862e50ef53a4b6cd082a68e  ./endstation_ax7101_8x8/software/bios/bios.elf
+f18b4bc22974c24dce849a84a1240a7cfc55eab2e540f5cb23187ceb6981bff7  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+bd3822306ecdf633c2642a1031b70371854d96e25ff1931c6ba42a38d3fb8800  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf.stripped (debug sections stripped)
+242d7f725708b33f2cf7cb6656d4e3eea6ffc81f63e6f39c4300f73bcc59d498  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+01debe77bbe2cf5402ab2870e9c5d444e8ba26fd580ab276ef025138a98ec7f0  ./endstation_ax7101_8x8/software/bios/bios.elf.stripped (debug sections stripped)
+## head c7cfba76
+head c7cfba76582b83675d1920f0e23e98d75beca52b porcelain 0
+endstation_ax7101_1x1_tdm8 rc=0
+endstation_ax7101_8x8 rc=0
+images 8 porcelain-after 0
+6d1fbefdb38dadb9caaafd8e761eef13b2938d7674ed88912a8f8150b309475d  ./endstation_ax7101_1x1_tdm8/software/bios/bios.bin
+e7c7bd44d85bc1f9ad7757f9bb8afb3b05935b15712030d6a17060a01f22e0fb  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf
+61bcefb4d990f4fade512315eb22ea6dc24ec16bdca8c8982ccf0c65848d751d  ./endstation_ax7101_8x8/software/bios/bios.bin
+7faedf29d24eb0959c5262360d24e1d50dff89cab412dbe5ebf1844689402380  ./endstation_ax7101_8x8/software/bios/bios.elf
+f18b4bc22974c24dce849a84a1240a7cfc55eab2e540f5cb23187ceb6981bff7  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf (disassembly)
+bd3822306ecdf633c2642a1031b70371854d96e25ff1931c6ba42a38d3fb8800  ./endstation_ax7101_1x1_tdm8/software/bios/bios.elf.stripped (debug sections stripped)
+242d7f725708b33f2cf7cb6656d4e3eea6ffc81f63e6f39c4300f73bcc59d498  ./endstation_ax7101_8x8/software/bios/bios.elf (disassembly)
+01debe77bbe2cf5402ab2870e9c5d444e8ba26fd580ab276ef025138a98ec7f0  ./endstation_ax7101_8x8/software/bios/bios.elf.stripped (debug sections stripped)
+## verdict
+IDENTICAL image: bios.bin, the ELF's disassembly and the ELF with its debug sections stripped are equal at both configs; the whole bios.elf differs only in its debug sections, which record each clone's own build path (the two clones sit at different paths)

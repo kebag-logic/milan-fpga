@@ -1,0 +1,28 @@
+"""place_again.py <clone> <before>: move aecp_again (its comment and body) in aecp_commands.c of a clean clone of the
+lane head to just before the definition line of function <before> ('END' for the file's end), then commit (scratch)."""
+import re, subprocess, sys
+from pathlib import Path
+clone, before = Path(sys.argv[1]), sys.argv[2]
+p = clone / 'sw/firmware/ctrl/aecp/aecp_commands.c'
+s = p.read_text()
+start = s.index('// The checks a waiting command makes again once the platform applied it')
+end = s.index('}\n', s.index('unsigned aecp_again(struct aecp *a)')) + 2
+block = s[start:end]
+s = s[:start] + s[end:].lstrip('\n')
+if before == 'END':
+    s = s.rstrip('\n') + '\n\n' + block
+else:
+    m = re.search(r'^(static )?[a-z][a-z_ *]* \**' + re.escape(before) + r'\(', s, re.M)
+    assert m, before
+    # above the comment lines that lead the definition
+    i = m.start()
+    while True:
+        j = s.rfind('\n', 0, i - 1) + 1
+        if s[j:i].startswith('//'):
+            i = j
+        else:
+            break
+    s = s[:i] + block + '\n' + s[i:]
+p.write_text(s)
+subprocess.run(['git', '-C', str(clone), '-c', 'user.name=scratch', '-c', 'user.email=scratch@invalid', 'commit', '-qam',
+                f'aecp_again before {before} (scratch)'], check=True)

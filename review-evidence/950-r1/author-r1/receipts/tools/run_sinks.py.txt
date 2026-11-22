@@ -1,0 +1,29 @@
+"""run_sinks.py <tree-root> <out> <shape: 8x8|1x1> [gtest filter]: build the platsinks arm (plat_arms.arm_platsinks) of
+the tree at <tree-root> for one shape, then run its binary with the filter; prints the log tail and exits with its rc."""
+import subprocess, sys
+from pathlib import Path
+root, out, shape = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(), sys.argv[3]
+flt = sys.argv[4] if len(sys.argv) > 4 else "*"
+test = root / "sw/firmware/ctrl/test"
+sys.path.insert(0, str(test))
+from ctrl_build import CTRL, STACK, Tree  # noqa: E402
+import fw_gtest  # noqa: E402
+import plat_arms  # noqa: E402
+from ctrl_build import CTRL, STACK, Tree  # noqa: E402
+cfg, n = {"8x8": (root / "configs/endstation_ax7101_8x8.yaml", 7),
+          "1x1": (root / "configs/endstation_ax7101_1x1_tdm8.yaml", 0)}[shape]
+tree = Tree(CTRL, out, out / "reuse", fw_gtest.Build(coverage=False, address_sanitizer=False, jobs=8), STACK)
+try:
+    outcome = plat_arms.arm_platsinks(tree, cfg, n)
+except Exception as exc:  # a refusal: the build's own words
+    print(f"REFUSED: {exc}")
+    raise SystemExit(2)
+exe = next(out.rglob(f"test_plat_sinks_{cfg.stem}"))
+r = subprocess.run([str(exe), f"--gtest_filter={flt}"], capture_output=True, text=True)
+Path(str(out) + ".stdout.txt").write_text(r.stdout)
+print(r.stdout[:6000])
+print("...")
+print(r.stdout[-6000:])
+print(r.stderr[-4000:])
+print(f"filtered rc={r.returncode} (whole arm rc={outcome.rc})")
+raise SystemExit(r.returncode)

@@ -1,0 +1,18 @@
+# the control campaign's rows this lane adds (#950, #954) and plat-source-past-count (its anchor's function changed), each planted alone through ctrl_mutants.campaign, lane tree at f22c1454's code; the whole table names every test (unnamed_tests over the whole table: [])
+tests the whole table names none of: []
+[ok] mutant plat-source-past-count (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a source past the reported count has no destination
+[ok] mutant again-unchecked-onto-a-stream (platsinks8, platsinks8, platsinks1, platsinks1): 30 check(s) failed
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 0
+[ok] mutant again-of-stream-zero (platsinks1, platsinks1): 4 check(s) failed
+    first: [FAIL] Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile: S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once acknowledged: input 1
+[ok] mutant asking-failed-any-listener (platsinks8): 18 check(s) failed
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 2
+[ok] mutant asking-failed-without-a-listener (platsinks8): 306 check(s) failed
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no REGISTERING_FAILED with no Listener registered: output 0
+[ok] mutant asking-failed-of-output-zero (platsinks8): 32 check(s) failed
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 no other output carries output 0's Listener: output 1, Asking Failed
+# asking-failed-unreported, as first planted, escaped on a compile refusal (srp unused); planted again with the variable kept:
+[ok] mutant asking-failed-unreported (platsinks8, platsinks1): 22 check(s) failed
+    first: [FAIL] Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered: T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or Ready Failed (Table 5.47): output 0, declaration 1
+mutants: 1 of 1 caught

@@ -1,0 +1,32 @@
+# python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 3/4 --jobs 4 on a clean clone of 287ca1ee (the final head): its head, verdict and campaign lines, and the lines of this lane's plants; 543 planted defects caught ([ok]) and 0 escaped in this shard
+HEAD 287ca1ee start 00:59:26
+PASS: 1856 live invocations in exactly one shard; shard sizes [88, 833, 393, 542]
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] reclaim-forgotten-while-owed: ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame / a reclaim lwSRP refused for the held frame is owed after it
+[ok] transmit-attaches-over-a-bound-client: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / a loop whose THE TRANSMIT client is bound is refused
+[ok] transmit-declares-beside-a-retained-receive: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / a refused adoption takes no room a retained receive waits for
+[ok] transmit-refusal-tried-no-more: DomainExhaustionPreservesOldDeclarationUntilRetry / a refused declaration is tried again when the join count ends
+[ok] retry-tick-never-set: SrpRetry.RefusedRecordIsRetriedOnlyAfterAChangeAndAtMostOnceACentisecond / a refused record is taken on the first pass after the pool frees
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-notice-refused-swap-noticed: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-notice-refused-swap-noticed: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+test_ctrl_firmware: PASS
+rc=0 end 01:41:37

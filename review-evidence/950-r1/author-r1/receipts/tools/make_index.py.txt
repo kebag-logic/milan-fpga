@@ -1,0 +1,30 @@
+# (receipt copy: the host-path literals this tool scrubs are masked as <data-2>, <data>, <tmp>, <home>)
+#!/usr/bin/env python3
+"""make_index.py <receipts dir> [title]: INDEX.md from the files present (path, bytes, sha256 prefix, first line); refuses a
+file over 200 KB or one carrying a host path."""
+import hashlib
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+HOST = ("<data-2>/", "<data>/milan", "<home>", "<tmp>/950a811")
+rows, bad = [], []
+for p in sorted(x for x in root.rglob("*") if x.is_file() and x.name != "INDEX.md"):
+    data = p.read_bytes()
+    rel = p.relative_to(root).as_posix()
+    if len(data) > 200 * 1024:
+        bad.append(f"{rel}: {len(data)} bytes, over 200 KB")
+    text = data.decode("utf-8", "replace")
+    for h in HOST:
+        if h in text:
+            bad.append(f"{rel}: carries a host path ({h})")
+    first = next((l for l in text.splitlines() if l.strip()), "").replace("|", "/")[:110]
+    rows.append(f"| `{rel}` | {len(data)} | `{hashlib.sha256(data).hexdigest()[:16]}` | {first} |")
+if bad:
+    sys.exit("REFUSED:\n" + "\n".join(bad))
+(root / "INDEX.md").write_text(
+    "# " + (sys.argv[2] if len(sys.argv) > 2 else "Receipts index (#950 and #954 round 1)") + "\n\n"
+    "Generated from the files present by make_index.py. Host paths are replaced by `<lane>`, `<scratch>`, `<home>`, "
+    "`<tools>` and `<tmp>`. Each row: path, size, sha256 prefix, first line.\n\n"
+    "| File | Bytes | sha256 | First line |\n|---|---:|---|---|\n" + "\n".join(rows) + "\n")
+print(f"INDEX.md: {len(rows)} files")

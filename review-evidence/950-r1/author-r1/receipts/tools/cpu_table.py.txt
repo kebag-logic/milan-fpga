@@ -1,0 +1,25 @@
+"""cpu_table.py <head compare-ordinary> <base compare-ordinary> <point> <head> <base>: the statement survey's table at
+the head beside the base's measured figure for the same statement (keyed on the cost and the statement's text before
+its ';'), as the train's CPU tables give it; Markdown on stdout."""
+import re, sys
+head_f, base_f, point, head, base = sys.argv[1:6]
+ROW = re.compile(r'^(\S+)\s+([\d,]+)\s+([\d.]+)\s+(\d+)\s+(\d+)\s+(\w+)\s+(.*)$')
+def rows(path):
+    out = []
+    for line in open(path):
+        m = ROW.match(line.rstrip('\n'))
+        if m:
+            cost, cyc, _, rule, stated, verdict, rest = m.groups()
+            what, _, where = rest.partition(';')
+            out.append((cost, int(cyc.replace(',', '')), int(rule), int(stated), verdict, what.strip(), where.strip()))
+    return out
+h, b = rows(head_f), rows(base_f)
+prev = {(r[0], r[5]): r[1] for r in b}
+over = sum(1 for r in h if r[4] != 'within')
+print(f'## {point}\n\n{over} of {len(h)} statements exceeded.\n')
+print(f'| Cost | Measured, cycles | `{base}` | Rule, us | Stated, us | Verdict | Statement; where |')
+print('|---|---:|---:|---:|---:|---|---|')
+for cost, cyc, rule, stated, verdict, what, where in h:
+    p = prev.get((cost, what))
+    print(f'| {cost} | {cyc:,} | {p:,} | {rule} | {stated} | {verdict} | {what}; {where} |' if p is not None else
+          f'| {cost} | {cyc:,} | - | {rule} | {stated} | {verdict} | {what}; {where} |')

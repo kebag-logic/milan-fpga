@@ -1,0 +1,9 @@
+# the new core test on the unfixed core: base 15168e14 plus the test commit 9ed4fc95 alone; aecp_arms.py --app --interfaces 2 --config endstation_ax7101_1x1_tdm8 (the AECP campaign's arm) --filter 'Core.AWaitingFormatChange*'
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: a refused waiting SET_STREAM_FORMAT stays undone: STREAM_INPUT 0, bound meanwhile
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: a waiting SET_STREAM_FORMAT makes its running check again once applied: STREAM_INPUT 0, bound meanwhile
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: status for command 8
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0, bound meanwhile: one final response, no notification
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0: the change waits
+      1 [FAIL] Core.AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied: STREAM_INPUT 0: the check is made again
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

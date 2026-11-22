@@ -1,0 +1,26 @@
+# each arm's CPU-budget image (ctrl_app.elf sha256, 16 hex) at the head's full re-measure (c7cfba76) and the train's measured image; the base 15168e14 builds the train's (1x1/1if: answering-ports and declaring-outputs; 8x8/1if: none and answering-ports, legs.py build on a clean clone of the base)
+1x1 answering-every-port head 98b26cab6be33586 train 3514124c76ee6886
+1x1 answering-later head 75a690be56ddc9ba train 633aa1c3b0ba1668
+1x1 answering-ports head a3b41a92548b543b train 125ea3309dff1a42
+1x1 declaring-outputs head 501b185c87a2ba3a train 5bda727f7e88a456
+1x1 none head 4e49e9530e73418d train 1d38aa279c0ef4d2
+1x1 shutdown-entry head 7762e5c21ac5a1ca train 22848ab3a41ea962
+1x1 talker-notices head 094a8c9dc5ff8a5e train 590d512b6f039afe
+1x1 valid-destinations head 014ed2374cf8c82e train 0ef0bb72fe64b722
+8x8-1if answering-every-port head 04f4562818336556 train 678a116855e94bf5
+8x8-1if answering-later head 53eab00abe984533 train 8c15860de5a2441e
+8x8-1if answering-ports head e80ac321b98dda12 train a69e9773300aa49f
+8x8-1if declaring-outputs head b5abd78ccd2ae8fd train 708e577b986ea57f
+8x8-1if none head f3d8ade8410059f1 train d4dee38514018583
+8x8-1if shutdown-entry head 09add36a0fc897fb train cafe933093481812
+8x8-1if talker-notices head a196d875769f8cbd train 17cc688efb581da5
+8x8-1if valid-destinations head 8e665cc6fbd06767 train 717afd504c22f197
+## base 15168e14 builds
+1x1 answering-ports base 125ea3309dff1a42
+1x1 declaring-outputs base 5bda727f7e88a456
+8x8-1if none base d4dee38514018583
+8x8-1if answering-ports base a69e9773300aa49f
+## the final head 287ca1ee builds (legs.py build, a clean clone): byte-identical to the measured images
+1x1 answering-ports final a3b41a92548b543b measured a3b41a92548b543b
+8x8-1if none final f3d8ade8410059f1 measured f3d8ade8410059f1
+1x1 declaring-outputs final 501b185c87a2ba3a measured 501b185c87a2ba3a

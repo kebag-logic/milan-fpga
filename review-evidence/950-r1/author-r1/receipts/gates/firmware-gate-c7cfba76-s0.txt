@@ -1,0 +1,10 @@
+# python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 0/4 --jobs 4 on a clean clone of c7cfba76 (the final firmware): its head, verdict and campaign lines, and the lines of this lane's plants; 88 planted defects caught ([ok]) and 0 escaped in this shard
+HEAD c7cfba76 start 14:47:05
+PASS: 1856 live invocations in exactly one shard; shard sizes [88, 833, 393, 542]
+    SRP refused receive bound: 1 accesses, bound 1
+    SRP refused receive bound: 1 accesses, bound 1
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_r (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+test_ctrl_firmware: PASS
+rc=0 end 15:20:18
