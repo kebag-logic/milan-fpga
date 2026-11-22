@@ -6043,11 +6043,16 @@ def _plan_ports(cfg):
           f"| {pool} | {prim} |")
     a("")
     ph = i["physical_channels"]
+    names = ["`Virtual`", "`Pilot Tone`", "`Loopback S<s> ch <c>`"]
+    # #584: `Unrouted S<p>` is listed where a config has one, so every other
+    # config's plan is unchanged
+    if any(g["role"] == "unrouted" for p in cfg["ports_in"] for g in p["pool"]):
+        names.append("`Unrouted S<p>`")
     a(f"Physical audio channels the BOARD routes: {ph['capture']} capture / "
       f"{ph['render']} render (`audio_interface.physical_channels`; default = "
       f"the {i['channels']}-channel `{i['kind']}` interface width). Clusters "
       "past that are non-physical by construction and are named for what they "
-      "ARE - `Virtual`, `Pilot Tone`, `Loopback S<s> ch <c>` - so a "
+      f"ARE - {', '.join(names)} - so a "
       "controller operator can tell a live source from a dead slot.")
     a("")
     return ln
