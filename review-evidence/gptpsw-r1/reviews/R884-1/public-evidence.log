@@ -1,0 +1,785 @@
+Public author evidence commit dc64b04aef437e6b15071781f08c62a077827262
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/gates/SUMMARY.txt sha256 aeafa5b47f324589798d11385c9a49f8eb5d8965878fc663ab3f653d7d7333c6 bytes 7359
+head f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 status 0 base 59b098841b1e2826aaf7a38b557faa5345f91c82
+wire_accountability                rc=0  RESULT: PASS
+docs_check                         rc=0  docs_check: 0 finding(s) across 225 md files + 1935 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+feature_status                     rc=0  feature_status: 0 finding(s)
+feature_status_st                  rc=0  feature_status: 0 finding(s)
+hdl_reference_st                   rc=0  HDL reference self-test: 44/44 arms passed
+hdl_reference                      rc=0  Wrote: $SCRATCH/gates11/hdl-reference/index.html
+em_dash                            rc=0  check_em_dash: 0 finding(s) over 424 added line(s) in 15 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [59b09884..HEAD]
+em_dash_st                         rc=0  check_em_dash selftest: PASS (339 arm(s))
+doc_style                          rc=0  documentation style: OK (25 current documents)
+doc_style_st                       rc=0  documentation style selftest: OK
+gptp_docs                          rc=0  gPTP documentation: OK (8 current pages)
+gptp_docs_st                       rc=0  gPTP documentation selftest: OK (30 controls)
+gptp_docs_sub                      rc=0  gPTP documentation: OK (8 current pages, donor checkout verified)
+solution_docs                      rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+solution_docs_st                   rc=0  solution documentation selftest: OK (47 mutation controls)
+submodule_docs                     rc=0  submodule documentation: OK (6 exact gitlinks)
+submodule_docs_st                  rc=0  submodule documentation selftest: OK (table and diagram controls)
+diagram_pngs                       rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+control_flow_st                    rc=0  45 checks: 45 PASS, 0 FAIL
+cohesion_st                        rc=0  18 checks: 18 PASS, 0 FAIL
+baremetal                          rc=0  baremetal-only: OK (0 findings across 1933 tracked first-party file(s))
+baremetal_st                       rc=0  baremetal-only selftest: PASS (867 arm(s))
+nvm_record_space                   rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+nvm_record_space_st                rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+nvm_capture                        rc=0  PASS: capture census, clocks, both timing arms and receipt agree
+soc_sources                        rc=0  SoC source gate: OK (48 instantiated modules all registered, 86 sources all present)
+soc_sources_st                     rc=0  25 checks: 25 PASS, 0 FAIL
+rtl_source_lists                   rc=0  RTL source-list gate: OK (114 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorde
+rtl_source_lists_st                rc=0  50 checks: 50 PASS, 0 FAIL
+naming                             rc=0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+naming_st                          rc=0  66 checks: 66 PASS, 0 FAIL
+port_contracts                     rc=0    review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hi
+port_contracts_st                  rc=0  82 checks: 82 PASS, 0 FAIL
+fail_fast                          rc=0    the ratchets can be lowered to 80, 3 and 0
+fail_fast_st                       rc=0  106 checks: 106 PASS, 0 FAIL
+todo                               rc=0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1611 first-party fil
+todo_st                            rc=0  45 checks: 45 PASS, 0 FAIL
+test_evidence                      rc=0    the mutation ratchet can be lowered to 69
+test_evidence_st                   rc=0  105 checks: 105 PASS, 0 FAIL
+test_evidence_readers              rc=0  
+hygiene                            rc=0  HYGIENE RATCHET: PASS (3 population(s), 1536 file(s))
+hygiene_st                         rc=0  35 checks: 35 PASS, 0 FAIL
+sv_idiom                           rc=0  SystemVerilog idiom gate: OK (146 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always
+sv_idiom_st                        rc=0  55 checks: 55 PASS, 0 FAIL
+cpp_idiom                          rc=0    build without warnings: 0 <= 0
+cpp_idiom_st                       rc=0  83 checks: 83 PASS, 0 FAIL
+py_idiom                           rc=0    over-long line: 0 <= 0
+py_idiom_st                        rc=0  54 checks: 54 PASS, 0 FAIL
+sh_idiom                           rc=0    top-heavy long script: 0 <= 0
+sh_idiom_st                        rc=0  48 checks: 48 PASS, 0 FAIL
+doc_paths                          rc=0  doc path gate: OK (1771 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+archive                            rc=0  archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+archive_st                         rc=0  archive selftest: OK (24 controls)
+toc_st                             rc=0  TOC selftest: PASS (1501/1501 arm(s))
+toc_anchors                        rc=0  anchor check: 759 existing cross-page fragment links reproduced
+toc                                rc=0  TOC gate: OK (161 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+docs_inventory                     rc=0  documentation inventory: OK (543 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+docs_inventory_st                  rc=0  documentation inventory selftest: OK (60 controls)
+sweep_shape_st                     rc=0    [self-test] OK: 1 drift(s) reported
+deploy_shape_st                    rc=0    [selftest] OK: 1 drift(s) reported
+entity_shape_st                    rc=0  RESULT: PASS
+register_reference                 rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+register_reference_st              rc=0  register reference selftest: OK (61/61 controls)
+gate_workflows                     rc=0  
+ci_events                          rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_st                       rc=0  selftest: PASS (2287 contract items, 5723 arms)
+lint_rtl                           rc=0  LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog                              rc=0  xvlog gate: SKIPPED (no Vivado xvlog found; set $XVLOG or install to ~/Xilinx/2026.1). A skip is not a pass.
+pp_srcs                            rc=0    prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+gen_mailbox                        rc=0  gen_mailbox: 0 finding(s)
+gen_mailbox_cross                  rc=0  gen_mailbox: 0 finding(s)
+gen_mailbox_st                     rc=0  selftest: 0 arm(s) failed
+module_matrix                      rc=0  traceability matrix up to date (85 modules, 0 untested <= ratchet 0, 0 archived)
+GATES_DONE 2026-11-22T03:52:40+01:00
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/gates/register_reference.log sha256 81b9bbcdfd5f75a96404f3b0e8f9597cfb69b829624795030ad343327ffb197d bytes 65
+register reference: fresh (203 registers, 34 modules, 240 files)
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/yosys/README.md sha256 f44e0ed2bc9c279f516886ac144d21f07a402a51ded326e8f716696f49b7a89c bytes 235
+# Yosys portability at `62fcd154`
+
+`bash syn/yosys/run.sh --shard k/4 --results <dir>` for k in 0..3, in a clean clone at `62fcd154`; 64 tops PASS (1 + 1 + 31 + 31), the tied-input inventory and tap-purity gates PASS, each shard rc 0.
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/harness/egress-ledger-8x8-1if.txt sha256 9e010d3219dafdbacb1267b5bb7f08b3806c4b191e2f4eaa4554d5da7ebac2b9 bytes 785
+# 8x8-1if: the rows the egress decides against their ledger; 78 instance(s) read (78 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.59718 | 63.86 | -0.26282 | yes |
+| `backlog.owed_behind0.if0` | 63.82228 | 64.1 | -0.27772 | yes |
+| `backlog.owed_behind1.if0` | 64.10821 | 64.36 | -0.25179 | yes |
+| `backlog.owed_behind2.if0` | 64.32461 | 64.61 | -0.28539 | yes |
+| `backlog.owed_behind3.if0` | 64.56261 | 64.86 | -0.29739 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.53484 | 62.62 | -0.08516 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.85113 | 62.16 | -0.30887 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/harness/8x8-1if/table.md sha256 afad9064649060473e3f9eaae776c35372cba1fabddafe7500a7a932ef7f6635 bytes 17567
+Last 30 lines:
+| MAAP record released under the composed load, last | `backlog-owed.service.maap.last.if0` | 452,196 | 4.522 | 20 | 50 | fits | 135,946 | 100 | 0.645 |
+| SRP record released under the composed load, first | `backlog-owed.service.srp.first.if0` | 452,130 | 4.521 | 20 | 20 | fits | 135,946 | 100 | 0.645 |
+| SRP record released under the composed load, last | `backlog-owed.service.srp.last.if0` | 818,659 | 8.187 | 20 | 20 | fits | 98,366 | 45 | 0.759 |
+| GPTP record released under the composed load, first | `backlog-owed.service.gptp.first.if0` | 164,155 | 1.642 | 10 | 10 | fits | 163,835 | 183 | 0.474 |
+| GPTP record released under the composed load, last | `backlog-owed.service.gptp.last.if0` | 449,510 | 4.495 | 10 | 10 | fits | 135,946 | 100 | 0.645 |
+| Pdelay_Req -> Pdelay_Resp (responder turnaround) | `gptp.pdelay_resp.if0` | 18,584 | 0.186 | 10 | 10 | fits | 31,412 | 16 | 0.715 |
+| Pdelay_Req -> Pdelay_Resp (responder turnaround) | `gptp.pdelay_resp.if0` | 13,045 | 0.130 | 10 | 10 | fits | 31,608 | 16 | 0.724 |
+| LINK_UP | `fixture.link_up.if0` | 2,160 | 0.022 | 20 | 200 | fits | 45,638 | 53 (11) | 0.735 |
+| malformed MRPDU discard | `fixture.malformed.if0` | 22,206 | 0.222 | 20 | 20 | fits | 22,272 | 13 | 0.671 |
+| SET_NAME fan-out to one registered controller | `fixture.set_name.if0` | 34,411 | 0.344 | 20 | 24 | fits | 48,133 | 43 | 0.760 |
+| LINK_DOWN | `fixture.link_down.if0` | 2,340 | 0.023 | 20 | 200 | fits | 38,684 | 24 (9) | 0.813 |
+| BIND_RX | `fixture.bind_rx.if0` | 20,164 | 0.202 | 20 | 20 | fits | 44,685 | 27 (77) | 0.764 |
+| TMR_DELAY, or the first TMR_NO_RESP | `fixture.tmr_no_resp1.if0` | 30,884 | 0.309 | 20 | 20 | fits | 50,519 | 40 (35) | 0.732 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | `fixture.entity_departing.if0` | 22,756 | 0.228 | 20 | 20 | fits | 29,039 | 14 (29) | 0.748 |
+| ADP record released under the composed load, first | `fixture.service.adp.first.if0` | 103,668 | 1.037 | 20 | 200 | fits | 103,772 | 83 | 0.738 |
+| ADP record released under the composed load, last | `fixture.service.adp.last.if0` | 103,668 | 1.037 | 20 | 200 | fits | 103,772 | 83 | 0.738 |
+| ACMP record released under the composed load, first | `fixture.service.acmp.first.if0` | 103,394 | 1.034 | 20 | 20 | fits | 103,772 | 83 | 0.738 |
+| ACMP record released under the composed load, last | `fixture.service.acmp.last.if0` | 103,394 | 1.034 | 20 | 20 | fits | 103,772 | 83 | 0.738 |
+| AECP record released under the composed load, first | `fixture.service.aecp.first.if0` | 103,602 | 1.036 | 20 | 24 | fits | 103,772 | 83 | 0.738 |
+| AECP record released under the composed load, last | `fixture.service.aecp.last.if0` | 103,602 | 1.036 | 20 | 24 | fits | 103,772 | 83 | 0.738 |
+| MAAP record released under the composed load, first | `fixture.service.maap.first.if0` | 103,536 | 1.035 | 20 | 50 | fits | 103,772 | 83 | 0.738 |
+| MAAP record released under the composed load, last | `fixture.service.maap.last.if0` | 103,536 | 1.035 | 20 | 50 | fits | 103,772 | 83 | 0.738 |
+| SRP record released under the composed load, first | `fixture.service.srp.first.if0` | 103,470 | 1.035 | 20 | 20 | fits | 103,772 | 83 | 0.738 |
+| SRP record released under the composed load, last | `fixture.service.srp.last.if0` | 103,470 | 1.035 | 20 | 20 | fits | 103,772 | 83 | 0.738 |
+| GPTP record released under the composed load, first | `fixture.service.gptp.first.if0` | 103,312 | 1.033 | 10 | 10 | fits | 103,772 | 83 | 0.738 |
+| GPTP record released under the composed load, last | `fixture.service.gptp.last.if0` | 103,312 | 1.033 | 10 | 10 | fits | 103,772 | 83 | 0.738 |
+
+Bounded waits that timed out (the probe is graded on what the log holds):
+
+- none
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/harness/8x8/table.md sha256 7dcc2fa170e3e58e2c3f467c3a6cf5c822d9e37b00dd9bc20950ce3ebdfebad1 bytes 14219
+Last 30 lines:
+| AECP record released under the composed load, last | `backlog-adp-refill.service.aecp.last.if1` | 325,864 | 3.259 | 20 | 24 | fits | 163,006 | 207 | 0.441 |
+| MAAP record released under the composed load, first | `backlog-adp-refill.service.maap.first.if0` | 325,798 | 3.258 | 20 | 50 | fits | 163,006 | 207 | 0.441 |
+| MAAP record released under the composed load, last | `backlog-adp-refill.service.maap.last.if0` | 645,389 | 6.454 | 20 | 50 | fits | 158,892 | 143 | 0.422 |
+| SRP record released under the composed load, first | `backlog-adp-refill.service.srp.first.if0` | 783,153 | 7.832 | 20 | 20 | fits | 126,820 | 87 | 0.614 |
+| SRP record released under the composed load, last | `backlog-adp-refill.service.srp.last.if1` | 1,321,946 | 13.219 | 20 | 20 | fits | 59,620 | 22 | 0.791 |
+| GPTP record released under the composed load, first | `backlog-adp-refill.service.gptp.first.if0` | 322,296 | 3.223 | 10 | 10 | fits | 163,006 | 207 | 0.441 |
+| GPTP record released under the composed load, last | `backlog-adp-refill.service.gptp.last.if1` | 779,047 | 7.790 | 10 | 10 | fits | 126,820 | 87 | 0.614 |
+| a response with 7 frames owed ahead of it | `backlog.owed.if0` | 6,379,411 | 63.794 | 20 | 20 | MISS ceiling | 26,765 | 15 | 0.554 |
+| an ACMP command behind the owed input | `backlog.owed_behind0.if0` | 6,405,919 | 64.059 | 20 | 20 | MISS ceiling | 26,013 | 15 | 0.439 |
+| an ACMP command behind the owed input | `backlog.owed_behind1.if0` | 6,431,774 | 64.318 | 20 | 20 | MISS ceiling | 25,912 | 15 | 0.455 |
+| an ACMP command behind the owed input | `backlog.owed_behind2.if0` | 6,457,654 | 64.577 | 20 | 20 | MISS ceiling | 25,956 | 15 | 0.455 |
+| an ACMP command behind the owed input | `backlog.owed_behind3.if0` | 6,483,412 | 64.834 | 20 | 20 | MISS ceiling | 25,821 | 15 | 0.472 |
+| ADP record released under the composed load, first | `backlog-owed.service.adp.first.if0` | 178,097 | 1.781 | 20 | 200 | fits | 163,006 | 193 | 0.433 |
+| ADP record released under the composed load, last | `backlog-owed.service.adp.last.if1` | 494,578 | 4.946 | 20 | 200 | fits | 158,299 | 115 | 0.452 |
+| ACMP record released under the composed load, first | `backlog-owed.service.acmp.first.if0` | 172,627 | 1.726 | 20 | 20 | fits | 163,006 | 193 | 0.433 |
+| ACMP record released under the composed load, last | `backlog-owed.service.acmp.last.if0` | 6,249,593 | 62.496 | 20 | 20 | MISS ceiling | 45,379 | 46 | 0.632 |
+| AECP record released under the composed load, first | `backlog-owed.service.aecp.first.if0` | 177,415 | 1.774 | 20 | 24 | fits | 163,006 | 193 | 0.433 |
+| AECP record released under the composed load, last | `backlog-owed.service.aecp.last.if1` | 6,208,848 | 62.088 | 20 | 24 | MISS ceiling | 155,997 | 165 | 0.372 |
+| MAAP record released under the composed load, first | `backlog-owed.service.maap.first.if0` | 176,359 | 1.764 | 20 | 50 | fits | 163,006 | 193 | 0.433 |
+| MAAP record released under the composed load, last | `backlog-owed.service.maap.last.if0` | 493,060 | 4.931 | 20 | 50 | fits | 158,299 | 115 | 0.452 |
+| SRP record released under the composed load, first | `backlog-owed.service.srp.first.if0` | 616,917 | 6.169 | 20 | 20 | fits | 123,923 | 39 | 0.802 |
+| SRP record released under the composed load, last | `backlog-owed.service.srp.last.if1` | 1,019,152 | 10.192 | 20 | 20 | fits | 49,084 | 18 | 0.815 |
+| GPTP record released under the composed load, first | `backlog-owed.service.gptp.first.if0` | 173,769 | 1.738 | 10 | 10 | fits | 163,006 | 193 | 0.433 |
+| GPTP record released under the composed load, last | `backlog-owed.service.gptp.last.if1` | 613,723 | 6.137 | 10 | 10 | fits | 123,923 | 39 | 0.802 |
+| Pdelay_Req -> Pdelay_Resp (responder turnaround) | `gptp.pdelay_resp.if0` | 19,030 | 0.190 | 10 | 10 | fits | 37,639 | 18 | 0.752 |
+| Pdelay_Req -> Pdelay_Resp (responder turnaround) | `gptp.pdelay_resp.if0` | 26,560 | 0.266 | 10 | 10 | fits | 37,687 | 18 | 0.745 |
+
+Bounded waits that timed out (the probe is graded on what the log holds):
+
+- none
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/harness/selftest/README.md sha256 d749f4f6966807166dface5303485ecf2d60091705915dfa2be96ccd34ec545e bytes 529
+# The harness self-test at `62fcd154`
+
+`python3 -B tb/verilator/ctrl_service_budget/run.py --self-test` in a clean clone at `62fcd154`; `f15b3a7d` after it changes only the closed loop's Makefile, none of the harness's inputs. `run-self-test.log` keeps its PASS/FAIL, MUTANT and verdict lines; the CONTROL lines are dropped (the full log is in LARGE.txt).
+
+Checks: 1017 PASS, 0 FAIL. Mutants: 298 caught, 0 escaped (round 2's 297 and "grade: a burst stated an interface held at one interface's"). Verdict: self-test: 0 failures.
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/closedloop/make-gptp_sw.log sha256 59544b10201f29891362a3744871b297531e830866f07db7a9aabfa50825eda9 bytes 6074
+wrote <scratch>/gsw-obj3/gen/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gsw-obj3/gen/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gsw-obj3/gen/mbx_contract.h (2 interfaces)
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:98:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   98 | module timestamp_counter #(
+      |        ^~~~~~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/common/cdc_handshake.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module cdc_handshake #(
+      |        ^~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/common/cdc_pulse.sv:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cdc_pulse #(
+      |        ^~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:127:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  127 | module KL_gptp_gmii_launch #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/gptp_tsu/KL_gptp_tsu.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_gptp_tsu #(
+      |        ^~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/milan/KL_ctrl_split.sv:64:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   64 | module KL_ctrl_split #(
+      |        ^~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-SELRANGE: ../../../third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 74:0
+                                                                           : ... note: In instance 'tb_gptp_sw.g_if[1].u_tap.rx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 74:0
+                                                                           : ... note: In instance 'tb_gptp_sw.g_if[1].u_tap.rx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.563 MB sources in 9 modules, into 0.354 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.098 s (elab=0.008, cvt=0.038, bld=5.031); cpu 0.078 s on 96 threads; allocated 663.820 MB
+[ SLAVE if0 ] role 2, asCapable 1, GM 02aabbfffe000001, steps 1, lock (PHC within 100 ns of its GM) 2.7 s, then worst |offset| 93.0 ns; pdelay 293 ns
+    t= 0.1 s  PHC0 - GM0 = -1000000003980.0 ns
+    t= 2.1 s  PHC0 - GM0 =          669.0 ns
+    t= 4.1 s  PHC0 - GM0 =           14.0 ns
+    t= 6.1 s  PHC0 - GM0 =            8.0 ns
+    t= 8.1 s  PHC0 - GM0 =            5.0 ns
+[ SLAVE if1 ] role 2, asCapable 1, GM 02aaccfffe000002, steps 1, lock (PHC within 100 ns of its GM) 2.5 s, then worst |offset| 82.0 ns; pdelay 292 ns
+    t= 0.1 s  PHC1 - GM1 = -499999997480.0 ns
+    t= 2.1 s  PHC1 - GM1 =         -410.0 ns
+    t= 4.1 s  PHC1 - GM1 =          -35.0 ns
+    t= 6.1 s  PHC1 - GM1 =           -9.0 ns
+    t= 8.1 s  PHC1 - GM1 =            4.0 ns
+[ MASTER if0 ] role 3, asCapable 1, GM 001b92fffe000001, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.4 s, then worst |offset| 74.8 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC0 - peer0 =     -4993980.0 ns
+    t= 2.1 s  PHC0 - peer0 =         3712.5 ns
+    t= 4.1 s  PHC0 - peer0 =           12.4 ns
+    t= 6.1 s  PHC0 - peer0 =            9.0 ns
+    t= 8.1 s  PHC0 - peer0 =            9.0 ns
+[ MASTER if1 ] role 3, asCapable 1, GM 001b92fffe000002, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.1 s, then worst |offset| 96.9 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC1 - peer1 =     -9003480.0 ns
+    t= 2.1 s  PHC1 - peer1 =        -2151.4 ns
+    t= 4.1 s  PHC1 - peer1 =            4.0 ns
+    t= 6.1 s  PHC1 - peer1 =            9.1 ns
+    t= 8.1 s  PHC1 - peer1 =            9.0 ns
+[ FLOOD ] 32 Pdelay_Req every 200 ms from 2.5 s: event messages handed out 977, committed at once 462, refused or held frames 526, received stamped 490, unstamped 0, egress records lost 0; lock 2.9 s, then worst |offset| 95.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 48   failures: 0 ==
+RESULT: PASS
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/closedloop/gptp_sw_mutants-f15b3a7d.log sha256 95e85389f7345ad2e539cbd41092300dfc68327db201b48fcf9d58e01b0ca5f7 bytes 2000
+baseline: PASS
+  ok   ingress-stamp-dropped: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   trailer-read-lsb-first: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   trailer-left-on-the-frame: KILLED: [FAIL] SLAVE if1 a Pdelay_Req cut short by its last eight octets is refused, not answered got=0.000 exp=1.000
+  ok   egress-stamp-dropped: KILLED: [FAIL] SLAVE if0 the measured link delay is its link's got=0.000 exp=300.000
+  ok   second-port-steers-first-phc: KILLED: [FAIL] SLAVE if1 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   snapshot-not-kept: KILLED: [FAIL] SLAVE if0 the snapshot holds the grandmaster it published got=0.000 exp=0.000
+  ok   notice-not-raised: KILLED: [FAIL] SLAVE if0 the AVB_INFO and AS_PATH changes were raised to the AECP owner got=0.000 exp=1.000
+  ok   path-answer-shifted: KILLED: [FAIL] SLAVE if0 GET_AS_PATH is the snapshot's path, its grandmaster first got=2.000 exp=2.000
+  ok   publication-skips-gm: KILLED: [FAIL] SLAVE if0 the words the datapath takes are the snapshot's, its GEN last got=0.000 exp=4261412865.000
+  ok   record-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=23682.000 exp=0.000
+  ok   event-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=4.000 exp=0.000
+  ok   tick-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=2.000 exp=0.000
+  ok   servo-sign: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   responder-t2-from-another-frame: KILLED: [FAIL] SLAVE if0 the peer measures the link through the firmware's answers got=789.007 exp=300.000
+== gptp in firmware, closed-loop planted defects: checks: 14   failures: 0 ==
+RESULT: PASS
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/milan_dp/split-sw.log sha256 046e42218fe2385e103f6f079b9eaaf20d8c53acf19736f2eff323004faa8ef7 bytes 156720
+Last 30 lines:
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top___024root__2__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top___024root__3__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top___024unit__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top_KL_mbx_pkg__Slow.cpp
+g++   -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DSPLIT_GPTP_SW -Wall -Wextra -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../../../sw/firmware/ctrl/mbx -I$SCRATCH/clones/m5/tb/verilator/milan_dp/../mbx -Wall -Wextra   -include Vtb_split_top__pch.h.slow -c Vtb_split_top__Syms__Slow.cpp
+g++    sim_split.o verilated.o verilated_dpi.o verilated_threads.o Vtb_split_top__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_split
+rm Vtb_split_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$SCRATCH/clones/m5/tb/verilator/milan_dp/obj_split_sw'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 204.248 MB sources in 134 modules, into 9.751 MB in 20 C++ files needing 0.009 MB
+- Verilator: Walltime 39.483 s (elab=0.521, cvt=2.075, bld=36.364); cpu 3.213 s on 8 threads; allocated 905.094 MB
+make --no-print-directory exec-split-sw
+./obj_split_sw/Vmilan_dp_split
+[PUB] SID_VALID to the listener: 9 mailbox cycles
+[POL] LICENCE 0x0001: active 0x0001 admitted 0x0001 gate 0x0001 crf 0
+[POL] LICENCE 0x0002: active 0x0002 admitted 0x0002 gate 0x0002 crf 1
+[FACE] commit to BUSY clear: 2 polls
+[WIN] CTR round 0: status 0x102 data 0x0 in 6 polls
+[WIN] CTR round 1: status 0x202 data 0x0 in 5 polls
+[WIN] AMAP: status 0x102 data 0x1 in 10 polls
+[WIN] GSI: status 0x102 data 0xd600000e in 6 polls
+[TX] commit to the MAC's last byte: 168 mailbox cycles, 82 bytes
+[LINK] up after 0 polls, down after 4, up again after 2
+[TAP] burst: 109 frames offered, 65 handed out, 44 counted lost
+[RX] burst at the MAC: 100 frames offered, 58 handed out, 42 counted lost
+ran 145367 mailbox cycles
+checks: 151   failures: 0
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/milan_dp/split-cdc.log sha256 05f683237ed738b561ce05edbb05c94fde70a6e3d52ca94063503998b4464666 bytes 3434
+python3 split_cdc_check.py --selftest
+[ok]   the tracked sources: 287 sinks read their own domain
+[ok]   planted the publication block wired straight across: 
+       a crossing without a primitive: output d_pub_sid_o (dp) reads m_pub_sid_i (sys)
+[ok]   planted the LINK level taken straight across: 
+       a crossing without a primitive: flop driving m_link_up_o (sys) reads d_link_up_i (dp)
+[ok]   planted the settings read without their capture: 
+       a crossing without a primitive: output d_cur_config_o (dp) reads m_fw_cur_config_i (sys)
+[ok]   planted a window's answer taken straight across: 
+       a crossing without a primitive: output m_ctr_ans_data_o (sys) reads u_ctr.ans_r (dp)
+[ok]   planted the held bus taken on every datapath cycle: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the commit level, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken on the request pulse, in the mailbox's clock: 
+       a crossing without a primitive: flop fw_r (dp) reads fw_send_q_r, m_fw_send_i (sys)
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted the held bus taken while the pulse is low: 
+       a crossing without a primitive: flop fw_r (dp) takes the held bus m_fw_clk_src_index_i, m_fw_cur_config_i, m_fw_dyn_dirty_i, m_fw_fmt_in_i, m_fw_fmt_in_v_i, m_fw_fmt_out_i, m_fw_fmt_out_v_i, m_fw_identify_i, m_fw_lock_held_i, m_fw_nvm_i, m_fw_nvm_verdict_i, m_fw_pt_offset_ns_i, m_fw_pt_offset_v_i, m_fw_restore_cause_i, m_fw_restore_i, m_fw_rs_cause_i (sys) other than through a $mux selected by u_fw_req.dest_pulse
+[ok]   planted a datapath flop other than fw_r sampling the held bus: 
+       a crossing without a primitive: flop ev_dom_r (dp) reads m_fw_identify_i (sys)
+[ok]   planted a destination reset from the other domain: 
+       a crossing without a primitive: u_pub.dest_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a source reset from the other domain: 
+       a crossing without a primitive: u_fw_ack.src_rst_n (dp) reads sys_rst_n (sys)
+[ok]   planted a primitive clocked by a level: 
+       a clock that is not a clock input: u_fw_ack.dest_clk reads m_fw_send_i
+checks: 13   failures: 0
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/memory/test_ctrl_memory.log sha256 0d954af70f5b99ce0cc36b87c2b63837fe41e22d702654f12621e503cd119a23 bytes 70740
+Last 30 lines:
+  [ok  ] MUTANT 'the classes not searched' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected after naming (None)
+  [ok  ] MUTANT 'the named list not copied' (region list guard) is caught by the decode arm: exact_cpu_decode refuses a CPU whose generator may read the whole rows after naming: re-collected in place after naming (the split CPU's generator may not read its exact region pieces [(0, 229376, 'rxc', 'p'), (268435456, 229376, 'rwxc', 'p'), (16777216, 16777216, 'rxc', 'p'), (2415919104, 65536, 'rw', 'p'), (2416967680, 32768, 'rw', 'p'), (4026531840, 65536, 'rw', 'p')]: the naming step's list is not aligned powers of two (#791))
+-- planted ledgers
+  [ok  ] PLANTED ledger 'the platform's entry without its staging buffer' is caught: `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 2, 0, 2, 2, 2])
+  [ok  ] PLANTED ledger 'the platform's entry without ctrl_plat' is caught: `plan --ledgered-point platform-8x8-two-interfaces` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 0, 2, 0, 2, 0])
+  [ok  ] PLANTED ledger 'the platform's entry at the 8x8 one-interface ctrl_plat' is caught: the platform-8x8-two-interfaces override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19008}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21568})
+  [ok  ] PLANTED ledger 'the platform's entry at 63.5 RAMB36' is caught: the platform-8x8-two-interfaces override plans its own point's image: 63.0 RAMB36, against the 56-RAMB36 budget and its ledgered 63.0 ((63.0, 56, 'platform-8x8-two-interfaces', 63.5))
+  [ok  ] PLANTED ledger 'the size fixture's entry without image_allocation' is caught: `plan --ledgered-point 8x8-two-interfaces` accepts its point's image and refuses the 7 cases its override must (exit codes [0, 2, 2, 2, 0, 0, 2, 0])
+  [ok  ] PLANTED ledger 'the size fixture's entry at the platform's 63.0' is caught: the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 63.0))
+  [ok  ] PLANTED ledger 'the product entry without ctrl_plat' is caught: `plan --ledgered-point platform-8x8-one-interface` accepts its point's image and refuses the 8 cases its override must (exit codes [0, 2, 2, 2, 0, 2, 0, 0, 0])
+  [ok  ] PLANTED ledger 'the product entry at the 1x1 one-interface ctrl_plat and stage' is caught: the platform-8x8-one-interface override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 3454, 'ctrl_plat': 18112}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19008})
+  [ok  ] PLANTED ledger 'the product entry at 59.0 RAMB36' is caught: the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 59.0))
+  [ok  ] PLANTED ledger 'the product entry at the two-interface ctrl_plat' is caught: the platform-8x8-one-interface override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21568}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19008})
+  [ok  ] PLANTED ledger 'the one-interface gPTP entry without image_gptp' is caught: `plan --ledgered-point 8x8-one-interface-gptp` accepts its point's image and refuses the 4 cases its override must (exit codes [0, 2, 0, 0, 2])
+  [ok  ] PLANTED ledger 'the one-interface gPTP entry at 59.5 RAMB36' is caught: the 8x8-one-interface-gptp override plans its own point's image: 59.0 RAMB36, against the 56-RAMB36 budget and its ledgered 59.0 ((59.0, 56, '8x8-one-interface-gptp', 59.5))
+  [ok  ] PLANTED ledger 'the two-interface gPTP entry without image_gptp' is caught: `plan --ledgered-point 8x8-two-interfaces-gptp` accepts its point's image and refuses the 3 cases its override must (exit codes [0, 2, 0, 2])
+  [ok  ] PLANTED ledger 'the two-interface gPTP entry at 64.5 RAMB36' is caught: the 8x8-two-interfaces-gptp override plans its own point's image: 64.0 RAMB36, against the 56-RAMB36 budget and its ledgered 64.0 ((64.0, 56, '8x8-two-interfaces-gptp', 64.5))
+  [ok  ] PLANTED ledger 'the product gPTP entry at the product image's ctrl_plat' is caught: the platform-8x8-one-interface-gptp override plans its own point's image: raised Refusal (allocation over budget: the override 'platform-8x8-one-interface-gptp' is for the target platform's 8x8, one interface, gPTP in firmware image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19008}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 20096})
+  [ok  ] PLANTED ledger 'the product gPTP entry at 62.5 RAMB36' is caught: the platform-8x8-one-interface-gptp override plans its own point's image: 62.0 RAMB36, against the 56-RAMB36 budget and its ledgered 62.0 ((62.0, 56, 'platform-8x8-one-interface-gptp', 62.5))
+-- out-of-context mapper
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces image without --ledgered (exit 2)
+  [ok  ] --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 0, {'w': (56.0, None), 'p': (63.0, 'platform-8x8-two-interfaces')})
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces override on another image (exit 2)
+  [ok  ] the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 2)
+  [ok  ] MUTANT 'the mapper's override ignored' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's override on every image' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.0 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's stray override accepted' (ooc override) is caught by the mapper's facts: the mapper refuses the platform-8x8-two-interfaces override whose tag names no image (exit 0)
+test_ctrl_memory: 0 failure(s)
+RESULT: PASS
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/memory/plat_ledger-self-test.log sha256 aa55d2123cff873e1ad052a26a06746f3b18c209015ca156bf9a09dcba989577 bytes 15545
+Last 30 lines:
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv $SCRATCH/pledger5/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv --flash-map $SCRATCH/pledger5/endstation_ax7101_1x1_tdm8/split-soc/flash-map --output $SCRATCH/pledger5/1x1-if1 --libc $SCRATCH/pledger5/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/runtime/libcompiler_rt.a
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 2 --csr-csv $SCRATCH/pledger5/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv --flash-map $SCRATCH/pledger5/endstation_ax7101_1x1_tdm8/split-soc/flash-map --output $SCRATCH/pledger5/1x1-if2 --libc $SCRATCH/pledger5/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/runtime/libcompiler_rt.a
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc ~/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt ~/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software ~/litex-milan/litex/litex/soc/software --output $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/runtime
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_srp_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/image --libc $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $SCRATCH/clones/m6/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/soc
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/soc/csr.csv --csr-h $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/stand-ins/soc/software/include/generated/csr.h --out $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc ~/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt ~/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software ~/litex-milan/litex/litex/soc/software --output $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/runtime
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_srp_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/image --flash-map $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map --libc $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir $SCRATCH/clones/m6/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --csr-h $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc/software/include/generated/csr.h --out $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map-again
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_8x8.yaml --interfaces 1 --csr-csv $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --flash-map $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map --output $SCRATCH/pledger5/8x8-if1 --libc $SCRATCH/pledger5/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/runtime/libcompiler_rt.a --ledgered-point platform-8x8-one-interface
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_8x8.yaml --interfaces 1 --csr-csv $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --flash-map $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map --output $SCRATCH/pledger5/8x8-if1-gptp --libc $SCRATCH/pledger5/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/runtime/libcompiler_rt.a --ledgered-point platform-8x8-one-interface-gptp --with-gptp
+COMMAND ~/litex-milan/venv/bin/python3 -B $SCRATCH/clones/m6/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/clones/m6/configs/endstation_ax7101_8x8.yaml --interfaces 2 --csr-csv $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --flash-map $SCRATCH/pledger5/endstation_ax7101_8x8/split-soc/flash-map --output $SCRATCH/pledger5/8x8-if2 --libc $SCRATCH/pledger5/runtime/libc.a --compiler-runtime $SCRATCH/pledger5/runtime/libcompiler_rt.a --ledgered-point platform-8x8-two-interfaces
+CONTROL stale-key: as required (findings [('KEY', '8x8-if2'), ('LINK', '8x8-if2')], required [('KEY', '8x8-if2'), ('LINK', '8x8-if2')]): ["LINK 8x8-if2: its plan is refused (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21504}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21568})", "KEY 8x8-if2: 'platform-8x8-two-interfaces' lists {'nvm_stage': 13594, 'ctrl_plat': 21504}, the image carries {'nvm_stage': 13594, 'ctrl_plat': 21568}"]
+CONTROL past-its-tiles: as required (findings [('LINK', '8x8-if2'), ('TILES', '8x8-if2')], required [('LINK', '8x8-if2'), ('TILES', '8x8-if2')]): ["LINK 8x8-if2: its plan is refused (allocation over budget: 63 RAMB36 (rom 140952 bytes in 141312, sram 115568 bytes in 116736) exceeds the 62.5-RAMB36 budget ledgered for target platform's 8x8, two interfaces)", 'TILES 8x8-if2: 63 RAMB36 past the 62.5 its override ledgers']
+CONTROL stale-key-past-its-tiles: as required (findings [('KEY', '8x8-if2'), ('LINK', '8x8-if2'), ('TILES', '8x8-if2')], required [('KEY', '8x8-if2'), ('LINK', '8x8-if2'), ('TILES', '8x8-if2')]): ["LINK 8x8-if2: its plan is refused (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21504}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21568})", "KEY 8x8-if2: 'platform-8x8-two-interfaces' lists {'nvm_stage': 13594, 'ctrl_plat': 21504}, the image carries {'nvm_stage': 13594, 'ctrl_plat': 21568}", 'TILES 8x8-if2: 63 RAMB36 past the 62.5 its override ledgers']
+CONTROL stale-record: as required (findings [('KEY', '1x1-if1')], required [('KEY', '1x1-if1')]): ['KEY 1x1-if1: ctrl_memory_ledger.PLAT_1X1_1 records 18,048 B, the image carries 18112']
+CONTROL budget-under-a-point: as required (findings [('TILES', '1x1-if2')], required [('TILES', '1x1-if2')]): ['TILES 1x1-if2: 46 RAMB36 past the 45.5 budget']
+CONTROL override-not-taken: as required (findings [('LEDGER', ''), ('LINK', '8x8-if2'), ('TILES', '8x8-if2')], required [('LEDGER', ''), ('LINK', '8x8-if2'), ('TILES', '8x8-if2')]): ['LINK 8x8-if2: its plan is refused (allocation over budget: 63 RAMB36 (rom 140952 bytes in 141312, sram 115568 bytes in 116736) exceeds the 56-RAMB36 budget)', 'TILES 8x8-if2: 63 RAMB36 past the 56 budget', "LEDGER: ['platform-8x8-two-interfaces'] override(s) of the platform's image linked at no point"]
+CONTROL product-override-not-taken: as required (findings [('LEDGER', ''), ('LINK', '8x8-if1'), ('TILES', '8x8-if1')], required [('LEDGER', ''), ('LINK', '8x8-if1'), ('TILES', '8x8-if1')]): ['LINK 8x8-if1: its plan is refused (allocation over budget: 58.5 RAMB36 (rom 139408 bytes in 141312, sram 98224 bytes in 98304) exceeds the 56-RAMB36 budget)', 'TILES 8x8-if1: 58.5 RAMB36 past the 56 budget', "LEDGER: ['platform-8x8-one-interface'] override(s) of the platform's image linked at no point"]
+CONTROL override-unlinked: as required (findings [('LEDGER', '')], required [('LEDGER', '')]): ["LEDGER: ['platform-1x1-two-interfaces'] override(s) of the platform's image linked at no point"]
+CONTROL override-unlinked-no-image: as required (findings [('LEDGER', '')], required [('LEDGER', '')]): ["LEDGER: ['platform-planted-unlinked'] override(s) of the platform's image linked at no point"]
+plat_ledger controls: 9 of 9 as required
+POINT 1x1-if1: rom 126,632 B, sram 56,800 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18112 B: PASS
+POINT 1x1-if2: rom 128,208 B, sram 59,104 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19776 B: PASS
+POINT 8x8-if1: rom 139,408 B, sram 98,224 B, 58.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19008 B: PASS
+POINT 8x8-if1-gptp: rom 151,952 B, sram 99,328 B, 62 RAMB36 (platform-8x8-one-interface-gptp), ctrl_plat 20096 B: PASS
+POINT 8x8-if2: rom 140,952 B, sram 115,568 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+plat_ledger: PASS (0 finding(s))
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/route/route-8x8-1if-sw-AltSpreadLogic_high.txt sha256 c71735ed90c6d58f080aa5bdc146a4914efdc6cb38da987e14255789a18e1139 bytes 2284
+# route 8x8/1if --sw-gptp AltSpreadLogic_high at 62fcd154: 2026-11-22T03:19:32+01:00 to 2026-11-22T03:39:34+01:00, rc 0
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+ Slice LUTs                      38265  of    63400
+ Slice Registers                 45815  of   126800
+ Slice                           14680  of    15850
+ LUT as Memory                     672  of    19000
+ Block RAM Tile                   95.5  of      135
+ RAMB18                             35  of      270
+ DSPs                                5  of      240
+## hierarchy (utilization_hierarchical_place.rpt: instance, LUT, LUTRAM, FF, RAMB36, RAMB18)
+   alinx_ax7101                                                        38265    604   45815   78   35
+   (alinx_ax7101)                                                       1024     62    2425   66    7
+   KL_gptp_gmii_launch                                                   172      0     221    0    0
+   KL_mac_rmon_events                                                     49      0      78    0    0
+   KL_mbx                                                               5574     22    9060    1   12
+   KL_mbx_cdc                                                           6678      0    6545    0    0
+   KL_mbx_dma                                                            830      0     713    0    0
+   KL_mbx_wb                                                              53      0       1    0    0
+   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51                     3833    134    4368    6    9
+   milan_datapath                                                      20105    386   22404    5    7
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.230 failing 0 WHS 0.053 failing 0
+Slow_0C: WNS 0.230 failing 0 WHS 0.053 failing 0
+Fast_85C: WNS 1.636 failing 0 WHS 0.015 failing 0
+Fast_0C: WNS 1.636 failing 0 WHS 0.015 failing 0
+## worst setup path, Slow_85C
+ Slack (MET) :             0.230ns  (required time - arrival time)
+ Source:                 KL_mbx/rd_off_r_reg[8]/C
+ Destination:            KL_mbx/reg_rdata_r_reg[7]/D
+ Path Group:             milansoc_crg_clkout0
+ Data Path Delay:        9.710ns  (logic 2.269ns (23.368%)  route 7.441ns (76.632%))
+ Logic Levels:           18  (LUT2=2 LUT3=3 LUT4=1 LUT5=6 LUT6=6)
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/route/route-8x8-1if-sw-ExtraPostPlacementOpt.txt sha256 a2bd204f4242cfde09085525224e7a07baaa0846088d046cdc0519782ea946c7 bytes 2445
+# route 8x8/1if --sw-gptp ExtraPostPlacementOpt at 62fcd154: 2026-11-22T03:19:37+01:00 to 2026-11-22T03:38:34+01:00, rc 0
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+ Slice LUTs                      38178  of    63400
+ Slice Registers                 45815  of   126800
+ Slice                           15215  of    15850
+ LUT as Memory                     672  of    19000
+ Block RAM Tile                   95.5  of      135
+ RAMB18                             35  of      270
+ DSPs                                5  of      240
+## hierarchy (utilization_hierarchical_place.rpt: instance, LUT, LUTRAM, FF, RAMB36, RAMB18)
+   alinx_ax7101                                                        38178    604   45815   78   35
+   (alinx_ax7101)                                                       1020     62    2425   66    7
+   KL_gptp_gmii_launch                                                   170      0     221    0    0
+   KL_mac_rmon_events                                                     49      0      78    0    0
+   KL_mbx                                                               5561     22    9060    1   12
+   KL_mbx_cdc                                                           6680      0    6545    0    0
+   KL_mbx_dma                                                            806      0     713    0    0
+   KL_mbx_wb                                                              53      0       1    0    0
+   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51                     3812    134    4368    6    9
+   milan_datapath                                                      20091    386   22404    5    7
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.205 failing 0 WHS 0.142 failing 0
+Slow_0C: WNS 0.205 failing 0 WHS 0.142 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.013 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.013 failing 0
+## worst setup path, Slow_85C
+ Slack (MET) :             0.205ns  (required time - arrival time)
+ Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_spinal_port1_reg[6]/C
+ Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_reg_0_3_6_11/RAMA/WE
+ Path Group:             milansoc_crg_clkout0
+ Data Path Delay:        9.309ns  (logic 2.257ns (24.244%)  route 7.052ns (75.756%))
+ Logic Levels:           13  (LUT2=3 LUT4=4 LUT5=4 LUT6=2)
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/sweep/shard-0-results.json sha256 b7f2666a5df1cc623a2e36978cf3c066242834e54009a58e129e7fbd51dd5546 bytes 765
+head f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 return codes [0]
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/sweep/shard-1-results.json sha256 f718ddac933f022696a0ddc9f89a0df64dcbac108b0cf9f010d414d920eb0810 bytes 766
+head f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 return codes [0]
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/sweep/shard-2-results.json sha256 b27cbd50bdb3767555af7b45008338270a616ad76e349858ba726c1bcd1d8ea8 bytes 766
+head f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 return codes [0]
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/sweep/shard-3-results.json sha256 06555742facec6071cb74a6bf0d2fdab0261540f55eb6843511e0c45a4ba55c2 bytes 766
+head f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 return codes [0]
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/fwgate/shard-0-62fcd154.log sha256 24cab93a577f8acb1c25ec7a1abbe0dd6cfefde60beb58a2fc29a8f72cb2ca03 bytes 86859
+Last 30 lines:
+    RESULT: PASS
+[ok] arm plattrace
+    endstation_arty_4x4: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_8ch: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_current: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_1x1_tdm8: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_8x8: 15 writes, equal to configure_fabric()'s 15
+    plant a write skipped: caught
+    plant two writes reordered: caught
+    plant a wrong word: caught
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    RESULT: PASS
+[ok] arm platmap
+    [PASS] PlatMap.M1AllThreeRowsGiveTheirAddresses: M1 the PHY's three rows give their addresses (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_REBOOT': 4026537984, 'CTRL_PLAT_PHY_MDIO_W': 4026540036, 'CTRL_PLAT_PHY_MDIO_R': 4026540040, 'CTRL_PLAT_LINK_STATUS': 4026540060})
+    [PASS] PlatMap.M2NoRowsGiveZero: M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_REBOOT': 4026537984, 'CTRL_PLAT_PHY_MDIO_W': 0, 'CTRL_PLAT_PHY_MDIO_R': 0, 'CTRL_PLAT_LINK_STATUS': 0})
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_r (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+    == ctrl split platform bus map: checks: 5   failures: 0 ==
+    RESULT: PASS
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/fwgate/shard-1-62fcd154.log.verdicts sha256 969c52bd84f5689318ff6bcd5e763889c3f72dc2e11207e70b631e1e2ea547b0 bytes 56272
+Last 30 lines:
+[ok] mutant model-face-commit-not-held (model): 2 check(s) failed
+[ok] mutant model-face-fmt-out-high-from-low (model): 2 check(s) failed
+[ok] mutant model-face-avb-change-dropped (model): 3 check(s) failed
+[ok] mutant model-face-holdoff-never-rolls (model): 2 check(s) failed
+[ok] mutant model-pub-src-sid-a-hole (model): 2 check(s) failed
+[ok] mutant model-pub-every-source-reads-entry-0 (model): 1 check(s) failed
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 48 check(s) failed
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 7 check(s) failed
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 12 check(s) failed
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 3 check(s) failed
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 22 check(s) failed
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+[ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+[ok] mutant pub-acmp-started-from-bound (acmp): 9 check(s) failed
+[ok] mutant pub-acmp-started-move-skipped (acmp): 5 check(s) failed
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+[ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+[ok] mutant pub-acmp-adapter-sid-valid-always (acmp, acmpif2): 18 check(s) failed
+[ok] mutant pub-maap-gate-after-the-report (maap): 5 check(s) failed
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 7 check(s) failed
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+mutants: 826 of 826 caught
+test_ctrl_firmware: PASS
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/fwgate/shard-2-62fcd154.log.verdicts sha256 33cbe3bd19182bb8a01880eb4b0aeb6a7e2db9c56aca9d2dfdedd1c8499dd2da bytes 34958
+Last 30 lines:
+[ok] output-brief-completed: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-dest-mac-unallocated: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-registering-ready-only: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-registering-failed-any-listener: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-registering-failed-msrp-failure-valid: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-registering-failed-without-a-listener: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-registering-without-a-listener: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration:AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-listener-on-interface-zero: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-listener-of-output-zero: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-listener-any-interface: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-answered-past-acmps-sources: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-unanswered-without-srp: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] output-unanswered-past-srps-shape: AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[ok] map-idle-reads-whole: Core.TheRunningCheckObservesEveryStreamBriefly
+[ok] running-reads-every-word: Face.TheRunningCheckReadsOneWindowWordAStream
+[ok] running-reads-no-word: Face.TheRunningCheckReadsOneWindowWordAStream:Face.StreamAvbAndFormatAreTheDatapathsWords
+[ok] running-reads-another-word: Face.TheRunningCheckReadsOneWindowWordAStream
+[ok] running-check-blind-to-the-licence: Face.TheRunningCheckReadsOneWindowWordAStream:Face.StreamAvbAndFormatAreTheDatapathsWords
+[ok] running-check-reads-whole: Core.TheRunningCheckObservesEveryStreamBriefly:Face.TheRunningCheckReadsOneWindowWordAStream
+[ok] stream-read-brief: Core.TheRunningCheckObservesEveryStreamBriefly:Face.TheRunningCheckReadsOneWindowWordAStream
+[ok] configuration-streams-every-time: Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[ok] configuration-streams-never: Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[ok] configuration-move-unnamed: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[ok] configuration-move-always-named: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[ok] configuration-moved-by-its-override: Core.AConfigurationChangeNamesWhetherItsIndexMoved:Face.OnlyAMovedConfigurationIndexWritesTheStreamEntries
+[ok] configuration-unpaced: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[ok] configuration-past-the-count-bad-arguments: Core.SetConfigurationOutOfRangeIsNoSuchDescriptor
+test_ctrl_firmware: PASS
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/fwgate/shard-3-62fcd154.log.verdicts sha256 41daec0d96e7685247cc6c632a4a0816ff075bd99299325c399e32425738f332 bytes 71574
+Last 30 lines:
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+rc=0
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/yosys/shard-0.log sha256 eaeafe04487c83c77e5d96135313742c95a5b02a482673abba8e406ed2305852 bytes 3816
+== Yosys open-synthesis check (synth, via sv2v; shard 0/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] milan_datapath         cells=1788327
+--------------------------------------------------------------
+tops: 1   pass: 1   fail: 0
+RESULT: PASS
+== milan_datapath tied-off input inventory (gate) ==
+  [tied]    i_m_axis_mac_tx_tready=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tdata=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tkeep=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tvalid=0  (stub default; a real attach site drives it)
+  [tied]    i_s_axis_mac_rx_tlast=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_speed=0b10  (stub default; a real attach site drives it)
+  [tied]    i_i_link_up=1  (stub default; a real attach site drives it)
+  [tied]    i_i_full_duplex=1  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_events=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mac_events_cap=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethrx_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethtx_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethact_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_ethtxend_tgl=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_valid=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_kind=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_oidx=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_gen=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_type=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_seq=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_delta=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txrec_abort=0  (stub default; a real attach site drives it)
+  [tied]    i_i_gptp_txseal_ack=0  (stub default; a real attach site drives it)
+  [expected] i_tdm_bclk_i=0
+            why:       no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands
+            recorded:  sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+  [expected] i_tdm_fsync_i=0
+            why:       no TDM header exists on either board, so there are no pins to wire; a platform extension drives it via extra_ports when one lands
+            recorded:  sw/litex/milan_soc.py, the 'TDM bus (item-4 front-end family)' comment in the add_milan_datapath ports dict
+  [tied]    i_tdm_data_i=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_drp_do=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_drp_rdy=0  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_locked=1  (stub default; a real attach site drives it)
+  [tied]    i_i_mmcm_ps_done=0  (stub default; a real attach site drives it)
+--------------------------------------------------------------
+tied inputs: 30   justified: 2   UNJUSTIFIED: 0   stale: 0
+TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones)
+== observer-purity structural check (taps/telemetry never drive streams) ==
+  negative self-test: checker flags the broken fixture (2 violations) - OK
+  negative self-test: checker flags the broken MAC-site fixture (3 violations) - OK
+--------------------------------------------------------------
+pure observers: 4 file(s)   tap readers: 4 file(s)   MAC-site observers: 1 file(s)
+stream-net bindings checked: 29 (rx_axis_fabric: 15, MAC transmit stream: 3)   violations: 0
+TAP-PURITY RESULT: PASS
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/yosys/shard-1.log sha256 7f07615881bc4f4d2d943e8d8a691b7137638c9699bcde4a16326352a18b8929 bytes 305
+== Yosys open-synthesis check (synth, via sv2v; shard 1/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] KL_pp_shadow           cells=1268784
+--------------------------------------------------------------
+tops: 1   pass: 1   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/yosys/shard-2.log sha256 0137076eb5e8053dbf498f32b6c08288d0f578aa80bf68851068b70548b40347 bytes 1594
+== Yosys open-synthesis check (synth, via sv2v; shard 2/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] tcam                   cells=4911
+  [PASS] cdc_pulse              cells=6
+  [PASS] adp_tx_arbiter         cells=238
+  [PASS] KL_gptp_txticket       cells=259
+  [PASS] KL_gptp_tsu            cells=8965
+  [PASS] KL_gptp_shadow         cells=205770
+  [PASS] KL_stream_table        cells=209
+  [PASS] KL_aaf_capture_i2s     cells=1173
+  [PASS] KL_aes3_rx             cells=2697
+  [PASS] KL_aes3_tx             cells=1487
+  [PASS] KL_aaf_packetizer      cells=18468
+  [PASS] KL_crf_rx              cells=30776
+  [PASS] KL_media_nco           cells=538
+  [PASS] KL_media_domain_event  cells=307
+  [PASS] KL_link_guard          cells=460
+  [PASS] KL_maap                cells=2493
+  [PASS] KL_i2s_playback        cells=81452
+  [PASS] KL_tdm_capture_master  cells=1208
+  [PASS] KL_chan_map_render     cells=11155
+  [PASS] KL_aaf_rx_depacketizer cells=60880
+  [PASS] ptp_csr_sync           cells=413
+  [PASS] ethernet_events        cells=1161
+  [PASS] queues_wrap            cells=10315
+  [PASS] KL_pp_maap_shim        cells=447
+  [PASS] KL_nvm_backend         cells=7798
+  [PASS] KL_reboot_ctrl         cells=245
+  [PASS] KL_ctrl_split          cells=122445
+  [PASS] KL_mbx                 cells=505850
+  [PASS] KL_mbx_dma             cells=2376
+  [PASS] axis_fifo              cells=133594
+  [PASS] axis_demux             cells=96
+--------------------------------------------------------------
+tops: 31   pass: 31   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+rc=0
+
+
+ARTIFACT review-evidence/gptpsw-r1/author-r2/receipts/round2b/yosys/shard-3.log sha256 6873aec63efde898b86e4750c470b819030b2b82dd2e6eaeb6c9908505a33ddd bytes 1587
+== Yosys open-synthesis check (synth, via sv2v; shard 3/4) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [PASS] cdc_handshake          cells=143
+  [PASS] rx_mac_filter          cells=5350
+  [PASS] milan_csr              cells=69288
+  [PASS] KL_gptp_txret          cells=3277
+  [PASS] KL_gptp_gmii_launch    cells=760
+  [PASS] KL_avtp_rx_monitor     cells=1843
+  [PASS] avtp_stream_parser     cells=2967
+  [PASS] KL_avtp_rx_monitor_ctx cells=10991
+  [PASS] KL_pcm_route           cells=12
+  [PASS] KL_tdm_capture         cells=1178
+  [PASS] KL_aaf_clock_meter     cells=3255
+  [PASS] KL_crf_tx              cells=2688
+  [PASS] KL_mmcm_drp_servo      cells=6252
+  [PASS] KL_media_grid_align    cells=1195
+  [PASS] KL_mtt_round           cells=1215
+  [PASS] KL_i2s_feed_mux        cells=221
+  [PASS] KL_render_queue        cells=655590
+  [PASS] KL_tdm_render_master   cells=4266
+  [PASS] KL_chan_map_capture    cells=90872
+  [PASS] KL_tone_gen            cells=1127
+  [PASS] credit_based_shaper    cells=6717
+  [PASS] timestamp_counter      cells=1597
+  [PASS] KL_ptp_clock_validity  cells=206
+  [PASS] event_counter          cells=95
+  [PASS] KL_mac_rmon_events     cells=449
+  [PASS] classifier_wrap        cells=2865
+  [PASS] datapath_wrap          cells=185015
+  [PASS] ptp_ts_top             cells=5179
+  [PASS] KL_mbx_wb              cells=5
+  [PASS] KL_mbx_axil            cells=136
+  [PASS] axis_arb_mux           cells=177
+--------------------------------------------------------------
+tops: 31   pass: 31   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker
+rc=0
+
+
+Later source history:
+f15b3a7d2bf1ba84d14140a4cda8a193d2e6b1c9 Regenerate the closed loop's two-interface contract and its driver copy whenever the contract, its generator or the driver changes, not only when the copy is missing, so a kept build never runs an old burst (#884)
+
+Changed artifacts after 62fcd154:
+tb/verilator/gptp_sw/Makefile
+
