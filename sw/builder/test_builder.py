@@ -669,14 +669,10 @@ def check_port_layout(ovl: dict[str, Any], n_listeners: int,
     for p in P_in + P_out:
         assert p["base_cluster"] == base, \
             f"port cluster blocks not contiguous: {p} (expect base {base})"
-        # #259: a port whose backing pool was retired owns ZERO clusters
-        # (the 8x8 inputs after the external audio surface left). Such a port
-        # must be fully empty-handed: dynamic map mode, no pool, so no
-        # cluster, map or template can dangle off it.
-        if p["clusters"] == 0:
-            assert p["pool"] == [] and p.get("map_mode") == "dynamic", p
-        else:
-            assert p["clusters"] >= 1
+        # #584: Milan v1.2 5.3.3.8 - every Stream Port Input and Output owns
+        # at least one AUDIO_CLUSTER. The 8x8 inputs owned zero until then.
+        assert p["clusters"] >= 1, \
+            f"a STREAM_PORT owns no AUDIO_CLUSTER (Milan 5.3.3.8): {p}"
         base += p["clusters"]
     assert dc["AUDIO_CLUSTER"] == base
     dyn = [p for p in P_in + P_out if p.get("map_mode") == "dynamic"]
