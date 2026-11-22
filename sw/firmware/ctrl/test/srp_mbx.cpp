@@ -605,8 +605,11 @@ TEST_F(Srp, ReadyFailedAndUninterestingStreamsAreSeparated) {
     EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),1,3));
     const unsigned before=ctrl_pool_in_use(&pool);
     offer(frame(3,{7,7,7,7,7,7,7,7},0,2));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before)<<"a Listener of no source takes no block";
+    // a Talker of a StreamID no binding holds is kept for a binding made later, one block (#969, keep_talker)
     std::vector<uint8_t> unknown(25,0); unknown[7]=7;
-    offer(frame(1,unknown,0)); EXPECT_EQ(ctrl_pool_in_use(&pool),before);
+    offer(frame(1,unknown,0)); EXPECT_EQ(ctrl_pool_in_use(&pool),before+1u)<<"a Talker no binding holds is kept";
+    EXPECT_EQ(adapter.ifs[0].kept_count,1u);
     EXPECT_CALL(licence,Change(0,0,false)); mbx_model_set_link(&model,0,false); settle();
 }
 TEST_F(Srp, DomainFilterAndDuplicateDoNotGrowDeclarations) {
@@ -2039,9 +2042,10 @@ TEST_F(SrpTalkerKinds, AFinalUnbindingKeepsTheLatestWhileBothStayRegistered) {
     }
 }
 
-// A StreamID none binds is held only while both registrations stay. The talker's messages for it are ignored while
-// no binding has it, so a LeaveAll of one kind lets that registration expire; that, or a reset of the interface,
-// ends the hold, and a binding made later follows what is left.
+// A StreamID none binds is held only while both registrations stay. Its registrations are kept while no binding has
+// it (#969), so a JoinIn of one kind, which replaces the other (IEEE 802.1Q-2018 35.2.6), ends it; so does a LeaveAll
+// of one kind the talker no longer answers, which lets that registration expire, or a reset of the interface; and a
+// binding made later follows what is left.
 TEST_F(SrpTalkerKinds, AHeldStreamEndsWithEitherRegistrationOrAReset) {
     for (unsigned ending : {kAdvertise,kFailed,0u}) {
         settle(); advance(400); bind(0);
@@ -2051,7 +2055,7 @@ TEST_F(SrpTalkerKinds, AHeldStreamEndsWithEitherRegistrationOrAReset) {
         if (ending) {
             auto v=talker_value(sid[0],da[0],2);
             if (ending==kFailed) { v.resize(34); v[33]=1; }
-            offer(frame(ending==kAdvertise ? 1u : 2u,v,kJoinIn,0,true)); advance(5100);
+            offer(frame(ending==kAdvertise ? 1u : 2u,v,4u,0,true)); advance(5100);
         } else {
             mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle(); advance(400);
         }
@@ -2141,6 +2145,184 @@ TEST_F(SrpTalkerKinds, AReplacementBeforeAMessageThatChangesNothingIsDeclaredWit
         EXPECT_NE(d.event,kLv)<<"no withdrawal on the wire";
         EXPECT_EQ(d.subtype,kFailed)<<"only the final state is declared";
     }
+}
+
+// ---- #969: a Talker registered before the binding that wants it ------------------------------------------------
+// ACMP initiates the SRP reservation only once the talker answers its probe (Milan v1.2 5.5.3.5.18 step 4), after a
+// power-on settle or a BIND_RX alike, and a talker's applicant declares once and is then quiet (QA) until a LeaveAll
+// (IEEE 802.1Q-2018 Table 10-3). A settled Stream Input declares Listener Ready while a matching Talker Advertise is
+// being received (Milan v1.2 5.3.8.5), so the registration the talker made first is the one its binding takes, and the
+// declaration rides THE TRANSMIT's next MRPDU, as one made for a registration that follows the binding does.
+class SrpEarlyTalker : public SrpTalkerKinds {
+protected:
+    static constexpr unsigned kMt=4u;
+    // stream s, one for each STREAM_INPUT and one past them: its StreamID, destination and Talker record
+    static msrp_stream_id stream(unsigned s) { return {{2,1,2,3,4,5,0x40,static_cast<uint8_t>(s)}}; }
+    static std::array<uint8_t,6> dest(unsigned s) { return {0x91,0xe0,0xf0,0,1,static_cast<uint8_t>(s)}; }
+    std::vector<uint8_t> talker(unsigned s, unsigned kind, unsigned event, bool la=false) {
+        const auto d=dest(s);
+        auto v=talker_value(stream(s),d.data(),2);
+        if (kind==kFailed) { v.resize(34); v[33]=1; }
+        return frame(kind==kAdvertise ? 1u : 2u,v,event,0,la);
+    }
+    void bind_stream(unsigned k, unsigned s) {
+        const auto sid=stream(s); const auto d=dest(s);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,&sid,d.data(),2));
+    }
+    // The Listener declarations of stream s in interface 0's first MSRP MRPDU sent from frame `from` on, and when it
+    // left.
+    std::vector<Declaration> first_mrpdu(uint32_t from, unsigned s, unsigned *at_ms) {
+        capture(from);
+        std::vector<Declaration> out;
+        const auto sid=stream(s);
+        uint32_t first=UINT32_MAX;
+        for (const auto &d:declarations) {
+            if (d.ethertype!=0x22ea || d.interface!=0u) continue;
+            if (first==UINT32_MAX) { first=d.frame; *at_ms=d.time_ms; }
+            if (d.frame==first && d.type==3 && std::equal(d.value.begin(),d.value.end(),sid.bytes)) out.push_back(d);
+        }
+        return out;
+    }
+    // Sink k binds stream s now: its Listener declaration is `kind` (2 Ready, 1 Asking Failed) in THE TRANSMIT's next
+    // MRPDU, within a JoinTime, and ACMP's copy is that kind.
+    void expect_bound_declares(unsigned k, unsigned s, unsigned kind, const std::string &words) {
+        const uint32_t from=model.tx_sent; const unsigned start=model.now_ms;
+        bind_stream(k,s); settle(); advance(kJoinMs);
+        EXPECT_EQ(sink(k).desired,kind)<<words<<": input "<<k;
+        EXPECT_EQ(sink(k).declared,kind)<<words<<": input "<<k;
+        EXPECT_EQ(sink(k).feedback_kind,kind)<<words<<": ACMP is told, input "<<k;
+        unsigned at=0;
+        const auto first=first_mrpdu(from,s,&at);
+        bool declared=false;
+        for (const auto &d:first) declared=declared || (d.event!=kLv && d.subtype==kind);
+        EXPECT_TRUE(declared)<<words<<": in THE TRANSMIT's next MRPDU, input "<<k;
+        EXPECT_LE(at,start+kJoinMs)<<words<<": within a JoinTime, input "<<k;
+    }
+    // The time passes with no talker MRPDU: the talker's applicant is quiet.
+    void quiet(unsigned ms) { advance(ms); }
+};
+
+// Registration, then binding: every STREAM_INPUT's Talker is declared shortly after power-on, the talker is then
+// quiet, and each input's binding lands some seconds later (the probe's answer), within the DUT's first LeaveAll
+// period; each declares in THE TRANSMIT's next MRPDU. Advertise asks Ready, Failed asks Asking Failed.
+TEST_F(SrpEarlyTalker, ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput) {
+    for (unsigned kind : {kAdvertise,kFailed}) {
+        settle(); advance(400);
+        for (unsigned k=0;k<CTRL_SRP_SINKS;++k) offer(talker(k,kind,kJoinIn));
+        quiet(5000);
+        for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+            expect_bound_declares(k,k,kind,kind==kAdvertise ? "an Advertise registered before its binding"
+                                                            : "a Failed registered before its binding");
+        }
+        TearDown(); SetUp();
+    }
+}
+
+// Binding, then registration, the order that always worked, at every input too: each declares within a JoinTime of
+// its registration.
+TEST_F(SrpEarlyTalker, ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput) {
+    settle(); advance(400);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+        bind_stream(k,k); settle();
+        const uint32_t from=model.tx_sent; const unsigned start=model.now_ms;
+        offer(talker(k,kAdvertise,kJoinIn)); advance(kJoinMs);
+        EXPECT_EQ(sink(k).declared,kAdvertise)<<"a binding made before its registration: input "<<k;
+        bool sent=false;
+        capture(from);
+        const auto sid=stream(k);
+        for (const auto &d:declarations) {
+            sent=sent || (d.ethertype==0x22ea && d.type==3 && d.subtype==kAdvertise && d.event!=kLv &&
+                          d.time_ms<=start+kJoinMs && std::equal(d.value.begin(),d.value.end(),sid.bytes));
+        }
+        EXPECT_TRUE(sent)<<"a binding made before its registration: on the wire within a JoinTime, input "<<k;
+    }
+}
+
+// BIND_RX while bound: each input is bound and declaring for one stream while another's Talker has been declared all
+// along; re-bound to that one, it declares it in THE TRANSMIT's next MRPDU and withdraws the first.
+TEST_F(SrpEarlyTalker, ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
+    settle(); advance(400);
+    const unsigned other=CTRL_SRP_SINKS-1u;
+    offer(talker(other,kAdvertise,kJoinIn));
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+        if (k==other) continue;
+        bind_stream(k,k); settle();
+        offer(talker(k,kAdvertise,kJoinIn)); advance(kJoinMs);
+        ASSERT_EQ(sink(k).declared,kAdvertise)<<"input "<<k<<" declares its first stream";
+        quiet(400);
+        const uint32_t from=model.tx_sent;
+        expect_bound_declares(k,other,kAdvertise,"a rebind to a stream declared all along");
+        bool withdrawn=false;
+        capture(from);
+        const auto first=stream(k);
+        for (const auto &d:declarations) {
+            withdrawn=withdrawn || (d.ethertype==0x22ea && d.type==3 && d.event==kLv &&
+                                    std::equal(d.value.begin(),d.value.end(),first.bytes));
+        }
+        EXPECT_TRUE(withdrawn)<<"the rebind withdraws the first stream's Listener: input "<<k;
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,nullptr,nullptr,0)); settle(); advance(kJoinMs);
+    }
+}
+
+// The latest kind decides for a StreamID no binding has as it does for a bound one (#925): a Failed, then an Advertise
+// New beside it, and the binding asks Ready; the reverse, Asking Failed.
+TEST_F(SrpEarlyTalker, ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt) {
+    for (unsigned latest : {kAdvertise,kFailed}) {
+        settle(); advance(400);
+        offer(talker(0,3u-latest,kJoinIn)); offer(talker(0,latest,kNew)); quiet(1000);
+        expect_bound_declares(0,0,latest,"the latest of two kinds registered before the binding");
+        EXPECT_EQ(sink(0).registered_kinds,3u)<<"both kinds are registered";
+        TearDown(); SetUp();
+    }
+}
+
+// What the talker withdrew before the binding is not declared: a Leave, or a LeaveAll it no longer answers, ends the
+// registration, and the binding declares nothing; nor does a registration a reset of the interface destroyed.
+TEST_F(SrpEarlyTalker, ARegistrationThatEndedBeforeTheBindingDeclaresNothing) {
+    for (unsigned ending : {kLv,kMt,0u}) {
+        settle(); advance(400);
+        offer(talker(0,kAdvertise,kJoinIn)); quiet(400);
+        if (ending==kLv) {
+            offer(talker(0,kAdvertise,kLv));
+        } else if (ending==kMt) {
+            offer(talker(0,kAdvertise,kMt,true));
+        } else {
+            mbx_model_set_link(&model,0,false); settle(); mbx_model_set_link(&model,0,true); settle();
+        }
+        // past a LeaveAll's leave timer, as AHeldStreamEndsWithEitherRegistrationOrAReset waits
+        advance(5100);
+        const char *how=ending==kLv ? "a Leave" : ending==kMt ? "a LeaveAll unanswered" : "a reset";
+        bind_stream(0,0); settle(); advance(kJoinMs);
+        EXPECT_EQ(sink(0).registered_kinds,0u)<<"a registration ended by "<<how<<" is not taken";
+        EXPECT_EQ(sink(0).declared,0u)<<"a registration ended by "<<how<<" declares nothing";
+        TearDown(); SetUp();
+    }
+}
+
+// The registrations kept for StreamIDs no binding has are bounded: one for each STREAM_INPUT of the shape, each a pool
+// block. One past them takes no block; bound later, it is declared with the talker's next declaration, as before.
+TEST_F(SrpEarlyTalker, RegistrationsKeptBeforeABindingAreBoundedByTheInputs) {
+    settle(); advance(400);
+    const unsigned before=ctrl_pool_in_use(&pool);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"one block for each registration kept";
+    const unsigned past=CTRL_SRP_SINKS;
+    offer(talker(past,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a registration past the bound takes no block";
+    quiet(400);
+    bind_stream(0,past); settle(); advance(kJoinMs);
+    EXPECT_EQ(sink(0).declared,0u)<<"past the bound, nothing is declared before the talker's next declaration";
+    const uint32_t from=model.tx_sent; const unsigned start=model.now_ms;
+    offer(talker(past,kAdvertise,kJoinIn)); advance(kJoinMs);
+    EXPECT_EQ(sink(0).declared,kAdvertise)<<"past the bound, the talker's next declaration is declared";
+    capture(from);
+    const auto sid=stream(past);
+    bool sent=false;
+    for (const auto &d:declarations) {
+        sent=sent || (d.ethertype==0x22ea && d.type==3 && d.subtype==kAdvertise && d.event!=kLv &&
+                      d.time_ms<=start+kJoinMs && std::equal(d.value.begin(),d.value.end(),sid.bytes));
+    }
+    EXPECT_TRUE(sent)<<"past the bound, the talker's next declaration: on the wire within a JoinTime";
 }
 
 }
