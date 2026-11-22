@@ -21,6 +21,10 @@
 #   make mutants   - every planted RTL defect, after both positive controls
 #   make run-dma   - the split placement's record mover (KL_mbx_dma) on its
 #                    own bench (dma_main.cpp)
+#   make run-cdc-pub - KL_mbx_cdc's gPTP publication crossing on its own
+#                    bench (tb_cdc_pub.sv, #884): every snapshot that lands is
+#                    one GEN commit's words; part of `make`, with its planted
+#                    defects (cdc_pub_mutants.py, make cdc-pub-mutants)
 #   make dma-mutants - run-dma, then the mover's planted defects
 #                    (dma_mutants.py); part of `make`
 #   make clean     - remove build artifacts
@@ -78,8 +82,8 @@ CC     ?= cc
 AR     ?= ar
 
 .PHONY: all census run-wb run-axil run-cosim run-if2 if2-gen mutants-quick mutants print-vflags stack-pin clean \
-        run-dma dma-mutants print-dma-vflags
-all: run-wb run-axil run-cosim run-if2 mutants-quick dma-mutants
+        run-dma dma-mutants print-dma-vflags run-cdc-pub cdc-pub-mutants print-cdc-pub-vflags
+all: run-wb run-axil run-cosim run-if2 mutants-quick dma-mutants cdc-pub-mutants
 
 # The publication census (#665, comments 6092086337, 6094461419, 6097292237
 # and 6100024293): the block must carry every value the split datapath
@@ -172,6 +176,29 @@ dma-mutants: run-dma
 print-dma-vflags:
 	@printf '%s\n' $(VERILATOR) $(DMA_VFLAGS)
 
+# The gPTP publication crossing (#884, REQ-PTP-07) is a top of its own: a
+# SystemVerilog bench that clocks two KL_mbx_cdc from one register bank, the
+# datapath clock under and over the mailbox's. Only the publication is driven,
+# so the bench waives PINMISSING over its two instances, by name, and the
+# recipe keeps refusing a dropped binding anywhere else.
+CDC_PUB_RTL    = $(RTL_DIR)/KL_mbx_pkg.sv $(ROOT)/hdl/common/cdc_handshake.sv $(ROOT)/hdl/common/cdc_pulse.sv \
+                 $(RTL_DIR)/KL_mbx_cdc_window.sv $(RTL_DIR)/KL_mbx_cdc.sv
+CDC_PUB_VFLAGS = --binary --timing --timescale 1ns/1ps -j $(VBUILD_JOBS) --top-module tb_cdc_pub \
+                 -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
+                 -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -Wno-PINCONNECTEMPTY
+
+run-cdc-pub:
+	$(VERILATOR) $(CDC_PUB_VFLAGS) --Mdir obj_cdc_pub $(CDC_PUB_RTL) tb_cdc_pub.sv -o Vtb_cdc_pub
+	@echo "======================================================================"
+	./obj_cdc_pub/Vtb_cdc_pub
+
+# run-cdc-pub is the positive control of the crossing's planted defects
+cdc-pub-mutants: run-cdc-pub
+	python3 -B cdc_pub_mutants.py
+
+print-cdc-pub-vflags:
+	@printf '%s\n' $(VERILATOR) $(CDC_PUB_VFLAGS)
+
 # run-wb and run-axil are this arm's positive controls, hence the prerequisites
 mutants-quick: run-wb run-axil
 	python3 -B mutants.py --quick
@@ -184,4 +211,4 @@ print-vflags:
 	@printf '%s\n' $(VERILATOR) $(VFLAGS)
 
 clean:
-	rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2 obj_dma
+	rm -rf obj_wb obj_axil obj_cosim obj_fw obj_if2 obj_dma obj_cdc_pub

@@ -476,23 +476,41 @@ module KL_mbx_cdc
   //! that word last, so the cycle after GEN moves every other word is final
   localparam int unsigned GPTP_STATE_WORD_C = (MBX_PUB_REG_GPTP_STATE_C - MBX_PUB_REG_GPTP_GM_LO_C) / 4;
   localparam int unsigned GPTP_GEN_LSB_C = 32 * GPTP_STATE_WORD_C + MBX_GPTP_STATE_GEN_LSB_C;
-  logic [MBX_GPTP_STATE_GEN_WIDTH_C-1:0] gptp_sent_gen_r;
-  logic gptp_send_r, gptp_rcv_w;
+  //! The committed bank: the words as a GEN commit left them, captured the
+  //! cycle after GEN moves and held until the next commit. The crossing
+  //! sends this bank, never the live words, so an update the firmware has
+  //! begun and not committed reaches no delivered generation, however long
+  //! the crossing before it is in flight (REQ-PTP-07; #884 ruling item 7).
+  //! A commit while one is in flight is sent next; one overtaken by a later
+  //! commit before the crossing is free is not sent, the later one being whole.
+  logic [MBX_PUB_GPTP_WORDS_C*32-1:0] gptp_bank_r;
+  logic gptp_dirty_r, gptp_send_r, gptp_send_d_r, gptp_rcv_w;
+  wire gptp_commit_w = m_pub_gptp_i[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C] !=
+                       gptp_bank_r[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C];
+  //! cdc_handshake latches src_in on the edge its send level first reads high
+  //! (its own src_send_d, which gptp_send_d_r mirrors): the bank it latches is
+  //! the one held before that edge, so a commit on that edge stays owed
+  wire gptp_latch_w = gptp_send_r && !gptp_send_d_r;
   always_ff @(posedge sys_clk_i) begin : gptp_pub_send
     if (!sys_rst_n) begin
-      gptp_send_r     <= 1'b0;
-      gptp_sent_gen_r <= '0;
-    end else if (gptp_send_r) begin
-      if (gptp_rcv_w) gptp_send_r <= 1'b0;
-    end else if (m_pub_gptp_i[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C] != gptp_sent_gen_r) begin
-      //! cdc_handshake latches src_in on this level's rising edge, one cycle
-      //! after the GEN write: a GEN that moves again in flight sends again
-      gptp_send_r     <= 1'b1;
-      gptp_sent_gen_r <= m_pub_gptp_i[GPTP_GEN_LSB_C +: MBX_GPTP_STATE_GEN_WIDTH_C];
+      gptp_bank_r   <= '0;
+      gptp_dirty_r  <= 1'b0;
+      gptp_send_r   <= 1'b0;
+      gptp_send_d_r <= 1'b0;
+    end else begin
+      gptp_send_d_r <= gptp_send_r;
+      if (gptp_commit_w) gptp_bank_r <= m_pub_gptp_i;
+      if (gptp_commit_w) gptp_dirty_r <= 1'b1;
+      else if (gptp_latch_w) gptp_dirty_r <= 1'b0;
+      if (gptp_send_r) begin
+        if (gptp_rcv_w) gptp_send_r <= 1'b0;
+      end else if (gptp_dirty_r) begin
+        gptp_send_r <= 1'b1;
+      end
     end
   end : gptp_pub_send
   cdc_handshake #(.WIDTH(MBX_PUB_GPTP_WORDS_C * 32)) u_gptp_pub (
-    .src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_in(m_pub_gptp_i), .src_send(gptp_send_r),
+    .src_clk(sys_clk_i), .src_rst_n(sys_rst_n), .src_in(gptp_bank_r), .src_send(gptp_send_r),
     .src_rcv(gptp_rcv_w),
     .dest_clk(dp_clk_i), .dest_rst_n(dp_rst_n), .dest_out(d_pub_gptp_o), .dest_req(d_pub_gptp_p_o));
 

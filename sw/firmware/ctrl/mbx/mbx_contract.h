@@ -353,7 +353,7 @@
 #define MBX_GPTP_GM_HI_ID_LSB 0u
 /* GPTP_GM_HI: gptp_grandmaster_id[63:32] */
 #define MBX_GPTP_GM_HI_ID_WIDTH 32u
-/* The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one. */
+/* The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot, which the datapath takes whole: a word written after it reaches no snapshot, however long the crossing before is in flight, and a snapshot a later one overtakes before it crosses is not taken. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one. */
 #define MBX_PUB_REG_GPTP_STATE 0x28u
 /* GPTP_STATE: gptp_domain_number */
 #define MBX_GPTP_STATE_DOMAIN_LSB 0u

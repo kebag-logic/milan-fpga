@@ -1406,7 +1406,8 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 	} else if (pub_at(off, &i, &reg)) {
 		uint32_t gen0 = mbx_field(m->pub[i][MBX_PUB_REG_GPTP_STATE / 4u], MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH);
 		m->pub[i][reg / 4u] = value & pub_mask(reg);
-		// a GPTP_STATE write whose GEN moved publishes every GPTP_* word as one snapshot (KL_mbx_cdc)
+		// a GPTP_STATE write whose GEN moved publishes every GPTP_* word as one snapshot, held until the next
+		// such write, as KL_mbx_cdc's committed bank is: a word written after it reaches no snapshot (REQ-PTP-07)
 		if (reg == MBX_PUB_REG_GPTP_STATE &&
 		    mbx_field(value, MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH) != gen0) {
 			memcpy(m->gptp_snap[i], &m->pub[i][MBX_PUB_REG_GPTP_GM_LO / 4u], sizeof m->gptp_snap[i]);

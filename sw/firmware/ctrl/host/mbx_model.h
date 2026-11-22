@@ -137,7 +137,7 @@ struct mbx_model {
 	bool bound_en[MBX_N_IF][MBX_N_BOUND];           // BOUND_EN
 	uint32_t pub[MBX_N_IF][MBX_PUB_STRIDE / 4u];    // the publication block, word by word, its fields masked
 	// the gPTP publication as the datapath holds it (contract 2.5): the GPTP_* words taken whole when a write of
-	// GPTP_STATE moves its GEN, as KL_mbx_cdc crosses them
+	// GPTP_STATE moves its GEN, as KL_mbx_cdc's committed bank holds and crosses them
 	uint32_t gptp_snap[MBX_N_IF][MBX_PUB_GPTP_WORDS];
 	uint32_t face[MBX_N_IF][MBX_FACE_STRIDE / 4u];  // the face block's settings and requests, their fields masked
 	bool fw_busy[MBX_N_IF];                         // F_STATUS.BUSY: a commit waits for its acknowledgement

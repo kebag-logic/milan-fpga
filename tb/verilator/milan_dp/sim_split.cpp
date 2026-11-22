@@ -690,6 +690,22 @@ void check_gptp(Tb& tb) {
         avb = avb || ((w0 >> MBX_EVREC_W0_TYPE_LSB) & ((1u << MBX_EVREC_W0_TYPE_WIDTH) - 1u)) == MBX_EV_TYPE_AVB_INFO_CHANGED;
     }
     tb.check("[GPTP] a published grandmaster change posts no AVB_INFO_CHANGED from the datapath", !avb);
+    // a commit while the one before crosses, then the next update begun and not committed: the datapath holds
+    // the second commit whole, never its grandmaster with the begun update's word (REQ-PTP-07, #884)
+    const std::uint64_t a = 0x1212121212121212ull, b = 0x2222222222222222ull;
+    const std::uint32_t ok = (1u << MBX_GPTP_STATE_AS_CAPABLE_LSB) | (1u << MBX_GPTP_STATE_SYNC_OK_LSB);
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_LO), static_cast<std::uint32_t>(a));
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_HI), static_cast<std::uint32_t>(a >> 32));
+    tb.wr(pub(MBX_PUB_REG_GPTP_STATE), (2u << MBX_GPTP_STATE_GEN_LSB) | ok);
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_LO), static_cast<std::uint32_t>(b));
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_HI), static_cast<std::uint32_t>(b >> 32));
+    tb.wr(pub(MBX_PUB_REG_GPTP_STATE), (3u << MBX_GPTP_STATE_GEN_LSB) | ok);
+    tb.wr(pub(MBX_PUB_REG_GPTP_GM_LO), 0x33333333u);
+    tb.sys(400);
+    const std::uint32_t held_lo = tb.rd(MBX_IF_BASE + MBX_IF_REG_GM_LO);   // GM_LO first: it snapshots GM_HI
+    const std::uint64_t held = (std::uint64_t{tb.rd(MBX_IF_BASE + MBX_IF_REG_GM_HI)} << 32) | held_lo;
+    tb.check_eq("[GPTP] a commit while one crosses, then an update begun: the datapath holds the commit whole",
+                held, b);
 }
 #endif
 

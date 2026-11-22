@@ -61,4 +61,35 @@ INSTANTIATE_TEST_SUITE_P(Suite, MbxModelGroup, ::testing::Range(0u, ModelSuite::
                              return ModelSuite::kGroupNames[info.param];
                          });
 
+// The gPTP publication (contract 2.5, REQ-PTP-07): the snapshot the datapath holds is the GPTP_* words of the
+// last GPTP_STATE write that moved GEN, as KL_mbx_cdc's committed bank is; tb/verilator/mbx/tb_cdc_pub.sv runs
+// the same orderings on the RTL, so the closed loop's model answers as the crossing does (#884).
+TEST(MbxModelGptp, TheSnapshotIsTheLastCommitWhole) {
+    const auto m = std::make_unique<mbx_model>();
+    mbx_model_reset(m.get());
+    auto put = [&](std::uint32_t reg, std::uint32_t v) { mbx_model_write(m.get(), MBX_PUB_BASE + reg, v, 0xFu); };
+    auto state = [](std::uint32_t gen) { return gen << MBX_GPTP_STATE_GEN_LSB | 1u << MBX_GPTP_STATE_AS_CAPABLE_LSB; };
+    auto commit = [&](std::uint64_t gm, std::uint32_t gen) {
+        put(MBX_PUB_REG_GPTP_GM_LO, static_cast<std::uint32_t>(gm));
+        put(MBX_PUB_REG_GPTP_GM_HI, static_cast<std::uint32_t>(gm >> 32));
+        put(MBX_PUB_REG_GPTP_STATE, state(gen));
+    };
+    auto held = [&](std::uint64_t gm, std::uint32_t gen) {
+        mbx_model_pub view{};
+        mbx_model_pub_view(m.get(), 0, &view);
+        return view.gptp[0] == static_cast<std::uint32_t>(gm) && view.gptp[1] == static_cast<std::uint32_t>(gm >> 32) &&
+               view.gptp[2] == state(gen);
+    };
+    commit(0x1212121212121212ull, 2);
+    commit(0x2222222222222222ull, 3);
+    put(MBX_PUB_REG_GPTP_GM_LO, 0x33333333u);
+    EXPECT_TRUE(held(0x2222222222222222ull, 3)) << "an update begun after a commit reached the snapshot";
+    put(MBX_PUB_REG_GPTP_GM_HI, 0x33333333u);
+    put(MBX_PUB_REG_GPTP_STATE, state(3) | 1u << MBX_GPTP_STATE_SYNC_OK_LSB);
+    EXPECT_TRUE(held(0x2222222222222222ull, 3)) << "a write that left GEN where it was published";
+    commit(0xFFull, 0xFFu);
+    commit(0x100ull, 0x00u);
+    EXPECT_TRUE(held(0x100ull, 0x00u)) << "a commit that wrapped GEN through 0xFF did not publish";
+}
+
 }  // namespace
