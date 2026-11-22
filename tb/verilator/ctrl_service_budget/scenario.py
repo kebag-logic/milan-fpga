@@ -759,14 +759,22 @@ def owed_mrpdu_group(p: Point) -> Group:
     return g
 
 
-def owed_rounds(g: Group, p: Point) -> None:
+#: MSRP's attribute types and their FirstValue lengths (IEEE 802.1Q-2018 35.2.2.8.1, Table 35-6): Talker Advertise,
+#: Talker Failed and Listener, each sent with no value and its LeaveAll (owed_rounds' every_type).
+MSRP_TYPE_LENGTHS = ((1, 25), (2, 34), (3, 8))
+
+
+def owed_rounds(g: Group, p: Point, every_type: bool = False) -> None:
     """srp-owed's rounds with the egress held (owed_mrpdu_group): on each interface a LeaveAll on both participants a
-    JoinTime apart, each re-declaring the default Domain and its VID, then the egress returned."""
+    JoinTime apart, each re-declaring the default Domain and its VID, then the egress returned. With every_type the
+    MSRP MRPDU also carries a LeaveAll for each other MSRP attribute type, a VectorAttribute of no value (10.8.2.8), so
+    each join timer's run-out sends every declaration of the participant (rLA!, Table 10-3) and nothing registers."""
     domain = f.mrp_message(4, f.domain_value(6, 3, 2), [1], leave_all=True)
+    others = [f.mrp_message(t, bytes(n), [], leave_all=True) for t, n in MSRP_TYPE_LENGTHS] if every_type else []
     vid = f.mrp_message(1, f.be(2, 2), [1], leave_all=True, list_length=False)
     for _ in range(OWED_ROUNDS // p.interfaces):
         for i in range(p.interfaces):
-            g.add(f'frame {i} {f.msrp(BRIDGE_MAC, [domain]).hex()}',
+            g.add(f'frame {i} {f.msrp(BRIDGE_MAC, [*others, domain]).hex()}',
                   f'frame {i} {f.ethernet(f.MVRP_DA, BRIDGE_MAC, f.ETH_MVRP, bytes(1) + vid + bytes(2)).hex()}')
         g.add(f'wait cycles {OWED_ROUND_MS * MS}')
     g.add('mark room', 'txready 1', f'wait cycles {100 * MS}', 'wait quiet 3 within 50000000')
