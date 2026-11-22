@@ -1,0 +1,44 @@
+== control: nothing planted
+   diff exit 3: CLEAN
+== a configuration bit outside the ROM frames (frame 100) (shipping/1x1/flip/alinx_ax7101.bit)
+   diff exit 1: CAUGHT
+   FAIL  shipping/1x1/flip/alinx_ax7101.bit sha256 starts 68e5308b
+   FAIL  1x1: frame bits 23 = platform-image bits 21 + 1 (VERSION bit 16, 0x0002_0060 -> 0x0003_0060)
+== the part name in the .bit header (shipping/1x1/flip/alinx_ax7101.bit)
+   diff exit 1: CAUGHT
+   FAIL  shipping/1x1/flip/alinx_ax7101.bit sha256 starts 68e5308b
+   FAIL  1x1 every differing byte is header a/c/d text, the CRC register write or FDRI frame data (other: [162])
+== one more instruction byte in the platform image (shipping/8x8/flip/ctrl_app.elf)
+   diff exit 1: CAUGHT
+   FAIL  8x8 ctrl_app.elf: the other differing bytes are one lui/addi pair at ['0x100', '0x12208', '0x1220c'] loading zlib.crc32(aecp_entity_image) d6dd74b9 -> b730ec91
+   FAIL  8x8: the ROM bank inits differ in exactly the ELF's differing bits
+== one ROM word the image does not hold (shipping/1x1/flip/gateware/alinx_ax7101_rom_bank0.init)
+   diff exit 1: CAUGHT
+   FAIL  1x1: the ROM bank inits differ in exactly the ELF's differing bits
+== a cell placed elsewhere (8x8; 1x1 cells not published) (shipping/8x8/dump/flip.cells.xz)
+   diff exit 1: CAUGHT
+   FAIL  8x8 cells: KL_mbx/u_srp_rx/mem_r_reg RAMB36E1 differs only in INIT* properties
+== a route changed (shipping/1x1/dump/flip.nets.xz)
+   diff exit 1: CAUGHT
+   FAIL  1x1 nets dump: 95172 lines, equal
+== a block RAM INIT bit outside the ROMs (shipping/8x8/dump/flip.bram.xz)
+   diff exit 1: CAUGHT
+   FAIL  8x8: bram INIT bits 16 = frame bits 15
+== a measured harness image swapped for the head's (harness/1x1/none/measured.elf)
+   diff exit 1: CAUGHT
+   FAIL  harness 1x1/none: in aecp_entity_image only +0x184 '2'->'3' (context b'\x00\x02\x00\x003.96.0\x00\x00\x00\x00\x00\x00' -> b'\x00\x02\x00\x003.96.0\x00\x00\x00\x00\x00\x00')
+   FAIL  harness 1x1/none: the other differing bytes are one lui/addi pair at [] loading zlib.crc32(aecp_entity_image) db1deab5 -> db1deab5
+== one more data byte in a harness image (harness/8x8-1if/answering-ports/head.elf)
+   diff exit 1: CAUGHT
+   FAIL  harness 8x8-1if/answering-ports: the other differing bytes are one lui/addi pair at ['0x107cc', '0x107ec', '0x19b80'] loading zlib.crc32(aecp_entity_image) d6dd74b9 -> b730ec91
+   FAIL  harness 8x8-1if/answering-ports: 6 bytes (15 bits)
+== a group's CPU cycles changed (groups/1x1/none/control.head.json)
+   diff exit 1: CAUGHT
+   FAIL  1x1/none/control: 325 JSON leaves equal [(('.probes[0].cpu_cycles', 2227), ('.probes[0].cpu_cycles', 12227))]
+== a raw log digit changed other than the version's (groups/1x1/none/aecp-held.head.log.gz)
+   diff exit 1: CAUGHT
+   FAIL  1x1/none/aecp-held: raw log 125033 lines, 3 differ, each only by '2'->'3' digits
+== PROBE (rule strength): a 2->3 digit planted in an unrelated log line (groups/1x1/none/control.head.log.gz)
+   diff exit 3: MISSED
+
+control clean: True; plants caught: 11 of 12

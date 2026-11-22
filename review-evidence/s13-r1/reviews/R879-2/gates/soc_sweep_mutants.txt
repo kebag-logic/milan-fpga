@@ -1,0 +1,5 @@
+== M1 prepare drops --placement from the builder call: selftest exit 0 (NOT CAUGHT)
+== M2 prepare never raises on a missing image: selftest exit 0 (NOT CAUGHT)
+== M3 command_export ignores the plan placement (passes split): selftest exit 0 (NOT CAUGHT)
+== M4 missing_images ignores a relative path (reads against cwd): selftest exit 1 (CAUGHT)
+SELF-TEST FAILED: a platform image present in the tree was reported missing
