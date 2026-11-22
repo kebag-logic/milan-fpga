@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # mbx: the packet-mailbox fabric skeleton, through both bus adapters
 
-`make` builds and runs five things, exit 0 = all green:
+`make` builds and runs six things, exit 0 = all green:
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
    `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
@@ -43,6 +43,22 @@
    routing that `KL_mbx`'s two-cycle register read broke; and
    `ring-address-a-step-behind`, the ring address register a word behind its
    index (#927).
+6. `cdc-pub-mutants`: `run-cdc-pub` (#884, REQ-PTP-07) builds [`tb_cdc_pub.sv`](tb_cdc_pub.sv),
+   a SystemVerilog bench of `KL_mbx_cdc`'s gPTP publication crossing alone.
+   Two crossings take one register bank, the datapath clock at 50 MHz and at
+   125 MHz under the mailbox's 100 MHz, and the stimulus writes a word a
+   mailbox cycle. Every snapshot that lands must be one GEN commit's words, in
+   commit order, and each scenario's last commit must land. The scenarios are
+   an idle commit, and a commit while one crosses followed by an update begun
+   and not committed: that is the ordering that tore at `f15b3a7d`. Then three
+   commits back to back, an update begun after an idle commit, and a commit on
+   the edge the crossing takes the one before. Then GEN through 0xFF, a write
+   that leaves GEN where it was, and reset with a crossing in flight. Its five
+   planted defects ([`cdc_pub_mutants.py`](cdc_pub_mutants.py)) are each caught
+   by the words they name; the first is the live-word crossing #966's review
+   found. The host model is held to the same orderings by
+   `MbxModelGptp.TheSnapshotIsTheLastCommitWhole`
+   ([`model_suite.cpp`](../../../sw/firmware/ctrl/test/model_suite.cpp)).
 
 `make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)
 `--check --selftest` (#665, comments 6092086337, 6094461419, 6097292237 and
@@ -462,6 +478,7 @@ held flag as the registered one does. The model's twin of the first is
 ```sh
 make -C tb/verilator/mbx
 make -C tb/verilator/mbx run-if2
+make -C tb/verilator/mbx cdc-pub-mutants
 make -C tb/verilator/mbx mutants
 make -C tb/verilator/mbx census
 ```
