@@ -226,6 +226,12 @@ DUT_READER_DISPOSITIONS = {
         "its own table into a copy, elaborates the copy through the suite's own recipe "
         "(RM_SRC) and requires the named leg to fail on its words; an unplanted control "
         "runs first and the tracked source is never edited.",
+    "tb/verilator/milan_dp_render/ship8_mutants.py":
+        "mutation campaign (#584); it plants one projection, adapter or bus-binding defect from its own "
+        "table into a copy of the generated 8x8 shape header or milan_datapath.sv, elaborates the copy through "
+        "the suite's own recipe (SHIP8_SHAPE, DP_SRC) and requires sim_ship8_render to fail on its words, or "
+        "the elaboration to refuse it by its guard's; the unplanted leg runs first and no expected value is "
+        "read from RTL",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
         "mutation campaign; it plants one render-lane defect from its own table into "
         "a copy or runs a leg-side defect arm, and requires the named check to fail. "
