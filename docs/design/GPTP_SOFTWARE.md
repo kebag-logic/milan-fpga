@@ -205,7 +205,8 @@ Measured at `631dc544`, the split hot list relearned with the gPTP ports in its 
 | A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
 
 The images are built `--with-gptp` and planned at their ledgered points; the CPU is the split's, at 100 MHz.
-gPTP takes 0.27 % of it after link-up at 8x8/2if, 0.21 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
+gPTP takes 0.27 % of it after link-up at 8x8/2if, 0.21 % at 8x8/1if.
+Its largest contribution to one work pass is 0.374 ms, in `backlog-owed` at 8x8/2if.
 The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
 
 A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
