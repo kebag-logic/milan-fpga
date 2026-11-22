@@ -1,0 +1,23 @@
+== WIRE line: the payload byte 0x02 just before the version string -> 0x03 (groups/1x1/none/aecp.head.log.gz; resealed True)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker '1x1/none/aecp: raw log')
+   FAIL  1x1/none/aecp: raw log 101495 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0); NOT ANCHORED: lines [84238]
+== PASS line: the mailbox word just before the version's, 0x02000000 -> 0x03000000 (groups/1x1/none/aecp.head.log.gz; resealed True)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker '1x1/none/aecp: raw log')
+   FAIL  1x1/none/aecp: raw log 101495 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0); NOT ANCHORED: lines [84254]
+== 8x8 block RAM dump removed, manifests left naming it (shipping/8x8/dump/flip.bram.xz; resealed False)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker 'flip.bram')
+   FAIL  230 listed files hash as listed; mismatched ['shipping/8x8/dump/flip.bram.xz']
+   FAIL  no file unlisted ([]) or missing (['shipping/8x8/dump/flip.bram.xz'])
+   FAIL  36 compressed operands' content hashes as MANIFEST.content.sha256 lists it, every compressed file listed; mismatched or absent ['shipping/8x8/dump/flip.bram.xz']
+== 1x1 bench ELF removed and resealed (shipping/1x1/bench/ctrl_app.elf; resealed True)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker 'ctrl_app.elf')
+   FAIL  shipping/1x1/bench/ctrl_app.elf: absent is c873a0aa (the bench re-check's 1x1/1if firmware (#665 issuecomment-7063917242))
+   FAIL  1x1 shipping: operand shipping/1x1/bench/ctrl_app.elf is absent; the claims that read it are refused
+== 8x8 nets: one route line dropped (shipping/8x8/dump/flip.nets.xz; resealed True)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker '8x8 nets')
+   FAIL  8x8 nets: 119085 nets, every route byte-identical
+== binding.json: a bench hash's published prefix altered (binding.json; resealed True)
+   exit 1, RESULT reached True, traceback False: CAUGHT (marker 'c7189218')
+   FAIL  shipping/1x1/bench/alinx_ax7101.bit: c7189218a128b71d is c7189219 (the bench re-check's 1x1/1if bitstream, built at 8c5e2b4f (#665 issuecomment-7063917242))
+reviewer plants caught: 6 of 6
+rc=0

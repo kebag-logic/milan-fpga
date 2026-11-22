@@ -1,0 +1,5 @@
+# PR #960 body checkout recipe (round 3) against the public remote, in a fresh bare repository
+$ git fetch --depth 1 --filter=blob:none https://github.com/kebag-logic/milan-fpga dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+FETCH_HEAD dd163e41438acb86e0c4d4e76df90f3f91ace1c0 tree 0e7909a8d02c4123c604c4a168a8b0cbfdd94e7e
+test "$(git rev-parse HEAD)" = dd163e41438acb86e0c4d4e76df90f3f91ace1c0 -> holds
+dd163e41438acb86e0c4d4e76df90f3f91ace1c0	refs/heads/665-s13-flip-default

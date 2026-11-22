@@ -1,0 +1,17 @@
+# Round-2 byte preimages of the five re-encoded round-3 operands (tools/reencode_probe.py, tools/gz_header_search.py)
+groups/1x1/declaring-outputs/aecp-outputs.measured.log.gz: file 0e5edeb3 ok; content 441ee863 == binding 441ee863; 24539088 B
+   round-2 bytes reproduced by: NONE of the candidates
+groups/8x8-1if/declaring-outputs/aecp-outputs.head.log.gz: file 99e290b3 ok; content 3031de28 == binding 3031de28; 22814162 B
+   round-2 bytes reproduced by: python gzip level 9 mtime 0
+groups/8x8-1if/declaring-outputs/aecp-outputs.measured.log.gz: file 99e290b3 ok; content 3031de28 == binding 3031de28; 22814162 B
+   round-2 bytes reproduced by: NONE of the candidates
+shipping/1x1/dump/bench.cells.xz: file 481b9f7d ok; content 0f115bae == binding 0f115bae; 10522060 B
+   (round-3 bytes reproduce at preset 6)
+   round-2 bytes reproduced by: lzma preset 9 check 4
+shipping/1x1/dump/flip.cells.xz: file 9236170b ok; content ece5a067 == binding ece5a067; 10522060 B
+   (round-3 bytes reproduce at preset 6)
+   round-2 bytes reproduced by: lzma preset 9 check 4
+# GNU gzip -6 header reconstruction (method validated on groups/1x1/none/aecp.measured.log.gz):
+groups/1x1/none/aecp.measured.log.gz: reproduced with GNU gzip -6, name 'aecp.log', mtime 1795199753; 946224 B -> f536ea005a2b95fa4f250a221f8c4e977940ae54244b91d93b50c8b292b6e07a
+groups/1x1/declaring-outputs/aecp-outputs.measured.log.gz: reproduced with GNU gzip -6, name 'aecp-outputs.log', mtime 1795194441; 4261977 B -> 3ab0f4e3da1289b428892dd6a2dc7ec8182b8f7bf96c114696dc3c6cb2f8df20
+groups/8x8-1if/declaring-outputs/aecp-outputs.measured.log.gz: reproduced with GNU gzip -6, name 'aecp-outputs.log', mtime 1795175527; 4009268 B -> 19259754acedc19466fe2d22366e2da39df43a62f6f2908c267955e811666478

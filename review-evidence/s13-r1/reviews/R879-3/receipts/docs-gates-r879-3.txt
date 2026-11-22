@@ -1,0 +1,28 @@
+01 rc=0  python3 scripts/docs_check.py  | docs_check: 0 finding(s) across 223 md files + 1910 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+02 rc=0  python3 scripts/check_feature_status.py  | feature_status: 0 finding(s)
+03 rc=0  python3 scripts/check_feature_status.py --self-test  | feature_status: 0 finding(s)
+04 rc=0  python3 scripts/check_doc_style.py  | documentation style: OK (25 current documents)
+05 rc=0  python3 scripts/check_doc_paths.py  | doc path gate: OK (1753 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+06 rc=2  python3 scripts/check_em_dash.py --base 59b09884  | check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --req
+07 rc=0  python3 scripts/check_py_idiom.py  |   over-long line: 0 <= 0
+08 rc=0  python3 scripts/check_hygiene.py --check  | HYGIENE RATCHET: PASS (3 population(s), 1515 file(s))
+09 rc=0  python3 scripts/docs_inventory.py --check  | documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+10 rc=0  python3 docs/DOC_MAP.gen.py --check  | documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+11 rc=2  python3 scripts/gen_toc.py --check  | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+12 rc=2  python3 scripts/gen_toc.py --verify-anchors  | gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+13 rc=0  python3 scripts/check_solution_docs.py  | solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+14 rc=0  python3 scripts/check_todo_ownership.py  | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as
+15 rc=0  python3 scripts/measure_naming.py --check  | NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+16 rc=0  python3 scripts/measure_test_evidence.py --check  |   the mutation ratchet can be lowered to 67
+17 rc=0  python3 scripts/measure_fail_fast.py --check  |   the ratchets can be lowered to 80, 3 and 0
+18 rc=0  python3 scripts/check_sweep_shape.py --self-test  |   [self-test] OK: 1 drift(s) reported
+19 rc=0  python3 syn/resmap/soc_sweep.py --selftest  | soc_sweep self-test: PASS
+20 rc=2  python3 scripts/gen_register_reference.py --check  | register reference: REFUSED: the 'wavedrom' package is missing: python3 -m pip install wavedrom==2.0.3.post3
+21 rc=0  python3 scripts/check_submodule_docs.py  | submodule documentation: OK (6 exact gitlinks)
+22 rc=0  python3 docs/traceability/gen_module_matrix.py --check  | traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+
+# rows 06, 11, 12, 20 rerun with the pinned renderer (tools/markdown/requirements.txt, --require-hashes) and wavedrom 2.0.3.post3 (ci/constraints-ci.txt hash) in a private venv:
+rc=0  python3 scripts/check_em_dash.py --base 59b09884  | check_em_dash: 0 finding(s) over 180 added line(s) in 33 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [59b09884..HEAD]
+rc=0  python3 scripts/gen_toc.py --check  | TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0  python3 scripts/gen_toc.py --verify-anchors  | anchor check: 755 existing cross-page fragment links reproduced
+rc=0  python3 scripts/gen_register_reference.py --check  | register reference: fresh (203 registers, 34 modules, 240 files)

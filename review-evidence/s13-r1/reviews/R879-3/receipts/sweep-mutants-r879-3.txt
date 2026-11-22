@@ -1,0 +1,13 @@
+== control: unmodified: exit 0: PASS (control)
+== A: command_export hard-codes all-fabric instead of reading the plan: exit 0: SURVIVED
+== B: command_export writes under soc/ before prepare(): exit 1: CAUGHT
+   SELF-TEST FAILED: command_export wrote under soc/ before prepare() returned
+== C: prepare drops --entity-gen-dir: exit 1: CAUGHT
+   SELF-TEST FAILED: prepare(all-fabric) returned ['--xlen', '32']
+== D: prepare refuses but names no image: exit 1: CAUGHT
+   SELF-TEST FAILED: prepare(split) refused without naming the image: the split SoC arguments name platform image(s) that the export tree does not hold; the sweep builds none (#665)
+== E: prepare checks images against the builder output, not the export tree: exit 0: SURVIVED
+== F: prepare asks the builder for a fixed all-fabric: exit 1: CAUGHT
+   SELF-TEST FAILED: prepare(split) returned an argument list naming an absent platform image
+== G: prepare skips git_listable: exit 0: SURVIVED
+mutants caught: 4 of 7

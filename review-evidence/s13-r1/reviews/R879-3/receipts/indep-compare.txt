@@ -1,0 +1,77 @@
+== 1x1: routed dumps
+   cells: bench 86465, flip 86465; names equal: True
+   cells whose REF_NAME/LOC/BEL differ: 0
+     milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1: 1 bit(s)
+     rom_bank1_dat0_reg_2 RAMB36E1: 1 bit(s)
+     rom_bank1_dat0_reg_3 RAMB36E1: 4 bit(s)
+     rom_bank1_dat0_reg_4 RAMB36E1: 2 bit(s)
+     rom_bank1_dat0_reg_5 RAMB36E1: 6 bit(s)
+     rom_bank1_dat0_reg_6 RAMB36E1: 3 bit(s)
+     rom_bank1_dat0_reg_7 RAMB36E1: 4 bit(s)
+     rom_bank3_dat0_reg_0 RAMB36E1: 1 bit(s)
+   INIT bits differing: 22 in 8 cell(s)
+   nets: bench 95172 lines, flip 95172 lines; every line byte-identical: True
+== 8x8: routed dumps
+   cells: bench 109093, flip 109093; names equal: True
+   cells whose REF_NAME/LOC/BEL differ: 0
+     milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_0 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_15 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_16 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_18 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_19 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_21 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_22 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_23 RAMB36E1: 2 bit(s)
+     rom_bank0_dat0_reg_0_24 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_25 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_29 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_30 RAMB36E1: 1 bit(s)
+     rom_bank0_dat0_reg_0_31 RAMB36E1: 1 bit(s)
+   INIT bits differing: 15 in 14 cell(s)
+   nets: bench 119085 lines, flip 119085 lines; every line byte-identical: True
+   block RAM dump: 111 RAMs, names equal True; 15 INIT bit(s) in 14 RAM(s)
+== groups: 13
+   1x1/answering-ports/aecp-reboot: JSON 420/420 leaves, 0 differ
+   1x1/answering-ports/aecp-reboot: log 96890/96890 lines, 0 differ
+   1x1/declaring-outputs/aecp-outputs: JSON 512/512 leaves, 0 differ
+   1x1/declaring-outputs/aecp-outputs: log 496914/496914 lines, 0 differ
+   1x1/none/aecp: JSON 1321/1321 leaves, 0 differ
+   1x1/none/aecp: log 101495/101495 lines, 2 differ
+       line 84238 (WIRE 68623566 0 2 0a0b0c): '2'->'3' @335 [text 2->3] ctx '00000000000000000020000322e39362e300000000000000'
+       line 84254 (PASS 5168 68606952 68606): '2'->'3' @1234 [text 2->3] ctx '2000000 68622409:a36:2e320000 68622411:a37:302e3'
+       line 84238: whole-line substitution of the firmware_version encoding reproduces head: True
+       line 84254: whole-line substitution of the firmware_version encoding reproduces head: True
+   1x1/none/aecp-fanout: JSON 626/626 leaves, 0 differ
+   1x1/none/aecp-fanout: log 100213/100213 lines, 0 differ
+   1x1/none/aecp-held: JSON 245/245 leaves, 0 differ
+   1x1/none/aecp-held: log 125033/125033 lines, 2 differ
+       line 124959 (WIRE 100519983 0 2 0a0b0): '2'->'3' @336 [text 2->3] ctx '00000000000000000020000322e39362e300000000000000'
+       line 124975 (PASS 7661 100503581 1005): '2'->'3' @1279 [text 2->3] ctx '000000 100518874:a29:2e320000 100518876:a2a:302e'
+       line 124959: whole-line substitution of the firmware_version encoding reproduces head: True
+       line 124975: whole-line substitution of the firmware_version encoding reproduces head: True
+   1x1/none/aecp-largest-notice: JSON 429/429 leaves, 0 differ
+   1x1/none/aecp-largest-notice: log 97934/97934 lines, 0 differ
+   1x1/none/control: JSON 325/325 leaves, 0 differ
+   1x1/none/control: log 102101/102101 lines, 0 differ
+   8x8-1if/answering-ports/aecp-reboot: JSON 423/423 leaves, 0 differ
+   8x8-1if/answering-ports/aecp-reboot: log 76872/76872 lines, 0 differ
+   8x8-1if/declaring-outputs/aecp-outputs: JSON 813/813 leaves, 0 differ
+   8x8-1if/declaring-outputs/aecp-outputs: log 505692/505692 lines, 0 differ
+   8x8-1if/none/aecp: JSON 1322/1322 leaves, 0 differ
+   8x8-1if/none/aecp: log 82768/82768 lines, 2 differ
+       line 68198 (WIRE 72524583 0 2 0a0b0c): '2'->'3' @335 [text 2->3] ctx '00000000000000000020000322e39362e300000000000000'
+       line 68213 (PASS 4163 72510351 72510): '2'->'3' @1228 [text 2->3] ctx '2000000 72523512:a36:2e320000 72523514:a37:302e3'
+       line 68198: whole-line substitution of the firmware_version encoding reproduces head: True
+       line 68213: whole-line substitution of the firmware_version encoding reproduces head: True
+   8x8-1if/none/aecp-fanout: JSON 532/532 leaves, 0 differ
+   8x8-1if/none/aecp-fanout: log 80245/80245 lines, 0 differ
+   8x8-1if/none/aecp-held: JSON 246/246 leaves, 0 differ
+   8x8-1if/none/aecp-held: log 97169/97169 lines, 2 differ
+       line 97096 (WIRE 100519248 0 2 0a0b0): '2'->'3' @336 [text 2->3] ctx '00000000000000000020000322e39362e300000000000000'
+       line 97111 (PASS 5923 100504661 1005): '2'->'3' @1273 [text 2->3] ctx '000000 100518177:a29:2e320000 100518179:a2a:302e'
+       line 97096: whole-line substitution of the firmware_version encoding reproduces head: True
+       line 97111: whole-line substitution of the firmware_version encoding reproduces head: True
+   8x8-1if/none/control: JSON 332/332 leaves, 0 differ
+   8x8-1if/none/control: log 81508/81508 lines, 0 differ
+== RESULT: ALL DIFFERENCES NAMED
