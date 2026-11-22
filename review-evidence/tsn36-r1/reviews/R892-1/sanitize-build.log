@@ -1,0 +1,17 @@
+$ cmake --build $REVIEWS/tsn36-r892-1-packet/scratch/sanitize --target adp_tests adp_debug adp_release -j4
+[1/16] Building C object CMakeFiles/tsn_test.dir/src/adp.c.o
+[2/16] Building C object CMakeFiles/tsn_test.dir/src/maap.c.o
+[3/16] Building C object CMakeFiles/tsn_debug.dir/src/adp.c.o
+[4/16] Building C object CMakeFiles/tsn_debug.dir/src/maap.c.o
+[5/16] Building C object CMakeFiles/tsn_test.dir/src/acmp.c.o
+[6/16] Linking C static library libtsn_test.a
+[7/16] Building CXX object CMakeFiles/adp_tests.dir/tests/main.cpp.o
+[8/16] Linking C static library libtsn_debug.a
+[9/16] Building CXX object CMakeFiles/adp_release.dir/tests/main.cpp.o
+[10/16] Building CXX object CMakeFiles/adp_release.dir/tests/test_adp_reentry.cpp.o
+[11/16] Linking CXX executable adp_release
+[12/16] Building CXX object CMakeFiles/adp_debug.dir/tests/main.cpp.o
+[13/16] Building CXX object CMakeFiles/adp_debug.dir/tests/test_adp_reentry.cpp.o
+[14/16] Linking CXX executable adp_debug
+[15/16] Building CXX object CMakeFiles/adp_tests.dir/tests/test_adp.cpp.o
+[16/16] Linking CXX executable adp_tests

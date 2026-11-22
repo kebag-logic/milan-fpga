@@ -1,0 +1,12 @@
+$ g++ -std=c++20 -O0 -g -Wall -Wextra -Werror -I $REVIEWS/r892-1-tsn36/include $REVIEWS/tsn36-r892-1-packet/scratch/sensitivity/base.cpp $REVIEWS/r892-1-tsn36/tests/main.cpp $REVIEWS/tsn36-r892-1-packet/scratch/sensitivity/mutant.o -I$REVIEWS/tsn36-r892-1-packet/scratch/gtest-install/include -DGTEST_HAS_PTHREAD=1 -L$REVIEWS/tsn36-r892-1-packet/scratch/gtest-install/lib -lgmock -lgtest -o $REVIEWS/tsn36-r892-1-packet/scratch/sensitivity/base
+In file included from $REVIEWS/tsn36-r892-1-packet/scratch/sensitivity/base.cpp:4:
+$REVIEWS/tsn36-r892-1-packet/scratch/gtest-install/include/gtest/gtest.h: In instantiation of ‘testing::AssertionResult testing::internal::CmpHelperEQ(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int]’:
+$REVIEWS/tsn36-r892-1-packet/scratch/gtest-install/include/gtest/gtest.h:1398:23:   required from ‘static testing::AssertionResult testing::internal::EqHelper::Compare(const char*, const char*, const T1&, const T2&) [with T1 = unsigned int; T2 = int; typename std::enable_if<((! std::is_integral<_Tp>::value) || (! std::is_pointer<_Dp>::value))>::type* <anonymous> = 0]’
+ 1398 |     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
+      |            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$REVIEWS/tsn36-r892-1-packet/scratch/sensitivity/base.cpp:118:5:   required from here
+  134 |   GTEST_ASSERT_(pred_format(#v1, #v2, v1, v2), on_failure)
+$REVIEWS/tsn36-r892-1-packet/scratch/gtest-install/include/gtest/gtest.h:1379:11: error: comparison of integer expressions of different signedness: ‘const unsigned int’ and ‘const int’ [-Werror=sign-compare]
+ 1379 |   if (lhs == rhs) {
+      |       ~~~~^~~~~~
+cc1plus: all warnings being treated as errors

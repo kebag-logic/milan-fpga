@@ -1,0 +1,11 @@
+[
+  {
+    "name": "gm-change-draws-startup-kind",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A0toA2Schedule": "$REVIEWS/tsn36-r892-1-packet/scratch/mutation/baseline/tests/test_adp.cpp:139\nValue of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY && fk.last_delay == a.last_draw_ms && fk.last_delay <= 4000u\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_dff840c45a7f9b19ab564c0c73318b18\nA2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)\nTSN_MESSAGE_END_3e01267edf4e7c01eccb7df97b66ba88\n\n"
+    },
+    "tests": 1
+  }
+]
