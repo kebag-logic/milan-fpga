@@ -1311,9 +1311,18 @@ channels:
     match:
       - {dst: 0x0180C200000E, ethertype: 0x88F7,
          doc: "IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5)"}
-    # provisional (#884's ruling): burst 16, one every 10 ms, 100 a second against
-    # Milan v1.2 4.2.6.2.2 Table 4.1's 20 a second of a slave port
-    rate: {burst: 16, refill_ms: 10}
+    # The burst, an interface (#884's ruling of 2026-11-22, item 1): the worst legitimate
+    # coincidence of the 802.1AS message kinds in one refill window. A full-duplex port
+    # receives seven kinds from its one peer (IEEE 802.1AS-2020 Table 11-5: Sync,
+    # Pdelay_Req, Pdelay_Resp, Follow_Up, Pdelay_Resp_Follow_Up; Table 10-8: Announce,
+    # Signaling; no other messageType is used), and each at most once in 10 ms: Sync and
+    # its Follow_Up every 125 ms, Announce, the peer's Pdelay_Req and the Pdelay_Resp and
+    # Pdelay_Resp_Follow_Up answering the port's own request every second (Milan v1.2
+    # 4.2.6.2.2 Table 4.1), a gPTP-capable Signaling at its default second (10.7.2.5),
+    # with 90 % of the intervals within 30 % of nominal (10.7.2.2, 10.7.2.3), so the
+    # closest in-tolerance Sync pair is 87.5 ms apart. Seven an interface, times the
+    # interfaces; the refill, one every 10 ms, is 100 a second against a slave port's 20.
+    rate: {burst_per_interface: 7, refill_ms: 10}
     cite: IEEE 802.1AS-2020 11.3.4, 11.3.5 and 11.4; Milan v1.2 4.2.6.2.2 Table 4.1
     # The record carries the whole frame and, after it, an eight-octet trailer:
     # the frame's ingress stamp, most significant octet first, the PHC at the

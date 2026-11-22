@@ -25,8 +25,8 @@
 //   master  each peer is a slave (priority1 250) with a servo of its own; each port is grandmaster, and each peer
 //           must lock to its own PHC through the firmware's Sync, Follow_Up and Pdelay answers.
 //   flood   interface 0's grandmaster also sends bursts of 32 Pdelay_Req back to back, past the gptp channel's
-//           admission (burst 16): the port keeps its lock, the mailbox refuses the excess, and every event message
-//           it admits reached the firmware with its own stamp (ruling 2).
+//           admission (its burst, 7 an interface): the port keeps its lock, the mailbox refuses the excess, and
+//           every event message it admits reached the firmware with its own stamp (ruling 2).
 // Every offset is read from outside: each PHC's own counter against its peer's model clock at the same instant.
 //
 // Each check prints its words; the tally is the record. Exit 0 = PASS.
@@ -461,7 +461,7 @@ struct Bench {
 			send_peer(i, d, peer.msg(0x2, 54, peer.req_seq, 5, 0));
 		}
 		if (l.flood && t >= l.next_flood) {
-			// a burst of Pdelay_Req back to back, past the gptp channel's admission (burst 16)
+			// a burst of Pdelay_Req back to back, past the gptp channel's admission (MBX_CH_GPTP_RATE_BURST)
 			l.next_flood += 200e6L;
 			for (unsigned k = 0; k < 32; k++)
 				send_peer(i, peer_depart(i, t, 68), peer.msg(0x2, 54, l.flood_seq++, 5, 0));
@@ -785,7 +785,7 @@ void run_flood()
 	unsigned handed = 0;
 	for (const auto &f : ln.handed)
 		handed += f;
-	check(ln.refused > 0, "FLOOD the gptp channel refused or held the bursts' excess (its admission, burst 16)",
+	check(ln.refused > 0, "FLOOD the gptp channel refused or held the bursts' excess (its admission, 7 an interface)",
 	      ln.refused, 1);
 	check(b.g.rx_unstamped == 0 && b.g.rx_stamped > 0 && b.g.rx_stamped <= handed,
 	      "FLOOD every event message the channel delivered reached the firmware with its own stamp",

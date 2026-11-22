@@ -1471,7 +1471,7 @@ package KL_mbx_pkg;
   //! gptp largest frame
   localparam int unsigned MBX_CH_GPTP_MAX_FRAME_BYTES_C = 32'd512;
   //! gptp token bucket depth
-  localparam int unsigned MBX_CH_GPTP_RATE_BURST_C = 32'd16;
+  localparam int unsigned MBX_CH_GPTP_RATE_BURST_C = 32'd7;
   //! gptp ms per refilled token
   localparam int unsigned MBX_CH_GPTP_RATE_REFILL_MS_C = 32'd10;
   //! gptp tuple 0: IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5)

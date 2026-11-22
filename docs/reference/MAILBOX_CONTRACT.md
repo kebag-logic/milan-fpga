@@ -911,7 +911,7 @@ A frame that ends before byte 14 is classified into nothing and counted nowhere.
 | `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 5 ms | 6 ms: one refill period and `T_ingress` |
 | `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | burst 8, one token per 20 ms | 21 ms: one refill period and `T_ingress` |
 | `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | burst 32, one token per 2 ms | 3 ms: one refill period and `T_ingress` |
-| `gptp` | 5 | `0x5800`, 512 words | `0x3400`, 256 words | 512 | burst 16, one token per 10 ms | 11 ms: one refill period and `T_ingress` |
+| `gptp` | 5 | `0x5800`, 512 words | `0x3400`, 256 words | 512 | burst 7 (7 an interface), one token per 10 ms | 11 ms: one refill period and `T_ingress` |
 
 A record that finds a token is published within 64 mailbox cycles of its last byte: its ingress allowance, `T_ingress`, is 1 ms (FR_NFR.md 3.4.1). A held record is published at its channel's next refill, so its allowance is one refill period more, derived above from each channel's `refill_ms`.
 
@@ -1717,7 +1717,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_GPTP_TX_BASE` | `0x3400` |
 | `MBX_CH_GPTP_TX_WORDS` | `0x100` |
 | `MBX_CH_GPTP_MAX_FRAME_BYTES` | `0x200` |
-| `MBX_CH_GPTP_RATE_BURST` | `0x10` |
+| `MBX_CH_GPTP_RATE_BURST` | `0x7` |
 | `MBX_CH_GPTP_RATE_REFILL_MS` | `0xa` |
 | `MBX_CH_GPTP_M0_DST` | `0x1` |
 | `MBX_CH_GPTP_M0_DST_HI` | `0x180` |

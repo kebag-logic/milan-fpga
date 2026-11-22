@@ -1470,7 +1470,7 @@
 /* gptp largest frame */
 #define MBX_CH_GPTP_MAX_FRAME_BYTES 512u
 /* gptp token bucket depth */
-#define MBX_CH_GPTP_RATE_BURST 16u
+#define MBX_CH_GPTP_RATE_BURST 7u
 /* gptp ms per refilled token */
 #define MBX_CH_GPTP_RATE_REFILL_MS 10u
 /* gptp tuple 0: IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5) */

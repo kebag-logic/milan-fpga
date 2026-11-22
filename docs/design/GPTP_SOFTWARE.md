@@ -75,7 +75,7 @@ Minor 5 only adds, by the contract's own rule.
 
 | Item | What it carries | Clause |
 |---|---|---|
-| Channel `gptp`, id 5 | Untagged frames to `01-80-C2-00-00-0E`, EtherType `0x88F7`, both ways; 16 a burst, one every 10 ms (provisional, ruling item 2); each received record ends in an eight-octet trailer | IEEE 802.1AS-2020 11.3.4, 11.3.5 |
+| Channel `gptp`, id 5 | Untagged frames to `01-80-C2-00-00-0E`, EtherType `0x88F7`, both ways; a burst of 7 an interface, one every 10 ms (derived in `mailbox.yaml` from the worst legitimate coincidence of the seven 802.1AS message kinds in one refill window, #884's ruling of 2026-11-22, item 1); each received record ends in an eight-octet trailer | IEEE 802.1AS-2020 11.3.4, 11.3.5 |
 | Event `TIMESTAMP`, value 9 | One egress record: sequenceId, messageType, OK, 64-bit ns | IEEE 802.1AS-2020 11.3.9 |
 | Publication `GPTP_*`, 3 words an interface | `GPTP_GM_LO`, `GPTP_GM_HI`, `GPTP_STATE` (domain, asCapable, the synchronization verdict, slew, `DISC`, `GEN`) | Milan v1.2 5.4.2.23, Table 5.22 |
 
