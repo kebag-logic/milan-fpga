@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r875-2-956/tb/verilator/ctrl_split_boot/plat_ledger.py", line 305, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/r875-2-956/tb/verilator/ctrl_split_boot/plat_ledger.py", line 289, in main
+    build(out)
+    ~~~~~^^^^^
+  File "$REVIEWS/r875-2-956/tb/verilator/ctrl_split_boot/plat_ledger.py", line 106, in build
+    archives = boot.runtime(out)
+  File "$REVIEWS/r875-2-956/tb/verilator/ctrl_split_boot/run.py", line 216, in runtime
+    import litex
+ModuleNotFoundError: No module named 'litex'
+rc=1

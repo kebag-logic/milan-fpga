@@ -1,0 +1,24 @@
+== receipts/probes/base-0d80f0ed-aecp-1x1-if1.log: OK 2 FAILED ['AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice', 'AppOutputs.ReviewerProbeListenerReturnAfterLinkReset']
+   PROBE step5 Listener Ready returns: notices 0/0 answer flags_ex 1
+== receipts/probes/base-0d80f0ed-aecp-1x1-if2.log: OK 2 FAILED ['AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice', 'AppOutputs.ReviewerProbeListenerReturnAfterLinkReset']
+   PROBE step5 Listener Ready returns: notices 0/0 answer flags_ex 1
+== receipts/probes/base-0d80f0ed-aecp-8x8-if1.log: OK 2 FAILED ['AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice', 'AppOutputs.ReviewerProbeListenerReturnAfterLinkReset']
+   PROBE step5 Listener Ready returns: notices 0/0 answer flags_ex 1
+== receipts/probes/base-0d80f0ed-srp-1x1-if1.log: OK 211 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0', 'ReviewerPhase.Held300', 'Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning', 'Talker.ListenerRegistrationAfterAResetIsNoticed', 'Talker.RegistrationAfterLinkResetIsNoticed']
+   ReviewerPhase held: n=9 min 29995 max 30700 ms
+   ReviewerPhase free: n=9 min 29770 max 29890 ms
+   EveryPhase instances OK: 192
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+== receipts/probes/base-0d80f0ed-srp-8x8-if1.log: OK 212 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0', 'Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning', 'Talker.ListenerRegistrationAfterAResetIsNoticed', 'Talker.RegistrationAfterLinkResetIsNoticed']
+   ReviewerPhase held: n=9 min 29997 max 29997 ms
+   ReviewerPhase free: n=9 min 29730 max 29890 ms
+   EveryPhase instances OK: 192
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+== receipts/probes/base-0d80f0ed-srp-8x8-if2.log: OK 211 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0', 'ReviewerPhase.Held400', 'Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning', 'Talker.ListenerRegistrationAfterAResetIsNoticed', 'Talker.RegistrationAfterLinkResetIsNoticed']
+   ReviewerPhase held: n=18 min 29995 max 30600 ms
+   ReviewerPhase free: n=18 min 29700 max 29790 ms
+   EveryPhase instances OK: 192
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+receipts/probes/base-0d80f0ed-srp-1x1-if1.log: Held270 Held280 Held290 Held300 Held310 Held320 Held330 Held340 Held270 Held280 Held290 Held300 Held310 Held320 Held330 Held340 
+receipts/probes/base-0d80f0ed-srp-8x8-if1.log: Held310 Held320 Held330 Held340 Held350 Held360 Held370 Held380 Held310 Held320 Held330 Held340 Held350 Held360 Held370 Held380 
+receipts/probes/base-0d80f0ed-srp-8x8-if2.log: Held340 Held350 Held360 Held370 Held380 Held390 Held400 Held410 Held340 Held350 Held360 Held370 Held380 Held390 Held400 Held410 

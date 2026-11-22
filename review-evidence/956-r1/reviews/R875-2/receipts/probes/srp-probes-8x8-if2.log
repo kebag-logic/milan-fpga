@@ -1,0 +1,182 @@
+wrote $REVIEWS/956-r875-2-packet/scratch/w-srp-probes-8x8-if2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r875-2-packet/scratch/w-srp-probes-8x8-if2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r875-2-packet/scratch/w-srp-probes-8x8-if2/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Talker.RegistrationAfterLinkResetIsNoticed:ReviewerPhase.*:Talker.R875*:R875/R875P4.*
+[==========] Running 36 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from Talker
+[ RUN      ] Talker.RegistrationAfterLinkResetIsNoticed
+[       OK ] Talker.RegistrationAfterLinkResetIsNoticed (0 ms)
+[ RUN      ] Talker.R875P1NoLicenceWithoutAListenerAfterAReset
+PROBE P1 if1 after reset: active 0 registered 0 listener_present 0 declaration 0
+[       OK ] Talker.R875P1NoLicenceWithoutAListenerAfterAReset (0 ms)
+[ RUN      ] Talker.R875P2ClosedGateAfterAResetIsSilent
+PROBE P2 closed gate declaration 1: noticed 0
+PROBE P2 closed gate declaration 2: noticed 0
+PROBE P2 closed gate declaration 3: noticed 0
+[       OK ] Talker.R875P2ClosedGateAfterAResetIsSilent (0 ms)
+[ RUN      ] Talker.R875P3ResetBetweenSlicesWedgesNothing
+PROBE P3 victim if0: tx_owed 0 reentries 0 frames in 12 s 57
+PROBE P3 victim if1: tx_owed 0 reentries 0 frames in 12 s 59
+[       OK ] Talker.R875P3ResetBetweenSlicesWedgesNothing (6 ms)
+[----------] 4 tests from Talker (7 ms total)
+
+[----------] 20 tests from ReviewerPhase
+[ RUN      ] ReviewerPhase.Held0
+PROBE held phase 0: join timers busy at the count's end 0
+$REVIEWS/956-r875-2-packet/scratch/w-srp-probes-8x8-if2/ctrl/test/srp_talker.cpp:1016: Failure
+Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] ReviewerPhase.Held0: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] ReviewerPhase.Held0 (6 ms)
+[ RUN      ] ReviewerPhase.Free0
+$REVIEWS/956-r875-2-packet/scratch/w-srp-probes-8x8-if2/ctrl/test/srp_talker.cpp:1016: Failure
+Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+
+  [FAIL] ReviewerPhase.Free0: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+[  FAILED  ] ReviewerPhase.Free0 (6 ms)
+[ RUN      ] ReviewerPhase.Held100
+PROBE held phase 100: join timers busy at the count's end 0
+PROBE held phase 100 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 100 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held100 (6 ms)
+[ RUN      ] ReviewerPhase.Free100
+PROBE free phase 100 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 100 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free100 (6 ms)
+[ RUN      ] ReviewerPhase.Held200
+PROBE held phase 200: join timers busy at the count's end 0
+PROBE held phase 200 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 200 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held200 (6 ms)
+[ RUN      ] ReviewerPhase.Free200
+PROBE free phase 200 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 200 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free200 (6 ms)
+[ RUN      ] ReviewerPhase.Held300
+PROBE held phase 300: join timers busy at the count's end 0
+PROBE held phase 300 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 300 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held300 (6 ms)
+[ RUN      ] ReviewerPhase.Free300
+PROBE free phase 300 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 300 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free300 (6 ms)
+[ RUN      ] ReviewerPhase.Held400
+PROBE held phase 400: join timers busy at the count's end 2
+PROBE held phase 400 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 400 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held400 (6 ms)
+[ RUN      ] ReviewerPhase.Free400
+PROBE free phase 400 if0: request-to-wire 29790 ms (deadline 30000)
+PROBE free phase 400 if1: request-to-wire 29790 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free400 (6 ms)
+[ RUN      ] ReviewerPhase.Held500
+PROBE held phase 500: join timers busy at the count's end 0
+PROBE held phase 500 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 500 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held500 (6 ms)
+[ RUN      ] ReviewerPhase.Free500
+PROBE free phase 500 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 500 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free500 (6 ms)
+[ RUN      ] ReviewerPhase.Held600
+PROBE held phase 600: join timers busy at the count's end 0
+PROBE held phase 600 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 600 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held600 (6 ms)
+[ RUN      ] ReviewerPhase.Free600
+PROBE free phase 600 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 600 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free600 (6 ms)
+[ RUN      ] ReviewerPhase.Held700
+PROBE held phase 700: join timers busy at the count's end 0
+PROBE held phase 700 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 700 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held700 (6 ms)
+[ RUN      ] ReviewerPhase.Free700
+PROBE free phase 700 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 700 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free700 (6 ms)
+[ RUN      ] ReviewerPhase.Held800
+PROBE held phase 800: join timers busy at the count's end 0
+PROBE held phase 800 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 800 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held800 (6 ms)
+[ RUN      ] ReviewerPhase.Free800
+PROBE free phase 800 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 800 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free800 (6 ms)
+[ RUN      ] ReviewerPhase.Held900
+PROBE held phase 900: join timers busy at the count's end 0
+PROBE held phase 900 if0: request-to-wire 29995 ms (deadline 30000)
+PROBE held phase 900 if1: request-to-wire 29995 ms (deadline 30000)
+[       OK ] ReviewerPhase.Held900 (6 ms)
+[ RUN      ] ReviewerPhase.Free900
+PROBE free phase 900 if0: request-to-wire 29700 ms (deadline 30000)
+PROBE free phase 900 if1: request-to-wire 29700 ms (deadline 30000)
+[       OK ] ReviewerPhase.Free900 (6 ms)
+[----------] 20 tests from ReviewerPhase (125 ms total)
+
+[----------] 12 tests from R875/R875P4
+[ RUN      ] R875/R875P4.OffCentisecondRequest/0
+PROBE P4 phase 300 sub 1 if0: request-to-wire 29994 ms
+PROBE P4 phase 300 sub 1 if1: request-to-wire 29994 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/0 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/1
+PROBE P4 phase 300 sub 5 if0: request-to-wire 29990 ms
+PROBE P4 phase 300 sub 5 if1: request-to-wire 29990 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/1 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/2
+PROBE P4 phase 300 sub 9 if0: request-to-wire 29986 ms
+PROBE P4 phase 300 sub 9 if1: request-to-wire 29986 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/2 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/3
+PROBE P4 phase 340 sub 1 if0: request-to-wire 29994 ms
+PROBE P4 phase 340 sub 1 if1: request-to-wire 29994 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/3 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/4
+PROBE P4 phase 340 sub 5 if0: request-to-wire 29990 ms
+PROBE P4 phase 340 sub 5 if1: request-to-wire 29990 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/4 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/5
+PROBE P4 phase 340 sub 9 if0: request-to-wire 29986 ms
+PROBE P4 phase 340 sub 9 if1: request-to-wire 29986 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/5 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/6
+PROBE P4 phase 370 sub 1 if0: request-to-wire 29994 ms
+PROBE P4 phase 370 sub 1 if1: request-to-wire 29994 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/6 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/7
+PROBE P4 phase 370 sub 5 if0: request-to-wire 29990 ms
+PROBE P4 phase 370 sub 5 if1: request-to-wire 29990 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/7 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/8
+PROBE P4 phase 370 sub 9 if0: request-to-wire 29986 ms
+PROBE P4 phase 370 sub 9 if1: request-to-wire 29986 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/8 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/9
+PROBE P4 phase 700 sub 1 if0: request-to-wire 29994 ms
+PROBE P4 phase 700 sub 1 if1: request-to-wire 29994 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/9 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/10
+PROBE P4 phase 700 sub 5 if0: request-to-wire 29990 ms
+PROBE P4 phase 700 sub 5 if1: request-to-wire 29990 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/10 (6 ms)
+[ RUN      ] R875/R875P4.OffCentisecondRequest/11
+PROBE P4 phase 700 sub 9 if0: request-to-wire 29986 ms
+PROBE P4 phase 700 sub 9 if1: request-to-wire 29986 ms
+[       OK ] R875/R875P4.OffCentisecondRequest/11 (6 ms)
+[----------] 12 tests from R875/R875P4 (74 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 3 test suites ran. (207 ms total)
+[  PASSED  ] 34 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ReviewerPhase.Held0
+[  FAILED  ] ReviewerPhase.Free0
+
+ 2 FAILED TESTS
+== ctrl SRP Talker declarations: checks: 36   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 36 checks, exit 1)

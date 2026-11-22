@@ -1,0 +1,77 @@
+== receipts/probes/aecp-probe-1x1-if1.log: OK 4 FAILED []
+   PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+   OK AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+   OK AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+== receipts/probes/aecp-probe-1x1-if2.log: OK 4 FAILED []
+   PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+   OK AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+   OK AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+== receipts/probes/aecp-probe-8x8-if1.log: OK 4 FAILED []
+   PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+   OK AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+   OK AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+== receipts/probes/srp-probes-1x1-if1.log: OK 34 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0']
+   ReviewerPhase held: n=9 min 29995 max 29995 ms
+   ReviewerPhase free: n=9 min 29770 max 29890 ms
+   P4 off-centisecond: n=12 min 29986 max 29994 ms
+   PROBE P1 if0 after reset: active 0 registered 0 listener_present 0 declaration 0
+   PROBE P2 closed gate declaration 1: noticed 0
+   PROBE P2 closed gate declaration 2: noticed 0
+   PROBE P2 closed gate declaration 3: noticed 0
+   PROBE P3 victim if0: tx_owed 0 reentries 0 frames in 12 s 27
+   OK Talker.RegistrationAfterLinkResetIsNoticed
+   OK Talker.R875P1NoLicenceWithoutAListenerAfterAReset
+   OK Talker.R875P2ClosedGateAfterAResetIsSilent
+   OK Talker.R875P3ResetBetweenSlicesWedgesNothing
+== receipts/probes/srp-probes-8x8-if1.log: OK 34 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0']
+   ReviewerPhase held: n=9 min 29997 max 29997 ms
+   ReviewerPhase free: n=9 min 29730 max 29890 ms
+   P4 off-centisecond: n=12 min 29988 max 29996 ms
+   PROBE P1 if0 after reset: active 0 registered 0 listener_present 0 declaration 0
+   PROBE P2 closed gate declaration 1: noticed 0
+   PROBE P2 closed gate declaration 2: noticed 0
+   PROBE P2 closed gate declaration 3: noticed 0
+   PROBE P3 victim if0: tx_owed 0 reentries 0 frames in 12 s 27
+   OK Talker.RegistrationAfterLinkResetIsNoticed
+   OK Talker.R875P1NoLicenceWithoutAListenerAfterAReset
+   OK Talker.R875P2ClosedGateAfterAResetIsSilent
+   OK Talker.R875P3ResetBetweenSlicesWedgesNothing
+== receipts/probes/srp-probes-8x8-if2.log: OK 34 FAILED ['ReviewerPhase.Free0', 'ReviewerPhase.Held0']
+   ReviewerPhase held: n=18 min 29995 max 29995 ms
+   ReviewerPhase free: n=18 min 29700 max 29790 ms
+   P4 off-centisecond: n=24 min 29986 max 29994 ms
+   PROBE P1 if1 after reset: active 0 registered 0 listener_present 0 declaration 0
+   PROBE P2 closed gate declaration 1: noticed 0
+   PROBE P2 closed gate declaration 2: noticed 0
+   PROBE P2 closed gate declaration 3: noticed 0
+   PROBE P3 victim if0: tx_owed 0 reentries 0 frames in 12 s 57
+   PROBE P3 victim if1: tx_owed 0 reentries 0 frames in 12 s 59
+   OK Talker.RegistrationAfterLinkResetIsNoticed
+   OK Talker.R875P1NoLicenceWithoutAListenerAfterAReset
+   OK Talker.R875P2ClosedGateAfterAResetIsSilent
+   OK Talker.R875P3ResetBetweenSlicesWedgesNothing
+== receipts/probes/suite-srp_mbx-8x8-if1.log: OK 6 FAILED []
+   OK Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+== receipts/probes/suite-srp_mbx-8x8-if2.log: OK 6 FAILED []
+   OK Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+== receipts/probes/suite-srp_talker-1x1-if1.log: OK 219 FAILED []
+   EveryPhase instances OK: 200
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+   OK Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+   OK Talker.ResetNoticesNothingUnchanged
+   OK Talker.ListenerRegistrationAfterAResetIsNoticed
+== receipts/probes/suite-srp_talker-8x8-if1.log: OK 219 FAILED []
+   EveryPhase instances OK: 200
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+   OK Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+   OK Talker.ResetNoticesNothingUnchanged
+   OK Talker.ListenerRegistrationAfterAResetIsNoticed
+== receipts/probes/suite-srp_talker-8x8-if2.log: OK 219 FAILED []
+   EveryPhase instances OK: 200
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+   OK Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+   OK Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne
+   OK Talker.ResetNoticesNothingUnchanged
+   OK Talker.ListenerRegistrationAfterAResetIsNoticed

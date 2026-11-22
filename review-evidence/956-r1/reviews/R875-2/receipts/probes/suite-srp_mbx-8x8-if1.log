@@ -1,0 +1,24 @@
+Note: Google Test filter = Srp.ABuild*:Srp.*Transmit*:Srp.*Join*
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from Srp
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[       OK ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (1 ms)
+[ RUN      ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole
+[       OK ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole (0 ms)
+[ RUN      ] Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+[       OK ] Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue (0 ms)
+[ RUN      ] Srp.TheJoinCountFollowsWhatABuildSent
+[       OK ] Srp.TheJoinCountFollowsWhatABuildSent (0 ms)
+[ RUN      ] Srp.AJoinTimeOwesAnInterfaceAPass
+[       OK ] Srp.AJoinTimeOwesAnInterfaceAPass (0 ms)
+[ RUN      ] Srp.AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle
+[       OK ] Srp.AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle (0 ms)
+[----------] 6 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 6 tests.
+== ctrl SRP mailbox: checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)

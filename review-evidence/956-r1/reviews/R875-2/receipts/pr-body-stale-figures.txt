@@ -1,0 +1,22 @@
+PR #958 live body, read 2026-11-22T03:10:11Z, sha256 3219e88f51eec05d3ccd4307f82e6f156d380c849fe78ab68b0377058aa3554c
+--- current-head figures stated in the body's Round 2 section:
+    - Two sit at their statement by the rule: `item.acmp_declined`, 30 of 30 us as before, and `record.srp`, 35,507 cycles in `srp-talker-held`, 375 of 375 us (35,273 before, also 375).
+    - `record.maap` is 17,014 cycles, 180 of 185 us (185 of 185 before).
+  - rom: 126,360 / 128,112 / 139,136 / 140,864 B at 1x1/1if, 1x1/2if, 8x8/1if and 8x8/2if.
+  - 8x8/1if has 128 B left of its 34 RAMB36 (16 at `0d80f0ed`).
+--- the Known limitations section, stated as current:
+- **The formal CPU measurement is not run.** At this host's load, a full pass of every arm and group at a point
+  is about 70 core-hours, and no CPU range was bookable for it; one was started, then stopped. The legs the change
+  reaches are measured instead, base against head. Their figures are within at the final head's tables, but four of
+  them sit at their statement by the rule, so a group not run could hold one over it:
+  - `centisecond` at 1x1/1if: 16,064 cycles, 170 of 170 us (15,672 on the base in the same group, the train's
+    full-pass maximum).
+  - `record.srp` at 8x8/1if: 35,273, 375 of 375 (base and the train's maximum 34,803, from the same group).
+  - `item.acmp_declined` at 8x8/1if: 2,386, 30 of 30.
+  - `record.maap` at 8x8/1if: 17,259, 185 of 185, as restated.
+  The full re-measure belongs to the next formal pass.
+- **The rom at 8x8/1if** has 16 bytes left in its ledgered 34 RAMB36 (58 in all), a product image.
+--- roles:
+Executor: `[A809]`
+Internal cleared-context reviewer: to be assigned
+External reviewer: to be assigned

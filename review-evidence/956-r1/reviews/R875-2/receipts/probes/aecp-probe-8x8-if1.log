@@ -1,0 +1,28 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+Note: Google Test filter = AppOutputs.*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AppOutputs
+[ RUN      ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration (8 ms)
+[ RUN      ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (9 ms)
+[ RUN      ] AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice (79 ms)
+[ RUN      ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+PROBE step1 Ready appears: notices 1/1 flags_ex 1
+PROBE step2 link down: gate 0 notices 1/1
+PROBE step3 link up, MAAP valid, probed: gate 1 talkers 0 notices 0/0 flags_ex 4294967295
+PROBE step3b base 91e0f0006111 readdressed 0 held_cs 0
+PROBE step3b Talker declared again: talkers 1 notices 1/1 flags_ex 0
+PROBE step4 answer before the Listener returns: flags_ex 0 listener_present 0 declaration 0
+PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+[       OK ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset (16 ms)
+[----------] 4 tests from AppOutputs (112 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (112 ms total)
+[  PASSED  ] 4 tests.
+== AECP core: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
