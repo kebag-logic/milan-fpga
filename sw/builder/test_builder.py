@@ -26324,8 +26324,10 @@ def _render_lanes_pinned_to_the_rtl(dp: str) -> tuple[dict, int]:
 
 #: Gate 24a (d)'s routed capture channels: enough for a physical pool, few
 #: enough that the model's writable names fit the saved-state NAME block. Its
-#: size until #652, 16, carries 187 names, and the builder refuses it.
-_PHYSICAL_POOL_CAPTURE = 8
+#: size until #652, 16, carries 187 names, and the builder refuses it; 8
+#: carried 123 until #584 gave each input port a cluster, and 131 since, past
+#: the block's 128, so the gate takes 4 (99 names).
+_PHYSICAL_POOL_CAPTURE = 4
 
 
 def _assert_physical_pool_reappears():
@@ -26442,7 +26444,8 @@ def _assert_overwide_pool_is_refused():
     # this variant's bus is tdm32, which the crossbar's 8-key lane cannot back
     # at all - so any nonzero render count here would declare a shape the
     # fabric refuses to elaborate. The dedicated refusals are gate 24a (f), and
-    # the INPUT half is then empty, which the total below states.
+    # the INPUT half is then one unrouted cluster a port (#584), which the
+    # total below states.
     gate = "gate 24a (e)"
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
                        {"pilot": True, "loopback": 72})
@@ -26450,7 +26453,7 @@ def _assert_overwide_pool_is_refused():
         cfg = eb.load_config(p)
         overlay = eb.emit_aem_overlay(cfg)
         counts = overlay["descriptor_counts"]
-        assert counts["AUDIO_CLUSTER"] == 8*(16+1+72), counts
+        assert counts["AUDIO_CLUSTER"] == 8*1 + 8*(16+1+72), counts
         names = nvm_shape.expected_names(counts)
         _check_names_refused(p, names, gate=gate)
         _check_rom_ceiling(cfg, overlay)
@@ -26478,27 +26481,28 @@ def test_d8_role_pools() -> None:
     static AUDIO_MAP falls through to the pool that can actually source the
     stream. The AX case (a board that routes NO audio pins) is the one the
     round exists for."""
-    # (a) the AX shape as shipped since #259: 0 physical, pilot, loopback 8.
-    #     Those are the complete live fabric pools. The listeners are
-    #     therefore empty-handed: the STREAM_PORT_INPUTs
-    #     exist and stay dynamically mapped (Milan 5.3.3.9) but truthfully
-    #     own ZERO local AUDIO_CLUSTER descriptors - the retired posture,
-    #     pinned.
+    # (a) the AX shape as shipped since #584: no capture channel, the FIRST
+    #     render channel only (render: 1, render_ports: first), pilot,
+    #     loopback 8. STREAM_PORT_INPUT 0 owns that render channel's one
+    #     cluster; ports 1-7 each own one `unrouted` cluster (Milan v1.2
+    #     5.3.3.8: a cluster, not a jack), and all stay dynamically mapped
+    #     (Milan 5.3.3.9).
     r = eb.build(CONFIGS["ax7101_8x8"], OUT)
     ovl = r["overlay"]
     check_port_layout(ovl, 8, 8)
     assert ovl["cluster_policy"] == "role-pools"
     assert ovl["physical_binding"]["physical_channels"] == \
-        {"capture": 0, "render": 0}, "the AX routes no audio pins"
+        {"capture": 0, "render": 1}, "the AX renders its first TDM channel alone (#584)"
     P_in, P_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
-    assert all(p["clusters"] == 0 for p in P_in), P_in         # no pool at all
-    assert all(p["pool"] == [] for p in P_in), P_in
+    assert all(p["clusters"] == 1 for p in P_in), P_in         # one each, #584
+    assert [g["role"] for p in P_in for g in p["pool"]] == ["physical"] + ["unrouted"] * 7, P_in
     assert all(p.get("map_mode") == "dynamic" for p in P_in), P_in
     assert all(p["clusters"] == 9 for p in P_out), P_out       # 1 + 8
-    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*0 + 8*9 == 72
-    assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
-        "a board with 0 routed channels must emit NO physical clusters"
-    # (b) the primary segment: an empty-handed listener has none (#259),
+    assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*1 + 8*9 == 80
+    assert all(g["role"] != "physical" for p in P_out for g in p["pool"]), \
+        "a board with 0 routed capture channels must emit NO physical talker clusters"
+    # (b) the primary segment: listener 0's is its render channel, the other
+    #     listeners' their unrouted cluster (#584),
     #     and the talkers fall through to the first pool this BUILD can
     #     actually feed (task #65). LOOPBACK is still the pool the USER
     #     asked for (2026-07-28) and it comes back the moment
@@ -26509,7 +26513,7 @@ def test_d8_role_pools() -> None:
     #     talkers are map_mode dynamic (no AUDIO_MAP descriptors), so the
     #     identity lives in the DYNAMIC engine's power-on image
     #     (AEM_ODMAP_INIT_C).
-    assert all(p["primary_role"] is None for p in P_in)
+    assert [p["primary_role"] for p in P_in] == ["physical"] + ["unrouted"] * 7, P_in
     lane = (eb.load_config(CONFIGS["ax7101_8x8"])["interface"]
             ["cluster_fabric"]["loopback_lane"])
     want = "loopback" if lane else "pilot"
@@ -26533,9 +26537,9 @@ def test_d8_role_pools() -> None:
     assert byport[0][0] == "Loopback S0 ch 0" and byport[7][0] == "Loopback S7 ch 0"
     assert len({tuple(v) for v in byport.values()}) == 8, \
         "every talker port must offer a DIFFERENT loopback source set"
-    print(f"  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs "
-          f"(8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical "
-          f"because the board routes none, talker map -> {want} (fabric lane "
+    print(f"  [gate 24a] ax7101_8x8 role-pools: 80 AUDIO_CLUSTERs "
+          f"(in: the first render channel on port 0, 7x unrouted, #584; 8x "
+          f"pilot1+loopback8 out), 0 physical talker clusters, talker map -> {want} (fabric lane "
           f"{'on' if lane else 'off'}), 8 distinct loopback sources offered")
 
     _assert_physical_pool_reappears()
@@ -26558,12 +26562,11 @@ def _assert_render_lane_bounds_the_declared_width():
     wire-accountability gate exists to name. The bound is per LANE, and the
     lane follows from the DAC's presence and the declared bus.
 
-    A NARROWER lane is refused here too. Capture and render ride one serial
-    frame and the master serializer schedules its bits off the bus frame
-    position, so a TDM render lane is the full bus width or it is pruned;
-    `render: 4` on a tdm8 bus passed every named refusal and then failed
-    inside KL_tdm_render_master on FRAME_POS_W_P, which tells a config author
-    about an internal parameter rather than about the product rule."""
+    A NARROWER lane is a master's alone (#584). Capture and render ride one
+    serial frame; since #584 KL_tdm_render_master frames the bus's slots
+    (BUS_SLOTS_P) and stores the lane's, so a master lane renders exactly its
+    declared slots, and a codec-driven (slave) lane is still the full bus
+    width or pruned, refused by name rather than inside the serializer."""
     # (base config, physical_channels): each is past its own lane's width.
     for base, phys in (("ax7101_8x8", {"capture": 16, "render": 16}),
                        ("arty_4x4", {"capture": 2, "render": 3})):
@@ -26598,27 +26601,27 @@ def _assert_render_lane_bounds_the_declared_width():
                 "count: the render crossbar has no lane to project onto")
     finally:
         p.unlink()
-    # ...and the NARROW case, which is the one that used to reach the module.
-    # `render: 4` on the shipping tdm8 bus is inside the crossbar's key lane
-    # and inside the family width, so every bound above admits it; the rule it
-    # breaks is that both directions ride ONE frame. A tdm32 bus is the same
-    # rule seen from the other side: 8 is the widest lane the crossbar has and
-    # the bus is 32 slots, so that shape backs no render lane at all.
+    # ...and the NARROW case, `render: 4` on tdm8 and `render: 8` on tdm32: a MASTER lane renders exactly its
+    # declared slots since #584 (BUS_SLOTS_P); a codec-driven (slave) lane is the full bus width or pruned.
+    from unittest.mock import patch
     for base, phys, bus in (("ax7101_1x1_tdm8", {"capture": 8, "render": 4}, 8),
                             ("ax7101_8x8", {"capture": 8, "render": 8}, 32)):
         def _narrow(c, phys=phys):
             c["audio_interface"]["physical_channels"] = phys
         p = _variant(CONFIGS[base], _narrow)
         try:
-            try:
-                eb.load_config(p)
-            except eb.ConfigError as e:
-                assert "FULL bus width" in str(e), (base, phys, str(e))
-                assert f"{bus} slots" in str(e), (base, phys, str(e))
-            else:
-                raise AssertionError(
-                    f"{base} with physical_channels {phys} must be refused: a "
-                    "master render lane is the full bus width or it is pruned")
+            narrow = eb.load_config(p)
+            assert eb.render_slots(narrow) == phys["render"], (base, phys)
+            with patch.object(eb, "tdm_bus_master", return_value=False):
+                try:
+                    eb.load_config(p)
+                except eb.ConfigError as e:
+                    assert "FULL bus width" in str(e), (base, phys, str(e))
+                    assert f"{bus} slots" in str(e), (base, phys, str(e))
+                else:
+                    raise AssertionError(
+                        f"{base} with physical_channels {phys} on a slave bus must be "
+                        "refused: a slave render lane is the full bus width or it is pruned")
         finally:
             p.unlink()
     # The POSITIVE control: every tracked config's declared render width is
@@ -26636,13 +26639,14 @@ def _assert_render_lane_bounds_the_declared_width():
         seen[name] = (lane, want, eb.render_lane_base(cfg),
                       eb.render_slots(cfg))
     assert seen["ax7101_1x1_tdm8"] == ("tdm", 8, 2, 8), seen["ax7101_1x1_tdm8"]
-    assert seen["ax7101_8x8"] == ("tdm", 0, 2, 0), seen["ax7101_8x8"]
+    assert seen["ax7101_8x8"] == ("tdm", 1, 2, 1), seen["ax7101_8x8"]   # #584
     assert seen["arty_4x4"][:3] == ("i2s", 2, 0), seen["arty_4x4"]
     assert seen["arty_4x4"][3] == 0, "a DAC lane elaborates no TDM serializer"
     print("  [gate 24a] #447 render lane: the declared width is bounded by "
           "the LANE and not the family, a shape with no render endpoint "
-          "refuses a nonzero count, a TDM lane narrower than its own bus is "
-          f"refused with the full-bus-width rule, and every tracked config sits inside "
+          "refuses a nonzero count, a master TDM lane narrower than its bus renders "
+          f"its declared slots and a slave one is refused with the full-bus-width rule, "
+          f"and every tracked config sits inside "
           f"its own lane {seen}")
 
 
@@ -26815,6 +26819,8 @@ def test_d10_cluster_names() -> None:
                     assert c["name"].split()[-1] in cnames, c
             elif c["role"] == "virtual":
                 assert c["name"].startswith("Virtual "), c
+            elif c["role"] == "unrouted":     # #584: an input port's, by its stream
+                assert c["direction"] == "input" and c["name"] == f"Unrouted S{c['port_index']}", c
             else:
                 assert c["role"] == "physical", c
                 assert c["name"].split()[0] in eb.IFACE_LABEL.values(), c
@@ -26915,8 +26921,8 @@ def test_d10_cluster_namer_paths() -> None:
     dropping `+ n`, and a physical namer that ignores channel_names each
     moved 56, 63 and 8 real names past every builder gate. Every name the
     builder produces for the loopback-bearing ax7101_8x8 (both directions:
-    its listeners are headless, and the golden records those empty ports
-    too) and for the channel_names config ax7101_1x1_tdm8 is therefore pinned
+    since #584 its listener port 0 owns its first render channel and ports 1-7
+    one unrouted cluster each) and for the channel_names config ax7101_1x1_tdm8 is therefore pinned
     in cluster_names_golden.json, generated from the implementation that a
     replay of every cluster_names() call proved byte-identical to the
     pre-refactor chain. Each of those three mutations fails here.
@@ -26947,7 +26953,7 @@ def test_d10_cluster_namer_paths() -> None:
                        "silently named as a loopback channel")
 
     # -- every known role still has a namer, and the table IS the dispatch ---
-    assert set(eb.CLUSTER_NAMERS) == {"physical", "virtual", "pilot", "loopback"}, \
+    assert set(eb.CLUSTER_NAMERS) == {"physical", "virtual", "pilot", "loopback", "unrouted"}, \
         eb.CLUSTER_NAMERS
     for direction, roles in eb.PRIMARY_ROLE_ORDER.items():
         for role in roles:
