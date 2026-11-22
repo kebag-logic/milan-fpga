@@ -1136,6 +1136,9 @@ void Ship8Harness::phase_reset() {
 }
 
 int Ship8Harness::run() {
+    //! 124 checks: every passing one is named in the log too, so a receipt
+    //! shows what was graded and not only that nothing failed
+    check.echo_passes();
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
     char image_check[96];
