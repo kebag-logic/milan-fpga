@@ -27,12 +27,11 @@
                 FRAMES_RX. The store takes the tap three cycles late, so even
                 a frame that ends on its eighth beat has its enqueue pulse in
                 time; a frame without one is dropped at its tlast. A
-                committed frame is
-                read out once for each accepting input, tuser that input,
-                from its one stored copy, and not at all when none accepted
-                it, so each input receives exactly the PDUs its FRAMES_RX
-                counts (#948: one stream may be bound to several inputs, IEEE
-                1722.1-2021 8.2).
+                committed frame is read out once for each accepting input,
+                tuser that input, from its one stored copy, and not at all
+                when none accepted it, so each input receives exactly the
+                PDUs its FRAMES_RX counts (#948: one stream may be bound to
+                several inputs, IEEE 1722.1-2021 8.2).
 
                 Payload realignment: payload starts at frame byte 38
                 (untagged, rotate 2) or 42 (C-VLAN, rotate 6); the read side

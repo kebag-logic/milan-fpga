@@ -322,8 +322,11 @@ module KL_avtp_rx_monitor_ctx_ref #(
   //! #762: the pending unlock is the silence watchdog's, not an unbind's,
   //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
   logic [N_LISTENERS_P-1:0] sil_si_r;
-  logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
-  logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+  //! #948: the pending DEPKT tallies widened, and their drain put before
+  //! any PDU walk once one is half full, as in the shipping engine
+  localparam int DEPKT_PEND_W_C = 6;
+  logic [DEPKT_PEND_W_C-1:0] dpdu_pend_r  [N_LISTENERS_P];
+  logic [DEPKT_PEND_W_C-1:0] ddrop_pend_r [N_LISTENERS_P];
 
   //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
   //! CNT-column format (only the seven interval columns are ever set, so
@@ -440,17 +443,23 @@ module KL_avtp_rx_monitor_ctx_ref #(
   //! remains for genuine stream loss only (100 ms silence, bind wipe).
 
   logic depkt_any_w;
+  logic depkt_urg_w;                      //! a tally is half full: drain first
   always_comb begin : pend_scans
     depkt_any_w = 1'b0;
-    for (int s = 0; s < N_LISTENERS_P; s++)
+    depkt_urg_w = 1'b0;
+    for (int s = 0; s < N_LISTENERS_P; s++) begin
       if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) depkt_any_w = 1'b1;
+      if (dpdu_pend_r[s][DEPKT_PEND_W_C-1] || ddrop_pend_r[s][DEPKT_PEND_W_C-1])
+        depkt_urg_w = 1'b1;
+    end
   end : pend_scans
 
-  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0);
+  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0) && !depkt_urg_w;   //! #948
   //! fresh-PDU fast dispatch: an idle walker takes the live pulse bundle
   //! directly (skips the queue hop - the depacketizer commit window on
   //! short PDUs is the reason: accept must land before the frame's tlast)
-  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0);
+  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0) &&
+                     !depkt_urg_w;                                   //! #948
   //! interval-commit dispatch, same M_IDLE_S priority slot the FSM uses
   //! (below depkt, above the window read) - defined ONCE so the FSM branch
   //! and the flag-fold block can never disagree about the drain cycle
@@ -906,10 +915,10 @@ module KL_avtp_rx_monitor_ctx_ref #(
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
-          dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
+          dpdu_pend_r[s] <= dpdu_pend_r[s] + DEPKT_PEND_W_C'(1);
         if (depkt_drop_p_i && (32'(depkt_drop_idx_i) == s) &&
             !(&ddrop_pend_r[s]))
-          ddrop_pend_r[s] <= ddrop_pend_r[s] + 3'd1;
+          ddrop_pend_r[s] <= ddrop_pend_r[s] + DEPKT_PEND_W_C'(1);
         //! silence watchdog: ms-tick flop scan (spec timer rule)
         if (ms_tick_r && locked_sh_r[s]) begin
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
@@ -947,6 +956,19 @@ module KL_avtp_rx_monitor_ctx_ref #(
             end
             else mst_r <= M_PFRD2_S;        //! FMT_LO read already issued
           end
+          //! a half-full DEPKT tally is drained before anything else; an
+          //! idle walker drains the others once no bind or silence waits
+          else if (depkt_urg_w ||
+                   ((bind_pend_r == '0) && (sil_pend_r == '0) && depkt_any_w)) begin
+            for (int s = N_LISTENERS_P-1; s >= 0; s--)
+              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
+                ev_s_r      <= IDXW_C'(s);
+                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
+                ddrop_add_r <= 16'(ddrop_pend_r[s]);
+              end
+            w11_mode_r <= 1'b1;
+            mst_r      <= M_INC_S;
+          end
           else if (bind_pend_r != '0) begin
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (bind_pend_r[s]) ev_s_r <= IDXW_C'(s);
@@ -956,16 +978,6 @@ module KL_avtp_rx_monitor_ctx_ref #(
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (sil_pend_r[s]) ev_s_r <= IDXW_C'(s);
             sil_mode_r <= 1'b1;
-            mst_r      <= M_INC_S;
-          end
-          else if (depkt_any_w) begin
-            for (int s = N_LISTENERS_P-1; s >= 0; s--)
-              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
-                ev_s_r      <= IDXW_C'(s);
-                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
-                ddrop_add_r <= 16'(ddrop_pend_r[s]);
-              end
-            w11_mode_r <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (iv_res_list_r != '0) begin
@@ -1073,15 +1085,15 @@ module KL_avtp_rx_monitor_ctx_ref #(
             else begin
               //! drain exactly the latched amounts (new pulses survive)
               dpdu_pend_r[ev_s_r]  <= dpdu_pend_r[ev_s_r]
-                                      - 3'(dpdu_add_r)
+                                      - DEPKT_PEND_W_C'(dpdu_add_r)
                                       + ((depkt_pdu_p_i &&
                                           32'(depkt_pdu_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               ddrop_pend_r[ev_s_r] <= ddrop_pend_r[ev_s_r]
-                                      - 3'(ddrop_add_r)
+                                      - DEPKT_PEND_W_C'(ddrop_add_r)
                                       + ((depkt_drop_p_i &&
                                           32'(depkt_drop_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               inc_rd_q_r <= 1'b0;
               w11_mode_r <= 1'b0;
               mst_r      <= M_IDLE_S;

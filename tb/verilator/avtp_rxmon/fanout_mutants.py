@@ -148,6 +148,15 @@ MUTATIONS = [
       ("  wire [7:0]  w_tkeep_w = dk_r[ENQ_LAT_C-1];\n", "  wire [7:0]  w_tkeep_w = s_tkeep_i;\n"),
       ("  wire        w_tlast_w = dl_r[ENQ_LAT_C-1];\n", "  wire        w_tlast_w = s_tlast_i;\n")],
      "[FO14] 24 octets: payloads reach the depacketizer's output under the input's index: input 0"),
+    ("the pending DEPKT tallies are three bits again and drained only by an idle walker (the #948 drop-tally defect)",
+     "RXMON_SRC",
+     [("  localparam int DEPKT_PEND_W_C = 6;\n", "  localparam int DEPKT_PEND_W_C = 3;\n"),
+      ("        depkt_urg_w = 1'b1;\n", "        depkt_urg_w = 1'b0;\n")],
+     "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"),
+    ("a half-full DEPKT tally waits for an idle walker, which a dense burst never leaves",
+     "RXMON_SRC",
+     [("        depkt_urg_w = 1'b1;\n", "        depkt_urg_w = 1'b0;\n")],
+     "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"),
 ]
 
 
