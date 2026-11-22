@@ -19486,6 +19486,7 @@ def test_both_policies_valid() -> None:
         else:
             cm.pop("pools", None)
             cm.pop("fabric", None)
+            cm.pop("render_ports", None)   # #584: read by role-pools alone
 
     for name, (nl, nt) in (("arty_4x4", (4, 4)), ("ax7101_8x8", (8, 8))):
         for pol in eb.CLUSTER_POLICIES:
