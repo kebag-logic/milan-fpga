@@ -228,6 +228,9 @@ def main(argv: list[str]) -> int:
     shape = shape_costs.of_config(scenario.ROOT / 'configs' / f'{spec["shape"]}.yaml', spec['interfaces'],
                                   scenario.ROOT)
     lines, owed, findings = held(*logs, shape, *(over_share(g) for g in graded))
+    # the share is read from run.py's grading of each group (its <group>.json): with none, it is unchecked
+    findings += [f'{name}: no {name}.json beside its log, so THE SHARE is unchecked: run.py grades it'
+                 for name, g in zip(OWED_KINDS, graded) if g is None]
     print(f'POINT {spec["shape"]}, {spec["interfaces"]} interface(s): shape {tuple(shape)}')
     print('\n'.join(lines))
     for line in owed:
