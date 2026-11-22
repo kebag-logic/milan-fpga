@@ -37,7 +37,7 @@ EXE_NAME = "Vdepkt"
 # (name, [(the ONE text it replaces, its replacement)], the check it must fail)
 MUTATIONS = [
     ("a tail left in the hold: the frame's last word is popped with the beat before it, so the pass ends and "
-     "the read side resynchronises without the final beat (the defect review found)",
+     "the read side resynchronises without the final beat (the #948 frame-boundary defect)",
      [("  wire keep_w      = ff_last && (remain_r > 16'd8) &&\n"
        "                     (remain_r <= 16'd8 + 16'(k_w));\n",
        "  wire keep_w      = 1'b0;\n")],

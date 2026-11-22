@@ -46,7 +46,7 @@
 //         7.3.5 and I.2.4.1) is off-format: each input bound to its stream
 //         counts it in UNSUPPORTED_FORMAT and receives none of it, and the
 //         valid PDUs around it arrive whole, in order, under each input's
-//         index (Milan v1.2 4.4.2.2); 65 octets is the review's case. Two
+//         index (Milan v1.2 4.4.2.2); 65 octets among them. Two
 //         inputs with different frame sizes on one stream each take only
 //         the PDUs of their own size
 //   [FO12] formats whose frame size is not a multiple of eight, every
@@ -622,7 +622,7 @@ class FanOut {
         const Snap b = snap();
         const long drops = dut->pcm_drops_o;
         std::vector<Pdu> sent;
-        // the review's 65-octet probe, then an aligned but wrong size, a longer one and one octet short; each
+        // 65 octets, then an aligned but wrong size, a longer one and one octet short; each
         // carries the stream's own header fields, so only its length is off. A gap after each, then back to back.
         for (int headroom : {60, 2}) {
             for (unsigned n : {65u, 64u, 200u, 191u}) {

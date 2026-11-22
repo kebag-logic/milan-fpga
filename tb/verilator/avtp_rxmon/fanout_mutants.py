@@ -121,7 +121,7 @@ MUTATIONS = [
      "RXMON_SRC",
      [("      8'h04   : frame_octets = 22'({n, 1'b0});\n", "")],
      "[FO12] 70 octets: accept verdicts: input 0"),
-    ("a tail left in the hold: the frame's last word is popped with the beat before it (the defect review found)",
+    ("a tail left in the hold: the frame's last word is popped with the beat before it (#948)",
      "DEPKT_SRC",
      [("  wire keep_w      = ff_last && (remain_r > 16'd8) &&\n"
        "                     (remain_r <= 16'd8 + 16'(k_w));\n",

@@ -10,8 +10,8 @@
 // enqueue order, some cycles later (before or after the frame's end). The
 // consumer stalls at random, or at each PDU's last two beats, or never.
 //
-//   [DT1] the review's control and its failing probe: a 64-octet payload is
-//         eight beats with one tlast, a 65-octet one nine beats with one
+//   [DT1] a 64-octet payload is eight beats with one tlast, and a 65-octet
+//         one nine beats with one, its last beat lying in the hold
 //   [DT2] every payload length 1..72 and 184..200, and 1000, 1001 and 1983,
 //         untagged and behind a C-VLAN tag, with and without octets after
 //         the payload, to one, two or four inputs or to none, each case
@@ -288,7 +288,7 @@ class Depkt {
     }
 
     void control_and_probe() {
-        std::printf("\n[DT1] the review's control and probe: 64 and 65 octets, untagged, to input 0\n");
+        std::printf("\n[DT1] 64 and 65 octets, untagged, to input 0\n");
         for (unsigned n : {64u, 65u}) {
             outs.clear();
             feed(frame(payload(n), false, 0, 1), 3, 0);
