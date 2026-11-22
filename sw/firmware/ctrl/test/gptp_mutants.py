@@ -127,7 +127,12 @@ MUTANTS = (
            ARM, "Scripted.TheCeaseEndsAfterFiveMinutes", "Pdelay_Req did not resume after 5 minutes"),
     Mutant("rate-envelope-dropped", C, "if (s4 == 0 || mag > (s4 >> GPTP_NRR_ENVELOPE_SHIFT)) {", "if (s4 == 0) {",
            ARM, "Net.AStepOf100msKeepsAsCapableAt1msTurnaround",
-           "the grandmaster's port fell from asCapable across the slave's step"),
+           "the grandmaster's port fell from asCapable across the slave's step",
+           also=tuple((ARM, f"Net.{test}", "the grandmaster's port fell from asCapable across the slave's step")
+                      for test in ("AStepAtTaiScaleKeepsAsCapableAt1msTurnaround",
+                                   "AStepAtTaiScaleKeepsAsCapableAt10msTurnaround",
+                                   "AStepOf1sKeepsAsCapableAt10msTurnaround",
+                                   "ABackwardStepOf100msKeepsAsCapableAt10msTurnaround"))),
     Mutant("turnaround-unbounded", C, "\tif (turn > rtt + (rtt >> GPTP_NRR_ENVELOPE_SHIFT))\n\t\treturn;\n", "", ARM,
            "Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement",
            "a turnaround over the round trip reached the delay"),
