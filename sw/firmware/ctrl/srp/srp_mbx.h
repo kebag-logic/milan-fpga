@@ -112,10 +112,6 @@ struct srp_interface {
     // 2026-11-20, item 3): at most the attribute blocks of the pool, under
     // 256. Here, in the room before gate_base's alignment.
     uint8_t fresh;
-    // The Talker attributes it keeps for StreamIDs none of its bindings holds (#969, srp_mbx.c keep_talker), as its
-    // last registrar walk counted them and its filter kept them since, the first SRP_KEPT_TALKERS of them in
-    // srp_mbx.kept[index]: at most the attribute blocks of the pool, under 256. In the same room.
-    uint8_t kept_count;
     uint64_t gate_base;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
@@ -132,8 +128,14 @@ struct srp_mbx_config {
 };
 // The Talker attributes an interface keeps for StreamIDs none of its bindings holds, so a binding made later takes
 // their registration (#969; Milan v1.2 5.3.8.5, 5.5.3.5.18 step 4; IEEE 802.1Q-2018 10.7.8's NOTE, a likely future
-// Member): one for each STREAM_INPUT of the shape, each an lwSRP attribute and so a medium block of the pool.
+// Member): one for each STREAM_INPUT of the shape, as the release processor's listener keeps (KL_srp_listener_fsm.sv,
+// its port registrars), each an lwSRP attribute and so a medium block of the pool. The pool's fixed 16 an interface
+// funds them: beside its sources' three and its sinks' four, an interface's attributes are its Domain's and its
+// default VID's, at most four while a Domain is adopted (srp_mbx.c change_domain: the old and the new of each), so
+// up to 12 kept leave the rest the pool held before.
 #define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+#define SRP_POOL_FIXED_BLOCKS 16u
+#define SRP_POOL_DOMAIN_BLOCKS 4u
 struct srp_kept {
     struct msrp_stream_id stream_id;
     uint8_t kind;   // the attribute's: 1 Talker Failed, 2 Talker Advertise (srp_sink.registered_kinds' bits)
@@ -141,7 +143,7 @@ struct srp_kept {
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.
 #define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS + SRP_KEPT_TALKERS) * MBX_N_IF)
+#define SRP_POOL_MEDIUM_BLOCKS ((SRP_POOL_FIXED_BLOCKS + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
 #define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
 #define SRP_POOL_N_CLASSES 3u
 #define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
@@ -198,7 +200,14 @@ struct srp_mbx {
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
     // After them, as it is read only through a scan from its start (#925).
     struct srp_held held[SRP_HELD_STREAMS];
-    // Each interface's kept Talker attributes, the first kept_count (#969), read the same way.
+    // Each interface's Talker attributes kept for StreamIDs none of its bindings holds (#969, srp_mbx.c keep_talker),
+    // after the rest, as only a Talker no binding holds reads them: kept_count is at least those its participant holds
+    // (the last count of them, count_kept, and each one the filter kept since), at most the pool's attribute blocks,
+    // under 256, and kept lists the first SRP_KEPT_TALKERS of them; kept_owed, a binding changed since that count, and
+    // kept_returned, the blocks the pools had returned at it (ctrl_pool_returned).
+    uint32_t kept_returned[MBX_N_IF];
+    uint8_t kept_count[MBX_N_IF];
+    bool kept_owed[MBX_N_IF];
     struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
 };
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];

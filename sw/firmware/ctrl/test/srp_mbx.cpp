@@ -2316,6 +2316,23 @@ TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFree
     expect_bound_declares(1,past,kAdvertise,"once its block is freed, another is kept");
 }
 
+// An unbinding leaves its StreamID's registration kept (the issue's control: UNBIND_RX then BIND_RX declares at once),
+// and counted against the bound from the next receive on; a binding made again takes it.
+TEST_F(SrpEarlyTalker, AnUnboundRegistrationIsKeptAndCountedAgainstTheBound) {
+    settle(); advance(400);
+    const unsigned mine=CTRL_SRP_SINKS, past=CTRL_SRP_SINKS+1u;
+    bind_stream(0,mine); settle();
+    offer(talker(mine,kAdvertise,kJoinIn)); advance(kJoinMs);
+    ASSERT_EQ(sink(0).declared,kAdvertise);
+    for (unsigned k=1;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); advance(kJoinMs);
+    const unsigned full=ctrl_pool_in_use(&pool);
+    offer(talker(past,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),full)<<"an unbound registration is kept and counted: the bound is reached";
+    quiet(400);
+    expect_bound_declares(1,mine,kAdvertise,"an unbound registration kept, bound again");
+}
+
 // What the talker withdrew before the binding is not declared: a Leave, or a LeaveAll it no longer answers, ends the
 // registration, and the binding declares nothing; nor does a registration a reset of the interface destroyed.
 TEST_F(SrpEarlyTalker, ARegistrationThatEndedBeforeTheBindingDeclaresNothing) {
@@ -2349,10 +2366,10 @@ TEST_F(SrpEarlyTalker, RegistrationsKeptBeforeABindingAreBoundedByTheInputs) {
     const unsigned past=CTRL_SRP_SINKS;
     offer(talker(past,kAdvertise,kJoinIn));
     EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a registration past the bound takes no block";
-    // a walk counts them again (a binding owes one, here of a stream nobody declares)
+    // counted again (a binding owes the count, here one of a stream nobody declares), they are still kept
     bind_stream(CTRL_SRP_SINKS-1u,0x90u); settle(); advance(kJoinMs);
     offer(talker(past,kAdvertise,kJoinIn));
-    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a walk keeps counting them";
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"counted again, they are still kept";
     // a New of the other kind of a kept StreamID registers beside it (lwSRP, as srp_mbx.c's listener_kind notes): a
     // registration of its own, past the bound too
     offer(talker(1,kFailed,kNew));

@@ -31,8 +31,10 @@ Do not rebind or destroy the pool while any participant owns storage.
 There is no firmware heap or operating-system dependency.
 
 The pool has two small and two large blocks per interface, plus
-`16 + 3 * sources + 4 * sinks` medium blocks per interface, and one more for each
-sink: a Talker kept for a StreamID no binding holds (`SRP_KEPT_TALKERS`, #969).
+`16 + 3 * sources + 4 * sinks` medium blocks per interface. The fixed 16 hold the
+Domain's and the default VID's attributes, at most four while a Domain is adopted,
+and fund up to 12 Talkers kept for StreamIDs no binding holds, one for each sink
+(`SRP_KEPT_TALKERS`, #969; a static assertion holds the sum).
 The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
 IDs, bound input Talker IDs and required VLANs, and up to `SRP_KEPT_TALKERS` Talker
@@ -343,17 +345,20 @@ received, and 802.1Q-2018 10.7.8's NOTE keeps a Registrar for an attribute of
 immediate interest "as a Member or as a likely future Member". So the filter
 keeps a Talker attribute of a StreamID none of the interface's bindings holds,
 one already kept or while the interface keeps fewer than `SRP_KEPT_TALKERS`, one
-for each STREAM_INPUT of the shape, each a pool block set aside for them; the
+for each STREAM_INPUT of the shape, each a pool block of the fixed 16; the
 release processor's listener keeps the same count of port registrars
 (`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
 the registrar's, and the walk a binding made later owes takes it as one made
 after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
-`kept_count` is at least the attributes kept: the last walk counted every Talker
-no binding holds that is registered, or that left and still holds its block
-until `mrp_reclaim` frees it, and each one the filter keeps since adds one; a
-block returned while the interface keeps one owes the walk that counts it no
-more. An unbound StreamID's indication owes no walk otherwise, since it changes
-no binding. Past the bound, a Talker no binding holds is ignored, as every one
+`kept_count` is at least the attributes kept: before a receive, outside lwSRP's
+callbacks, `count_kept` counted every Talker the participant does not declare
+and no binding holds, registered or left with its block not yet freed by
+`mrp_reclaim`, and each one the filter keeps since adds one. That count is made
+again when a binding changed since it, or, at the bound, when a block was
+returned, the one way a kept attribute ends. The filter reads no walk's result,
+so the walk's schedule moves none of its answers (#930's differential holds it),
+and an unbound StreamID's indication owes no walk, since it changes no binding.
+Past the bound, a Talker no binding holds is ignored, as every one
 was before #969, and a binding made later declares with the talker's next
 declaration. A New of the other kind of a kept StreamID registers beside it, an
 attribute of its own, and is kept only within the bound; a JoinIn of the other

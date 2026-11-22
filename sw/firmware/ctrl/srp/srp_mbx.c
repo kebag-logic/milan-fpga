@@ -25,7 +25,9 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICENCE and a TALKER_DECL bit");
 // held_count counts the StreamIDs held (#925, srp_held).
 _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held");
-// kept_count counts an interface's kept Talker attributes, each a block of the pool (#969, srp_interface).
+// The pool's fixed blocks fund the kept Talkers beside the Domain's and the default VID's (#969, srp_mbx.h).
+_Static_assert(SRP_KEPT_TALKERS + SRP_POOL_DOMAIN_BLOCKS <= SRP_POOL_FIXED_BLOCKS, "the fixed blocks fund the kept Talkers");
+// kept_count counts an interface's kept Talker attributes, each a block of the pool (#969, srp_mbx.h).
 _Static_assert(SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS <= 255u, "kept_count counts every kept attribute");
 
 // The JoinTime every participant is configured with, in centiseconds (create_participants): the loop's, whose
@@ -273,7 +275,7 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
         }
     }
     // What an indication of a bound StreamID writes, snapshot copies (#665). One of a StreamID none binds changes no
-    // binding, and its kept attribute is counted by the walk a block's return owes (#969, reclaim).
+    // binding, and the walk copies nothing of its kept attribute (#969, count_kept).
     i->stale = i->stale || bound;
     // A StreamID none binds is held while both its kinds stay registered, or from a registration it was kept for: a
     // leave of either ends that, and the registration latest decides while it holds, as it does for a bound StreamID
@@ -452,24 +454,26 @@ static uint8_t talker_kind(uint8_t type)
 // registration in the walk it owes (#969): ACMP initiates the reservation only once the talker answers its probe
 // (Milan v1.2 5.5.3.5.18 step 4), and a talker declares once, then stays quiet until a LeaveAll (IEEE 802.1Q-2018
 // Table 10-3), so one refused here is not seen again before then. Kept already, or while the interface keeps fewer
-// than SRP_KEPT_TALKERS, the pool blocks set aside for them (srp_mbx.h). kept_count is at least the attributes kept:
-// the last walk counted them (registrations), each one kept since adds one, and one freed is not uncounted until the
-// walk its block's return owes (reclaim). Past the bound the receive ignores it, as for every StreamID before #969.
+// than SRP_KEPT_TALKERS, which the pool's fixed blocks fund (srp_mbx.h): kept_count, counted before the receive
+// (count_kept), and each one kept since adds one. Past the bound the receive ignores it, as for every StreamID before
+// #969. The filter reads no walk's result, so the walk's schedule moves no answer of it (#930).
 static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
 {
-    struct srp_kept *kept = i->owner->kept[i->index];
+    struct srp_mbx *m = i->owner;
+    struct srp_kept *kept = m->kept[i->index];
     const uint8_t kind = talker_kind(type);
-    const unsigned listed = i->kept_count < SRP_KEPT_TALKERS ? i->kept_count : SRP_KEPT_TALKERS;
+    uint8_t *count = &m->kept_count[i->index];
+    const unsigned listed = *count < SRP_KEPT_TALKERS ? *count : SRP_KEPT_TALKERS;
     for (unsigned n = 0; n < listed; ++n) {
         if (kept[n].kind == kind && same(kept[n].stream_id.bytes,stream_id,8)) {
             return true;
         }
     }
-    if (i->kept_count >= SRP_KEPT_TALKERS) {
+    if (*count >= SRP_KEPT_TALKERS) {
         return false;
     }
-    memcpy(kept[i->kept_count].stream_id.bytes,stream_id,8);
-    kept[i->kept_count++].kind = kind;
+    memcpy(kept[*count].stream_id.bytes,stream_id,8);
+    kept[(*count)++].kind = kind;
     return true;
 }
 
@@ -793,11 +797,12 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
             release_held(m,h);
         }
     }
-    // the walk owed below counts the kept Talkers again: a binding made now takes its StreamID's, an unbinding keeps
-    // them (#969, keep_talker)
     const struct srp_sink old = *s;
     *s = replacement;
     i->stale = true; // snapshot matches registrations against the bindings (#665)
+    // and the next receive counts the kept Talkers again: a binding made now takes its StreamID's, an unbinding keeps
+    // them (#969, count_kept)
+    m->kept_owed[interface] = true;
     if (old.bound) {
         // Judge the complete new binding set, including the replacement.
         // a declaration withdrawn here is sent by THE TRANSMIT's call
@@ -896,6 +901,56 @@ static CTRL_CC_INLINE unsigned attribute_room(const struct ctrl_pool *pool)
     return (unsigned)pool->bins[1].free_count + pool->bins[2].free_count;
 }
 
+// The Applicant states of an attribute the participant does not declare (IEEE 802.1Q-2018 Table 10-3): it observes
+// (VO, AO, QO) or answers a Leave or LeaveAll with what its Registrar holds (LO), a bit each.
+#define SRP_UNDECLARED_APPL (SRP_FREED_APPL | (1u << MRP_APPL_STATE_LO))
+
+// Whether a binding of the interface holds the StreamID at id.
+static bool bound_stream(const struct srp_interface *i, const uint8_t *id)
+{
+    for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
+        if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,id,8)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// One attribute of the count (#969, count_kept): a Talker the participant does not declare, whose StreamID none of
+// the interface's bindings holds, registered or left with its block not yet freed (mrp_reclaim frees it), is kept.
+static void kept_visited(void *ctx, const struct mrp_attr_status *status)
+{
+    struct srp_interface *i = ctx;
+    struct srp_mbx *m = i->owner;
+    const uint8_t *id = ((const struct msrp_talker_adv *)status->attr_val)->stream_id.bytes;
+    if ((status->attr_type == MSRP_ATTR_TYPE_TALKER_ADV || status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) &&
+        (SRP_UNDECLARED_APPL >> status->appl & 1u) != 0u && !bound_stream(i,id)) {
+        uint8_t *count = &m->kept_count[i->index];
+        if (*count < SRP_KEPT_TALKERS) {
+            struct srp_kept *kept = &m->kept[i->index][*count];
+            memcpy(kept->stream_id.bytes,id,8);
+            kept->kind = talker_kind(status->attr_type);
+        }
+        ++*count;
+    }
+}
+
+// The interface's kept Talker attributes counted and listed again from its participant, before a receive and outside
+// lwSRP's callbacks (#969, keep_talker), when what they are may have moved since the last count: a binding changed
+// (srp_mbx_bind), or, at the bound, a block was returned, the one way a kept attribute ends. Below the bound the count
+// is at least the attributes kept, which is all keep_talker needs.
+static void count_kept(struct srp_interface *i)
+{
+    struct srp_mbx *m = i->owner;
+    const unsigned n = i->index;
+    if (m->kept_owed[n] || (m->kept_count[n] >= SRP_KEPT_TALKERS && m->kept_returned[n] != ctrl_pool_returned)) {
+        m->kept_owed[n] = false;
+        m->kept_returned[n] = ctrl_pool_returned;
+        m->kept_count[n] = 0u;
+        (void)mrp_attr_visit(i->msrp,0,kept_visited,i);
+    }
+}
+
 // Return false only for local storage refusal. Earlier events
 // may already have applied; lwSRP requires replay of the identical payload.
 static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
@@ -915,6 +970,7 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
     if (i->msrp) {
         // Seed copied kinds from the registrar before entering any callback.
         snapshot(i);
+        count_kept(i);
     }
     // A received attribute can be created with no state change (#665), at VO and MT, which mrp_reclaim frees: the
     // receive owes the reclaim when it created more attributes than left that state (moved). lwSRP takes a medium or a
@@ -1033,45 +1089,10 @@ static int send_pdu(void *ctx, uint8_t port, const uint8_t *pdu, size_t len)
     return 0;
 }
 
-// The Applicant states of an attribute the participant does not declare (IEEE 802.1Q-2018 Table 10-3): it observes
-// (VO, AO, QO) or answers a Leave or LeaveAll with what its Registrar holds (LO), a bit each.
-#define SRP_UNDECLARED_APPL (SRP_FREED_APPL | (1u << MRP_APPL_STATE_LO))
-
-// A Talker attribute the walk meets that the interface keeps for a StreamID none of its bindings holds (#969,
-// keep_talker): counted, and listed while the list has room.
-static void kept_walked(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
-{
-    if (i->kept_count < SRP_KEPT_TALKERS) {
-        struct srp_kept *kept = &i->owner->kept[i->index][i->kept_count];
-        memcpy(kept->stream_id.bytes,stream_id,8);
-        kept->kind = talker_kind(type);
-    }
-    ++i->kept_count;
-}
-
-// Whether a binding of the interface holds the StreamID at id.
-static bool bound_stream(const struct srp_interface *i, const uint8_t *id)
-{
-    for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-        if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,id,8)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void registrations(void *ctx, const struct mrp_attr_status *status)
 {
     struct srp_interface *i = ctx;
-    const bool talker = status->attr_type == MSRP_ATTR_TYPE_TALKER_ADV ||
-                        status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED;
     if (status->reg == MRP_REG_STATE_MT) {
-        // A Talker none declares or registers holds its block until mrp_reclaim frees it: one a binding does not hold
-        // is still a kept one (#969, keep_talker). The interface's own Talkers are declared.
-        if (talker && (SRP_UNDECLARED_APPL >> status->appl & 1u) != 0u &&
-            !bound_stream(i,((const struct msrp_talker_adv *)status->attr_val)->stream_id.bytes)) {
-            kept_walked(i,status->attr_type,status->attr_val);
-        }
         return;
     }
     if (status->attr_type == MSRP_ATTR_TYPE_LISTENER) {
@@ -1084,13 +1105,12 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
                 i->registered[n] = v[8] == 2 || v[8] == 3;
             }
         }
-    } else if (talker) {
+    } else if (status->attr_type == MSRP_ATTR_TYPE_TALKER_ADV ||
+               status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
         const struct msrp_talker_adv *v = status->attr_val;
-        bool bound = false;
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
             struct srp_sink *sink = &i->sinks[n];
             if (sink->bound && same(sink->stream_id.bytes,v->stream_id.bytes,8)) {
-                bound = true;
                 // the StreamID's, whatever their destination and VID: a final unbinding with both holds the latest
                 // (#925, srp_mbx_bind)
                 sink->stream_kinds |= status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u;
@@ -1099,10 +1119,6 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
                     sink->registered_kinds |= status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u;
                 }
             }
-        }
-        // registered for a StreamID none binds: kept, which a binding made later takes (#969)
-        if (!bound) {
-            kept_walked(i,status->attr_type,v->stream_id.bytes);
         }
     }
 }
@@ -1137,8 +1153,6 @@ static void snapshot(struct srp_interface *i)
     ++i->owner->walks;
     memset(i->registered,0,sizeof(i->registered));
     memset(i->listener_present,0,sizeof(i->listener_present));
-    // the walk counts and lists the kept Talker attributes again (#969, kept_walked)
-    i->kept_count = 0u;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         previous[k] = i->sinks[k].desired;
         i->sinks[k].registered_kinds = 0;
@@ -1297,7 +1311,6 @@ static void reset_interface(struct srp_interface *i)
             release_held(m,&m->held[n]);
         }
     }
-    // and so are the Talker attributes it kept: the new participants' first walk counts none (#969, create_participants)
     // The next pass's poll builds the new participants: both halves in one
     // pass are over the per-pass share at 8x8 (#665, srp_bounds.h).
     i->reopen_polls = 1u;
@@ -1340,16 +1353,12 @@ static bool turn_builds(const struct srp_mbx *m, const bool link[MBX_N_IF])
 // A participant may hold an attribute mrp_reclaim frees (#665). lwSRP reclaims
 // nothing on a participant holding a prepared PDU: while a frame is owed, its
 // interface's reclaim is owed after it.
-// A kept Talker attribute freed stays counted until a walk (#969, keep_talker): while the interface keeps one, a block
-// returned owes the walk.
 static CTRL_CC_NOINLINE void reclaim(struct srp_interface *i)
 {
     if (i->reclaim) {
-        const uint32_t returned = ctrl_pool_returned;
         (void)mrp_reclaim(i->msrp,0);
         (void)mrp_reclaim(i->mvrp,0);
         i->reclaim = i->owner->owed_len != 0u;
-        i->stale = i->stale || (i->kept_count != 0u && ctrl_pool_returned != returned);
     }
 }
 
@@ -1424,7 +1433,7 @@ static bool poll(void *ctx)
         // filter's answers (interested_msrp, interested_mvrp) and the attributes' existence, values and states. While a
         // receive waits the filter's inputs hold, since no binding changes (srp_mbx_bind) and no declaration or Domain
         // is made (transmit), and the kept Talkers change only with the filter's own answers, which a replay repeats,
-        // or with a walk, which a Registrar change or a block returned owes (#969, keep_talker, reclaim); an attribute
+        // or with a count, which a block returned owes (#969, count_kept); an attribute
         // is freed only by a block returned and created only by one taken, which leaves
         // no more room; its value changes only by a receive or a declaration, and no other SRP record is taken meanwhile
         // (rx_ready). So a retry with neither changed meets the same refusal: it is not made, and the deadline is checked
