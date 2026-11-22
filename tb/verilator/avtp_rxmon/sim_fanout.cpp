@@ -56,6 +56,13 @@
 //         reaches each input as one frame of ceil(length/8) beats,
 //         zero-padded, with one tlast, and the other stream's PDUs keep
 //         their own boundaries and index
+//   [FO15] [FO10]'s burst, longer, with idle cycles inside each frame
+//         (AXI-Stream lets tvalid fall between beats): the monitor queues
+//         every PDU while the store overflows and the walker serving eight
+//         inputs is never idle; every PDU an input accepted is delivered to
+//         it or one of its own DEPKT drops, each input counts the same
+//         drops, and its DEPKT tally counts each PDU it was delivered; each
+//         input drops more frames than a pending tally holds before its drain
 //   [FO14] frames of eight, nine and ten beats, the Ethernet minimum up to
 //         80 octets: every payload remainder (INT_16BIT, INT_24BIT and
 //         INT_32BIT formats of one channel), the Milan v1.2 1-channel 48 kHz
@@ -135,6 +142,7 @@ class FanOut {
         payload_tails_that_are_not_whole_beats();
         frames_short_of_their_payload();
         frames_of_eight_to_ten_beats();
+        a_dense_burst_with_bubbles_to_eight_inputs();
         std::printf("\n======================================================================\n");
         std::printf("FANOUT N=8: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -228,9 +236,17 @@ class FanOut {
         return q;
     }
 
+    // with `bubbles`, one to three idle cycles before six beats in ten (a fixed-seed generator)
+    bool bubbles = false;
+    uint32_t bub_x = 0x9E3779B9u;
+    uint32_t bub_next() { bub_x = bub_x * 1664525u + 1013904223u; return bub_x >> 8; }
     void feed(const std::vector<uint8_t>& f, int headroom = 60) {
         const int beats = static_cast<int>(f.size() + 7) / 8;
         for (int b = 0; b < beats; b++) {
+            if (bubbles && bub_next() % 10 < 6) {
+                dut->s_tvalid_i = 0;
+                cyc(static_cast<int>(1 + bub_next() % 3));
+            }
             uint64_t d = 0;
             int vb = 0;
             for (int k = 0; k < 8; k++) {
@@ -685,8 +701,8 @@ class FanOut {
         bind(2, kTalkerB, true);
         cyc(200);
         // every remainder 1 to 7: the final beat lies wholly in the depacketizer's hold untagged at a remainder of 1
-        // or 2 octets, behind a C-VLAN tag at 1 to 6. Each frame is at least 13 beats, long enough for its PDU to be
-        // queued in its flight ([FO8] holds the frames that are not)
+        // or 2 octets, behind a C-VLAN tag at 1 to 6. Each frame is at least 13 beats ([FO14] holds frames of eight to
+        // ten beats)
         const Fmt tails[] = {
             {0x03, 24, 3, 9},    // INT_24BIT, 81 octets: remainder 1
             {0x03, 24, 2, 11},   // 66 octets: remainder 2
@@ -824,6 +840,49 @@ class FanOut {
         }
         rebind_as({0, 1}, kTalkerA, kPcm32x8);
         bind(2, kTalkerB, false);
+        cyc(200);
+    }
+    void a_dense_burst_with_bubbles_to_eight_inputs() {
+        constexpr int kBurst = 150;
+        std::printf("\n[FO15] eight inputs on one stream: %d full PDUs, no gap, idle cycles inside each\n", kBurst);
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, true);
+        cyc(200);
+        const Snap b = snap();
+        std::array<long, kStreams> drops_before{};
+        for (int s = 0; s < kStreams; s++) drops_before[s] = (lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF;
+        std::vector<Pdu> sent;
+        bubbles = true;
+        for (int k = 0; k < kBurst; k++) {
+            sent.push_back(payload());
+            feed(aaf(0, 8, sent.back()), 0);
+        }
+        bubbles = false;
+        cyc(20000);
+        flush_iv();
+        long dropped0 = -1;
+        for (int s = 0; s < kStreams; s++) {
+            const long delivered = static_cast<long>(got[s].size() - b.pdus[s]);
+            const long dropped = static_cast<long>((lctx_rd(s, W_DEPKT) >> 16) & 0xFFFF) - drops_before[s];
+            ck("[FO15] the input accepted most of the burst (the walker keeps up with the bubbles)", s,
+               accepts[s] - b.acc[s] > kBurst / 2 ? 1 : 0, 1);
+            ck("[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops", s,
+               delivered + dropped, accepts[s] - b.acc[s]);
+            ck("[FO15] the input's DEPKT tally counts each PDU delivered to it", s,
+               (lctx_rd(s, W_DEPKT) & 0xFFFF) - b.depkt[s], delivered);
+            ck("[FO15] more drops than a pending DEPKT tally holds (63): the case is live", s,
+               dropped > 63 ? 1 : 0, 1);
+            if (s == 0) dropped0 = dropped;
+            ck("[FO15] each input counts the same drops (one frame, one drop for each input that accepted it)", s,
+               dropped, dropped0);
+            long in_order = 0;
+            size_t k = 0;
+            for (size_t m = b.pdus[s]; m < got[s].size(); m++) {
+                while (k < sent.size() && got[s][m] != sent[k]) k++;
+                if (k < sent.size()) { in_order++; k++; }
+            }
+            ck("[FO15] each delivered payload is a sent one, in order", s, in_order, delivered);
+        }
+        for (int s = 2; s < kStreams; s++) bind(s, kTalkerA, false);
         cyc(200);
     }
 };

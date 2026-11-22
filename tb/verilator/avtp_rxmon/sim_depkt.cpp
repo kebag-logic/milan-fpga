@@ -39,6 +39,13 @@
 //         the unqueued frame reaches none, and nothing is dropped. The Milan
 //         v1.2 1-channel 48 kHz Base PDU (24 octets: a 62-octet frame, 66
 //         tagged) is three beats with one tlast
+//   [DT5] the tap with bubbles (AXI-Stream lets a frame pause): before six
+//         beats in ten, one to three cycles of tvalid low or of tready low
+//         holding the beat, the enqueue pulse three cycles after the
+//         accepted eighth beat; every length 1 to 72 and 192, untagged and
+//         tagged, to one, two, four or no inputs, each followed by an
+//         ordinary PDU, under random output stalls: each output frame whole,
+//         in order, under its index
 //
 // Usage: make -C tb/verilator/avtp_rxmon depkt
 
@@ -89,6 +96,7 @@ class Depkt {
         every_length();
         frames_short_of_their_payload();
         short_frames();
+        tap_bubbles();
         std::printf("\n======================================================================\n");
         std::printf("DEPKT: %ld checks, %ld failures\nRESULT: %s\n", checks, fails, fails ? "FAIL" : "PASS");
         return fails ? 1 : 0;
@@ -225,6 +233,8 @@ class Depkt {
 
     // the tap: one beat a cycle, the enqueue pulse enq_lat cycles after beat 7 (the parser's match), the done
     // pulse `lag` cycles after that
+    // with `bubbles`, before six beats in ten one to three cycles of tvalid low, or of tready low holding the beat
+    bool bubbles = false;
     void feed(const Frame& fr, int lag, int gap) {
         const size_t beats = (fr.octets.size() + 7) / 8;
         for (size_t b = 0; b < beats; b++) {
@@ -236,6 +246,16 @@ class Depkt {
             d->s_tkeep_i = n == 8 ? 0xFF : ((1u << n) - 1);
             d->s_tvalid_i = 1;
             d->s_tlast_i = b + 1 == beats;
+            if (bubbles && rng.below(10) < 6) {
+                const unsigned nb = 1 + rng.below(3);
+                for (unsigned i = 0; i < nb; i++) {
+                    if (rng.below(2)) { d->s_tvalid_i = 0; d->s_tready_i = 1; }
+                    else              { d->s_tvalid_i = 1; d->s_tready_i = 0; }
+                    cycle();
+                }
+                d->s_tvalid_i = 1;
+                d->s_tready_i = 1;
+            }
             if (fr.queued && b == 7) enq_owed.push_back(Enq{now + enq_lat, fr.mask, lag});
             cycle();
         }
@@ -441,6 +461,37 @@ class Depkt {
             ck(t, outs.empty() ? 0 : static_cast<long>(outs[0].data.size() / 8), 3);
         }
         enq_lat = 1;
+    }
+    void tap_bubbles() {
+        std::printf("\n[DT5] the tap with bubbles, the enqueue pulse 3 cycles after the accepted eighth beat\n");
+        enq_lat = 3;
+        stall = Stall::kRandom;
+        bubbles = true;
+        long cases = 0;
+        long good = 0;
+        std::vector<unsigned> lengths;
+        for (unsigned n = 1; n <= 72; n++) lengths.push_back(n);
+        lengths.push_back(192);
+        for (bool vlan : {false, true}) {
+            for (unsigned n : lengths) {
+                for (unsigned mask : {0x1u, 0x5u, 0xFu, 0x0u}) {
+                    const unsigned hdr = vlan ? 42 : 38;
+                    const unsigned extra = hdr + n < 60 ? 60 - hdr - n : 0;
+                    tail_beats = (n + 7) / 8;
+                    std::vector<Frame> fs;
+                    fs.push_back(frame(payload(n), vlan, extra, mask));
+                    fs.push_back(frame(payload(192), false, 0, mask == 0x4 ? 0x1 : 0x2));
+                    char tag[120];
+                    std::snprintf(tag, sizeof tag, "[DT5] %u octets%s, inputs %X:", n, vlan ? " tagged" : "", mask);
+                    cases++;
+                    if (grade(tag, fs, 2 + static_cast<int>(rng.below(20)), false)) good++;
+                }
+            }
+        }
+        bubbles = false;
+        stall = Stall::kNone;
+        enq_lat = 1;
+        ck("[DT5] cases whose every output frame is whole, in order, under its index", good, cases);
     }
 };
 
