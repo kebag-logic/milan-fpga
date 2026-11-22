@@ -5,10 +5,10 @@ the loop dispatched carried (link_carried).
 
 SRP's poll takes a DOWN as the LINK register reads it, and an UP only while the last LINK the loop dispatched carried
 one; attach carries the register's level (srp_mbx.c, poll, on_event, srp_mbx_attach). srp_mutants.py plants each into
-a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on its own words: srp_link_pass.cpp's
-for the level a link that comes up inside a pass shows, srp_mbx.cpp's for the DOWN that fails closed and for the level
-attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if (test_ctrl_firmware.run_srp_mutants),
-the two-interface campaign at 1x1/2if.
+a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on its own words:
+srp_link_pass.cpp's for the level a link that comes up inside a pass shows, srp_mbx.cpp's for the DOWN that fails
+closed and for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
+(test_ctrl_firmware.run_srp_mutants), the two-interface campaign at 1x1/2if.
 """
 from __future__ import annotations
 
