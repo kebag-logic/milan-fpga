@@ -1,0 +1,21 @@
+# docs.yml's two end-station builder legs (scripts/ci_builder_legs.py run LEG -- sw/builder/test_builder.py --require-rv32), at b4a1dde2
+
+847b2e21 changes only sw/firmware/ctrl/test/srp_talker_mutants.py after it, which the builder does not read.
+
+## leg 0
+HEAD b4a1dde2 dirty 0 leg 0 start 23:49:46
+END rc=0 00:17:24
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+ALL GATES PASS EXCEPT 1 NOT RUN
+the leg's receipt: builder-leg-0.json, 4592 B, sha256 10cb61b4d915cc4d
+
+## leg 1
+HEAD b4a1dde2 dirty 0 leg 1 start 00:17:24
+END rc=0 00:33:12
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (<host> - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+the leg's receipt: builder-leg-1.json, 16596 B, sha256 394950acca408923
+
+Leg 1's two 'disabled-writer ... FAIL' lines are its planted disabled-writer mutant, caught in both states.

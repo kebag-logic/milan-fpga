@@ -1,0 +1,16 @@
+# The CPU budget harness's portable self-test (run.py --self-test) at b4a1dde2 (847b2e21 changes no harness file)
+
+The full log is 968181 B, sha256 6e99b54b323755ac, kept in the lane's scratch; its tallies:
+  PASS lines: 1013
+  MUTANT caught lines: 295
+  lines naming an escape or a failure (MUTANT escaped, FAIL:): 0
+  the transmit-aged plant (build.py, re-anchored on tx_owed this round): 0 lines
+
+HEAD b4a1dde2 dirty 0 start 23:53:29
+self-test: 0 failures
+END rc=0 00:38:28
+
+The self-test does not plant build.MUTATIONS' SRP controls (SRP_CONTROLS = ('transmit-aged',), the formal measurement's
+control). Read at 847b2e21, every entry's anchor in sw/firmware/ctrl matches its file exactly once; the srp_mbx.c
+ones: transmit-aged (re-anchored on tx_owed this round), polls-rebuild-in-the-base, polls-rebuild-twice and
+srp-compared-by-memcmp, one each.

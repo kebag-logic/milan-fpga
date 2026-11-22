@@ -1,0 +1,196 @@
+# The reviewers' probes, unchanged, on the code head b4a1dde2
+
+Method: a clone at b4a1dde2bf3e1ee0849a20a9a85f95955fd3389a with the R876-1 packet's reset_probe.cpp and the R875-1
+packet's probe_phase_956.cpp appended to srp_talker.cpp, and its probe_link_reset_957.cpp appended to test_aecp.cpp,
+each file as the packets hold it. R876-1's phase probe (focused.py) edits the at-the-latest test's old body, which the
+round restructured, so it cannot apply; R875-1's HELD probe is the same case (the held loop, no idle-timer precondition,
+1,500 ms observed after the resume) at phases 0 to 900 ms, and the round's own sweep runs every 10 ms (see
+new-tests-fail-at-0d80f0ed.txt and the firmware gate). Phase 0 is the probe's setup artifact its author names: the
+source is not yet declared, so there is no Leave to measure (lv == nullptr), at 0d80f0ed as here.
+
+## srp_talker.cpp at 1x1/1if: == ctrl SRP Talker declarations: checks: 21   failures: 2 ==
+[       OK ] Talker.RegistrationAfterLinkResetIsNoticed
+[  FAILED  ] ReviewerPhase.Held0
+[  FAILED  ] ReviewerPhase.Free0
+[       OK ] ReviewerPhase.Held100
+[       OK ] ReviewerPhase.Free100
+[       OK ] ReviewerPhase.Held200
+[       OK ] ReviewerPhase.Free200
+[       OK ] ReviewerPhase.Held300
+[       OK ] ReviewerPhase.Free300
+[       OK ] ReviewerPhase.Held400
+[       OK ] ReviewerPhase.Free400
+[       OK ] ReviewerPhase.Held500
+[       OK ] ReviewerPhase.Free500
+[       OK ] ReviewerPhase.Held600
+[       OK ] ReviewerPhase.Free600
+[       OK ] ReviewerPhase.Held700
+[       OK ] ReviewerPhase.Free700
+[       OK ] ReviewerPhase.Held800
+[       OK ] ReviewerPhase.Free800
+[       OK ] ReviewerPhase.Held900
+[       OK ] ReviewerPhase.Free900
+Held0's and Free0's failure: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+request-to-wire per phase (ms; deadline 30000):
+  PROBE held phase 100 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 100 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 200 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 200 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 300 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 300 if0: request-to-wire 29890 ms (deadline 30000)
+  PROBE held phase 400 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 400 if0: request-to-wire 29790 ms (deadline 30000)
+  PROBE held phase 500 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 500 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 600 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 600 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 700 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 700 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 800 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 800 if0: request-to-wire 29770 ms (deadline 30000)
+  PROBE held phase 900 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 900 if0: request-to-wire 29770 ms (deadline 30000)
+
+## srp_talker.cpp at 8x8/1if: == ctrl SRP Talker declarations: checks: 21   failures: 2 ==
+[       OK ] Talker.RegistrationAfterLinkResetIsNoticed
+[  FAILED  ] ReviewerPhase.Held0
+[  FAILED  ] ReviewerPhase.Free0
+[       OK ] ReviewerPhase.Held100
+[       OK ] ReviewerPhase.Free100
+[       OK ] ReviewerPhase.Held200
+[       OK ] ReviewerPhase.Free200
+[       OK ] ReviewerPhase.Held300
+[       OK ] ReviewerPhase.Free300
+[       OK ] ReviewerPhase.Held400
+[       OK ] ReviewerPhase.Free400
+[       OK ] ReviewerPhase.Held500
+[       OK ] ReviewerPhase.Free500
+[       OK ] ReviewerPhase.Held600
+[       OK ] ReviewerPhase.Free600
+[       OK ] ReviewerPhase.Held700
+[       OK ] ReviewerPhase.Free700
+[       OK ] ReviewerPhase.Held800
+[       OK ] ReviewerPhase.Free800
+[       OK ] ReviewerPhase.Held900
+[       OK ] ReviewerPhase.Free900
+Held0's and Free0's failure: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+request-to-wire per phase (ms; deadline 30000):
+  PROBE held phase 100 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 100 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 200 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 200 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 300 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 300 if0: request-to-wire 29890 ms (deadline 30000)
+  PROBE held phase 400 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 400 if0: request-to-wire 29790 ms (deadline 30000)
+  PROBE held phase 500 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 500 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 600 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 600 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 700 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 700 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 800 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 800 if0: request-to-wire 29730 ms (deadline 30000)
+  PROBE held phase 900 if0: request-to-wire 29997 ms (deadline 30000)
+  PROBE free phase 900 if0: request-to-wire 29730 ms (deadline 30000)
+
+## srp_talker.cpp at 8x8/2if: == ctrl SRP Talker declarations: checks: 21   failures: 2 ==
+[       OK ] Talker.RegistrationAfterLinkResetIsNoticed
+[  FAILED  ] ReviewerPhase.Held0
+[  FAILED  ] ReviewerPhase.Free0
+[       OK ] ReviewerPhase.Held100
+[       OK ] ReviewerPhase.Free100
+[       OK ] ReviewerPhase.Held200
+[       OK ] ReviewerPhase.Free200
+[       OK ] ReviewerPhase.Held300
+[       OK ] ReviewerPhase.Free300
+[       OK ] ReviewerPhase.Held400
+[       OK ] ReviewerPhase.Free400
+[       OK ] ReviewerPhase.Held500
+[       OK ] ReviewerPhase.Free500
+[       OK ] ReviewerPhase.Held600
+[       OK ] ReviewerPhase.Free600
+[       OK ] ReviewerPhase.Held700
+[       OK ] ReviewerPhase.Free700
+[       OK ] ReviewerPhase.Held800
+[       OK ] ReviewerPhase.Free800
+[       OK ] ReviewerPhase.Held900
+[       OK ] ReviewerPhase.Free900
+Held0's and Free0's failure: Expected: (lv) != (nullptr), actual: NULL vs (nullptr)
+request-to-wire per phase (ms; deadline 30000):
+  PROBE held phase 100 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 100 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 100 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 100 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 200 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 200 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 200 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 200 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 300 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 300 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 300 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 300 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 400 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 400 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 400 if0: request-to-wire 29790 ms (deadline 30000)
+  PROBE free phase 400 if1: request-to-wire 29790 ms (deadline 30000)
+  PROBE held phase 500 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 500 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 500 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 500 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 600 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 600 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 600 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 600 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 700 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 700 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 700 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 700 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 800 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 800 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 800 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 800 if1: request-to-wire 29700 ms (deadline 30000)
+  PROBE held phase 900 if0: request-to-wire 29995 ms (deadline 30000)
+  PROBE held phase 900 if1: request-to-wire 29995 ms (deadline 30000)
+  PROBE free phase 900 if0: request-to-wire 29700 ms (deadline 30000)
+  PROBE free phase 900 if1: request-to-wire 29700 ms (deadline 30000)
+
+## test_aecp.cpp (app) AppOutputs.* at 1x1/1if: == AECP core: checks: 4   failures: 0 ==
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+  PROBE step1 Ready appears: notices 1/1 flags_ex 1
+  PROBE step2 link down: gate 0 notices 1/1
+  PROBE step3 link up, MAAP valid, probed: gate 1 talkers 0 notices 0/0 flags_ex 4294967295
+  PROBE step3b base 91e0f0005517 readdressed 0 held_cs 0
+  PROBE step3b Talker declared again: talkers 1 notices 1/1 flags_ex 0
+  PROBE step4 answer before the Listener returns: flags_ex 0 listener_present 0 declaration 0
+  PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+
+## test_aecp.cpp (app) AppOutputs.* at 1x1/2if: == AECP core: checks: 4   failures: 0 ==
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+  PROBE step1 Ready appears: notices 1/1 flags_ex 1
+  PROBE step2 link down: gate 0 notices 1/1
+  PROBE step3 link up, MAAP valid, probed: gate 1 talkers 0 notices 0/0 flags_ex 4294967295
+  PROBE step3b base 91e0f0005517 readdressed 0 held_cs 0
+  PROBE step3b Talker declared again: talkers 1 notices 1/1 flags_ex 0
+  PROBE step4 answer before the Listener returns: flags_ex 0 listener_present 0 declaration 0
+  PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+
+## test_aecp.cpp (app) AppOutputs.* at 8x8/1if: == AECP core: checks: 4   failures: 0 ==
+[       OK ] AppOutputs.OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
+[       OK ] AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+[       OK ] AppOutputs.ReviewerProbeListenerReturnAfterLinkReset
+  PROBE step1 Ready appears: notices 1/1 flags_ex 1
+  PROBE step2 link down: gate 0 notices 1/1
+  PROBE step3 link up, MAAP valid, probed: gate 1 talkers 0 notices 0/0 flags_ex 4294967295
+  PROBE step3b base 91e0f0006111 readdressed 0 held_cs 0
+  PROBE step3b Talker declared again: talkers 1 notices 1/1 flags_ex 0
+  PROBE step4 answer before the Listener returns: flags_ex 0 listener_present 0 declaration 0
+  PROBE step5 Listener Ready returns: notices 1/1 answer flags_ex 1
+

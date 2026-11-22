@@ -1,0 +1,14 @@
+# Firmware gate at 847b2e21, the four shards' run
+
+HEAD 847b2e21fa9c275ca202655875f3e87622580113 dirty 0 start 00:34:40
+shard 0 rc=0 00:56:39
+shard 2 rc=0 01:26:12
+shard 3 rc=0 01:26:22
+shard 1 rc=0 01:48:55
+END 01:48:56
+shard 0: rc=0, caught rows 89, escaped 0, test_ctrl_firmware: PASS
+shard 1: rc=0, caught rows 826, escaped 0, test_ctrl_firmware: PASS
+shard 2: rc=0, caught rows 389, escaped 0, test_ctrl_firmware: PASS
+shard 3: rc=0, caught rows 574, escaped 0, test_ctrl_firmware: PASS
+
+shard 0 (suites) verdict lines: 76 PASS, 0 FAIL

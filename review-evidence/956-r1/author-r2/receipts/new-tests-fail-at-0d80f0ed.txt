@@ -1,0 +1,183 @@
+# Round 2's new tests on 0d80f0ed's firmware (the PR head the reviews read), each failing on its own words
+
+Method: a clone at 0d80f0ed2a880c3a3b2429c669f104801203ec05 with three test files taken from the code head
+b4a1dde2bf3e1ee0849a20a9a85f95955fd3389a (srp_talker.cpp and test_aecp.cpp are byte-identical to 04819246's, run
+then; srp_mbx.cpp is b4a1dde2's, run again), the firmware untouched. 0d80f0ed has no tx_owed, so srp_mbx.cpp reads
+adapter.tx_owed as (adapter.tx_due|adapter.tx_resume), what it means. Each arm as the firmware gate builds it
+(srp_arms.arm_srp, aecp_arms.core_arm mode app), one run per row.
+
+## srp_talker.cpp at 1x1/1if
+filter: Talker.ChangedDestinationReachesTheWire*:EveryPhase/*:Talker.ListenerRegistrationAfterAResetIsNoticed
+tally: ctrl SRP Talker declarations: checks: 203   failures: 10
+failed tests (10):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held270
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held280
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held290
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held300
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held310
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held320
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held330
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+  Talker.ListenerRegistrationAfterAResetIsNoticed
+failure words (test: words xcount):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x8
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x8
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x1
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x1
+  Talker.ListenerRegistrationAfterAResetIsNoticed: the first Listener registration after a reset is noticed, whatever the one before it declared x9
+passed: 92 held and 100 serviced sweep instances, and 1 other(s): Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+
+## srp_talker.cpp at 8x8/1if
+filter: Talker.ChangedDestinationReachesTheWire*:EveryPhase/*:Talker.ListenerRegistrationAfterAResetIsNoticed
+tally: ctrl SRP Talker declarations: checks: 203   failures: 10
+failed tests (10):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held310
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held320
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held330
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held350
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held360
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held370
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held380
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+  Talker.ListenerRegistrationAfterAResetIsNoticed
+failure words (test: words xcount):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x8
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x8
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x1
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x1
+  Talker.ListenerRegistrationAfterAResetIsNoticed: the first Listener registration after a reset is noticed, whatever the one before it declared x9
+passed: 92 held and 100 serviced sweep instances, and 1 other(s): Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+
+## srp_talker.cpp at 8x8/2if
+filter: Talker.ChangedDestinationReachesTheWire*:EveryPhase/*:Talker.ListenerRegistrationAfterAResetIsNoticed
+tally: ctrl SRP Talker declarations: checks: 203   failures: 10
+failed tests (10):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held350
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held360
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held370
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held380
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held390
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held400
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held410
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning
+  Talker.ListenerRegistrationAfterAResetIsNoticed
+failure words (test: words xcount):
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x8
+  EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/<phase>: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x8
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow x1
+  Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning: the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest x1
+  Talker.ListenerRegistrationAfterAResetIsNoticed: the first Listener registration after a reset is noticed, whatever the one before it declared x18
+passed: 92 held and 100 serviced sweep instances, and 1 other(s): Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest
+
+## srp_mbx.cpp at 1x1/1if
+filter: Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+tally: ctrl SRP mailbox: checks: 1   failures: 1
+failed tests (1):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+failure words (test: words xcount):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a build resuming in the next slice is THE TRANSMIT's due x2
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a due set between a build's slices is owed once the build ends x1
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: the poll reports a build resuming in the next slice owed x2
+passed: none
+
+## srp_mbx.cpp at 1x1/2if
+filter: Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+tally: ctrl SRP mailbox: checks: 1   failures: 1
+failed tests (1):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+failure words (test: words xcount):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a build resuming in the next slice is THE TRANSMIT's due x2
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a due set between a build's slices is owed once the build ends x1
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: the poll reports a build resuming in the next slice owed x2
+passed: none
+
+## srp_mbx.cpp at 8x8/1if
+filter: Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+tally: ctrl SRP mailbox: checks: 1   failures: 1
+failed tests (1):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+failure words (test: words xcount):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a build resuming in the next slice is THE TRANSMIT's due x2
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a due set between a build's slices is owed once the build ends x1
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: the poll reports a build resuming in the next slice owed x2
+passed: none
+
+## srp_mbx.cpp at 8x8/2if
+filter: Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+tally: ctrl SRP mailbox: checks: 1   failures: 1
+failed tests (1):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+failure words (test: words xcount):
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a build resuming in the next slice is THE TRANSMIT's due x2
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: a due set between a build's slices is owed once the build ends x1
+  Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue: the poll reports a build resuming in the next slice owed x2
+passed: none
+
+## test_aecp.cpp (app) at 1x1/1if
+filter: AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+tally: AECP core: checks: 1   failures: 1
+failed tests (1):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+failure words (test: words xcount):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every registered controller x12
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING x6
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING_FAILED x2
+passed: none
+
+## test_aecp.cpp (app) at 1x1/2if
+filter: AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+tally: AECP core: checks: 1   failures: 1
+failed tests (1):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+failure words (test: words xcount):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every registered controller x12
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING x6
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING_FAILED x2
+passed: none
+
+## test_aecp.cpp (app) at 8x8/1if
+filter: AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+tally: AECP core: checks: 1   failures: 1
+failed tests (1):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice
+failure words (test: words xcount):
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every registered controller x12
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING x6
+  AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice: the notice carries the new REGISTERING_FAILED x2
+passed: none
+
+## The changed destination's wire time on 0d80f0ed against two longest LeaveAll periods after the request (ms, the model's clock), each failing held case. The request is made at the phase on the model's clock, so the request-to-wire time is the
+first figure less the phase: at 340 ms, 31,000 - 340 = 30,660 ms against 30,000; the next periodic MRPDU's.
+talker-11:
+  the running-timer test (340 ms): 31000 vs 30340
+  sweep Held270: 31000 vs 30270
+  sweep Held280: 31000 vs 30280
+  sweep Held290: 31000 vs 30290
+  sweep Held300: 31000 vs 30300
+  sweep Held310: 31000 vs 30310
+  sweep Held320: 31000 vs 30320
+  sweep Held330: 31000 vs 30330
+  sweep Held340: 31000 vs 30340
+talker-81:
+  the running-timer test (340 ms): 31000 vs 30340
+  sweep Held310: 31000 vs 30310
+  sweep Held320: 31000 vs 30320
+  sweep Held330: 31000 vs 30330
+  sweep Held340: 31000 vs 30340
+  sweep Held350: 31000 vs 30350
+  sweep Held360: 31000 vs 30360
+  sweep Held370: 31000 vs 30370
+  sweep Held380: 31000 vs 30380
+talker-82:
+  the running-timer test (340 ms): 31000 vs 30340
+  sweep Held340: 31000 vs 30340
+  sweep Held350: 31000 vs 30350
+  sweep Held360: 31000 vs 30360
+  sweep Held370: 31000 vs 30370
+  sweep Held380: 31000 vs 30380
+  sweep Held390: 31000 vs 30390
+  sweep Held400: 31000 vs 30400
+  sweep Held410: 31000 vs 30410

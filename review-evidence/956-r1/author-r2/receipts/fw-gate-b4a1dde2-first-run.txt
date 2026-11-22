@@ -1,0 +1,38 @@
+# The firmware gate's first run at b4a1dde2 (stopped once 847b2e21 fixed what it found), its four shards' state
+
+shard 0: rc=0 caught rows 89 escaped 0 last: test_ctrl_firmware: PASS
+shard 1: stopped, still running caught rows 588 escaped 0 last: [endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L
+shard 2: rc=0 caught rows 389 escaped 0 last: test_ctrl_firmware: PASS
+shard 3: rc=1 caught rows 572 escaped 2 last: test_ctrl_firmware: FAIL
+
+## shard 3's escape (the SRP campaigns, both interface counts)
+[ESCAPED] talker-unchanged-held:     const unsigned again = resume != 0u ? m->tx_due : 0u;
+ / an unchanged destination is declared again at once
+Note: Google Test filter = Srp.    const unsigned again = resume != 0u ? m->tx_due : 0u;
+
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+== ctrl SRP Talker declarations: checks: 0   failures: 0 ==
+RESULT: PASS
+WARNING: filter "Srp.    const unsigned again = resume != 0u ? m->tx_due : 0u;
+" did not match any test; no tests were run
+  verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 0)
+--
+[ESCAPED] talker-unchanged-held:     const unsigned again = resume != 0u ? m->tx_due : 0u;
+ / an unchanged destination is declared again at once
+Note: Google Test filter = Srp.    const unsigned again = resume != 0u ? m->tx_due : 0u;
+
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+== ctrl SRP Talker declarations: checks: 0   failures: 0 ==
+RESULT: PASS
+WARNING: filter "Srp.    const unsigned again = resume != 0u ? m->tx_due : 0u;
+" did not match any test; no tests were run
+  verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 0)
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+
+Cause: srp_talker_mutants.py's new anchor constant was named AGAIN, which overwrote the module's AGAIN test name
+(Talker.UnchangedDestinationIsDeclaredAgainAtOnce), so talker-unchanged-held named the anchor text as its test and
+ran none. 847b2e21 names the anchor CAME_DUE; all four shards ran again there (fw-gate-shard*-847b2e21.txt).

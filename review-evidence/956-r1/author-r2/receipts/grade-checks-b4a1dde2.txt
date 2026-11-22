@@ -1,0 +1,46 @@
+# The CPU budget harness's grade checks on the tree's stated tables at b4a1dde2 (static: no measurement read)
+
+Between 0d80f0ed and b4a1dde2 the harness changes in build.py's transmit-aged plant anchor alone (tx_due to tx_owed),
+so each check's output here is 0d80f0ed's too:
+   tb/verilator/ctrl_service_budget/build.py | 4 ++--
+   1 file changed, 2 insertions(+), 2 deletions(-)
+
+## load_grade.py --check
+HELD 1x1/1if at the pin: the load 0.511, its ceiling 0.70
+HELD 1x1/1if with tsn-c-stack#32: the load 0.508, its ceiling 0.70
+RESULT: PASS
+rc=0
+
+## flip_grade.py --check --point 1x1/1if
+RESULT: PASS
+rc=0
+
+## flip_grade.py --check --point 8x8/1if
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.86 ms (tx_held; the hold-off counts the figure)
+RESULT: PASS
+rc=0
+
+## shape_costs.py --check
+RESULT: PASS
+rc=0
+
+## flip_grade.py --check
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.86 ms (tx_held; the hold-off counts the figure)
+OVER 8x8/2if: the load 0.799 at the pin is over the flip ceiling 0.70
+OVER 8x8/2if R4: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 45.24 ms, over its bound 20 ms; the largest term timers 11.45 ms
+OVER 8x8/2if R5: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 209.68 ms, over its bound 90 ms; the largest term others 34.68 ms
+OVER 8x8/2if R6: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 199.36 ms, over its bound 90 ms; the largest term others 33.40 ms
+OVER 8x8/2if first: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 21.13 ms, over its bound 20 ms; the largest term spacing 8.00 ms
+OVER 8x8/2if last: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 867.89 ms, over its bound 125 ms; the largest term srp 168.26 ms
+OVER 8x8/2if ACMP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.22 ms, over its bound 30 ms; the largest term timers 12.65 ms
+OVER 8x8/2if ADP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 69.16 ms, over its bound 30 ms; the largest term others 14.52 ms
+OVER 8x8/2if MAAP: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 73.41 ms, over its bound 30 ms; the largest term others 16.80 ms
+OVER 8x8/2if tx: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 104.69 ms, over its bound 49 ms; the largest term others 22.24 ms
+OVER 8x8/2if txL: under the tiers (slice 1300 us, tier 1 aecp-first, tier 2 srp-first, AECP queue) 474.19 ms, over its bound 49 ms; the largest term aecp 102.56 ms
+RESULT: FAIL
+rc=1
+
+flip_grade.py --check at every point fails on 8x8/2if's rows by every source, reported and owed to #872, as at round 1's
+base and head.
