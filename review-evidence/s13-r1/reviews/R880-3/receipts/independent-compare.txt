@@ -1,0 +1,26 @@
+PASS exact manifest population and bytes: 230 entries
+PASS decompressed content manifest: 36
+PASS archive published hashes: 254
+PASS REENCODE BINDING groups/1x1/declaring-outputs/aecp-outputs.measured.log.gz old 3ab0f4e3da1289b428892dd6a2dc7ec8182b8f7bf96c114696dc3c6cb2f8df20 content 441ee863505db759cf69fc084a75c133e35a746660b11c2cce8f294b88c938ab
+PASS REENCODE BINDING groups/8x8-1if/declaring-outputs/aecp-outputs.head.log.gz old 936a668debc101cb7ed64273456a60e43961216e4d1a3649275d19493618e3c8 content 3031de28ac5170d68039c94edf62d4df673ac5ec3b5c68fd6ff314360c9c9943
+PASS REENCODE BINDING groups/8x8-1if/declaring-outputs/aecp-outputs.measured.log.gz old 19259754acedc19466fe2d22366e2da39df43a62f6f2908c267955e811666478 content 3031de28ac5170d68039c94edf62d4df673ac5ec3b5c68fd6ff314360c9c9943
+PASS REENCODE BINDING shipping/1x1/dump/bench.cells.xz old d398ea222830adb27942696851603c867908206248660d89a02370f3bf6ab886 content 0f115baee0eb42f1ea37cbd89fffefcf242c844b978732aeaf647d6332a1da71
+PASS old xz bytes independently reconstructed
+PASS REENCODE BINDING shipping/1x1/dump/flip.cells.xz old 21d551bda4b3b0800a6532fe587d26cda7c885bf09113be6d9bbc2f4b147c07c content ece5a067c4bbb608aacd93dfda66cb2b97770c1f674a68bdba872217b45c8abc
+PASS old xz bytes independently reconstructed
+PASS 1x1 cells 86465 routes 95172 INIT bits 22 changed cells [('milan_datapath/csr/sweep_cnt_reg_rep', 1), ('rom_bank1_dat0_reg_2', 1), ('rom_bank1_dat0_reg_3', 4), ('rom_bank1_dat0_reg_4', 2), ('rom_bank1_dat0_reg_5', 6), ('rom_bank1_dat0_reg_6', 3), ('rom_bank1_dat0_reg_7', 4), ('rom_bank3_dat0_reg_0', 1)]
+PASS 8x8 cells 109093 routes 119085 INIT bits 15 changed cells [('milan_datapath/csr/sweep_cnt_reg_rep', 1), ('rom_bank0_dat0_reg_0_0', 1), ('rom_bank0_dat0_reg_0_15', 1), ('rom_bank0_dat0_reg_0_16', 1), ('rom_bank0_dat0_reg_0_18', 1), ('rom_bank0_dat0_reg_0_19', 1), ('rom_bank0_dat0_reg_0_21', 1), ('rom_bank0_dat0_reg_0_22', 1), ('rom_bank0_dat0_reg_0_23', 2), ('rom_bank0_dat0_reg_0_24', 1), ('rom_bank0_dat0_reg_0_25', 1), ('rom_bank0_dat0_reg_0_29', 1), ('rom_bank0_dat0_reg_0_30', 1), ('rom_bank0_dat0_reg_0_31', 1)]
+PASS GROUP groups/1x1/answering-ports/aecp-reboot.measured.json JSON byte-identical; raw lines 96890 version-only differences []
+PASS GROUP groups/1x1/declaring-outputs/aecp-outputs.measured.json JSON byte-identical; raw lines 496914 version-only differences []
+PASS GROUP groups/1x1/none/aecp-fanout.measured.json JSON byte-identical; raw lines 100213 version-only differences []
+PASS GROUP groups/1x1/none/aecp-held.measured.json JSON byte-identical; raw lines 125033 version-only differences [(124959, 'WIRE', 158), (124975, 'PASS', 170)]
+PASS GROUP groups/1x1/none/aecp-largest-notice.measured.json JSON byte-identical; raw lines 97934 version-only differences []
+PASS GROUP groups/1x1/none/aecp.measured.json JSON byte-identical; raw lines 101495 version-only differences [(84238, 'WIRE', 158), (84254, 'PASS', 170)]
+PASS GROUP groups/1x1/none/control.measured.json JSON byte-identical; raw lines 102101 version-only differences []
+PASS GROUP groups/8x8-1if/answering-ports/aecp-reboot.measured.json JSON byte-identical; raw lines 76872 version-only differences []
+PASS GROUP groups/8x8-1if/declaring-outputs/aecp-outputs.measured.json JSON byte-identical; raw lines 505692 version-only differences []
+PASS GROUP groups/8x8-1if/none/aecp-fanout.measured.json JSON byte-identical; raw lines 80245 version-only differences []
+PASS GROUP groups/8x8-1if/none/aecp-held.measured.json JSON byte-identical; raw lines 97169 version-only differences [(97096, 'WIRE', 158), (97111, 'PASS', 170)]
+PASS GROUP groups/8x8-1if/none/aecp.measured.json JSON byte-identical; raw lines 82768 version-only differences [(68198, 'WIRE', 158), (68213, 'PASS', 170)]
+PASS GROUP groups/8x8-1if/none/control.measured.json JSON byte-identical; raw lines 81508 version-only differences []
+PASS independent public-operand comparison complete

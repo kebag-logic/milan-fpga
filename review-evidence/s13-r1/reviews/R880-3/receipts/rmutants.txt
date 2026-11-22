@@ -1,0 +1,42 @@
+grader self-check: 4 of 4
+== control: the unplanted packet, exactly as given: replay exit 0, ALL CLAIMS HOLD
+== a configuration bit outside the ROM frames (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1 cells: 22 INIT bit(s) differ in 8 cell(s), the frame bits 23')
+   FAIL  1x1 cells: 22 INIT bit(s) differ in 8 cell(s), the frame bits 23; each a ROM bank or the CSR defaults ROM
+== the part name in the .bit header (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: "header 'b' (part)")
+   FAIL  1x1 .bit: outside the frames, only the design name's SW_CRC and SW_HDR_SHA256 text, the date, the time and the CRC register write differ (unexpected: ["header 'b' (part)"])
+== one more instruction byte in the platform image (shipping/8x8/flip/ctrl_app.elf)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '8x8 ctrl_app.elf: 7 loaded bytes differ')
+   FAIL  8x8 ctrl_app.elf: 7 loaded bytes differ: the lui/addi pair at 0x100, 0x12208, 0x1220c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+== one ROM word the image does not hold (shipping/1x1/flip/gateware/alinx_ax7101_rom_bank0.init)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1 flip: the 5 ROM bank init files')
+   FAIL  1x1 flip: the 5 ROM bank init files (126432 B) are the ELF's load segments [('0x0', 126302), ('0x1ed60', 128)], zero beyond
+== a cell placed elsewhere (shipping/1x1/dump/flip.cells.xz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1 cells: 86465 cells, every name, type and placement equal')
+   FAIL  1x1 cells: 86465 cells, every name, type and placement equal
+== a route changed (shipping/1x1/dump/flip.nets.xz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1 nets: 95172 nets, every route byte-identical')
+   FAIL  1x1 nets: 95172 nets, every route byte-identical
+== a block RAM INIT bit outside the ROMs (shipping/8x8/dump/flip.bram.xz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '8x8 bram: 16 INIT bit(s) differ')
+   FAIL  8x8 bram: 16 INIT bit(s) differ in 15 cell(s), the frame bits 15; each a ROM bank or the CSR defaults ROM
+== a measured harness image swapped for the head's (harness/1x1/none/measured.elf)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: 'harness/1x1/none/measured.elf: equals the image rebuilt at bench head 8c5e2b4f')
+   FAIL  harness/1x1/none/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+== one more data byte in a harness image (harness/8x8-1if/answering-ports/head.elf)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '8x8-1if/answering-ports: 7 loaded bytes differ')
+   FAIL  8x8-1if/answering-ports: 7 loaded bytes differ: the lui/addi pair at 0x107cc, 0x107ec loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+-0x150, 0x184 reads '2' -> '3'
+== a group's CPU cycles changed (a digit prefixed) (groups/1x1/none/control.head.json)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1/none/control: 325 leaves')
+   FAIL  1x1/none/control: 325 leaves, 3 probes, every leaf equal, none excluded; DIFFER ['.probes[0].cpu_cycles']
+== a raw log digit changed other than the version's (groups/1x1/none/aecp-held.head.log.gz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1/none/aecp-held: raw log')
+   FAIL  1x1/none/aecp-held: raw log 125033 lines, 3 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0); NOT ANCHORED: lines [1236]
+== R879-2-S2: a '2' -> '3' digit outside the firmware_version string (groups/1x1/none/control.head.log.gz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: '1x1/none/control: raw log')
+   FAIL  1x1/none/control: raw log 102101 lines, 1 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0); NOT ANCHORED: lines [1236]
+== R879-2-S3: an operand the claims need, removed (groups/1x1/none/aecp.head.log.gz)
+   replay exit 1, RESULT reached: True: CAUGHT (marker: 'operand groups/1x1/none/aecp.head.log is absent')
+   FAIL  1x1/none/aecp: operand groups/1x1/none/aecp.head.log is absent; the claims that read it are refused
+plants caught: 13 of 13 (by their named markers only)

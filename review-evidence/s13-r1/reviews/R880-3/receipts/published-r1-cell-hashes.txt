@@ -1,0 +1,35 @@
+# dump.tcl over the two routed checkpoints (bench c7189218's alinx_ax7101_route.dcp, flip 822e3af0's), Vivado 2026.1:
+#   <x>.cells: every primitive cell's name, REF_NAME, LOC, BEL and every INIT* property, sorted
+#   <x>.nets:  every top signal net's ROUTE (its PIPs), sorted
+0f115baee0eb42f1ea37cbd89fffefcf242c844b978732aeaf647d6332a1da71  10522060 B  bench.cells (kept in scratch)
+e22b47e75f41954760dbbcfdfa82e6e871ed6bcfada7ab84a605f2d1f940f0e9  31682041 B  bench.nets (kept in scratch)
+8714276d83ae76ef73ea90e8faf9fb3e739a945e131c302ccd0bc29b15031f96  675 B  bench.summary (kept in scratch)
+ece5a067c4bbb608aacd93dfda66cb2b97770c1f674a68bdba872217b45c8abc  10522060 B  flip.cells (kept in scratch)
+e22b47e75f41954760dbbcfdfa82e6e871ed6bcfada7ab84a605f2d1f940f0e9  31682041 B  flip.nets (kept in scratch)
+8714276d83ae76ef73ea90e8faf9fb3e739a945e131c302ccd0bc29b15031f96  675 B  flip.summary (kept in scratch)
+
+cells 86465 nets 95172
+nets: byte-identical: every route equal (95172 nets)
+route status: identical
+cells: every name, REF_NAME, LOC and BEL identical (86465 cells)
+cells whose properties differ: 8
+
+# the INIT bits that differ, by cell:
+milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1 RAMB18_X1Y31: INITP_00 bit(s) [2]
+rom_bank1_dat0_reg_2 RAMB36E1 RAMB36_X3Y21: INIT_22 bit(s) [87]
+rom_bank1_dat0_reg_3 RAMB36E1 RAMB36_X2Y16: INIT_22 bit(s) [84, 85, 86, 87]
+rom_bank1_dat0_reg_4 RAMB36E1 RAMB36_X1Y18: INIT_22 bit(s) [85, 87]
+rom_bank1_dat0_reg_5 RAMB36E1 RAMB36_X2Y17: INIT_22 bit(s) [84, 86, 87, 88, 89, 91]
+rom_bank1_dat0_reg_6 RAMB36E1 RAMB36_X1Y20: INIT_22 bit(s) [84, 90, 91]
+rom_bank1_dat0_reg_7 RAMB36E1 RAMB36_X2Y21: INIT_22 bit(s) [84, 85, 86, 90]
+rom_bank3_dat0_reg_0 RAMB36E1 RAMB36_X2Y12: INIT_02 bit(s) [208]
+INIT bits differing: 22
+
+# reading: the CSR's defaults ROM (dflt_rom, milan_csr.sv:2120, its read register absorbed): 1 bit, VERSION 0x00020060 -> 0x00030060; rom_bank1 slices at INIT_22: 20 bits, the AECP_ENTITY_CRC lui/addi immediates (14 + 6); rom_bank3 at INIT_02: 1 bit, the firmware string's '2' -> '3'. 22 bits, the 22 frame bits of bitstream-bitdiff.txt.
+
+# the rom bank init files the two builds wrote (gateware/alinx_ax7101_rom_bank<n>.init), word by word:
+bank0: 0 word(s) differ 
+bank1: 2 word(s) differ <   2198:38a807b7 <   2199:32378793 >   2198:db1df7b7 >   2199:ab578793 
+bank2: 0 word(s) differ 
+bank3: 1 word(s) differ <     46:36392e32 >     46:36392e33 
+bank4: 0 word(s) differ 

@@ -1,0 +1,19 @@
+PASS control rc 0
+soc_sweep self-test: PASS
+PASS builder placement omitted rc 1
+SELF-TEST FAILED: prepare(all-fabric) was refused: the all-fabric SoC arguments name platform image(s) ['sw/builder/out/c/x.elf'] that the export tree does not hold; the sweep builds none (#665)
+SELF-TEST FAILED: prepare(all-fabric) did not ask the builder for all-fabric: ...['-o', '$REVIEWS/s13-r880-3-packet/scratch/resmap-wiring-1jvkpkns/builder-out', '$REVIEWS/s13-r880-3-packet/scratch/resmap-wiring-1jvkpkns/tree/configs/endstation_ax7101_1x1_tdm8.yaml']
+soc_sweep self-test: FAIL
+PASS missing image refusal bypassed rc 1
+SELF-TEST FAILED: prepare(split) returned an argument list naming an absent platform image
+soc_sweep self-test: FAIL
+PASS export placement forced rc 1
+SELF-TEST FAILED: command_export asked prepare() for split, the plan names all-fabric
+soc_sweep self-test: FAIL
+PASS wrong image root rc 1
+SELF-TEST FAILED: a platform image present in the tree was reported missing
+soc_sweep self-test: FAIL
+PASS include flag omitted rc 1
+SELF-TEST FAILED: prepare(all-fabric) returned ['--xlen', '32']
+soc_sweep self-test: FAIL
+PASS 1 unplanted control and 5 named wiring probes
