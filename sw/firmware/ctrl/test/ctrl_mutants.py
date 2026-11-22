@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """ctrl_mutants.py - planted defects the control-plane firmware's host test must catch.
 
-Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN
-stack's sources and headers (never the checkout or the submodule; a path
-named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the GoogleTest test that must fail (its
-full name, or the prefix every instance of a parameterised test shares) and a
-fragment of the failing assertion's own words, the name the check had in the
-hand-rolled suite this replaced. A mutant is caught only when that arm fails
-AND a `[FAIL]` line names that test with those words: a build that breaks, or
-another test failing, is reported as an escape, because neither proves the
-test can see the defect. A mutant may name further (arm, test, words) kills in
-`also`, each of which must hold too.
+Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN stack's sources and headers (never the
+checkout or the submodule; a path named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the
+GoogleTest test that must fail (its full name, or the prefix every instance of a parameterised test shares) and a
+fragment of the failing assertion's own words, the name the check had in the hand-rolled suite this replaced. A mutant
+is caught only when that arm fails AND a `[FAIL]` line names that test with those words: a build that breaks, or another
+test failing, is reported as an escape, because neither proves the test can see the defect. A mutant may name further
+(arm, test, words) kills in `also`, each of which must hold too.
 """
 
 from __future__ import annotations
