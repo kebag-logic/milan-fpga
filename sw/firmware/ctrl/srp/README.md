@@ -350,14 +350,22 @@ release processor's listener keeps the same count of port registrars
 (`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
 the registrar's, and the walk a binding made later owes takes it as one made
 after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
-`kept_count` is at least the attributes kept: before a receive, outside lwSRP's
-callbacks, `count_kept` counted every Talker the participant does not declare
+A receive starts from exactly the attributes kept: before it, outside lwSRP's
+callbacks, `count_kept` counts every Talker the participant does not declare
 and no binding holds, registered or left with its block not yet freed by
 `mrp_reclaim`, and each one the filter keeps since adds one. That count is made
-again when a binding changed since it, or, at the bound, when a block was
-returned, the one way a kept attribute ends. The filter reads no walk's result,
-so the walk's schedule moves none of its answers (#930's differential holds it),
-and an unbound StreamID's indication owes no walk, since it changes no binding.
+again when a binding changed since it, or when one counted or kept since may
+have ended and a block was returned since: a kept attribute ends only when
+`mrp_reclaim` frees it, after its Registrar left IN (an indication) or after a
+creation with no registration (a Leave lwSRP creates it for), and a reset's new
+participants keep none (`create_participants`). So after a reset, or once a kept
+one's block is freed, below the bound as at it, one receive of every input's
+Talker is kept whole; while nothing is pending a block returned owes no count.
+Within one receive the count rises only by what the filter keeps, so the bound
+refuses a Talker only at an occupancy the fixed blocks fund no further. The
+filter reads no walk's result, so the walk's schedule moves none of its answers
+(#930's differential holds it), and an unbound StreamID's indication owes no
+walk, since it changes no binding.
 Past the bound, a Talker no binding holds is ignored, as every one
 was before #969, and a binding made later declares with the talker's next
 declaration. A New of the other kind of a kept StreamID registers beside it, an
@@ -369,8 +377,12 @@ at 1x1 and 8x8, one and two interfaces, registration then binding (at a
 power-on's spacing, within the DUT's first LeaveAll period), binding then
 registration with the kept ones at their bound, a bind while bound to a stream
 declared all along, the latest of two kinds, a JoinIn replacement, a registration
-that ended before the binding, the bound, and a kept registration that left
-before its block is freed; `test_plat_sinks.cpp`'s S13 and S14 hold the platform's
+that ended before the binding, the bound, a kept registration that left before
+its block is freed, and one receive of every input's Talker (one vector, or a
+message each) kept whole into a fresh registrar, after a reset, after a kept
+one's block was freed, after a Leave kept for a StreamID never registered, and
+beside a kept one refreshed, with a flood of unbound Talkers and UNBIND_RX then
+BIND_RX as controls; `test_plat_sinks.cpp`'s S13 and S14 hold the platform's
 power-on restore and bind while bound through ACMP's probe, with GET_STREAM_INFO's
 REGISTERING and REGISTERING_FAILED (Milan v1.2 Tables 5.9, 5.10), at 8x8/1if and
 1x1/1if. Each rule has a planted defect in `srp_early_mutants.py`, and the
