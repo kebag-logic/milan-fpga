@@ -14,7 +14,14 @@ plants one defect at a time at the three boundaries that path crosses between th
   * the BUS BINDING, in the same copy: the serializer framed as an eight-slot bus inside the capture master's
     32-slot frame (its frame position narrowed to match, so it elaborates). The direct mis-tie, BUS_SLOTS_P bound
     to the render width, is a separate arm: KL_tdm_render_master's frame-position guard must refuse it at
-    elaboration, by its words.
+    elaboration, by its words;
+  * the ZERO TAIL, the EPOCH MASK and the EDIT DIRECTION: slots past the lane copying slot 0, a bind fall on any
+    stream closing the lane's epoch, and every REMOVE taken as an ADD.
+
+Two LEG-SIDE arms need no elaboration: the clean leg replays stream 0's last two PDUs from before the bind fall
+(--defect-stale-rebind), or from before the reset (--defect-stale-reset), with fresh timestamps just after the
+rebind. They render inside the recovery record and before its later steady window, and the record's FRESHNESS check
+must fail by name.
 
 Each planted copy is elaborated through the suite's own recipe (`make ship8-build` with SHIP8_SHAPE or DP_SRC and
 SHIP8_MDIR overridden) and must FAIL by the leg's own verdict, every named check among the failures; a crash or an
@@ -40,7 +47,8 @@ sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
 #: the source a plant edits, and the recipe variable that selects its copy
-SOURCES = {"shape": (SHAPE_SVH, "SHIP8_SHAPE"), "dp": (DP_RTL, "DP_SRC")}
+RENDER_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv"
+SOURCES = {"shape": (SHAPE_SVH, "SHIP8_SHAPE"), "dp": (DP_RTL, "DP_SRC"), "render": (RENDER_RTL, "TDMRM_SRC")}
 RPHYS = "'{7'h42, 7'h00, 7'h00,"
 ADAPTER_FIRST = "            tdmr_data_r  <= chmap_phys_w[CHMAP_RPHYS_TDM_BASE_C*24 +: 24];\n"
 BUS_BINDING = ("        .BUS_SLOTS_P   (AUDIO_IF_SLOTS_P),\n"
@@ -69,6 +77,24 @@ PLANTS = [
                                .replace("(AIF_FPOS_W_C)", "(AIF_FPOS_W_C - 2)"))],
      ("P3 POWER-ON RENDER: slots 1-31 carry zero in every frame",
       "R1 RENDER: slots 1-31 carry zero in every frame")),
+    ("zero tail: slots past the lane copy slot 0", "render",
+     [("                     : 24'd0;", "                     : frame_sel_w[0 +: 24];")],
+     ("P3 POWER-ON RENDER: slots 1-31 carry zero in every frame",)),
+    ("epoch mask: a bind fall on any stream closes the lane's epoch", "dp",
+     [("  wire tdmr_epoch_evt_w = |(strtbl_bind_fall_w & tdmr_lane_streams_w);",
+       "  wire tdmr_epoch_evt_w = |strtbl_bind_fall_w;")],
+     ("B1: a bind fall on stream 5, which the lane does not render, opens no epoch",)),
+    ("edit direction: every REMOVE taken as an ADD", "dp",
+     [("assign pp_amap_edit_remove_w = amr_own_r ? amr_ed_remove_r : ppo_amap_edit_remove_w;",
+       "assign pp_amap_edit_remove_w = 1'b0;")],
+     ("X2 SILENCE: all 32 slots are digital silence in every frame",)),
+]
+#: (name, the leg's mode flag, the checks that must fail): the clean binary, no elaboration
+LEG_DEFECTS = [
+    ("stale: stream 0's pre-loss events replayed just after the rebind", "--defect-stale-rebind",
+     ("B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past",)),
+    ("stale: stream 0's pre-reset events replayed just after the post-reset bind", "--defect-stale-reset",
+     ("Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past",)),
 ]
 #: (name, source, edits, the words the elaboration must refuse it with)
 REFUSALS = [
@@ -108,9 +134,10 @@ def build(overrides: dict[str, str], mdir: Path) -> tuple[Path | None, str]:
     return exe, ""
 
 
-def verdict(exe: Path, must_fail: tuple[str, ...]) -> str:
+def verdict(exe: Path, must_fail: tuple[str, ...], mode: str | None = None) -> str:
     """'pass', 'caught', or why the run is not evidence; caught only when every named check failed."""
-    proc = subprocess.run([str(exe)], cwd=str(HERE), capture_output=True, text=True, check=False)
+    argv = [str(exe)] + ([mode] if mode else [])
+    proc = subprocess.run(argv, cwd=str(HERE), capture_output=True, text=True, check=False)
     out = proc.stdout + proc.stderr
     reason, failed = log_reports_failure(out)
     if proc.returncode == 0 and not failed:
@@ -146,6 +173,16 @@ def run_plant(work: Path, name: str, source: str, edits: list[tuple[str, str]], 
     return f"[FAIL] plant {name!r} {answer}"
 
 
+def run_leg_defect(clean: Path, name: str, mode: str, breaks: tuple[str, ...]) -> str:
+    """One leg-side arm on the clean binary: the line this runner prints for it."""
+    answer = verdict(clean, breaks, mode)
+    if answer == "caught":
+        return f"[PASS] leg defect caught ({mode}): {name} - breaks \"{breaks[0]}\""
+    if answer == "pass":
+        return f"[FAIL] leg defect SURVIVED: {name}. The leg does not prove \"{breaks[0]}\"."
+    return f"[FAIL] leg defect {name!r} {answer}"
+
+
 def run_refusal(work: Path, name: str, source: str, edits: list[tuple[str, str]], words: str) -> str:
     """One plant the elaboration must refuse, by its words."""
     tag = tag_of(name)
@@ -178,6 +215,7 @@ def main() -> int:
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             jobs = [pool.submit(run_plant, work, *p) for p in PLANTS]
             jobs += [pool.submit(run_refusal, work, *r) for r in REFUSALS]
+            jobs += [pool.submit(run_leg_defect, clean, *d) for d in LEG_DEFECTS]
             lines += [j.result() for j in jobs]
     print("\n".join(lines))
     passes = sum(line.startswith("[PASS]") for line in lines)
