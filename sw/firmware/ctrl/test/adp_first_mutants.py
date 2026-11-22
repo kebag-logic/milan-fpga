@@ -37,7 +37,7 @@ MUTANTS: tuple[Mutant, ...] = (
     Mutant("draw-kinds-merged", ADP_C, DRAW_RANGE, "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds",
            "A9 every startup draw",
            also=(("adp", G2, "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw"),)),
-    # #970, R888-1-F1: a LINK_UP delay narrowed to 0 to 0.5 s is not Milan's draw (the ruling on #970)
+    # #970: a LINK_UP delay narrowed to 0 to 0.5 s is not Milan's draw (the ruling on #970)
     Mutant("link-up-draws-half-a-second", ADP_C, DRAW_RANGE,
            "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS / 8u", "adp", G1, SPREAD),
     Mutant("first-delays-not-drawn", ADP_C, "\tuint32_t ms = (r16 * (max_ms + 1u)) >> 16;\n",
