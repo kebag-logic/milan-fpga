@@ -197,7 +197,6 @@ enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u, ILLEGAL = 8u };
 #endif
 struct edit {
 	bool input;
-	uint32_t idle[MAP_IDLE_WORDS]; // the streams observed (idle), a bit each; first, at a short offset
 	union held {
 		struct aecp_mapping r;
 		uint32_t w[2]; // the stream and its channel, then the cluster and its channel
@@ -270,13 +269,15 @@ static size_t place(const struct edit *e, const union held *x)
 // but brief, so it is zeroed once (#963: the record zeroed it twice, at every
 // mapping, an input port's too). A mapping that reaches the check has its key
 // in the domain (place), so its stream is below MAP_FIRSTS, and the word is
-// reduced to the table's so no index leaves it.
-static bool idle(struct aecp *a, struct edit *e, const struct aecp_descriptor *port, const struct aecp_mapping *r)
+// reduced to the table's so no index leaves it. The per-edit table is kept
+// separately from the map's slots, and the input mode is already known. This
+// keeps the edit's bookkeeping small without moving any budget (#963).
+static bool idle(struct aecp *a, uint32_t *observed, bool input, const struct aecp_mapping *r)
 {
-	if (port->type == 14u) {
+	if (input) {
 		return true;
 	}
-	uint32_t *word = &e->idle[r->stream / 32u % MAP_IDLE_WORDS];
+	uint32_t *word = &observed[r->stream / 32u % MAP_IDLE_WORDS];
 	const uint32_t bit = 1u << (r->stream % 32u);
 	if ((*word & bit) != 0u) {
 		return true;
@@ -477,11 +478,11 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	stale(&e);
 #endif
 	// What the edit reads before it writes is cleared, and only that (#894):
-	// the slots place() forms, MAP_DOMAIN of them, and the streams observed
-	// (#963), here, and each mapping's link, marks and occurrences at its turn
-	// in the table, which no read reaches past.
+	// the slots place() forms, MAP_DOMAIN of them, and the zero-initialized
+	// observation table (#963), here, and each mapping's link, marks and
+	// occurrences at its turn in the table, which no read reaches past.
 	memset(e.slot, 0, MAP_DOMAIN);
-	memset(e.idle, 0, sizeof e.idle);
+	uint32_t observed[MAP_IDLE_WORDS] = {0};
 	e.input = type == 14u;
 	// The mappings in order: the first held equal to each is its own, and a held
 	// one of its key that differs is an earlier conflict. A mapping its port's
@@ -530,7 +531,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	size_t additions = 0;
 	for (size_t n = 0; n < steps; ++n) {
 		unsigned held = e.flags[e.rep[n]];
-		if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, &e, port, &e.rows[n].r) || (held & BARRED) != 0u ||
+		if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||
 		    (adding ? (e.flags[n] & EARLIER) != 0u : (held & FOUND) == 0u)) {
 			return AECP_BAD_ARGUMENTS;
 		}

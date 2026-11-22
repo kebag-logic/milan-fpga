@@ -2980,8 +2980,8 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
 // edit at that mapping, as one observation a mapping did (#943). So an ADD and then a REMOVE of 63 mappings, the most
 // a legal-length command holds (IEEE 1722.1-2021 9.2.2.6), each one of three rows of two streams repeated, read the
 // port twice, a brief observation of each stream in its order, and change the map as their definition does (Milan
-// v1.2 5.4.2.27, 5.4.2.28). A stream found idle in one edit is observed again in the next. The work arm runs this from
-// the table an earlier edit left (aecp_maps.c, stale), so a stream the edit did not clear is never observed there.
+// v1.2 5.4.2.27, 5.4.2.28). A stream found idle in one edit is observed again in the next. The stale-cache plant
+// supplies a previous edit's set bits, so a stream the edit did not clear is never observed there.
 TEST_F(Core, MapEditWorkObservesEachOutputStreamOnce)
 {
     put(desc(6,1).value+74,get(desc(6).value+74,8),8); // STREAM_OUTPUT 1 an audio stream, as 0 is

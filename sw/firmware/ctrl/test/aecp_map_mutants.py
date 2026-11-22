@@ -113,19 +113,20 @@ ROWS = (
      (EDIT, "the edit's map is its definition's, row for row"),
      (OWNER, 'another port already owns this stream channel')),
     ('map-checked-before-its-read', 'aecp_maps.c',
-     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, &e, port, &e.rows[n].r) || (held & BARRED) != 0u ||',
-     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, &e, port, &e.rows[n].r) ||',
+     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||',
+     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, observed, e.input, &e.rows[n].r) ||',
      (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
     # #963: the running check observes each stream an edit maps once, at its first mapping to reach the check, from
-    # a table of streams the edit clears; one found running or unanswered refuses the edit at that mapping
+    # a zero-initialized table of streams; the stale-cache plant supplies a previous edit's set bits rather than
+    # reading indeterminate storage. One found running or unanswered refuses the edit at that mapping
     ('map-stream-observed-every-mapping', 'aecp_maps.c',
      '\t*word |= bit;\n',
      '',
      (STREAMS, 'an edit observes each stream it maps once, in its order'),
      (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
     ('map-stream-idle-uncleared', 'aecp_maps.c',
-     '\tmemset(e.idle, 0, sizeof e.idle);\n',
-     '',
+     'uint32_t observed[MAP_IDLE_WORDS] = {0};',
+     'uint32_t observed[MAP_IDLE_WORDS] = {UINT32_MAX};',
      (STREAMS, 'an edit observes each stream it maps once, in its order')),
     ('map-stream-idle-one-bit', 'aecp_maps.c',
      'const uint32_t bit = 1u << (r->stream % 32u);',
