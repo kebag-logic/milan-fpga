@@ -197,6 +197,7 @@ enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u, ILLEGAL = 8u };
 #endif
 struct edit {
 	bool input;
+	uint32_t idle[MAP_IDLE_WORDS]; // the streams found idle (idle), a bit each; first, at a short offset
 	union held {
 		struct aecp_mapping r;
 		uint32_t w[2]; // the stream and its channel, then the cluster and its channel
@@ -206,7 +207,6 @@ struct edit {
 	uint8_t rep[AECP_MAP_PAGE];    // the first mapping equal to each
 	uint8_t flags[AECP_MAP_PAGE];
 	uint8_t copies[AECP_MAP_PAGE]; // each distinct mapping's occurrences
-	uint32_t idle[MAP_IDLE_WORDS]; // the streams the running check found idle, a bit each (idle)
 	size_t from;                   // the rows of its port's map a REMOVE can take (mark), from one
 	size_t to;                     // to one past another
 };
