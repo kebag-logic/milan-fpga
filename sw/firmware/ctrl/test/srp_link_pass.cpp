@@ -1,0 +1,137 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+//
+// A link that comes up at any phase of a loop pass (#973; srp/srp_mbx.c, poll; loop/ctrl_loop.c, service_events).
+// The loop takes the event ring's LINK records as a pass starts, and SRP's poll reads the LINK register later in that
+// pass. A link that comes up in between reads up in the register before any LINK has carried it. Were the poll to
+// take that level, it would reset the interface on it, and the LINK the next pass dispatches would be a repeated UP,
+// which resets the interface again: so a first UP would lose the clean startup participants it keeps (on_event), and
+// any later UP would reset the interface twice. Each test moves interface 0's link at one phase: before a pass, from a
+// sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a poll
+// after SRP's. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if (srp_arms.link_pass_arms).
+#include "srp_fixture.hpp"
+FW_TALLY_LABEL("ctrl SRP link inside a pass");
+namespace {
+
+enum class Phase { BeforeAPass, InTheEvents, AfterTheEvents, AfterSrpsPoll };
+
+// Interface 0's link, moved once to `up` by the first hook of `phase` once armed
+struct Move {
+    mbx_model *model = nullptr;
+    Phase phase = Phase::BeforeAPass;
+    bool up = true;
+    bool armed = false;
+    void at(Phase now) {
+        if (armed && phase == now) {
+            armed = false;
+            mbx_model_set_link(model, 0, up);
+        }
+    }
+};
+Move moving;
+
+void ahead_sink(void *, const mbx_event *) { moving.at(Phase::InTheEvents); }
+bool ahead_poll(void *) {
+    moving.at(Phase::AfterTheEvents);
+    return false;
+}
+bool behind_poll(void *) {
+    moving.at(Phase::AfterSrpsPoll);
+    return false;
+}
+
+// Interface 0's resets: each publishes its LICENCE word once (reset_interface, publish_licence), and nothing else
+// here does, since no Listener registers and no licence moves
+unsigned resets;
+void count_resets(void *, bool write, uint32_t off, uint32_t) {
+    if (write && off == MBX_PUB_BASE + MBX_PUB_REG_LICENCE) {
+        ++resets;
+    }
+}
+
+class SrpLinkPass : public Srp {
+protected:
+    // The fixture's boot with every link down, a sink and a poll ahead of SRP's and a poll after it
+    void SetUp() override {
+        boot(false, [](ctrl_loop *l) {
+            ASSERT_TRUE(ctrl_loop_add_sink(l, ahead_sink, nullptr));
+            ASSERT_TRUE(ctrl_loop_add_poll(l, ahead_poll, nullptr));
+        });
+        if (HasFatalFailure()) {
+            return;
+        }
+        ASSERT_TRUE(ctrl_loop_add_poll(&loop, behind_poll, nullptr));
+        resets = 0;
+        mbx_host_trace(count_resets, nullptr);
+    }
+    void TearDown() override {
+        mbx_host_trace(nullptr, nullptr);
+        moving = Move{};
+        Srp::TearDown();
+    }
+    // Interface 0's link moved to `up` at `phase`, in the first pass that reaches the phase's hook: a pass given whole
+    // reaches none, and one may come first. In the events, a TICK is posted first, so the pass has an event to take.
+    void move_at(Phase phase, bool up) {
+        moving = Move{&model, phase, up, true};
+        if (phase == Phase::BeforeAPass) {
+            moving.at(phase);
+        } else if (phase == Phase::InTheEvents) {
+            mbx_model_advance_ms(&model, 10);
+        }
+        for (unsigned k = 0; moving.armed && k < 16u; ++k) {
+            (void)ctrl_loop_service(&loop);
+        }
+        ASSERT_FALSE(moving.armed) << "(no pass reached the phase's hook)";
+    }
+    // Interface 0's link up at `phase`, then the passes until the loop settles; returns the resets it made. After the
+    // events, the pass that moved it has dispatched no LINK of it, so SRP still holds the level it held.
+    unsigned up_at(Phase phase) {
+        const srp_interface &i = adapter.ifs[0];
+        const bool seen = i.link_seen;
+        const unsigned before = resets;
+        move_at(phase, true);
+        if (phase == Phase::AfterTheEvents) {
+            EXPECT_FALSE(i.link) << "SRP's poll took a level no LINK had carried";
+            EXPECT_EQ(i.link_seen, seen) << "SRP's poll took a level no LINK had carried";
+            EXPECT_EQ(resets, before) << "SRP's poll reset the interface on a level no LINK had carried";
+        }
+        settle();
+        EXPECT_TRUE(i.link);
+        EXPECT_TRUE(i.link_seen);
+        return resets - before;
+    }
+    // The first UP at `phase`, then a DOWN between passes and another UP at `phase`: the first resets nothing and keeps
+    // the startup participants, its declarations leaving; the DOWN resets once, and so does the UP after it.
+    void first_up_and_another(Phase phase) {
+        srp_interface &i = adapter.ifs[0];
+        mrp_app *const startup = i.msrp;
+        ASSERT_NE(startup, nullptr) << "(the startup participants exist before any link)";
+        ASSERT_FALSE(i.link);
+        ASSERT_FALSE(i.link_seen);
+        const uint32_t sent = model.tx_sent;
+        EXPECT_EQ(up_at(phase), 0u) << "a first UP resets nothing";
+        EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+        const unsigned before = resets;
+        advance(400);
+        unsigned declared = 0;
+        for (uint32_t k = sent; k < model.tx_sent; ++k) {
+            const auto *f = mbx_model_tx_frame(&model, k);
+            declared += f != nullptr && f->channel == MBX_CH_SRP && f->interface == 0u;
+        }
+        EXPECT_GT(declared, 0u) << "the first UP's declarations leave interface 0";
+        EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+        mbx_model_set_link(&model, 0, false);
+        settle();
+        EXPECT_FALSE(i.link);
+        EXPECT_EQ(resets - before, 1u) << "a DOWN resets the interface once";
+        EXPECT_EQ(up_at(phase), 1u) << "a later UP resets the interface once";
+        EXPECT_NE(i.msrp, nullptr) << "(the interface rebuilt)";
+    }
+};
+
+TEST_F(SrpLinkPass, BeforeAPass) { first_up_and_another(Phase::BeforeAPass); }
+TEST_F(SrpLinkPass, InTheEvents) { first_up_and_another(Phase::InTheEvents); }
+TEST_F(SrpLinkPass, AfterTheEventsBeforeSrpsPoll) { first_up_and_another(Phase::AfterTheEvents); }
+TEST_F(SrpLinkPass, AfterSrpsPoll) { first_up_and_another(Phase::AfterSrpsPoll); }
+
+} // namespace

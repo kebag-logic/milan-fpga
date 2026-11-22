@@ -205,6 +205,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+        outcomes.extend(srp_arms.link_pass_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
