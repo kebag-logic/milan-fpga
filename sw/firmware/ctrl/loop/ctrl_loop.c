@@ -145,10 +145,6 @@ static unsigned service_events(struct ctrl_loop *l)
 		if (ev.type == MBX_EV_TYPE_TICK) {
 			l->ticks_owed += ev.tick_count;
 			ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked);
-		} else if (ev.type == MBX_EV_TYPE_LINK && ev.interface < MBX_N_IF) {
-			// the level the record carries, before the sinks take it (ctrl_loop_link_up, #973)
-			const uint32_t bit = 1u << ev.interface;
-			l->link_level = ev.link_up ? l->link_level | bit : l->link_level & ~bit;
 		}
 		for (unsigned i = 0; i < l->n_sinks; ++i) {
 			l->sinks[i].fn(l->sinks[i].ctx, &ev);

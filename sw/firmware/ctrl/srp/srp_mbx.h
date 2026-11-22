@@ -63,6 +63,9 @@ struct srp_interface {
     bool discard_prefix;
     bool link_seen;
     bool link;
+    // The level the last LINK the loop dispatched carried, the register's at attach: the poll takes an UP only while
+    // this is up (#973; srp_mbx.c, poll)
+    bool link_carried;
     bool vlan_sent;
     bool domain_owed;
     // A Talker's indication, a declaration or a binding changed what snapshot

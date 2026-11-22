@@ -1230,6 +1230,7 @@ static void on_event(void *ctx, const struct mbx_event *event)
         }
         i->link_seen = true;
         i->link = event->link_up;
+        i->link_carried = event->link_up;
     }
     m->busy = false;
 }
@@ -1276,13 +1277,13 @@ static bool poll(void *ctx)
         return false;
     }
     // Each interface's level in this poll (#973): a DOWN as the LINK register reads it, so a link lost while a full
-    // ring holds its LINK record back fails closed at once; an UP only once the loop has dispatched one, or while the
-    // interface holds one (ctrl_loop_link_up). The register can rise after the loop took this pass's events, and a
-    // reset on that level would make the LINK the next pass dispatches a repeated UP, which resets the interface
-    // again (on_event): a first UP would lose the clean startup participants it keeps, and a later one reset twice.
+    // ring holds its LINK record back fails closed at once; an UP only while the last LINK the loop dispatched carried
+    // one (link_carried). The register can rise after the loop took this pass's events, and a reset on that level
+    // would make the LINK the next pass dispatches a repeated UP, which resets the interface again (on_event): a first
+    // UP would lose the clean startup participants it keeps, and a later one would reset the interface twice.
     bool links[MBX_N_IF];
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
-        links[n] = mbx_link_up(n) && (m->ifs[n].link || ctrl_loop_link_up(m->loop, n));
+        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;
     }
     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
     const unsigned turn = m->build_turn % MBX_N_IF;
@@ -1470,6 +1471,7 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
     if (ok) {
         for (unsigned n = 0; n < MBX_N_IF; ++n) {
             m->ifs[n].link = mbx_link_up(n);
+            m->ifs[n].link_carried = m->ifs[n].link;
         }
         m->loop = loop;
         timer_owner = m;
