@@ -152,7 +152,9 @@ static void take(struct ctrl_plat_phy *phy)
 {
 	const uint32_t stage = phy->stage;
 	const uint32_t reg = regs[stage];
-	uint32_t lo = (CTRL_PLAT_PHY_READ_OP << 10 | (uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
+	// PHYAD and REGAD where the frame's command puts them (22.2.4.5), shared by a read and a write
+	const uint32_t at = ((uint32_t)phy->address << 5 | reg) << (32u - CTRL_PLAT_PHY_COMMAND_BITS);
+	uint32_t lo = CTRL_PLAT_PHY_READ_OP << 28 | at;
 	uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;
 	if (stage - CTRL_PLAT_PHY_ADV_SET_GIG <= CTRL_PLAT_PHY_ADV_RESTART - CTRL_PLAT_PHY_ADV_SET_GIG) {
 		const uint32_t data =
@@ -162,14 +164,14 @@ static void take(struct ctrl_plat_phy *phy)
 				(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED) :
 				((uint32_t)phy->control | CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &
 					~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE);
-		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | (uint32_t)phy->address << 23 | reg << 18 | CTRL_PLAT_PHY_WRITE_TA << 16 |
-		     data;
+		lo = CTRL_PLAT_PHY_WRITE_OP << 28 | at | CTRL_PLAT_PHY_WRITE_TA << 16 | data;
 		driven = CTRL_PLAT_PHY_FRAME_BITS;
 	}
 	const int32_t v = frame(phy, lo, driven);
 	const uint32_t u = (uint32_t)v;
 	uint32_t next = stage + 1u;
 	uint32_t status = 0u;
+	bool owed = false;   // the negotiation in force is not THE ADVERTISEMENT's (renegotiate)
 	switch (stage) {
 	case CTRL_PLAT_PHY_PROBE:
 		if ((uint32_t)v - 1u < 0xfffeu) {   // 1 to 0xfffe: not 0, all ones, or unacknowledged (-1)
@@ -205,7 +207,7 @@ static void take(struct ctrl_plat_phy *phy)
 		const uint32_t bmsr = (uint32_t)phy->bmsr;
 		next = CTRL_PLAT_PHY_IDLE;
 		if (v >= 0 && phy->adv != CTRL_PLAT_PHY_ADV_NONE && !negotiating(u)) {
-			renegotiate(phy);
+			owed = true;
 		} else if (v >= 0 && (u & CTRL_PLAT_PHY_BMCR_AN_ENABLE) == 0u) {
 			status = up((u & CTRL_PLAT_PHY_BMCR_SPEED_MSB) != 0u ? CTRL_PLAT_PHY_SPEED_1000 :
 				    (u & CTRL_PLAT_PHY_BMCR_SPEED_LSB) != 0u ? CTRL_PLAT_PHY_SPEED_100 : CTRL_PLAT_PHY_SPEED_10,
@@ -282,7 +284,7 @@ static void take(struct ctrl_plat_phy *phy)
 			// THE OUTCOME: no 1000BASE-T mode negotiated, the advertisement verified, is the negotiation before
 			// a restart the PHY dropped: negotiated again by the next poll, counted
 			if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {
-				renegotiate(phy);
+				owed = true;
 			}
 		}
 		break;
@@ -301,6 +303,9 @@ static void take(struct ctrl_plat_phy *phy)
 			phy->resume = (uint8_t)next;
 			next = CTRL_PLAT_PHY_ADV_ABILITY;
 		}
+	}
+	if (owed) {
+		renegotiate(phy);
 	}
 	if (next == CTRL_PLAT_PHY_IDLE) {
 		publish(phy, status);
