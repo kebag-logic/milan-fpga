@@ -1,0 +1,55 @@
+# rsweep.sh2 in a fresh clone of a9da4c48 (the final head but for one generated docs page): yosys_sweep.py shapes, then soc_sweep.py export of every SoC variant (LiteX venv, pinned RV32 SDK); then the missing-image control and the comparison with base
+head a9da4c48140cd45efd29b13fc8382f1956af43df porcelain 0 2026-11-22T01:38:56+01:00
+shape rm_ax7101_2x2_tdm8: builder rc=0 built
+shape rm_ax7101_4x4_tdm8: builder rc=0 built
+shape rm_ax7101_8x8_tdm8: builder rc=1 refused: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:248): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_4ch: builder rc=0 built
+shape rm_ax7101_4x4_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_8x8_tdm8_2ch: builder rc=1 refused: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:248): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_noaafclk: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_nocrf: builder rc=0 built
+shapes rc=0
+platform images before export: 0
+soc ship: rc=0 VexiiRiscvLitex_f5f08b170311db53220574624f819159
+soc axilite: rc=0 VexiiRiscvLitex_f5f08b170311db53220574624f819159
+soc l2-8k: rc=2 milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+soc rv64: rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+soc cpu2: rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+soc rv64-fpu: rc=2 milan_soc.py: error: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+soc naxriscv: rc=2 milan_soc.py: error: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+soc l1-caches: rc=2 milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+export rc=0
+  axilite: rc=0 expected=accepted VexiiRiscvLitex_f5f08b170311db53220574624f819159
+  cpu2: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+  l1-caches: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+  l2-8k: rc=2 expected=refused milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+  naxriscv: rc=2 expected=refused milan_soc.py: error: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+  rv64: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+  rv64-fpu: rc=2 expected=refused milan_soc.py: error: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+  ship: rc=0 expected=accepted VexiiRiscvLitex_f5f08b170311db53220574624f819159
+  axilite top 906071488dc91aae
+  ship top d799c4b45a70d129
+END shapes=0 export=0 2026-11-22T01:39:24+01:00
+== control: the plan copy names placement split
+   platform images in the control tree before: 0
+soc_sweep: export refused: the split SoC arguments name platform image(s) ['sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf'] that the export tree does not hold; the sweep builds none (#665)
+   control rc=2; exports written: 0; exports.json: absent
+== ship: base export vs this head's
+files: A 3876 B 3876 only A 21 only B 21
+equal after normalisation: 3746 differ: 109
+  differs: gateware/alinx_ax7101.v (equal outside its comments)
+  differs: litex.log
+software/ files differing: 107
+gateware/ files differing: 1
+   argv: equal
+== axilite: base export vs this head's
+files: A 3876 B 3876 only A 21 only B 21
+equal after normalisation: 3745 differ: 110
+  differs: gateware/alinx_ax7101.v (equal outside its comments)
+  differs: gateware/alinx_ax7101.xdc
+  differs: litex.log
+software/ files differing: 107
+gateware/ files differing: 2
+   argv: equal
+END sweep=0 control=2 2026-11-22T01:39:30+01:00

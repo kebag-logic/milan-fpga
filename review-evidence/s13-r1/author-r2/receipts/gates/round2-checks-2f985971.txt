@@ -1,0 +1,8 @@
+# quick.sh over checks/r2.tsv (this round's checks) on a clean clone at 2f985971
+soc_sweep_selftest           rc=0  soc_sweep self-test: PASS
+yosys_sweep_selftest         rc=0  yosys_sweep self-test: PASS (0 problems)
+build_flash_boot_regen       rc=0  BUILD_FLASH_BOOT.png regenerates byte-identical
+harness_build_checks         rc=0  PASS endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv
+solution_docs                rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+doc_paths                    rc=0  doc path gate: OK (1753 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+tree porcelain: 0

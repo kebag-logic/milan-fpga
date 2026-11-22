@@ -1,0 +1,35 @@
+# tools/rmutants.py over this packet: each defect planted in a copy, MANIFEST.sha256 rewritten, tools/replay.py run
+== a configuration bit outside the ROM frames (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1: CAUGHT
+   FAIL  1x1 cells: 22 INIT bit(s) differ in 8 cell(s), the frame bits 23; each a ROM bank or the CSR defaults ROM
+== the part name in the .bit header (shipping/1x1/flip/alinx_ax7101.bit)
+   replay exit 1: CAUGHT
+   FAIL  1x1 .bit: outside the frames, only the design name's SW_CRC and SW_HDR_SHA256 text, the date, the time and the CRC register write differ (unexpected: ["header 'b' (part)"])
+== one more instruction byte in the platform image (shipping/8x8/flip/ctrl_app.elf)
+   replay exit 1: CAUGHT
+   FAIL  8x8 ctrl_app.elf: 7 loaded bytes differ: the lui/addi pair at 0x100, 0x12208, 0x1220c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+== one ROM word the image does not hold (shipping/1x1/flip/gateware/alinx_ax7101_rom_bank0.init)
+   replay exit 1: CAUGHT
+   FAIL  1x1 flip: the 5 ROM bank init files (126432 B) are the ELF's load segments [('0x0', 126302), ('0x1ed60', 128)], zero beyond
+== a cell placed elsewhere (shipping/1x1/dump/flip.cells.xz)
+   replay exit 1: CAUGHT
+   FAIL  1x1 cells: 86465 cells, every name, type and placement equal
+== a route changed (shipping/1x1/dump/flip.nets.xz)
+   replay exit 1: CAUGHT
+   FAIL  1x1 nets: 95172 nets, every route byte-identical
+== a block RAM INIT bit outside the ROMs (shipping/8x8/dump/flip.bram.xz)
+   replay exit 1: CAUGHT
+   FAIL  8x8 bram: 16 INIT bit(s) differ in 15 cell(s), the frame bits 15; each a ROM bank or the CSR defaults ROM
+== a measured harness image swapped for the head's (harness/1x1/none/measured.elf)
+   replay exit 1: CAUGHT
+   FAIL  harness/1x1/none/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+== one more data byte in a harness image (harness/8x8-1if/answering-ports/head.elf)
+   replay exit 1: CAUGHT
+   FAIL  8x8-1if/answering-ports: 7 loaded bytes differ: the lui/addi pair at 0x107cc, 0x107ec loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+-0x150, 0x184 reads '2' -> '3'
+== a group's CPU cycles changed (a digit prefixed) (groups/1x1/none/control.head.json)
+   replay exit 1: CAUGHT
+   FAIL  1x1/none/control: 325 leaves, 3 probes, every leaf equal, none excluded; DIFFER ['.probes[0].cpu_cycles']
+== a raw log digit changed other than the version's (groups/1x1/none/aecp-held.head.log.gz)
+   replay exit 1: CAUGHT
+   FAIL  1x1/none/aecp-held: raw log 125033 lines, 3 differ: 2 '2' -> '3' digit(s), and 1 other character(s)
+plants caught: 11 of 11

@@ -1,0 +1,40 @@
+# rsweep.sh in a fresh clone of round 1's head 62477be4: yosys_sweep.py shapes, then soc_sweep.py export of every SoC variant (LiteX venv, pinned RV32 SDK): the reproduction of R880-1-F1
+head 62477be4cb90336ca9b59ae7ab8377546e72557a porcelain 0 2026-11-22T01:15:29+01:00
+shape rm_ax7101_2x2_tdm8: builder rc=0 built
+shape rm_ax7101_4x4_tdm8: builder rc=0 built
+shape rm_ax7101_8x8_tdm8: builder rc=1 refused: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:248): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_4ch: builder rc=0 built
+shape rm_ax7101_4x4_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_8x8_tdm8_2ch: builder rc=1 refused: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:248): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_noaafclk: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_nocrf: builder rc=0 built
+shapes rc=0
+platform images before export: 0
+soc ship: rc=1 
+soc axilite: rc=1 
+soc l2-8k: rc=2 milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+soc rv64: rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+soc cpu2: rc=2 milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+soc rv64-fpu: rc=2 milan_soc.py: error: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+soc naxriscv: rc=2 milan_soc.py: error: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+soc l1-caches: rc=2 milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+soc: outcome differs from the plan's expectation for ['ship', 'axilite']
+export rc=1
+  axilite: rc=1 expected=accepted 
+  cpu2: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+  l1-caches: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires no FPU, --l2-bytes 0, and no --scala-args overrides
+  l2-8k: rc=2 expected=refused milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2
+  naxriscv: rc=2 expected=refused milan_soc.py: error: NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size
+  rv64: rc=2 expected=refused milan_soc.py: error: --software-profile baremetal requires --cpu vexiiriscv --xlen 32 --cpu-count 1
+  rv64-fpu: rc=2 expected=refused milan_soc.py: error: --with-fpu is unsupported by the VexiiRiscv recipe; it does not enable floating-point hardware
+  ship: rc=1 expected=accepted 
+END shapes=0 export=1 2026-11-22T01:15:39+01:00
+
+# the ship export's own log, its last lines:
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/work/rs-h0/tree/sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf'

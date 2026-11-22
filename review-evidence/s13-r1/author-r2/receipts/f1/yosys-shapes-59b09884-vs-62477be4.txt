@@ -1,0 +1,17 @@
+# yosys_sweep.py shapes (the #649 datapath map's builder step) at base 59b09884 and at round 1's head 62477be4, each in a fresh
+# clone (rsweep.sh): every variant's builder outcome, and the generated shape directories the datapath points read
+rm_ax7101_1x1_tdm8_2ch: built / built: SAME
+rm_ax7101_1x1_tdm8_4ch: built / built: SAME
+rm_ax7101_1x1_tdm8_noaafclk: built / built: SAME
+rm_ax7101_1x1_tdm8_nocrf: built / built: SAME
+rm_ax7101_2x2_tdm8: built / built: SAME
+rm_ax7101_4x4_tdm8: built / built: SAME
+rm_ax7101_4x4_tdm8_2ch: built / built: SAME
+rm_ax7101_8x8_tdm8: refused / refused: SAME
+rm_ax7101_8x8_tdm8_2ch: refused / refused: SAME
+diff -rq: Only in <work>/rs-base/tree/configs/generated: ltn_rom.hex
+diff -rq: Files <work>/rs-base/tree/configs/generated/sweep_opts_ax7101.sh and <work>/rs-h0/tree/configs/generated/sweep_opts_ax7101.sh differ
+diff -rq: Only in <work>/rs-base/tree/configs/generated: ucode.hex
+reading: every outcome and every generated shape file equal; the tracked sweep fragment differs by the flip's split flags (intended);
+ltn_rom.hex and ucode.hex are written by the base's accepted SoC export, which the 62477be4 run did not reach (R880-1-F1).
+The datapath points bind the plan's parameters (no CTRL_SPLIT_P: 0, all-fabric), so yosys_sweep.py needed no change.

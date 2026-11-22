@@ -1,0 +1,25 @@
+# the round's planted defects at 9413958c66c0dcd632b3e0e7ac44505314fed41a, each in this clone, restored after
+== control (nothing planted): python3 -B syn/resmap/soc_sweep.py --selftest...: exit 0
+== control (nothing planted): python3 -B -c import sys; sys.path.insert(0, 'tb/verilator/ctrl_service_budget'); import selftest; r = selftest.build_checks(); [print(('PASS ' if ok else 'FAIL ') + n + ('' if ok else ': ' + d)) for n, ok, d in r]; sys.exit(not all(ok for _, ok, _ in r))...: exit 0
+== R880-F1: the plan prices the split SoC
+   planted in syn/resmap/sweep_plan.json; exit 1 (CAUGHT)
+   SELF-TEST FAILED: the plan prices the split SoC, not the all-fabric one its recorded figures were taken at
+   soc_sweep self-test: FAIL
+== R880-F1: the soc section names no placement
+   planted in syn/resmap/sweep_plan.json; exit 1 (CAUGHT)
+   SELF-TEST FAILED: the plan: the soc section names no control placement
+   soc_sweep self-test: FAIL
+== R880-F1: missing_images reports nothing
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: an absent platform image: missing images [], want ['sw/builder/out/cfg/ctrl_app.elf']
+   SELF-TEST FAILED: a platform image flag with no value: missing images [], want ['(no value)']
+   soc_sweep self-test: FAIL
+== R879-S1: split_argv appends a second image pair (the pre-fix behaviour)
+   planted in tb/verilator/ctrl_service_budget/build.py; exit 1 (CAUGHT)
+   FAIL endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf', '--ctrl-mailbox', '--ctrl-firmware', 'x.elf']
+   FAIL endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf', '--ctrl-mailbox', '--ctrl-firmware', 'x.elf']
+== R879-S1: split_argv keeps the config's image and drops the harness's
+   planted in tb/verilator/ctrl_service_budget/build.py; exit 1 (CAUGHT)
+   FAIL endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf']
+   FAIL endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf']
+tree after the plants: 0 changed paths
