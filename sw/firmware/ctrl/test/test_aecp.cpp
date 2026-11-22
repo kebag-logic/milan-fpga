@@ -2960,7 +2960,7 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         std::vector<aecp_mapping> got(own.rows,own.rows+own.count);
         EXPECT_TRUE(got.size()==want.rows.size()&&std::equal(got.begin(),got.end(),want.rows.begin(),same))
             <<"the edit's map is its definition's, row for row";
-        EXPECT_EQ(reads,want.reads)<<"the edit reads its port once for each stream its definition's output mappings reach";
+        EXPECT_EQ(reads,want.reads)<<"the edit reads its port once for each output stream its definition reaches";
         EXPECT_EQ(noted,want.status==0&&want.rows.size()!=held.size()?1u:0u)
             <<"the edit notifies CHANGE_MAP where its definition changes the map";
         const bool repeated=std::any_of(want.rows.begin(),want.rows.end(),[&](const aecp_mapping &x){
@@ -3003,15 +3003,15 @@ TEST_F(Core, MapEditWorkObservesEachOutputStreamOnce)
     EXPECT_EQ(observed,(Streams{0,1}))<<"an edit observes each stream it maps once, in its order";
     EXPECT_EQ(maps[1].count,0u)<<"the REMOVE removes each row it holds";
     running={1};observed.clear();edit_map(44,15,edit,7);
-    EXPECT_EQ(observed,(Streams{0,1}))<<"a stream found running refuses the edit at its first mapping";
-    EXPECT_EQ(maps[1].count,0u)<<"a refused edit changes nothing";
+    EXPECT_EQ(observed,(Streams{0,1}))<<"a stream found running is observed at its first mapping, and the edit ends";
+    EXPECT_EQ(maps[1].count,0u)<<"a stream found running refuses the edit at its first mapping";
     running.clear();silent={1};observed.clear();edit_map(44,15,edit,7);
-    EXPECT_EQ(observed,(Streams{0,1}))<<"an unanswered observation refuses the edit at its first mapping";
-    EXPECT_EQ(maps[1].count,0u)<<"a refused edit changes nothing";
+    EXPECT_EQ(observed,(Streams{0,1}))<<"an unanswered stream is observed at its first mapping, and the edit ends";
+    EXPECT_EQ(maps[1].count,0u)<<"an unanswered observation refuses the edit at its first mapping";
     silent.clear();observed.clear();edit_map(44,15,{zero},0);
     running={0};observed.clear();edit_map(44,15,{two},7);
     EXPECT_EQ(observed,(Streams{0}))<<"a stream found idle in one edit is observed again in the next";
-    EXPECT_TRUE(same_rows(maps[1],{zero}))<<"a refused edit changes nothing";
+    EXPECT_TRUE(same_rows(maps[1],{zero}))<<"a stream found running in the next edit refuses it";
 }
 
 #ifdef AECP_MAP_WORK

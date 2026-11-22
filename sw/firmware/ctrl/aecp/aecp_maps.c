@@ -197,7 +197,7 @@ enum { EARLIER = 1u, FOUND = 2u, BARRED = 4u, ILLEGAL = 8u };
 #endif
 struct edit {
 	bool input;
-	uint32_t idle[MAP_IDLE_WORDS]; // the streams found idle (idle), a bit each; first, at a short offset
+	uint32_t idle[MAP_IDLE_WORDS]; // the streams observed (idle), a bit each; first, at a short offset
 	union held {
 		struct aecp_mapping r;
 		uint32_t w[2]; // the stream and its channel, then the cluster and its channel
@@ -258,31 +258,28 @@ static size_t place(const struct edit *e, const union held *x)
 
 // The check a legal mapping of an output port reads its port for, after every
 // other of its own: its stream must not be running, observed briefly as a
-// running check (#943). Each stream is observed once an edit, at the first of
-// its mappings to reach the check, and held idle for the rest (#963): one found
-// running or unanswered refuses the edit at that mapping, as before, so a later
-// mapping of the stream is only ever checked after it was found idle in the same
-// record, which nothing else runs beside. So an edit observes each stream it
-// maps once, not each mapping: a REMOVE or ADD of 63 at 8x8/1if's output map
-// made 63 observations, most of its pass, which was over THE SHARE. A mapping
-// that reaches the check has its key in the domain (place), so its stream is
-// below MAP_FIRSTS; one that is not is observed every time, never held.
+// running check (#943; aecp_commands.c, aecp_running). Each stream is observed
+// once an edit, at the first of its mappings to reach the check (#963): one
+// found running or unanswered refuses the edit at that mapping, as before, and
+// its table with it, so a later mapping of a stream the table holds is only
+// ever checked after the stream was found idle in the same record, which
+// nothing else runs beside. So an edit observes each stream it maps once, not
+// each mapping: a REMOVE or ADD of 63 of 8x8/1if's output map made 63
+// observations, most of its pass, which was over THE SHARE. A mapping that
+// reaches the check has its key in the domain (place), so its stream is below
+// MAP_FIRSTS, and the word is reduced to the table's so no index leaves it.
 static bool idle(struct aecp *a, struct edit *e, const struct aecp_descriptor *port, const struct aecp_mapping *r)
 {
 	if (port->type == 14u) {
 		return true;
 	}
-	const bool held = r->stream < MAP_FIRSTS;
-	uint32_t *word = &e->idle[held ? r->stream / 32u : 0u];
-	const uint32_t bit = held ? 1u << (r->stream % 32u) : 0u;
-	if ((*word & bit) == 0u) {
-		struct aecp_stream_info info = {.brief = true};
-		if (!aecp_stream_read(a, 6u, r->stream, &info) || info.running) {
-			return false;
-		}
-		*word |= bit;
+	uint32_t *word = &e->idle[r->stream / 32u % MAP_IDLE_WORDS];
+	const uint32_t bit = 1u << (r->stream % 32u);
+	if ((*word & bit) != 0u) {
+		return true;
 	}
-	return true;
+	*word |= bit;
+	return aecp_running(a, 6u, r->stream) == AECP_SUCCESS;
 }
 
 // A mapping copied a coordinate at a time. A whole one is a call of memcpy on
@@ -475,7 +472,7 @@ unsigned aecp_map_command(struct aecp *a, uint16_t cmd, const uint8_t *in, size_
 	stale(&e);
 #endif
 	// What the edit reads before it writes is cleared, and only that (#894):
-	// the slots place() forms, MAP_DOMAIN of them, and the streams found idle
+	// the slots place() forms, MAP_DOMAIN of them, and the streams observed
 	// (#963), here, and each mapping's link, marks and occurrences at its turn
 	// in the table, which no read reaches past.
 	memset(e.slot, 0, MAP_DOMAIN);

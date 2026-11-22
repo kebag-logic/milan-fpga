@@ -31,6 +31,9 @@ void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 void aecp_keep(struct aecp *, void *, size_t);
 // A stream's observation, brief as the caller sets it: a running check's reads bound and running alone (#894, #943).
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
+// The running check, a brief observation: STREAM_IS_RUNNING for an input bound or an output streaming,
+// ENTITY_MISBEHAVING for one unobserved, else SUCCESS (#894, #943).
+unsigned aecp_running(struct aecp *, uint16_t, uint16_t);
 // A response's Ethernet header and AECPDU common data, through command_type.
 #define AECP_HEADER_BYTES 38u
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output
