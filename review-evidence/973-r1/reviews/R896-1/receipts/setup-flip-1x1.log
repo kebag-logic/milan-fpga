@@ -1,0 +1,8 @@
+COMMAND python3 -I tb/verilator/ctrl_service_budget/flip_grade.py --check --point 1x1/1if
+Traceback (most recent call last):
+  File "<checkout>/tb/verilator/ctrl_service_budget/flip_grade.py", line 52, in <module>
+    import load_grade  # noqa: E402
+    ^^^^^^^^^^^^^^^^^
+  File "<checkout>/tb/verilator/ctrl_service_budget/load_grade.py", line 95, in <module>
+    import yaml
+ModuleNotFoundError: No module named 'yaml'

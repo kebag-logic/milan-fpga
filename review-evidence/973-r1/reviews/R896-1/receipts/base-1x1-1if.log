@@ -1,0 +1,105 @@
+head 9a71daa9aa2379e2a57eb93ccafe83101bcb37f7
+task base-1x1-1if
+srp-srp_link_pass-if1-endstation_ax7101_1x1_tdm8 rc 1
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:94: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:95: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:96: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll reset the interface on a level no LINK had carried
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:112: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP resets nothing
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:113: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x55b97dcd5530
+  startup
+    Which is: 0x55b97dcd54f0
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP keeps the startup participants
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:122: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x55b97dcd5530
+  startup
+    Which is: 0x55b97dcd54f0
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP keeps the startup participants
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:94: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:96: Failure
+Expected equality of these values:
+  resets
+    Which is: 4
+  before
+    Which is: 3
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll reset the interface on a level no LINK had carried
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:127: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 2
+  1u
+    Which is: 1
+a later UP resets the interface once
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a later UP resets the interface once
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[----------] 4 tests from SrpLinkPass (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 4   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 4 checks, exit 1)
+expected baseline defect reproduced: True
+task exit: 0

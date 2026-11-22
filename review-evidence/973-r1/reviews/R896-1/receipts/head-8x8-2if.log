@@ -1,0 +1,262 @@
+head 9a71daa9aa2379e2a57eb93ccafe83101bcb37f7
+task head-8x8-2if
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_link_pass-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_link_pass-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_link_pass-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+srp-srp_link_pass-if2-endstation_ax7101_8x8 rc 0
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[----------] 4 tests from SrpLinkPass (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+== ctrl SRP link inside a pass: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+srp-srp_mbx-if2-endstation_ax7101_8x8 rc 0
+[==========] Running 85 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 74 tests from Srp
+[ RUN      ] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt
+[       OK ] Srp.PubDomainPrecedesEveryDeclarationThatCarriesIt (0 ms)
+[ RUN      ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported
+[       OK ] Srp.PubLicenceIsSetAndClearedBeforeEachChangeIsReported (0 ms)
+[ RUN      ] Srp.PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits
+[       OK ] Srp.PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits (0 ms)
+[ RUN      ] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst
+[       OK ] Srp.PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst (0 ms)
+[ RUN      ] Srp.PubTalkerDeclHoldsAcrossADomainAdoption
+[       OK ] Srp.PubTalkerDeclHoldsAcrossADomainAdoption (0 ms)
+[ RUN      ] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails
+[       OK ] Srp.PubTalkerDeclIsNotPublishedByACreationThatFails (0 ms)
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (2 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte
+[       OK ] Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte (0 ms)
+[ RUN      ] Srp.InterfaceResetClearsListenerPresent
+[       OK ] Srp.InterfaceResetClearsListenerPresent (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+[       OK ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[       OK ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (1 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+[       OK ] Srp.ExpiryBacklogPrecedesSamePassReceive (0 ms)
+[ RUN      ] Srp.ReentryFromOutputIsRefusedAndCounted
+[       OK ] Srp.ReentryFromOutputIsRefusedAndCounted (0 ms)
+[ RUN      ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState
+[       OK ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState (0 ms)
+[ RUN      ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+[       OK ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+[       OK ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+[       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+[ RUN      ] Srp.InvalidFramesHaveNoReservationSideEffects
+[       OK ] Srp.InvalidFramesHaveNoReservationSideEffects (0 ms)
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[       OK ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+[       OK ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+[ RUN      ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+[       OK ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations (0 ms)
+[ RUN      ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+[       OK ] Srp.MvrpAcceptsOnlyCurrentDomainVid (0 ms)
+[ RUN      ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+[       OK ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt (2 ms)
+[ RUN      ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+[       OK ] Srp.AdmissionUsesBandwidthAndEthernetMinimum (0 ms)
+[ RUN      ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[       OK ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+[ RUN      ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[       OK ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+[ RUN      ] Srp.LinkLossCancelsItsOwedFrameOnly
+[       OK ] Srp.LinkLossCancelsItsOwedFrameOnly (0 ms)
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+[       OK ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[ RUN      ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+[       OK ] Srp.ListenerBeforeVlanCommitCannotStartTalker (0 ms)
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[       OK ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[ RUN      ] Srp.BoundOldDomainVlanSurvivesDomainChange
+[       OK ] Srp.BoundOldDomainVlanSurvivesDomainChange (0 ms)
+[ RUN      ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+[       OK ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership (0 ms)
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[       OK ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (1 ms)
+[ RUN      ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+[       OK ] Srp.SinkMembershipCommitsBeforeReadyAtStartup (0 ms)
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[       OK ] Srp.InListenerWithdrawalRevokesLicenceImmediately (4 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[       OK ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[ RUN      ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+[       OK ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence (0 ms)
+[ RUN      ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+[       OK ] Srp.AdmissionStraddlesTheExactEthernetCeiling (0 ms)
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[       OK ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[       OK ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[ RUN      ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+[       OK ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire (4 ms)
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (33 ms)
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[       OK ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[ RUN      ] Srp.ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt
+[       OK ] Srp.ALinkResetHoldsRecordsToTheirCapUntilItsInterfaceIsBuilt (0 ms)
+[ RUN      ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+[       OK ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed (0 ms)
+[ RUN      ] Srp.EventReentryAndSinkCapacityAreGuarded
+[       OK ] Srp.EventReentryAndSinkCapacityAreGuarded (0 ms)
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[       OK ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (1 ms)
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[       OK ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (29 ms)
+[ RUN      ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+[       OK ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation (7 ms)
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[       OK ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (6 ms)
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[       OK ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (5 ms)
+[ RUN      ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+[       OK ] Srp.FinalDomainVidUnbindKeepsSrClassMembership (13 ms)
+[ RUN      ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+[       OK ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder (6 ms)
+[ RUN      ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+[       OK ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+[       OK ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart (1 ms)
+[ RUN      ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+[       OK ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan (1 ms)
+[ RUN      ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+[       OK ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline (4 ms)
+[ RUN      ] Srp.HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep
+[       OK ] Srp.HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep (2 ms)
+[ RUN      ] Srp.ARecordThatChangesNoRegistrationCostsNoWalk
+[       OK ] Srp.ARecordThatChangesNoRegistrationCostsNoWalk (0 ms)
+[ RUN      ] Srp.OwnDeclarationsThatRewriteARegisteredValueAreCopied
+[       OK ] Srp.OwnDeclarationsThatRewriteARegisteredValueAreCopied (0 ms)
+[ RUN      ] Srp.ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame
+[       OK ] Srp.ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame (0 ms)
+[ RUN      ] Srp.AnOwedMrpduTakesAPassOfItsOwn
+[       OK ] Srp.AnOwedMrpduTakesAPassOfItsOwn (0 ms)
+[ RUN      ] Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent
+[       OK ] Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent (0 ms)
+[ RUN      ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole
+[       OK ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole (0 ms)
+[ RUN      ] Srp.TheJoinCountFollowsWhatABuildSent
+[       OK ] Srp.TheJoinCountFollowsWhatABuildSent (1 ms)
+[ RUN      ] Srp.AJoinTimeOwesAnInterfaceAPass
+[       OK ] Srp.AJoinTimeOwesAnInterfaceAPass (0 ms)
+[ RUN      ] Srp.AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle
+[       OK ] Srp.AnApplicantMovedOwesAPassWithItsOwnJoinTimerIdle (0 ms)
+[ RUN      ] Srp.AFirstVlanSendDeclaresWhatItLicensesInItsPass
+[       OK ] Srp.AFirstVlanSendDeclaresWhatItLicensesInItsPass (0 ms)
+[ RUN      ] Srp.AnOwedFrameComesBeforeTheBuild
+[       OK ] Srp.AnOwedFrameComesBeforeTheBuild (0 ms)
+[----------] 74 tests from Srp (152 ms total)
+
+[----------] 11 tests from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime
+[       OK ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[       OK ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding
+[       OK ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding (1 ms)
+[ RUN      ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder
+[       OK ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder (0 ms)
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[       OK ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (1 ms)
+[ RUN      ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered
+[       OK ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered (1 ms)
+[ RUN      ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset
+[       OK ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset (6 ms)
+[ RUN      ] SrpTalkerKinds.AStreamIsHeldForItsOwnInterface
+[       OK ] SrpTalkerKinds.AStreamIsHeldForItsOwnInterface (0 ms)
+[ RUN      ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore
+[       OK ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore (0 ms)
+[ RUN      ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered
+[       OK ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime
+[       OK ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime (3 ms)
+[----------] 11 tests from SrpTalkerKinds (18 ms total)
+
+[----------] Global test environment tear-down
+[==========] 85 tests from 2 test suites ran. (171 ms total)
+[  PASSED  ] 85 tests.
+== ctrl SRP mailbox: checks: 85   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_app-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_app-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/head-8x8-2if/build/srp-srp_app-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+srp-srp_app-if2-endstation_ax7101_8x8 rc 0
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (1 ms)
+[----------] 2 tests from SrpApp (1 ms total)
+
+[----------] 8 tests from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 3 accesses, bound 3
+  SRP refused receive bound: 1 accesses, bound 1
+  SRP retained receive poll bound: 3 accesses, bound 471
+  SRP transmitting pass bound: 766 accesses, bound 1313
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 387 accesses, bound 1313
+[       OK ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+  SRP poll terms: fixed 6, frames a poll 1, real send accesses 766, envelope 772/471
+[       OK ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (4 ms)
+[ RUN      ] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks
+  SRP publication terms: reset 5, adoption 3, licence change 1, term 40
+[       OK ] Srp.PollPublicationTermIsMeasuredThroughRealCallbacks (0 ms)
+[ RUN      ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives
+  SRP pass terms: event 74, receive 768, poll 471, envelope 1313/1313
+[       OK ] Srp.PassFundsEveryEventRecordAndBothMaximumReceives (0 ms)
+[ RUN      ] Srp.LinkChangeBuildsTheNewParticipantsOnTheNextPass
+[       OK ] Srp.LinkChangeBuildsTheNewParticipantsOnTheNextPass (0 ms)
+[ RUN      ] Srp.LinkEdgesOfOnePassBuildOnce
+[       OK ] Srp.LinkEdgesOfOnePassBuildOnce (0 ms)
+[ RUN      ] Srp.JointLinkChangeBuildsOneInterfaceAPass
+[       OK ] Srp.JointLinkChangeBuildsOneInterfaceAPass (0 ms)
+[ RUN      ] Srp.JointLinkChangeBuildsInterfaceOneBesideAWithdrawal
+[       OK ] Srp.JointLinkChangeBuildsInterfaceOneBesideAWithdrawal (0 ms)
+[----------] 8 tests from Srp (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (7 ms total)
+[  PASSED  ] 10 tests.
+== ctrl ADP MAAP SRP composition: checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)
+task exit: 0

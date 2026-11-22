@@ -1,0 +1,45 @@
+Note: Google Test filter = SrpLinkPass.BeforeAPass
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:112: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 1
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.BeforeAPass: a first UP resets nothing
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:113: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x7f97ba1cc270
+  startup
+    Which is: 0x7f97ba1cc230
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.BeforeAPass: a first UP keeps the startup participants
+<checkout>/sw/firmware/ctrl/test/srp_link_pass.cpp:122: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x7f97ba1cc270
+  startup
+    Which is: 0x7f97ba1cc230
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.BeforeAPass: a first UP keeps the startup participants
+[  FAILED  ] SrpLinkPass.BeforeAPass (0 ms)
+[----------] 1 test from SrpLinkPass (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLinkPass.BeforeAPass
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
