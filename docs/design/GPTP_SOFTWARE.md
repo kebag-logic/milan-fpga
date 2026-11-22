@@ -181,7 +181,7 @@ The 10 ms bound and THE SHARE of 2.0 ms are kept by [#884's ruling of 2026-11-21
 | Path | Bound | Basis | 8x8/2if | 8x8/1if |
 |---|---|---|---:|---:|
 | Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.266 ms | 0.186 ms |
-| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.945 ms | 7.491 ms |
+| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.790 ms | 6.040 ms |
 | Sync egress stamp to Follow_Up committed | 125 ms | followUpReceiptTimeout, Milan v1.2 Table 4.2 | one pass | one pass |
 | The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.633 ms | 1.638 ms |
 | A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
@@ -191,8 +191,8 @@ gPTP takes 0.31 % of it after link-up at 8x8/2if, 0.26 % at 8x8/1if; the dearest
 The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
 
 A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
-An image without gPTP opens five, so every existing row is unchanged; a gPTP image's windows also carry the gptp channel's admitted burst, 16 Pdelay_Req records, its dearest ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
-With that burst one held-egress row at 8x8/1if, `backlog-owed.service.acmp.last.if0`, is 0.020 ms past its egress-ledger figure (62.640 ms against 62.62): an [open item](#open-items).
+An image without gPTP opens five, so every existing row is unchanged; a gPTP image's windows also carry the gptp channel's admitted burst, seven Pdelay_Req records an interface, its dearest ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
+With that burst every held-egress row at 8x8/1if is within its egress-ledger figure, `backlog-owed.service.acmp.last.if0` at 62.535 ms against 62.62 (62.640 ms at the provisional burst of 16 that [#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7072401468), item 1, replaced by the derived one); at 8x8/2if it is 62.496 ms.
 
 ## Verification
 
@@ -219,8 +219,7 @@ Each peer is an independent model with its own clock, a 300 ns link and Milan's 
 ## Open items
 
 - The fabric plane stays buildable on this line for the bench's A/B (ruling item 6); its RTL is deleted only after the in-house qualification passes as slave and as grandmaster (ruling item 3). Its suites and `tb/verilator/gptp_txts`, which grades the plane's ledger, move with it.
-- The split SoC's second MAC, and with it the second PHC and timestamp unit in the product build: the closed loop proves the replication, the SoC has one MAC. A redundant interface is NFR-SCOUT-05's work.
-- The publication census elaborates the split with the plane; it rules the gPTP ports (`census_split.GPTP_SW_ONLY`), and a `GPTP_SW_EN_P` shape is owed.
+- The split SoC's second MAC, and with it the second PHC and timestamp unit in the product build: #962 (cross-referenced to NFR-SCOUT-05); this line keeps one MAC, and the closed loop proves the replication.
+- The publication census elaborates the split with the plane; it rules the gPTP ports (`census_split.GPTP_SW_ONLY`). A `GPTP_SW_EN_P` shape is owed before this line merges onward: the census owner rules the rows the sw build ties off, and this line supplies the row list and applies the shape (#884's ruling of 2026-11-22, item 3).
 - The rows model counts no gPTP work: `gptp/` links only into a `--with-gptp` image, and no row's image is one.
-- The held-egress ledger for a gPTP image: at 8x8/1if the gptp burst adds 0.150 ms to the owed ACMP response's service, past the ledger's 5 % (an owner's decision on #884).
 - The bench qualification of the 802.1AS clauses is owed before this line ships.
