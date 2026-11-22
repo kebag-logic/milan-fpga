@@ -763,10 +763,13 @@ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
 ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
 SUFFIX_CASES = render-mutants
+# #884: the split leg with gPTP in firmware (split-sw), the one bench of the product datapath's GPTP_SW_EN_P
+# wiring. Dealt last, so no case before it changes hosted piece (suite_shards.PIECE_SECONDS, #804).
+TAIL_CASES = split-sw
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
 RECEIPT_render-mutants = tally-stdout
-RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
+RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES) $(TAIL_CASES)
 CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
 CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
 CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
@@ -794,6 +797,7 @@ run: ci-prepare
 	$(foreach case,$(ORDINARY_CASES),$(MAKE) --no-print-directory build-$(case) &&) true
 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" $(foreach case,$(ORDINARY_CASES),$(CASE_OPTIONS_$(case)))
 	python3 render_mutants.py
+	$(MAKE) --no-print-directory $(addprefix run-,$(TAIL_CASES))
 
 ci-prepare: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 

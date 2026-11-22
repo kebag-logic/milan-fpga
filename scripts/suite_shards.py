@@ -116,7 +116,7 @@ SUITE_SECONDS = {
     "media_grid_align": 255,
     "media_nco": 17,
     "media_phase": 1400,
-    "milan_dp": 2797,
+    "milan_dp": 2819,
     "milan_dp_gm_steps": 926,
     "milan_dp_mclk": 2038,
     "milan_dp_render": 1264,
@@ -158,8 +158,10 @@ WORKER_OVERHEAD_SECONDS = (122,) * 19
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
 # Hosted leg windows, as SUITE_SECONDS' #799 figures. Keyed by leg index while the driver
 # deals cases round-robin, so an inserted case re-targets them (#804). See CI_WORKFLOWS.md.
+# #884: milan_dp's split-sw, its last case, is dealt to leg 2 alone: 22 s more there and in the serial
+# figure (21 s to build, 1 s to run, on four CPUs at 8121e098).
 PIECE_SECONDS = {
-    "milan_dp": (1429, 508, 325, 1307),
+    "milan_dp": (1429, 508, 347, 1307),
     "milan_dp_mclk": (988, 742, 717, 488),
     "capture_coherence": (1436, 1108, 695, 642),
     "maap": (311, 425, 317, 327),
