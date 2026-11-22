@@ -283,6 +283,87 @@ struct Core : testing::Test {
 };
 }
 
+namespace {
+//! #584: the core with every dynamic map pool the image's shape generates, so each STREAM_PORT_INPUT can be
+//! enumerated and edited as a controller sees it (the platform composes the same pools, plat/ctrl_plat.c).
+struct Inputs : Core {
+    aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{};
+    aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);
+    void SetUp() override {
+        Core::SetUp();cfg.maps=pools;cfg.map_count=AECP_ENTITY_MAPS;
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+    //! READ_DESCRIPTOR of configuration 0's (type, index): the descriptor's bytes as they leave on the wire.
+    Bytes read(unsigned type,unsigned index) {
+        Bytes b(8);put(b,4,type,2);put(b,6,index,2);auto out=ask(4,b);
+        return out.size()>42?Bytes(out.begin()+42,out.end()):Bytes{};
+    }
+    //! The CONFIGURATION descriptor's count of `type` (IEEE 1722.1-2021 7.2.2: descriptor_counts).
+    unsigned count(unsigned type) {
+        auto c=read(1,0);unsigned n=get(c.data()+70,2),at=get(c.data()+72,2);
+        for(unsigned k=0;k<n;++k)if(get(c.data()+at+4*k,2)==type)return get(c.data()+at+4*k+2,2);
+        return 0;
+    }
+    //! Every STREAM_PORT_INPUT index, as a controller enumerates them: CONFIGURATION, then each AUDIO_UNIT's
+    //! number_of_stream_input_ports and base_stream_input_port (IEEE 1722.1-2021 7.2.3, Table 7-6).
+    std::vector<unsigned> input_ports() {
+        std::vector<unsigned> out;
+        for(unsigned u=0;u<count(2);++u){
+            auto unit=read(2,u);if(unit.size()<76)continue;
+            for(unsigned k=0;k<get(unit.data()+72,2);++k)out.push_back(get(unit.data()+74,2)+k);
+        }
+        return out;
+    }
+    Bytes page(unsigned index) { return ask(43,target(14,index,8)); }
+    Bytes rows_of(unsigned index,const Bytes &from,unsigned n) {
+        Bytes b=target(14,index,8+8*n);put(b,4,n,2);
+        std::copy(from.begin()+50,from.begin()+50+8*n,b.begin()+8);return b;
+    }
+};
+}
+
+// #584 (Milan v1.2 5.3.3.8 and 5.3.3.9; IEEE 1722.1-2021 7.2.13 and 7.2.16): the entity-model check a controller
+// makes. Every STREAM_PORT_INPUT the CONFIGURATION advertises, read over AECP, owns at least one AUDIO_CLUSTER and no
+// AUDIO_MAP, and each of its clusters is served and carries one channel.
+TEST_F(Inputs, EveryStreamPortInputOwnsAMonoCluster)
+{
+    const auto ports=input_ports();
+    ASSERT_GT(count(5),0u)<<"every tracked configuration has a STREAM_INPUT";
+    ASSERT_FALSE(ports.empty())<<"its AUDIO_UNIT lists a STREAM_PORT_INPUT";
+    for(unsigned p:ports){
+        auto port=read(14,p);ASSERT_GE(port.size(),20u)<<"STREAM_PORT_INPUT "<<p<<" is served";
+        unsigned clusters=get(port.data()+12,2),base=get(port.data()+14,2);
+        EXPECT_GE(clusters,1u)<<"STREAM_PORT_INPUT "<<p<<" owns an AUDIO_CLUSTER (Milan v1.2 5.3.3.8)";
+        EXPECT_EQ(get(port.data()+16,2),0u)<<"STREAM_PORT_INPUT "<<p<<" owns no AUDIO_MAP (Milan v1.2 5.3.3.9)";
+        for(unsigned k=0;k<clusters;++k){
+            auto c=read(20,base+k);ASSERT_GE(c.size(),86u)<<"AUDIO_CLUSTER "<<base+k<<" is served";
+            EXPECT_EQ(get(c.data()+84,2),1u)<<"AUDIO_CLUSTER "<<base+k<<" carries one channel";
+        }
+    }
+}
+
+// #584 (Milan v1.2 5.4.2.26 to 5.4.2.28): on every STREAM_PORT_INPUT, REMOVE_AUDIO_MAPPINGS of a non-empty list - the
+// mappings GET_AUDIO_MAP returns, one added first where the port holds none - succeeds, leaves the port's page empty,
+// and the same list is added back.
+TEST_F(Inputs, EveryStreamPortInputRemovesANonEmptyList)
+{
+    const auto ports=input_ports();
+    ASSERT_FALSE(ports.empty())<<"its AUDIO_UNIT lists a STREAM_PORT_INPUT";
+    for(unsigned p:ports){
+        auto out=page(p);unsigned n=get(out,46,2);
+        if(n==0){
+            Bytes add=target(14,p,16);put(add,4,1,2);put(add,8,p,2);ask(44,add);
+            out=page(p);n=get(out,46,2);
+        }
+        ASSERT_GE(n,1u)<<"STREAM_PORT_INPUT "<<p<<" holds a mapping to remove";
+        const Bytes list=rows_of(p,out,n);
+        ask(45,list);
+        EXPECT_EQ(get(page(p),46,2),0u)<<"STREAM_PORT_INPUT "<<p<<": the removed list leaves the page empty";
+        ask(44,Bytes(list));
+        EXPECT_EQ(get(page(p),46,2),n)<<"STREAM_PORT_INPUT "<<p<<": the same list is added back";
+    }
+}
+
 #ifdef AECP_TEST_NVM
 namespace {
 struct Nvm : Core {

@@ -737,9 +737,11 @@ def build_checks() -> list[Check]:
     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
-    out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
-            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
+    out = [('the ledgered points are named at the 8x8 points only (with one interface since #584), as the planner '
+            'ledgers them',
+            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': '8x8-one-interface'} and
+            named['8x8'] in ctrl_memory.LEDGERED and named['8x8-1if'] in ctrl_memory.LEDGERED
+            and not any(others.values()), f'{named}; other points {others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
