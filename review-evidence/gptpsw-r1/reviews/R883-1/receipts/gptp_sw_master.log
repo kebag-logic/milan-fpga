@@ -1,0 +1,14 @@
+[ MASTER if0 ] role 3, asCapable 1, GM 001b92fffe000001, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.4 s, then worst |offset| 74.8 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC0 - peer0 =     -4993980.0 ns
+    t= 2.1 s  PHC0 - peer0 =         3712.5 ns
+    t= 4.1 s  PHC0 - peer0 =           12.4 ns
+    t= 6.1 s  PHC0 - peer0 =            9.0 ns
+    t= 8.1 s  PHC0 - peer0 =            9.0 ns
+[ MASTER if1 ] role 3, asCapable 1, GM 001b92fffe000002, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.1 s, then worst |offset| 96.9 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC1 - peer1 =     -9003480.0 ns
+    t= 2.1 s  PHC1 - peer1 =        -2151.4 ns
+    t= 4.1 s  PHC1 - peer1 =            4.0 ns
+    t= 6.1 s  PHC1 - peer1 =            9.1 ns
+    t= 8.1 s  PHC1 - peer1 =            9.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 13   failures: 0 ==
+RESULT: PASS

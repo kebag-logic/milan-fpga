@@ -1,0 +1,27 @@
+baseline: PASS
+  ok   stamp-at-beat-1: KILLED: [FAIL] I1 the trailer is the first beat's PHC less INGRESS_LAT (656 ns) got=999999999484 exp=999999999464
+  ok   ingress-latency-added: KILLED: [FAIL] I1 the trailer is the first beat's PHC less INGRESS_LAT (656 ns) got=1000000000776 exp=999999999464
+  ok   general-messages-timed: KILLED: [FAIL] I3 general messages (Follow_Up, Announce, Pdelay_Resp_Follow_Up) carry the no-stamp trailer got=3 exp=3
+  ok   destination-ignored: KILLED: [FAIL] I4 a Sync to another destination is not timed got=1 exp=0
+  ok   ethertype-ignored: KILLED: [FAIL] I4 another EtherType at the gPTP address is not timed got=1 exp=0
+  ok   sdo-ignored: KILLED: [FAIL] I4 majorSdoId 0 (IEEE 1588, not 802.1AS) is not timed: its record carries the no-stamp trailer got=1000000022184 exp=18446744073709551615
+  ok   two-beat-frame-timed: KILLED: [FAIL] I5 a frame of two beats carries no stamp got=1000000024384 exp=18446744073709551615
+  ok   trailer-lsb-first: KILLED: [FAIL] I1 the trailer is the first beat's PHC less INGRESS_LAT (656 ns) got=16721203325340483584 exp=999999999464
+  ok   trailer-dropped: KILLED: [FAIL] I1 a received Sync is delivered whole, its trailer after it got=0 exp=1
+  ok   general-stamped: KILLED: [FAIL] I3 general messages (Follow_Up, Announce, Pdelay_Resp_Follow_Up) carry the no-stamp trailer got=3 exp=3
+  ok   stamp-room-unchecked: KILLED: [FAIL] T2 under a flood every delivered frame carries its own stamp got=80 exp=64
+  ok   stamp-kept-for-dropped-frame: KILLED: [FAIL] T3 a frame the frame FIFO drops takes its stamp with it: every delivered frame keeps its own got=7 exp=7
+  ok   refusal-uncounted: KILLED: [FAIL] T2 the stamp FIFO keeps 64; the 16 past them are refused at the tap and counted got=0 exp=16
+  ok   half-tick-dropped: KILLED: [FAIL] E2 GMII: the launch's PHC less 426 ns (GPTP_PLANE.md) plus EGRESS_LAT 219 ns got=1000000302723 exp=1000000302713
+  ok   egress-latency-subtracted: KILLED: [FAIL] E2 GMII: the launch's PHC less 426 ns (GPTP_PLANE.md) plus EGRESS_LAT 219 ns got=1000000302275 exp=1000000302713
+  ok   mii-octet-term-dropped: KILLED: [FAIL] E2 MII: the launch's PHC less 3770 ns (GPTP_PLANE.md) got=1000000299190 exp=1000000299150
+  ok   delta-unchecked: KILLED: [FAIL] E3 an aborted launch and a fragmented one are losses got=0 exp=0
+  ok   abort-unchecked: KILLED: [FAIL] E3 an aborted launch and a fragmented one are losses got=0 exp=0
+  ok   guard-ignored: KILLED: [FAIL] G1 a launch 20 cycles after a PHC step is a loss, not a stamp got=0 exp=0
+  ok   envelope-ignored: KILLED: [FAIL] G3 an addend past the 200 ppm envelope is a loss got=0 exp=0
+  ok   unsealed-accepted: KILLED: [FAIL] E1 before the echo a launch is a counted loss got=1 exp=0
+  ok   generation-unchecked: KILLED: [FAIL] S1 a record of generation 0 (the observer reset) is a loss got=0 exp=0
+  ok   no-reseal: KILLED: [FAIL] S1 and the unit offers its seal again got=0 exp=3
+  ok   full-overwrites: KILLED: [FAIL] F1 the 33rd egress record past 32 held is counted got=0 exp=1
+== gptp timestamp unit planted defects: checks: 24   failures: 0 ==
+RESULT: PASS

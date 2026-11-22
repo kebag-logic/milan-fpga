@@ -1,0 +1,14 @@
+[ SLAVE if0 ] role 2, asCapable 1, GM 02aabbfffe000001, steps 1, lock (PHC within 100 ns of its GM) 2.7 s, then worst |offset| 93.0 ns; pdelay 293 ns
+    t= 0.1 s  PHC0 - GM0 = -1000000003980.0 ns
+    t= 2.1 s  PHC0 - GM0 =          669.0 ns
+    t= 4.1 s  PHC0 - GM0 =           14.0 ns
+    t= 6.1 s  PHC0 - GM0 =            8.0 ns
+    t= 8.1 s  PHC0 - GM0 =            5.0 ns
+[ SLAVE if1 ] role 2, asCapable 1, GM 02aaccfffe000002, steps 1, lock (PHC within 100 ns of its GM) 2.5 s, then worst |offset| 82.0 ns; pdelay 292 ns
+    t= 0.1 s  PHC1 - GM1 = -499999997480.0 ns
+    t= 2.1 s  PHC1 - GM1 =         -410.0 ns
+    t= 4.1 s  PHC1 - GM1 =          -35.0 ns
+    t= 6.1 s  PHC1 - GM1 =           -9.0 ns
+    t= 8.1 s  PHC1 - GM1 =            4.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 30   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,4 @@
+gptp/gptp.c: undefined ['__ashldi3', '__ashrdi3', '__lshrdi3', 'memcmp', 'memcpy', 'memset']; muldiv helpers []; float/libm []; size(text data bss) ['11674', '0', '0']
+gptp/gptp_mbx.c: undefined ['ctrl_loop_add_sink', 'ctrl_loop_add_tick', 'ctrl_loop_bind_rx', 'gptp_frame_key', 'gptp_port_init', 'gptp_port_link', 'gptp_port_rx', 'gptp_port_tick', 'gptp_port_ts', 'mbx_now_ms', 'mbx_pub_gptp', 'mbx_tx_send', 'memcmp', 'memcpy', 'memset']; muldiv helpers []; float/libm []; size(text data bss) ['2584', '0', '4']
+flags: -march=rv32im -mabi=ilp32 -ffreestanding -fno-stack-protector -Os -DNDEBUG -std=c11 -Wall -Wextra -Werror -pedantic -fstack-usage -DCTRL_MBX_BASE=0x80000000u -DCTRL_MBX_DMA_BASE=0xf000e800u
+RESULT: PASS

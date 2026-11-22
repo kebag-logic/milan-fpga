@@ -1,0 +1,19 @@
+      1 <review-clone>/sw/firmware/ctrl/gptp/gptp.c:185:33: runtime error: null pointer passed as argument 2, which is declared to never be null
+      1 <review-clone>/sw/firmware/ctrl/gptp/gptp.c:189:2: runtime error: null pointer passed as argument 2, which is declared to never be null
+      1 <review-clone>/sw/firmware/ctrl/gptp/gptp.c:378:34: runtime error: signed integer overflow: 999997002853 * 4294967296 cannot be represented in type 'long int'
+[  PASSED  ] 34 tests.
+[PROBE] 1 ms initial offset: steps(B) 1, asCapable drops A 0 B 0 (first drop at 0 ms), B asCap first 990 ms relock 0 ms, worst |delay| A 500 B 300 ns, worst |nrr-1| A 0.000503 B -0.000503, last 5 s worst |offset| 1.0 ns, roles A 3 B 2
+[PROBE] TAI GM, PHC at 0: steps(B) 1, asCapable drops A 0 B 0 (first drop at 0 ms), B asCap first 990 ms relock 0 ms, worst |delay| A 500 B 300 ns, worst |nrr-1| A -0.486468 B 0.000040, last 5 s worst |offset| 1.1 ns, roles A 3 B 2
+[PROBE] 1000 s initial offset (the suite's own case): steps(B) 1, asCapable drops A 0 B 0 (first drop at 0 ms), B asCap first 990 ms relock 0 ms, worst |delay| A 500 B 300 ns, worst |nrr-1| A -0.367017 B 0.000729, last 5 s worst |offset| 1.0 ns, roles A 3 B 2
+[PROBE] 1 ms turnaround, 1000 s initial offset: steps(B) 1, asCapable drops A 1 B 0 (first drop at 2990 ms), B asCap first 990 ms relock 0 ms, worst |delay| A -121995 B 664 ns, worst |nrr-1| A -0.367017 B 0.000729, last 5 s worst |offset| 1.1 ns, roles A 3 B 2
+[PROBE] 1 ms turnaround, TAI GM, PHC at 0: steps(B) 1, asCapable drops A 1 B 0 (first drop at 2990 ms), B asCap first 990 ms relock 0 ms, worst |delay| A -242402 B 300 ns, worst |nrr-1| A -0.486468 B 0.000040, last 5 s worst |offset| 1.2 ns, roles A 3 B 2
+[PROBE] 1 ms turnaround, 1 ms initial offset: steps(B) 1, asCapable drops A 0 B 0 (first drop at 0 ms), B asCap first 990 ms relock 0 ms, worst |delay| A 520 B 300 ns, worst |nrr-1| A 0.000503 B -0.000503, last 5 s worst |offset| 1.0 ns, roles A 3 B 2
+[PROBE] 10 ms turnaround, TAI GM, PHC at 0: steps(B) 1, asCapable drops A 1 B 0 (first drop at 3990 ms), B asCap first 1990 ms relock 0 ms, worst |delay| A -2432336 B 300 ns, worst |nrr-1| A -0.486468 B 0.000040, last 5 s worst |offset| 1.2 ns, roles A 3 B 2
+[PROBE] 10 ms turnaround, 10 us initial offset (no step): steps(B) 1, asCapable drops A 0 B 0 (first drop at 0 ms), B asCap first 1990 ms relock 0 ms, worst |delay| A 500 B 300 ns, worst |nrr-1| A -0.000040 B 0.000040, last 5 s worst |offset| 1.3 ns, roles A 3 B 2
+[OUTAGE] TAI GM vs PHC 0, 1 ms turnaround: not asCapable after first rising A 4000 ms, B 0 ms; role changes A 3 B 4; B grandmaster changes 4; B steps 1; final roles A 3 B 2
+[OUTAGE] TAI GM vs PHC 0, 10 ms turnaround: not asCapable after first rising A 4000 ms, B 0 ms; role changes A 3 B 4; B grandmaster changes 4; B steps 1; final roles A 3 B 2
+[OUTAGE] 1 s initial offset, 1 ms turnaround: not asCapable after first rising A 3000 ms, B 4000 ms; role changes A 3 B 5; B grandmaster changes 5; B steps 1; final roles A 3 B 2
+[OUTAGE] 100 ms initial offset, 1 ms turnaround: not asCapable after first rising A 4000 ms, B 4000 ms; role changes A 3 B 5; B grandmaster changes 5; B steps 1; final roles A 3 B 2
+[OUTAGE] TAI GM vs PHC 0, 0.2 ms turnaround: not asCapable after first rising A 4000 ms, B 0 ms; role changes A 3 B 4; B grandmaster changes 4; B steps 1; final roles A 3 B 2
+[OUTAGE] 10 us initial offset (under the 20 us threshold), 1 ms turnaround: not asCapable after first rising A 0 ms, B 0 ms; role changes A 1 B 2; B grandmaster changes 2; B steps 1; final roles A 3 B 2
+[  PASSED  ] 48 tests.

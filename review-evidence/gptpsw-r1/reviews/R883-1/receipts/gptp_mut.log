@@ -1,0 +1,28 @@
+baseline: PASS
+  ok   ascap-after-one: KILLED by Scripted.AsCapableNeedsTwoGoodInARow: [FAIL] Scripted.AsCapableNeedsTwoGoodInARow: asCapable after one good exchange with a rate
+  ok   lost-clears-at-fourth: KILLED by Scripted.FifthLostResponseClearsAsCapable: [FAIL] Scripted.FifthLostResponseClearsAsCapable: asCapable fell at the fourth lost response
+  ok   npd-threshold-exclusive: KILLED by Scripted.DelayOverThresholdIsNotAsCapable: [FAIL] Scripted.DelayOverThresholdIsNotAsCapable: 800 ns is at the threshold, inside it
+  ok   late-bound-exclusive: KILLED by Scripted.LateResponseIsLost: [FAIL] Scripted.LateResponseIsLost: a response at the bound was refused
+  ok   nrr-inverted: KILLED by Scripted.RateRatioAndDelayWithAFastNeighbor: [FAIL] Scripted.RateRatioAndDelayWithAFastNeighbor: neighborRateRatio
+  ok   delay-without-nrr: KILLED by Scripted.RateRatioAndDelayWithAFastNeighbor: [FAIL] Scripted.RateRatioAndDelayWithAFastNeighbor: the delay ignores the neighbor's rate
+  ok   cease-one-late: KILLED by Scripted.MultipleRespondersCeaseAndALinkToggleResumes: [FAIL] Scripted.MultipleRespondersCeaseAndALinkToggleResumes: Pdelay_Req still sent during the cease
+  ok   cease-survives-link-toggle: KILLED by Scripted.MultipleRespondersCeaseAndALinkToggleResumes: [FAIL] Scripted.MultipleRespondersCeaseAndALinkToggleResumes: the link toggle did not end the cease
+  ok   bmca-inverted: KILLED by Scripted.BetterAnnounceMakesASlave: [FAIL] Scripted.BetterAnnounceMakesASlave: 10.3.5: priority1 100 is better than 248
+  ok   path-loop-kept: KILLED by Scripted.LoopedPathAndStepsRemoved255AreDiscarded: [FAIL] Scripted.LoopedPathAndStepsRemoved255AreDiscarded: 10.3.9.23: a path holding thisClock was used
+  ok   sync-timeout-500: KILLED by Scripted.SyncReceiptTimeoutAgesTheGrandmaster: [FAIL] Scripted.SyncReceiptTimeoutAgesTheGrandmaster: no Sync for 375 ms did not age the grandmaster
+  ok   sync-any-source: KILLED by Scripted.SyncFromAnotherPortIsIgnored: [FAIL] Scripted.SyncFromAnotherPortIsIgnored: another port's Sync displaced the master's pending Sync
+  ok   linkup-threshold-lost: KILLED by Scripted.FirstPairStepsAtTheLinkUpThreshold: [FAIL] Scripted.FirstPairStepsAtTheLinkUpThreshold: an offset over 20 us at link-up did not step
+  ok   step-sign: KILLED by Scripted.FirstPairStepsAtTheLinkUpThreshold: [FAIL] Scripted.FirstPairStepsAtTheLinkUpThreshold: the step is not the offset, negated
+  ok   p-term-sign: KILLED by Scripted.LockedThresholdSlewsUnder100us: [FAIL] Scripted.LockedThresholdSlewsUnder100us: local ahead: the trim must slow it
+  ok   trim-unclamped: KILLED by Scripted.TrimNeverLeavesTheEnvelope: [FAIL] Scripted.TrimNeverLeavesTheEnvelope: the trim left the 200 ppm envelope
+  ok   slow-loop: KILLED by Net.LockTimeHoldsTheFabricBench: [FAIL] Net.LockTimeHoldsTheFabricBench: the 24th pair's offset is not under 150 ns
+  ok   follow-up-origin-zero: KILLED by Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce: [FAIL] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce: preciseOriginTimestamp is not the Sync's egress stamp
+  ok   resp-t2-zero: KILLED by Scripted.ResponderAnswersWithBothTimestamps: [FAIL] Scripted.ResponderAnswersWithBothTimestamps: requestReceiptTimestamp is not the ingress stamp
+  ok   announce-before-ascapable: KILLED by Scripted.NoAnnounceOrSyncBeforeAsCapable: [FAIL] Scripted.NoAnnounceOrSyncBeforeAsCapable: Announce before asCapable
+  ok   sync-250ms: KILLED by Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce: [FAIL] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce: Milan v1.2 Table 4.1: Sync each 125 ms
+  ok   late-stamp-unpaired: KILLED by Scripted.ResponderTakesAStampThatComesAfterItsFrame: [FAIL] Scripted.ResponderTakesAStampThatComesAfterItsFrame: a stamp read after its frame was never paired
+  ok   slave-timer-stale: KILLED by Net.SlaveLocksToTheGrandmaster: [FAIL] Net.SlaveLocksToTheGrandmaster: not inside 100 ns of the grandmaster by 15 s
+  ok   own-frames-used: KILLED by Scripted.OwnResponseIsIgnored: [FAIL] Scripted.OwnResponseIsIgnored: asCapable from its own responses
+  ok   link-loss-keeps-ascap: KILLED by Scripted.LinkDownClearsAsCapableAtOnce: [FAIL] Scripted.LinkDownClearsAsCapableAtOnce: asCapable came back with the link before any exchange
+== ctrl gPTP planted defects: checks: 25   failures: 0 ==
+RESULT: PASS
