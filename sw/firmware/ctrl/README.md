@@ -62,7 +62,7 @@ core-only unit tests:
 
 | Header | What it is |
 |---|---|
-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d14a6d816a43a49299172a34e3eeaea44c267c6/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
 | [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
 | [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
 | [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/wire.h) | the big-endian wire layer |
@@ -79,6 +79,10 @@ standalone entity generator. The parent keeps its own entity generator; the
 `entity` arm checks every shipping shape against the fabric fields.
 The parent ADP controls exercise truncated, wrong-version and wrong-length
 discovery through the adapter, plus a complete accepted discovery.
+The #970 pin draws an interface's ADP delay as it leaves DOWN, at startup with
+the link up and on LINK_UP, from 0 to 0.5 s, so its first ENTITY_AVAILABLE
+leaves within 1 s of its link-up; `test_adp.cpp` G1 to G5 hold that at every
+link-up of a run of them, with a grandmaster change before and after it.
 The composed `DA_GATE` requires valid destination state and either an answered
 probe younger than 15 seconds or a registered Listener, including Asking Failed.
 The SRP licence remains separate. Idle service ticks refresh probe expiry.

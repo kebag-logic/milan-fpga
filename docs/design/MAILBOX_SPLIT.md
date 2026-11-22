@@ -514,7 +514,7 @@ flowchart TB
   there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
   source and the CPU's interrupt mask enabled) never strands an owed frame.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
-  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h), the
+  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d14a6d816a43a49299172a34e3eeaea44c267c6/include/adp.h), the
   [TSN stack's](../../third_party/tsn-c-stack) since #697) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
   seed. The mailbox adapter maps those onto the driver; a test maps them onto
@@ -530,10 +530,18 @@ channels.
 One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
 1722.1-2021 6.2 ADPDU:
 
-- ENTITY_AVAILABLE on its schedule: a random TMR_DELAY (0 to 2 s at startup
-  with the link up, 5.6.3.5.2; 0 to 4 s otherwise), the frame, then
+- ENTITY_AVAILABLE on its schedule: a random TMR_DELAY, the frame, then
   TMR_ADVERTISE (5 s, 5.6.3.5.9), with available_index incremented after each
-  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING);
+  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING). An interface
+  leaving DOWN, at startup with the link up (5.6.3.5.2) or on LINK_UP
+  (5.6.3.5.3), draws its TMR_DELAY from 0 to 0.5 s, within those clauses'
+  0 to 2 s and 0 to 4 s, so its first ENTITY_AVAILABLE leaves within 1 s of
+  its link-up, inside the entity's declared 6.0 s discovery time (#970). Every
+  other TMR_DELAY (DISCOVER, TMR_ADVERTISE, a grandmaster change in WAITING)
+  is drawn from 0 to 4 s. The first advertise waits for nothing else: not
+  asCapable, not the grandmaster (a GM_CHANGE in DELAY is ignored, Table
+  5.51, and the frame samples the grandmaster when it is built, 6.2.2.16),
+  and no settle timer or debounce of the adapter's (`test_adp.cpp` G1 to G5);
 - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
   (5.6.3.1, 5.6.3.5.4);
 - the re-advertise on a grandmaster change (5.6.3.5.7);
