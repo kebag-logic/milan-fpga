@@ -379,7 +379,11 @@ No reserved message type is interpreted as an AEM command.
 
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
-guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
+guard. `Inputs.*` runs at every tracked configuration (#584; Milan v1.2
+5.3.3.8): each STREAM_PORT_INPUT its AUDIO_UNITs list owns a mono AUDIO_CLUSTER
+and no AUDIO_MAP as READ_DESCRIPTOR serves it, and takes a REMOVE_AUDIO_MAPPINGS
+of a non-empty list; [`aecp_input_mutants.py`](../test/aecp_input_mutants.py)
+plants a headless input port on the wire and a REMOVE that keeps its rows. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
 each source defect to fail its named assertion in a completed run; it appends the
 descriptor index's and the event and registration lists' defects from
 [`aecp_index_mutants.py`](../test/aecp_index_mutants.py), THE RETRY's from

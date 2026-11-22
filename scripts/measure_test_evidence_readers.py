@@ -221,6 +221,11 @@ DUT_READER_DISPOSITIONS = {
         "block, selected per run by a plusarg, and requires each short leg to fail its "
         "named check while the schemata at id 0 and the clean legs pass; no expected "
         "value is read from RTL",
+    "tb/verilator/tdm_render/master_mutants.py":
+        "mutation campaign (#584); it plants one KL_tdm_render_master lane-width defect from "
+        "its own table into a copy, elaborates the copy through the suite's own recipe "
+        "(RM_SRC) and requires the named leg to fail on its words; an unplanted control "
+        "runs first and the tracked source is never edited.",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
         "mutation campaign; it plants one render-lane defect from its own table into "
         "a copy or runs a leg-side defect arm, and requires the named check to fail. "
