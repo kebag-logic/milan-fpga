@@ -63,9 +63,10 @@ struct srp_interface {
     bool discard_prefix;
     bool link_seen;
     bool link;
-    // The level the last LINK the loop dispatched carried, the register's at attach: the poll takes an UP only while
-    // this is up (#973; srp_mbx.c, poll)
-    bool link_carried;
+    // Bit 0 the level the last LINK the loop dispatched carried, the register's at attach; bit 1 set by a poll that
+    // read an UP no LINK carried. The poll takes an UP only while bit 0 is set, or once no LINK is owed after bit 1
+    // was set (#973; srp_mbx.c, carried_up)
+    uint8_t link_carried;
     bool vlan_sent;
     bool domain_owed;
     // A Talker's indication, a declaration or a binding changed what snapshot

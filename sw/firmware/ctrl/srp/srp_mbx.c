@@ -1270,6 +1270,23 @@ static CTRL_CC_NOINLINE int build_mrpdu(struct srp_mbx *m, struct srp_interface 
     return result;
 }
 
+// Whether the UP the LINK register reads is carried (#973): by the last LINK the loop dispatched (bit 0 of
+// link_carried), or by none owed. A poll that reads it uncarried marks it (bit 1), and a later poll takes it if no
+// LINK has come by then and the loop's take in that poll's pass ended on an empty ring (events_left); a LINK's level
+// replaces both bits. Only the loop takes events, and the fabric posts a LINK first of its sources once the ring has
+// room (KL_mbx_evt.sv). So a LINK owed at the marking poll was posted then, if the ring had room, or else as the next
+// take made room, a take that stops at CTRL_LOOP_EVENTS_PER_PASS of the full ring's MBX_EVT_WORDS / MBX_EV_WORDS
+// records; either way a later take that empties the ring takes it. So a re-attach that read a DOWN whose record the
+// fabric then elided, its level back before the record posted, follows the link that is up.
+_Static_assert(CTRL_LOOP_EVENTS_PER_PASS < MBX_EVT_WORDS / MBX_EV_WORDS, "a full event ring outlasts one take");
+static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+{
+    if ((i->link_carried & 1u) == 0u) {
+        i->link_carried = (uint8_t)((i->link_carried >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u);
+    }
+    return (i->link_carried & 1u) != 0u;
+}
+
 static bool poll(void *ctx)
 {
     struct srp_mbx *m = ctx;
@@ -1277,13 +1294,13 @@ static bool poll(void *ctx)
         return false;
     }
     // Each interface's level in this poll (#973): a DOWN as the LINK register reads it, so a link lost while a full
-    // ring holds its LINK record back fails closed at once; an UP only while the last LINK the loop dispatched carried
-    // one (link_carried). The register can rise after the loop took this pass's events, and a reset on that level
-    // would make the LINK the next pass dispatches a repeated UP, which resets the interface again (on_event): a first
-    // UP would lose the clean startup participants it keeps, and a later one would reset the interface twice.
+    // ring holds its LINK record back fails closed at once; an UP only while it is carried (carried_up). The register
+    // can rise after the loop took this pass's events, and a reset on that level would make the LINK the next pass
+    // dispatches a repeated UP, which resets the interface again (on_event): a first UP would lose the clean startup
+    // participants it keeps, and a later one would reset the interface twice.
     bool links[MBX_N_IF];
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
-        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;
+        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);
     }
     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
     const unsigned turn = m->build_turn % MBX_N_IF;

@@ -4,10 +4,11 @@
 the loop dispatched carried (link_carried).
 
 SRP's poll takes a DOWN as the LINK register reads it, and an UP only while the last LINK the loop dispatched carried
-one; attach carries the register's level (srp_mbx.c, poll, on_event, srp_mbx_attach). srp_mutants.py plants each into
-a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on its own words:
-srp_link_pass.cpp's for the level a link that comes up inside a pass shows, srp_mbx.cpp's for the DOWN that fails
-closed and for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
+one, or once no LINK is owed; attach carries the register's level (srp_mbx.c, poll, carried_up, on_event,
+srp_mbx_attach). srp_mutants.py plants each into a copy of sw/firmware/ctrl with the rest of its table, and the named
+test must fail on its own words: srp_link_pass.cpp's for the level a link that comes up inside a pass or behind a full
+event ring shows and for a re-attach whose DOWN record was elided, srp_mbx.cpp's for the DOWN that fails closed and
+for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
 (test_ctrl_firmware.run_srp_mutants), the two-interface campaign at 1x1/2if.
 """
 from __future__ import annotations
@@ -21,7 +22,11 @@ PREFIX = "link-pass-"
 SUITE = "srp_link_pass.cpp"
 INSIDE = "SrpLinkPass.AfterTheEventsBeforeSrpsPoll"
 #: srp_mbx.c's poll, the level it takes for each interface, as it holds it.
-POLL = "        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;\n"
+POLL = "        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);\n"
+#: carried_up's mark and take of an UP no LINK carried.
+UNOWED = "        i->link_carried = (uint8_t)((i->link_carried >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u);\n"
+ELIDED = "Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp"
+HELD = "SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp"
 #: on_event's record of the level a LINK carried, and its first UP, which keeps the startup participants.
 CARRIED = "        i->link_carried = event->link_up;\n"
 FIRST_UP = "        if (i->link_seen || !event->link_up) {\n"
@@ -34,7 +39,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     return (
         # the fix reverted: the poll takes the register's UP, which a LINK has not carried yet, and resets on it; the
         # LINK the next pass dispatches is then a repeated UP, which resets the interface again
-        kind(PREFIX + "poll-takes-the-register", INSIDE, POLL, "        links[n] = mbx_link_up(n);\n",
+        kind(PREFIX + "poll-takes-the-register", INSIDE, POLL,
+             "        links[n] = mbx_link_up(n);\n        (void)carried_up;\n",
              "a first UP resets nothing", suite=SUITE),
         # a double reset at the first UP: attach carries an UP it did not read, so the poll takes the register's
         kind(PREFIX + "attach-carries-an-up", INSIDE, ATTACH, "            m->ifs[n].link_carried = true;\n",
@@ -49,12 +55,30 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         # no LINK's level carried: the poll undoes every UP the loop dispatched
         kind(PREFIX + "carried-never-recorded", "SrpLinkPass.BeforeAPass", CARRIED, "",
              "a first UP resets nothing", suite=SUITE),
-        # attach carries nothing: a link already up when SRP attaches, which no further LINK carries, is lost, and
-        # with it the Talker declarations the reattached interface owes
+        # attach carries nothing: a link already up when SRP attaches, which no further LINK carries, is dropped by
+        # the first poll and taken back only once no LINK is owed, so the interface resets twice and loses the
+        # Listener the reattached interface was offered
         kind(PREFIX + "attach-carries-nothing", "ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord", ATTACH, "",
-             "Value of: talker"),
+             "adapter.ifs[i].active[0]"),
         # the two-hart form taken whole, without the register's LINK its loop reads each pass: a link lost while a full
         # ring holds its record back no longer fails closed
         kind(PREFIX + "down-waits-for-its-record", "LinkLevelLossAndFirstDownEventAreFailClosed", POLL,
-             "        links[n] = m->ifs[n].link_carried;\n", "adapter.ifs[0].active[0]"),
+             "        links[n] = (m->ifs[n].link_carried & 1u) != 0u;\n        (void)carried_up;\n",
+             "adapter.ifs[0].active[0]"),
+        # the register's level ORed with the carried one: a DOWN no longer fails closed
+        kind(PREFIX + "poll-or-instead-of-and", "LinkLevelLossAndFirstDownEventAreFailClosed", POLL,
+             "        links[n] = mbx_link_up(n) || carried_up(m, &m->ifs[n]);\n", "adapter.ifs[0].active[0]"),
+        # an UP no LINK carries never taken: a re-attach whose DOWN record was elided never follows the link that is up
+        kind(PREFIX + "unowed-up-never-taken", ELIDED, UNOWED, "        (void)m;\n        i->link_carried = 2u;\n",
+             "SRP does not follow a link that is up", suite=SUITE),
+        # a double reset: an uncarried UP taken at once, at a poll whose pass's take found the ring empty, though its
+        # LINK was posted after that take
+        kind(PREFIX + "unowed-up-taken-unmarked", INSIDE, UNOWED,
+             "        i->link_carried = (uint8_t)(m->loop->events_left ? 2u : 3u);\n",
+             "SRP's poll reset the interface on a level no LINK had carried", suite=SUITE),
+        # a double reset: an uncarried UP taken at the poll after its mark whatever that pass's take left, though its
+        # LINK still waits behind a full ring's records
+        kind(PREFIX + "unowed-up-ignores-the-take", HELD, UNOWED,
+             "        (void)m;\n        i->link_carried = (uint8_t)(i->link_carried >> 1 | 2u);\n",
+             "SRP took an UP from the register while its LINK waited behind the ring's records", suite=SUITE),
     )
