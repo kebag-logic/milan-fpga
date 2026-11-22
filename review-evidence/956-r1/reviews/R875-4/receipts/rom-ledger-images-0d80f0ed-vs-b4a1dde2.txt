@@ -1,0 +1,101 @@
+# rom, the ledger and the images: 0d80f0ed (its images 8845364d's, round 1's head) against the code head b4a1dde2
+
+## plat_ledger.py (the target platform's split image at every ledgered point)
+base (round 1's head build, 8845364d; nothing between it and 0d80f0ed touches an image source):
+  POINT 1x1-if1: rom 126,472 B, sram 56,736 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+  POINT 1x1-if2: rom 128,072 B, sram 59,040 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19712 B: PASS
+  POINT 8x8-if1: rom 139,248 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+  POINT 8x8-if2: rom 140,824 B, sram 115,504 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+  plat_ledger: PASS (0 finding(s))
+head (b4a1dde2bf3e1ee0849a20a9a85f95955fd3389a dirty 0):
+  POINT 1x1-if1: rom 126,360 B, sram 56,736 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+  POINT 1x1-if2: rom 128,112 B, sram 59,040 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19712 B: PASS
+  POINT 8x8-if1: rom 139,136 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+  POINT 8x8-if2: rom 140,864 B, sram 115,504 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+  plat_ledger: PASS (0 finding(s))
+
+8x8/1if: 34 RAMB36 of rom = 139,264 B; 128 B left at the head (16 at 0d80f0ed).
+
+## The forms on the way (ctrl_plat_image.py, 8x8/1if, on round 1's SoC export and flash map; rom bytes)
+  0d80f0ed: 139,248.
+  The kept due with transmit_aged and the poll reading tx_due and tx_resume as two bytes: REFUSED: allocation over budget: 58.5 RAMB36 (rom 139280 bytes in 141312, sram 98160 bytes in 98304) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface
+    (against 0d80f0ed's srp_mbx.o: poll +8, transmit_aged +8, transmit +12, reset_interface +4)
+  The same with tx_owed read whole, commit 04819246: 139264 (poll and transmit_aged their sizes; 0 B left)
+  With the build's interface 0 at compile time at one interface and the refused slice's due, b4a1dde2: 139136
+
+## Each image's difference (imgdiff.py; the full reports in imgdiff/)
+### plat-1x1-if1
+  inputs that differ by sha256: 1 of 44: 35-srp_mbx.o
+  input sections whose size differs: 35-srp_mbx.o .text.transmit 1236 -> 1120 bytes
+  loadable bytes sha256: base d6b38ba3dd7a5a1b head 54cdf49f80774bcb; whole ELF base d98ca6ab5c6c5da0 head c0b7109f84350641
+    .text PROGBITS addr 0x00000000 size 0x01b9e8 | .text PROGBITS addr 0x00000000 size 0x01b974   <-
+    .rodata PROGBITS addr 0x0001b9e8 size 0x00339e | .rodata PROGBITS addr 0x0001b978 size 0x00339e   <-
+### plat-1x1-if2
+  inputs that differ by sha256: 1 of 44: 35-srp_mbx.o
+  input sections whose size differs: 35-srp_mbx.o .text.transmit 1244 -> 1284 bytes
+  loadable bytes sha256: base 342ea458d81f072f head f94bc378a4e2a8a9; whole ELF base c7f975a5e35e4f67 head 52b1275f1d7d8b02
+    .text PROGBITS addr 0x00000000 size 0x01c030 | .text PROGBITS addr 0x00000000 size 0x01c058   <-
+    .rodata PROGBITS addr 0x0001c030 size 0x003396 | .rodata PROGBITS addr 0x0001c058 size 0x003396   <-
+### plat-8x8-if1
+  inputs that differ by sha256: 1 of 44: 35-srp_mbx.o
+  input sections whose size differs: 35-srp_mbx.o .text.reset_interface 552 -> 556 bytes; 35-srp_mbx.o .text.transmit 1184 -> 1072 bytes
+  loadable bytes sha256: base 7737bf50538865cb head ac160317def8301e; whole ELF base 6b2d35fa9599008c head d54c3120003d8713
+    .text PROGBITS addr 0x00000000 size 0x01b9a4 | .text PROGBITS addr 0x00000000 size 0x01b938   <-
+    .rodata PROGBITS addr 0x0001b9a8 size 0x00643e | .rodata PROGBITS addr 0x0001b938 size 0x00643e   <-
+### plat-8x8-if2
+  inputs that differ by sha256: 1 of 44: 35-srp_mbx.o
+  input sections whose size differs: 35-srp_mbx.o .text.reset_interface 552 -> 556 bytes; 35-srp_mbx.o .text.transmit 1196 -> 1232 bytes
+  loadable bytes sha256: base a1a527c3d829d788 head fd7e2f1de8ef1656; whole ELF base f17908ee6cc05a3e head 53b884edf38bf0f5
+    .text PROGBITS addr 0x00000000 size 0x01bfd4 | .text PROGBITS addr 0x00000000 size 0x01bffc   <-
+    .rodata PROGBITS addr 0x0001bfd8 size 0x006436 | .rodata PROGBITS addr 0x0001c000 size 0x006436   <-
+### fixture-1x1-if1
+  inputs that differ by sha256: 1 of 39: 30-srp_mbx.o
+  input sections whose size differs: 30-srp_mbx.o .text.transmit 1236 -> 1120 bytes
+  loadable bytes sha256: base 8293fd4fa31c42c8 head c1149ad6321f8282; whole ELF base 1677f5be5a89e5a0 head a0338c2c3e380c6f
+    .text PROGBITS addr 0x00000000 size 0x0199e4 | .text PROGBITS addr 0x00000000 size 0x019970   <-
+    .rodata PROGBITS addr 0x000199e8 size 0x003036 | .rodata PROGBITS addr 0x00019970 size 0x003036   <-
+### fixture-1x1-if2
+  inputs that differ by sha256: 1 of 39: 30-srp_mbx.o
+  input sections whose size differs: 30-srp_mbx.o .text.transmit 1244 -> 1284 bytes
+  loadable bytes sha256: base d9b452d591f9801f head 2936b4c4aa8421f1; whole ELF base 00656b215cbccb27 head fb4e82990bcd381d
+    .text PROGBITS addr 0x00000000 size 0x019ffc | .text PROGBITS addr 0x00000000 size 0x01a024   <-
+    .rodata PROGBITS addr 0x0001a000 size 0x00302e | .rodata PROGBITS addr 0x0001a028 size 0x00302e   <-
+### fixture-8x8-if1
+  inputs that differ by sha256: 1 of 39: 30-srp_mbx.o
+  input sections whose size differs: 30-srp_mbx.o .text.reset_interface 552 -> 556 bytes; 30-srp_mbx.o .text.transmit 1184 -> 1072 bytes
+  loadable bytes sha256: base 71bfe8a64951e794 head e58dcc16c834f1ba; whole ELF base 1a99471c8e49d945 head 04b7c59ea30a015c
+    .text PROGBITS addr 0x00000000 size 0x0199b0 | .text PROGBITS addr 0x00000000 size 0x019944   <-
+    .rodata PROGBITS addr 0x000199b0 size 0x00609e | .rodata PROGBITS addr 0x00019948 size 0x00609e   <-
+### fixture-8x8-if2
+  inputs that differ by sha256: 1 of 39: 30-srp_mbx.o
+  input sections whose size differs: 30-srp_mbx.o .text.reset_interface 552 -> 556 bytes; 30-srp_mbx.o .text.transmit 1196 -> 1232 bytes
+  loadable bytes sha256: base 17e894ea33e5edee head b49ca6ae429abf42; whole ELF base b5e2e0ee8a9c28bd head bac08247967edbdf
+    .text PROGBITS addr 0x00000000 size 0x019f9c | .text PROGBITS addr 0x00000000 size 0x019fc4   <-
+    .rodata PROGBITS addr 0x00019fa0 size 0x006096 | .rodata PROGBITS addr 0x00019fc8 size 0x006096   <-
+
+## The CPU budget harness's images, every arm at its three points (build.firmware on build.flash_map, as run.py links
+them before the SoC model), at b4a1dde2: each links within its budget (no refusal in the build's log), sha256:
+  1x1 none a0338c2c3e380c6f08576ee0eedbf7ec523641864d73b4647294912480f74b23
+  1x1 answering-every-port 9b80bb2c5978807ae3503f13f5c4cce2d5e7d62e645eb94812e932b18650a45c
+  1x1 answering-later 91f65fe79d77d6b28d42dbb5482b18848176f8037b88e26d31ef2187763d1b12
+  1x1 answering-ports c55b00e4e4d47e8f618bf31881c7f31d6f7dce190d236e0c491a24a06214e9c9
+  1x1 declaring-outputs 8b7fce1823883f03b6ab6e6a3c51f40dce17c35fc75b937b1bb3719b6486dd57
+  1x1 shutdown-entry a90166b9b6073a55601d1ff678ce4db78b52a06e3e4aa22c766471142f261d9a
+  1x1 talker-notices 7b834e4c7b2a82bba5b5e3baffc11737751047e5d5bdf436502db3393ecdb723
+  1x1 valid-destinations 864b4dccebe5f4724a63dfa6e8b59c1f7d7905e589601dba00b0a4b59c63f0e2
+  8x8-1if none 04b7c59ea30a015ca76e6b8360dd4c92ed3e48ac4445ea9415ff11c197cd4146
+  8x8-1if answering-every-port cf86ffcb6fe784d5698a1c7e3f8725420e4349da3ba29566a8f0d84483ec5c03
+  8x8-1if answering-later 1dcc10c29f62ab7d9e708e0e76a1a9521bc0ec6bebebcd2224f6ad99feee9f22
+  8x8-1if answering-ports f887b2af4a5d0d2c12ede19027d9230271996797b6053c7c4bbf1b2b3c346407
+  8x8-1if declaring-outputs 1366ffb3346ea0bcb0f5a1208fecc977061b8f6640d41aca7383b0622aff1af8
+  8x8-1if shutdown-entry 9260b455d2d11d6885dbb6d7a64f20e731eab6047aee45807a522e79410903c4
+  8x8-1if talker-notices 726b62a58692426cb6b49e317c4e73a9b32dddad932a7663763911533f77602e
+  8x8-1if valid-destinations 44396d894779939615dc4d7fe9d24edf1f0e064fa2102be581e5a5f0559976e5
+  8x8 none bac08247967edbdf1f7a3e63cce850ec9b458a7d529447da1587e2e6dae2bff4
+  8x8 answering-every-port b30173851abd1e49ec1b345ba3b50d45be560345e1f686f1bf83be21d9cf80b7
+  8x8 answering-later e708dbce9078a1da83aafffddb030ddad02478c53ef292b2b88c66a7463c9f92
+  8x8 answering-ports da90634d7fb5fc04a874ed2315102d3e1dcbd69c0b11e738f06d78b27030e182
+  8x8 declaring-outputs 90386ec7a58a8dd017d6fcb02e932241b4232fc950eb987be22e6c0f02179881
+  8x8 shutdown-entry f1bac86187dfbed342216d848faf03d1cb6f31b57212bf4261a0f5cd8e4c964d
+  8x8 talker-notices cbfffdff2b8280a55c24bd5ba11cf32ba6e5f45590c0085ddada063ee7b65620
+  8x8 valid-destinations 0548318f04960d9c3144e2ae1556be71bd3b125cdd68800955678f24de55f1f1

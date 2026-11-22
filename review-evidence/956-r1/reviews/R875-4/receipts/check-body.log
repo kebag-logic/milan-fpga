@@ -1,0 +1,74 @@
+== head
+1825ba4eaccfe40788391b7af5533fae8c910a85
+450fc60a4ae5c1259afe9b487d5593e31e8fa8ee
+0
+live PR head 1825ba4eaccfe40788391b7af5533fae8c910a85 draft False updated 2026-11-22T03:20:51Z
+== receipt sha256 against evidence MANIFEST.json
+cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md MATCH b29435c162971895683f6b543a23a56b537e641fa0e2314d91a98566d12d7366
+cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md MATCH 3372d852c40793ca7e2cb9a66fd8130153c8a700a1874de5bec4fec2bf334cae
+rom-ledger-images-0d80f0ed-vs-b4a1dde2.txt MATCH 7456a9380a42541db598ad81f62fde6598e15115eecf04823cf88423010ce9ec
+== rom (receipt)
+7:  POINT 8x8-if1: rom 139,248 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+13:  POINT 8x8-if1: rom 139,136 B, sram 98,160 B, 58 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: PASS
+17:8x8/1if: 34 RAMB36 of rom = 139,264 B; 128 B left at the head (16 at 0d80f0ed).
+24:  With the build's interface 0 at compile time at one interface and the refused slice's due, b4a1dde2: 139136
+== cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md: named costs
+ build_one | 53,168 | 52,531 | 555 | 735 | within 
+ centisecond | 16,064 | 14,213 | 150 | 170 | within 
+ item.acmp_declined | 1,476 | 1,476 | 20 | 20 | within 
+ record.maap | 10,001 | 9,981 | 105 | 115 | within 
+ record.srp | 24,266 | 23,874 | 255 | 285 | within 
+== cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md: every stated-cost row whose head rule equals its statement (nonzero)
+ item.acmp_declined | 1,476 |20|20
+== cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md: compare-long
+probes: base 50, head 50, paired 50, only base 0, only head 0
+misses each side: base 7, head 7
+probes: base 14, head 14, paired 14, only base 0, only head 0
+misses each side: base 0, head 0
+probes: base 7, head 7, paired 7, only base 0, only head 0
+misses each side: base 0, head 0
+66 head rows, 0 not within; 66 base rows
+item.aecp_long (the polls): 29,554 CPU cycles, 315 us by the rule, against aecp_long 315 us at 1x1/1if: within; none/aecp-largest-notice
+# 0 exceeded
+== cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md: named costs
+ build_one | 125,209 | 126,644 | 1330 | 1475 | within 
+ centisecond | 27,966 | 24,469 | 260 | 510 | within 
+ item.acmp_declined | 2,386 | 2,386 | 30 | 30 | within 
+ record.maap | 17,259 | 17,014 | 180 | 185 | within 
+ record.srp | 35,273 | 35,507 | 375 | 375 | within 
+== cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md: every stated-cost row whose head rule equals its statement (nonzero)
+ item.acmp_declined | 2,386 |30|30
+ record.srp | 35,507 |375|375
+== cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md: compare-long
+probes: base 45, head 45, paired 45, only base 0, only head 0
+misses each side: base 7, head 7
+probes: base 36, head 36, paired 36, only base 0, only head 0
+misses each side: base 0, head 0
+probes: base 14, head 14, paired 14, only base 0, only head 0
+misses each side: base 0, head 0
+66 head rows, 0 not within; 66 base rows
+# 0 exceeded
+== live body: limitation and status lines naming the costs
+43:  - rom: 126,360 / 128,112 / 139,136 / 140,864 B at 1x1/1if, 1x1/2if, 8x8/1if and 8x8/2if.
+58:    - `centisecond` is 14,213 cycles, 150 of 170 us.
+59:    - `item.acmp_declined` sits at its statement, 20 of 20 us, as before.
+62:    - Two sit at their statement by the rule: `item.acmp_declined`, 30 of 30 us as before, and `record.srp`, 35,507 cycles in `srp-talker-held`, 375 of 375 us (35,273 before, also 375).
+63:    - `record.maap` is 17,014 cycles, 180 of 185 us (185 of 185 before).
+76:Internal cleared-context reviewer: R875
+77:External reviewer: R876
+95:it. On the model's wire, with the request on a centisecond, it is declared at 29,770 ms (1x1/1if) and 29,700 ms
+121:| `sw/firmware/ctrl/test/srp_talker.cpp` | the hold-off tests restated: declared (TALKER_DECL) exactly at two longest periods less both terms after an aligned request, never sooner, on the wire by the two periods, at the latest too (`...AtTheLatest` replaces `...AfterTheLatestLeave`), the destination change while valid and the reset case; `ListenerRegistrationChangeIsNoticed` (new); round 2: the latest case with the join timer running, `EveryPhase/TalkerPhase.*` (every centisecond of a second, held and serviced) and `ListenerRegistrationAfterAResetIsNoticed`, at 1x1/1if, 8x8/1if (a new arm, `srp_arms.py`) and 8x8/2if |
+129:| `tb/verilator/ctrl_service_budget/load_grade.py` | 8x8/1if's own `record.maap` restated 180 to 185 us by the rule, its measurement recorded |
+148:  - At one interface the build's interface is 0 at compile time, as it always was there, which leaves 8x8/1if's `rom` 112 B
+150:  - At every withdrawal phase, each centisecond of a second, with the loop held or serviced, the changed destination
+163:  - `talker-hold-off-a-centisecond-short`: "TALKER_DECL holds a changed destination withdrawn while it waits".
+199:leaves 139,136 B, 128 left. No budget moved.
+253:  - `item.acmp_declined`: 1,476 cycles, 20 of 20 us at 1x1/1if; 2,386 cycles, 30 of 30 us at 8x8/1if.
+254:  - `record.srp` at 8x8/1if: 35,507 cycles, 375 of 375 us.
+258:  The others the change reaches are below their statements: `centisecond` at 1x1/1if 14,213 cycles, 150 of 170 us;
+259:  `record.maap` at 8x8/1if 17,014 cycles, 180 of 185 us. (Round 1's head had `centisecond` 16,064 cycles at 170 of
+260:  170 us, `record.srp` 35,273 and `record.maap` 17,259 at 185 of 185: history, superseded.) The full re-measure
+262:- **The rom at 8x8/1if** has 128 bytes left: the aligned `rom_end` is 139,136 of its ledgered 139,264 B (58 RAMB36 in
+271:- **#956's lower bound** holds from a Leave request made on a centisecond. A request mid-centisecond makes the count's
+272:  first centisecond partial, so the count can end up to 1 cs sooner (#895's mechanism, unchanged).
+283:- [ ] Internal cleared-context review is positive

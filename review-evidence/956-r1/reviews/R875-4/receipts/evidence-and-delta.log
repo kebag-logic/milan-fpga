@@ -1,0 +1,29 @@
+== evidence tree 362a3039 blob ids vs local copies
+ea119f0ffe05e028e91ac9f15330fc1db766418e review-evidence/956-r1/author-r2/receipts/cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md
+d6ad8a79f9909f25b3dbd936109ce74f636e677c review-evidence/956-r1/author-r2/receipts/cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md
+4e493fd45e0af8d6ac3a403b7cdfd975b22af655 review-evidence/956-r1/author-r2/receipts/rom-ledger-images-0d80f0ed-vs-b4a1dde2.txt
+MANIFEST.json BLOB MISMATCH 75b0e7cecd008fc7fb8783cf2d061b5cc2094538
+cpu-1x1-legs-0d80f0ed-vs-b4a1dde2.md BLOB MATCH ea119f0ffe05e028e91ac9f15330fc1db766418e
+cpu-8x8-1if-legs-0d80f0ed-vs-b4a1dde2.md BLOB MATCH d6ad8a79f9909f25b3dbd936109ce74f636e677c
+rom-ledger-images-0d80f0ed-vs-b4a1dde2.txt BLOB MATCH 4e493fd45e0af8d6ac3a403b7cdfd975b22af655
+== body delta since R875-3 (sha256 56143d39...)
+66c66
+< - The reviewers' probes at `b4a1dde2`: see each finding above.
+---
+> - The reviewers' probes at `b4a1dde2`: pass; each is listed with its finding in the round's `[A809] REVIEW READY` on #956.
+148,149c148,149
+<   - At one interface the build's interface is 0 at compile time, as it always was there, which gives back 112 B of
+<     8x8/1if's `rom`.
+---
+>   - At one interface the build's interface is 0 at compile time, as it always was there, which leaves 8x8/1if's `rom` 112 B
+>     smaller than at round 1's head (128 B smaller than at `04819246`).
+253c253
+<   - `item.acmp_declined` at 1x1/1if and at 8x8/1if: 30 of 30 us.
+---
+>   - `item.acmp_declined`: 1,476 cycles, 20 of 20 us at 1x1/1if; 2,386 cycles, 30 of 30 us at 8x8/1if.
+255a256,257
+>   `item.aecp_long` at 1x1/1if (29,554 cycles, 315 of 315 us) also sits at its statement, but it is the largest
+>   legal notice by construction, so no group not run can push it over; it is not counted among the three.
+287a290
+> 
+== MANIFEST.json path correction: it sits at review-evidence/956-r1/MANIFEST.json, blob 75b0e7cecd008fc7fb8783cf2d061b5cc2094538; local git hash-object 75b0e7cecd008fc7fb8783cf2d061b5cc2094538: BLOB MATCH
