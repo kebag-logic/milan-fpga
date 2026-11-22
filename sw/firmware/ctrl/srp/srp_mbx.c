@@ -26,7 +26,7 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 // held_count counts the StreamIDs held (#925, srp_held).
 _Static_assert(SRP_HELD_STREAMS <= 255u, "held_count counts every StreamID held");
 // The pool's fixed blocks fund the kept Talkers beside the Domain's and the default VID's (#969, srp_mbx.h).
-_Static_assert(SRP_KEPT_TALKERS + SRP_POOL_DOMAIN_BLOCKS <= SRP_POOL_FIXED_BLOCKS, "the fixed blocks fund the kept Talkers");
+_Static_assert(SRP_KEPT_TALKERS + SRP_POOL_DOMAIN_BLOCKS <= SRP_POOL_FIXED_BLOCKS, "the fixed blocks fund the kept");
 // kept_count counts an interface's kept Talker attributes, each a block of the pool (#969, srp_mbx.h).
 _Static_assert(SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS <= 255u, "kept_count counts every kept attribute");
 
@@ -484,8 +484,8 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     // lwSRP doc/integrator.md:321-323 and mrp.h:288-290 forbid reentry.
     // Observe the previous complete event from copied indication data only.
     // Atomic replacement stays continuous; Lv then New remains two events.
-    // Only a bound Talker's indication changes what listener_kind reads, and it marks the interface stale (talker_changed),
-    // which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with its capture made, so
+    // Only a bound Talker's indication changes what listener_kind reads, and it marks the interface stale
+    // (talker_changed), which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with its capture made, so
     // while the interface is not stale the previous event changed no sink and this pass would change nothing: it runs
     // from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3).
     const unsigned sinks = i->stale ? CTRL_SRP_SINKS : 0u;
