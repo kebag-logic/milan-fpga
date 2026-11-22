@@ -191,6 +191,11 @@ CLUSTER_POLICIES = ("cap-at-interface", "cluster-per-stream-channel",
 #:              clone), so no input cluster is named for it.
 CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback", "unrouted")
 
+#: audio_interface.cluster_mapping.render_ports (#584): which STREAM_PORT_INPUTs
+#: own the physical render channels under role-pools. `every` is D8's model and
+#: the default; `first` binds them in order to the first input ports' clusters.
+RENDER_PORTS = ("every", "first")
+
 #: role -> AUDIO_CLUSTER object_name template (D10). {n} is the index WITHIN
 #: the role segment; the physical/virtual names carry the interface label so
 #: "TDM16 In 3" reads as the wire it is.
@@ -1586,12 +1591,15 @@ class ClusterRules:
       lb_backed       does THIS build elaborate the rx -> talker LOOP bucket
                       (task #65), so a loopback cluster may be a power-on
                       source.
+      render_ports    which input ports own the physical render channels
+                      (#584): `every` (D8) or `first` (bound in order).
     """
     policy: str
     iface_channels: int
     phys: dict = None
     pools: dict = None
     lb_backed: bool = True
+    render_ports: str = "every"
 
 
 def _cluster_widths(rules):
@@ -1646,11 +1654,13 @@ def _role_pool(rules, direction, port_index, widths, render_from=0):
     """D8 pools. Order is fixed so base_cluster arithmetic is readable:
     physical, then (talker ports only) pilot and loopback.
 
-    THE PHYSICAL RENDER CHANNELS BIND IN ORDER ACROSS THE INPUT PORTS (#584),
-    the wire-truth rule D2 states per direction: `render_from` is how many
-    the earlier input ports took, so a channel is owned by one cluster and
-    its render key is never the projection of two. A single-listener shape
-    (the 1x1) is unchanged: its port 0 takes them all.
+    WHICH INPUT PORTS OWN THE PHYSICAL RENDER CHANNELS is the config's
+    `render_ports` (#584). Under `every` (D8, the default) each input port
+    carries all of them. Under `first` they bind in order across the input
+    ports, the wire-truth rule D2 states per direction: `render_from` is how
+    many the earlier input ports took, so a channel is owned by one cluster
+    and its render key is never the projection of two. A single-listener
+    shape (the 1x1) is the same under both: its port 0 takes them all.
 
     An input port left with none owns ONE `unrouted` mono cluster: Milan
     v1.2 5.3.3.8 asks for a cluster, not a jack, and the cluster's name and
@@ -1658,6 +1668,8 @@ def _role_pool(rules, direction, port_index, widths, render_from=0):
     ph_render, ph_capture = widths
     pools = rules.pools or {}
     segs, off = [], 0
+    if rules.render_ports != "first":
+        render_from = 0
     if direction == "input":
         roles = (("physical", max(0, ph_render - render_from)),)
     else:
@@ -3673,6 +3685,12 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
             "pilot": bool(i["cluster_pools"].get("pilot", False)),
             "loopback": int(i["cluster_pools"].get("loopback", 0)),
         }
+        # #584: which input ports own the physical render clusters is model
+        # shape (#495: what the generator decides about the descriptors is
+        # hashed). CONDITIONAL, so a config that declares no binding hashes
+        # exactly as before.
+        if "cluster_render_ports" in i:
+            shape["cluster_pools"]["render_ports"] = i["cluster_render_ports"]
     return shape
 
 
@@ -4429,6 +4447,21 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
             "audio_interface.cluster_mapping.fabric is only read by the "
             f"role-pools policy; this config selects '{policy}'")
     lb_lane = bool(fab.get("loopback_lane", False))
+    # #584: WHICH STREAM_PORT_INPUTs OWN THE PHYSICAL RENDER CHANNELS. `every`
+    # (D8, the default) gives each port its own copy of them, so a render key
+    # is the projection of one cluster per port and the last edit drives it;
+    # `first` binds them in order to the first input ports' clusters (D2's
+    # wire-truth rule), so each render key is the projection of ONE cluster.
+    render_ports = cm.get("render_ports")
+    if render_ports is not None:
+        if render_ports not in RENDER_PORTS:
+            raise ConfigError(
+                f"audio_interface.cluster_mapping.render_ports "
+                f"{render_ports!r} not in {RENDER_PORTS}")
+        if policy != "role-pools":
+            raise ConfigError(
+                "audio_interface.cluster_mapping.render_ports is only read by "
+                f"the role-pools policy; this config selects '{policy}'")
     if lb_lane and not int(pools.get("loopback", 0)):
         raise ConfigError(
             "cluster_mapping.fabric.loopback_lane is set but pools.loopback "
@@ -4439,7 +4472,7 @@ def _load_cluster_pools(aif, iinfo, kind, policy):
     # of every stream port; loopback/physical names are role-prefixed.
     # 1722.1-2021 6.2.2.8 excludes object_name from the model
     # shape, so names never move a hash-derived entity_model_id.
-    return phys, pools, lb_lane
+    return phys, pools, lb_lane, render_ports
 
 
 def _load_channel_names(aif, phys):
@@ -4487,7 +4520,8 @@ def _load_interface(cfg, path, clocking):
     # (every existing config keeps exactly the roles it had), but a platform
     # that routes no audio pins says so HERE rather than letting the model
     # advertise a pool the fabric cannot back - see CLUSTER_ROLES.
-    phys, pools, lb_lane = _load_cluster_pools(aif, iinfo, kind, policy)
+    phys, pools, lb_lane, render_ports = _load_cluster_pools(
+        aif, iinfo, kind, policy)
     names = _load_channel_names(aif, phys)
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
@@ -4496,6 +4530,10 @@ def _load_interface(cfg, path, clocking):
         channel_names=names,
         cluster_fabric=dict(loopback_lane=lb_lane),
     )
+    # #584: carried only when declared, so a config that states no binding
+    # derives exactly what it derived before
+    if render_ports is not None:
+        interface["cluster_render_ports"] = render_ports
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
     # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
     # PLL cannot produce it would emit a KL_aes3_tx that transmits at the
@@ -4713,7 +4751,8 @@ def load_config(path: str) -> dict[str, Any]:
         listeners, talkers,
         ClusterRules(
             policy, interface["channels"], phys=phys, pools=pools,
-            lb_backed=interface["cluster_fabric"]["loopback_lane"]))
+            lb_backed=interface["cluster_fabric"]["loopback_lane"],
+            render_ports=interface.get("cluster_render_ports", "every")))
 
     # entity_model_id resolution: pin > hash-derived > literal. The vendor OUI
     # (schema 1.2) prefixes the hash; a pin or a literal is a whole EUI-64 and

@@ -219,6 +219,15 @@ audio_interface:
                                      # no projection. Was 0 (2026-07-28), when
                                      # the board had no TDM header.
   cluster_mapping:
+    render_ports: first              # #584: the physical render channels
+                                     # bind in order to the FIRST input
+                                     # ports' clusters, so the one render
+                                     # channel above is STREAM_PORT_INPUT 0's
+                                     # cluster alone and its render key is
+                                     # never the projection of two clusters
+                                     # (D8's default, `every`, gives every
+                                     # port its own copy). A port it does not
+                                     # reach owns one "Unrouted S<p>" cluster.
     policy: role-pools               # D8: the port's cluster block is a
                                      # role-tagged POOL, not a copy of the
                                      # stream's channel count. Widths come
