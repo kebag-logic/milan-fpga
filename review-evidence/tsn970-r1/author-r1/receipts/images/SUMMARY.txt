@@ -1,0 +1,21 @@
+# the image pairs, base dd163e41 against head b000faa5: differing inputs, sized sections, the relinks, the canonical listings
+budget-1x1-none | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-1x1-answering-every-port | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-1x1-answering-ports | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-1x1-valid-destinations | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-1if-none | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-1if-answering-every-port | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-1if-answering-ports | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-1if-valid-destinations | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-none | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-answering-every-port | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-answering-ports | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+budget-8x8-valid-destinations | inputs differing:  | sized:  | relinks equal to built: 0/2 | canonical:  | lines:  | rc 1
+platform-1x1-if1 | inputs differing: 1 of 44: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 34435 base lines, 34436 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+fixture-1x1-if1 | inputs differing: 1 of 39: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 31966 base lines, 31967 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+platform-1x1-if2 | inputs differing: 1 of 44: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 34840 base lines, 34841 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+fixture-1x1-if2 | inputs differing: 1 of 39: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 32359 base lines, 32360 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+platform-8x8-if1 | inputs differing: 1 of 44: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 37635 base lines, 37636 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+fixture-8x8-if1 | inputs differing: 1 of 39: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 35159 base lines, 35160 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+platform-8x8-if2 | inputs differing: 1 of 44: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 38034 base lines, 38035 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0
+fixture-8x8-if2 | inputs differing: 1 of 39: 5-adp.o | sized: 5-adp.o .text.enter_delay 176 -> 180 bytes | relinks equal to built: 2/2 | canonical: 35539 base lines, 35540 head lines, 5 differ | lines: + andi a3,a1,-3;- addi a5,zero,2000;+ addi a5,zero,500;- addi a1,zero,2;+ addi a1,zero,3; | rc 0

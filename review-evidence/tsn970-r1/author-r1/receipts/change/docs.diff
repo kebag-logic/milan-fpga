@@ -1,0 +1,139 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 571254dea2..a512d6cd10 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - first advertisement after link-up](#unreleased---first-advertisement-after-link-up)** -- Within one second.
+ - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+ - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+ - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@ -58,6 +59,16 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - first advertisement after link-up
++
++- #970: a link-up's first ENTITY_AVAILABLE leaves within 1 s.
++- It was up to 4 s after LINK_UP.
++- Its delay is now 0 to 0.5 s.
++- Startup with the link up draws the same range.
++- Every other ADP delay stays 0 to 4 s.
++- A grandmaster change still re-advertises.
++- The tsn-c-stack pin moves to `5d14a6d8`.
++
+ ## Unreleased - the Mark II split ships
+ 
+ - #665 S13 flips the AX7101 configs to the split.
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 84282f90a1..8b1ea35182 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -514,7 +514,7 @@ flowchart TB
+   there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
+   source and the CPU's interrupt mask enabled) never strands an owed frame.
+ - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
+-  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h), the
++  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d14a6d816a43a49299172a34e3eeaea44c267c6/include/adp.h), the
+   [TSN stack's](../../third_party/tsn-c-stack) since #697) knows no mailbox: it calls a
+   send port, one timer per interface, the gPTP pair, the link level and a
+   seed. The mailbox adapter maps those onto the driver; a test maps them onto
+@@ -530,10 +530,18 @@ channels.
+ One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
+ 1722.1-2021 6.2 ADPDU:
+ 
+-- ENTITY_AVAILABLE on its schedule: a random TMR_DELAY (0 to 2 s at startup
+-  with the link up, 5.6.3.5.2; 0 to 4 s otherwise), the frame, then
++- ENTITY_AVAILABLE on its schedule: a random TMR_DELAY, the frame, then
+   TMR_ADVERTISE (5 s, 5.6.3.5.9), with available_index incremented after each
+-  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING);
++  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING). An interface
++  leaving DOWN, at startup with the link up (5.6.3.5.2) or on LINK_UP
++  (5.6.3.5.3), draws its TMR_DELAY from 0 to 0.5 s, within those clauses'
++  0 to 2 s and 0 to 4 s, so its first ENTITY_AVAILABLE leaves within 1 s of
++  its link-up, inside the entity's declared 6.0 s discovery time (#970). Every
++  other TMR_DELAY (DISCOVER, TMR_ADVERTISE, a grandmaster change in WAITING)
++  is drawn from 0 to 4 s. The first advertise waits for nothing else: not
++  asCapable, not the grandmaster (a GM_CHANGE in DELAY is ignored, Table
++  5.51, and the frame samples the grandmaster when it is built, 6.2.2.16),
++  and no settle timer or debounce of the adapter's (`test_adp.cpp` G1 to G5);
+ - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
+   (5.6.3.1, 5.6.3.5.4);
+ - the re-advertise on a grandmaster change (5.6.3.5.7);
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 4627959e6f..add6d9786a 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -412,8 +412,8 @@ Their transition service has the same project bound.
+ 
+ | Moved path | Normative timing and source | Derivation: related interval and 10% ceiling | Additional normative obligation |
+ |---|---|---|---|
+-| ADP startup AVAILABLE | Milan v1.2 5.6.3.5.2: random delay 0 to 2 s | 2 s random-window extent gives 200 ms; the bound is `T_svc=20 ms`. Zero draws are serviced immediately, never treated as a positive interval | Preserve the selected draw and startup state |
+-| ADP DISCOVER, GM_CHANGE, LINK_UP and periodic AVAILABLE | Milan v1.2 5.6.3.5.3/.4/.5/.7/.9 and Table 5.50: 0 to 4 s random delay; fixed 5 s advertise timer. Milan 5.6.2: `valid_time=10`; IEEE 1722.1-2021 6.2.2.5: two-second units, hence 20 s validity | min(4 s, 5 s, 20 s) x 10% = 400 ms. For the whole ADP function, startup tightens this to 200 ms | Apply Table 5.51; a DISCOVER or GM change in DELAY does not restart it. Advertisement and discovery aging are separate timers |
++| ADP startup AVAILABLE | Milan v1.2 5.6.3.5.2: random delay 0 to 2 s; the split draws 0 to 0.5 s of it (#970) | 2 s random-window extent gives 200 ms, the split's 0.5 s 50 ms; the bound is `T_svc=20 ms`. Zero draws are serviced immediately, never treated as a positive interval | Preserve the selected draw and startup state |
++| ADP DISCOVER, GM_CHANGE, LINK_UP and periodic AVAILABLE | Milan v1.2 5.6.3.5.3/.4/.5/.7/.9 and Table 5.50: 0 to 4 s random delay, of which the split's LINK_UP draws 0 to 0.5 s (#970); fixed 5 s advertise timer. Milan 5.6.2: `valid_time=10`; IEEE 1722.1-2021 6.2.2.5: two-second units, hence 20 s validity | min(4 s, 5 s, 20 s) x 10% = 400 ms. For the whole ADP function, startup tightens this to 200 ms, and the split's 0.5 s startup and LINK_UP draws to 50 ms, still above ADP's 30 ms row bound, which does not move | Apply Table 5.51; a DISCOVER or GM change in DELAY does not restart it. Advertisement and discovery aging are separate timers |
+ | ADP SHUTDOWN to DEPARTING | Milan v1.2 5.6.3.5.8/.11 requires transmission, without a numeric shutdown-response maximum | Related ADP minimum positive window extent is 2 s, giving 200 ms. The 20 ms service bound, T_svc, is project policy | Stop the applicable timer and send DEPARTING. Preserve its order before a restart's AVAILABLE |
+ | Listener ADP AVAILABLE, DEPARTING and discovery aging | Milan v1.2 5.6.4.1, Table 5.54 and 5.6.4.5.1-.4: process each matching bound sink; arm/reset TMR_NO_ADP from received `valid_time`. IEEE 1722.1-2021 6.2.2.5: two-second units; Milan 5.6.2 sends 10, hence 20 s | Milan validity 20 s gives 2 s; the minimum legal received validity is 2 s, giving 200 ms (also the related ADP startup ceiling). A resulting ACMP action uses the tighter 200 ms transaction interval (Milan 5.5.2.3, Table 5.26), giving 20 ms, equal to T_svc. The same 20 ms bound covers reception or original expiry through discovery and connection commitments, including any resulting TX commit | Preserve received validity, interface/GM/domain guards and restart event ordering. Record normative connection waits separately; do not restart the service allowance at discovery-to-connection handoff |
+ | ACMP PROBE_TX, GET_TX_STATE, BIND_RX, UNBIND_RX, GET_RX_STATE | Milan v1.2 5.5.2.3, Table 5.26: each transaction times out at 200 ms, replacing the applicable IEEE 1722.1-2021 Table 8-1 value | 200 ms x 10% = 20 ms, equal to T_svc; service <= 20 ms. The complete command transaction must finish inside 200 ms with measured margin | A retry cannot enlarge one attempt's timeout; delayed probe/backoff events retain Milan 5.5.3 timers |
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index a8780e5de1..ffb760aded 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
+ | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+-| `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
++| `third_party/tsn-c-stack` | `5d14a6d816a43a49299172a34e3eeaea44c267c6` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+ 
+@@ -983,6 +983,22 @@ Issue #665 adopts stack pin `715589c1`.
+ | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
+ | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
+ 
++Issue #970 moves the pin to `5d14a6d8`.
++
++It adds two commits to `715589c1`.
++
++Leaving DOWN, an interface draws 0 to 500 ms.
++
++That covers startup with the link up and LINK_UP.
++
++Its first ENTITY_AVAILABLE leaves within 1 s.
++
++Other ADP delays are still 0 to 4 s.
++
++Stack changes arrive only through the stack's own review.
++
++The pin then moves to that merge.
++
+ Parent adapter tests exercise every ADP refusal and valid discovery.
+ 
+ The mailbox publishes the stack declaration predicate as `DA_GATE`.
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 2c7633f38c..141cbf599e 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -62,7 +62,7 @@ core-only unit tests:
+ 
+ | Header | What it is |
+ |---|---|
+-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
++| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/5d14a6d816a43a49299172a34e3eeaea44c267c6/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+ | [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+ | [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+ | [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/wire.h) | the big-endian wire layer |
+@@ -79,6 +79,10 @@ standalone entity generator. The parent keeps its own entity generator; the
+ `entity` arm checks every shipping shape against the fabric fields.
+ The parent ADP controls exercise truncated, wrong-version and wrong-length
+ discovery through the adapter, plus a complete accepted discovery.
++The #970 pin draws an interface's ADP delay as it leaves DOWN, at startup with
++the link up and on LINK_UP, from 0 to 0.5 s, so its first ENTITY_AVAILABLE
++leaves within 1 s of its link-up; `test_adp.cpp` G1 to G5 hold that at every
++link-up of a run of them, with a grandmaster change before and after it.
+ The composed `DA_GATE` requires valid destination state and either an answered
+ probe younger than 15 seconds or a registered Listener, including Asking Failed.
+ The SRP licence remains separate. Idle service ticks refresh probe expiry.

@@ -1,0 +1,22 @@
+# clang-tidy at 7e03f71: the finding 5d14a6d8 fixes
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+<scratch>/stack/ci/src/src/adp.c:56:32: error: repeated branch body in conditional chain [bugprone-branch-clone,-warnings-as-errors]
+   56 |         if (kind == ADP_DRAW_STARTUP) {
+      |                                       ^
+<scratch>/stack/ci/src/src/adp.c:58:3: note: end of the original
+   58 |         } else if (kind == ADP_DRAW_LINK_UP) {
+      |          ^
+<scratch>/stack/ci/src/src/adp.c:58:39: note: clone 1 starts here
+   58 |         } else if (kind == ADP_DRAW_LINK_UP) {
+      |                                              ^
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+1 warning treated as error
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.

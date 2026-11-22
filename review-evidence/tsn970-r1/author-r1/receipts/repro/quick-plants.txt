@@ -1,0 +1,20 @@
+# plants.py: the new and restated ADP plants, each graded as the gate grades it (a quick subset before the gate)
+[ok] mutant gm-change-ignored (walk, adp): 10 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+[ok] mutant link-up-draws-startup-kind (walk): 1 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..0.5 s LINK_UP kind
+[ok] mutant draw-kinds-merged (adp): 9 check(s) failed
+    first: [FAIL] AdpCore.A0toA2Schedule: A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)
+[ok] mutant link-up-draws-the-delay-kind (adp, adp, walk): 17 check(s) failed
+    first: [FAIL] AdpCore.A0toA2Schedule: A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)
+[ok] mutant startup-range-two-seconds (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)
+[ok] mutant gm-change-in-delay-restarts-the-delay (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] mutant every-draw-the-first-range (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the kinds are distinct: the 0..4 s draws pass 0.5 s
+[ok] mutant first-delays-not-drawn (adp, adp): 14 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 and each reaches near its maximum
+[ok] mutant link-loss-resets-the-index (adp): 1 check(s) failed
+    first: [FAIL] AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+mutants: 9 of 9 caught

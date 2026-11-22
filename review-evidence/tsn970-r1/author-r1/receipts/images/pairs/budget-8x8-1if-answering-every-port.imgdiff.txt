@@ -1,0 +1,15 @@
+# image diff: base answering-every-port/image against head (same point)
+Traceback (most recent call last):
+  File "<scratch>/bin/t/imgdiff.py", line 149, in <module>
+    bl, hl = loads(base), loads(head)
+             ~~~~~^^^^^^
+  File "<scratch>/bin/t/imgdiff.py", line 30, in loads
+    return [Path(l.split(None, 1)[1].strip()) for l in (d / 'ctrl_app.map').read_text().splitlines()
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/img/budget-base/8x8-1if/answering-every-port/image/ctrl_app.map'

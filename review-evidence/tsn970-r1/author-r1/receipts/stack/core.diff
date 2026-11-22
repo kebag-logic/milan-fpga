@@ -1,0 +1,50 @@
+diff --git a/include/adp.h b/include/adp.h
+index e57db29..055d96d 100644
+--- a/include/adp.h
++++ b/include/adp.h
+@@ -84,7 +84,8 @@ extern "C" {
+ #define ADP_VALID_TIME 10u              // Milan v1.2 5.6.2
+ #define ADP_ADVERTISE_MS 5000u          // Milan v1.2 Table 5.50
+ #define ADP_DELAY_MAX_MS 4000u          // Milan v1.2 Table 5.50
+-#define ADP_DELAY_STARTUP_MAX_MS 2000u  // Milan v1.2 5.6.3.5.2
++#define ADP_DELAY_STARTUP_MAX_MS 500u   // Milan v1.2 5.6.3.5.2
++#define ADP_DELAY_LINK_UP_MAX_MS 500u   // Milan v1.2 5.6.3.5.3
+ #define ADP_DEPARTING_OWED_MAX 2u
+ 
+ // IEEE 1722.1-2021 Table 6-1
+@@ -112,6 +113,7 @@ enum adp_draw {
+ 	ADP_DRAW_NONE = 0,
+ 	ADP_DRAW_STARTUP,       // Milan v1.2 5.6.3.5.2
+ 	ADP_DRAW_DELAY,
++	ADP_DRAW_LINK_UP,       // Milan v1.2 5.6.3.5.3
+ };
+ 
+ 
+diff --git a/src/adp.c b/src/adp.c
+index 764396c..72f9203 100644
+--- a/src/adp.c
++++ b/src/adp.c
+@@ -52,7 +52,13 @@ static uint32_t rng_next(struct adp *a)
+ 
+ static uint32_t draw_ms(struct adp *a, enum adp_draw kind)
+ {
+-	uint32_t max_ms = kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS;
++	uint32_t max_ms = ADP_DELAY_MAX_MS;
++	if (kind == ADP_DRAW_STARTUP) {
++		max_ms = ADP_DELAY_STARTUP_MAX_MS;
++	}
++	if (kind == ADP_DRAW_LINK_UP) {
++		max_ms = ADP_DELAY_LINK_UP_MAX_MS;
++	}
+ 	uint32_t r16 = rng_next(a) >> 16;
+ 	uint32_t ms = (r16 * (max_ms + 1u)) >> 16;
+ 	a->draws++;
+@@ -256,7 +262,7 @@ void adp_link_change(struct adp *a, bool up)
+ 	}
+ 	if (up) {
+ 		if (a->state == ADP_STATE_DOWN) {
+-			enter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3
++			enter_delay(a, ADP_DRAW_LINK_UP);               // Milan v1.2 5.6.3.5.3
+ 		}
+ 		return;
+ 	}

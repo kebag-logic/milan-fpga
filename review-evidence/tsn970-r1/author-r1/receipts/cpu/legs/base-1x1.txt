@@ -1,0 +1,27 @@
+[unit milan-970-a820-leg-base-1x1 cpus 0-7 start 11:52:43]
+HEAD dd163e41 point 1x1 variant none groups adp-link,adp-gm,adp-discover,adp-advertise,control,backlog-adp,backlog-adp-refill,aecp,datapath-events jobs 8 start 11:52:43
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/adp-advertise.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/backlog-adp.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/backlog-adp-refill.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/adp-link.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/adp-gm.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/adp-discover.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/control.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/aecp.txt -
+COMMAND <scratch>/meas/base/1x1/none/native/Vsim <scratch>/meas/base/1x1/none/results/datapath-events.txt -
+STEPS 1591 passes carry the store's step; the longest 21,299 CPU cycles (0.213 ms), adp-advertise; the longest step 2,588 (0.026 ms), backlog-adp
+SLICES 122484 tier-2 slices; the longest SRP's records 72,594, THE TRANSMIT's build 29,910, THE RETRY's round 9,755 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS adp-advertise: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 13 released, 12 empty
+JOINS backlog-adp: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog-adp-refill: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS adp-link: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS adp-gm: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS adp-discover: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS control: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS aecp: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+JOINS datapath-events: 3 join interval(s), the shortest 188.971 ms and the longest 190.022 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+9 groups graded, 0 refusals, 0 budget misses (0 of 63 probe instances, 0 of 44 paths), 0 of 1826 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 12:49:46
+[unit end 12:49:46 rc 0]

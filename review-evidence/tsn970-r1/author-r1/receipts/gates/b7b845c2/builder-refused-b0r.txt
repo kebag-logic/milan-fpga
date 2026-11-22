@@ -1,0 +1,7 @@
+# a refused run, before the scratch clone's submodule origins and SDK link were set
+  File "<scratch>/clones/head2-b0/sw/builder/test_builder.py", line 5133, in test_baremetal_profile_contract
+    assert census_used["compiler"] == census_compilers[0], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted
+END rc=1 12:52:49
+[unit end 12:52:49 rc 1]

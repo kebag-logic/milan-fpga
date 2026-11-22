@@ -1,0 +1,10 @@
+# the adp arm (the stack's and the firmware's ADP tests) at the head stack
+=== arm adp rc 0
+  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 56 distinct delays, the latest 499 ms after LINK_UP (bound 1000)
+  G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 496 ms (bound 1000)
+  G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 457 ms after LINK_UP (bound 1000)
+  G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 421 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+== ctrl ADP slice (fake ports and host model): checks: 58   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (58 tests, 0 failures, exit 0)

@@ -1,0 +1,26 @@
+base: relinked with -Wl,-q, loadable bytes EQUAL to the built image (d38cfad40199871b)
+head: relinked with -Wl,-q, loadable bytes EQUAL to the built image (88eda45545cf9aa1)
+canonical listings: 35539 base lines, 35540 head lines, 5 differ
+--- base
++++ head
+@@ -5066,9 +5066,10 @@
+ 	sw	s0,8(sp)
+ 	sw	ra,12(sp)
+ 	sw	s1,4(sp)
++	andi	a3,a1,-3
+ 	addi	a4,zero,1
+ 	addi	s0,a0,0
+-	addi	a5,zero,2000
++	addi	a5,zero,500
+ 	beq   R_RISCV_BRANCH .L7+0x0
+ 	lui	a5,0x1
+ 	addi	a5,a5,-96
+@@ -8117,7 +8118,7 @@
+ 	lw	s0,8(sp)
+ 	lw	ra,12(sp)
+ 	lw	s1,4(sp)
+-	addi	a1,zero,2
++	addi	a1,zero,3
+ 	addi	sp,sp,16
+ 	jal zero  R_RISCV_JAL enter_delay+0x0
+ <.L67>:

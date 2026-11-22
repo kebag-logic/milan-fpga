@@ -1,0 +1,30 @@
+"""arms.py LANE OUT STACK ARMS: build and run the named arms of the firmware gate (ctrl_arms.arm_<name>) from LANE's
+sw/firmware/ctrl against the tsn-c-stack tree STACK, builds under OUT; prints each arm's rc and log."""
+import sys
+from pathlib import Path
+lane, out, stack, arms = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), sys.argv[4].split(',')
+sys.path.insert(0, str(lane / 'sw/firmware/ctrl/test'))
+sys.path.insert(0, str(lane / 'sw/firmware/gtest'))
+import fw_gtest  # noqa: E402
+import ctrl_arms  # noqa: E402
+from ctrl_build import Tree  # noqa: E402
+from ctrl_reuse import cut_reuse  # noqa: E402
+tree = Tree(lane / 'sw/firmware/ctrl', out / 'checkout', out / 'reuse', fw_gtest.Build(jobs=8), stack.resolve())
+cut_reuse(tree.reuse)
+from ctrl_build import PORTABLE, compile_tests, execute, firmware, link  # noqa: E402
+
+
+def arm_adpfw(tree):
+    # the adp arm's binary without the stack's own core tests: test_adp.cpp alone, so a base stack builds it
+    objs = firmware(tree, PORTABLE, 'adpfw') + compile_tests(tree, ('test_adp.cpp',), 'adpfw/tests')
+    return execute('adpfw', link(tree, 'test_adpfw', objs))
+
+
+rc = 0
+for a in arms:
+    o = arm_adpfw(tree) if a == 'adpfw' else getattr(ctrl_arms, 'arm_' + a)(tree)
+    print(f'=== arm {a} rc {o.rc}')
+    print(o.log)
+    rc |= o.rc
+print(f'ARMS rc {rc}')
+sys.exit(rc)

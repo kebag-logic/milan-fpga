@@ -1,0 +1,173 @@
+# test_ctrl_firmware.py --require-rv32 --self-test --jobs 8 --shard 0/4 at b7b845c2, condensed
+HEAD b7b845c2 dirty 0 shard 0/4 start 12:31:02
+[ok] arm service_bounds
+[ok] arm model
+    verdict: PASS (26 tests, 0 failures, exit 0)
+[ok] arm port
+    verdict: PASS (51 tests, 0 failures, exit 0)
+[ok] arm portable
+    verdict: PASS (51 tests, 0 failures, exit 0)
+[ok] arm adp
+    G1 64 LINK_UPs: the first ENTITY_AVAILABLE 56 distinct delays, the latest 499 ms after LINK_UP (bound 1000)
+    G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+    G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 496 ms (bound 1000)
+    G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 457 ms after LINK_UP (bound 1000)
+    G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 421 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+    verdict: PASS (58 tests, 0 failures, exit 0)
+[ok] arm unit
+    verdict: PASS (26 tests, 0 failures, exit 0)
+    verdict: PASS (2 tests, 0 failures, exit 0)
+    verdict: PASS (1 tests, 0 failures, exit 0)
+    verdict: PASS (10 tests, 0 failures, exit 0)
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm walk
+    verdict: PASS (41 tests, 0 failures, exit 0)
+[ok] arm acmp
+    verdict: PASS (165 tests, 0 failures, exit 0)
+[ok] arm acmpwalk
+    verdict: PASS (127 tests, 0 failures, exit 0)
+[ok] arm acmpnvm
+    verdict: PASS (7 tests, 0 failures, exit 0)
+[ok] arm acmpif2
+    verdict: PASS (38 tests, 0 failures, exit 0)
+[ok] arm entity
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    verdict: PASS (9 tests, 0 failures, exit 0)
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm rv32
+[ok] arm maap
+    verdict: PASS (37 tests, 0 failures, exit 0)
+    verdict: PASS (21 tests, 0 failures, exit 0)
+[ok] arm maap_debug
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm maap_if2
+    verdict: PASS (22 tests, 0 failures, exit 0)
+[ok] arm reentry_debug
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm reentry_release
+    verdict: PASS (122 tests, 0 failures, exit 0)
+[ok] arm srpcmp
+[ok] arm hot
+    named plants not caught: none
+[ok] arm lwsrp
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (84 tests, 0 failures, exit 0)
+[ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (21 tests, 0 failures, exit 0)
+[ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (8 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (81 tests, 0 failures, exit 0)
+[ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (85 tests, 0 failures, exit 0)
+[ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (21 tests, 0 failures, exit 0)
+[ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (10 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (81 tests, 0 failures, exit 0)
+[ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm srp-srp_talker-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (16 tests, 0 failures, exit 0)
+[ok] arm srp-srp_talker-if2-endstation_ax7101_8x8
+    verdict: PASS (16 tests, 0 failures, exit 0)
+[ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_8x8
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm srp-srp_listeners-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (8 tests, 0 failures, exit 0)
+[ok] arm srp-srp_listeners-if1-endstation_ax7101_8x8
+    verdict: PASS (8 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if1-endstation_ax7101_8x8
+    verdict: PASS (84 tests, 0 failures, exit 0)
+[ok] arm srp-srp_mbx-if2-endstation_ax7101_8x8
+    verdict: PASS (85 tests, 0 failures, exit 0)
+[ok] arm srp-srp_shape-if1-endstation_arty_4x4
+[ok] arm srp-rv32-if1-endstation_arty_4x4
+[ok] arm srp-srp_shape-if2-endstation_arty_4x4
+[ok] arm srp-rv32-if2-endstation_arty_4x4
+[ok] arm srp-srp_shape-if1-endstation_arty_8ch
+[ok] arm srp-rv32-if1-endstation_arty_8ch
+[ok] arm srp-srp_shape-if2-endstation_arty_8ch
+[ok] arm srp-rv32-if2-endstation_arty_8ch
+[ok] arm srp-srp_shape-if1-endstation_arty_current
+[ok] arm srp-rv32-if1-endstation_arty_current
+[ok] arm srp-srp_shape-if2-endstation_arty_current
+[ok] arm srp-rv32-if2-endstation_arty_current
+[ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_ax7101_1x1_tdm8
+[ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if1-endstation_ax7101_8x8
+[ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm srp-rv32-if2-endstation_ax7101_8x8
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+    verdict: PASS (177 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+    verdict: PASS (177 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_8x8-if1
+    verdict: PASS (4 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_8x8-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_4x4
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_8ch
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_arty_current
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_ax7101_8x8
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_4x4-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_8ch-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_arty_current-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_1x1_tdm8-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-endstation_ax7101_8x8-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-keys-16x4-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm aecp-work-keys-16x32-if1
+    verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] arm plat
+    verdict: PASS (12 tests, 0 failures, exit 0)
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm platboot
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm platboot
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm platrv32
+[ok] arm plattrace
+[ok] arm platmap
+[ok] arm platsinks
+    verdict: PASS (12 tests, 0 failures, exit 0)
+[ok] arm platsinks
+    verdict: PASS (12 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+END rc=0 12:50:38

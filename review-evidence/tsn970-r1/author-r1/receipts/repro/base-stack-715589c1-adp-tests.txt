@@ -1,0 +1,22 @@
+# test_adp.cpp (the new group G) built against the base stack 715589c1, the firmware tests alone (arms.py adpfw): the reproduction
+=== arm adpfw rc 1
+  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3990 ms after LINK_UP (bound 1000)
+  G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+G1 the first ENTITY_AVAILABLE leaves within 1 s of every LINK_UP
+  [FAIL] AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp: G1 the first ENTITY_AVAILABLE leaves within 1 s of every LINK_UP
+G1 its delay is drawn from 0 to 0.5 s, plus the passes that take the LINK and the expiry
+  [FAIL] AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp: G1 its delay is drawn from 0 to 0.5 s, plus the passes that take the LINK and the expiry
+  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1981 ms (bound 1000)
+G2 the first ENTITY_AVAILABLE, index 0, leaves within 1 s of a startup with the link up
+  [FAIL] AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp: G2 the first ENTITY_AVAILABLE, index 0, leaves within 1 s of a startup with the link up
+G2 its delay is drawn from 0 to 0.5 s (5.6.3.5.2)
+  [FAIL] AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp: G2 its delay is drawn from 0 to 0.5 s (5.6.3.5.2)
+  G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3649 ms after LINK_UP (bound 1000)
+G3 a grandmaster change before the first ENTITY_AVAILABLE does not hold it past 1 s
+  [FAIL] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt: G3 a grandmaster change before the first ENTITY_AVAILABLE does not hold it past 1 s
+  G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3364 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+G4 the first ENTITY_AVAILABLE leaves within 1 s of LINK_UP, a grandmaster change to come
+  [FAIL] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced: G4 the first ENTITY_AVAILABLE leaves within 1 s of LINK_UP, a grandmaster change to come
+== ctrl ADP slice (fake ports and host model): checks: 19   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 19 checks, exit 1)

@@ -1,0 +1,91 @@
+diff --git a/tests/test_adp.cpp b/tests/test_adp.cpp
+index c90855a..bae1e51 100644
+--- a/tests/test_adp.cpp
++++ b/tests/test_adp.cpp
+@@ -16,6 +16,9 @@
+ 
+ namespace {
+ 
++constexpr uint32_t kFirstDrawMaxMs = 500u;
++constexpr uint32_t kDelayDrawMaxMs = 4000u;
++
+ const struct adp_entity entity = {
+     .entity_id = 0x1122334455667788ull,
+     .entity_model_id = 0x99AABBCCDDEEFF01ull,
+@@ -117,9 +120,9 @@ void core_schedule(void) {
+     EXPECT_EQ(a.state, ADP_STATE_DOWN) << "A0 enabled with the link down: DOWN (5.6.3.5.1)";
+     EXPECT_EQ(fk.starts, 0) << "A0 and no timer";
+     adp_link_change(&a, true);
+-    EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY && fk.last_delay == a.last_draw_ms &&
+-                fk.last_delay <= ADP_DELAY_MAX_MS)
+-        << "A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)";
++    EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_LINK_UP && fk.last_delay == a.last_draw_ms &&
++                fk.last_delay <= kFirstDrawMaxMs)
++        << "A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)";
+     adp_timer_expired(&a);
+     EXPECT_TRUE(fk.sends == 1u && fk.last[15] == ADP_MSG_ENTITY_AVAILABLE && a.state == ADP_STATE_WAITING &&
+                 fk.last_delay == ADP_ADVERTISE_MS)
+@@ -148,8 +151,8 @@ void core_discard(void) {
+     fresh(&a, true);
+     adp_set_enable(&a, true);
+     EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_STARTUP &&
+-                a.last_draw_ms <= ADP_DELAY_STARTUP_MAX_MS)
+-        << "A3 enabled with the link up: DELAY with a 0..2 s draw (5.6.3.5.2)";
++                a.last_draw_ms <= kFirstDrawMaxMs)
++        << "A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)";
+     discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
+     unsigned starts = fk.starts;
+     adp_rx(&a, f, sizeof f);
+@@ -363,7 +366,7 @@ void core_owed_link_loss(void) {
+                 a.departing_index == 1u && fk.sends == 1u)
+         << "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1";
+     adp_link_change(&a, true);
+-    EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_DELAY &&
++    EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_LINK_UP &&
+                 a.departing_owed == 1u && a.departing_index == 1u)
+         << "A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3)";
+     adp_timer_expired(&a);
+@@ -421,7 +424,7 @@ void core_owed_link_loss_drops(void) {
+     fk.room = true;
+     bool owed = adp_poll(&a);
+     EXPECT_TRUE(!owed && fk.sends == 0u && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY &&
+-                a.last_draw == ADP_DRAW_DELAY)
++                a.last_draw == ADP_DRAW_LINK_UP)
+         << "A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3)";
+     adp_timer_expired(&a);
+     EXPECT_TRUE(fk.sends == 1u && took(0, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING)
+@@ -464,21 +467,28 @@ void core_draws(void) {
+     struct adp a;
+     fresh(&a, true);
+     uint32_t max_start = 0;
++    uint32_t max_link = 0;
+     uint32_t max_delay = 0;
+-    bool in_range = true;
++    bool first_in_range = true;
++    bool delay_in_range = true;
+     for (unsigned k = 0; k < 400u; ++k) {
+         adp_set_enable(&a, true);
+-        in_range = in_range && a.last_draw == ADP_DRAW_STARTUP && a.last_draw_ms <= ADP_DELAY_STARTUP_MAX_MS;
++        first_in_range = first_in_range && a.last_draw == ADP_DRAW_STARTUP && a.last_draw_ms <= kFirstDrawMaxMs;
+         max_start = a.last_draw_ms > max_start ? a.last_draw_ms : max_start;
+         adp_link_change(&a, false);
+         adp_link_change(&a, true);
+-        in_range = in_range && a.last_draw == ADP_DRAW_DELAY && a.last_draw_ms <= ADP_DELAY_MAX_MS;
++        first_in_range = first_in_range && a.last_draw == ADP_DRAW_LINK_UP && a.last_draw_ms <= kFirstDrawMaxMs;
++        max_link = a.last_draw_ms > max_link ? a.last_draw_ms : max_link;
++        adp_timer_expired(&a);
++        adp_timer_expired(&a);
++        delay_in_range = delay_in_range && a.last_draw == ADP_DRAW_DELAY && a.last_draw_ms <= kDelayDrawMaxMs;
+         max_delay = a.last_draw_ms > max_delay ? a.last_draw_ms : max_delay;
+         adp_set_enable(&a, false);
+     }
+-    EXPECT_TRUE(in_range) << "A9 every startup draw is 0..2 s and every other draw 0..4 s";
+-    EXPECT_TRUE(max_delay > ADP_DELAY_STARTUP_MAX_MS) << "A9 the two kinds are distinct: the 0..4 s draws pass 2 s";
+-    EXPECT_TRUE(max_start > 1800u && max_delay > 3600u) << "A9 and both reach near their maxima";
++    EXPECT_TRUE(first_in_range) << "A9 every startup draw and every LINK_UP draw is 0..0.5 s";
++    EXPECT_TRUE(delay_in_range) << "A9 every TMR_ADVERTISE draw is the 0..4 s kind";
++    EXPECT_TRUE(max_delay > kFirstDrawMaxMs) << "A9 the kinds are distinct: the 0..4 s draws pass 0.5 s";
++    EXPECT_TRUE(max_start > 450u && max_link > 450u && max_delay > 3600u) << "A9 and each reaches near its maximum";
+ }
+ 
+ uint32_t seed_value;

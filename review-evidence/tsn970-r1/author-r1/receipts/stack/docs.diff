@@ -1,0 +1,81 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 814a380..9f30645 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,7 @@
+ 
+ ## Unreleased
+ 
++- Draw the delay of an ADP interface leaving DOWN from zero to half a second: at startup with the link up (`ADP_DELAY_STARTUP_MAX_MS`, was two seconds) and on LINK_UP (the new `ADP_DRAW_LINK_UP` kind, `ADP_DELAY_LINK_UP_MAX_MS`, was four seconds). Both are within Milan v1.2 5.6.3.5.2's and 5.6.3.5.3's ranges, so an interface's first ENTITY_AVAILABLE leaves within a second of its link-up ([milan-fpga #970](https://github.com/kebag-logic/milan-fpga/issues/970)). DISCOVER, TMR_ADVERTISE and GM_CHANGE in WAITING keep the zero to four second draw ([MFDISC-01](docs/REQUIREMENTS.md#mfdisc-01)). Integrators that read `last_draw` see the new kind after a LINK_UP.
+ - Walk only the sinks an ACMP entry changed. Each entry marks the sinks it changes, and its interface's timer for an expiry; completion and each publication before a new frame publish, re-arm, admit, persist and report only those, with the calls a walk over every sink makes, in its order and with its arguments ([ACMP-13](docs/REQUIREMENTS.md#acmp-changed-sink-walk)). Add `dirty`, `ACMP_DIRTY_WORDS` words, and `dirty_if` to `struct acmp`. A differential test drives random entries into a core and one with every sink marked before each entry, at 1, 8, 32 and 33 sinks, and requires the same calls. At 33 sinks its commands reach sink 32, alone on a third interface, and transmit room is withdrawn as at the other sizes. After each entry it requires every mark cleared.
+ - Size the ACMP owed-release mask from `ACMP_MAX_SINKS`: `acmp_owed.release` holds `ACMP_RELEASE_WORDS` 32-bit words, and no shift reaches the word width. With more than 32 sinks, sink 32 and sink 0 no longer share a bit, so each sink's change waits only behind its own owed response. A build whose mask cannot hold every sink is refused, and so is a build of more than 255 sinks, which `probe_of` cannot name. Add a 33-sink test binary under `-fsanitize=shift,undefined`. It checks that sinks 31 and 32, on both sides of the word boundary, wait only behind their own owed responses, and that a probe owed in a slot that held another sink's response holds no sink. The 16-sink tests check the same slot reuse ([issue 31](https://github.com/kebag-logic/tsn-c-stack/issues/31)).
+ - Exempt the merge of #29 from the one-line message rule by its exact commit; its identity and content are still checked.
+diff --git a/docs/PORTING.md b/docs/PORTING.md
+index ed42ae6..3f3b85c 100644
+--- a/docs/PORTING.md
++++ b/docs/PORTING.md
+@@ -184,11 +184,16 @@ The `link_up` callback returns the current link level. The `seed` callback suppl
+ | `available_owed` | An ENTITY_AVAILABLE due in DELAY that has not been accepted. |
+ | `departing_owed` | Number of unaccepted departures, from zero through `ADP_DEPARTING_OWED_MAX`. |
+ | `departing_index` | The available index carried by the oldest owed departure. |
+-| `ADP_DRAW_STARTUP` | Startup delay draw from zero to two seconds. |
++| `ADP_DRAW_STARTUP` | Startup delay draw, with the link up, from zero to `ADP_DELAY_STARTUP_MAX_MS` (half a second). |
++| `ADP_DRAW_LINK_UP` | LINK_UP delay draw from zero to `ADP_DELAY_LINK_UP_MAX_MS` (half a second). |
+ | `ADP_DRAW_DELAY` | Other delay draws from zero to four seconds. |
+ | `ADP_DRAW_NONE` | No delay draw recorded yet. |
+ 
+-The delay rules trace to [Milan v1.2 5.6.3.5.2 and Table 5.50](https://avnu.org/resource/milan-specification/).
++The delay rules trace to [Milan v1.2 5.6.3.5.2, 5.6.3.5.3 and Table 5.50](https://avnu.org/resource/milan-specification/).
++An interface leaving DOWN, at startup with its link up or on LINK_UP, draws from zero to half a second.
++That is within both clauses' ranges, zero to two and zero to four seconds, so its first ENTITY_AVAILABLE leaves within a second of its link-up ([milan-fpga #970](https://github.com/kebag-logic/milan-fpga/issues/970)).
++DISCOVER, TMR_ADVERTISE and GM_CHANGE in WAITING draw from zero to four seconds.
++A GM_CHANGE in DELAY is ignored, as Table 5.51 states: the advertisement that DELAY sends samples the grandmaster when it is built.
+ `adp_set_enable` starts or shuts down the machine. `adp_set_current_configuration` changes the next ADPDU's configuration index.
+ `adp_rx`, `adp_timer_expired`, `adp_link_change` and `adp_gm_change` deliver the respective input events.
+ `adp_build` writes the current ADPDU into a caller buffer of at least `ADP_FRAME_BYTES` bytes.
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index af8d880..01f331b 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -21,7 +21,7 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Entity YAML | `python3 scripts/entity_yaml.py --examples --check` and `python3 scripts/entity_selftest.py --work build-entity-controls` | Schema refusals, exact golden bytes, version guard, planted drift, the AX7101 mapping and 13 registered mapper plants pass. [Round trips](ENTITY_YAML.md#validation-and-tests) execute on Linux and RV32. |
+ | GCC C11 and core tests | `cmake -S . -B build-gcc -DTSN_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug`, then `cmake --build build-gcc -j16` and `ctest --test-dir build-gcc --output-on-failure -j16` | All tests pass. Warnings fail. |
+ | Coverage | `python3 scripts/coverage.py build-gcc` | 100% lines and branches after exact exclusions. |
+-| Mutation | `python3 scripts/mutation.py --work build-mutations --jobs 16` | All 473 core plants and four generated configuration plants caught by their named assertions. Fifteen of the 18 changed-sink walk plants each drop one mark, one drops `mark()`'s interface bit, and two write or read word 0 for every sink (caught at 33 sinks), each built at 33 sinks under the shift and undefined-behaviour sanitizers like the `acmp_walk` test. Four more drop the mark only for the second mark word's sink, at `bind()`, `unbind()`, the release loop and `probe_left()` (caught at 33 sinks), and three drop the clear of the sink marks, of the interface mark or of the second mark word (caught by the assertion that a completed entry leaves no mark). |
++| Mutation | `python3 scripts/mutation.py --work build-mutations --jobs 16` | All 478 core plants and four generated configuration plants caught by their named assertions. Fifteen of the 18 changed-sink walk plants each drop one mark, one drops `mark()`'s interface bit, and two write or read word 0 for every sink (caught at 33 sinks), each built at 33 sinks under the shift and undefined-behaviour sanitizers like the `acmp_walk` test. Four more drop the mark only for the second mark word's sink, at `bind()`, `unbind()`, the release loop and `probe_left()` (caught at 33 sinks), and three drop the clear of the sink marks, of the interface mark or of the second mark word (caught by the assertion that a completed entry leaves no mark). |
+ | Sanitizers and Clang | `cmake -S . -B build-sanitize -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DTSN_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug`, then build and test as above | Address and undefined-behavior sanitizers pass. The full runner enables leak detection and stops on findings. |
+ | ACMP at 33 sinks | `ctest --test-dir build-gcc -R acmp_wide` or `ctest --test-dir build-sanitize -R acmp_wide` | `acmp_wide` builds the ACMP core and its test with `ACMP_MAX_SINKS` 33, one sink past the first release word, under `-fsanitize=shift,undefined` with no recovery. Sinks 0, 31 and 32 each wait only behind their own owed response and are released only when it leaves. A probe owed in a slot that held sink 31's or sink 32's response holds no sink. The 16-sink `acmp_tests` checks the same slot reuse with the last sink. |
+ | Static analysis | `python3 scripts/static_analysis.py` | No project findings after [listed suppressions](STATIC_ANALYSIS.md). |
+diff --git a/docs/requirements.json b/docs/requirements.json
+index 345ebcc..5316192 100644
+--- a/docs/requirements.json
++++ b/docs/requirements.json
+@@ -308,14 +308,14 @@
+   {
+     "id": "MFDISC-01",
+     "origin": "milan-fpga FR-DISC-01",
+-    "text": "Advertise with the Milan schedule and valid_time 10. Advance available_index after an accepted advertisement. Initialization and departure reset the next advertisement index under [DEV-02](DEVIATIONS.md).",
++    "text": "Advertise with the Milan schedule and valid_time 10. Draw the delay of an interface leaving DOWN, at startup with the link up and on LINK_UP, from 0 to 500 ms, so its first advertisement leaves within one second of its link-up; draw every other delay from 0 to 4 s. Advance available_index after an accepted advertisement. Initialization and departure reset the next advertisement index under [DEV-02](DEVIATIONS.md).",
+     "clauses": [
+       {
+         "text": "IEEE 1722.1-2021 6.2.2.5 and 6.2.2.15",
+         "url": "https://standards.ieee.org/ieee/1722.1/6670/"
+       },
+       {
+-        "text": "Milan v1.2 5.6.2 and 5.6.3.5",
++        "text": "Milan v1.2 5.6.2, 5.6.3.5, 5.6.3.5.2, 5.6.3.5.3 and Table 5.50",
+         "url": "https://avnu.org/resource/milan-specification/"
+       }
+     ],
+diff --git a/scripts/check_port_contracts.py b/scripts/check_port_contracts.py
+index 4d91033..59084d7 100644
+--- a/scripts/check_port_contracts.py
++++ b/scripts/check_port_contracts.py
+@@ -52,6 +52,7 @@ REQUIRED = {
+     'ADP callbacks and public fields': (
+         'ADP_DEPARTING_OWED_MAX',
+         'ADP_DRAW_DELAY',
++        'ADP_DRAW_LINK_UP',
+         'ADP_DRAW_NONE',
+         'ADP_DRAW_STARTUP',
+         'ADP_FRAME_BYTES',

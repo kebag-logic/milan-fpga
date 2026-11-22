@@ -1,0 +1,118 @@
+diff --git a/tests/mutations.json b/tests/mutations.json
+index b2a49c0..766ca86 100644
+--- a/tests/mutations.json
++++ b/tests/mutations.json
+@@ -426,12 +426,12 @@
+   {
+     "name": "link-up-draws-startup-kind",
+     "path": "src/adp.c",
+-    "old": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n",
++    "old": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_LINK_UP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n",
+     "new": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n",
+     "kills": [
+       {
+         "test": "AdpCore.A0toA2Schedule",
+-        "needle": "A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)"
++        "needle": "A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)"
+       }
+     ],
+     "original_tests": [
+@@ -441,12 +441,95 @@
+   {
+     "name": "draw-kinds-merged",
+     "path": "src/adp.c",
+-    "old": "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
+-    "new": "ADP_DELAY_MAX_MS",
++    "old": "\tuint32_t max_ms = ADP_DELAY_MAX_MS;\n\tif (kind == ADP_DRAW_STARTUP) {\n\t\tmax_ms = ADP_DELAY_STARTUP_MAX_MS;\n\t}\n\tif (kind == ADP_DRAW_LINK_UP) {\n\t\tmax_ms = ADP_DELAY_LINK_UP_MAX_MS;\n\t}\n",
++    "new": "\tuint32_t max_ms = ADP_DELAY_MAX_MS;\n",
+     "kills": [
+       {
+         "test": "AdpCore.A9DrawKinds",
+-        "needle": "A9 every startup draw"
++        "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
++      }
++    ],
++    "original_tests": [
++      "AdpCore.A9DrawKinds"
++    ]
++  },
++  {
++    "name": "link-up-draws-delay-kind",
++    "path": "src/adp.c",
++    "old": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_LINK_UP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n",
++    "new": "\t\tif (a->state == ADP_STATE_DOWN) {\n\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n",
++    "kills": [
++      {
++        "test": "AdpCore.A0toA2Schedule",
++        "needle": "A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)"
++      },
++      {
++        "test": "AdpCore.A9DrawKinds",
++        "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
++      }
++    ],
++    "original_tests": [
++      "AdpCore.A0toA2Schedule"
++    ]
++  },
++  {
++    "name": "link-up-range-is-the-delay-range",
++    "path": "src/adp.c",
++    "old": "\t\tmax_ms = ADP_DELAY_LINK_UP_MAX_MS;\n",
++    "new": "\t\tmax_ms = ADP_DELAY_MAX_MS;\n",
++    "kills": [
++      {
++        "test": "AdpCore.A9DrawKinds",
++        "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
++      }
++    ],
++    "original_tests": [
++      "AdpCore.A9DrawKinds"
++    ]
++  },
++  {
++    "name": "every-draw-the-first-range",
++    "path": "src/adp.c",
++    "old": "\tuint32_t max_ms = ADP_DELAY_MAX_MS;\n\tif (kind == ADP_DRAW_STARTUP) {\n",
++    "new": "\tuint32_t max_ms = ADP_DELAY_LINK_UP_MAX_MS;\n\tif (kind == ADP_DRAW_STARTUP) {\n",
++    "kills": [
++      {
++        "test": "AdpCore.A9DrawKinds",
++        "needle": "A9 the kinds are distinct: the 0..4 s draws pass 0.5 s"
++      }
++    ],
++    "original_tests": [
++      "AdpCore.A9DrawKinds"
++    ]
++  },
++  {
++    "name": "startup-range-two-seconds",
++    "path": "include/adp.h",
++    "old": "#define ADP_DELAY_STARTUP_MAX_MS 500u   // Milan v1.2 5.6.3.5.2\n",
++    "new": "#define ADP_DELAY_STARTUP_MAX_MS 2000u  // Milan v1.2 5.6.3.5.2\n",
++    "kills": [
++      {
++        "test": "AdpCore.A3toA5DiscoverAndDiscard",
++        "needle": "A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)"
++      },
++      {
++        "test": "AdpCore.A9DrawKinds",
++        "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
++      }
++    ],
++    "original_tests": [
++      "AdpCore.A9DrawKinds"
++    ]
++  },
++  {
++    "name": "link-up-range-four-seconds",
++    "path": "include/adp.h",
++    "old": "#define ADP_DELAY_LINK_UP_MAX_MS 500u   // Milan v1.2 5.6.3.5.3\n",
++    "new": "#define ADP_DELAY_LINK_UP_MAX_MS 4000u  // Milan v1.2 5.6.3.5.3\n",
++    "kills": [
++      {
++        "test": "AdpCore.A9DrawKinds",
++        "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
+       }
+     ],
+     "original_tests": [

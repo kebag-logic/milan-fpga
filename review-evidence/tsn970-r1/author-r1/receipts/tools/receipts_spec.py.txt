@@ -1,0 +1,111 @@
+# receipts_spec.py: the round's receipts, run by receipts.py (keep, put, lines, run, S, L in scope).
+import shutil as _sh
+from pathlib import Path as _P
+
+BASE, CODE, HEAD, SBASE, SHEAD = 'dd163e4143', '27495a06d5', '27495a06d5', '715589c1', '5d14a6d8'
+STK = L / 'third_party/tsn-c-stack'
+
+# --- the change
+put('change/commits.txt', run('git', 'log', '--format=%H %s', f'{BASE}..HEAD'))
+put('change/diffstat.txt', run('git', 'diff', '--stat', BASE, 'HEAD'))
+put('change/gitlink.txt', run('git', 'diff', '--submodule=short', BASE, 'HEAD', '--', 'third_party/tsn-c-stack'))
+put('change/tests-and-plants.diff', run('git', 'diff', BASE, 'HEAD', '--', 'sw/firmware/ctrl/test'))
+put('change/docs.diff', run('git', 'diff', BASE, 'HEAD', '--', 'CHANGELOG.md', 'docs/design', 'docs/reference',
+                            'sw/firmware/ctrl/README.md'))
+put('change/after-b000faa5.txt', '# files changed after b000faa5 (where the twin, boot simulation, images and CPU legs '
+    'ran): the plants table moved (test Python), test_adp.cpp\'s reader and one message, and docs; no image input\n' +
+    run('git', 'diff', '--stat', 'b000faa50c', 'HEAD'))
+put('stack/commits.txt', run('git', 'log', '--format=%H %s', f'{SBASE}..HEAD', cwd=STK))
+put('stack/diffstat.txt', run('git', 'diff', '--stat', SBASE, 'HEAD', cwd=STK))
+put('stack/core.diff', run('git', 'diff', SBASE, 'HEAD', '--', 'src', 'include', cwd=STK))
+put('stack/tests.diff', run('git', 'diff', SBASE, 'HEAD', '--', 'tests/test_adp.cpp', cwd=STK))
+put('stack/plants.diff', run('git', 'diff', SBASE, 'HEAD', '--', 'tests/mutations.json', cwd=STK))
+put('stack/docs.diff', run('git', 'diff', SBASE, 'HEAD', '--', 'docs/PORTING.md', 'docs/requirements.json',
+                           'docs/VERIFICATION.md', 'CHANGELOG.md', 'scripts/check_port_contracts.py', cwd=STK))
+
+# --- the stack's gates at 5d14a6d8 (and 7e03f71's run, with its static-analysis finding)
+for tag, d in ((SHEAD, S / 'stack/ci2'), ('7e03f71', S / 'stack/ci')):
+    for f in ('validate.log', 'baremetal.log', 'tools.txt', 'before.txt', 'after.txt', 'times.txt'):
+        keep(f'stack/gates-{tag}/{f}', d / f)
+    keep(f'stack/gates-{tag}/gates.json', d / 'build-validation/gates.json')
+    keep(f'stack/gates-{tag}/mutation-summary.txt', d / 'build-validation/mutation.log',
+         lambda t: '# mutation.py: the ADP plants and the summary\n' + ''.join(
+             x + '\n' for x in t.splitlines() if 'adp' in x.lower() or 'draw' in x or 'link-up' in x or x.startswith('{')))
+keep('stack/gates-7e03f71/static-analysis-finding.txt', S / 'stack/ci/build-validation/static-analysis.log',
+     lambda t: lines(r'error|note:|\|', t, '# clang-tidy at 7e03f71: the finding 5d14a6d8 fixes\n'))
+
+# --- the reproduction and the new tests
+keep('repro/base-stack-715589c1-adp-tests.txt', S / 'logs/repro-base-adp.log',
+     lambda t: lines(r'^\s*G[0-9]|\[FAIL\]|checks:|verdict|=== arm|RESULT', t,
+                     '# test_adp.cpp (the new group G) built against the base stack 715589c1, the firmware tests alone '
+                     '(arms.py adpfw): the reproduction\n'))
+keep('repro/head-stack-adp-and-walk.txt', S / 'logs/head-adp.log',
+     lambda t: lines(r'^\s*G[0-9]|\[FAIL\]|checks:|verdict|=== arm|RESULT', t,
+                     '# the adp arm (the stack\'s and the firmware\'s ADP tests) at the head stack\n'))
+keep('repro/quick-plants.txt', S / 'logs/plants1.log',
+     lambda t: lines(r'^\[|first:|mutants:', t, '# plants.py: the new and restated ADP plants, each graded as the gate '
+                                                'grades it (a quick subset before the gate)\n'))
+
+# --- the firmware gate
+GATE = (r'^(HEAD |END |suite verdicts|test_ctrl_firmware:|mutants:|planted|\[ok\]|\[FAIL\] mutant|ESCAPED|REFUSED|'
+        r'== .*checks:|\s+verdict:|.*not caught|    named plants|\s+G[1-5] )')
+for tag, pre in (('b000faa5', 'fw'), ('b7b845c2', 'fw2-'), ('27495a06', 'fw3-')):
+    for k in range(4):
+        keep(f'gates/{tag}/firmware-gate-shard{k}.txt', S / f'units/{pre}{k}.log',
+             lambda t, k=k, tag=tag: lines(GATE, t, f'# test_ctrl_firmware.py --require-rv32 --self-test --jobs 8 '
+                                                    f'--shard {k}/4 at {tag}, condensed\n'))
+keep('gates/b000faa5/fw-coverage.txt', S / 'units/cov.log')
+TWIN = r'^(HEAD |== |END |twin:|twin rc|plant |\[LEDGER\]|\[OWED\]|\[DIFF\]|.*REFUSED|.*finding)'
+keep('gates/b000faa5/twin.txt', S / 'units/twin.log',
+     lambda t: lines(TWIN, t, '# make twin twin-plants twin-maps twin-maps-plants (tb/verilator/milan_dp), condensed\n'))
+BOOT = r'^(HEAD|== |END|dirty|NATIVE|BOOT|TRACE|UART|PHY|GRADER|PLANT|ctrl_split_boot)'
+keep('gates/b000faa5/split-boot.txt', S / 'units/boot.log', lambda t: lines(BOOT, t))
+keep('gates/base-dd163e41/split-boot.txt', S / 'units/boot-base.log', lambda t: lines(BOOT, t))
+keep('gates/27495a06/docs-workflow-steps.txt', S / 'docs/head3/steps.txt')
+keep('gates/b7b845c2/docs-workflow-steps.txt', S / 'docs/head2/steps.txt')
+keep('gates/b000faa5/docs-workflow-steps-first-run.txt', S / 'docs/head/steps.txt')
+BUILDER = r'^(HEAD |END |ALL GATES|.*DID NOT RUN|  - \[gate|\s*\[gate [0-9a-z]+\] [0-9]+ .* pass|builder legs|Assertion)'
+for n, leg in (('b0f', 0), ('b1f', 1)):
+    keep(f'gates/27495a06/builder-leg-{leg}.txt', S / f'units/{n}.log', lambda t: lines(BUILDER, t))
+for n, why in (('b0s', 'leg 0 at b7b845c2; it passed'),
+               ('b1r', 'leg 1 at b7b845c2, started before the SDK link existed in the scratch home; it passed'),
+               ('b1s', 'leg 1 at b7b845c2: its gates passed; its receipt write was refused, the earlier run\'s receipt '
+                       'file existing')):
+    keep(f'gates/b7b845c2/builder-{n}.txt', S / f'units/{n}.log',
+         lambda t, why=why: lines(BUILDER, t, f'# an earlier run: {why}\n'))
+for n in ('b0', 'b1', 'b0r'):
+    keep(f'gates/b7b845c2/builder-refused-{n}.txt', S / f'units/{n}.log',
+         lambda t: '# a refused run, before the scratch clone\'s submodule origins and SDK link were set\n' +
+         '\n'.join(t.splitlines()[-6:]) + '\n')
+
+# --- images
+keep('images/SUMMARY.txt', S / 'cmp/all/SUMMARY.txt',
+     lambda t: f'# the image pairs, base {BASE[:8]} against head b000faa5: differing inputs, sized sections, the relinks, '
+               'the canonical listings\n' + t)
+for f in sorted((S / 'cmp/all').glob('*.txt')):
+    if f.name != 'SUMMARY.txt':
+        keep(f'images/pairs/{f.name}', f)
+for side in ('head', 'base'):
+    keep(f'images/platform-ledger-{side}.txt', S / f'img/plat-{side}/plat_ledger.log',
+         lambda x: lines(r'^(POINT|plat_ledger|LINK|KEY|TILES|LEDGER)', x))
+    keep(f'images/budget-hashes-{side}.txt', S / f'img/budget-{side}/hashes.txt')
+
+# --- CPU
+keep('cpu/first-ea-after-link-up.txt', S / 'cpu/first-ea.txt')
+for p in ('1x1', '8x8-1if'):
+    keep(f'cpu/compare/{p}-probes.txt', S / f'cpu/compare/{p}-probes.txt')
+    for side in ('base', 'head'):
+        keep(f'cpu/legs/{side}-{p}.txt', S / f'units/leg-{side}-{p}.log')
+for f in sorted((S / 'cpu/graders').glob('*.log')):
+    keep(f'cpu/graders/{f.name}', f)
+put('cpu/graders/SAME.txt', '# each grader\'s output, base dd163e41 against head b000faa5\n' +
+    run('bash', '-c', f'cd {S}/cpu/graders && for f in base-*.log; do h=head-${{f#base-}}; '
+                      'cmp -s $f $h && echo "SAME ${f#base-}" || echo "DIFF ${f#base-}"; done'))
+
+# --- tools
+for f in sorted((S / 'bin').glob('*')):
+    if f.is_file() and f.suffix in ('.sh', '.py'):
+        keep(f'tools/{f.name}.txt', f)
+for f in sorted((S / 'bin/t').glob('*')):
+    if f.is_file() and f.name != 'receipts.py':
+        keep(f'tools/t/{f.name}.txt', f)
