@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 
 import scenario
+from mailbox_model import with_interfaces
 from refusal import Refusal
 
 HERE = Path(__file__).resolve().parent
@@ -41,11 +42,12 @@ def fixture() -> frozenset[str]:
     return opened(writes((HERE / 'fixture.log').read_text()))
 
 
-def loaded(name: str, channels: frozenset[str] | None, frames: dict[str, int]) -> list:
+def loaded(name: str, channels: frozenset[str] | None, frames: dict[str, int], interfaces: int = 1) -> list:
     """The contract's channels a row's defined load covers: the ones opened, the committed trace's when channels is
-    None, each with a load frame in frames; an opened channel without one is refused (B)."""
+    None, each with a load frame in frames; an opened channel without one is refused (B). Each is the contract's at
+    `interfaces` AVB interfaces, the image's: a burst stated an interface scales with them (mailbox.yaml, gptp)."""
     channels = fixture() if channels is None else channels
     unframed = sorted(ch for ch in channels if ch not in frames)
     if unframed:
         raise Refusal(f'{name}: the image opens {unframed}, which no load frame defines (LOAD_FRAME_BYTES)')
-    return [ch for ch in scenario.CONTRACT.channels if ch.name in channels]
+    return [ch for ch in with_interfaces(scenario.CONTRACT, interfaces).channels if ch.name in channels]

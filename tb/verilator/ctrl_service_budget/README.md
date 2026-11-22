@@ -513,7 +513,7 @@ The defined load covers the channels the image opened, not every channel the con
 The testbench prints each `FILTER_EN` write as `OPEN <cycle> <gate>`, and `channel_gate.py` reads the image's last gate, each bit named by the contract's channel table.
 A log with no `FILTER_EN` write is refused, never read as every channel.
 An opened channel with no load frame in `grade.LOAD_FRAME_BYTES` is refused too, so the rule cannot hide load.
-An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst, 16 records, one in the fixture's window.
+An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst, seven records an interface (the contract's `burst_per_interface`, derived in `mailbox.yaml` from the worst legitimate coincidence of the 802.1AS message kinds in one refill window, #884's ruling of 2026-11-22, item 1), one in the fixture's window. The grader takes the interface count from the run's build (`grade.grade`'s `at`) and the stimulus from its point, each through `mailbox_model.with_interfaces`.
 Each is a peer's Pdelay_Req (`gptp_group.load_frame`), the channel's dearest record: the port answers it with a Pdelay_Resp and its Follow_Up, each with its egress stamp.
 The testbench gives every gptp record the eight-octet ingress trailer `KL_ctrl_split` appends (contract 2.5), the frame's stamp for an event message and all ones for any other, so a record is the frame and 8 octets (`grade.LOAD_FRAME_BYTES`).
 
@@ -1436,6 +1436,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 | build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
 | build: a gPTP image is planned at the ledgered point of an image without it | a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it |
+| grade: a burst stated an interface held at one interface's | a gPTP image's defined loads at one and two interfaces, restated |
 | scenario: a gPTP image's composed windows carry no gptp records | every composed window's stimulus is its defined load |
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | build: arm B's path port answers no entries at once, reading no window (earlier rule) | the answering-ports arm's path port is arm_path.py's, which reads the window |

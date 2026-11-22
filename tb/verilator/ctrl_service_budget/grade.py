@@ -737,9 +737,10 @@ def room(channel: str) -> int:
     return ch.rx_words // (RX_HEADER_WORDS + (LOAD_FRAME_BYTES[channel] + 3) // 4)
 
 
-def defined_load(name: str, opened: frozenset[str] | None = None) -> dict[str, int]:
+def defined_load(name: str, opened: frozenset[str] | None = None, interfaces: int = 1) -> dict[str, int]:
     """The population a composed row's window must commit, from the contract alone and never from the stimulus's
-    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc), over the channels the image opened (channel_gate.loaded).
+    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc), over the channels the image opened (channel_gate.loaded)
+    at the AVB interfaces it was built at.
 
     Every receive channel carries what one instant admits: its token bucket's burst, unless its ring holds fewer records
     of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills the ring's room. Grandmaster changes fill the event
@@ -750,7 +751,7 @@ def defined_load(name: str, opened: frozenset[str] | None = None) -> dict[str, i
     name = save_window.row(name)
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
-    channels = channel_gate.loaded(name, opened, LOAD_FRAME_BYTES)
+    channels = channel_gate.loaded(name, opened, LOAD_FRAME_BYTES, interfaces)
     if name == 'fixture':
         return {**{ch.name: 1 for ch in channels}, 'GM': 2}
     load = {ch.name: min(ch.burst, room(ch.name)) for ch in channels}
@@ -763,12 +764,11 @@ def defined_load(name: str, opened: frozenset[str] | None = None) -> dict[str, i
 
 
 def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]], held: int = 0,
-               opened: frozenset[str] | None = None) -> None:
-    """The composed window must commit exactly its row's defined load: a refused or missing
-    record, a channel left out of the stimulus, or one record too many, is not the composed
-    maximum. The refusal names the event records held when the window opened, which keep its
-    grandmaster changes out of the ring."""
-    defined = defined_load(group.name, opened)
+               opened: frozenset[str] | None = None, interfaces: int = 1) -> None:
+    """The composed window must commit exactly its row's defined load at its image's interfaces: a refused or missing
+    record, a channel left out of the stimulus, or one record too many, is not the composed maximum. The refusal names
+    the event records held when the window opened, which keep its grandmaster changes out of the ring."""
+    defined = defined_load(group.name, opened, interfaces)
     want = {name: defined.get(name, 0) for name in got}
     # an aged window opens under the grandmaster flood, whose last change may commit just after the window's mark: a
     # change more than its row's, so a heavier window, and never one less
@@ -867,7 +867,7 @@ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
     return [p for p in log.passes if start <= p.start_sys <= end]
 
 
-def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
+def composed(grader: Grader, group: scenario.Group, marks: dict[str, int], interfaces: int = 1) -> dict | None:
     """The longest pass that starts inside the composed window, whose committed population must be the row's defined
     load exactly (MAAP and SRP included).
 
@@ -884,7 +884,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     got = population(grader.log, start, end)
     held = grader.events_held(start)
     check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held,
-               channel_gate.opened(grader.log.opened))
+               channel_gate.opened(grader.log.opened), interfaces)
     save_phase(grader.log, group.name, start)
     aged = save_grade.aged_window(grader, group, start, end)
     inside = composed_passes(grader.log, start, end)
@@ -975,7 +975,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
             later = [c for c, _ in order if c > at]
             limit = later[0] if later else 1 << 62
         rows.append(grade_probe(grader, probe, at, limit, marks))
-    window = composed(grader, group, marks)
+    window = composed(grader, group, marks, getattr(stated_at, 'interfaces', stated_at))
     if window is not None:
         rows += service(grader, group, marks['composed'], marks['composed_end'])
     rows += save_grade.held(grader, group)

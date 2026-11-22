@@ -20,8 +20,10 @@ import scenario
 Check = tuple[str, bool, str]
 #: The channels the committed trace's image opened: the five the fixture image binds, gptp not among them.
 FIXTURE_OPENED = frozenset({'adp', 'acmp', 'aecp', 'maap', 'srp'})
-#: A gPTP image's gptp records in each composed window: its bucket's burst, one in the fixture's (#884).
-GPTP_AT_ONCE = {'backlog': 16, 'backlog-adp': 16, 'backlog-adp-refill': 16, 'backlog-owed': 16, 'fixture': 1}
+#: A gPTP image's gptp records in each composed window, at one and two interfaces: its bucket's burst, seven an
+#: interface (mailbox.yaml, #884's ruling of 2026-11-22, item 1), and one in the fixture's.
+GPTP_AT_ONCE = {n: {'backlog': 7 * n, 'backlog-adp': 7 * n, 'backlog-adp-refill': 7 * n, 'backlog-owed': 7 * n,
+                    'fixture': 1} for n in (1, 2)}
 
 
 def fixture_clocks(oracle: dict) -> tuple[int, int]:
@@ -97,11 +99,19 @@ def opened_checks() -> list[Check]:
 
 
 def gptp_load_check(defined: dict[str, dict[str, int]]) -> Check:
-    """A gPTP image's defined loads: each row's `defined` (selftest.DEFINED) and its GPTP_AT_ONCE gptp records."""
+    """A gPTP image's defined loads at one and two interfaces: each row's `defined` (selftest.DEFINED) and its
+    GPTP_AT_ONCE gptp records."""
     opened = channel_gate.fixture() | {'gptp'}
-    derived = {name: {k: v for k, v in grade.defined_load(name, opened).items() if v} for name in defined}
-    want = {name: {**load, 'gptp': GPTP_AT_ONCE[name]} for name, load in defined.items()}
-    return "a gPTP image's defined loads, restated", derived == want, str(derived)
+    derived = {n: {name: {k: v for k, v in grade.defined_load(name, opened, n).items() if v} for name in defined}
+               for n in GPTP_AT_ONCE}
+    want = {n: {name: {**load, 'gptp': at[name]} for name, load in defined.items()} for n, at in GPTP_AT_ONCE.items()}
+    return "a gPTP image's defined loads at one and two interfaces, restated", derived == want, str(derived)
+
+
+def gptp_want(key: str) -> dict[str, int]:
+    """A composed window's gptp records by its load_checks key, `<row>@<interfaces>[+gptp]`: none without gPTP."""
+    row, _, rest = key.partition('@')
+    return {'gptp': GPTP_AT_ONCE[int(rest.split('+')[0])][row]} if rest.endswith('+gptp') else {}
 
 
 def gptp_point_check(build: ModuleType, points: dict[str, tuple[str, int]], ledgered: dict) -> Check:

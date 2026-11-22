@@ -47,8 +47,8 @@ import selftest_mutants  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
-from selftest_opened import (GPTP_AT_ONCE, fixture_clocks, fixture_kept, fixture_open, gptp_load_check,  # noqa: E402
-                             gptp_point_check, opened_checks, planted_probe)
+from selftest_opened import (fixture_clocks, fixture_kept, fixture_open, gptp_load_check,  # noqa: E402
+                             gptp_point_check, gptp_want, opened_checks, planted_probe)
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
 from selftest_held import held_checks  # noqa: E402
@@ -205,7 +205,7 @@ def fixture_checks() -> list[Check]:
                 "'maap': 0" in refusal(lambda: regraded(oracle, '\n'.join(dropped) + '\n', group)), ''))
     # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
     smaller = dict(grade.defined_load('fixture'), maap=0)
-    with patch.object(grade, 'defined_load', lambda name, opened=None: smaller):
+    with patch.object(grade, 'defined_load', lambda name, *_: smaller):
         refused = refusal(lambda: regraded(oracle))
     out.append(('a composed window that committed more than its load is refused', "'maap': 1" in refused,
                 refused or 'accepted'))
@@ -405,7 +405,7 @@ def composition_checks() -> list[Check]:
         lines = ['MARK 1000 composed', *received(ACMP, '-', 1100), *received(ACMP, '-', second),
                  f'PASS 1 1500 750 100 instr=10 store_mbx=1 W 1550:{tail:x}:14',
                  f'PASS 2 2000 1000 100 instr=10 store_mbx=1 W 2050:{tail:x}:28', 'MARK 100000 composed_end']
-        with patch.object(grade, 'defined_load', lambda name, opened=None: {'acmp': 2}):
+        with patch.object(grade, 'defined_load', lambda name, *_: {'acmp': 2}):
             rows = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['probes']
         got.append([(r['probe'].split('.', 1)[1], r['ahead']) for r in rows])
     want = [[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 1)],
@@ -442,7 +442,7 @@ def window_checks() -> list[Check]:
     lines = ['MARK 1000 composed', *[f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
                                      in enumerate(((2000, 100), (5000, 900), (20000, 300)), 1)],
              'MARK 100000 composed_end', 'PASS 4 200000 100000 5000 instr=10 store_mbx=1 W 200100:1:0']
-    with patch.object(grade, 'defined_load', lambda name, opened=None: {}):
+    with patch.object(grade, 'defined_load', lambda name, *_: {}):
         passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
     got = (passes['composed']['cycles'], passes['composed']['passes'], passes['worst']['cycles'])
     out.append(("the composed maximum is the window's longest pass, wherever it falls", got[:2] == (900, 3), str(got)))
@@ -521,8 +521,7 @@ def load_checks() -> list[Check]:
         for g in [*scenario.backlog_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]:
             sent[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = stimulus(g)
             declared[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = {k: v for k, v in g.load.items() if v}
-    want = {key: {**DEFINED[key.split('@')[0]], **({'gptp': GPTP_AT_ONCE[key.split('@')[0]]}
-                                                   if key.endswith('+gptp') else {})} for key in sent}
+    want = {key: {**DEFINED[key.split('@')[0]], **gptp_want(key)} for key in sent}
     out.append(("every composed window's stimulus is its defined load", sent == want,
                 ', '.join(f'{k} {v} (defined {want[k]})' for k, v in sent.items() if v != want[k])))
     out.append(('every composed window declares its defined load', declared == want,

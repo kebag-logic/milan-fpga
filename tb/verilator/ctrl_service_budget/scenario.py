@@ -51,7 +51,7 @@ import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
-from mailbox_model import load  # noqa: E402
+from mailbox_model import load, with_interfaces  # noqa: E402
 
 CONTRACT = load()
 CH = {ch.name: n for n, ch in enumerate(CONTRACT.channels)}
@@ -141,11 +141,11 @@ class Group:
     admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
     save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
 
-    def offer(self, channel: str, step: str, frame: bytes) -> None:
-        """One record of the composed load: a frame (or a reply) step the channel must commit."""
+    def offer(self, channel: str, step: str, frame: bytes, interfaces: int = 1) -> None:
+        """One record of the composed load: a frame (or a reply) step the channel must commit, at `interfaces`."""
         self.steps.append(step)
         self.load[channel] = self.load.get(channel, 0) + 1
-        self.admission.setdefault(channel, admission(channel, frame))
+        self.admission.setdefault(channel, admission(channel, frame, interfaces))
 
     def add(self, *steps: str) -> None:
         """Steps with no probe."""
@@ -672,16 +672,16 @@ def srp_groups(p: Point) -> list[Group]:
     return [g]
 
 
-def admission(channel: str, frame: bytes) -> dict:
-    """What KL_mbx_rx admits of a channel's records of this frame's size.
+def admission(channel: str, frame: bytes, interfaces: int = 1) -> dict:
+    """What KL_mbx_rx admits of a channel's records of this frame's size, built at `interfaces` AVB interfaces.
 
     The token bucket starts full, passes burst records back to back and then refills one per refill_ms
     (KL_mbx_rx.sv, buckets); the ring holds room records of this size whatever the rate. So room bounds what
     the ring can hold, and at_once = min(burst, room) is what one instant admits. Where the burst is below the
     room (bounded False), sustained arrivals at the refill rate can fill the ring past its burst, so a backlog
-    of at_once records is an observation, never a bound.
+    of at_once records is an observation, never a bound. A burst stated an interface is that times interfaces.
     """
-    ch = CONTRACT.channels[CH[channel]]
+    ch = with_interfaces(CONTRACT, interfaces).channels[CH[channel]]
     words = len(CONTRACT.rx_header) + (len(frame) + 3) // 4
     room = ch.rx_words // words
     return dict(burst=ch.burst, refill_ms=ch.refill_ms, record_words=words, room=room,
@@ -743,9 +743,9 @@ def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = 
               'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0)),
               **({'gptp': gptp_group.load_frame(p)} if p.gptp else {})}
     for channel, make in ((c, m) for c, m in frames.items() if c != own):
-        number = (counts or {}).get(channel, admission(channel, make(0)[1])['at_once'])
+        number = (counts or {}).get(channel, admission(channel, make(0)[1], p.interfaces)['at_once'])
         for n in range(number):
-            g.offer(channel, *make(n))
+            g.offer(channel, *make(n), p.interfaces)
 
 
 def announced(g: Group) -> None:

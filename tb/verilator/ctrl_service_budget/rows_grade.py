@@ -169,9 +169,11 @@ def costs(root: Path, point: str, table: dict | None = None) -> dict[str, float]
 
 
 def contract(root: Path) -> tuple[dict[str, tuple[int, int]], int]:
-    """Each receive channel's (burst, refill_ms) and the TICK period, from the mailbox contract."""
+    """Each receive channel's (burst, refill_ms) and the TICK period, from the mailbox contract: a burst stated an
+    interface at the contract's interfaces (gptp's, mailbox.yaml)."""
     y = load_grade.parsed((root / 'sw/mailbox/mailbox.yaml').read_text())
-    return {c['name']: (c['rate']['burst'], c['rate']['refill_ms']) for c in y['channels']}, y['tick_ms']
+    return {c['name']: (c['rate'].get('burst') or c['rate']['burst_per_interface'] * y['interfaces'],
+                        c['rate']['refill_ms']) for c in y['channels']}, y['tick_ms']
 
 
 def rounds_us(h: dict, w_ms: float) -> tuple[float, int]:
