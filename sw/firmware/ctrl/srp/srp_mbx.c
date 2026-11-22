@@ -618,9 +618,6 @@ static bool create_participants(struct srp_interface *i)
     mrp_set_observer(i->mvrp,moved_mvrp,i);
     i->stale = true;
     i->reclaim = true;
-    // new participants keep no Talker: whatever a reset destroyed is counted no more (#969, count_kept)
-    i->owner->kept_count[i->index] = 0u;
-    i->owner->kept_due[i->index] = 0u;
     // These valid constants are installed before creating any attribute.
     (void)mrp_port_configure(i->msrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS,(uint32_t)i->mac,true);
     (void)mrp_port_configure(i->mvrp,0,SRP_JOIN_CS,500,SRP_LEAVEALL_CS,(uint32_t)i->mac ^ 0x91u,true);
@@ -962,10 +959,10 @@ static void kept_visited(void *ctx, const struct mrp_attr_status *status)
 // (srp_mbx_bind), or one counted or kept since may have ended and a block was returned since the count. A kept
 // attribute ends only when mrp_reclaim frees it, a return, after its Registrar left IN, an indication
 // (talker_changed), or after a creation with no registration (keep_talker); and when a reset destroys the
-// participants, whose new ones hold none (create_participants). So the count a receive starts from is exactly the kept
-// attributes its participant holds, and a receive refuses a Talker only at that occupancy, past which the fixed blocks
-// fund no more (srp_mbx.h). While nothing is pending a block returned owes no count, so the kept at their bound cost a
-// receive nothing more.
+// participants, which zeroes the count with them (reset_interface). So the count a receive starts from is exactly the
+// kept attributes its participant holds, and a receive refuses a Talker only at that occupancy, past which the fixed
+// blocks fund no more (srp_mbx.h). While nothing is pending a block returned owes no count, so the kept at their bound
+// cost a receive nothing more.
 static void count_kept(struct srp_interface *i)
 {
     struct srp_mbx *m = i->owner;
@@ -1333,12 +1330,13 @@ static void reset_interface(struct srp_interface *i)
         i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
     }
     // the registrations a StreamID was held for are destroyed with the participants (#925, srp_held); a later entry
-    // moved into the place of one ending has been seen already
+    // moved into the place of one ending has been seen already; and so are the kept Talkers (#969, count_kept)
     for (unsigned n = m->held_count; n-- != 0u;) {
         if (m->held[n].interface == i->index) {
             release_held(m,&m->held[n]);
         }
     }
+    m->kept_count[i->index] = 0u;
     // The next pass's poll builds the new participants: both halves in one
     // pass are over the per-pass share at 8x8 (#665, srp_bounds.h).
     i->reopen_polls = 1u;

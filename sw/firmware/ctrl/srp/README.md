@@ -357,8 +357,9 @@ and no binding holds, registered or left with its block not yet freed by
 again when a binding changed since it, or when one counted or kept since may
 have ended and a block was returned since: a kept attribute ends only when
 `mrp_reclaim` frees it, after its Registrar left IN (an indication) or after a
-creation with no registration (a Leave lwSRP creates it for), and a reset's new
-participants keep none (`create_participants`). So after a reset, or once a kept
+creation with no registration (a Leave lwSRP creates it for), or when a reset
+destroys the participants, which zeroes the count with them
+(`reset_interface`). So after a reset, or once a kept
 one's block is freed, below the bound as at it, one receive of every input's
 Talker is kept whole; while nothing is pending a block returned owes no count.
 Within one receive the count rises only by what the filter keeps, so the bound

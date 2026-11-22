@@ -204,7 +204,7 @@ struct srp_mbx {
     // participant held at the last count of them (count_kept) and each one the filter kept since, at most the pool's
     // attribute blocks, under 256, and kept lists the first SRP_KEPT_TALKERS of them; kept_due, what owes the next
     // receive a count (srp_mbx.c SRP_KEPT_BOUND, SRP_KEPT_PENDING), and kept_returned, the blocks the pools had
-    // returned at that count (ctrl_pool_returned). A reset's new participants hold none (create_participants).
+    // returned at that count (ctrl_pool_returned). A reset zeroes the count with the participants (reset_interface).
     uint32_t kept_returned[MBX_N_IF];
     uint8_t kept_count[MBX_N_IF];
     uint8_t kept_due[MBX_N_IF];
