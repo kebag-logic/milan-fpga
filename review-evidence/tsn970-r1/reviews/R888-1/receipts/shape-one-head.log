@@ -1,0 +1,24 @@
+Note: Google Test filter = AdpFirstAvailable.*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from AdpFirstAvailable
+[ RUN      ] AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp
+  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 56 distinct delays, the latest 499 ms after LINK_UP (bound 1000)
+  G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+[       OK ] AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp (161 ms)
+[ RUN      ] AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp
+  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 496 ms (bound 1000)
+[       OK ] AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp (1 ms)
+[ RUN      ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt
+  G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 457 ms after LINK_UP (bound 1000)
+[       OK ] AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt (4 ms)
+[ RUN      ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced
+  G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 421 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+[       OK ] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced (34 ms)
+[----------] 4 tests from AdpFirstAvailable (203 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (203 ms total)
+[  PASSED  ] 4 tests.
+== ctrl ADP slice (fake ports and host model): checks: 4   failures: 0 ==
+RESULT: PASS

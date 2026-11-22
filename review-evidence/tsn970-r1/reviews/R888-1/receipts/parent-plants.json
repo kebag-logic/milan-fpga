@@ -1,0 +1,106 @@
+[
+  {
+    "plant": "gm-change-ignored",
+    "arm": "walk",
+    "test": "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING",
+    "needle": "GM_CHANGE x WAITING",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "gm-change-ignored",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced",
+    "needle": "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "link-up-draws-startup-kind",
+    "arm": "walk",
+    "test": "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN",
+    "needle": "LINK_UP x DOWN",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "draw-kinds-merged",
+    "arm": "adp",
+    "test": "AdpCore.A9DrawKinds",
+    "needle": "A9 every startup draw and every LINK_UP draw is 0..0.5 s",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "link-up-draws-the-delay-kind",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp",
+    "needle": "G1 the first ENTITY_AVAILABLE leaves within 1 s of every LINK_UP",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "link-up-draws-the-delay-kind",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt",
+    "needle": "G3 a grandmaster change before the first ENTITY_AVAILABLE does not hold it past 1 s",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "link-up-draws-the-delay-kind",
+    "arm": "walk",
+    "test": "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN",
+    "needle": "the draw is the 0..0.5 s LINK_UP kind",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "startup-range-two-seconds",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp",
+    "needle": "G2 the first ENTITY_AVAILABLE, index 0, leaves within 1 s of a startup with the link up",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "gm-change-in-delay-restarts-the-delay",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt",
+    "needle": "G3 a grandmaster change before the first ENTITY_AVAILABLE does not hold it past 1 s",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "every-draw-the-first-range",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp",
+    "needle": "G5 only the link-up's delay is shortened: the TMR_ADVERTISE delays pass 0.5 s",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "first-delays-not-drawn",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp",
+    "needle": "G1 the delay stays a random draw across the link-ups",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "first-delays-not-drawn",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G2WithinOneSecondOfAStartupWithTheLinkUp",
+    "needle": "G2 the startup delay stays a random draw across the entities",
+    "caught": true,
+    "rc": 1
+  },
+  {
+    "plant": "link-loss-resets-the-index",
+    "arm": "adp",
+    "test": "AdpFirstAvailable.G1G5WithinOneSecondOfEveryLinkUp",
+    "needle": "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up",
+    "caught": true,
+    "rc": 1
+  }
+]

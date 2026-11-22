@@ -1,0 +1,21 @@
+Published manifest: 154 files checked, mismatches []
+Stack author gates: 28, nonzero []
+firmware-gate-shard0.txt: PASS=True, rc0=True, suite verdicts=75
+firmware-gate-shard1.txt: PASS=True, rc0=True, suite verdicts=0
+firmware-gate-shard2.txt: PASS=True, rc0=True, suite verdicts=0
+firmware-gate-shard3.txt: PASS=True, rc0=True, suite verdicts=0
+1x1-probes.txt: probes: base 63, head 63, paired 63, only base 0, only head 0
+1x1-probes.txt: verdicts changed: 0
+1x1-probes.txt: misses each side: base 0, head 0
+1x1-probes.txt: largest differences: backlog-adp-refill/backlog-adp-refill.service.adp.last.if0 -0.074 ms (0.352 -> 0.278, budget 20); backlog-adp-refill/backlog.adp_available_refill.if0 -0.068 ms (0.187 -> 0.119, budget 20); aecp/aecp.mvu_get_milan_info.if0 -0.049 ms (0.189 -> 0.140, budget 20); control/adp.tmr_delay.if0 +0.033 ms (0.105 -> 0.138, budget 20); adp-link/adp.tmr_delay.if0 +0.033 ms (0.105 -> 0.138, budget 20)
+8x8-1if-probes.txt: probes: base 63, head 63, paired 63, only base 0, only head 0
+8x8-1if-probes.txt: verdicts changed: 0
+8x8-1if-probes.txt: misses each side: base 0, head 0
+8x8-1if-probes.txt: largest differences: aecp/aecp.get_as_path.if0 +0.097 ms (0.152 -> 0.249, budget 20); adp-advertise/adp.tmr_advertise.if0 -0.026 ms (0.081 -> 0.055, budget 20); control/adp.tmr_delay.if0 +0.020 ms (0.084 -> 0.104, budget 20); adp-link/adp.tmr_delay.if0 +0.020 ms (0.084 -> 0.104, budget 20); adp-gm/adp.tmr_delay.if0 +0.020 ms (0.084 -> 0.104, budget 20)
+flip_grade.py_--check: base/head bytes equal=True
+flip_grade.py_--check_--point_1x1_1if: base/head bytes equal=True
+load_grade.py_--check: base/head bytes equal=True
+shape_costs.py_--check: base/head bytes equal=True
+Platform and size-fixture image pairs: 8
+Budget canonical image comparisons refused: 12
+Budget hash rows: base=12 head=12

@@ -1,0 +1,139 @@
+{
+  "source_head": "5d14a6d816a43a49299172a34e3eeaea44c267c6",
+  "run": {
+    "workflow_runs": [
+      {
+        "id": 45031015936,
+        "name": "Portable core quality",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 141,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/tsn-c-stack/actions/runs/45031015936/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/tsn-c-stack/actions/runs/45031015936/logs",
+        "workflow_id": 379281228
+      }
+    ]
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 137234402130,
+        "name": "bare-metal",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45031015936,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install RV32 dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Validate the freestanding cores",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Keep RV32 evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 137234402436,
+        "name": "quality",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 45031015936,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Install host dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Validate the portable cores",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Keep gate evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      }
+    ]
+  },
+  "combined_status": {
+    "statuses": []
+  },
+  "prior_reviews": {
+    "reviews": []
+  },
+  "prior_threads": {
+    "review_threads": []
+  },
+  "prior_comment_urls": [
+    "https://github.com/kebag-logic/tsn-c-stack/pull/35#issuecomment-7080327687",
+    "https://github.com/kebag-logic/tsn-c-stack/pull/35#issuecomment-7080333311"
+  ],
+  "interpretation": "Executed quality and bare-metal job steps, no skipped steps shown. This is source-head hosted evidence, not a current-dev merge-candidate bank. Prior findings checked after the independent verdict and ledger: none published."
+}

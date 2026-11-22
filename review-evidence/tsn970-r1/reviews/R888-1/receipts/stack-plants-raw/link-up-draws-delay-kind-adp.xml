@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-22T15:14:36.464" name="AllTests">
+  <testsuite name="AdpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-22T15:14:36.464">
+    <testcase name="A0toA2Schedule" file="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp" line="547" status="run" result="completed" time="0." timestamp="2026-11-22T15:14:36.464" classname="AdpCore">
+      <failure message="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:123&#x0A;Value of: a.state == ADP_STATE_DELAY &amp;&amp; a.last_draw == ADP_DRAW_LINK_UP &amp;&amp; fk.last_delay == a.last_draw_ms &amp;&amp; fk.last_delay &lt;= kFirstDrawMaxMs&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa&#x0A;A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)&#x0A;TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:123
+Value of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_LINK_UP && fk.last_delay == a.last_draw_ms && fk.last_delay <= kFirstDrawMaxMs
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+]]></failure>
+    </testcase>
+    <testcase name="A9DrawKinds" file="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp" line="559" status="run" result="completed" time="0." timestamp="2026-11-22T15:14:36.464" classname="AdpCore">
+      <failure message="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488&#x0A;Value of: first_in_range&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa&#x0A;A9 every startup draw and every LINK_UP draw is 0..0.5 s&#x0A;TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488
+Value of: first_in_range
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A9 every startup draw and every LINK_UP draw is 0..0.5 s
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="2" failures="2" disabled="0" errors="0" time="0." timestamp="2026-11-22T15:14:42.739" name="AllTests">
+  <testsuite name="AdpCore" tests="2" failures="2" disabled="0" skipped="0" errors="0" time="0." timestamp="2026-11-22T15:14:42.739">
+    <testcase name="A3toA5DiscoverAndDiscard" file="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp" line="551" status="run" result="completed" time="0." timestamp="2026-11-22T15:14:42.739" classname="AdpCore">
+      <failure message="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:153&#x0A;Value of: a.state == ADP_STATE_DELAY &amp;&amp; a.last_draw == ADP_DRAW_STARTUP &amp;&amp; a.last_draw_ms &lt;= kFirstDrawMaxMs&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa&#x0A;A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)&#x0A;TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:153
+Value of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_STARTUP && a.last_draw_ms <= kFirstDrawMaxMs
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+]]></failure>
+    </testcase>
+    <testcase name="A9DrawKinds" file="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp" line="559" status="run" result="completed" time="0." timestamp="2026-11-22T15:14:42.739" classname="AdpCore">
+      <failure message="$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488&#x0A;Value of: first_in_range&#x0A;  Actual: false&#x0A;Expected: true&#x0A;&#x0A;TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa&#x0A;A9 every startup draw and every LINK_UP draw is 0..0.5 s&#x0A;TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f&#x0A;&#x0A;" type=""><![CDATA[$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488
+Value of: first_in_range
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A9 every startup draw and every LINK_UP draw is 0..0.5 s
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

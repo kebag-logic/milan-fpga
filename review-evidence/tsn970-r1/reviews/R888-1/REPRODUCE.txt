@@ -1,0 +1,23 @@
+Independent review reproduction
+
+Inputs: exact stack checkout at 5d14a6d816a43a49299172a34e3eeaea44c267c6 and parent checkout at 27495a06d5569336a098da20381ced3e331ba665. Put all disposable checkouts beneath this packet's scratch directory. Initialize the parent protocol-processor and third_party/tsn-c-stack gitlinks for the focused tests. Initialize gptp-processor, third_party/lwSRP and third_party/verilog-axis as well for verify_exact.py. Leave external unused.
+
+Prerequisites: the repository's pinned GoogleTest/GMock 1.14.0, CMake, GCC, Clang 18, clang-tidy 18, cppcheck, Python, RV32 compiler and QEMU. Set REVIEW_GTEST_PREFIX to that installation and REVIEW_COMPILER_PATH to the compiler-bin search path. For the scripts other than run_stack.py also export the matching PKG_CONFIG_PATH, CMAKE_PREFIX_PATH, LD_LIBRARY_PATH and PATH. Follow the stack README/VERIFICATION for exact dependencies.
+
+Run these commands from this packet, substituting the two checkout arguments. Each command waits for its own work; no process is detached. run_stack.py orchestrates bounded independent jobs; run_parent.py and run_shape_one.py each compile at most two four-job arms together. Do not overlap the 16-worker static-analysis driver with another campaign.
+
+rtk proxy python3 run_stack.py STACK_CHECKOUT
+rtk proxy python3 run_parent.py PARENT_CHECKOUT
+rtk proxy python3 run_shape_one.py PARENT_CHECKOUT
+rtk proxy python3 run_probe.py STACK_CHECKOUT
+rtk proxy python3 regenerate.py STACK_CHECKOUT
+rtk proxy python3 audit_evidence.py PUBLISHED_EVIDENCE_ROOT
+rtk proxy python3 verify_exact.py STACK_CHECKOUT PARENT_CHECKOUT
+
+PUBLISHED_EVIDENCE_ROOT is review-evidence/tsn970-r1 extracted from milan-fpga commit 134345784d83af67316c82ac8495d89a489e604e. All original public evidence remains available there. The audit consumes that commit's MANIFEST.json and author-r1 receipts.
+
+Expected: clean-head suites pass; base G1/G2/G3/G4 fail their timing assertions; all selected mutation obligations fail with their named messages and are graded caught. Seven stack plants and nine parent plants are intentionally a focused subset. The published full campaigns remain separate evidence. run_shape_one.py changes only the two entity count literals in a disposable test source. run_probe.py measures delay concentration without a network or queue model.
+
+The first run_stack invocation attempted an unsupported comma-separated mutation selection. Its failed invocation receipt is retained. The delivered run_stack.py calls run_selected_plants.py, which creates an explicit seven-entry registry in a disposable copy; that corrected campaign was executed successfully. The original tracked source was never patched.
+
+Raw assertion logs and XML are included. Only filesystem prefixes in publishable receipt text are normalized as $STACK, $PACKET, $GTEST and $TOOLS. scratch contains disposable binaries, copies and source documents and must not be published. MANIFEST.sha256 lists all publishable files except the manifest itself.

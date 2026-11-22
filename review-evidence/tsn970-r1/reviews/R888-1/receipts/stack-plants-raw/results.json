@@ -1,0 +1,67 @@
+[
+  {
+    "name": "link-up-draws-startup-kind",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A0toA2Schedule": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:123\nValue of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_LINK_UP && fk.last_delay == a.last_draw_ms && fk.last_delay <= kFirstDrawMaxMs\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "draw-kinds-merged",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488\nValue of: first_in_range\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 every startup draw and every LINK_UP draw is 0..0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "link-up-draws-delay-kind",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A0toA2Schedule": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:123\nValue of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_LINK_UP && fk.last_delay == a.last_draw_ms && fk.last_delay <= kFirstDrawMaxMs\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n",
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488\nValue of: first_in_range\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 every startup draw and every LINK_UP draw is 0..0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 2
+  },
+  {
+    "name": "link-up-range-is-the-delay-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488\nValue of: first_in_range\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 every startup draw and every LINK_UP draw is 0..0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "every-draw-the-first-range",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:490\nValue of: max_delay > kFirstDrawMaxMs\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 the kinds are distinct: the 0..4 s draws pass 0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n\n$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:491\nValue of: max_start > 450u && max_link > 450u && max_delay > 3600u\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 and each reaches near its maximum\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 1
+  },
+  {
+    "name": "startup-range-two-seconds",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A3toA5DiscoverAndDiscard": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:153\nValue of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_STARTUP && a.last_draw_ms <= kFirstDrawMaxMs\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n",
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488\nValue of: first_in_range\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 every startup draw and every LINK_UP draw is 0..0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 2
+  },
+  {
+    "name": "link-up-range-four-seconds",
+    "status": "CAUGHT",
+    "rc": 1,
+    "failures": {
+      "AdpCore.A9DrawKinds": "$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488\nValue of: first_in_range\n  Actual: false\nExpected: true\n\nTSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa\nA9 every startup draw and every LINK_UP draw is 0..0.5 s\nTSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f\n\n"
+    },
+    "tests": 1
+  }
+]

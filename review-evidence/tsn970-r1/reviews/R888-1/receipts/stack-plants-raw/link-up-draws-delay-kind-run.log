@@ -1,0 +1,38 @@
+Note: Google Test filter = AdpCore.A0toA2Schedule:AdpCore.A9DrawKinds
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:123: Failure
+Value of: a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_LINK_UP && fk.last_delay == a.last_draw_ms && fk.last_delay <= kFirstDrawMaxMs
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A0 LINK_UP: DELAY with a 0..0.5 s draw of the LINK_UP kind (5.6.3.5.3)
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+
+[  FAILED  ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+$PACKET/scratch/selected-plants/baseline/tests/test_adp.cpp:488: Failure
+Value of: first_in_range
+  Actual: false
+Expected: true
+
+TSN_MESSAGE_BEGIN_1dd440f2ecf099ce97666353c5ce2eaa
+A9 every startup draw and every LINK_UP draw is 0..0.5 s
+TSN_MESSAGE_END_7ce61cf48eba15e88e51f14b6567eb8f
+
+
+[  FAILED  ] AdpCore.A9DrawKinds (0 ms)
+[----------] 2 tests from AdpCore (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] AdpCore.A0toA2Schedule
+[  FAILED  ] AdpCore.A9DrawKinds
+
+ 2 FAILED TESTS

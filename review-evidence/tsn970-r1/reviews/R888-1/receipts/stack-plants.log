@@ -1,0 +1,10 @@
+$ python3 scripts/mutation.py --work $PACKET/scratch/stack-plants --jobs 4 --select link-up-draws-startup-kind,draw-kinds-merged,link-up-draws-delay-kind,link-up-range-is-the-delay-range,every-draw-the-first-range,startup-range-two-seconds,link-up-range-four-seconds
+Traceback (most recent call last):
+  File "$STACK/scripts/mutation.py", line 265, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$STACK/scripts/mutation.py", line 184, in main
+    raise RuntimeError("empty campaign")
+RuntimeError: empty campaign
+
+rc=1
