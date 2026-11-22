@@ -286,9 +286,12 @@ def selftest() -> int:
         (Path(tmp) / "names.txt").write_text("\n".join(plan_variants(plan)))
         if "ship" not in plan_variants(plan):
             problems.append("the plan has no shipping SoC variant")
-        if plan_placement(plan) != "all-fabric":
-            problems.append(f"the plan prices the {plan_placement(plan)} SoC, not the all-fabric one its "
-                            "recorded figures were taken at")
+        try:
+            if plan_placement(plan) != "all-fabric":
+                problems.append(f"the plan prices the {plan_placement(plan)} SoC, not the all-fabric one its "
+                                "recorded figures were taken at")
+        except yosys_sweep.PlanError as refusal:
+            problems.append(f"the plan: {refusal}")
         try:
             plan_placement({"soc": {"variants": {}}})
             problems.append("a soc section that names no placement was accepted")
