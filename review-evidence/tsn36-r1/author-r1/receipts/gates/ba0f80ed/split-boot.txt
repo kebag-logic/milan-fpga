@@ -1,0 +1,76 @@
+HEAD ba0f80ed dirty 0 start 17:11:58
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+BOOT ready at bus cycle 2797817 (2797817 CPU cycles): 27.978 ms against 20000 ms; banners 1
+TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+UART milan_status: 305 bytes; span 5.366 ms; to the first byte 0.647 ms; longest gap between bytes 0.303 ms; against 500 ms and T_svc 20 ms
+UART milan_gettime: 27 bytes; span 0.399 ms; to the first byte 0.236 ms; longest gap between bytes 0.143 ms; against 500 ms and T_svc 20 ms
+UART milan_gettime: 27 bytes; span 0.386 ms; to the first byte 0.223 ms; longest gap between bytes 0.143 ms; against 500 ms and T_svc 20 ms
+PHY the arm published link down at 2.636 ms, before the first frame at 27.125 ms and ready at 27.978 ms
+PHY 59 frames, 10 publications; the longest frame 14582 bus cycles (14582 CPU cycles, 145.82 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.115 to 125.330 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.202 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+GRADER id-miln: PASS (ID=0x4D494C4E VERSION=0x00030060); not evidence: ID is the datapath's reset value, which the testbench answers
+GRADER version-gptp-publication: PASS (VERSION=0x00030060 (need major 2 or 3, minor >= 0x0056)); not evidence: VERSION is the split datapath's reset value, 0x0003_0060 (#665), which the testbench answers
+GRADER aem-image: PASS (AEM=loaded)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-identities: PASS (GM=0x5A0628015A062401 PARENT=0x5A0734015A073001); not evidence: no gPTP peer and no datapath: GM and parent are the stand-in register file's words
+GRADER gptp-path: PASS (count=1 generation=0); not evidence: no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file's word
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x0000000001FF4929 -> 0x0000000002147407)
+ctrl_split_boot: PASS (0 finding(s))
+== 1x1 rc=0 17:21:59
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+BOOT ready at bus cycle 6722765 (6722765 CPU cycles): 67.228 ms against 20000 ms; banners 1
+TRACE 49 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+UART milan_status: 305 bytes; span 6.858 ms; to the first byte 0.778 ms; longest gap between bytes 0.367 ms; against 500 ms and T_svc 20 ms
+UART milan_gettime: 27 bytes; span 0.549 ms; to the first byte 0.314 ms; longest gap between bytes 0.214 ms; against 500 ms and T_svc 20 ms
+UART milan_gettime: 27 bytes; span 0.356 ms; to the first byte 0.122 ms; longest gap between bytes 0.214 ms; against 500 ms and T_svc 20 ms
+PHY the arm published link down at 4.434 ms, before the first frame at 66.186 ms and ready at 67.228 ms
+PHY 59 frames, 10 publications; the longest frame 14707 bus cycles (14707 CPU cycles, 147.07 us) against the stated CTRL_PLAT_PHY_STEP_US 155 us
+PHY polls 7; between two starts before the loss 125.092 to 125.485 ms against CTRL_PLAT_PHY_POLL_US 125 ms and the publication bound 250 ms
+PHY after latched: the next poll published [0, 13]
+PHY after down: the next poll published [0, 0]
+PHY after back: the next poll published [13]
+PHY the link's return published up 126.430 ms after it, against the publication bound 250 ms
+PHY advertisement: 7 writes; the boot's [(9, '0x200'), (4, '0x1'), (0, '0x1200')], after each of 2 losses [[(9, '0x200'), (4, '0x1')], [(9, '0x200'), (4, '0x1')]]
+PHY MDC: the shortest high 950 ns, low 1120 ns, period 2260 ns, against IEEE 802.3 22.2.2.13's 160, 160 and 400 ns
+GRADER id-miln: PASS (ID=0x4D494C4E VERSION=0x00030060); not evidence: ID is the datapath's reset value, which the testbench answers
+GRADER version-gptp-publication: PASS (VERSION=0x00030060 (need major 2 or 3, minor >= 0x0056)); not evidence: VERSION is the split datapath's reset value, 0x0003_0060 (#665), which the testbench answers
+GRADER aem-image: PASS (AEM=loaded)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-identities: PASS (GM=0x5A0628015A062401 PARENT=0x5A0734015A073001); not evidence: no gPTP peer and no datapath: GM and parent are the stand-in register file's words
+GRADER gptp-path: PASS (count=1 generation=0); not evidence: no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file's word
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x00000000046E17C1 -> 0x000000000482D5A3)
+ctrl_split_boot: PASS (0 finding(s))
+== 8x8 rc=0 17:29:52
+NATIVE-CONTROL native-passes: as required (run PASS, regrade PASS; required PASS, PASS); findings: [] / []
+NATIVE-CONTROL native-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1'] / ['NATIVE: the model exited 1']
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-incomplete: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model printed no tally: it did not complete']
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-status-not-saved: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings: [] / ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+ctrl_split_boot native controls: 6 of 6 as required
+PLANT flash-window-cached: caught (the export is refused: its flash window's regions)
+PLANT csr-write-skipped: caught (TRACE; the run completed); findings: ["TRACE: [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe4b4c01'), ('0x608', '0x24b4cff'), ('0x60c', '0x179523ab'), ('0x610', '0x1bc5cd'), ('0x108', '0x4b4c4b02'), ('0x10c', '0x14c'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x680', '0x13'), ('0x6cc', '0x201'), ('0x750', '0x3'), ('0x654', '0x20000'), ('0x750', '0x2'), ('0x6cc', '0x200'), ('0x654', '0x20000')] != [('0x600', '0x5a060000'), ('0x920', '0x5a092000'), ('0x604', '0xfe4b4c01'), ('0x608', '0x24b4cff'), ('0x60c', '0x179523ab'), ('0x610', '0x1bc5cd'), ('0x108', '0x4b4c4b02'), ('0x10c', '0x14c'), ('0x100', '0x5a010009'), ('0x700', '0x1'), ('0x654', '0x20001'), ('0x684', '0x2'), ('0x680', '0x13'), ('0x6cc', '0x201'), ('0x750', '0x3'), ('0x654', '0x20000'), ('0x750', '0x2'), ('0x6cc', '0x200')]"]
+PLANT phy-unpublished: caught (PHY; the run completed); findings: ['PHY: a step of the script waited past its limit for the publication it needs', "PHY: the boot's poll published [], not link down a miss, then the PHY's 1000BASE-T full duplex (13)", 'PHY: a loss latched between two polls is not published down, then up, by the next poll: []', 'PHY: a loss is not published down by the next poll: []', "PHY: the link's return is not published up by the first poll after it: []", 'PHY: after the 0 losses the advertisement was written [], not [(9, 512), (4, 1)] after each, with no restart', "PHY: 7 writes, not the boot's three and two after each loss"]
+PLANT phy-loss-not-latched: caught (PHY; the run completed); findings: ['PHY: a step of the script waited past its limit for the publication it needs', 'PHY: a loss latched between two polls is not published down, then up, by the next poll: [[13]]', 'PHY: a loss is not published down by the next poll: [[0]]', 'PHY: after the 1 losses the advertisement was written [[]], not [(9, 512), (4, 1)] after each, with no restart']
+PLANT phy-unadvertised: caught (PHY; the run completed); findings: ['PHY: after the 2 losses the advertisement was written [[(9, 512), (4, 1)], []], not [(9, 512), (4, 1)] after each, with no restart']
+PLANT phy-arm-unpublished: caught (PHY; the run completed); findings: ["PHY: no link down published before the first MDIO frame (the first publication (2725742, 0), the first frame at 2710756): the datapath keeps the reset value's link up until a poll publishes (#972)"]
+PLANT console-blocks: caught (UART; the run completed); findings: ['UART: milan_status holds the loop past its bound (548.275 / 1.106 / 540.642 ms)', "PHY: the boot's poll published [[0]], not link down a miss, then the PHY's 1000BASE-T full duplex (13)", 'PHY: polls 12510439 to 54193029 bus cycles apart, not every CTRL_PLAT_PHY_POLL_US within 250 ms']
+PLANT guard-removed: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+PLANT deviations-empty: caught (PLACEMENT; the export of the moved spiflash_master_cs ended TAKEN)
+ctrl_split_boot placement controls: 8 of 8 as required
+ctrl_split_boot self-test: 6 of 6 native controls as required; 7 of 7 plants caught; 0 placement controls wrong
+== self-test rc=0 18:36:47
+dirty-after 0
+END rc=0 18:36:48

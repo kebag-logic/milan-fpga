@@ -1,0 +1,88 @@
+# image diff: base plat/8x8-if1 against head (same point)
+## 1. linked inputs: 44 base, 44 head, same names in the same order: True
+inputs that differ by sha256: 1 of 44: 19-ctrl_plat_phy.o
+## 2. 19-ctrl_plat_phy.o, normalised code: 19 line(s) differ; other sections' bytes: differ only in sections the link discards
+--- base/19-ctrl_plat_phy.o
++++ head/19-ctrl_plat_phy.o
+@@ -27,4 +27,5 @@
+ 	sw	s2,16(sp)
+ 	sw	ra,28(sp)
++	sw	s4,8(sp)
+ 	mv	s0,a0
+ 	mv	s2,a3
+@@ -43,10 +44,16 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	li	a5,3
+-	sb	a5,24(s0)
+-	li	a5,20
+-	sw	a5,28(s0)
++	lw	a0,8(s3)
++	li	a1,0
+ 	sw	s1,12(s0)
+ 	sw	s2,16(s0)
++	auipc	ra,0x0
++	R_RISCV_CALL_PLT	ctrl_plat_io_write32
++	R_RISCV_RELAX	*ABS*
++	jalr	ra
++	li	a5,20
++	li	s4,1
++	sw	a5,28(s0)
++	sb	s4,24(s0)
+ 	mv	a0,s2
+ 	jalr	s1
+@@ -63,6 +70,5 @@
+ 	bgeu	a5,a0,<.L5>
+ 	R_RISCV_BRANCH	.L5
+-	li	a5,1
+-	sw	a5,28(s0)
++	sw	s4,28(s0)
+ <.L5>:
+ 	lw	ra,28(sp)
+@@ -71,4 +77,5 @@
+ 	lw	s2,16(sp)
+ 	lw	s3,12(sp)
++	lw	s4,8(sp)
+ 	addi	sp,sp,32
+ 	ret
+--- base/19-ctrl_plat_phy.o
++++ head/19-ctrl_plat_phy.o
+@@ -18,13 +18,13 @@
+-.eh_frame (discarded by the link): 2c000000 34000000 00000000 00000000
+-.eh_frame (discarded by the link): 00440e20 48890393 055c8802 92048101
+-.eh_frame (discarded by the link): 027cc144 c844c944 d244d344 0e000000
+-.eh_frame (discarded by the link): 48000000 64000000 00000000 00000000
+-.eh_frame (discarded by the link): 00540e30 44880274 89039204 93058101
+-.eh_frame (discarded by the link): 94069507 96089709 980a990b 9a0c780a
+-.eh_frame (discarded by the link): c144c844 c944d244 d344d444 d544d644
+-.eh_frame (discarded by the link): d744d844 d944da44 0e00440b 48000000
+-.eh_frame (discarded by the link): b0000000 00000000 00000000 00440e20
+-.eh_frame (discarded by the link): 5c880289 03810192 04930594 0695077c
+-.eh_frame (discarded by the link): 0ac844c1 44c944d2 44d344d4 44d5440e
+-.eh_frame (discarded by the link): 00480b02 84c144c8 48c944d2 44d344d4
+-.eh_frame (discarded by the link): 44d5480e 00000000 D.H.....
++.eh_frame (discarded by the link): 30000000 34000000 00000000 00000000
++.eh_frame (discarded by the link): 00440e20 48890393 05608802 92048101
++.eh_frame (discarded by the link): 94060288 c144c844 c944d244 d344d444
++.eh_frame (discarded by the link): 0e000000 48000000 68000000 00000000
++.eh_frame (discarded by the link): 00000000 00540e30 44880274 89039204
++.eh_frame (discarded by the link): 93058101 94069507 96089709 980a990b
++.eh_frame (discarded by the link): 9a0c780a c144c844 c944d244 d344d444
++.eh_frame (discarded by the link): d544d644 d744d844 d944da44 0e00440b
++.eh_frame (discarded by the link): 48000000 b4000000 00000000 00000000
++.eh_frame (discarded by the link): 00440e20 5c880289 03810192 04930594
++.eh_frame (discarded by the link): 0695077c 0ac844c1 44c944d2 44d344d4
++.eh_frame (discarded by the link): 44d5440e 00480b02 84c144c8 48c944d2
++.eh_frame (discarded by the link): 44d344d4 44d5480e 00000000 D.D.D.H.....
+## 3. link map: 694 placed input sections base, 694 head; same (object, section) order: True
+input sections whose size differs: 19-ctrl_plat_phy.o .text.ctrl_plat_phy_arm 176 -> 192 bytes
+  shift +0 B over 374 section(s): ctrl_split_start.o .text.start @0x0 .. 19-ctrl_plat_phy.o .text.ctrl_plat_phy_arm @0x115d4
+  shift +16 B over 243 section(s): 19-ctrl_plat_phy.o .text.ctrl_plat_phy_step @0x11684 .. 40-mvrp.o .srodata.mvrp_group_addr @0x21db8
+  shift +0 B over 77 section(s): 20-ctrl_plat.o .data.maps @0x10000000 .. 40-mvrp.o .riscv.attributes @0x6b8
+## 4. output sections (base | head)
+  .text PROGBITS addr 0x00000000 size 0x01b97c | .text PROGBITS addr 0x00000000 size 0x01b98c   <-
+  .rodata PROGBITS addr 0x0001b980 size 0x00643e | .rodata PROGBITS addr 0x0001b990 size 0x00643e   <-
+  .data PROGBITS addr 0x10000000 size 0x000208 | .data PROGBITS addr 0x10000000 size 0x000208
+  .bss NOBITS addr 0x10000240 size 0x015d30 | .bss NOBITS addr 0x10000240 size 0x015d30
+  .stack NOBITS addr 0x10015f70 size 0x002000 | .stack NOBITS addr 0x10015f70 size 0x002000
+loadable bytes sha256: base 975c307db40a05ff head 3fd50503219a8e68; whole ELF base 0add4cbd25ffc66d head 47e5d43ea21b6d4c

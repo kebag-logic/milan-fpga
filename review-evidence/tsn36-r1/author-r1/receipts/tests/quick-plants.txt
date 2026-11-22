@@ -1,0 +1,31 @@
+# plants.py: the round-2 plants, each graded as the gate grades it
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] mutant plat-phy-boot-restarts-whatever-held (platboot1, platboot1): 12 check(s) failed
+    first: [FAIL] PlatPhy.P11TheBootAdvertisesGigabitOnly: P11 a PHY that holds the advertisement at boot is not restarted
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] mutant plat-phy-arm-publishes-nothing (platboot1, platboot1): 18 check(s) failed
+    first: [FAIL] Phy.L2EveryEdgeIsCounted: L2 a PHY up at boot: the arm's link down and the first poll's link up, one each
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] mutant plat-phy-outcome-unchecked (platboot1, platboot1, platboot1): 72 check(s) failed
+    first: [FAIL] PlatPhy.P18TheRestartIsVerifiedByItsOutcome: P18 the outcome's restart is counted
+[ok] mutant gm-change-ignored (walk, adp): 10 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+[ok] mutant link-up-draws-startup-kind (walk, adp): 8 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..4 s kind
+[ok] mutant draw-kinds-merged (adp, adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+[ok] mutant link-up-draws-half-a-second (adp): 5 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+[ok] mutant first-delays-not-drawn (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 and both reach near their maxima
+[ok] mutant gm-change-in-delay-restarts-the-delay (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] mutant gm-change-draws-the-startup-kind (adp): 1 check(s) failed
+    first: [FAIL] AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced: G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s
+[ok] mutant link-loss-resets-the-index (adp): 1 check(s) failed
+    first: [FAIL] AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)
+mutants: 11 of 11 caught

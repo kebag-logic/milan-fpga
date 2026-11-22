@@ -1,0 +1,6 @@
+# Pinned toolchain for the tsn-c-stack gates, sourced (the stack's quality.yml tools).
+T=<tools>
+export PKG_CONFIG_PATH=$T/gtest-1.14.0/lib/pkgconfig CMAKE_PREFIX_PATH=$T/gtest-1.14.0 LD_LIBRARY_PATH=$T/gtest-1.14.0/lib
+export PATH=$T/clang-18/bin:$T/clang-tidy-18/bin:<tmp>/tsn32-a766/mermaid/node_modules/.bin:<home>/.hermes/node/bin:/usr/local/bin:/usr/bin:/bin
+export TMPDIR=<scratch>/tmp PYTHONDONTWRITEBYTECODE=1
+export PUPPETEER_CACHE_DIR=<home>/.cache/puppeteer

@@ -1,0 +1,50 @@
+base: relinked with -Wl,-q, loadable bytes EQUAL to the built image (31a9230a97af3035)
+head: relinked with -Wl,-q, loadable bytes EQUAL to the built image (1e7b7a54251d29f3)
+canonical listings: 38034 base lines, 38038 head lines, 16 differ
+--- base
++++ head
+@@ -19998,6 +19998,7 @@
+ 	sw	s0,24(sp)
+ 	sw	s2,16(sp)
+ 	sw	ra,28(sp)
++	sw	s4,8(sp)
+ 	addi	s0,a0,0
+ 	addi	s2,a3,0
+ 	jal ra  R_RISCV_JAL memset+0x0
+@@ -20007,12 +20008,15 @@
+ 	addi	a1,s3,0
+ 	addi	a0,s0,0
+ 	jal ra  R_RISCV_JAL memcpy+0x0
+-	addi	a5,zero,3
+-	sb	a5,24(s0)
+-	addi	a5,zero,20
+-	sw	a5,28(s0)
++	lw	a0,8(s3)
++	addi	a1,zero,0
+ 	sw	s1,12(s0)
+ 	sw	s2,16(s0)
++	jal ra  R_RISCV_JAL ctrl_plat_io_write32+0x0
++	addi	a5,zero,20
++	addi	s4,zero,1
++	sw	a5,28(s0)
++	sb	s4,24(s0)
+ 	addi	a0,s2,0
+ 	jalr	ra,0(s1)
+ 	addi	s3,a0,0
+@@ -20023,14 +20027,14 @@
+ 	sub	a0,a0,s3
+ 	addi	a5,zero,205
+ 	bgeu   R_RISCV_BRANCH .L5+0x0
+-	addi	a5,zero,1
+-	sw	a5,28(s0)
++	sw	s4,28(s0)
+ <.L5>:
+ 	lw	ra,28(sp)
+ 	lw	s0,24(sp)
+ 	lw	s1,20(sp)
+ 	lw	s2,16(sp)
+ 	lw	s3,12(sp)
++	lw	s4,8(sp)
+ 	addi	sp,sp,32
+ 	jalr	zero,0(ra)
+ <ctrl_plat_phy_step>:

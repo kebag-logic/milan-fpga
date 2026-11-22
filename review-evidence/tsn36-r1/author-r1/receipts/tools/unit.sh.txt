@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# unit.sh <name> <cpus> <cwd> <envfile> <cmd...>: run <cmd> in its own transient user unit (MemoryMax 10G) pinned to <cpus>,
+# waiting for it; its output goes to the lane's units/<name>.log, its status to units/<name>.rc.
+set -u
+name=$1; cpus=$2; cwd=$3; envf=$4; shift 4
+U=<scratch>/units
+echo "[unit milan-970-a820-$name cpus $cpus start $(date +%T)]" > "$U/$name.log"
+systemd-run --user --quiet --unit="milan-970-a820-$name" --collect --wait \
+  --property=MemoryMax=10G --working-directory="$cwd" \
+  --setenv=HOME=<scratch>/home \
+  /usr/bin/taskset -c "$cpus" /bin/bash -c ". $envf; \"\$@\" >> $U/$name.log 2>&1; echo \$? > $U/$name.rc" bash "$@"
+echo "[unit end $(date +%T) rc $(cat $U/$name.rc 2>/dev/null)]" >> "$U/$name.log"

@@ -1,0 +1,731 @@
+diff --git a/sw/firmware/ctrl/test/adp_first_mutants.py b/sw/firmware/ctrl/test/adp_first_mutants.py
+new file mode 100644
+index 0000000000..55a798efb2
+--- /dev/null
++++ b/sw/firmware/ctrl/test/adp_first_mutants.py
+@@ -0,0 +1,59 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""adp_first_mutants.py - planted defects in the first ENTITY_AVAILABLE after a link-up (#970; test_adp.cpp G1
++to G5): Milan's draws, 0 to 4 s on LINK_UP and 0 to 2 s at a startup, each spread over its range (IEEE
++1722.1-2021 6.2.4.2.2); a grandmaster change in DELAY that re-arms nothing, one in WAITING announced after its own
++0 to 4 s draw; available_index kept across a link loss (Milan v1.2 5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.7, Table 5.51;
++IEEE 1722.1-2021 6.2.2.15). The first three are the walk's and the stack's, with the G kills added.
++ctrl_mutants.py appends this table to its own.
++"""
++
++from __future__ import annotations
++
++from ctrl_mutant import ADP_C, Mutant
++
++#: The draw's range by kind (tsn-c-stack adp.c draw_ms).
++DRAW_RANGE = "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS"
++#: GM_CHANGE in WAITING (Milan v1.2 5.6.3.5.7).
++GM_WAITING = ("\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n"
++              "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n")
++G1 = "AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp"
++G2 = "AdpFirstAvailable.G2WithinTheStartupDraw"
++G3 = "AdpFirstAvailable.G3AGrandmasterChangeBeforeItIsCarriedByIt"
++G4 = "AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced"
++SPREAD = "G1 the LINK_UP delay is spread over 0 to 4 s"
++
++MUTANTS: tuple[Mutant, ...] = (
++    Mutant("gm-change-ignored", ADP_C, GM_WAITING,
++           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
++           "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING",
++           also=(("adp", G4, "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once"),)),
++    Mutant("link-up-draws-startup-kind", ADP_C,
++           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
++            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
++           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
++            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
++           "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN", also=(("adp", G1, SPREAD),)),
++    Mutant("draw-kinds-merged", ADP_C, DRAW_RANGE, "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds",
++           "A9 every startup draw",
++           also=(("adp", G2, "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw"),)),
++    # #970, R888-1-F1: a LINK_UP delay narrowed to 0 to 0.5 s is not Milan's draw (the ruling on #970)
++    Mutant("link-up-draws-half-a-second", ADP_C, DRAW_RANGE,
++           "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS / 8u", "adp", G1, SPREAD),
++    Mutant("first-delays-not-drawn", ADP_C, "\tuint32_t ms = (r16 * (max_ms + 1u)) >> 16;\n",
++           "\tuint32_t ms = kind == ADP_DRAW_DELAY ? (r16 * (max_ms + 1u)) >> 16 : 0u;\n", "adp", G2,
++           "G2 the startup delay is spread over 0 to 2 s"),
++    Mutant("gm-change-in-delay-restarts-the-delay", ADP_C,
++           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\tenter_delay(a, ADP_DRAW_DELAY);",
++           "\tif (a->enabled && a->state != ADP_STATE_DOWN) {\n\t\tenter_delay(a, ADP_DRAW_DELAY);",
++           "adp", G3, "G3 a grandmaster change before the first ENTITY_AVAILABLE re-arms nothing"),
++    Mutant("gm-change-draws-the-startup-kind", ADP_C, GM_WAITING,
++           GM_WAITING.replace("enter_delay(a, ADP_DRAW_DELAY);       ", "enter_delay(a, ADP_DRAW_STARTUP);     "),
++           "adp", G4, "G4 the grandmaster change's delay is the 0 to 4 s draw"),
++    Mutant("link-loss-resets-the-index", ADP_C,
++           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
++            "\t\ta->available_owed = false;\n"),
++           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
++            "\t\ta->available_owed = false;\n\t\ta->available_index = 0;\n"),
++           "adp", G1, "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up"),
++)
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+index b83c15036c..844621cf77 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -22,6 +22,7 @@ import shutil
+ from pathlib import Path
+ 
+ import acmp_mutants
++import adp_first_mutants
+ import ctrl_arms
+ import fw_gtest
+ import maap_gate_mutants
+@@ -181,11 +182,6 @@ MUTANTS = (
+            ("\tif (a->state != ADP_STATE_DOWN) {\n\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n"
+             "\t\ttimer_stop(a); // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n"),
+            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING", "LINK_DOWN x WAITING: frames committed"),
+-    Mutant("gm-change-ignored", ADP_C,
+-           ("\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n"
+-            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n"),
+-           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
+-           "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
+     Mutant("delay-ignores-link-down", ADP_C, "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
+            "\tif (a->state == ADP_STATE_WAITING) {\n\t\ttimer_stop(a);",
+            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed", "LINK_DOWN x DELAY"),
+@@ -201,14 +197,6 @@ MUTANTS = (
+     Mutant("advertise-period-wrong", ADP_C, "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
+            "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS + 1000u);",
+            "walk", "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed", "TMR_DELAY x DELAY(timer armed)"),
+-    Mutant("link-up-draws-startup-kind", ADP_C,
+-           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+-            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+-           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+-            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+-           "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN"),
+-    Mutant("draw-kinds-merged", ADP_C, "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
+-           "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds", "A9 every startup draw"),
+     Mutant("foreign-discover-answered", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
+            "if (target == 1u) {", "adp", "AdpCore.A3toA5DiscoverAndDiscard", "A4 a foreign DISCOVER"),
+     Mutant("frame-misses-config-index", ADP_C, "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
+@@ -625,6 +613,7 @@ MUTANTS += mbx_dma_mutants.MUTANTS
+ MUTANTS += plat_mutants.mutants(Mutant)
+ MUTANTS += loop_step_mutants.mutants(Mutant)
+ MUTANTS += maap_gate_mutants.MUTANTS
++MUTANTS += adp_first_mutants.MUTANTS
+ MUTANTS += sink_mutants.mutants(Mutant)
+ 
+ MUTANTS += (
+diff --git a/sw/firmware/ctrl/test/plat_mutants.py b/sw/firmware/ctrl/test/plat_mutants.py
+index 4a6e66612f..da2cda4d12 100644
+--- a/sw/firmware/ctrl/test/plat_mutants.py
++++ b/sw/firmware/ctrl/test/plat_mutants.py
+@@ -468,6 +468,8 @@ P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one re
+ READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
+ P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
+ P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
++#: The arm's link-down publication and its advertisement owed with no restart of its own (#972).
++ARM_OWED = "\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n"
+ 
+ 
+ def step_yield_mutants(mutant: type) -> tuple:
+@@ -516,10 +518,16 @@ def advertisement_mutants(mutant: type) -> tuple:
+           "platboot1", P11, "P11 autonegotiation restarted"),
+         m("plat-phy-reset-kept", PHY, "~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)",
+           "~CTRL_PLAT_PHY_BMCR_ISOLATE", "platboot1", P11, "P11 reset cleared"),
+-        m("plat-phy-boot-restart-dropped", PHY,
+-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n",
+-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
+-          "P11 the boot restarts negotiation whatever the PHY holds"),
++        # #972: the boot forms the link once, and the datapath sees no link before a poll publishes the PHY's
++        m("plat-phy-boot-restarts-whatever-held", PHY, ARM_OWED,
++          ARM_OWED.replace("CTRL_PLAT_PHY_ADV_OWED;", "CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;"),
++          "platboot1", "PlatPhy.P19TheBootFormsTheLinkOnce",
++          "P19 the boot restarts no negotiation the PHY already holds",
++          also=(("platboot1", P11, "P11 a PHY that holds the advertisement at boot is not restarted"),)),
++        m("plat-phy-arm-publishes-nothing", PHY, ARM_OWED, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1",
++          "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down",
++          also=(("platboot1", "Phy.L4ReturnEndsTheCeaseWithinAPoll",
++                 "L4 the port enable falls as the poll arms and rises with its first publication"),)),
+         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
+           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
+           "PlatPhy.P6FramesAreClause22Reads", P6),
+@@ -561,7 +569,9 @@ def advertisement_mutants(mutant: type) -> tuple:
+           "platboot1", "PlatPhy.P16AnUnacknowledgedReadWritesNothing", "P16 no write before its read"),
+         # THE OUTCOME: a restart the PHY lost, seen by what it negotiates
+         m("plat-phy-outcome-unchecked", PHY, OUTCOME, "if (false) {", "platboot1", P18,
+-          "P18 no link at 100 after recovery", also=(P18_PACED,)),
++          "P18 no link at 100 after recovery",
++          also=(P18_PACED, ("platboot1", "PlatPhy.P21TheOutcomeStandsBehindTheBoot",
++                            "P21 THE OUTCOME owes the restart the boot did not take"))),
+         m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
+           OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
+           also=(P18_PACED,)),
+diff --git a/sw/firmware/ctrl/test/test_adp.cpp b/sw/firmware/ctrl/test/test_adp.cpp
+index b900377235..085db8e224 100644
+--- a/sw/firmware/ctrl/test/test_adp.cpp
++++ b/sw/firmware/ctrl/test/test_adp.cpp
+@@ -19,7 +19,17 @@
+ //       ENTITY_AVAILABLE behind owed DEPARTINGs is committed (E5);
+ //   F   the bound with full legal backlogs (ctrl_loop.h A1 to A4): both
+ //       rings full, ticks coalesced behind them, every pass and path held to
+-//       the stated figures, events first in every pass.
++//       the stated figures, events first in every pass;
++//   G   the first ENTITY_AVAILABLE after a link-up (#970), with Milan's draws:
++//       within its draw, 0 to 4 s on LINK_UP and 0 to 2 s at a startup with
++//       the link up, so within the declared 6.0 s discovery time
++//       (docs/reference/FR_NFR.md), each draw spread over its whole range
++//       (uniform, IEEE 1722.1-2021 6.2.4.2.2); a grandmaster change before it
++//       re-arms nothing and is carried by it, one after it is announced by a
++//       new ENTITY_AVAILABLE after its own 0 to 4 s draw; available_index
++//       advancing by one per ENTITY_AVAILABLE across the link-ups; every later
++//       delay 0 to 4 s (Milan v1.2 5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.5, 5.6.3.5.7,
++//       5.6.3.5.9 and Table 5.51; IEEE 1722.1-2021 6.2.2.15 and 6.2.2.16).
+ //
+ // One test per labelled step or scenario; each assertion carries the check's
+ // name from the hand-rolled suite it replaces (sw/firmware/gtest/README.md,
+@@ -31,7 +41,9 @@
+ #include <cstdint>
+ #include <cstdio>
+ #include <cstring>
++#include <set>
+ #include <tuple>
++#include <vector>
+ 
+ #include "adp.h"
+ #include "adp_mbx.h"
+@@ -540,6 +552,304 @@ void backlog_grade(const Backlog& b, const Passes& s) {
+     EXPECT_EQ(model.tx_sent, b.sent0 + 1u) << "F7 the backlog left exactly one frame, the ENTITY_AVAILABLE";
+ }
+ 
++// ---- G: the first ENTITY_AVAILABLE after a link-up (#970) ----------------------------
++//
++// The entity's declared discovery time is 6.0 s (docs/reference/FR_NFR.md, its derivation): a controller waits that
++// long for the first ENTITY_AVAILABLE after a link-up. This group holds the part of it ADP owns, with Milan's draws
++// stated here as literals, independently of the core's names: the first ENTITY_AVAILABLE within its draw of the
++// LINK event's posting, and each draw spread over its whole range.
++
++constexpr uint32_t kDiscoveryMs = 6000u;        // the declared discovery time (FR_NFR)
++constexpr uint32_t kLinkUpDrawMaxMs = 4000u;    // Milan v1.2 5.6.3.5.3, Table 5.50
++constexpr uint32_t kStartupDrawMaxMs = 2000u;   // Milan v1.2 5.6.3.5.2
++constexpr uint32_t kDelayMaxMs = 4000u;         // Milan v1.2 Table 5.50: DISCOVER, TMR_ADVERTISE, GM_CHANGE
++constexpr uint32_t kAdvertiseMs = 5000u;        // Milan v1.2 Table 5.50
++constexpr uint32_t kPassMs = 2u;                // the passes that take the LINK event and the expiry, on the model
++constexpr uint64_t kGmA = 0x00AABBFFFE000001ull;
++constexpr uint64_t kGmB = 0x00CCDDFFFE000002ull;
++
++// One ENTITY_AVAILABLE interface 0 sent: when, its available_index and its gptp_grandmaster_id.
++struct Available {
++    uint32_t ms;
++    uint32_t index;
++    uint64_t gm;
++};
++
++// The ENTITY_AVAILABLEs the model sent since the last call, read before its capture wraps.
++struct Wire {
++    uint32_t seen = 0;
++    std::vector<Available> available;
++
++    void take() {
++        for (; seen < model.tx_sent; ++seen) {
++            const struct mbx_model_tx* f = mbx_model_tx_frame(&model, seen);
++            if (f != nullptr && f->channel == MBX_CH_ADP && f->interface == 0u && f->len >= ADP_FRAME_BYTES &&
++                (f->bytes[15] & 0x0Fu) == ADP_MSG_ENTITY_AVAILABLE) {
++                available.push_back(Available{f->now_ms, wire_be32(f->bytes + 50), wire_be64(f->bytes + 54)});
++            }
++        }
++    }
++};
++
++// Run the model one millisecond at a time, the loop serviced after each, for `ms`.
++void run_ms(Wire& w, uint32_t ms) {
++    for (uint32_t k = 0; k < ms; ++k) {
++        mbx_model_advance_ms(&model, 1);
++        settle();
++        w.take();
++    }
++}
++
++// Run until `n` ENTITY_AVAILABLEs have been seen or `limit` ms pass; true when they were.
++bool run_until(Wire& w, size_t n, uint32_t limit) {
++    for (uint32_t k = 0; k < limit && w.available.size() < n; ++k) {
++        run_ms(w, 1);
++    }
++    return w.available.size() >= n;
++}
++
++// The deadline of the ADP slot's latest arm since timer operation `from`, 0 when there is none.
++uint32_t last_arm(uint32_t from) {
++    uint32_t deadline = 0;
++    for (uint32_t k = from; k < model.tmr_ops; ++k) {
++        const struct mbx_model_tmr_op* op = mbx_model_tmr_op(&model, k);
++        if (op != nullptr && op->op == MBX_TMR_OP_ARM && op->slot == CTRL_APP_ADP_FIRST_SLOT) {
++            deadline = op->deadline_ms;
++        }
++    }
++    return deadline;
++}
++
++// The app on a fresh model, the link down, the grandmaster kGmA, the clock moved on by `skew` ms so the seed the
++// machine mixes in at its start differs from run to run.
++void boot_down(Wire& w, uint32_t skew) {
++    mbx_model_reset(&model);
++    mbx_model_bind(&model, nullptr, nullptr);
++    mbx_model_advance_ms(&model, skew);
++    mbx_model_set_gm(&model, 0, kGmA, 0);
++    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
++                                   nullptr, nullptr, 0};
++    EXPECT_TRUE(ctrl_app_start(&app, &cfg)) << "G0 the app starts on the model";
++    settle();
++    w = Wire{};
++    w.seen = model.tx_sent;
++}
++
++// The delays seen, their latest and how many fall in each of `bins` equal parts of 0 to `max` ms.
++struct Spread {
++    uint32_t worst = 0;
++    std::set<uint32_t> values;
++    std::vector<uint32_t> all;
++    void add(uint32_t v) {
++        worst = v > worst ? v : worst;
++        values.insert(v);
++        all.push_back(v);
++    }
++    // How many fall in each of `bins` equal parts of 0 to `max` ms (a delay past `max` in the last).
++    std::vector<unsigned> bins(uint32_t max, unsigned n) const {
++        std::vector<unsigned> in(n, 0u);
++        for (const uint32_t v : all) {
++            const uint32_t b = v * n / (max + 1u);
++            ++in[b < n ? b : n - 1u];
++        }
++        return in;
++    }
++    // True when each of `n` equal parts of the range holds at least `least` of the delays.
++    bool covers(uint32_t max, unsigned n, unsigned least) const {
++        bool ok = true;
++        for (const unsigned in : bins(max, n)) ok = ok && in >= least;
++        return ok;
++    }
++    void print_bins(const char* what, uint32_t max, unsigned n) const {
++        std::printf("  %s, by %u parts of 0 to %u ms:", what, n, static_cast<unsigned>(max));
++        for (const unsigned in : bins(max, n)) std::printf(" %u", in);
++        std::printf("\n");
++    }
++};
++
++// G1 64 link-ups, each LINK_UP to its first ENTITY_AVAILABLE, then that ENTITY_AVAILABLE's TMR_ADVERTISE to the
++// next one, then the link down. G5 reads the later delays from the same run.
++void first_after_link_up(Spread& first, Spread& later) {
++    Wire w;
++    boot_down(w, 3u);
++    bool within = true;
++    bool indexed = true;
++    bool later_within = true;
++    uint32_t expect_index = 0;
++    for (unsigned k = 0; k < 64u; ++k) {
++        mbx_model_set_link(&model, 0, true);
++        const uint32_t up = model.now_ms;
++        const size_t before = w.available.size();
++        settle();
++        w.take();
++        within = run_until(w, before + 1u, kDiscoveryMs) && within;
++        if (w.available.size() <= before) {
++            break;
++        }
++        const Available a = w.available[before];
++        within = within && a.ms - up <= kLinkUpDrawMaxMs + kPassMs;
++        first.add(a.ms - up);
++        indexed = indexed && a.index == expect_index;
++        later_within = run_until(w, before + 2u, kAdvertiseMs + kDelayMaxMs + 2u) && later_within;
++        if (w.available.size() > before + 1u) {
++            const Available b = w.available[before + 1u];
++            later_within = later_within && b.ms - a.ms >= kAdvertiseMs && b.ms - a.ms <= kAdvertiseMs + kDelayMaxMs;
++            later.add(b.ms - a.ms - kAdvertiseMs);
++            indexed = indexed && b.index == expect_index + 1u;
++        }
++        expect_index += 2u;
++        mbx_model_set_link(&model, 0, false);
++        run_ms(w, 10u);
++    }
++    std::printf("  G1 64 LINK_UPs: the first ENTITY_AVAILABLE %u distinct delays, the latest %u ms after LINK_UP "
++                "(its draw 0 to %u ms; the declared discovery time %u ms)\n", static_cast<unsigned>(first.values.size()),
++                static_cast<unsigned>(first.worst), static_cast<unsigned>(kLinkUpDrawMaxMs),
++                static_cast<unsigned>(kDiscoveryMs));
++    std::printf("  G5 the TMR_ADVERTISE delays after them: %u distinct, the latest %u ms (0 to %u)\n",
++                static_cast<unsigned>(later.values.size()), static_cast<unsigned>(later.worst),
++                static_cast<unsigned>(kDelayMaxMs));
++    first.print_bins("G1 the LINK_UP delays", kLinkUpDrawMaxMs, 4u);
++    later.print_bins("G5 the TMR_ADVERTISE delays", kDelayMaxMs, 4u);
++    EXPECT_TRUE(within) << "G1 the first ENTITY_AVAILABLE leaves within its 0 to 4 s draw of every LINK_UP, inside "
++                           "the declared discovery time";
++    EXPECT_TRUE(first.covers(kLinkUpDrawMaxMs, 4u, 8u))
++        << "G1 the LINK_UP delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64";
++    EXPECT_TRUE(indexed)
++        << "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)";
++    EXPECT_TRUE(later_within) << "G5 each TMR_ADVERTISE delay is drawn from 0 to 4 s (5.6.3.5.5, Table 5.50)";
++    EXPECT_TRUE(later.covers(kDelayMaxMs, 4u, 8u))
++        << "G5 the TMR_ADVERTISE delay is spread over 0 to 4 s: each quarter holds at least 8 of the 64";
++}
++
++// G2 32 startups with the link up, each from reset as another entity (the generator's seed is its entity ID and the
++// clock, IEEE 1722.1-2021 6.2.4.2.2), to the first ENTITY_AVAILABLE.
++void first_after_startup(void) {
++    bool within = true;
++    Spread first;
++    for (unsigned k = 0; k < 32u; ++k) {
++        Wire w;
++        struct adp_entity other = entity;
++        other.entity_id = entity.entity_id ^ (0x9E3779B97F4A7C15ull * (k + 1u));
++        mbx_model_reset(&model);
++        mbx_model_bind(&model, nullptr, nullptr);
++        mbx_model_advance_ms(&model, 7u * k + 1u);
++        mbx_model_set_gm(&model, 0, kGmA, 0);
++        mbx_model_set_link(&model, 0, true);
++        struct ctrl_app_config cfg = {&other, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr,
++                                       nullptr, nullptr, nullptr, 0};
++        const uint32_t start = model.now_ms;
++        EXPECT_TRUE(ctrl_app_start(&app, &cfg)) << "G0 the app starts on the model";
++        settle();
++        w.take();
++        within = run_until(w, 1u, kDiscoveryMs) && within;
++        if (!w.available.empty()) {
++            within = within && w.available[0].ms - start <= kStartupDrawMaxMs + kPassMs && w.available[0].index == 0u;
++            first.add(w.available[0].ms - start);
++        }
++    }
++    std::printf("  G2 32 startups with the link up: the first ENTITY_AVAILABLE %u distinct delays, the latest %u ms "
++                "(its draw 0 to %u ms)\n", static_cast<unsigned>(first.values.size()),
++                static_cast<unsigned>(first.worst), static_cast<unsigned>(kStartupDrawMaxMs));
++    first.print_bins("G2 the startup delays", kStartupDrawMaxMs, 2u);
++    EXPECT_TRUE(within) << "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw of a startup "
++                           "with the link up (5.6.3.5.2)";
++    EXPECT_TRUE(first.covers(kStartupDrawMaxMs, 2u, 8u))
++        << "G2 the startup delay is spread over 0 to 2 s: each half holds at least 8 of the 32";
++}
++
++// G3 a grandmaster change while the link-up's delay runs, at each of 32 link-ups: it re-arms nothing, so the first
++// ENTITY_AVAILABLE leaves at the LINK_UP's own deadline, and carries the new grandmaster (Table 5.51: GM_CHANGE in
++// DELAY is ignored; the frame samples the grandmaster when it is built, 6.2.2.16).
++void gm_change_before_first(void) {
++    Wire w;
++    Spread first;
++    boot_down(w, 5u);
++    bool own_deadline = true;
++    bool carried = true;
++    unsigned changed = 0;
++    for (unsigned k = 0; k < 32u; ++k) {
++        mbx_model_set_gm(&model, 0, kGmA, 0);
++        mbx_model_set_link(&model, 0, true);
++        const uint32_t up = model.now_ms;
++        const uint32_t ops = model.tmr_ops;
++        const size_t before = w.available.size();
++        settle();
++        w.take();
++        const uint32_t deadline = last_arm(ops);
++        if (w.available.size() == before && adp0()->state == ADP_STATE_DELAY && deadline > model.now_ms) {
++            mbx_model_gm_change(&model, 0, kGmB, 0);
++            settle();
++            w.take();
++            changed++;
++            own_deadline = run_until(w, before + 1u, kDiscoveryMs) && own_deadline;
++            if (w.available.size() > before) {
++                own_deadline = own_deadline && w.available[before].ms <= deadline + kPassMs;
++                first.add(w.available[before].ms - up);
++                carried = carried && w.available[before].gm == kGmB;
++            }
++        }
++        mbx_model_set_link(&model, 0, false);
++        run_ms(w, 10u);
++    }
++    std::printf("  G3 %u LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest %u ms "
++                "after LINK_UP\n", changed, static_cast<unsigned>(first.worst));
++    EXPECT_TRUE(changed >= 24u) << "G3 the grandmaster changed inside the link-up's delay in at least 24 of 32";
++    EXPECT_TRUE(own_deadline) << "G3 a grandmaster change before the first ENTITY_AVAILABLE re-arms nothing: it "
++                                 "leaves at the LINK_UP's own deadline";
++    EXPECT_TRUE(carried) << "G3 and that ENTITY_AVAILABLE carries the new gptp_grandmaster_id";
++}
++
++// G4 the bench's order, at each of 32 link-ups: the first ENTITY_AVAILABLE, then a grandmaster change 4.5 s after
++// the link-up, in WAITING: a delay at once, then a new ENTITY_AVAILABLE with the new grandmaster and the next index
++// within its 0 to 4 s draw (5.6.3.5.7), the draws across the link-ups passing 2 s.
++void gm_change_after_first(void) {
++    Wire w;
++    Spread first;
++    Spread change_to_new;
++    boot_down(w, 11u);
++    bool within = true;
++    bool announced = true;
++    for (unsigned k = 0; k < 32u; ++k) {
++        mbx_model_set_gm(&model, 0, kGmA, 0);
++        mbx_model_set_link(&model, 0, true);
++        const uint32_t up = model.now_ms;
++        const size_t before = w.available.size();
++        settle();
++        w.take();
++        within = run_until(w, before + 1u, kDiscoveryMs) && within;
++        if (w.available.size() <= before) {
++            break;
++        }
++        const Available a = w.available[before];
++        within = within && a.ms - up <= kLinkUpDrawMaxMs + kPassMs && a.gm == kGmA;
++        first.add(a.ms - up);
++        run_ms(w, 4500u - (model.now_ms - up));
++        const uint32_t change = model.now_ms;
++        mbx_model_gm_change(&model, 0, kGmB, 0);
++        settle();
++        w.take();
++        announced = announced && adp0()->state == ADP_STATE_DELAY && w.available.size() == before + 1u;
++        announced = run_until(w, before + 2u, kDelayMaxMs + kPassMs) && announced;
++        if (w.available.size() > before + 1u) {
++            const Available b = w.available[before + 1u];
++            announced = announced && b.gm == kGmB && b.index == a.index + 1u && b.ms - change <= kDelayMaxMs + kPassMs;
++            change_to_new.add(b.ms - change);
++        }
++        mbx_model_set_link(&model, 0, false);
++        run_ms(w, 10u);
++    }
++    std::printf("  G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest %u ms "
++                "after LINK_UP, the new grandmaster's the latest %u ms after the change\n",
++                static_cast<unsigned>(first.worst), static_cast<unsigned>(change_to_new.worst));
++    change_to_new.print_bins("G4 the grandmaster change's delays", kDelayMaxMs, 2u);
++    EXPECT_TRUE(within) << "G4 the first ENTITY_AVAILABLE leaves within its 0 to 4 s draw, a grandmaster change to "
++                           "come";
++    EXPECT_TRUE(announced) << "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once and "
++                              "is announced by a new one, its next index";
++    EXPECT_TRUE(change_to_new.all.size() == 32u && change_to_new.worst > kStartupDrawMaxMs + kPassMs)
++        << "G4 the grandmaster change's delay is the 0 to 4 s draw: across the link-ups it passes 2 s";
++}
++
+ // ---- the tests -----------------------------------------------------------------------
+ 
+ TEST(AdpAdapter, B1StaleTagDiscarded) {
+@@ -626,6 +936,21 @@ TEST_P(AdpOwedBound, E5CommittedInPassKPlusOne) {
+ INSTANTIATE_TEST_SUITE_P(Shutdowns, AdpOwedBound,
+                          ::testing::Combine(::testing::Values(1u, 2u, 64u), ::testing::Bool()));
+ 
++TEST(AdpFirstAvailable, G1G5WithinTheLinkUpDrawOfEveryLinkUp) {
++    Spread first;
++    Spread later;
++    first_after_link_up(first, later);
++}
++TEST(AdpFirstAvailable, G2WithinTheStartupDraw) {
++    first_after_startup();
++}
++TEST(AdpFirstAvailable, G3AGrandmasterChangeBeforeItIsCarriedByIt) {
++    gm_change_before_first();
++}
++TEST(AdpFirstAvailable, G4AGrandmasterChangeAfterItIsAnnounced) {
++    gm_change_after_first();
++}
++
+ TEST(AdpBacklog, F0toF7FullBacklogs) {
+     const Backlog b = backlog_post();
+     const Passes s = backlog_take(b);
+diff --git a/sw/firmware/ctrl/test/test_plat_boot.cpp b/sw/firmware/ctrl/test/test_plat_boot.cpp
+index f63eae6564..9b99d26f28 100644
+--- a/sw/firmware/ctrl/test/test_plat_boot.cpp
++++ b/sw/firmware/ctrl/test/test_plat_boot.cpp
+@@ -105,14 +105,20 @@
+ //   L1  the ready loop publishes the PHY's link to milan_mac_link_status
+ //   L2  the datapath's effective link (milan_datapath.sv eff_link_w, the
+ //       published link_up through the SoC's synchroniser), modelled as a level
+-//       that stands between two turns: a 3 s loss, and a loss that recovered
+-//       between two polls, each move LINK_DOWN and LINK_UP by one
++//       that stands between two turns: the boot moves each once, the arm's link
++//       down after the reset value's link up and the first poll's link up
++//       (#972), as a boot whose PHY has no link yet at its first poll does; a
++//       3 s loss, and a loss that recovered between two polls, each move
++//       LINK_DOWN and LINK_UP by one
+ //   L3  each edge's counter change reaches AECP, which sends a registered
+ //       controller one unsolicited GET_COUNTERS for the AVB_INTERFACE, LINK_DOWN
+ //       then LINK_UP moved by one
+-//   L4  the link's return is published by the first poll after it, so the
+-//       gPTP plane's port enable rises then and its Pdelay_Req cease ends
+-//       (Milan v1.2 4.2.6.2.5), within CTRL_PLAT_PHY_POLL_US of the return
++//   L4  the port enable is down from the poll's arm until its first
++//       publication of the PHY's link, so the gPTP plane sends nothing on the
++//       reset value's link (#972); the link's return is published by the first
++//       poll after it, so the gPTP plane's port enable rises then and its
++//       Pdelay_Req cease ends (Milan v1.2 4.2.6.2.5), within
++//       CTRL_PLAT_PHY_POLL_US of the return
+ //   L5  a save in flight across several poll periods leaves the poll its
+ //       period: a loss and a return during it are each published within one
+ //       (#665's ruling of 2026-11-17)
+@@ -1396,17 +1402,20 @@ TEST_F(Phy, L2EveryEdgeIsCounted) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
+     ASSERT_EQ(peer.word, kGigFull);
+-    EXPECT_EQ(counters.up + counters.down, 0u) << "L2 a PHY up at boot moves neither counter";
++    // the reset value's link up, the arm's link down, then the first poll's (#972), as a boot whose PHY has no link
++    // yet at its first poll moves them
++    EXPECT_EQ(counters.down, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
++    EXPECT_EQ(counters.up, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
+     flap(3000u);
+     run(kPollMs + 10u);
+-    EXPECT_EQ(counters.down, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+-    EXPECT_EQ(counters.up, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.down, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.up, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+     peer.latched_down = true;
+     run(kPollMs + 10u);
+-    EXPECT_EQ(counters.down, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+-    EXPECT_EQ(counters.up, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.down, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.up, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+     run(2u * kPollMs);
+-    EXPECT_EQ(counters.up + counters.down, 4u) << "L2 a steady link moves neither";
++    EXPECT_EQ(counters.up + counters.down, 6u) << "L2 a steady link moves neither";
+ }
+ 
+ // REGISTER_UNSOLICITED_NOTIFICATION (IEEE 1722.1-2021 7.4.37) from a controller, as the datapath delivers it
+@@ -1434,15 +1443,22 @@ TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
+     ASSERT_TRUE(mbx_model_rx(&fabric, reg.data(), reg.size(), 0));
+     run(20);
+     notices.clear();
++    const std::uint32_t up0 = counters.up, down0 = counters.down;
+     flap(3000u);
+     run(1500u);
+-    EXPECT_EQ(notices, (std::vector<std::pair<std::uint32_t, std::uint32_t>>{{0u, 1u}, {1u, 1u}}))
++    EXPECT_EQ(notices, (std::vector<std::pair<std::uint32_t, std::uint32_t>>{{up0, down0 + 1u}, {up0 + 1u, down0 + 1u}}))
+         << "L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one";
+ }
+ 
+ TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
++    // #972: the port enable is down from the arm, so the gPTP plane sends nothing on the reset value's link, and
++    // rises with the PHY's link as the first poll publishes it
++    ASSERT_EQ(edges.size(), 2u) << "L4 the port enable falls as the poll arms and rises with its first publication";
++    EXPECT_TRUE(!edges[0].second && edges[1].second)
++        << "L4 the port enable falls as the poll arms and rises with its first publication";
++    edges.clear();
+     flap(3000u);
+     const std::uint64_t back = nvm_fmodel_now_us();
+     run(2u * kPollMs + 10u);
+@@ -1465,6 +1481,7 @@ TEST_F(Phy, L5ASaveKeepsThePollItsPeriod) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
+     ASSERT_EQ(peer.word, kGigFull);
++    edges.clear();   // the boot's pair, the arm's link down and the first poll's link up (L4)
+     const unsigned commits = nvm_store_status()->commits_ok;
+     ASSERT_EQ(nvm_store_commit_now(), 1);
+     run(20u);
+diff --git a/sw/firmware/ctrl/test/test_plat_phy.cpp b/sw/firmware/ctrl/test/test_plat_phy.cpp
+index 745eec8b0f..157f46fb56 100644
+--- a/sw/firmware/ctrl/test/test_plat_phy.cpp
++++ b/sw/firmware/ctrl/test/test_plat_phy.cpp
+@@ -56,6 +56,18 @@
+ //       100BASE-TX-only partner has no link at 100 Mb/s; none while the
+ //       negotiation is incomplete, none at 1000BASE-T, none on a PHY the
+ //       advertisement is not for
++//   P19 the boot forms the link once (#972): a PHY that already holds the
++//       advertisement, its link up at 1000BASE-T before the boot, is written
++//       and read back and never restarted, its link published up by the first
++//       poll and never down after it; a PHY at its defaults is still written
++//       and restarted once (P11)
++//   P20 arming publishes link down before any frame (#972): the word resets to
++//       link up, so the datapath sees no link until a poll publishes the PHY's
++//       verified one; a bus with no MDIO pair publishes nothing
++//   P21 THE OUTCOME stands behind the boot that restarts nothing: a PHY that
++//       holds the advertisement with a 100 Mb/s negotiation of its defaults
++//       still in force is published down and restarted by the next poll, so a
++//       100BASE-TX-only partner has no link (#840)
+ 
+ #include <gtest/gtest.h>
+ 
+@@ -361,7 +373,10 @@ TEST_F(PlatPhy, P8OwedWhileAFrameIsDue) {
+ TEST_F(PlatPhy, P9NoMdioArmsNothing) {
+     ctrl_plat_phy_bus none = kBus;
+     none.mdio_w = 0u;
++    const std::size_t before = bus().log.size(), pubs = peer.published.size();
+     arm(none);
++    EXPECT_EQ(peer.published.size(), pubs) << "P9 a bus with no MDIO pair publishes nothing as it arms";
++    EXPECT_EQ(bus().log.size(), before) << "P9 a bus with no MDIO pair arms nothing";
+     const std::size_t accesses = bus().log.size();
+     EXPECT_FALSE(call(now)) << "P9 a bus with no MDIO pair owes nothing";
+     EXPECT_EQ(bus().log.size(), accesses) << "P9 and touches nothing";
+@@ -469,15 +484,19 @@ TEST_F(PlatPhy, P11TheBootAdvertisesGigabitOnly) {
+                                                  << arm;
+         EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+     }
+-    // a PHY that already holds the advertisement is restarted at boot all the same, as the release's init restarts
+-    // it (a link it formed before the init is never published)
++    // a PHY that already holds the advertisement is written and read back at boot, and not restarted: the boot
++    // forms the link once (#972; P19)
+     peer.gigabit(7u);
+     peer.regs[4] = 0x0001u;
+     peer.regs[9] = 0x0200u;
+     arm_again();
+     const unsigned restarts = peer.restarts;
++    const std::size_t from = peer.frames.size();
+     (void)poll(now);
+-    EXPECT_EQ(peer.restarts, restarts + 1u) << "P11 the boot restarts negotiation whatever the PHY holds";
++    EXPECT_EQ(peer.restarts, restarts) << "P11 a PHY that holds the advertisement at boot is not restarted";
++    const auto w = writes_since(from);
++    EXPECT_TRUE(w.size() == 2u && w[0].reg == 9u && w[1].reg == 4u)
++        << "P11 a PHY that holds the advertisement at boot is written, registers 9 and 4, and nothing else";
+ }
+ 
+ TEST_F(PlatPhy, P12A10100PhyIsNeverWritten) {
+@@ -841,4 +860,67 @@ TEST_F(PlatPhy, P18OnlyAMissingGigabitLinkOwesARestart) {
+     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+ }
+ 
++TEST_F(PlatPhy, P19TheBootFormsTheLinkOnce) {
++    // a PHY that holds the advertisement, its link up at 1000BASE-T full duplex before the boot, a restart latching a
++    // loss of its own as a real PHY's renegotiation does
++    peer.gigabit(7u);
++    peer.regs[4] = 0x0001u;
++    peer.regs[9] = 0x0200u;
++    peer.restart_drops = true;
++    const std::size_t pubs = peer.published.size(), from = peer.frames.size();
++    arm_again();
++    (void)poll(now);
++    next();
++    next();
++    next();
++    EXPECT_EQ(peer.restarts, 0u) << "P19 the boot restarts no negotiation the PHY already holds";
++    const auto w = writes_since(from);
++    EXPECT_TRUE(w.size() == 2u && w[0].reg == 9u && w[0].value == 0x0200u && w[1].reg == 4u && w[1].value == 0x0001u)
++        << "P19 the boot writes the advertisement all the same, 9 then 4, and no restart";
++    EXPECT_EQ(phy.adv, 0u) << "P19 and verifies it";
++    // the arm's link down and the probe's misses below the PHY's address, then the PHY's link, and never down again
++    const auto words = words_since(pubs);
++    std::size_t first_up = 0;
++    while (first_up < words.size() && words[first_up] != kGigFull) ++first_up;
++    bool held = !words.empty() && first_up < words.size();
++    for (std::size_t k = 0; k < words.size(); ++k) held = held && words[k] == (k < first_up ? 0u : kGigFull);
++    EXPECT_TRUE(held)
++        << "P19 the link is formed once: down as the poll arms, then the PHY's link, published up and never down";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
++TEST_F(PlatPhy, P20TheArmPublishesLinkDownFirst) {
++    // the reset value, link up at 1000 Mb/s full duplex, as milan_soc.py's MilanMAC resets the word
++    peer.word = kGigFull;
++    const std::size_t pubs = peer.published.size(), frames = peer.frames.size();
++    arm_again();
++    ASSERT_EQ(peer.published.size(), pubs + 1u) << "P20 arming publishes link down";
++    EXPECT_EQ(peer.published.back().word, 0u) << "P20 arming publishes link down";
++    EXPECT_EQ(peer.word, 0u) << "P20 so the datapath sees no link until a poll publishes the PHY's";
++    EXPECT_EQ(peer.frames.size(), frames) << "P20 before any MDIO frame";
++    const std::size_t at = peer.published.back().at;
++    (void)poll(now);
++    ASSERT_GT(peer.frames.size(), frames);
++    EXPECT_GT(peer.frames[frames].at, at) << "P20 before any MDIO frame";
++    EXPECT_EQ(peer.word, kGigFull) << "P20 and the first poll publishes the PHY's verified link";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
++TEST_F(PlatPhy, P21TheOutcomeStandsBehindTheBoot) {
++    // the registers hold the advertisement while the 100 Mb/s negotiation of the defaults is still in force
++    hundred_in_force(*this);
++    peer.regs[4] = 0x0001u;
++    peer.regs[9] = 0x0200u;
++    arm_again();
++    (void)poll(now);
++    EXPECT_EQ(peer.restarts, 0u) << "P21 the boot restarts nothing: the PHY holds the advertisement";
++    EXPECT_EQ(peer.word, 0u) << "P21 but the 100 Mb/s negotiation in force is published down";
++    EXPECT_EQ(phy.renegotiations, 1u) << "P21 THE OUTCOME owes the restart the boot did not take";
++    next();
++    EXPECT_EQ(peer.restarts, 1u) << "P21 and the next poll takes it";
++    EXPECT_EQ(peer.active_speed, 0u) << "P21 so a 100BASE-TX-only partner has no link";
++    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P21 no link below 1000BASE-T is ever published";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
+ }  // namespace

@@ -1,0 +1,13 @@
+# image diff: base plat-base/fixture-8x8-if2 against head (same point)
+## 1. linked inputs: 39 base, 39 head, same names in the same order: True
+inputs that differ by sha256: 0 of 39: none
+## 3. link map: 649 placed input sections base, 649 head; same (object, section) order: True
+input sections whose size differs: none
+  shift +0 B over 649 section(s): ctrl_split_start.o .text.start @0x0 .. 35-mvrp.o .riscv.attributes @0x5bc
+## 4. output sections (base | head)
+  .text PROGBITS addr 0x00000000 size 0x019f74 | .text PROGBITS addr 0x00000000 size 0x019f74
+  .rodata PROGBITS addr 0x00019f78 size 0x006096 | .rodata PROGBITS addr 0x00019f78 size 0x006096
+  .data PROGBITS addr 0x10000000 size 0x0001c0 | .data PROGBITS addr 0x10000000 size 0x0001c0
+  .bss NOBITS addr 0x100001c0 size 0x019cd0 | .bss NOBITS addr 0x100001c0 size 0x019cd0
+  .stack NOBITS addr 0x10019e90 size 0x002000 | .stack NOBITS addr 0x10019e90 size 0x002000
+loadable bytes sha256: base d38cfad40199871b head d38cfad40199871b; whole ELF base 9bd736002785ee36 head 9bd736002785ee36
