@@ -18139,6 +18139,16 @@ GPTP_ETHERTYPE_OWNERS = frozenset((
     #: attributes a RECEIVED frame by it, inside the donor engine - the
     #: ingress half of the same rule, and no part of the egress path
     "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+    #: #884 (the ruling of 2026-11-21, item 6): with gPTP in firmware
+    #: (GPTP_SW_EN_P), which builds no plane, the two that take the plane's
+    #: attribution in its place, each emitting nothing. The split tap hands a
+    #: RECEIVED gPTP frame to the firmware's gptp channel (its GPTP_P, off in
+    #: every plane build), and the timestamp unit stamps an event message at
+    #: the plane's two points. So one build holds one attribution rule each
+    #: way, and the firmware's frames, sent through the control lane, are the
+    #: one gPTP producer behind the seam.
+    "hdl/milan/KL_ctrl_split.sv",
+    "hdl/ieee8021as/gptp_tsu/KL_gptp_tsu.sv",
 ))
 
 
