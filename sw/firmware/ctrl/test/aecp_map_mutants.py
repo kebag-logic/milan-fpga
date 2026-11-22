@@ -258,9 +258,10 @@ ROWS = (
      (STORE_REFUSES, "the store's refusal is the command's status"),
      (WINDOW_REFUSES, 'the map keeps its mappings')),
     ('edit-before-the-checks', 'aecp_maps.c',
-     '\t// Each mapping\'s checks in its turn, so the port is read as each was before.\n',
+     '\tsize_t additions = 0;\n',
      '\tif (a->ports->edit != NULL) {\n'
-     '\t\t(void)a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, NULL, count);\n\t}\n',
+     '\t\t(void)a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, NULL, count);\n\t}\n'
+     '\tsize_t additions = 0;\n',
      (STORE_UNREACHED, 'a command the core refuses never reaches the store')),
     # the restored maps' commit: every removal before any addition, the clipped reset set, the store's refusals
     ('restore-adds-beside-its-removal', 'aecp_maps.c',
