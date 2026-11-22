@@ -134,4 +134,76 @@ TEST_F(SrpLinkPass, InTheEvents) { first_up_and_another(Phase::InTheEvents); }
 TEST_F(SrpLinkPass, AfterTheEventsBeforeSrpsPoll) { first_up_and_another(Phase::AfterTheEvents); }
 TEST_F(SrpLinkPass, AfterSrpsPoll) { first_up_and_another(Phase::AfterSrpsPoll); }
 
+// A link that comes up after a pass's events while the event ring is full: its LINK is held until a take makes room,
+// and then waits behind the records ahead of it for more than one pass, each pass taking CTRL_LOOP_EVENTS_PER_PASS. SRP
+// takes no UP from the register while it is owed, so it is the first UP all the same (#973; srp_mbx.c, carried_up).
+// Every stream's counter change, one record each (Milan v1.2 Table 5.22), fills the ring twice over.
+TEST_F(SrpLinkPass, ALinkUpHeldBehindAFullEventRingIsTheFirstUp) {
+    srp_interface &i = adapter.ifs[0];
+    mrp_app *const startup = i.msrp;
+    ASSERT_NE(startup, nullptr) << "(the startup participants exist before any link)";
+    for (uint16_t type : {uint16_t{MBX_CTRCHG_STREAM_INPUT_TYPE}, uint16_t{MBX_CTRCHG_STREAM_OUTPUT_TYPE}}) {
+        for (uint16_t n = 0; n < 16u; ++n) {
+            mbx_model_face_event(&model, 0, MBX_MODEL_EV_COUNTERS, type, n);
+        }
+    }
+    move_at(Phase::AfterTheEvents, true);
+    ASSERT_TRUE(loop.events_left) << "(the pass took all it may, the ring refilled behind it)";
+    ASSERT_FALSE(model.posted_up[0]) << "(the LINK is held behind the full ring)";
+    EXPECT_FALSE(i.link_seen) << "SRP's poll took a level no LINK had carried";
+    unsigned passes = 0;
+    while (!model.posted_up[0] && passes < 4u) {
+        (void)ctrl_loop_service(&loop);
+        ++passes;
+    }
+    ASSERT_TRUE(model.posted_up[0]) << "(a take made room for the LINK)";
+    (void)ctrl_loop_service(&loop);
+    EXPECT_FALSE(i.link_seen) << "SRP took an UP from the register while its LINK waited behind the ring's records";
+    settle();
+    EXPECT_TRUE(i.link);
+    EXPECT_EQ(resets, 0u) << "a first UP resets nothing";
+    EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+}
+
+// SRP re-attached while interface 0's link is momentarily down and its DOWN record is held, the level recovering
+// before the record posts, so the fabric owes no LINK: a record posts only when its level differs from the last one
+// posted (KL_mbx_evt.sv). Attach reads the DOWN. SRP follows the link that is up all the same, once a poll found no
+// LINK owed, and resets the interface once for it (#973; srp_mbx.c, carried_up).
+TEST_F(Srp, AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp) {
+    settle(); advance(400);
+    srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+    ctrl_loop_init(&loop);
+    mbx_model_evt_pause(&model,true);
+    model.link_up[0]=false;
+    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+    ASSERT_TRUE(ctrl_loop_open(&loop,0x020304fffe050600ull,config.mac));
+    ASSERT_FALSE(adapter.ifs[0].link) << "(attach read the DOWN)";
+    model.link_up[0]=true;
+    ASSERT_TRUE(model.posted_up[0]) << "(the last posted record is UP: no LINK is owed)";
+    mbx_model_evt_pause(&model,false);
+    resets = 0; mbx_host_trace(count_resets,nullptr);
+    advance(1500);
+    mbx_host_trace(nullptr,nullptr);
+    EXPECT_TRUE(adapter.ifs[0].link) << "SRP does not follow a link that is up";
+    EXPECT_NE(adapter.ifs[0].msrp, nullptr) << "the interface has participants";
+    EXPECT_EQ(resets, 1u) << "SRP resets the interface once for the link it follows";
+}
+
+// The same with the link staying down across the re-attach and coming up later: a LINK is owed, and SRP follows it.
+TEST_F(Srp, AReattachWithTheLinkDownFollowsItsLaterUp) {
+    settle(); advance(400);
+    srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+    ctrl_loop_init(&loop);
+    mbx_model_set_link(&model,0,false);
+    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+    ASSERT_TRUE(ctrl_loop_open(&loop,0x020304fffe050600ull,config.mac));
+    advance(100);
+    ASSERT_FALSE(adapter.ifs[0].link);
+    mbx_model_set_link(&model,0,true);
+    advance(1500);
+    EXPECT_TRUE(adapter.ifs[0].link) << "a later UP is followed";
+}
+
 } // namespace
