@@ -182,11 +182,13 @@ static void pub_set_path(struct gptp_port *p, const uint64_t *path, unsigned n)
 {
 	if (n > GPTP_PATH_MAX)
 		n = GPTP_PATH_MAX;
-	if (p->pub.path_count == n && !memcmp(p->pub.path, path, n * sizeof *path))
+	// an empty path may come as a null pointer, which memcmp and memcpy never take (C11 7.24.1)
+	if (p->pub.path_count == n && (n == 0 || !memcmp(p->pub.path, path, n * sizeof *path)))
 		return;
 	p->pub.path_count = (uint8_t)n;
 	memset(p->pub.path, 0, sizeof p->pub.path);
-	memcpy(p->pub.path, path, n * sizeof *path);
+	if (n)
+		memcpy(p->pub.path, path, n * sizeof *path);
 	p->pub.path_gen++;
 	p->pub_dirty = true;
 }
@@ -305,12 +307,33 @@ static void pd_lost(struct gptp_port *p)
 		as_capable_set(p, false);
 }
 
+// A second Pdelay_Resp to the request of this interval: never asCapable on it (10.2.5.1 c). One from another
+// clock identity also counts the request toward Milan v1.2 4.2.6.2.5's cease, once, whenever in the interval it
+// comes: before the first responder's Follow_Up or after the exchange completed.
+static void pd_multi(struct gptp_port *p, const uint8_t *src, const uint8_t *first)
+{
+	p->pd.multi = true;
+	if (p->pd.ex_multi || !memcmp(src, first, 8))
+		return;
+	p->pd.ex_multi = true;
+	p->ctr.pd_multi++;
+	if (++p->pd.multi_run >= GPTP_CEASE_N) {
+		p->pd.ceased = true;
+		p->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;
+	}
+}
+
 static void pd_send(struct gptp_port *p)
 {
 	unsigned len;
 	if (p->pd.in_flight)
 		pd_lost(p);   // the request before it was not answered within its interval
 	p->pd.in_flight = false;
+	// the interval of the request before this one has closed: one answered by a single clock identity, or by
+	// none, ends a run of multi-answered requests (Milan v1.2 4.2.6.2.5: three successive)
+	if (!p->pd.ex_multi)
+		p->pd.multi_run = 0;
+	p->pd.ex_multi = false;
 	if (!p->link || p->pd.ceased)
 		return;
 	p->pd.seq++;
@@ -336,6 +359,55 @@ static int32_t median3(const int32_t *d, unsigned n)
 	return c;
 }
 
+// The rate window holds this exchange as its only entry
+static void pd_rate_restart(struct gptp_port *p)
+{
+	p->pd.w3[0] = p->pd.t3;
+	p->pd.w4[0] = p->pd.t4;
+	p->pd.w_head = 1u % GPTP_NRR_WINDOW;
+	p->pd.w_n = 1;
+}
+
+// neighborRateRatio (11.2.19.3.3): the responder's elapsed time over ours, across the oldest exchange the
+// window still holds. Each LocalClock is within 100 ppm (B.1.1), so two differ by at most about 200 ppm: a
+// window whose spans differ by more than 2^-GPTP_NRR_ENVELOPE_SHIFT of ours (244 ppm), a negative span of the
+// responder's included, holds a step of the responder's clock, not a rate. It restarts at this exchange and
+// the last good ratio stays in use, so a step never reaches neighborPropDelay. The spans are compared unsigned
+// and scaled under 2^40 before the quotient, so no timestamp difference overflows it.
+static void pd_rate(struct gptp_port *p)
+{
+	unsigned h = p->pd.w_head;
+	uint64_t s3;
+	uint64_t s4;
+	uint64_t mag;
+	uint32_t q;
+	bool fast;
+	p->pd.w3[h] = p->pd.t3;
+	p->pd.w4[h] = p->pd.t4;
+	p->pd.w_head = (uint8_t)((h + 1u) % GPTP_NRR_WINDOW);
+	if (p->pd.w_n < GPTP_NRR_WINDOW)
+		p->pd.w_n++;
+	if (p->pd.w_n < 2u)
+		return;
+	h = (p->pd.w_n < GPTP_NRR_WINDOW) ? 0u : p->pd.w_head;
+	s3 = p->pd.t3 - p->pd.w3[h];
+	s4 = p->pd.t4 - p->pd.w4[h];
+	fast = s3 >= s4;
+	mag = fast ? s3 - s4 : s4 - s3;
+	if (s4 == 0 || mag > (s4 >> GPTP_NRR_ENVELOPE_SHIFT)) {
+		pd_rate_restart(p);
+		return;
+	}
+	// mag <= s4 / 2^12: with s4 under 2^40, mag * 2^32 is under 2^60 and the quotient under 2^20
+	while (s4 >= (1ull << 40)) {
+		s4 >>= 1;
+		mag >>= 1;
+	}
+	q = (uint32_t)udiv64(mag << 32, s4);
+	p->pd.nrr_q32 = fast ? (int32_t)q : -(int32_t)q;
+	p->pd.nrr_ok = true;
+}
+
 static void pd_complete(struct gptp_port *p)
 {
 	uint64_t rtt;
@@ -345,45 +417,24 @@ static void pd_complete(struct gptp_port *p)
 	p->pd.done_seq = p->pd.seq;
 	memcpy(p->pd.done_responder, p->pd.responder, sizeof p->pd.responder);
 	if (p->pd.multi) {
-		// more than one responder: Milan v1.2 4.2.6.2.5 ceases the requests after the third in a row
-		p->ctr.pd_multi++;
-		p->pd.good = 0;
+		p->pd.good = 0;   // more than one response: no measurement, not asCapable (10.2.5.1 c)
 		as_capable_set(p, false);
-		if (++p->pd.multi_run >= GPTP_CEASE_N) {
-			p->pd.ceased = true;
-			p->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;
-		}
 		return;
 	}
-	p->pd.multi_run = 0;
 	if (p->pd.t4 < p->pd.t1 || p->pd.t4 - p->pd.t1 > GPTP_PD_LATE_NS) {
 		p->ctr.pd_late++;
 		pd_lost(p);
 		return;
 	}
-	// neighborRateRatio (11.2.19.3.3): the responder's elapsed time over ours,
-	// across the oldest exchange the window still holds
-	{
-		unsigned h = p->pd.w_head;
-		p->pd.w3[h] = p->pd.t3;
-		p->pd.w4[h] = p->pd.t4;
-		p->pd.w_head = (uint8_t)((h + 1u) % GPTP_NRR_WINDOW);
-		if (p->pd.w_n < GPTP_NRR_WINDOW)
-			p->pd.w_n++;
-		if (p->pd.w_n >= 2u) {
-			unsigned o = (p->pd.w_n < GPTP_NRR_WINDOW) ? 0u : p->pd.w_head;
-			int64_t d3 = (int64_t)(p->pd.t3 - p->pd.w3[o]);
-			int64_t d4 = (int64_t)(p->pd.t4 - p->pd.w4[o]);
-			if (d4 > 0 && d3 > 0) {
-				int64_t q = sdiv64((d3 - d4) * (int64_t)(1ll << 32), d4);
-				p->pd.nrr_q32 = (int32_t)q;
-				p->pd.nrr_ok = true;
-			}
-		}
-	}
-	// neighborPropDelay (11.2.19.3.4): ((t4 - t1) * neighborRateRatio - (t3 - t2)) / 2
 	rtt = p->pd.t4 - p->pd.t1;
 	turn = p->pd.t3 - p->pd.t2;
+	// The responder's turnaround, on its clock, cannot exceed the round trip on ours by more than the rate
+	// envelope below: one that does straddles a step of the responder's clock. No measurement, and the
+	// exchange is neither lost nor good.
+	if (turn > rtt + (rtt >> GPTP_NRR_ENVELOPE_SHIFT))
+		return;
+	pd_rate(p);
+	// neighborPropDelay (11.2.19.3.4): ((t4 - t1) * neighborRateRatio - (t3 - t2)) / 2
 	d = (int64_t)rtt + (((int64_t)rtt * p->pd.nrr_q32) >> 32) - (int64_t)turn;
 	d = (d < 0) ? -((-d) >> 1) : (d >> 1);   // halved toward zero, no divide
 	if (p->pd.d_n < 3u) {
@@ -465,6 +516,19 @@ static int64_t clamp64(int64_t v, int64_t lim)
 	return v > lim ? lim : (v < -lim ? -lim : v);
 }
 
+// This port's PHC stamps its Pdelay exchanges, where 802.1AS takes a LocalClock that is never stepped
+// (11.2.19.3.3). After a step the exchange in flight is void, neither lost nor good; the rate window restarts,
+// the last good ratio kept; and a response still owed to a peer is not completed, its t2 being the old time.
+// So no exchange whose times straddle the step reaches a rate or a delay on either side of the link.
+static void pd_own_step(struct gptp_port *p)
+{
+	p->pd.in_flight = false;
+	p->pd.w_n = 0;
+	p->pd.w_head = 0;
+	p->rsp.resp_owed = false;
+	p->rsp.fu_owed = false;
+}
+
 static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_t log_sync)
 {
 	int64_t offset = (int64_t)(t_rx - gm_rx);     // local time minus grandmaster time
@@ -493,6 +557,7 @@ static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_
 	if (offset > thresh || offset < -thresh) {
 		// a step starts no slew and holds one in progress (gptp-processor #75)
 		p->hal.phc_step(p->hal.ctx, p->index, -offset);
+		pd_own_step(p);
 		p->ctr.steps++;
 		p->pub.disc++;
 		p->srv.have_prev = false;   // the rate across a step is not the clock's
@@ -549,6 +614,9 @@ static void slave_try_pair(struct gptp_port *p)
 	gm_rx = p->slv.fu_origin + (uint64_t)p->slv.fu_corr_ns + (uint64_t)(pd + ((pd * p->slv.fu_csro_q32) >> 32));
 	p->slv.have = false;
 	p->slv.fu_early = false;
+	// syncReceiptTimeoutTime is set when synchronization information is delivered (10.2.8.2.1 c): a Sync
+	// with its Follow_Up and its ingress stamp, never a Sync alone (11.2.14, Figure 10-4)
+	p->slv.last_ms = p->now_ms;
 	servo_pair(p, p->slv.t_rx, gm_rx, p->slv.log_sync);
 }
 
@@ -632,8 +700,7 @@ static void rx_sync(struct gptp_port *p, const uint8_t *f, uint16_t seq)
 	p->slv.have = true;
 	p->slv.seq = seq;
 	p->slv.fu_early = false;
-	p->slv.rx_ms = p->now_ms;
-	p->slv.last_ms = p->now_ms;   // the sync receipt timer restarts on each Sync
+	p->slv.rx_ms = p->now_ms;     // a Sync alone renews no deadline: only its completed pair does
 	p->slv.have_ts = stamp_take(p, GPTP_MSG_SYNC, seq, &ns);
 	if (p->slv.have_ts)
 		p->slv.t_rx = ns;
@@ -641,18 +708,30 @@ static void rx_sync(struct gptp_port *p, const uint8_t *f, uint16_t seq)
 	p->slv.log_sync = (int8_t)f[F_LOGI];
 }
 
+// The Follow_Up information TLV, which a Follow_Up must carry as its first TLV (11.4.4.1 Table 11-10,
+// 11.4.4.2.2): ORGANIZATION_EXTENSION, lengthField 28, organizationId 00-80-C2, organizationSubType 1
+// (11.4.4.3.2 to 11.4.4.3.5). Further TLVs may follow it.
+static bool fu_tlv_ok(const uint8_t *tlv, unsigned plen)
+{
+	return plen >= LEN_FU && get16(tlv) == 0x0003u && get16(tlv + 2) == 28u && tlv[4] == 0x00 &&
+	       tlv[5] == 0x80 && tlv[6] == 0xC2 && get16(tlv + 7) == 0 && tlv[9] == 1u;
+}
+
 static void rx_follow_up(struct gptp_port *p, const uint8_t *f, unsigned plen, uint16_t seq)
 {
 	const uint8_t *tlv = f + F_BODY + 10;
+	bool tlv_ok = fu_tlv_ok(tlv, plen);
+	if (!tlv_ok) {
+		// without its information TLV there is no rateRatio (11.2.14.2.1 e): no pair, no deadline renewed
+		p->ctr.rx_bad++;
+		return;
+	}
 	if (p->role != GPTP_ROLE_SLAVE || !p->slv.have || p->slv.seq != seq ||
 	    memcmp(f + F_SRC, p->ann.v.src, 10))
 		return;
 	p->slv.fu_origin = gptp_ts_get(f + F_BODY);
 	p->slv.fu_corr_ns += (int64_t)get64(f + F_CORR) >> 16;
-	p->slv.fu_csro_q32 = 0;
-	if (plen >= LEN_FU && get16(tlv) == 0x0003u && get16(tlv + 2) == 28u &&
-	    tlv[4] == 0x00 && tlv[5] == 0x80 && tlv[6] == 0xC2 && get16(tlv + 7) == 0 && tlv[9] == 1u)
-		p->slv.fu_csro_q32 = (int32_t)get32(tlv + 10) >> 9;   // 2^-41 to 2^-32 units
+	p->slv.fu_csro_q32 = tlv_ok ? (int32_t)get32(tlv + 10) >> 9 : 0;   // 2^-41 to 2^-32 units
 	p->slv.fu_early = true;
 	slave_try_pair(p);
 }
@@ -695,18 +774,12 @@ static void rx_pdelay_resp(struct gptp_port *p, const uint8_t *f, uint16_t seq, 
 	if (memcmp(req, own, 10))
 		return;   // an answer to another requester
 	if (!p->pd.in_flight) {
-		// a second responder to an exchange already completed still counts
-		// against it (Milan v1.2 4.2.6.2.5)
-		if (!fu && seq == p->pd.done_seq && p->pd.done_seq == p->pd.seq &&
-		    memcmp(f + F_SRC, p->pd.done_responder, 10)) {
-			p->ctr.pd_multi++;
+		// a second response to the request already completed, inside its interval, counts against it as one
+		// before its completion would
+		if (!fu && seq == p->pd.done_seq && p->pd.done_seq == p->pd.seq) {
 			p->pd.good = 0;
-			p->pd.done_seq = (uint16_t)(p->pd.seq - 1u);
 			as_capable_set(p, false);
-			if (++p->pd.multi_run >= GPTP_CEASE_N) {
-				p->pd.ceased = true;
-				p->pd.cease_end_ms = p->now_ms + GPTP_CEASE_MS;
-			}
+			pd_multi(p, f + F_SRC, p->pd.done_responder);
 		}
 		return;
 	}
@@ -715,7 +788,7 @@ static void rx_pdelay_resp(struct gptp_port *p, const uint8_t *f, uint16_t seq, 
 	if (!fu) {
 		uint64_t ns;
 		if (p->pd.resp_ok) {
-			p->pd.multi = true;   // a second response to one request (11.2.19.3.x, Milan v1.2 4.2.6.2.5)
+			pd_multi(p, f + F_SRC, p->pd.responder);   // a second response to one request
 			return;
 		}
 		p->pd.resp_ok = true;
@@ -762,8 +835,7 @@ void gptp_port_rx(struct gptp_port *p, const uint8_t *frame, unsigned len)
 			rx_sync(p, frame, seq);
 		break;
 	case GPTP_MSG_FOLLOW_UP:
-		if (plen >= LEN_FU - 32u)
-			rx_follow_up(p, frame, plen, seq);
+		rx_follow_up(p, frame, plen, seq);   // it refuses one without its information TLV
 		break;
 	case GPTP_MSG_PDELAY_REQ:
 		if (plen >= LEN_PDELAY) {

@@ -90,6 +90,7 @@ enum gptp_msg_type {
 #define GPTP_ANNOUNCE_MS 1000u         // Announce interval, ibid.
 #define GPTP_ANNOUNCE_RTO 3u           // announceReceiptTimeout, intervals, Table 4.2
 #define GPTP_NRR_WINDOW 4u             // exchanges the neighborRateRatio spans
+#define GPTP_NRR_ENVELOPE_SHIFT 12u    // its envelope, 2^-12 (244 ppm): two LocalClocks within 100 ppm (B.1.1)
 #define GPTP_TS_WAIT_MS 30u            // an egress timestamp not reported in this time is lost
 
 // ---- the HAL: what the port needs from the platform ----
@@ -184,7 +185,8 @@ struct gptp_port {
 		bool resp_ok;
 		bool fu_ok;
 		bool t4_ok;
-		bool multi;
+		bool multi;          // a second response to the request of this interval
+		bool ex_multi;       // ...from another clock identity: the request counts toward the cease
 		bool ceased;
 		uint16_t seq;
 		uint16_t done_seq;

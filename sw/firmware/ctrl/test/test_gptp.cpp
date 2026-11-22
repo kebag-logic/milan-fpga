@@ -139,6 +139,15 @@ Bytes follow_up(uint64_t src, uint16_t seq, uint64_t origin, int64_t corr_ns = 0
 	return f;
 }
 
+// a Follow_Up whose messageLength is ptp_len: its fixed fields and as much of its information TLV as fits
+Bytes follow_up_len(uint64_t src, uint16_t seq, uint64_t origin, unsigned ptp_len)
+{
+	Bytes f = follow_up(src, seq, origin);
+	f.resize(14 + ptp_len, 0);
+	be(f, 16, ptp_len, 2);
+	return f;
+}
+
 // ---- the fake HAL: what a port sends, and its PHC calls ----
 struct Hal {
 	std::vector<Bytes> sent[2];
@@ -217,6 +226,9 @@ struct Scripted : ::testing::Test {
 		return r;
 	}
 	const Bytes &last_req() { return hal.sent[0].back(); }
+	uint16_t last_seq() { return uint16_t(rd(of_type(0x2).back(), 44, 2)); }
+	// this port's PHC moved by a step it asked for: its own stamps (t1, t4) carry the shift from here on
+	int64_t own_shift = 0;
 	// answer the request in flight from a responder with a 500 ns link
 	void answer(uint64_t responder, uint64_t t1, uint64_t t2, uint64_t t3, uint64_t t4)
 	{
@@ -236,7 +248,7 @@ struct Scripted : ::testing::Test {
 			uint64_t t2 = uint64_t(double(t1) * (1.0 + ppm * 1e-6)) + uint64_t(delay);
 			uint64_t t3 = t2 + uint64_t(turn_ns);
 			uint64_t t4 = t1 + uint64_t(2 * delay) + uint64_t(turn_ns / (1.0 + ppm * 1e-6));
-			answer(kClockB, t1, t2, t3, t4);
+			answer(kClockB, t1 + uint64_t(own_shift), t2, t3, t4 + uint64_t(own_shift));
 			tick(1000);
 		}
 	}
@@ -415,6 +427,158 @@ TEST_F(Scripted, MultipleRespondersCeaseAndALinkToggleResumes)
 	EXPECT_EQ(of_type(0x2).size(), before + 1) << "the link toggle did not end the cease";
 }
 
+TEST_F(Scripted, ASecondResponderAfterTheFirstsFollowUpStillCeases)
+{
+	// Milan v1.2 4.2.6.2.5: responses from more than one clock identity to each of three successive requests
+	// cease Pdelay_Req, whatever their order; here the second clock answers after the first's exchange completed
+	start();
+	for (unsigned i = 0; i < 3; i++) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 1'000'000'000ull * (i + 10);
+		answer(kClockB, t1, t1 + 500, t1 + 30'500, t1 + 31'000);
+		rx(pdelay_resp(0x1234ull, seq, t1 + 600, kClockA, false), true, t1 + 32'000);
+		if (i < 2)
+			tick(1000);
+	}
+	EXPECT_TRUE(port.pd.ceased) << "three requests each answered by two clocks, the second late, did not cease";
+	size_t before = of_type(0x2).size();
+	tick(10'000);
+	EXPECT_EQ(of_type(0x2).size(), before) << "Pdelay_Req still sent after three late second responders";
+}
+
+TEST_F(Scripted, ARequestAnsweredByOneClockEndsTheRun)
+{
+	// ibid.: the three must be successive; one answered by a single clock, or by none, starts the count again
+	start();
+	auto two = [&](unsigned i) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 1'000'000'000ull * (i + 10);
+		answer(kClockB, t1, t1 + 500, t1 + 30'500, t1 + 31'000);
+		rx(pdelay_resp(0x1234ull, seq, t1 + 600, kClockA, false), true, t1 + 32'000);
+	};
+	two(0);
+	tick(1000);
+	two(1);
+	tick(1000);
+	answer(kClockB, 12'000'000'000ull, 12'000'000'500ull, 12'000'030'500ull, 12'000'031'000ull);   // one clock
+	tick(1000);
+	two(3);
+	tick(1000);
+	two(4);
+	tick(1000);
+	tick(1000);   // a request nobody answered
+	two(6);
+	tick(1000);
+	two(7);
+	EXPECT_FALSE(port.pd.ceased) << "requests answered by one clock or by none did not end the run";
+	tick(1000);
+	two(8);
+	EXPECT_TRUE(port.pd.ceased) << "three multi-answered requests in a row after a clean one did not cease";
+}
+
+TEST_F(Scripted, OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease)
+{
+	// 10.2.5.1 c): a second response to one request is never asCapable; Milan v1.2 4.2.6.2.5 ceases only on
+	// responses from multiple clock identities
+	start();
+	for (unsigned i = 0; i < 4; i++) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 1'000'000'000ull * (i + 10);
+		gptp_port_ts(&port, true, 0x2, seq, t1, true);
+		rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'000);
+		rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'100);
+		rx(pdelay_resp(kClockB, seq, t1 + 30'500, kClockA, true));
+		tick(1000);
+	}
+	EXPECT_FALSE(port.pd.ceased) << "one clock answering twice ceased Pdelay_Req";
+	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "two responses to each request were asCapable";
+}
+
+TEST_F(Scripted, TheCeaseEndsAfterFiveMinutes)
+{
+	// Milan v1.2 4.2.6.2.5: Pdelay_Req resumes after 5 minutes
+	start();
+	for (unsigned i = 0; i < 3; i++) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 1'000'000'000ull * (i + 10);
+		gptp_port_ts(&port, true, 0x2, seq, t1, true);
+		rx(pdelay_resp(kClockB, seq, t1, kClockA, false), true, t1 + 1000);
+		rx(pdelay_resp(0x1234ull, seq, t1, kClockA, false), true, t1 + 1100);
+		rx(pdelay_resp(kClockB, seq, t1 + 10, kClockA, true));
+		if (i < 2)
+			tick(1000);
+	}
+	ASSERT_TRUE(port.pd.ceased);
+	size_t before = of_type(0x2).size();
+	tick(299'000);
+	EXPECT_EQ(of_type(0x2).size(), before) << "Pdelay_Req resumed before 5 minutes";
+	tick(2'000);
+	EXPECT_GT(of_type(0x2).size(), before) << "Pdelay_Req did not resume after 5 minutes";
+}
+
+TEST_F(Scripted, ATurnaroundLongerThanTheRoundTripIsNoMeasurement)
+{
+	// 11.2.19.3.4: the responder's turnaround sits inside the round trip; one longer straddles a step of the
+	// responder's clock, and its exchange reaches neither the delay nor the rate
+	start();
+	exchanges(1);
+	ASSERT_EQ(port.pd.delay_ns, 500);
+	uint64_t t1 = 1'000'000'000ull * (now / 1000 + 1);
+	answer(kClockB, t1, t1 + 500, t1 + 30'500 + 200'000, t1 + 31'000);   // the responder stepped 200 us on
+	EXPECT_EQ(port.pd.delay_ns, 500) << "a turnaround over the round trip reached the delay";
+	tick(1000);
+	exchanges(2);
+	EXPECT_EQ(port.pd.delay_ns, 500) << "a turnaround over the round trip reached the rate";
+	EXPECT_TRUE(gptp_port_pub(&port)->as_capable);
+}
+
+TEST_F(Scripted, AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow)
+{
+	// 11.2.19.3.3 takes the LocalClock as never stepped, and this port's PHC steps (gptp-processor #68): the
+	// exchange whose own stamps straddle the step is void, and the rate window restarts, so the step reaches
+	// neither the delay nor neighborRateRatio. The 10 ms turnaround makes a step's rate error visible.
+	start();
+	exchanges(3, 0.0, 500, 10'000'000.0);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	uint16_t seq = last_seq();
+	uint64_t t1 = 1'000'000'000ull * (now / 1000);
+	gptp_port_ts(&port, true, 0x2, seq, t1, true);    // the request in flight left before the step
+	uint64_t t = 30'000'000'000ull;
+	rx(sync_msg(kClockB, 7), true, t);
+	// 50 us behind: the link-up threshold steps it on, so the straddling round trip is long, not impossible
+	rx(follow_up(kClockB, 7, t - 500 + 50'000));
+	ASSERT_EQ(hal.steps[0].size(), 1u);
+	ASSERT_EQ(hal.steps[0][0], 50'000);
+	own_shift = 50'000;
+	uint32_t done = port.ctr.pd_done;
+	rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 10'001'000 + uint64_t(own_shift));
+	rx(pdelay_resp(kClockB, seq, t1 + 10'000'500, kClockA, true));
+	EXPECT_EQ(port.ctr.pd_done, done) << "the exchange straddling the step was used";
+	tick(1000);
+	exchanges(3, 0.0, 500, 10'000'000.0);
+	EXPECT_NEAR(port.pd.delay_ns, 500, 2) << "the rate across the step reached the delay";
+	EXPECT_TRUE(gptp_port_pub(&port)->as_capable) << "asCapable fell across this port's own step";
+}
+
+TEST_F(Scripted, AnOwnStepCompletesNoResponseOwed)
+{
+	// the peer's turnaround is t3 - t2 on this port's PHC; across this port's step it is no turnaround, so a
+	// response owed at the step is not completed, and the peer counts one lost response (11.2.19.3.4)
+	start();
+	exchanges(2);
+	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	hal.sent[0].clear();
+	rx(pdelay_req(kClockB, 77), true, 5'000'000'000ull);
+	ASSERT_EQ(of_type(0x3).size(), 1u);
+	uint64_t t = 6'000'000'000ull;
+	rx(sync_msg(kClockB, 5), true, t);
+	rx(follow_up(kClockB, 5, t - 500 - 50'000));
+	ASSERT_EQ(hal.steps[0].size(), 1u);
+	gptp_port_ts(&port, true, 0x3, 77, 5'000'040'000ull, true);
+	EXPECT_TRUE(of_type(0xA).empty()) << "a Pdelay_Resp_Follow_Up across this port's step was sent";
+}
+
 TEST_F(Scripted, OwnResponseIsIgnored)
 {
 	// asCapable is never earned from this clock's own responses (the fork's rule, 11.2.2)
@@ -545,11 +709,14 @@ TEST_F(Scripted, AnnounceReceiptTimeoutAgesTheMaster)
 	exchanges(2);
 	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
 	ASSERT_EQ(gptp_port_role(&port), GPTP_ROLE_SLAVE);
-	// keep Sync coming so only the Announce times out
+	// keep complete pairs coming so only the Announce times out
 	for (unsigned i = 0; i < 280; i++) {
 		tick(10);
-		if (i % 12 == 0)
-			rx(sync_msg(kClockB, uint16_t(i)), true, 1);
+		if (i % 12 == 0) {
+			uint64_t t = uint64_t(now) * 1'000'000ull;
+			rx(sync_msg(kClockB, uint16_t(i)), true, t);
+			rx(follow_up(kClockB, uint16_t(i), t - 500));
+		}
 		if (i % 100 == 99) {
 			auto reqs = of_type(0x2);
 			uint16_t seq = uint16_t(rd(reqs.back(), 44, 2));
@@ -570,12 +737,120 @@ TEST_F(Scripted, SyncReceiptTimeoutAgesTheGrandmaster)
 	start();
 	exchanges(2);
 	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
-	rx(sync_msg(kClockB, 1), true, 1);
+	rx(sync_msg(kClockB, 1), true, 10'000'000'000ull);
+	rx(follow_up(kClockB, 1, 10'000'000'000ull - 500));
 	ASSERT_EQ(gptp_port_role(&port), GPTP_ROLE_SLAVE);
+	ASSERT_EQ(port.ctr.sync_used, 1u);
 	tick(360);
 	EXPECT_EQ(gptp_port_role(&port), GPTP_ROLE_SLAVE) << "aged before 375 ms";
 	tick(30);
-	EXPECT_EQ(gptp_port_role(&port), GPTP_ROLE_MASTER) << "no Sync for 375 ms did not age the grandmaster";
+	EXPECT_EQ(gptp_port_role(&port), GPTP_ROLE_MASTER) << "no pair for 375 ms did not age the grandmaster";
+}
+
+// the selected master's port after one complete pair, then `n` Syncs 120 ms apart and no Follow_Up, each
+// `announce_every`-th with an Announce; `seen` samples the port after each
+template <typename See>
+void sync_without_follow_up(Scripted &s, unsigned n, unsigned announce_every, See seen)
+{
+	s.exchanges(2);
+	s.rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	uint64_t t = 10'000'000'000ull;
+	s.rx(sync_msg(kClockB, 1), true, t);
+	s.rx(follow_up(kClockB, 1, t - 500));
+	ASSERT_EQ(s.port.ctr.sync_used, 1u);
+	ASSERT_TRUE(gptp_port_pub(&s.port)->sync_ok);
+	for (unsigned i = 1; i <= n; i++) {
+		s.tick(120);
+		s.rx(sync_msg(kClockB, uint16_t(1 + i)), true, t + 120'000'000ull * i);
+		if (announce_every && i % announce_every == 0)
+			s.rx(announce(kClockB, uint16_t(1 + i), 100, 0xAAAAull, 0));
+		seen(i);
+	}
+	EXPECT_EQ(s.port.ctr.sync_used, 1u) << "a Sync without its Follow_Up was used";
+	EXPECT_GE(s.port.ctr.rto_sync, 1u) << "Sync without Follow_Up held off the sync receipt timeout";
+}
+
+TEST_F(Scripted, SyncWithoutItsFollowUpLetsTheGrandmasterAge)
+{
+	// 10.2.8.2.1 c) sets syncReceiptTimeoutTime when synchronization information is delivered, which is a Sync
+	// with its Follow_Up (11.2.14, Figure 10-4), never a Sync alone; Milan v1.2 4.2.6.2.3 Table 4.2 bounds the
+	// timeout at 337.5 to 562.5 ms
+	start();
+	sync_without_follow_up(*this, 6, 0, [](unsigned) {});
+	EXPECT_NE(gptp_port_role(&port), GPTP_ROLE_SLAVE) << "720 ms of Sync without Follow_Up kept the master";
+}
+
+TEST_F(Scripted, SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster)
+{
+	// ibid., priority1 255: the timeout clears the verdict (REQ-PTP-08: the loss reaches time validity)
+	start(255);
+	sync_without_follow_up(*this, 6, 0, [](unsigned) {});
+	EXPECT_FALSE(gptp_port_pub(&port)->sync_ok) << "720 ms of Sync without Follow_Up kept the verdict";
+}
+
+TEST_F(Scripted, SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict)
+{
+	// ibid., with Announce still coming: the master stays selectable, so the port may return to it, but past
+	// the timeout never with a verdict only a pair could give
+	start();
+	bool stale = false;
+	sync_without_follow_up(*this, 16, 2, [&](unsigned i) {
+		if (i >= 4)
+			stale = stale || (gptp_port_role(&port) == GPTP_ROLE_SLAVE && port.pub.sync_ok);
+	});
+	EXPECT_FALSE(stale) << "Sync and Announce without Follow_Up kept a slave with the verdict past the timeout";
+}
+
+TEST_F(Scripted, FollowUpWithoutItsInformationTlvIsNoPair)
+{
+	// 11.4.4.1 Table 11-10, 11.4.4.2.2: a Follow_Up carries its information TLV first, from which 11.2.14.2.1
+	// e) takes rateRatio. One without it, cut short or malformed is refused: no step, no trim, no verdict,
+	// and no renewed sync receipt deadline
+	start();
+	exchanges(2);
+	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	const char *what[] = {"absent", "cut short", "of another type", "of another length", "of another organization",
+			      "of another subtype"};
+	uint64_t t = 10'000'000'000ull;
+	for (unsigned k = 0; k < 6; k++) {
+		uint16_t seq = uint16_t(10 + k);
+		uint64_t at = t + 50'000'000ull * k;
+		uint64_t origin = at - 500 - 50'000;   // 50 us: a used pair would step
+		Bytes f = k == 0 ? follow_up_len(kClockB, seq, origin, 44)
+			: k == 1 ? follow_up_len(kClockB, seq, origin, 60) : follow_up(kClockB, seq, origin);
+		if (k == 2)
+			be(f, 58, 0x0008, 2);
+		if (k == 3)
+			be(f, 60, 24, 2);
+		if (k == 4)
+			f[64] = 0xC3;
+		if (k == 5)
+			f[67] = 2;
+		rx(sync_msg(kClockB, seq), true, at);
+		rx(f);
+		EXPECT_EQ(port.ctr.sync_used, 0u) << "a Follow_Up whose information TLV is " << what[k] << " was used";
+		tick(50);
+	}
+	EXPECT_TRUE(hal.steps[0].empty() && hal.trim[0] == 0) << "a refused Follow_Up moved the PHC";
+	tick(90);
+	EXPECT_EQ(gptp_port_role(&port), GPTP_ROLE_MASTER) << "a refused Follow_Up renewed the sync receipt deadline";
+}
+
+TEST_F(Scripted, FollowUpWithAFurtherTlvStillPairs)
+{
+	// 11.4.4.2.2: the information TLV is the first; a TLV after it is the message's own business
+	start();
+	exchanges(2);
+	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	uint64_t t = 10'000'000'000ull;
+	Bytes f = follow_up(kClockB, 3, t - 500);
+	f.resize(f.size() + 12, 0);
+	be(f, 16, 76 + 12, 2);
+	be(f, 14 + 76, 0x0003, 2);
+	be(f, 14 + 78, 8, 2);
+	rx(sync_msg(kClockB, 3), true, t);
+	rx(f);
+	EXPECT_EQ(port.ctr.sync_used, 1u) << "a Follow_Up with a TLV after its information TLV was refused";
 }
 
 TEST_F(Scripted, NotGrandmasterCapableOnlyClearsTheVerdict)
@@ -696,14 +971,17 @@ struct Net : ::testing::Test {
 	std::deque<Wire> wire;
 	std::vector<double> offsets;   // B's time minus A's, sampled each tick, ns
 
+	long double turn_ns = 0;       // a responder's turnaround: its Pdelay_Resp leaves this long after the request
+
 	static Net *self;
 	static bool send(void *, unsigned p, const uint8_t *f, unsigned len)
 	{
 		Net &n = *self;
-		long double t_tx = n.true_ns + 1000.0L * (n.wire.size() + 1);   // distinct instants inside the tick
 		Bytes b(f, f + len);
 		unsigned type = b[14] & 0x0F;
 		bool event = type < 8;
+		long double turn = (type == 0x3 || type == 0xA) ? n.turn_ns : 0.0L;
+		long double t_tx = n.true_ns + 1000.0L * (n.wire.size() + 1) + turn;   // distinct instants inside the tick
 		n.wire.push_back({1u - p, b, t_tx + n.delay_ns});
 		if (event)
 			n.tx_stamps.push_back({p, type, uint16_t(rd(b, 44, 2)), uint64_t(n.phc[p].at(t_tx) + n.jitter())});
@@ -774,8 +1052,69 @@ struct Net : ::testing::Test {
 				last_out = i + 1;
 		return last_out * 0.01;
 	}
+	// 30 s of A (the grandmaster, PHC at a_base) and B (its slave, at b_base) with a responder turnaround
+	// `turn`: B steps to A on its first pair, which no exchange on either side may carry into a rate or a
+	// delay (11.2.19.3.3, 11.2.19.3.4). Each port's asCapable holds from its first rising, and B keeps A.
+	void step_across_the_link(long double a_base, long double b_base, long double turn)
+	{
+		turn_ns = turn;
+		phc[0] = {+20.0, a_base};
+		phc[1] = {-20.0, b_base};
+		start(246, 248);
+		bool rose[2] = {false, false};
+		uint32_t down_ms[2] = {0, 0};
+		bool follows = false;
+		unsigned gm_changes = 0;
+		for (uint32_t ms = 0; ms < 30'000; ms += 10) {
+			run(10);
+			for (unsigned i = 0; i < 2; i++) {
+				rose[i] = rose[i] || port[i].pd.as_capable;
+				if (rose[i] && !port[i].pd.as_capable)
+					down_ms[i] += 10;
+			}
+			if (follows && port[1].pub.gm_id != kClockA)
+				gm_changes++;
+			follows = follows || port[1].pub.gm_id == kClockA;
+		}
+		EXPECT_GE(port[1].ctr.steps, 1u) << "the slave never stepped";
+		EXPECT_EQ(down_ms[0], 0u) << "the grandmaster's port fell from asCapable across the slave's step";
+		EXPECT_EQ(down_ms[1], 0u) << "the slave's port fell from asCapable across its own step";
+		EXPECT_EQ(gm_changes, 0u) << "the slave left its grandmaster after it first followed it";
+		EXPECT_EQ(gptp_port_role(&port[1]), GPTP_ROLE_SLAVE);
+		double worst = 0;
+		for (size_t i = offsets.size() - 500; i < offsets.size(); i++)
+			worst = std::fmax(worst, std::fabs(offsets[i]));
+		EXPECT_LT(worst, 100.0) << "the last 5 s left the 100 ns band";
+	}
 };
 Net *Net::self;
+
+// A step on either side of the link, at the turnarounds 802.1AS-2011 B.2.3 allows (10 ms) and this port's
+// own order (1 ms), from a TAI-scale grandmaster and from offsets of 100 ms and 1 s both ways
+TEST_F(Net, AStepAtTaiScaleKeepsAsCapableAt1msTurnaround)
+{
+	step_across_the_link(1'795'000'000'000'000'000.0L, 0.0L, 1e6L);
+}
+
+TEST_F(Net, AStepAtTaiScaleKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'795'000'000'000'000'000.0L, 0.0L, 1e7L);
+}
+
+TEST_F(Net, AStepOf100msKeepsAsCapableAt1msTurnaround)
+{
+	step_across_the_link(1'100'000'000.0L, 1'000'000'000.0L, 1e6L);
+}
+
+TEST_F(Net, AStepOf1sKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(2'000'000'000.0L, 1'000'000'000.0L, 1e7L);
+}
+
+TEST_F(Net, ABackwardStepOf100msKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'000'000.0L, 1'100'000'000.0L, 1e7L);
+}
 
 TEST_F(Net, SlaveLocksToTheGrandmaster)
 {

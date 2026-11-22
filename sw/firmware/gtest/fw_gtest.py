@@ -72,12 +72,18 @@ class Execution:
 EXECUTION = Execution()
 
 
+#: UndefinedBehaviorSanitizer with no recovery: the first finding ends the test binary with a failure
+UBSAN_FLAGS = ("-fsanitize=undefined", "-fno-sanitize-recover=undefined")
+
+
 @dataclass
 class Build:
     """How a gate builds: the compilers, coverage or not, and the jobs."""
 
     coverage: bool = False
     address_sanitizer: bool = False
+    #: undefined behaviour aborts the binary: a sanitizer finding is a failed run, never a printed warning
+    undefined_sanitizer: bool = False
     jobs: int = os.cpu_count() or 4
     #: compiled C++ objects by content key, shared by every arm of one run
     cache: dict[str, Path] = field(default_factory=dict)
@@ -104,6 +110,8 @@ class Build:
             use = [f for f in use if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
         if self.address_sanitizer:
             use += ["-fsanitize=address", "-fno-omit-frame-pointer", "-fno-pie"]
+        if self.undefined_sanitizer:
+            use += list(UBSAN_FLAGS)
         return use
 
 
@@ -192,6 +200,8 @@ def link(build: Build, objects: Sequence[Path], exe: Path) -> Path:
     flags = ["--coverage"] if build.coverage else []
     if build.address_sanitizer:
         flags += ["-fsanitize=address", "-no-pie"]
+    if build.undefined_sanitizer:
+        flags += list(UBSAN_FLAGS)
     res = run([build.cxx, *flags, *map(str, objects), "-o", str(exe), *TEST_LIBS])
     if res.returncode != 0:
         raise BuildError(f"{exe.name} does not link:\n{res.stderr}")

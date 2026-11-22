@@ -4,6 +4,9 @@
 
   gptp       the port (gptp/gptp.c) on the host: its GoogleTest suite (test_gptp.cpp), scripted frames and a
              two-port network over simulated PHCs, each test naming its IEEE 802.1AS-2020 or Milan v1.2 clause;
+  gptp_ubsan the same suite under UndefinedBehaviorSanitizer, which ends the run at the first finding: the
+             port's 64-bit time arithmetic (a step at TAI scale, a turnaround) holds no signed overflow, shift or
+             null argument (C11 6.5p5, 7.24.1);
   gptp_rv32  the same source built freestanding for the split placement's RV32IM hart with the image's flags:
              no float, no libm, nothing open but the C library's memory functions and libgcc's helpers, and its
              size, which the memory plan reads.
@@ -11,6 +14,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 from pathlib import Path
 
 from ctrl_arms import rv32_compiler, symbols
@@ -38,6 +42,27 @@ def arm_gptp(tree: Tree) -> Outcome:
     objs = compile_c(tree, sources(tree, SOURCES), "gptp", include(tree))
     tests = compile_tests(tree, TESTS, "gptp/tests", include(tree))
     return execute("gptp", link(tree, "test_gptp", objs + tests))
+
+
+def arm_gptp_ubsan(tree: Tree) -> Outcome:
+    """The port's GoogleTest suite with undefined behaviour a failure, under its own objects and binary."""
+    sanitized = dataclasses.replace(tree, build=dataclasses.replace(tree.build, undefined_sanitizer=True))
+    objs = compile_c(sanitized, sources(sanitized, SOURCES), "gptp_ubsan", include(sanitized))
+    tests = compile_tests(sanitized, TESTS, "gptp_ubsan/tests", include(sanitized))
+    return attributed(execute("gptp_ubsan", link(sanitized, "test_gptp_ubsan", objs + tests)))
+
+
+def attributed(outcome: Outcome) -> Outcome:
+    """A sanitizer finding ends the binary inside a test, which then prints no [FAIL] line of its own: the
+    finding is named as that test's failure, so a planted defect is graded by its test as any other is."""
+    lines = outcome.log.splitlines()
+    first = next((i for i, ln in enumerate(lines) if "runtime error:" in ln), None)
+    if first is None:
+        return outcome
+    running = [ln.split("]", 1)[1].strip() for ln in lines[:first] if ln.startswith("[ RUN      ]")]
+    name = running[-1] if running else "the suite before its first test"
+    finding = lines[first].split("runtime error:", 1)[1].strip()
+    return Outcome(outcome.arm, 1, f"{outcome.log}\n  [FAIL] {name}: undefined behaviour: {finding}")
 
 
 def arm_gptp_rv32(tree: Tree, require: bool) -> Outcome:
@@ -90,5 +115,5 @@ def arm_gptp_rv32(tree: Tree, require: bool) -> Outcome:
 
 
 def all_arms(tree: Tree, require_rv32: bool = False) -> list[Outcome]:
-    """Both arms; require_rv32 refuses a tree with no RV32 compiler instead of skipping its arm."""
-    return [arm_gptp(tree), arm_gptp_rv32(tree, require_rv32)]
+    """The three arms; require_rv32 refuses a tree with no RV32 compiler instead of skipping its arm."""
+    return [arm_gptp(tree), arm_gptp_ubsan(tree), arm_gptp_rv32(tree, require_rv32)]
