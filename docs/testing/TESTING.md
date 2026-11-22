@@ -428,6 +428,12 @@ Render's 1050.3 s ratio projection underestimated its 1218.7 s hosted window.
 Unchanged render code took 1093.9 s at `1e79ebdc`.
 The later window is about 11% longer.
 These measurements cover `8e4b1e53`; later heads still require hosted acceptance.
+
+#584 adds a fourth `milan_dp_render` case, `ship8`, appended after the three so their CI legs keep their indices.
+Its leg figure in `scripts/suite_shards.py`, 240 s, is not a hosted window.
+It is the case's cold run through `ci_make_cases.py` on four CPUs, 147.9 s, scaled by 1.58 and rounded up.
+That run built the case and ran it, with ci-prepare's three entity images.
+Its hosted window is owed by the first hosted run of a head that carries it.
 That requires `follow_ring` within 1260 s and successful `verilator-suites`.
 
 #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)

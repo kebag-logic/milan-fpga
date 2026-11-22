@@ -82,7 +82,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `milan_dp_render` gains `ship8`, the 8x8 at its pins.
 - It elaborates the builder's own render parameters.
 - Eight listeners feed it; slot 0 renders port 0's source.
-- Slots 1 to 31, and ports 1 to 7, stay silent.
+- Slots 1-31 and ports 1-7 stay silent.
 - `ship8-mutants` plants projection, adapter and bus faults.
 
 ## Unreleased - the Mark II split ships
