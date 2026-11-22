@@ -1,0 +1,94 @@
+[
+ {
+  "plant": "control-no-change",
+  "build_rc": 0,
+  "test_rc": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "messages": []
+ },
+ {
+  "plant": "gm-change-draws-link-up-kind",
+  "build_rc": 0,
+  "test_rc": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "messages": []
+ },
+ {
+  "plant": "gm-change-draws-startup-kind",
+  "build_rc": 0,
+  "test_rc": 0,
+  "verdict": "SURVIVED",
+  "failed_tests": [],
+  "messages": []
+ },
+ {
+  "plant": "discover-draws-link-up-kind",
+  "build_rc": 0,
+  "test_rc": 1,
+  "verdict": "caught",
+  "failed_tests": [
+   "ms)"
+  ],
+  "messages": [
+   "A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)",
+   "valid discovery uses the normal delay range",
+   "valid discovery uses the normal delay range",
+   "valid discovery uses the normal delay range",
+   "valid discovery uses the normal delay range",
+   "valid discovery uses the normal delay range",
+   "valid discovery uses the normal delay range"
+  ]
+ },
+ {
+  "plant": "startup-draws-link-up-kind",
+  "build_rc": 0,
+  "test_rc": 1,
+  "verdict": "caught",
+  "failed_tests": [
+   "ms)"
+  ],
+  "messages": [
+   "A3 enabled with the link up: DELAY with a 0..0.5 s draw (5.6.3.5.2)",
+   "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
+  ]
+ },
+ {
+  "plant": "link-up-range-one-second",
+  "build_rc": 0,
+  "test_rc": 1,
+  "verdict": "caught",
+  "failed_tests": [
+   "ms)"
+  ],
+  "messages": [
+   "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
+  ]
+ },
+ {
+  "plant": "startup-range-one-second",
+  "build_rc": 0,
+  "test_rc": 1,
+  "verdict": "caught",
+  "failed_tests": [
+   "ms)"
+  ],
+  "messages": [
+   "A9 every startup draw and every LINK_UP draw is 0..0.5 s"
+  ]
+ },
+ {
+  "plant": "delay-range-half-second",
+  "build_rc": 0,
+  "test_rc": 1,
+  "verdict": "caught",
+  "failed_tests": [
+   "ms)"
+  ],
+  "messages": [
+   "A9 the kinds are distinct: the 0..4 s draws pass 0.5 s",
+   "A9 and each reaches near its maximum"
+  ]
+ }
+]

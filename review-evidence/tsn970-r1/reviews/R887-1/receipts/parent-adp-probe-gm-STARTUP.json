@@ -1,0 +1,25 @@
+{
+ "variant": "gm-STARTUP",
+ "adp": {
+  "rc": 0,
+  "g_lines": [
+   "G1 64 LINK_UPs: the first ENTITY_AVAILABLE 56 distinct delays, the latest 499 ms after LINK_UP (bound 1000)",
+   "G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)",
+   "G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 496 ms (bound 1000)",
+   "G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 457 ms after LINK_UP (bound 1000)",
+   "G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 421 ms after LINK_UP, the new grandmaster's the latest 500 ms after the change"
+  ],
+  "fail_lines": []
+ },
+ "walk": {
+  "rc": 1,
+  "g_lines": [],
+  "fail_lines": [
+   "[FAIL] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING: GM_CHANGE x WAITING: the draw is the 0..4 s kind",
+   "[  FAILED  ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING, where GetParam() = (7, 2) (0 ms)",
+   "[  FAILED  ] 1 test, listed below:",
+   "[  FAILED  ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING, where GetParam() = (7, 2)",
+   "1 FAILED TEST"
+  ]
+ }
+}
