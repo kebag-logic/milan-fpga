@@ -326,7 +326,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "744 B past the 139,264 B of rom 62.5 holds beside them, ctrl_plat "
                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
                                             "S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
-                                            "holds (#969) on that train, 141,568 B of rom, 256 B past the "
+                                            "holds (#969) on that train, 141,720 B of rom, 408 B past the "
                                             "141,312 B of rom 63.0 holds beside 115,760 B of sram, ctrl_plat at "
                                             "its measured 21,824 B, by the same rule: debt of 7.5 RAMB36 owed to "
                                             "S14"),
@@ -351,8 +351,8 @@ LEDGERED: dict[str, Ledgered] = {
                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
                                            "with each AAF Stream Input's current format written (#946), "
                                            "138,432 B of rom, ctrl_plat unchanged; 58.5 with the Talkers SRP "
-                                           "keeps for StreamIDs no binding holds (#969) on that train, 139,984 B "
-                                           "of rom, 720 B past the 139,264 B 58.0 holds, and 98,288 B of sram, "
+                                           "keeps for StreamIDs no binding holds (#969) on that train, 140,136 B "
+                                           "of rom, 872 B past the 139,264 B 58.0 holds, and 98,288 B of sram, "
                                            "ctrl_plat at its measured 19,072 B, by the same rule: ROM debt of "
                                            "2.5 RAMB36 owed to S14"),
 }

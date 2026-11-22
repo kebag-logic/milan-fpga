@@ -7,7 +7,7 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): at 8x8 with two
 interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
 #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
-#665) and the target platform's at 63.0 (60.5, the
+#665) and the target platform's at 63.5 (60.5, the
 owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
 poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, 62.5 with the
 StreamIDs held with their latest Talker kind, #925, 63.0 with each AAF Stream Input's format written into its
