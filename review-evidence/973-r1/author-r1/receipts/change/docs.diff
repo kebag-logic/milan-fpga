@@ -1,0 +1,43 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 571254dea2..40c890ea95 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
+ - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+ - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+ - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@ -58,6 +59,13 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - a link-up inside a loop pass
++
++- #973: SRP's poll takes an UP the loop dispatched.
++- A link-up after a pass's events no longer resets twice.
++- A first UP keeps the clean startup participants.
++- A DOWN still fails closed from the LINK register.
++
+ ## Unreleased - the Mark II split ships
+ 
+ - #665 S13 flips the AX7101 configs to the split.
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index e06026ed72..b587b7ffa9 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -111,6 +111,12 @@ Destroy before reinitializing an already initialized instance.
+ Attach reads each interface's current mailbox link level.
+ Polling reconciles that level even without another LINK record.
+ A held DOWN record can disappear when the level recovers.
++The poll takes a DOWN as the LINK register reads it, so a link lost while a full ring holds its record fails closed.
++It takes an UP only while the last LINK the loop dispatched carried one, or attach read one (`link_carried`, #973).
++The register can rise after the loop took a pass's events, before SRP's poll reads it.
++A reset on that level would make the next pass's LINK a repeated UP, which resets the interface again.
++So a first UP would lose the clean startup participants, and a later UP would reset twice.
++`srp_link_pass.cpp` moves the link at each phase of a pass, in a process of its own at 1x1/1if and 8x8/1if.
+ 
+ `ctrl_app_attach_srp` wires the ACMP environment's SRP port into a static
+ latest-request slot per sink. It refuses a sink count beyond the generated

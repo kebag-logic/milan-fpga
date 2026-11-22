@@ -1,0 +1,116 @@
+# receipts_spec.py: the round's receipts, run by receipts.py (keep, put, lines, run, S, L in scope).
+import re as _re
+
+BASE = 'dd163e41438acb86e0c4d4e76df90f3f91ace1c0'
+TEST = '406c4a893e'
+FIRST = '7a0f6d81606b47b9c8e554e155b0ca4edd0efffb'
+HEAD = run('git', 'rev-parse', 'HEAD').strip()
+#: where the firmware shards, coverage, the twin, the images, the CPU legs, the builder legs and the boot
+#: simulation ran; HEAD differs from it only by a test module's docstring (change/after-gate-head.txt)
+GATE = '862fd41cfc292d07480f0e6bb4b5dd5e0c42e2ea'
+U = S / 'units'
+ADDR = _re.compile(r'0x[0-9a-f]{8,}')
+GROUPS = ('srp', 'adp-link', 'maap', 'control', 'backlog', 'aecp', 'aecp-fanout', 'acmp-cmd', 'datapath-events',
+          'fixture')
+
+
+def unaddressed(text: str) -> str:
+    """Host heap addresses differ run to run: replaced by <address>."""
+    return ADDR.sub('<address>', text)
+
+
+def shard(text: str) -> str:
+    counts = (f"# [ok] lines {sum(l.startswith('[ok]') for l in text.splitlines())}, "
+              f"ESCAPED {text.count('ESCAPED')}, suite verdicts PASS {text.count('verdict: PASS')}, "
+              f"FAIL {text.count('verdict: FAIL')}\n")
+    return counts + lines(r'^HEAD |^\[unit|^\[ok\] arm|^\[FAIL|ESCAPED|verdict:|test_ctrl_firmware: |mutants: |^END |'
+                 r'link-pass-|srp-poll-extra|== .*checks:', text,
+                 '# firmware gate shard summary lines (test_ctrl_firmware.py --require-rv32 --self-test --shard k/4 '
+                 '--jobs 8); the whole log is kept in scratch\n')
+
+
+def leg(text: str) -> str:
+    return lines(r'^HEAD |^CLOCK|^STEPS|^SLICES|^JOINS|groups graded|refus|^END', text)
+
+
+# --- the change
+put('change/after-gate-head.txt', f'# files changed after {GATE[:8]}, where the gates ran: one test module\'s '
+    'docstring rewrapped within 120 columns; no firmware source, image input, test or plant\n' +
+    run('git', 'diff', '--stat', GATE, 'HEAD') + run('git', 'diff', GATE, 'HEAD'))
+put('change/commits.txt', run('git', 'log', '--reverse', '--format=%H %s', f'{BASE}..HEAD'))
+put('change/diffstat.txt', run('git', 'diff', '--stat', BASE, 'HEAD'))
+put('change/fix.diff', run('git', 'diff', BASE, 'HEAD', '--', 'sw/firmware/ctrl/srp/srp_mbx.c',
+                           'sw/firmware/ctrl/srp/srp_mbx.h', 'sw/firmware/ctrl/loop', 'sw/firmware/gtest'))
+put('change/tests-and-plants.diff', run('git', 'diff', BASE, 'HEAD', '--', 'sw/firmware/ctrl/test'))
+put('change/docs.diff', run('git', 'diff', BASE, 'HEAD', '--', 'CHANGELOG.md', 'sw/firmware/ctrl/srp/README.md'))
+put('change/test-first.txt', f'# the test commit {TEST}: test files only, no firmware source; the suite, the fixture '
+    'and the arms are unchanged from it to the head\n' + run('git', 'diff', '--stat', BASE, TEST) +
+    '# test files, test commit to head:\n' +
+    run('git', 'diff', '--stat', TEST, 'HEAD', '--', 'sw/firmware/ctrl/test/srp_link_pass.cpp',
+        'sw/firmware/ctrl/test/srp_fixture.hpp', 'sw/firmware/ctrl/test/srp_arms.py'))
+put('change/first-fix-superseded.diff', '# the first fix (8b76887e, the level in the loop) against the head\'s: '
+    'the loop and the coverage ratchet are back to the base\n' +
+    run('git', 'diff', FIRST, 'HEAD', '--', 'sw/firmware/ctrl/loop', 'sw/firmware/ctrl/srp/srp_mbx.c',
+        'sw/firmware/ctrl/srp/srp_mbx.h', 'sw/firmware/gtest/coverage.ratchet'))
+
+# --- the reproduction: the test commit's suite on the base firmware, and the head's
+for shape in ('endstation_ax7101_1x1_tdm8', 'endstation_ax7101_8x8'):
+    keep(f'repro/base-{TEST[:8]}-{shape}.log', S / f'dev/base/checkout/srp-srp_link_pass-if1-{shape}/run.log',
+         unaddressed)
+    keep(f'repro/head-{GATE[:8]}-{shape}.log', S / f'fw/h3-0/checkout/srp-srp_link_pass-if1-{shape}/run.log',
+         unaddressed)
+
+# --- the firmware gate and coverage at the head
+for k in range(4):
+    keep(f'gates/firmware-shard-{k}.txt', U / f'fw{k}-3.log', shard)
+keep('gates/firmware-shard-3-link-plants.txt', U / 'fw3-3.log',
+     lambda t: lines(r'link-pass-|srp-poll-extra', t, '# the seven #973 plants and the moved srp-poll-extra-read, in '
+                     'the SRP shard\'s three campaigns (1x1/2if whole table, 1x1/1if, 8x8/1if)\n'))
+keep('gates/shard-inventory.txt', S / 'logs/shards-selftest-h3.txt')
+keep('gates/coverage.txt', U / 'cov3.log',
+     lambda t: lines(r'^HEAD|^\[ok\]|^\[FAIL|FINDING|^sw/|^third_party/|firmware coverage|== |^END', t))
+# --- the docs workflow steps and the builder legs at the head
+keep('gates/docs-steps.txt', S / 'docs/h4/steps.txt')
+keep('gates/docs-steps-862fd41c.txt', S / 'docs/h3/steps.txt')
+for k in (0, 1):
+    keep(f'gates/builder-leg-{k}.json', S / f'docs/b{k}-3/builder-leg-{k}.json')
+    keep(f'gates/builder-leg-{k}.txt', U / f'b{k}-3.log', lambda t: lines(r'^HEAD|^\[unit|PASS|FAIL|NOT RUN|^END', t))
+# --- the twin and the boot simulation at the head
+keep('gates/twin.txt', U / 'twin3.log',
+     lambda t: lines(r'^HEAD|^\[unit|^== |twin: |half:|^\[LEDGER\]|^\[TAIL\]|PLANT|plant|refused|^END', t))
+keep('gates/boot.txt', U / 'boot3.log', lambda t: lines(r'^HEAD|^\[unit|^== |PASS|FAIL|ready|^END|dirty', t))
+
+# --- the CPU budget harness: base and head legs, the table graders, the comparisons
+for side, d in (('base', 'base'), ('head', 'h3')):
+    for p in ('1x1', '8x8-1if'):
+        keep(f'cpu/legs/{side}-{p}.txt', U / f'leg-{d}-{p}.log' if d != 'h3' else U / f'leg-h3-{p}.log', leg)
+        for g in GROUPS:
+            keep(f'cpu/legs/{side}-{p}/{g}.txt', S / f'meas/{d}/{p}/none/results/{g}.txt')
+for f in sorted((S / 'cpu/graders').glob('*.txt')):
+    keep(f'cpu/graders/{f.name}', f)
+for f in sorted((S / 'cpu/compare').glob('*')):
+    keep(f'cpu/compare/{f.name}', f)
+
+# --- the images: the ledger at every point, base and head, and the diff of the eight pairs
+for side, d in (('base', 'plat-base'), ('head', 'plat-h3')):
+    keep(f'images/{side}-HEAD.txt', S / f'img/{d}/HEAD.txt')
+    keep(f'images/{side}-plat_ledger.txt', S / f'img/{d}/plat_ledger.log',
+         lambda t: lines(r'^POINT|plat_ledger:|FINDING|ledger', t))
+for f in sorted((S / 'cmp').glob('*.txt')):
+    keep(f'images/compare/{f.name}', f)
+
+# --- the first fix's results, superseded by the head (HANDOFF section 7)
+keep('superseded/plat_ledger-7a0f6d81.txt', S / 'img/plat-head/plat_ledger.log',
+     lambda t: lines(r'^POINT|plat_ledger:|FINDING', t))
+keep('superseded/coverage-ef516e6e.txt', U / 'cov.log', lambda t: lines(r'^HEAD|FINDING|ctrl_loop|firmware coverage', t))
+for k in range(4):
+    keep(f'superseded/firmware-shard-{k}-7a0f6d81.txt', U / f'fw{k}.log', shard)
+for p in ('1x1', '8x8-1if'):
+    keep(f'superseded/leg-head-{p}-7a0f6d81.txt', U / f'leg-head-{p}.log', leg)
+keep('superseded/twin-7a0f6d81.txt', U / 'twin.log', lambda t: lines(r'^HEAD|^== |twin: ', t))
+keep('superseded/docs-steps-ef516e6e.txt', S / 'docs/r1/steps.txt')
+
+# --- the tools this round ran
+for f in sorted((S / 'bin').rglob('*')):
+    if f.is_file() and f.suffix in ('.py', '.sh'):
+        keep(f'tools/{f.relative_to(S / "bin").as_posix()}.txt', f)

@@ -1,0 +1,609 @@
+# image diff: base plat-base/fixture-1x1-if1 against head (same point)
+## 1. linked inputs: 39 base, 39 head, same names in the same order: True
+inputs that differ by sha256: 1 of 39: 30-srp_mbx.o
+## 2. 30-srp_mbx.o, normalised code: 319 line(s) differ; other sections' bytes: differ only in sections the link discards
+--- base/30-srp_mbx.o
++++ head/30-srp_mbx.o
+@@ -169,5 +169,5 @@
+ 	mv	s2,a2
+ 	mv	s4,a3
+-	sb	a5,193(a0)
++	sb	a5,194(a0)
+ 	addi	s0,a0,132
+ 	addi	s6,a0,184
+@@ -464,5 +464,5 @@
+ 	sh	a5,34(s0)
+ 	li	a5,1
+-	sb	a5,168(s0)
++	sb	a5,169(s0)
+ 	lw	s0,8(sp)
+ 	addi	sp,sp,16
+@@ -514,5 +514,5 @@
+ 	mv	s9,a0
+ 	sw	a1,12(sp)
+-	sb	s1,193(a0)
++	sb	s1,194(a0)
+ 	addi	s3,a0,176
+ 	addi	s10,s2,346
+@@ -833,5 +833,5 @@
+ 	Disassembly of section .text.reclaim:
+ <reclaim>:
+-	lbu	a5,194(a0)
++	lbu	a5,195(a0)
+ 	beqz	a5,<.L170>
+ 	R_RISCV_BRANCH	.L170
+@@ -856,5 +856,5 @@
+ 	lhu	a5,280(a5)
+ 	snez	a5,a5
+-	sb	a5,194(s0)
++	sb	a5,195(s0)
+ 	lw	s0,8(sp)
+ 	addi	sp,sp,16
+@@ -1060,5 +1060,5 @@
+ 	bne	a4,a5,<.L192>
+ 	R_RISCV_BRANCH	.L192
+-	sb	a2,191(a0)
++	sb	a2,192(a0)
+ <.L192>:
+ 	lbu	a5,140(a0)
+@@ -1182,14 +1182,13 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
++	li	a5,257
++	sh	a5,194(s0)
++	lw	a0,16(s0)
+ 	lw	a5,8(s0)
+-	lw	a0,16(s0)
+-	li	s1,1
+-	mv	a6,s1
++	li	a6,1
+ 	li	a4,1000
+ 	li	a3,500
+ 	li	a2,19
+ 	li	a1,0
+-	sb	s1,193(s0)
+-	sb	s1,194(s0)
+ 	auipc	ra,0x0
+ 	R_RISCV_CALL_PLT	mrp_port_configure
+@@ -1199,5 +1198,5 @@
+ 	lw	a0,20(s0)
+ 	li	a4,1000
+-	mv	a6,s1
++	li	a6,1
+ 	xori	a5,a5,145
+ 	li	a3,500
+@@ -1238,5 +1237,5 @@
+ 	li	a2,3
+ 	li	a1,0
+-	sb	zero,191(s0)
++	sb	zero,192(s0)
+ 	sw	a5,52(s0)
+ 	auipc	ra,0x0
+@@ -1245,5 +1244,5 @@
+ 	jalr	ra
+ 	lw	a0,16(s0)
+-	mv	a4,s1
++	li	a4,1
+ 	addi	a3,s0,52
+ 	li	a2,4
+@@ -1354,5 +1353,5 @@
+ 	R_RISCV_BRANCH	.L232
+ 	li	a5,1
+-	sb	a5,194(a0)
++	sb	a5,195(a0)
+ <.L232>:
+ 	lw	s5,12(a2)
+@@ -1368,5 +1367,5 @@
+ <.L233>:
+ 	li	a5,1
+-	sb	a5,197(s0)
++	sb	a5,198(s0)
+ 	bnez	s2,<.L235>
+ 	R_RISCV_BRANCH	.L235
+@@ -1442,5 +1441,5 @@
+ 	addi	sp,sp,-48
+ 	sw	s5,20(sp)
+-	lbu	s5,193(a0)
++	lbu	s5,194(a0)
+ 	sw	s7,12(sp)
+ 	addi	s7,a0,124
+@@ -1573,5 +1572,5 @@
+ 	Disassembly of section .text.snapshot:
+ <snapshot>:
+-	lbu	a5,193(a0)
++	lbu	a5,194(a0)
+ 	addi	sp,sp,-32
+ 	sw	s0,24(sp)
+@@ -1608,5 +1607,5 @@
+ <.L274>:
+ 	lw	a4,0(a0)
+-	sb	zero,193(a0)
++	sb	zero,194(a0)
+ 	li	a2,2
+ 	lw	a5,332(a4)
+@@ -1933,5 +1932,5 @@
+ 	R_RISCV_BRANCH	.L342
+ 	li	a5,1
+-	sb	a5,194(s4)
++	sb	a5,195(s4)
+ <.L342>:
+ 	li	a5,240
+@@ -1963,5 +1962,5 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	add	s2,s0,s2
+-	sb	zero,197(s2)
++	sb	zero,198(s2)
+ 	sw	a5,340(s0)
+ <.L347>:
+@@ -2087,5 +2086,5 @@
+ 	Disassembly of section .text.rx_ready:
+ <rx_ready>:
+-	lbu	a4,196(a0)
++	lbu	a4,197(a0)
+ 	bnez	a4,<.L377>
+ 	R_RISCV_BRANCH	.L377
+@@ -2283,5 +2282,5 @@
+ 	R_RISCV_JAL	.L393
+ <.L403>:
+-	lbu	a4,192(s10)
++	lbu	a4,193(s10)
+ 	lw	s4,0(s10)
+ 	bnez	a4,<.L406>
+@@ -2386,5 +2385,5 @@
+ 	beq	a4,s5,<.L428>
+ 	R_RISCV_BRANCH	.L428
+-	sb	a6,193(s10)
++	sb	a6,194(s10)
+ 	lw	a0,16(s10)
+ 	beqz	s5,<.L429>
+@@ -2486,5 +2485,5 @@
+ 	beq	a4,a3,<.L412>
+ 	R_RISCV_BRANCH	.L412
+-	sb	zero,191(s10)
++	sb	zero,192(s10)
+ <.L412>:
+ 	lw	a4,56(s10)
+@@ -2513,5 +2512,5 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	sb	zero,192(s10)
++	sb	zero,193(s10)
+ <.L413>:
+ 	li	s7,0
+@@ -2521,5 +2520,5 @@
+ 	li	a4,1
+ 	sb	a4,3(s3)
+-	lbu	a4,191(s10)
++	lbu	a4,192(s10)
+ 	beqz	a4,<.L419>
+ 	R_RISCV_BRANCH	.L419
+@@ -2668,5 +2667,5 @@
+ 	sw	zero,20(s0)
+ 	slli	a5,s3,0x1
+-	sb	zero,192(s0)
++	sb	zero,193(s0)
+ 	add	a5,s1,a5
+ 	sb	zero,337(a5)
+@@ -2720,8 +2719,7 @@
+ 	bne	s2,s5,<.L497>
+ 	R_RISCV_BRANCH	.L497
+-	li	a5,1
+-	sb	a5,195(s0)
++	li	a5,257
++	sh	a5,196(s0)
+ 	lw	ra,44(sp)
+-	sb	a5,196(s0)
+ 	lw	s0,40(sp)
+ 	lw	s1,36(sp)
+@@ -2792,10 +2790,11 @@
+ <.L514>:
+ 	li	a5,240
+-	mul	s0,s0,a5
+-	li	a5,1
+-	add	s0,s2,s0
+-	sb	a5,189(s0)
+-	lbu	a5,16(s1)
+-	sb	a5,190(s0)
++	mul	a5,s0,a5
++	li	a4,1
++	add	a5,s2,a5
++	sb	a4,189(a5)
++	lbu	a4,16(s1)
++	sb	a4,190(a5)
++	sb	a4,191(a5)
+ <.L511>:
+ 	sb	zero,300(s2)
+@@ -2829,6 +2828,17 @@
+ 	jalr	ra
+ 	mv	s1,a0
+-	beqz	a0,<.L520>
++	bnez	a0,<.L520>
+ 	R_RISCV_BRANCH	.L520
++<.L521>:
++	lw	ra,44(sp)
++	lw	s0,40(sp)
++	lw	s2,32(sp)
++	lw	s3,28(sp)
++	lw	s4,24(sp)
++	mv	a0,s1
++	lw	s1,36(sp)
++	addi	sp,sp,48
++	ret
++<.L520>:
+ 	li	a0,0
+ 	auipc	ra,0x0
+@@ -2836,8 +2846,12 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
++	mv	s2,a0
++	beqz	a0,<.L525>
++	R_RISCV_BRANCH	.L525
++	lbu	s2,191(s0)
++<.L525>:
+ 	lbu	a5,190(s0)
+-	mv	s2,a0
+-	beq	a5,a0,<.L521>
+-	R_RISCV_BRANCH	.L521
++	beq	a5,s2,<.L523>
++	R_RISCV_BRANCH	.L523
+ 	mv	a0,s0
+ 	auipc	ra,0x0
+@@ -2848,8 +2862,8 @@
+ 	sb	s2,190(s0)
+ 	sb	a5,189(s0)
+-<.L521>:
++<.L523>:
+ 	lbu	a5,188(s0)
+-	beqz	a5,<.L523>
+-	R_RISCV_BRANCH	.L523
++	beqz	a5,<.L527>
++	R_RISCV_BRANCH	.L527
+ 	lhu	a1,186(s0)
+ 	li	a0,4
+@@ -2858,43 +2872,22 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	bnez	a0,<.L523>
+-	R_RISCV_BRANCH	.L523
++	bnez	a0,<.L527>
++	R_RISCV_BRANCH	.L527
+ 	sb	zero,188(s0)
+-<.L523>:
+-	lbu	a5,195(s0)
+-	beqz	a5,<.L525>
+-	R_RISCV_BRANCH	.L525
++<.L527>:
++	lbu	a5,196(s0)
++	beqz	a5,<.L529>
++	R_RISCV_BRANCH	.L529
+ 	addi	a5,a5,-1
+-	sb	a5,195(s0)
+-<.L526>:
++	sb	a5,196(s0)
++<.L530>:
+ 	mv	s2,s1
+-<.L531>:
++	j	<.L542>
++	R_RISCV_JAL	.L542
++<.L529>:
+ 	lw	a5,16(s0)
+-	beqz	a5,<.L540>
+-	R_RISCV_BRANCH	.L540
+-	mv	a0,s0
+-	auipc	ra,0x0
+-	R_RISCV_CALL_PLT	reclaim
+-	R_RISCV_RELAX	*ABS*
+-	jalr	ra
+-	li	s1,0
+-<.L540>:
+-	lw	a5,240(s0)
+-	sb	s1,1852(a5)
+-	lhu	a5,280(s0)
+-	bnez	a5,<.L541>
+-	R_RISCV_BRANCH	.L541
+-<.L544>:
+-	bnez	s2,<.L542>
+-	R_RISCV_BRANCH	.L542
+-	lbu	s1,336(s0)
+-	snez	s1,s1
+-	j	<.L545>
+-	R_RISCV_JAL	.L545
+-<.L525>:
+-	lw	a5,16(s0)
+-	sb	zero,196(s0)
+-	bnez	a5,<.L528>
+-	R_RISCV_BRANCH	.L528
++	sb	zero,197(s0)
++	bnez	a5,<.L532>
++	R_RISCV_BRANCH	.L532
+ 	li	a0,0
+ 	sw	zero,296(s0)
+@@ -2915,12 +2908,12 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	bnez	a0,<.L528>
+-	R_RISCV_BRANCH	.L528
++	bnez	a0,<.L532>
++	R_RISCV_BRANCH	.L532
+ 	lw	a5,308(s0)
+ 	addi	a5,a5,1
+ 	sw	a5,308(s0)
+ 	lbu	a5,354(s0)
+-	bnez	a5,<.L526>
+-	R_RISCV_BRANCH	.L526
++	bnez	a5,<.L530>
++	R_RISCV_BRANCH	.L530
+ 	mv	a0,s0
+ 	auipc	ra,0x0
+@@ -2928,26 +2921,26 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	j	<.L526>
+-	R_RISCV_JAL	.L526
+-<.L528>:
++	j	<.L530>
++	R_RISCV_JAL	.L530
++<.L532>:
+ 	lhu	a5,352(s0)
+-	beqz	a5,<.L532>
+-	R_RISCV_BRANCH	.L532
++	beqz	a5,<.L534>
++	R_RISCV_BRANCH	.L534
+ 	lbu	a5,354(s0)
+-	bnez	a5,<.L532>
+-	R_RISCV_BRANCH	.L532
++	bnez	a5,<.L534>
++	R_RISCV_BRANCH	.L534
+ 	lhu	a5,280(s0)
+-	bnez	a5,<.L532>
+-	R_RISCV_BRANCH	.L532
++	bnez	a5,<.L534>
++	R_RISCV_BRANCH	.L534
+ 	lw	a5,240(s0)
+ 	lw	a4,1768(a5)
+-	bnez	a4,<.L532>
+-	R_RISCV_BRANCH	.L532
++	bnez	a4,<.L534>
++	R_RISCV_BRANCH	.L534
+ 	lbu	a5,1844(a5)
+-	bnez	a5,<.L532>
+-	R_RISCV_BRANCH	.L532
+-	lbu	a5,197(s0)
+-	bnez	a5,<.L533>
+-	R_RISCV_BRANCH	.L533
++	bnez	a5,<.L534>
++	R_RISCV_BRANCH	.L534
++	lbu	a5,198(s0)
++	bnez	a5,<.L535>
++	R_RISCV_BRANCH	.L535
+ 	lui	a5,0x0
+ 	R_RISCV_HI20	ctrl_pool_returned
+@@ -2957,13 +2950,13 @@
+ 	R_RISCV_LO12_I	ctrl_pool_returned
+ 	R_RISCV_RELAX	*ABS*
+-	bne	a4,a5,<.L533>
+-	R_RISCV_BRANCH	.L533
++	bne	a4,a5,<.L535>
++	R_RISCV_BRANCH	.L535
++<.L536>:
++	mv	a0,s0
++	auipc	ra,0x0
++	R_RISCV_CALL_PLT	expire_receive
++	R_RISCV_RELAX	*ABS*
++	jalr	ra
+ <.L534>:
+-	mv	a0,s0
+-	auipc	ra,0x0
+-	R_RISCV_CALL_PLT	expire_receive
+-	R_RISCV_RELAX	*ABS*
+-	jalr	ra
+-<.L532>:
+ 	mv	a0,s0
+ 	auipc	ra,0x0
+@@ -2974,8 +2967,8 @@
+ 	li	s3,0
+ 	li	s4,2
+-<.L539>:
++<.L541>:
+ 	lbu	a5,8(s2)
+-	beqz	a5,<.L535>
+-	R_RISCV_BRANCH	.L535
++	beqz	a5,<.L537>
++	R_RISCV_BRANCH	.L537
+ 	lw	a5,328(s0)
+ 	sb	zero,8(s2)
+@@ -2994,27 +2987,27 @@
+ 	li	a1,0
+ 	jalr	a5
+-<.L535>:
++<.L537>:
+ 	lbu	a4,190(s0)
+ 	li	a5,0
+-	beqz	a4,<.L536>
+-	R_RISCV_BRANCH	.L536
+-	lbu	a4,191(s0)
+-	beqz	a4,<.L536>
+-	R_RISCV_BRANCH	.L536
++	beqz	a4,<.L538>
++	R_RISCV_BRANCH	.L538
++	lbu	a4,192(s0)
++	beqz	a4,<.L538>
++	R_RISCV_BRANCH	.L538
+ 	lbu	a4,0(s2)
+-	beqz	a4,<.L536>
+-	R_RISCV_BRANCH	.L536
++	beqz	a4,<.L538>
++	R_RISCV_BRANCH	.L538
+ 	lbu	a5,2(s2)
+-<.L536>:
++<.L538>:
+ 	lbu	a4,6(s2)
+ 	andi	a3,a5,1
+-	beq	a4,a3,<.L537>
+-	R_RISCV_BRANCH	.L537
+-	bnez	a5,<.L538>
+-	R_RISCV_BRANCH	.L538
++	beq	a4,a3,<.L539>
++	R_RISCV_BRANCH	.L539
++	bnez	a5,<.L540>
++	R_RISCV_BRANCH	.L540
+ 	lw	a5,328(s0)
+ 	addi	a5,a5,1
+ 	sw	a5,328(s0)
+-<.L538>:
++<.L540>:
+ 	sb	a3,6(s2)
+ 	mv	a0,s0
+@@ -3030,17 +3023,38 @@
+ 	li	a1,0
+ 	jalr	a5
+-<.L537>:
++<.L539>:
+ 	addi	a5,s3,1
+ 	addi	s2,s2,1
+ 	li	s3,1
+-	bne	a5,s4,<.L539>
+-	R_RISCV_BRANCH	.L539
++	bne	a5,s4,<.L541>
++	R_RISCV_BRANCH	.L541
+ 	li	s2,0
+-	j	<.L531>
+-	R_RISCV_JAL	.L531
+-<.L533>:
++<.L542>:
++	lw	a5,16(s0)
++	beqz	a5,<.L543>
++	R_RISCV_BRANCH	.L543
++	mv	a0,s0
++	auipc	ra,0x0
++	R_RISCV_CALL_PLT	reclaim
++	R_RISCV_RELAX	*ABS*
++	jalr	ra
++	li	s1,0
++<.L543>:
++	lw	a5,240(s0)
++	sb	s1,1852(a5)
++	lhu	a5,280(s0)
++	bnez	a5,<.L544>
++	R_RISCV_BRANCH	.L544
++<.L547>:
++	bnez	s2,<.L545>
++	R_RISCV_BRANCH	.L545
++	lbu	s1,336(s0)
++	snez	s1,s1
++	j	<.L548>
++	R_RISCV_JAL	.L548
++<.L535>:
+ 	lbu	a5,344(s0)
+-	bnez	a5,<.L532>
+-	R_RISCV_BRANCH	.L532
++	bnez	a5,<.L534>
++	R_RISCV_BRANCH	.L534
+ 	li	a5,1
+ 	sb	a5,344(s0)
+@@ -3051,10 +3065,10 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	beqz	a0,<.L534>
+-	R_RISCV_BRANCH	.L534
++	beqz	a0,<.L536>
++	R_RISCV_BRANCH	.L536
+ 	sh	zero,352(s0)
+-	j	<.L532>
+-	R_RISCV_JAL	.L532
+-<.L541>:
++	j	<.L534>
++	R_RISCV_JAL	.L534
++<.L544>:
+ 	lw	a2,284(s0)
+ 	li	a1,240
+@@ -3062,9 +3076,9 @@
+ 	add	a1,s0,a1
+ 	lw	a5,16(a1)
+-	beqz	a5,<.L544>
+-	R_RISCV_BRANCH	.L544
++	beqz	a5,<.L547>
++	R_RISCV_BRANCH	.L547
+ 	lbu	a5,190(a1)
+-	beqz	a5,<.L544>
+-	R_RISCV_BRANCH	.L544
++	beqz	a5,<.L547>
++	R_RISCV_BRANCH	.L547
+ 	lhu	a5,288(s0)
+ 	lui	a4,0xffff7
+@@ -3079,20 +3093,12 @@
+ 	R_RISCV_RELAX	*ABS*
+ 	jalr	ra
+-	beqz	a0,<.L544>
+-	R_RISCV_BRANCH	.L544
+-<.L542>:
++	beqz	a0,<.L547>
++	R_RISCV_BRANCH	.L547
++<.L545>:
+ 	li	s1,1
+-<.L545>:
++<.L548>:
+ 	sb	zero,300(s0)
+-<.L520>:
+-	lw	ra,44(sp)
+-	lw	s0,40(sp)
+-	lw	s2,32(sp)
+-	lw	s3,28(sp)
+-	lw	s4,24(sp)
+-	mv	a0,s1
+-	lw	s1,36(sp)
+-	addi	sp,sp,48
+-	ret
++	j	<.L521>
++	R_RISCV_JAL	.L521
+ 	Disassembly of section .text.srp_mbx_destroy:
+ <srp_mbx_destroy>:
+@@ -3583,5 +3589,5 @@
+ 	jalr	ra
+ 	li	a5,1
+-	sb	a5,193(s0)
++	sb	a5,194(s0)
+ 	lbu	a5,52(sp)
+ 	beqz	a5,<.L653>
+@@ -3919,4 +3925,5 @@
+ 	mv	a3,s2
+ 	sb	a0,190(s2)
++	sb	a0,191(s2)
+ 	mv	a2,a2
+ 	R_RISCV_LO12_I	receive
+--- base/30-srp_mbx.o
++++ head/30-srp_mbx.o
+@@ -61 +61 @@
+-.eh_frame (discarded by the link): 037c010a c144c848 c9440e00 440b0000
++.eh_frame (discarded by the link): 0378010a c144c848 c9440e00 440b0000
+@@ -100 +100 @@
+-.eh_frame (discarded by the link): 960803a0 010ac148 c844c944 d244d344
++.eh_frame (discarded by the link): 960803a0 010ac144 c844c944 d244d344
+@@ -103 +103 @@
+-.eh_frame (discarded by the link): 50890392 04810188 02026c0a c144c844
++.eh_frame (discarded by the link): 50890392 04810188 0202700a c144c844
+@@ -106,2 +106,2 @@
+-.eh_frame (discarded by the link): 03810192 04930594 0603c002 c144c844
+-.eh_frame (discarded by the link): d244d344 d448c944 0e000000 2c000000
++.eh_frame (discarded by the link): 03810192 04930594 06580ac1 44c844d2
++.eh_frame (discarded by the link): 44d344d4 48c9440e 00440b00 2c000000
+@@ -123 +123 @@
+-.eh_frame (discarded by the link): 01930503 24010ac1 44c844d2 44d348c9
++.eh_frame (discarded by the link): 01930503 28010ac1 44c844d2 44d348c9
+## 3. link map: 653 placed input sections base, 653 head; same (object, section) order: True
+input sections whose size differs: 30-srp_mbx.o .text.poll 704 -> 716 bytes; 30-srp_mbx.o .text.on_event 148 -> 152 bytes; 30-srp_mbx.o .text.reset_interface 536 -> 532 bytes; 30-srp_mbx.o .text.open_interface 416 -> 412 bytes; 30-srp_mbx.o .text.srp_mbx_attach 320 -> 324 bytes
+  shift +0 B over 63 section(s): ctrl_split_start.o .text.start @0x0 .. 30-srp_mbx.o .text.poll @0x2b9c
+  shift +12 B over 17 section(s): 30-srp_mbx.o .text.enter @0x2e5c .. 30-srp_mbx.o .text.on_event @0x3a9c
+  shift +16 B over 35 section(s): 27-nvm_store.o .text.nvm_store_service @0x3b30 .. 30-srp_mbx.o .text.reset_interface @0x698c
+  shift +12 B over 23 section(s): 30-srp_mbx.o .text.publish_licence @0x6ba4 .. 30-srp_mbx.o .text.open_interface @0x7248
+  shift +8 B over 355 section(s): 34-msrp.o .text.msrp_app_create @0x73e8 .. 30-srp_mbx.o .text.srp_mbx_attach @0x17a0c
+  shift +12 B over 39 section(s): 31-mrp_mad.o .text.on_join_timer @0x17b4c .. 35-mvrp.o .text.mvrp_withdraw @0x1998c
+  shift +8 B over 42 section(s): 0-mbx.o .rodata.mbx_event_take @0x199c0 .. 35-mvrp.o .srodata.mvrp_group_addr @0x1c9f0
+  shift +0 B over 79 section(s): 15-ctrl_aecp_image.o .data.image_map_pools @0x10000000 .. 35-mvrp.o .riscv.attributes @0x5bc
+## 4. output sections (base | head)
+  .text PROGBITS addr 0x00000000 size 0x0199bc | .text PROGBITS addr 0x00000000 size 0x0199c8   <-
+  .rodata PROGBITS addr 0x000199c0 size 0x003036 | .rodata PROGBITS addr 0x000199c8 size 0x003036   <-
+  .data PROGBITS addr 0x10000000 size 0x000038 | .data PROGBITS addr 0x10000000 size 0x000038
+  .bss NOBITS addr 0x10000040 size 0x00b8d0 | .bss NOBITS addr 0x10000040 size 0x00b8d0
+  .stack NOBITS addr 0x1000b910 size 0x002000 | .stack NOBITS addr 0x1000b910 size 0x002000
+loadable bytes sha256: base 2b37f8a142431d47 head 784bda59648d75c0; whole ELF base ffea0386823638ff head 99a083be84679a3b

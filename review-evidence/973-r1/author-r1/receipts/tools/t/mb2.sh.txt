@@ -1,0 +1,6 @@
+#!/bin/bash
+# mb2.sh CLONE OUT: the CPU budget harness's builds of arm A (variant none) at 1x1/1if and 8x8/1if (meas_build.py),
+# into OUT/1x1 and OUT/8x8-1if, one after the other.
+S=<scratch>
+python3 -I $S/bin/t/meas_build.py "$1" "$2/1x1" 1x1 none && python3 -I $S/bin/t/meas_build.py "$1" "$2/8x8-1if" 8x8-1if none
+rc=$?; echo "END rc=$rc $(date +%T)"; exit $rc

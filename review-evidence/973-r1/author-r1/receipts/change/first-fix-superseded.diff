@@ -1,0 +1,96 @@
+# the first fix (8b76887e, the level in the loop) against the head's: the loop and the coverage ratchet are back to the base
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.c b/sw/firmware/ctrl/loop/ctrl_loop.c
+index 25bfc19d7a..d50de5be3a 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.c
++++ b/sw/firmware/ctrl/loop/ctrl_loop.c
+@@ -145,10 +145,6 @@ static unsigned service_events(struct ctrl_loop *l)
+ 		if (ev.type == MBX_EV_TYPE_TICK) {
+ 			l->ticks_owed += ev.tick_count;
+ 			ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked);
+-		} else if (ev.type == MBX_EV_TYPE_LINK && ev.interface < MBX_N_IF) {
+-			// the level the record carries, before the sinks take it (ctrl_loop_link_up, #973)
+-			const uint32_t bit = 1u << ev.interface;
+-			l->link_level = ev.link_up ? l->link_level | bit : l->link_level & ~bit;
+ 		}
+ 		for (unsigned i = 0; i < l->n_sinks; ++i) {
+ 			l->sinks[i].fn(l->sinks[i].ctx, &ev);
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index ad5eed8f43..95152026a6 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -597,7 +597,6 @@ struct ctrl_loop {
+ 	bool tier1_done;                // the last ordinary pass left tier 1 holding no record it would take (THE TIERS)
+ 	bool drained;                   // and THE DRAIN's channel holding none after its slice
+ 	uint32_t rx_left;               // the channels whose take this pass ended on a limit, records left (bit ch)
+-	uint32_t link_level;            // the level the last LINK record dispatched carried, bit i interface i (#973)
+ };
+ 
+ void ctrl_loop_init(struct ctrl_loop *l);
+@@ -625,14 +624,6 @@ bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_trans
+ // False when the bitstream carries another contract (nothing is opened).
+ bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF]);
+ 
+-// An interface's link level as the last LINK record the loop dispatched for it carried, down before any (#973). The
+-// LINK register can rise after the loop took a pass's events, so a module that reads it later in that pass sees a
+-// level no LINK has carried yet; a module whose LINK handling keys on the level it last took compares this instead.
+-static inline bool ctrl_loop_link_up(const struct ctrl_loop *l, unsigned interface)
+-{
+-	return ((l->link_level >> interface) & 1u) != 0u;
+-}
+-
+ // One service pass; returns the events and records it handled, plus one when
+ // output, centiseconds, a retry or a build are still owed, or one when it was
+ // an aged step's alone (THE STEP), an aged retry's (THE RETRY) or an aged
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index fc4f7b1510..2596ddeb8c 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -1230,6 +1230,7 @@ static void on_event(void *ctx, const struct mbx_event *event)
+         }
+         i->link_seen = true;
+         i->link = event->link_up;
++        i->link_carried = event->link_up;
+     }
+     m->busy = false;
+ }
+@@ -1276,13 +1277,13 @@ static bool poll(void *ctx)
+         return false;
+     }
+     // Each interface's level in this poll (#973): a DOWN as the LINK register reads it, so a link lost while a full
+-    // ring holds its LINK record back fails closed at once; an UP only once the loop has dispatched one, or while the
+-    // interface holds one (ctrl_loop_link_up). The register can rise after the loop took this pass's events, and a
+-    // reset on that level would make the LINK the next pass dispatches a repeated UP, which resets the interface
+-    // again (on_event): a first UP would lose the clean startup participants it keeps, and a later one reset twice.
++    // ring holds its LINK record back fails closed at once; an UP only while the last LINK the loop dispatched carried
++    // one (link_carried). The register can rise after the loop took this pass's events, and a reset on that level
++    // would make the LINK the next pass dispatches a repeated UP, which resets the interface again (on_event): a first
++    // UP would lose the clean startup participants it keeps, and a later one would reset the interface twice.
+     bool links[MBX_N_IF];
+     for (unsigned n = 0; n < MBX_N_IF; ++n) {
+-        links[n] = mbx_link_up(n) && (m->ifs[n].link || ctrl_loop_link_up(m->loop, n));
++        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;
+     }
+     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
+     const unsigned turn = m->build_turn % MBX_N_IF;
+@@ -1470,6 +1471,7 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
+     if (ok) {
+         for (unsigned n = 0; n < MBX_N_IF; ++n) {
+             m->ifs[n].link = mbx_link_up(n);
++            m->ifs[n].link_carried = m->ifs[n].link;
+         }
+         m->loop = loop;
+         timer_owner = m;
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index fc414617f2..fa4d99ec44 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -63,6 +63,9 @@ struct srp_interface {
+     bool discard_prefix;
+     bool link_seen;
+     bool link;
++    // The level the last LINK the loop dispatched carried, the register's at attach: the poll takes an UP only while
++    // this is up (#973; srp_mbx.c, poll)
++    bool link_carried;
+     bool vlan_sent;
+     bool domain_owed;
+     // A Talker's indication, a declaration or a binding changed what snapshot

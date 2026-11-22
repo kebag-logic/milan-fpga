@@ -1,0 +1,50 @@
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index e8b969e618..2596ddeb8c 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -1230,6 +1230,7 @@ static void on_event(void *ctx, const struct mbx_event *event)
+         }
+         i->link_seen = true;
+         i->link = event->link_up;
++        i->link_carried = event->link_up;
+     }
+     m->busy = false;
+ }
+@@ -1275,9 +1276,14 @@ static bool poll(void *ctx)
+     if (!enter(m)) {
+         return false;
+     }
++    // Each interface's level in this poll (#973): a DOWN as the LINK register reads it, so a link lost while a full
++    // ring holds its LINK record back fails closed at once; an UP only while the last LINK the loop dispatched carried
++    // one (link_carried). The register can rise after the loop took this pass's events, and a reset on that level
++    // would make the LINK the next pass dispatches a repeated UP, which resets the interface again (on_event): a first
++    // UP would lose the clean startup participants it keeps, and a later one would reset the interface twice.
+     bool links[MBX_N_IF];
+     for (unsigned n = 0; n < MBX_N_IF; ++n) {
+-        links[n] = mbx_link_up(n);
++        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;
+     }
+     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
+     const unsigned turn = m->build_turn % MBX_N_IF;
+@@ -1465,6 +1471,7 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
+     if (ok) {
+         for (unsigned n = 0; n < MBX_N_IF; ++n) {
+             m->ifs[n].link = mbx_link_up(n);
++            m->ifs[n].link_carried = m->ifs[n].link;
+         }
+         m->loop = loop;
+         timer_owner = m;
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index fc414617f2..fa4d99ec44 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -63,6 +63,9 @@ struct srp_interface {
+     bool discard_prefix;
+     bool link_seen;
+     bool link;
++    // The level the last LINK the loop dispatched carried, the register's at attach: the poll takes an UP only while
++    // this is up (#973; srp_mbx.c, poll)
++    bool link_carried;
+     bool vlan_sent;
+     bool domain_owed;
+     // A Talker's indication, a declaration or a binding changed what snapshot

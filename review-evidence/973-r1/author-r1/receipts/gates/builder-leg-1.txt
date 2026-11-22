@@ -1,0 +1,21 @@
+[unit milan-973-a822-b1-3 cpus 16-23 start 19:20:48]
+HEAD 862fd41c dirty 0 leg 1 start 19:20:48
+RESULT: PASS
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+scoped exception and wrong-name controls PASS
+servo reset synchronizer cut and refusal controls PASS
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 all-fabric: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 all-fabric: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+disabled-writer endstation_arty_4x4 shape: 18 console cases; FAIL
+disabled-writer endstation_arty_4x4 identity: 18 console cases; FAIL
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+ALL GATES PASS EXCEPT 1 NOT RUN
+END rc=0 19:40:46
+[unit end 19:40:46 rc 0]

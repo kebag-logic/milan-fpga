@@ -1,0 +1,8 @@
+POINT 1x1-if1: rom 126,536 B, sram 56,736 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 128,160 B, sram 59,040 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19712 B: PASS
+POINT 8x8-if1: rom 139,312 B, sram 98,160 B, 58.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 18944 B: FAIL
+POINT 8x8-if2: rom 140,912 B, sram 115,504 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+FINDING: LINK 8x8-if1: ctrl_plat_image.py exited 2: REFUSED: allocation over budget: 58.5 RAMB36 (rom 139312 bytes in 141312, sram 98160 bytes in 98304) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface
+FINDING: LINK 8x8-if1: its plan is refused (allocation over budget: 58.5 RAMB36 (rom 139312 bytes in 141312, sram 98160 bytes in 98304) exceeds the 58-RAMB36 budget ledgered for target platform's 8x8, one interface)
+FINDING: TILES 8x8-if1: 58.5 RAMB36 past the 58 its override ledgers
+plat_ledger: FAIL (3 finding(s))

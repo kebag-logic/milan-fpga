@@ -1,0 +1,12 @@
+#!/bin/bash
+# queue.sh SECONDS: start the queued jobs (queue.txt, one "NAME CWD ENVFILE CMD..." per line) as ranges free, for up
+# to SECONDS; a started job's line moves to started.txt.
+S=<scratch>; end=$(( $(date +%s) + $1 ))
+while [ "$(date +%s)" -lt "$end" ] && [ -s $S/queue.txt ]; do
+  line=$(head -1 $S/queue.txt)
+  avail=$(awk '/MemAvailable/ {print int($2/1048576)}' /proc/meminfo)
+  if [ "$avail" -ge 20 ] && $S/bin/go.sh $line > <scratch><systmp>/.q973 2>&1 && grep -q started <scratch><systmp>/.q973; then
+    cat <scratch><systmp>/.q973; echo "$line" >> $S/started.txt; sed -i 1d $S/queue.txt
+  else sleep 20; fi
+done
+echo "queue left: $(wc -l < $S/queue.txt)"

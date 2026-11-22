@@ -1,0 +1,8 @@
+406c4a893e620f4e733efa52dfe2c477ae565ed2 Test a link that comes up at each phase of a loop pass as SRP's first UP, in a process of its own at 1x1/1if and 8x8/1if; at this head it fails for a link-up after the pass's events (#973)
+8b76887e221ca7dd622ef32c89c33a4c6edd33e5 Hold SRP's poll to an UP the loop dispatched, the loop recording each LINK record's level, so a link that comes up after a pass's events is still SRP's first UP; a DOWN still fails closed from the register, with five planted defects (#973)
+7a0f6d81606b47b9c8e554e155b0ca4edd0efffb Document SRP's poll taking an UP the loop dispatched and a DOWN from the LINK register in the SRP adapter's README and the changelog (#973)
+ef516e6e9ab169d898b76e03d223e9b85d340970 Name the link-in-a-pass suite in the firmware gate's arm list (#973)
+fe2fe9b9a989705f94b18aebf10f83070e9fedb4 Record the loop header in the firmware coverage ratchet, now that it holds the link level's reader (#973)
+79436c2550214332fd65b3517df1f4d6e8a06c99 Carry the level of the last LINK the loop dispatched in SRP's interface, not in the loop, so the 8x8/1if platform image stays within its 58-RAMB36 ledger; the loop and the coverage ratchet return to the base, with seven planted defects (#973)
+862fd41cfc292d07480f0e6bb4b5dd5e0c42e2ea Name the carried link level in the SRP adapter's README (#973)
+9a71daa9aa2379e2a57eb93ccafe83101bcb37f7 Wrap the link plants' docstring within the Python idiom ratchet's 120 columns (#973)

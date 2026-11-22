@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""plants.py CTRL_TEST_DIR OUT PREFIX...: srp_mutants.campaign over the defects whose names start with a PREFIX, at
+1x1/1if, 8x8/1if and 1x1/2if (the gate's three SRP campaigns' shapes); each campaign's result and the [ok] lines."""
+import sys
+from pathlib import Path
+
+here = Path(sys.argv[1]).resolve()
+out = Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(here))
+sys.path.insert(0, str(here.parents[1] / "gtest"))
+import srp_mutants  # noqa: E402
+from ctrl_build import CTRL  # noqa: E402
+
+lwsrp = (CTRL.parents[2] / "third_party/lwSRP").resolve()
+table = srp_mutants.DEFECTS
+srp_mutants.DEFECTS = tuple(d for d in table if d.name.startswith(tuple(sys.argv[3:])))
+print(f"{len(srp_mutants.DEFECTS)} defects: {[d.name for d in srp_mutants.DEFECTS]}", flush=True)
+bad = False
+for label, interfaces, entity in (("if1", 1, ""), ("8x8-if1", 1, "endstation_ax7101_8x8"), ("if2", 2, "")):
+    failed = srp_mutants.campaign(out / label, lwsrp, 4, interfaces, entity)
+    print(f"CAMPAIGN {label}: {'FAIL' if failed else 'PASS'}", flush=True)
+    bad |= failed
+sys.exit(1 if bad else 0)

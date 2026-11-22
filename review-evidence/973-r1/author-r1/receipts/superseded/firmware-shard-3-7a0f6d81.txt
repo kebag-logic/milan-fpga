@@ -1,0 +1,24 @@
+# [ok] lines 558, ESCAPED 0, suite verdicts PASS 0, FAIL 0
+# firmware gate shard summary lines (test_ctrl_firmware.py --require-rv32 --self-test --shard k/4 --jobs 8); the whole log is kept in scratch
+[unit milan-973-a822-fw3 cpus 0-7 start 16:35:30]
+HEAD 7a0f6d81 dirty 0 shard 3/4 start 16:35:30
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] link-pass-poll-takes-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a first UP resets nothing
+[ok] link-pass-loop-level-is-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+[ok] link-pass-level-never-recorded: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] link-pass-down-waits-for-its-record: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] link-pass-poll-takes-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a first UP resets nothing
+[ok] link-pass-loop-level-is-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+[ok] link-pass-level-never-recorded: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] link-pass-down-waits-for-its-record: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] link-pass-poll-takes-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a first UP resets nothing
+[ok] link-pass-loop-level-is-the-register: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+[ok] link-pass-level-never-recorded: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] link-pass-down-waits-for-its-record: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+test_ctrl_firmware: PASS
+END rc=0 17:16:07
+[unit end 17:16:07 rc 0]

@@ -1,0 +1,13 @@
+#!/bin/bash
+# go.sh NAME CWD ENVFILE CMD...: book a free 8-CPU range (cpu_ranges.py pick) and start CMD in its own unit, detached.
+# Exits 75 when no range is free.
+S=<scratch>
+name=$1; shift
+cpus=$(python3 <mgmt>/2026-09-23/cpu_ranges.py pick 2>/dev/null) || { echo "no free range for $name"; exit 75; }
+(setsid nohup $S/bin/unit.sh "$name" "$cpus" "$@" > /dev/null 2>&1 &)
+for i in $(seq 1 20); do
+  pid=$(systemctl --user show -p MainPID --value "milan-973-a822-$name" 2>/dev/null)
+  [ -n "$pid" ] && [ "$pid" != 0 ] && [ "$(taskset -cp "$pid" 2>/dev/null | awk '{print $NF}')" = "$cpus" ] && break
+  sleep 1
+done
+echo "started $name on $cpus"

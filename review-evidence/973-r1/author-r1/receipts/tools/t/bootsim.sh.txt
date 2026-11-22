@@ -1,0 +1,11 @@
+#!/bin/bash
+# bootsim.sh CLONE OUT: the split boot simulation at 1x1 and 8x8, then its self-test (README "Run").
+cd "$1" || exit 3
+O=$2; mkdir -p "$O"
+echo "HEAD $(git rev-parse --short=8 HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+rc=0
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir "$O/1x1"; r=$?; echo "== 1x1 rc=$r $(date +%T)"; [ $r = 0 ] || rc=1
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir "$O/8x8" --shape endstation_ax7101_8x8; r=$?; echo "== 8x8 rc=$r $(date +%T)"; [ $r = 0 ] || rc=1
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir "$O/plants" --self-test; r=$?; echo "== self-test rc=$r $(date +%T)"; [ $r = 0 ] || rc=1
+echo "dirty-after $(git status --porcelain --untracked-files=no | wc -l)"
+echo "END rc=$rc $(date +%T)"; exit $rc

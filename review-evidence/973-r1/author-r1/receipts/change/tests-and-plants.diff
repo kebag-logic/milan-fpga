@@ -1,0 +1,338 @@
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+index 6ee3fee5a1..f57353dfd1 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -114,6 +114,16 @@ def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+             arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
+ 
+ 
++#: The suite of a link that comes up at each phase of a loop pass (#973).
++LINK_PASS = "srp_link_pass.cpp"
++
++
++def link_pass_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
++    """A link that comes up at each phase of a loop pass is SRP's first UP (#973): srp_link_pass.cpp at 1x1/1if and
++    8x8/1if, each a process of its own, apart from every other SRP suite."""
++    return [arm_srp(tree, lwsrp, 1, test=LINK_PASS), arm_srp(tree, lwsrp, 1, test=LINK_PASS, config=ENTITY_8X8)]
++
++
+ def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+     """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
+     source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""
+diff --git a/sw/firmware/ctrl/test/srp_fixture.hpp b/sw/firmware/ctrl/test/srp_fixture.hpp
+index 17747b9323..76575180ff 100644
+--- a/sw/firmware/ctrl/test/srp_fixture.hpp
++++ b/sw/firmware/ctrl/test/srp_fixture.hpp
+@@ -54,7 +54,10 @@ protected:
+     srp_source sources[MBX_N_IF][CTRL_SRP_SOURCES]{};
+     srp_mbx_config config{};
+     StrictMock<Licence> licence;
+-    void SetUp() override {
++    void SetUp() override { boot(true,nullptr); }
++    // The fixture's boot: SRP attached to the loop, the loop opened and, when link_up, every link raised. `ahead`,
++    // when given, binds a test's own sinks and polls to the loop before SRP attaches, so each runs ahead of SRP's.
++    void boot(bool link_up,void (*ahead)(ctrl_loop *)) {
+         calloc_before_failure=-1;
+         mbx_model_reset(&model); mbx_model_bind(&model,nullptr,nullptr);
+         ASSERT_TRUE(ctrl_pool_init(&pool,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES));
+@@ -77,9 +80,10 @@ protected:
+             }
+         }
+         ASSERT_TRUE(srp_mbx_init(&adapter,&config));
++        if (ahead!=nullptr) ahead(&loop);
+         ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+         ASSERT_TRUE(ctrl_loop_open(&loop,0x020304fffe050600ull,config.mac));
+-        for (unsigned i=0;i<MBX_N_IF;++i) mbx_model_set_link(&model,i,true);
++        for (unsigned i=0;i<MBX_N_IF && link_up;++i) mbx_model_set_link(&model,i,true);
+     }
+     void TearDown() override {
+         srp_mbx_destroy(&adapter);
+diff --git a/sw/firmware/ctrl/test/srp_link_mutants.py b/sw/firmware/ctrl/test/srp_link_mutants.py
+new file mode 100644
+index 0000000000..b9c45954ec
+--- /dev/null
++++ b/sw/firmware/ctrl/test/srp_link_mutants.py
+@@ -0,0 +1,60 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Planted defects of SRP's link level in a loop pass (#973): the level SRP's poll takes, and the level the last LINK
++the loop dispatched carried (link_carried).
++
++SRP's poll takes a DOWN as the LINK register reads it, and an UP only while the last LINK the loop dispatched carried
++one; attach carries the register's level (srp_mbx.c, poll, on_event, srp_mbx_attach). srp_mutants.py plants each into
++a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on its own words:
++srp_link_pass.cpp's for the level a link that comes up inside a pass shows, srp_mbx.cpp's for the DOWN that fails
++closed and for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
++(test_ctrl_firmware.run_srp_mutants), the two-interface campaign at 1x1/2if.
++"""
++from __future__ import annotations
++
++from typing import Callable, TypeVar
++
++T = TypeVar("T")
++
++#: The name every defect here starts with, which the one-interface campaigns select them by.
++PREFIX = "link-pass-"
++SUITE = "srp_link_pass.cpp"
++INSIDE = "SrpLinkPass.AfterTheEventsBeforeSrpsPoll"
++#: srp_mbx.c's poll, the level it takes for each interface, as it holds it.
++POLL = "        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;\n"
++#: on_event's record of the level a LINK carried, and its first UP, which keeps the startup participants.
++CARRIED = "        i->link_carried = event->link_up;\n"
++FIRST_UP = "        if (i->link_seen || !event->link_up) {\n"
++#: srp_mbx_attach's level, the register's.
++ATTACH = "            m->ifs[n].link_carried = m->ifs[n].link;\n"
++
++
++def defects(kind: Callable[..., T]) -> tuple[T, ...]:
++    """Every link level defect, built with srp_mutants.Defect."""
++    return (
++        # the fix reverted: the poll takes the register's UP, which a LINK has not carried yet, and resets on it; the
++        # LINK the next pass dispatches is then a repeated UP, which resets the interface again
++        kind(PREFIX + "poll-takes-the-register", INSIDE, POLL, "        links[n] = mbx_link_up(n);\n",
++             "a first UP resets nothing", suite=SUITE),
++        # a double reset at the first UP: attach carries an UP it did not read, so the poll takes the register's
++        kind(PREFIX + "attach-carries-an-up", INSIDE, ATTACH, "            m->ifs[n].link_carried = true;\n",
++             "SRP's poll reset the interface on a level no LINK had carried", suite=SUITE),
++        # a double reset at a later UP: a DOWN's LINK leaves the carried level up
++        kind(PREFIX + "carried-stays-up", INSIDE, CARRIED,
++             "        i->link_carried = i->link_carried || event->link_up;\n",
++             "a later UP resets the interface once", suite=SUITE),
++        # a first UP that resets the interface, so the startup participants are lost at any phase
++        kind(PREFIX + "first-up-resets", "SrpLinkPass.BeforeAPass", FIRST_UP, "        if (true) {\n",
++             "a first UP keeps the startup participants", suite=SUITE),
++        # no LINK's level carried: the poll undoes every UP the loop dispatched
++        kind(PREFIX + "carried-never-recorded", "SrpLinkPass.BeforeAPass", CARRIED, "",
++             "a first UP resets nothing", suite=SUITE),
++        # attach carries nothing: a link already up when SRP attaches, which no further LINK carries, is lost, and
++        # with it the Talker declarations the reattached interface owes
++        kind(PREFIX + "attach-carries-nothing", "ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord", ATTACH, "",
++             "Value of: talker"),
++        # the two-hart form taken whole, without the register's LINK its loop reads each pass: a link lost while a full
++        # ring holds its record back no longer fails closed
++        kind(PREFIX + "down-waits-for-its-record", "LinkLevelLossAndFirstDownEventAreFailClosed", POLL,
++             "        links[n] = m->ifs[n].link_carried;\n", "adapter.ifs[0].active[0]"),
++    )
+diff --git a/sw/firmware/ctrl/test/srp_link_pass.cpp b/sw/firmware/ctrl/test/srp_link_pass.cpp
+new file mode 100644
+index 0000000000..2b9181b202
+--- /dev/null
++++ b/sw/firmware/ctrl/test/srp_link_pass.cpp
+@@ -0,0 +1,137 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++//
++// A link that comes up at any phase of a loop pass (#973; srp/srp_mbx.c, poll; loop/ctrl_loop.c, service_events).
++// The loop takes the event ring's LINK records as a pass starts, and SRP's poll reads the LINK register later in that
++// pass. A link that comes up in between reads up in the register before any LINK has carried it. Were the poll to
++// take that level, it would reset the interface on it, and the LINK the next pass dispatches would be a repeated UP,
++// which resets the interface again: so a first UP would lose the clean startup participants it keeps (on_event), and
++// any later UP would reset the interface twice. Each test moves interface 0's link at one phase: before a pass, from a
++// sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a poll
++// after SRP's. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if (srp_arms.link_pass_arms).
++#include "srp_fixture.hpp"
++FW_TALLY_LABEL("ctrl SRP link inside a pass");
++namespace {
++
++enum class Phase { BeforeAPass, InTheEvents, AfterTheEvents, AfterSrpsPoll };
++
++// Interface 0's link, moved once to `up` by the first hook of `phase` once armed
++struct Move {
++    mbx_model *model = nullptr;
++    Phase phase = Phase::BeforeAPass;
++    bool up = true;
++    bool armed = false;
++    void at(Phase now) {
++        if (armed && phase == now) {
++            armed = false;
++            mbx_model_set_link(model, 0, up);
++        }
++    }
++};
++Move moving;
++
++void ahead_sink(void *, const mbx_event *) { moving.at(Phase::InTheEvents); }
++bool ahead_poll(void *) {
++    moving.at(Phase::AfterTheEvents);
++    return false;
++}
++bool behind_poll(void *) {
++    moving.at(Phase::AfterSrpsPoll);
++    return false;
++}
++
++// Interface 0's resets: each publishes its LICENCE word once (reset_interface, publish_licence), and nothing else
++// here does, since no Listener registers and no licence moves
++unsigned resets;
++void count_resets(void *, bool write, uint32_t off, uint32_t) {
++    if (write && off == MBX_PUB_BASE + MBX_PUB_REG_LICENCE) {
++        ++resets;
++    }
++}
++
++class SrpLinkPass : public Srp {
++protected:
++    // The fixture's boot with every link down, a sink and a poll ahead of SRP's and a poll after it
++    void SetUp() override {
++        boot(false, [](ctrl_loop *l) {
++            ASSERT_TRUE(ctrl_loop_add_sink(l, ahead_sink, nullptr));
++            ASSERT_TRUE(ctrl_loop_add_poll(l, ahead_poll, nullptr));
++        });
++        if (HasFatalFailure()) {
++            return;
++        }
++        ASSERT_TRUE(ctrl_loop_add_poll(&loop, behind_poll, nullptr));
++        resets = 0;
++        mbx_host_trace(count_resets, nullptr);
++    }
++    void TearDown() override {
++        mbx_host_trace(nullptr, nullptr);
++        moving = Move{};
++        Srp::TearDown();
++    }
++    // Interface 0's link moved to `up` at `phase`, in the first pass that reaches the phase's hook: a pass given whole
++    // reaches none, and one may come first. In the events, a TICK is posted first, so the pass has an event to take.
++    void move_at(Phase phase, bool up) {
++        moving = Move{&model, phase, up, true};
++        if (phase == Phase::BeforeAPass) {
++            moving.at(phase);
++        } else if (phase == Phase::InTheEvents) {
++            mbx_model_advance_ms(&model, 10);
++        }
++        for (unsigned k = 0; moving.armed && k < 16u; ++k) {
++            (void)ctrl_loop_service(&loop);
++        }
++        ASSERT_FALSE(moving.armed) << "(no pass reached the phase's hook)";
++    }
++    // Interface 0's link up at `phase`, then the passes until the loop settles; returns the resets it made. After the
++    // events, the pass that moved it has dispatched no LINK of it, so SRP still holds the level it held.
++    unsigned up_at(Phase phase) {
++        const srp_interface &i = adapter.ifs[0];
++        const bool seen = i.link_seen;
++        const unsigned before = resets;
++        move_at(phase, true);
++        if (phase == Phase::AfterTheEvents) {
++            EXPECT_FALSE(i.link) << "SRP's poll took a level no LINK had carried";
++            EXPECT_EQ(i.link_seen, seen) << "SRP's poll took a level no LINK had carried";
++            EXPECT_EQ(resets, before) << "SRP's poll reset the interface on a level no LINK had carried";
++        }
++        settle();
++        EXPECT_TRUE(i.link);
++        EXPECT_TRUE(i.link_seen);
++        return resets - before;
++    }
++    // The first UP at `phase`, then a DOWN between passes and another UP at `phase`: the first resets nothing and keeps
++    // the startup participants, its declarations leaving; the DOWN resets once, and so does the UP after it.
++    void first_up_and_another(Phase phase) {
++        srp_interface &i = adapter.ifs[0];
++        mrp_app *const startup = i.msrp;
++        ASSERT_NE(startup, nullptr) << "(the startup participants exist before any link)";
++        ASSERT_FALSE(i.link);
++        ASSERT_FALSE(i.link_seen);
++        const uint32_t sent = model.tx_sent;
++        EXPECT_EQ(up_at(phase), 0u) << "a first UP resets nothing";
++        EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
++        const unsigned before = resets;
++        advance(400);
++        unsigned declared = 0;
++        for (uint32_t k = sent; k < model.tx_sent; ++k) {
++            const auto *f = mbx_model_tx_frame(&model, k);
++            declared += f != nullptr && f->channel == MBX_CH_SRP && f->interface == 0u;
++        }
++        EXPECT_GT(declared, 0u) << "the first UP's declarations leave interface 0";
++        EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
++        mbx_model_set_link(&model, 0, false);
++        settle();
++        EXPECT_FALSE(i.link);
++        EXPECT_EQ(resets - before, 1u) << "a DOWN resets the interface once";
++        EXPECT_EQ(up_at(phase), 1u) << "a later UP resets the interface once";
++        EXPECT_NE(i.msrp, nullptr) << "(the interface rebuilt)";
++    }
++};
++
++TEST_F(SrpLinkPass, BeforeAPass) { first_up_and_another(Phase::BeforeAPass); }
++TEST_F(SrpLinkPass, InTheEvents) { first_up_and_another(Phase::InTheEvents); }
++TEST_F(SrpLinkPass, AfterTheEventsBeforeSrpsPoll) { first_up_and_another(Phase::AfterTheEvents); }
++TEST_F(SrpLinkPass, AfterSrpsPoll) { first_up_and_another(Phase::AfterSrpsPoll); }
++
++} // namespace
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index efcdfa7990..d4032baa2f 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -15,6 +15,7 @@ import srp_talker_mutants
+ import srp_listener_mutants
+ import srp_kind_mutants
+ import srp_reclaim_mutants
++import srp_link_mutants
+ def caught(test: str, needle: str, outcome: Outcome) -> bool:
+     """Match the named FT failure and its complete GoogleTest diagnostic.
+ 
+@@ -835,8 +836,8 @@ DEFECTS = (
+            'SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)',
+            'pass funds the independently measured poll envelope', path='srp/srp_bounds.h', suite='srp_app.cpp'),
+     Defect('srp-poll-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
+-           '        links[n] = mbx_link_up(n);\n',
+-           '        links[n] = mbx_link_up(n);\n        (void)mbx_irq_status();\n',
++           '        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;\n',
++           '        links[n] = mbx_link_up(n) && m->ifs[n].link_carried;\n        (void)mbx_irq_status();\n',
+            'one link read per interface', path='srp/srp_mbx.c', suite='srp_app.cpp'),
+     Defect('srp-send-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
+            '    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {',
+@@ -955,6 +956,7 @@ DEFECTS += srp_talker_mutants.defects(Defect)
+ DEFECTS += srp_listener_mutants.defects(Defect)
+ DEFECTS += srp_kind_mutants.defects(Defect)
+ DEFECTS += srp_reclaim_mutants.defects(Defect)
++DEFECTS += srp_link_mutants.defects(Defect)
+ 
+ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+     """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index bfff4688a9..3dac6df980 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -77,7 +77,10 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
+            against the reference walk over random record sequences (#930,
+            srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
+            reclaim and receive filter against the adapter before it
+-           (#665's ruling of 2026-11-20, item 3) in the same suite;
++           (#665's ruling of 2026-11-20, item 3) in the same suite; a link
++           that comes up at each phase of a loop pass as SRP's first UP
++           (#973, srp_link_pass.cpp) at 1x1/1if and 8x8/1if, each run a
++           process of its own;
+   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
+            decoder and transmit-opportunity comparator the placement switch
+            compares the two placements' SRP frames with (#665, ruling
+@@ -159,6 +162,7 @@ import srp_mutants  # noqa: E402
+ import srp_pub_mutants  # noqa: E402
+ import srp_listener_mutants  # noqa: E402
+ import srp_reclaim_mutants  # noqa: E402
++import srp_link_mutants  # noqa: E402
+ import aecp_arms  # noqa: E402
+ import aecp_mutants  # noqa: E402
+ import plat_arms  # noqa: E402
+@@ -205,6 +209,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
+         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
++        outcomes.extend(srp_arms.link_pass_arms(tree, args.lwsrp.resolve()))
+         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
+         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+     outcomes.extend(aecp_arms.all_arms(tree))
+@@ -226,11 +231,13 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
+                                                         "p11-", "srp-bound-", "srp-term-",
+                                                         "srp-poll-extra", "srp-send-extra", "talker-",
+                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+-                                                        *srp_pub_mutants.ROUND5)))
++                                                        srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))
+         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
+-        # the Listener copies at 8x8/1if too (#930), and the SRP cut (#665's ruling of 2026-11-20, item 3)
++        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the link
++        # level in a loop pass (#973)
+         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+-                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX)))
++                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
++                                                          srp_link_mutants.PREFIX)))
+         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
+                                       srp_listener_mutants.ENTITY) or failed
+     finally:
