@@ -1,0 +1,37 @@
+# route of the split image at 8x8/1if, clean clone at f6f83166 (firmware as at the final head but for b56664fe's 24 B; the same rom banks: 45.5 / 58.5 RAMB36), the S12b gating recipe: --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt, --eth-port e2, through vivado-slot.sh; the recipe's other two directives were stopped unrun, this one meeting the floor
+# start 2026-11-22T13:54:07+01:00 end 2026-11-22T14:43:31+01:00 rc 0
+## signoff (#818 floor: WNS >= +0.030 ns, WHS >= 0 ns at every signoff corner)
+Slow_85C: WNS +0.058 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.058 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.058 ns, WHS +0.036 ns
+## image identity
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+## route status
+                                               :      # nets :
+   # of logical nets.......................... :      119272 :
+       # of nets not needing routing.......... :       30058 :
+           # of internally routed nets........ :       29224 :
+           # of nets with no loads............ :         834 :
+       # of routable nets..................... :       89214 :
+           # of fully routed nets............. :       89214 :
+       # of nets with routing errors.......... :           0 :
+## utilization (place)
+| Block RAM Tile    | 94.5 |     0 |          0 |       135 | 70.00 |
+| DSPs           |   11 |     0 |          0 |       240 |  4.58 |
+|   RAMB18          |   33 |     0 |          0 |       270 | 12.22 |
+| Slice LUTs                 | 43075 |     0 |          0 |     63400 | 67.94 |
+| Slice Registers                            | 51023 |     0 |          0 |    126800 | 40.24 |
+| Slice Registers            | 51023 |     0 |          0 |    126800 | 40.24 |
+## artifacts sha256
+d986f9381b1bc05af93f806d28122b85cd4964485e1184fd5ee660382ed37774  gateware/alinx_ax7101.bit
+3594c9457b6d6afcfb39af707ae4c993a39315950766f9c7f4a528071a78e86e  aem_desc.bin
+21b19f8b2bc6efad7d44f2f8d059447c88fd86cabf4f8b927792545dd51ea3b0  csr.csv
+cf82c33677df824797513ed04820aa72779e5fde8dc87c5b38ee6c0394a25623  flashboot_layout.json
+8eb82d0ccb1c5eb8028219d3baa17c0a59d817a99a6defe4eef39f60c6157015  image_manifest.json
+bf2cf05c70dd7559f45ef0999e6d06caebb46e07c6dacadb250fc02afa46f1b8  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+## the rom banks the image was placed with
+[milan] --ctrl-firmware gate/clones/head-8x8/sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf: {"rom": {"bytes": 140008, "banks": [131072, 8192, 2048], "RAMB36": 34, "RAMB18": 1}, "sram": {"bytes": 98288, "banks": [65536, 32768], "RAMB36": 24, "RAMB18": 0}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+## the final head f863258d (clean clone, ctrl_plat_image.py): rom 139984 B banks [131072, 8192, 2048] sram 98288 B banks [65536, 32768] tiles 58.5

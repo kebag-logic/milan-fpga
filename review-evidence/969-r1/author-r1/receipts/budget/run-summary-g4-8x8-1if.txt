@@ -1,0 +1,16 @@
+# head 954e5572cb9bd7d0c10165df224f9f27ac1a5076 status: 
+BUDGET backlog.owed.if0: 62.984 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 63.186 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 63.387 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 63.587 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: 63.787 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 62.023 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 61.716 ms over its budget 20 ms
+STEPS 931 passes carry the store's step; the longest 22,289 CPU cycles (0.223 ms), srp; the longest step 2,217 (0.022 ms), backlog-owed
+SLICES 62676 tier-2 slices; the longest SRP's records 115,713, THE TRANSMIT's build 43,043, THE RETRY's round 8,173 CPU cycles, against the stated slice 147,500 (THE TIERS)
+JOINS srp: 3 join interval(s), the shortest 188.055 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog: 3 join interval(s), the shortest 188.055 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog-owed: 3 join interval(s), the shortest 188.055 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS acmp-cmd: 3 join interval(s), the shortest 188.055 ms and the longest 190.021 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+5 groups graded, 0 refusals, 7 budget misses (7 of 56 probe instances, 4 of 31 paths), 0 of 1130 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+rc=0

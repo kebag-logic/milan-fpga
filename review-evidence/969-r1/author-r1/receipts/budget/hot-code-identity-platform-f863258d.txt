@@ -1,0 +1,15 @@
+# text symbols of the platform images (ctrl_plat_image.py, /1if), base dd163e41 (its plat_ledger run) vs the final head f863258d (clean clone): sizes changed, symbols new, moved, and every hot-list entry (plat/ctrl_split_hot.txt) compared by address and size
+## 1x1/1if platform image, base dd163e41 (ledger run) vs head f863258d
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [380], [552]), ('srp_mbx_bind', [912], [924]), ('talker_changed', [328], [468])]
+new: ['kept_visited'] gone: []
+moved: 54 of 497
+hot entries moved or resized: []
+base .text ['  0 .text         0001b9c0  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bcd8  00000000  00000000  00001000  2**2']
+## 8x8/1if platform image, base dd163e41 (ledger run) vs head f863258d
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [344], [544]), ('srp_mbx_bind', [896], [908]), ('talker_changed', [348], [472])]
+new: ['kept_visited'] gone: []
+moved: 54 of 497
+hot entries moved or resized: []
+base .text ['  0 .text         0001b97c  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bc88  00000000  00000000  00001000  2**2']

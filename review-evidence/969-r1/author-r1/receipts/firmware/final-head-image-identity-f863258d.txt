@@ -1,0 +1,15 @@
+# the firmware gates ran at 4c5018eb; the final head f863258d differs from it by:
+ docs/design/SPLIT_CONTROL_MEMORY.md | 14 +++++++-------
+ sw/firmware/ctrl/plat/README.md     |  4 ++--
+ sw/firmware/ctrl/srp/srp_mbx.c      | 14 +++++++-------
+ sw/firmware/ctrl/srp/srp_mbx.h      |  8 ++++----
+ sw/firmware/gtest/coverage.ratchet  |  2 +-
+ sw/litex/ctrl_memory.py             |  6 +++---
+ 6 files changed, 24 insertions(+), 24 deletions(-)
+# (aca559e3: docs and ledger comment strings; e4518a0f, f863258d: srp_mbx.c/h comments and a static-assert message, no line moved; c6ef2329: the coverage ratchet line)
+# the platform images' loadable bytes (objcopy -O binary), built from a clean clone at each head against one split SoC map:
+f4670821f2d405331348b172ac0cad3194548490bc46f5fec08cce85dfa10d4b  4c5018eb 1x1.bin
+f4670821f2d405331348b172ac0cad3194548490bc46f5fec08cce85dfa10d4b  f863258d 1x1.bin
+e41986a3ead0a703c003a69533345eb74eb185b30eebf3caa2b0d206c0c0a397  4c5018eb 8x8.bin
+e41986a3ead0a703c003a69533345eb74eb185b30eebf3caa2b0d206c0c0a397  f863258d 8x8.bin
+VERDICT: identical at 1x1/1if and 8x8/1if

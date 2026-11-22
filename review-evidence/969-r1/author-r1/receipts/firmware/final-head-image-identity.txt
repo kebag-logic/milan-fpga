@@ -1,0 +1,14 @@
+# the firmware gates ran at 4c5018eb; the final head e4518a0f differs from it by:
+ docs/design/SPLIT_CONTROL_MEMORY.md | 14 +++++++-------
+ sw/firmware/ctrl/plat/README.md     |  4 ++--
+ sw/firmware/ctrl/srp/srp_mbx.c      |  6 +++---
+ sw/firmware/ctrl/srp/srp_mbx.h      |  8 ++++----
+ sw/litex/ctrl_memory.py             |  6 +++---
+ 5 files changed, 19 insertions(+), 19 deletions(-)
+# (aca559e3: docs and one ledger comment string; e4518a0f: srp_mbx.c/h comments and a static-assert message, no line moved)
+# the platform images' loadable bytes (objcopy -O binary), 4c5018eb vs the final adapter, against one split SoC map:
+f4670821f2d405331348b172ac0cad3194548490bc46f5fec08cce85dfa10d4b  4c5018eb 1x1.bin
+f4670821f2d405331348b172ac0cad3194548490bc46f5fec08cce85dfa10d4b  e4518a0f 1x1.bin
+e41986a3ead0a703c003a69533345eb74eb185b30eebf3caa2b0d206c0c0a397  4c5018eb 8x8.bin
+e41986a3ead0a703c003a69533345eb74eb185b30eebf3caa2b0d206c0c0a397  e4518a0f 8x8.bin
+VERDICT: identical at 1x1/1if and 8x8/1if

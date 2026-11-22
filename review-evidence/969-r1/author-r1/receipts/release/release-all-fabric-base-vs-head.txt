@@ -1,0 +1,13 @@
+# the AX7101 release export with BUILD_PLACEMENT=all-fabric (sw/litex/build.sh ax7101 --dry-run, its milan_soc.py command without --build), base dd163e41 against head f6f83166 (the firmware this export reads is the BIOS; no split firmware is linked)
+files: A 3876 B 3876 only A 21 only B 21
+equal after normalisation: 3748 differ: 107
+  differs: gateware/alinx_ax7101.v (equal outside its comments)
+  differs: litex.log
+software/ files differing: 105
+gateware/ files differing: 1
+# only A/B: 21 picolibc objects each, named by each export's own path
+603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf  base/ax7101/software/bios/bios.bin
+603b9ca3d769e543b096972c2f13d7cf8e7dbf4ce91c5e6a1d6e5a5c3e3cc4bf  head/ax7101/software/bios/bios.bin
+base bios.elf disassembly (paths normalised): b6d3e0a391bf5cf9118a9dac0fe19afc72c466ac2eb445ca3c2005645be63c7a
+head bios.elf disassembly (paths normalised): b6d3e0a391bf5cf9118a9dac0fe19afc72c466ac2eb445ca3c2005645be63c7a
+VERDICT: bios.bin byte-identical, the BIOS disassembly identical, the gateware Verilog equal outside its comments

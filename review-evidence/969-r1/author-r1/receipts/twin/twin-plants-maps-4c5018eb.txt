@@ -1,0 +1,191 @@
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 88, 'MVRP': 24}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 53, 'MAAP': 8, 'MSRP': 96, 'MVRP': 92}}
+  --report-only > obj_twin/unplanted.txt
+  ./obj_twin_sp/Vmilan_dp_twin_sp obj_twin/split-$p.json --plant $p; \
+  python3 -B twin_compare.py obj_twin/split.json obj_twin/split-$p.json --plant $p --self; \
+  python3 -B twin_compare.py obj_twin/fabric.json obj_twin/split-$p.json --plant $p \
+split half: 269 control frames, 0 stream frames, 0 host timeouts, 75000 ms, planted byte-flip
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant byte-flip: REFUSED by "ADP frame 1 differs at byte 34"
+split half: 269 control frames, 0 stream frames, 0 host timeouts, 75000 ms, planted srp-plus-k
+plant srp-plus-k: REFUSED by "MSRP Talker Advertise stream_id 024b4c4b4c010001"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant srp-plus-k: REFUSED by "MSRP Talker Advertise stream_id 024b4c4b4c010001"
+split half: 268 control frames, 0 stream frames, 0 host timeouts, 75000 ms, planted missing-notification
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant missing-notification: REFUSED by "the fabric sent and the split did not: AECP notice STOP_STREAMING 0x0005/0 to the second controller"
+  python3 -B twin_compare.py obj_twin/fabric.json obj_twin/split.json --make-plant $p \
+  python3 -B twin_compare.py obj_twin/split.json obj_twin/split-$p.json --plant $p --self; \
+  python3 -B twin_compare.py obj_twin/fabric.json obj_twin/split-$p.json --plant $p \
+plant uncovered-field: written to split-uncovered-field.json
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant uncovered-field: REFUSED by "AECP notice GET_STREAM_INFO 0x0005/0 frame 0 differs at byte 65"
+plant output-dest-mac-zero: written to split-output-dest-mac-zero.json
+plant output-dest-mac-zero: REFUSED by "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant output-dest-mac-zero: REFUSED by "AECP notice GET_STREAM_INFO 0x0006/0 frame 0 differs at byte 66"
+plant output-notice-dropped: written to split-output-notice-dropped.json
+plant output-notice-dropped: REFUSED by "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first controller"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant output-notice-dropped: REFUSED by "the fabric sent and the split did not: AECP notice GET_STREAM_INFO 0x0006/0 to the first controller"
+plant command-byte: written to split-command-byte.json
+plant command-byte: REFUSED by "AECP command 0 differs at byte 33"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant command-byte: REFUSED by "AECP command 0 differs at byte 33"
+plant command-sequence: written to split-command-sequence.json
+plant command-sequence: REFUSED by "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant command-sequence: REFUSED by "the CONTROLLER_AVAILABLE commands to the second controller go from sequence_id 0 to 0"
+plant response-sequence: written to split-response-sequence.json
+plant response-sequence: REFUSED by "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant response-sequence: REFUSED by "the first controller's CONTROLLER_AVAILABLE response at ms 52806 carries sequence_id 2, its command's 1"
+plant table-10-3: written to split-table-10-3.json
+plant table-10-3: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant table-10-3: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 190 is not an Applicant's message: from AN, Table 10-3's tx! sends New"
+plant received-join: written to split-received-join.json
+plant received-join: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant received-join: REFUSED by "[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant leave-all-declaration: written to split-leave-all-declaration.json
+plant leave-all-declaration: REFUSED by "MSRP declarations at the LeaveAll boundaries differ"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant leave-all-declaration: REFUSED by "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]"
+plant leave-all-omission: written to split-leave-all-omission.json
+plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant leave-all-omission: REFUSED by "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt"
+plant mvrp-join-in: written to split-mvrp-join-in.json
+plant mvrp-join-in: REFUSED by "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant mvrp-join-in: REFUSED by "[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt"
+plant mvrp-received-join: written to split-mvrp-received-join.json
+plant mvrp-received-join: REFUSED by "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant mvrp-received-join: REFUSED by "[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing"
+plant talker-failed-back: written to split-talker-failed-back.json
+plant talker-failed-back: REFUSED by "MSRP declarations at the LeaveAll boundaries differ"
+[LEDGER] root-configuration-index: the fabric sends one response, BAD_ARGUMENTS, the received configuration_index 1, the split one response, SUCCESS, the ENTITY descriptor at configuration_index 0 (IEEE 1722.1-2021 7.4.5.1/2; aecp/README.md, Observed difference row 1)
+[LEDGER] set-stream-info-current-fields: the fabric sends one response, NOT_SUPPORTED, the command's fields echoed (all zero), the split one response, NOT_SUPPORTED, STREAM_INPUT 0's current fields (its last GET_STREAM_INFO notice's) (IEEE 1722.1-2021 7.4.15.1; aecp/README.md, Observed difference row 2)
+[LEDGER] system-unique-id: the fabric sends SET and GET_SYSTEM_UNIQUE_ID each refused NOT_IMPLEMENTED, the command echoed, the split SET_SYSTEM_UNIQUE_ID SUCCESS and GET_SYSTEM_UNIQUE_ID SUCCESS, each with system_unique_id 0102030405060708 (Milan v1.2 5.4.4.2/3; aecp/README.md, Observed difference row 3)
+[LEDGER] default-format-override-notice: the fabric sends no SET_STREAM_FORMAT notice for the default-valued SET, the split one SET_STREAM_FORMAT notice of STREAM_INPUT 0's format to the second controller (Milan v1.2 5.4.5.2; aecp/README.md, Observed difference row 4)
+[LEDGER] reserved-message-type: the fabric sends one frame, message_type 11, status 1, the split nothing (IEEE 1722.1-2021 Table 9-1, 9.2.2.4; aecp/README.md, Non-AEM contract)
+[LEDGER] hdcp-apm-data: the fabric sends HDCP_APM_RESPONSE NOT_IMPLEMENTED echoing the HDCP data and its length, the split HDCP_APM_RESPONSE NOT_IMPLEMENTED with no HDCP data, its flags and fragment offset kept (IEEE 1722.1-2021 9.7.4; aecp/README.md, Non-AEM contract)
+plant talker-failed-back: REFUSED by "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1"
+  python3 -B twin_compare.py obj_twin/fabric.json obj_twin/split.json --make-plant $p \
+  python3 -B twin_compare.py obj_twin/fabric.json obj_twin/fabric-$p.json --plant $p --self; \
+  python3 -B twin_compare.py obj_twin/fabric-$p.json obj_twin/split.json --plant $p \
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+PASS [MAPS-STORE] the removal reached the render store
+PASS [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+PASS [MAPS-EDIT] an edited map reached the render store
+PASS [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+if ./obj_twin_sp/Vmilan_dp_twin_sp --maps --plant no-edit > obj_twin_maps/no-edit.log; then \
+  echo "FAIL the no-edit plant passed"; exit 1; fi
+set -e; for w in "FAIL [MAPS-STORE] the removal reached the render store" "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" "FAIL [MAPS-EDIT] an edited map reached the render store"; do \
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+  echo "caught: $w"; done
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store

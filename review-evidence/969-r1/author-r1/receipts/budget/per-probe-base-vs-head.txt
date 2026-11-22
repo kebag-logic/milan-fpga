@@ -1,0 +1,129 @@
+# per-probe sys cycles, base dd163e41 vs head (954e5572, firmware as f6f83166), the five groups; worst pass and the work passes' share
+
+## 1x1
+probe                                                  base       head    delta
+srp.startup.if0                                       73135      70289    -2846
+srp.listener_ready.if0                                39607      36426    -3181
+srp.malformed.if0                                     17891      16985     -906
+srp.domain.if0                                        77408      73904    -3504
+  srp: worst pass base 53506 head 50427
+acmp.bind_rx.if0                                      18406      18054     -352
+acmp.probe_tx_response.if0                             9510       9793     +283
+acmp.get_rx_state.if0                                 10444      10486      +42
+acmp.unbind_rx.if0                                    16895      13250    -3645
+acmp.probe_tx.if0                                     10907      11033     +126
+acmp.get_tx_state.if0                                  9780       9877      +97
+acmp.disconnect_tx.if0                                 8530       8698     +168
+acmp.get_tx_connection.if0                             8704       8877     +173
+  acmp-cmd: worst pass base 38965 head 36874
+fixture.link_up.if0                                    2227       2230       +3
+fixture.malformed.if0                                 18485      17286    -1199
+fixture.set_name.if0                                  31140      31499     +359
+fixture.link_down.if0                                  2325       2265      -60
+fixture.bind_rx.if0                                   18521      18404     -117
+fixture.tmr_no_resp1.if0                              20403       9191   -11212
+fixture.entity_departing.if0                          13294       6701    -6593
+fixture.service.adp.first.if0                         81271      78544    -2727
+fixture.service.adp.last.if0                          81271      78544    -2727
+fixture.service.acmp.first.if0                        80997      78270    -2727
+fixture.service.acmp.last.if0                         80997      78270    -2727
+fixture.service.aecp.first.if0                        81205      78478    -2727
+fixture.service.aecp.last.if0                         81205      78478    -2727
+fixture.service.maap.first.if0                        81139      78412    -2727
+fixture.service.maap.last.if0                         81139      78412    -2727
+fixture.service.srp.first.if0                         81073      78346    -2727
+fixture.service.srp.last.if0                          81073      78346    -2727
+  fixture: worst pass base 81375 head 78648
+backlog.event.if0                                    155536     159031    +3495
+backlog.acmp_command.if0                             401021     357132   -43889
+backlog.service.adp.first.if0                        396047     376322   -19725
+backlog.service.adp.last.if0                         395431     375706   -19725
+backlog.service.acmp.first.if0                       391725     372000   -19725
+backlog.service.acmp.last.if0                        428104     371164   -56940
+backlog.service.aecp.first.if0                       145915     149152    +3237
+backlog.service.aecp.last.if0                        394375     243120  -151255
+backlog.service.maap.first.if0                       394309     374584   -19725
+backlog.service.maap.last.if0                        393913     374188   -19725
+backlog.service.srp.first.if0                        431062     403599   -27463
+backlog.service.srp.last.if0                         484561     449842   -34719
+  backlog: worst pass base 147370 head 150043
+backlog.owed.if0                                    6285468    6261050   -24418
+backlog.owed_behind0.if0                            6301828    6276402   -25426
+backlog.owed_behind1.if0                            6318026    6291611   -26415
+backlog.owed_behind2.if0                            6334295    6306715   -27580
+backlog.owed_behind3.if0                            6350392    6321756   -28636
+backlog-owed.service.adp.first.if0                   149205     122616   -26589
+backlog-owed.service.adp.last.if0                    226856     122000  -104856
+backlog-owed.service.acmp.first.if0                  144883     118294   -26589
+backlog-owed.service.acmp.last.if0                  6206202    6186383   -19819
+backlog-owed.service.aecp.first.if0                  148523     208523   +60000
+backlog-owed.service.aecp.last.if0                  6182382    6164264   -18118
+backlog-owed.service.maap.first.if0                  147467     120878   -26589
+backlog-owed.service.maap.last.if0                   225338     120482  -104856
+backlog-owed.service.srp.first.if0                   306457     285114   -21343
+backlog-owed.service.srp.last.if0                    668152     670488    +2336
+  backlog-owed: worst pass base 146741 head 130187
+
+## 8x8-1if
+probe                                                  base       head    delta
+srp.startup.if0                                       79069      75737    -3332
+srp.listener_ready.if0                                40390      38515    -1875
+srp.malformed.if0                                     21917      20187    -1730
+srp.domain.if0                                        73039      70393    -2646
+  srp: worst pass base 44810 head 43043
+acmp.bind_rx.if0                                      19505      19659     +154
+acmp.probe_tx_response.if0                             9886      10614     +728
+acmp.get_rx_state.if0                                  9660      10159     +499
+acmp.unbind_rx.if0                                    14686      15221     +535
+acmp.probe_tx.if0                                      9768       9970     +202
+acmp.get_tx_state.if0                                  9028       9430     +402
+acmp.disconnect_tx.if0                                 8669       8992     +323
+acmp.get_tx_connection.if0                             9194       8946     -248
+  acmp-cmd: worst pass base 43919 head 42628
+fixture.link_up.if0                                    2107       1971     -136
+fixture.malformed.if0                                 22131      20279    -1852
+fixture.set_name.if0                                  32335      29450    -2885
+fixture.link_down.if0                                  2068       2006      -62
+fixture.bind_rx.if0                                   18895      19139     +244
+fixture.tmr_no_resp1.if0                              26933      26645     -288
+fixture.entity_departing.if0                           7087      11994    +4907
+fixture.service.adp.first.if0                         86333      83135    -3198
+fixture.service.adp.last.if0                          86333      83135    -3198
+fixture.service.acmp.first.if0                        86059      82861    -3198
+fixture.service.acmp.last.if0                         86059      82861    -3198
+fixture.service.aecp.first.if0                        86267      83069    -3198
+fixture.service.aecp.last.if0                         86267      83069    -3198
+fixture.service.maap.first.if0                        86201      83003    -3198
+fixture.service.maap.last.if0                         86201      83003    -3198
+fixture.service.srp.first.if0                         86135      82937    -3198
+fixture.service.srp.last.if0                          86135      82937    -3198
+  fixture: worst pass base 86437 head 83239
+backlog.event.if0                                    167380     152613   -14767
+backlog.acmp_command.if0                             446982     418187   -28795
+backlog.service.adp.first.if0                        428704     397890   -30814
+backlog.service.adp.last.if0                         428088     397274   -30814
+backlog.service.acmp.first.if0                       424382     393568   -30814
+backlog.service.acmp.last.if0                        482152     452027   -30125
+backlog.service.aecp.first.if0                       156207     142957   -13250
+backlog.service.aecp.last.if0                        273045     250166   -22879
+backlog.service.maap.first.if0                       426966     396152   -30814
+backlog.service.maap.last.if0                        426570     395756   -30814
+backlog.service.srp.first.if0                        485110     454985   -30125
+backlog.service.srp.last.if0                         544647     513220   -31427
+  backlog: worst pass base 157098 head 146052
+backlog.owed.if0                                    6326786    6298420   -28366
+backlog.owed_behind0.if0                            6348005    6318568   -29437
+backlog.owed_behind1.if0                            6369146    6338719   -30427
+backlog.owed_behind2.if0                            6390353    6358743   -31610
+backlog.owed_behind3.if0                            6411382    6378697   -32685
+backlog-owed.service.adp.first.if0                   155464     156397     +933
+backlog-owed.service.adp.last.if0                    154848     288318  +133470
+backlog-owed.service.acmp.first.if0                  151142     152075     +933
+backlog-owed.service.acmp.last.if0                  6226406    6202334   -24072
+backlog-owed.service.aecp.first.if0                  273664     155715  -117949
+backlog-owed.service.aecp.last.if0                  6160534    6171582   +11048
+backlog-owed.service.maap.first.if0                  153726     154659     +933
+backlog-owed.service.maap.last.if0                   272212     286800   +14588
+backlog-owed.service.srp.first.if0                   407448     286734  -120714
+backlog-owed.service.srp.last.if0                    627213     651125   +23912
+  backlog-owed: worst pass base 156894 head 150953
