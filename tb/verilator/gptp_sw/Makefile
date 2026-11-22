@@ -30,7 +30,10 @@ FW_OBJ = $(patsubst %.c,$(MDIR)/fw/%.o,$(notdir $(FW_SRC)))
 
 all: run
 
-$(MBX)/mbx_contract.h:
+# regenerated whenever the contract, its generator or the driver changes, so a kept $(MDIR) never runs an old burst
+# or an old driver: the copy is the bench's, not the tree's
+$(MBX)/mbx_contract.h: $(ROOT)/sw/mailbox/mailbox.yaml $(wildcard $(ROOT)/sw/mailbox/*.py) \
+                       $(wildcard $(FW)/mbx/*.c $(FW)/mbx/*.h)
 	python3 -B $(ROOT)/sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out $(GEN)
 	rm -rf $(MBX) && cp -r $(abspath $(FW))/mbx $(MBX) && cp $(GEN)/mbx_contract.h $(MBX)/mbx_contract.h
 
