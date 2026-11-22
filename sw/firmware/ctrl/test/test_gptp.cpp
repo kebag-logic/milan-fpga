@@ -836,6 +836,21 @@ TEST_F(Scripted, FollowUpWithoutItsInformationTlvIsNoPair)
 	EXPECT_EQ(gptp_port_role(&port), GPTP_ROLE_MASTER) << "a refused Follow_Up renewed the sync receipt deadline";
 }
 
+TEST_F(Scripted, AFollowUpPastItsReceiptTimeoutIsNoPair)
+{
+	// Milan v1.2 4.2.6.2.3 Table 4.2: followUpReceiptTimeout 125 ms. A Sync whose Follow_Up has not come by then
+	// is discarded on its own clock, whatever else arrives, so a late Follow_Up pairs with nothing
+	start();
+	exchanges(2);
+	rx(announce(kClockB, 1, 100, 0xAAAAull, 0));
+	uint64_t t = 10'000'000'000ull;
+	rx(sync_msg(kClockB, 5), true, t);
+	tick(130);
+	EXPECT_EQ(port.ctr.fu_lost, 1u) << "a Sync waited past its followUpReceiptTimeout";
+	rx(follow_up(kClockB, 5, t - 500));
+	EXPECT_EQ(port.ctr.sync_used, 0u) << "a Follow_Up after its Sync's followUpReceiptTimeout was paired";
+}
+
 TEST_F(Scripted, FollowUpWithAFurtherTlvStillPairs)
 {
 	// 11.4.4.2.2: the information TLV is the first; a TLV after it is the message's own business

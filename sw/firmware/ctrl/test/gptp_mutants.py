@@ -104,6 +104,8 @@ MUTANTS = (
                   "720 ms of Sync without Follow_Up kept the verdict"),
                  (ARM, "Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict",
                   "kept a slave with the verdict past the timeout"))),
+    Mutant("follow-up-timeout-500", H, "#define GPTP_FU_RTO_MS 125u", "#define GPTP_FU_RTO_MS 500u", ARM,
+           "Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair", "a Sync waited past its followUpReceiptTimeout"),
     Mutant("pair-renews-no-deadline", C, "\tp->slv.last_ms = p->now_ms;\n\tservo_pair(", "\tservo_pair(", ARM,
            "Scripted.AnnounceReceiptTimeoutAgesTheMaster", "aged before 3 s"),
     Mutant("follow-up-without-tlv-used", C, "\tif (!tlv_ok) {", "\tif (plen < LEN_FU - 32u) {", ARM,
