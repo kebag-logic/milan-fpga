@@ -1,0 +1,12 @@
+# 8x8-1if: the rows the egress decides against their ledger; 59 instance(s) read (59 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.47630 | 63.86 | -0.38370 | yes |
+| `backlog.owed_behind0.if0` | 63.70140 | 64.1 | -0.39860 | yes |
+| `backlog.owed_behind1.if0` | 63.92638 | 64.36 | -0.43362 | yes |
+| `backlog.owed_behind2.if0` | 64.21151 | 64.61 | -0.39849 | yes |
+| `backlog.owed_behind3.if0` | 64.43003 | 64.86 | -0.42997 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.41063 | 62.62 | -0.20937 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.08160 | 62.16 | -0.07840 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+rc=0

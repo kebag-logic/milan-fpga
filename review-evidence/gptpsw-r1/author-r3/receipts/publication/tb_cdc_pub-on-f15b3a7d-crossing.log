@@ -1,0 +1,35 @@
+  [PASS] an idle commit: the last commit landed, slow
+  [PASS] an idle commit: the last commit landed, fast
+  [FAIL] the fast crossing landed GEN 2 words 020003001212121222222222, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 2 words 020003001212121222222222, not a commit newer than the last it took
+  [FAIL] the fast crossing landed GEN 3 words 030003002222222233333333, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 3 words 030003002222222233333333, not a commit newer than the last it took
+  [FAIL] a commit while one crosses, then an update begun: the last commit landed, slow
+  [FAIL] a commit while one crosses, then an update begun: the last commit landed, fast
+  [FAIL] the fast crossing landed GEN 4 words 040003004444444455555555, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 4 words 040003004444444455555555, not a commit newer than the last it took
+  [PASS] three commits back to back: the last commit landed, slow
+  [PASS] three commits back to back: the last commit landed, fast
+  [FAIL] the fast crossing landed GEN 7 words 070003007777777788888888, not a commit newer than the last it took
+  [FAIL] the slow crossing landed GEN 7 words 070003007777777788888888, not a commit newer than the last it took
+  [FAIL] an update begun after an idle commit: the last commit landed, slow
+  [FAIL] an update begun after an idle commit: the last commit landed, fast
+  [PASS] a commit on the edge the crossing takes the one before: the last commit landed, slow
+  [PASS] a commit on the edge the crossing takes the one before: the last commit landed, fast
+  [PASS] GEN at 0xFE: the last commit landed, slow
+  [PASS] GEN at 0xFE: the last commit landed, fast
+  [PASS] GEN at 0xFF: the last commit landed, slow
+  [PASS] GEN at 0xFF: the last commit landed, fast
+  [PASS] GEN wrapped to 0x00: the last commit landed, slow
+  [PASS] GEN wrapped to 0x00: the last commit landed, fast
+  [PASS] GEN at 0x01 after the wrap: the last commit landed, slow
+  [PASS] GEN at 0x01 after the wrap: the last commit landed, fast
+  [PASS] a write that leaves GEN where it was crosses nothing
+  [PASS] reset of both clocks with a crossing in flight: the last commit landed, slow
+  [PASS] reset of both clocks with a crossing in flight: the last commit landed, fast
+  [PASS] reset of the mailbox's clock alone with a crossing in flight: the last commit landed, slow
+  [PASS] reset of the mailbox's clock alone with a crossing in flight: the last commit landed, fast
+== mbx gPTP publication crossing (KL_mbx_cdc): checks: 53   failures: 12 ==
+[10400000] %Fatal: tb_cdc_pub.sv:209: Assertion failed in tb_cdc_pub: a snapshot landed that no commit made, or a commit never landed
+%Error: <scratch>/clones/h5/tb/verilator/mbx/tb_cdc_pub.sv:209: Verilog $stop
+Aborting...

@@ -1,0 +1,75 @@
+head 09c5934a2d4edf804a8631b43051c9cb29e226c7 status 0 base 59b098841b1e2826aaf7a38b557faa5345f91c82
+wire_accountability                rc=0  RESULT: PASS
+docs_check                         rc=0  docs_check: 0 finding(s) across 225 md files + 1937 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+feature_status                     rc=0  feature_status: 0 finding(s)
+feature_status_st                  rc=0  feature_status: 0 finding(s)
+hdl_reference_st                   rc=0  HDL reference self-test: 44/44 arms passed
+hdl_reference                      rc=0  Wrote: $SCRATCH/gates14/hdl-reference/index.html
+em_dash                            rc=0  check_em_dash: 0 finding(s) over 474 added line(s) in 18 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [59b09884..HEAD]
+em_dash_st                         rc=0  check_em_dash selftest: PASS (339 arm(s))
+doc_style                          rc=0  documentation style: OK (25 current documents)
+doc_style_st                       rc=0  documentation style selftest: OK
+gptp_docs                          rc=0  gPTP documentation: OK (8 current pages)
+gptp_docs_st                       rc=0  gPTP documentation selftest: OK (30 controls)
+gptp_docs_sub                      rc=0  gPTP documentation: OK (8 current pages, donor checkout verified)
+solution_docs                      rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+solution_docs_st                   rc=0  solution documentation selftest: OK (47 mutation controls)
+submodule_docs                     rc=0  submodule documentation: OK (6 exact gitlinks)
+submodule_docs_st                  rc=0  submodule documentation selftest: OK (table and diagram controls)
+diagram_pngs                       rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+control_flow_st                    rc=0  45 checks: 45 PASS, 0 FAIL
+cohesion_st                        rc=0  18 checks: 18 PASS, 0 FAIL
+baremetal                          rc=0  baremetal-only: OK (0 findings across 1935 tracked first-party file(s))
+baremetal_st                       rc=0  baremetal-only selftest: PASS (867 arm(s))
+nvm_record_space                   rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+nvm_record_space_st                rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+nvm_capture                        rc=0  PASS: capture census, clocks, both timing arms and receipt agree
+soc_sources                        rc=0  SoC source gate: OK (48 instantiated modules all registered, 86 sources all present)
+soc_sources_st                     rc=0  25 checks: 25 PASS, 0 FAIL
+rtl_source_lists                   rc=0  RTL source-list gate: OK (114 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorde
+rtl_source_lists_st                rc=0  50 checks: 50 PASS, 0 FAIL
+naming                             rc=0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+naming_st                          rc=0  66 checks: 66 PASS, 0 FAIL
+port_contracts                     rc=0    review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hi
+port_contracts_st                  rc=0  82 checks: 82 PASS, 0 FAIL
+fail_fast                          rc=0    the ratchets can be lowered to 80, 3 and 0
+fail_fast_st                       rc=0  106 checks: 106 PASS, 0 FAIL
+todo                               rc=0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1613 first-party fil
+todo_st                            rc=0  45 checks: 45 PASS, 0 FAIL
+test_evidence                      rc=0    the mutation ratchet can be lowered to 69
+test_evidence_st                   rc=0  105 checks: 105 PASS, 0 FAIL
+test_evidence_readers              rc=0  
+hygiene                            rc=0  HYGIENE RATCHET: PASS (3 population(s), 1538 file(s))
+hygiene_st                         rc=0  35 checks: 35 PASS, 0 FAIL
+sv_idiom                           rc=0  SystemVerilog idiom gate: OK (146 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always
+sv_idiom_st                        rc=0  55 checks: 55 PASS, 0 FAIL
+cpp_idiom                          rc=0    build without warnings: 0 <= 0
+cpp_idiom_st                       rc=0  83 checks: 83 PASS, 0 FAIL
+py_idiom                           rc=0    over-long line: 0 <= 0
+py_idiom_st                        rc=0  54 checks: 54 PASS, 0 FAIL
+sh_idiom                           rc=0    top-heavy long script: 0 <= 0
+sh_idiom_st                        rc=0  48 checks: 48 PASS, 0 FAIL
+doc_paths                          rc=0  doc path gate: OK (1773 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+archive                            rc=0  archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+archive_st                         rc=0  archive selftest: OK (24 controls)
+toc_st                             rc=0  TOC selftest: PASS (1501/1501 arm(s))
+toc_anchors                        rc=0  anchor check: 759 existing cross-page fragment links reproduced
+toc                                rc=0  TOC gate: OK (161 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+docs_inventory                     rc=0  documentation inventory: OK (543 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+docs_inventory_st                  rc=0  documentation inventory selftest: OK (60 controls)
+sweep_shape_st                     rc=0    [self-test] OK: 1 drift(s) reported
+deploy_shape_st                    rc=0    [selftest] OK: 1 drift(s) reported
+entity_shape_st                    rc=0  RESULT: PASS
+register_reference                 rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+register_reference_st              rc=0  register reference selftest: OK (61/61 controls)
+gate_workflows                     rc=0  
+ci_events                          rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_st                       rc=0  selftest: PASS (2287 contract items, 5723 arms)
+lint_rtl                           rc=0  LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog                              rc=0  xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+pp_srcs                            rc=0    prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+gen_mailbox                        rc=0  gen_mailbox: 0 finding(s)
+gen_mailbox_cross                  rc=0  gen_mailbox: 0 finding(s)
+gen_mailbox_st                     rc=0  selftest: 0 arm(s) failed
+module_matrix                      rc=0  traceability matrix up to date (85 modules, 0 untested <= ratchet 0, 0 archived)
+GATES_DONE 2026-11-22T10:41:18+01:00

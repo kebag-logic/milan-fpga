@@ -1,0 +1,31 @@
+# route 8x8/1if --sw-gptp AltSpreadLogic_high at 9d753fa0: 2026-11-22T08:06:20+01:00 to 2026-11-22T08:33:09+01:00, rc 0
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+ Slice LUTs                      38184  of    63400
+ Slice Registers                 45890  of   126800
+ Slice                           15020  of    15850
+ LUT as Memory                     672  of    19000
+ Block RAM Tile                   95.5  of      135
+ RAMB18                             35  of      270
+ DSPs                                5  of      240
+## hierarchy (utilization_hierarchical_place.rpt: instance, LUT, LUTRAM, FF, RAMB36, RAMB18)
+   alinx_ax7101                                                        38184    604   45890   78   35
+   (alinx_ax7101)                                                       1009     62    2428   66    7
+   KL_gptp_gmii_launch                                                   164      0     221    0    0
+   KL_mac_rmon_events                                                     49      0      78    0    0
+   KL_mbx                                                               5575     22    9060    1   12
+   KL_mbx_cdc                                                           6684      0    6617    0    0
+   KL_mbx_dma                                                            792      0     713    0    0
+   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51                     3879    134    4368    6    9
+   milan_datapath                                                      20080    386   22404    5    7
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.174 failing 0 WHS 0.131 failing 0
+Slow_0C: WNS 0.174 failing 0 WHS 0.131 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.056 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.056 failing 0
+## worst setup path, Slow_85C
+ Slack (MET) :             0.174ns  (required time - arrival time)
+ Source:                 FDPE_1/C
+ Destination:            milansoc_stage_spi_phy_tx_pipe_valid_source_payload_data_reg[10]/R
+ Path Group:             milansoc_crg_clkout0
+ Data Path Delay:        19.281ns  (logic 0.348ns (1.805%)  route 18.933ns (98.195%))
+ Logic Levels:           0
