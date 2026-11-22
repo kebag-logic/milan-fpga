@@ -293,10 +293,23 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 `INSTALLED_BUILD=<exact-current-build> sw/litex/build.sh flash
 ax7101:<target-builddir>`. The launcher live-reads QSPI to prove the installed
 bitstream owner, preflights the complete target set, and selects the
-direction-safe verified write order. The full flow, with the load-bearing rules
-(matched bitstream/layout/AEM, recovery) in one picture:
+direction-safe verified write order.
 
-![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
+`sw/litex/build.sh ax7101` builds the shipping split image (#665). Its launch
+needs the split's platform image at `sw/builder/out/<config>/ctrl_app.elf`,
+built by the recipe in
+[sw/firmware/ctrl/plat/README.md](sw/firmware/ctrl/plat/README.md#generated-inputs);
+without it the launch stops and names that path. The split image boots its
+control firmware from ROM
+([boot sequence](docs/ARCHITECTURE_HW_SW_SPLIT.md#2-boot-sequence)), and its
+UART reports VERSION `0x00030060`.
+
+The picture is the all-fabric release flow
+(`BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101`, VERSION `0x00020060`),
+which stays built and gated, with the load-bearing rules (matched
+bitstream/layout/AEM, recovery):
+
+![Build → Flash → Boot → Verify pipeline, all-fabric release](docs/BUILD_FLASH_BOOT.png)
 
 Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·

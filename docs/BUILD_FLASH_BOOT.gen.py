@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Generate the AX7101 build→flash→boot→verify pipeline as editable .drawio +
 rendered .svg. One picture for the integrator: the end-to-end flow that is
-otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT.
+otherwise scattered across BUILDING / LITEX_SOC / QSPI_FLASHBOOT. It is the
+all-fabric release image's flow (BUILD_PLACEMENT=all-fabric, VERSION 0x00020060);
+the shipping split image (#665) is stated beside it in the README.
 Render PNG: rsvg-convert -w 2400 BUILD_FLASH_BOOT.svg -o BUILD_FLASH_BOOT.png
 """
 import html, sys
@@ -17,7 +19,7 @@ def esc(s: str) -> str:
 # (stage, tool, colour, [ (line, is_cmd) ... ])
 STAGES = [
  ("1 · BUILD", "dev host · Vivado", GREEN, [
-   ("sw/litex/build.sh ax7101", 1),
+   ("BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101", 1),
    ("--software-profile baremetal", 0),
    ("--fabric-gptp --full", 0),
    ("--with-spiflash --flashboot baremetal", 1),
@@ -85,11 +87,12 @@ def svg() -> str:
     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" '
              'fill="#263238">Build → Flash → Boot → Verify — the AX7101 '
-             'pipeline</text>'%X0)
-    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, '
-             'four stages. Each stage lists the real commands (bold) and the '
-             'load-bearing rules. Details: docs/integration/BUILDING · '
-             'LITEX_SOC · QSPI_FLASHBOOT.</text>'%X0)
+             'all-fabric release pipeline</text>'%X0)
+    o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">The '
+             'all-fabric release image, VERSION 0x00020060; the shipping split '
+             'image (#665, VERSION 0x00030060) is in the README. Bold rows are '
+             'real commands. Details: docs/integration/BUILDING · LITEX_SOC · '
+             'QSPI_FLASHBOOT.</text>'%X0)
     o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">Persistent '
              'writes require two exact build identities: live-proven '
              'installed BIT/LAYOUT and one fully prepared target set.'
@@ -199,7 +202,7 @@ def drawio() -> str:
                      '<mxGeometry relative="1" as="geometry"/></mxCell>'
                      %(i,a,b))
     add(_Box(X0,20,1200,34),
-        "Build → Flash → Boot → Verify — the AX7101 pipeline",
+        "Build → Flash → Boot → Verify — the AX7101 all-fabric release pipeline",
         _Style("none","none",22,1))
     ids=[]
     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
