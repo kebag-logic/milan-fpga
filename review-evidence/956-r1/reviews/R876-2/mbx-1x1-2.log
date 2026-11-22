@@ -1,0 +1,23 @@
+wrote $REVIEWS/956-r876-2-packet/scratch/mbx-1x1-2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/mbx-1x1-2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/mbx-1x1-2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Srp.*Build*:Srp.*Transmit*:Srp.AnOwedFrameComesBeforeTheBuild:Srp.TheJoinCountFollowsWhatABuildSent
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole
+[       OK ] Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole (0 ms)
+[ RUN      ] Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue
+[       OK ] Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue (0 ms)
+[ RUN      ] Srp.TheJoinCountFollowsWhatABuildSent
+[       OK ] Srp.TheJoinCountFollowsWhatABuildSent (0 ms)
+[ RUN      ] Srp.AnOwedFrameComesBeforeTheBuild
+[       OK ] Srp.AnOwedFrameComesBeforeTheBuild (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== ctrl SRP mailbox: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)

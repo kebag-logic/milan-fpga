@@ -1,0 +1,41 @@
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-resumed-drops-what-came-due: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a due set between a build's slices is owed once the build ends
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-paused-keeps-its-due: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a build with nothing due between its slices ends owing nothing
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-paused-not-aged: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a build resuming in the next slice is THE TRANSMIT's due
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-paused-unreported: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / the poll reports a build resuming in the next slice owed
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-refused-second-slice-not-due: ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue / a frame the ring refuses in a build's second slice leaves its interface due
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-hold-off-adds-its-terms: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-resume-drops-what-came-due: Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-resume-drops-what-came-due-at-a-phase: EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340 / the changed destination reaches the wire no later than two of the longest LeaveAll periods after the withdrawal, at the latest
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/956-r876-2-packet/scratch/plants-srp/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-registration-kept-across-a-reset: Talker.ListenerRegistrationAfterAResetIsNoticed / the first Listener registration after a reset is noticed, whatever the one before it declared
+CAMPAIGN ALL CAUGHT ['build-paused-keeps-its-due', 'build-paused-not-aged', 'build-paused-unreported', 'build-refused-second-slice-not-due', 'build-resumed-drops-what-came-due', 'talker-hold-off-adds-its-terms', 'talker-registration-kept-across-a-reset', 'talker-resume-drops-what-came-due', 'talker-resume-drops-what-came-due-at-a-phase', 'talker-unchanged-held']

@@ -1,0 +1,14 @@
+1x1: 66 cost rows independently recomputed; all rounding and within-statement results agree
+probes: base 50, head 50, paired 50, only base 0, only head 0
+probes: base 14, head 14, paired 14, only base 0, only head 0
+probes: base 7, head 7, paired 7, only base 0, only head 0
+head findings over all groups: 0
+8x8-1if: 66 cost rows independently recomputed; all rounding and within-statement results agree
+probes: base 45, head 45, paired 45, only base 0, only head 0
+probes: base 36, head 36, paired 36, only base 0, only head 0
+probes: base 14, head 14, paired 14, only base 0, only head 0
+head findings over all groups: 0
+8x8/1if aligned rom_end: align8(0x1b938 + 0x643e) + 0x208 = 139136
+139264 - 139136 = 128 B spare; 34 ROM + 24 SRAM = 58 RAMB36
+PR Known limitations still says 16 B; CPU values 16064/35273/17259 are prior-head figures, not current 14213/35507/17014
+Added source/test/script lines: no bench lane labels, reviewer IDs, author lane or issue-comment IDs matched; manually examined added comments

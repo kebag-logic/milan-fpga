@@ -1,0 +1,893 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index a0ac1462d5..cf4afe9dd6 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3215,12 +3215,14 @@ On the SRP cut's head ([#665's ruling of 2026-11-20](https://github.com/kebag-lo
+ 
+ The owner's decision of 2026-11-21 on #956: a withdrawn Talker's changed destination is declared within two nominal longest LeaveAll periods of its Leave's request, its JoinTime and THE TRANSMIT's terms counted inside them, not added after them as #951 had it; the flip bench's re-check measured #951's at 30.26 s at 8x8/1if. The same lane adds #957, the STREAM_OUTPUT notice of a Listener registration change (Milan v1.2 5.4.5.2, Table 5.22).
+ 
+-- **The constant.** `SRP_REDECLARE_CS` (`srp_mbx.c`) is twice `SRP_LEAVEALL_LONGEST_CS` less the JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10: 2,977 cs at 1x1/1if, 2,973 at 8x8/1if and 2,970 at two interfaces (#951: 3,023, 3,027 and 3,030). The count still starts at the Leave's request. On the model's wire, with the request on a centisecond, the changed destination is declared 29,770 ms after it at 1x1/1if (29,700 at 8x8/2if), and with the loop held a JoinTime and THE TRANSMIT's figure from the tick that ends the count it leaves at 29,995 ms at both, under the 30,000 the two periods give (`srp_talker.cpp`). `declare_sources` keeps its size: 2,977 needs the same `lui` and `addi` as 3,023.
+-- **The record.** lwSRP indicates every Listener registration's start and end, Ignore at the end, and every change of a registered Listener's declaration, so `listener` records each change of the declaration it copies, while the source's DA gate is open on the interface, in `noticed`, the record a Talker declaration's change is (#936), and the composition and AECP take it the same way. MAAP opens a source's gate on its own interface only, and behind a closed gate the face shows neither flag, so a Listener on another interface, or behind a closed gate, records nothing.
+-- **The rom it fits in.** The target platform's 8x8 image at one interface, a product image, had 56 bytes of its 34 RAMB36 of `rom` left at the flip train's head (139,208 of 139,264 B; `plat_ledger.py`). A comparison of what the output shows at each copy, with a record and a delivery loop of its own, added 296 bytes at 8x8/1if and put the CPU budget harness's `declaring-outputs` image there over its 32 RAMB36; a second form, 152 bytes, put the platform's image over its ledgered 58 RAMB36. This one adds 40 bytes, all in `listener` (128 to 168 B at 8x8/1if, 132 to 172 at 1x1): 139,248 B, 16 left. No budget moved. Each source's declaration is held beside the interface's other per-source byte arrays, so `struct ctrl_plat` keeps its ledgered size at every point (`ctrl_memory_ledger.py`, `PLAT_*`).
+-- **The images.** At base and head: the target platform's four, the size fixture's four and the CPU budget harness's twelve. At 1x1 `srp_mbx.o` alone differs. At 8x8 the declarations' array moves the interface's later fields 8 bytes, so `ctrl_app_aecp.o`, `ctrl_app_srp.o` and `ctrl_plat.o` (the fixture's `ctrl_aecp_image.o`) differ in those offsets alone, no function's size with them. `plat_ledger.py` passes at every point. The release (all-fabric) image is byte-identical but for LiteX's generation times and the CPU netlist's per-run name.
++- **The constant.** `SRP_REDECLARE_CS` (`srp_mbx.c`) is twice `SRP_LEAVEALL_LONGEST_CS` less the JoinTime and (`CTRL_LOOP_TX_MS` + 9) / 10: 2,977 cs at 1x1/1if, 2,973 at 8x8/1if and 2,970 at two interfaces (#951: 3,023, 3,027 and 3,030). The count still starts at the Leave's request. On the model's wire, with the request on a centisecond, the changed destination is declared 29,770 ms after it at 1x1/1if (29,700 at 8x8/2if), and with the loop held a JoinTime and THE TRANSMIT's figure from the tick that ends the count it leaves at 29,995 ms at both, under the 30,000 the two periods give (`srp_talker.cpp`). `declare_sources` keeps its size: 2,977 needs the same `lui` and `addi` as 3,023. That held first only where lwSRP's join timer was idle as the count ended. With it running, at withdrawals 270 to 340 ms into a second of the participants' periodic MRPDUs at 1x1/1if, 310 to 380 at 8x8/1if and 340 to 410 at 8x8/2if, the held loop's changed destination waited for the next periodic MRPDU, 30.6 to 30.7 s after the request (the sliced build, below). At every phase, each centisecond of a second, with the loop held or serviced and the join timer idle or running, it now leaves no sooner than the count's end and, held, at 29,995 ms at 1x1/1if and 8x8/2if and 29,997 at 8x8/1if (`EveryPhase/TalkerPhase.*`, and `Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning` at 340 ms, run at all three).
++- **The record.** lwSRP indicates every Listener registration's start and end, Ignore at the end, and every change of a registered Listener's declaration, so `listener` records each change of the declaration it copies, while the source's DA gate is open on the interface, in `noticed`, the record a Talker declaration's change is (#936), and the composition and AECP take it the same way. MAAP opens a source's gate on its own interface only, and behind a closed gate the face shows neither flag, so a Listener on another interface, or behind a closed gate, records nothing. A reset of the interface destroys its participants and their registrations with no indication, so `reset_interface` clears each source's declaration with `listener_present`: the record agrees with the answer, no Listener, and the first registration after it is recorded whatever it declares, the destroyed one's declaration included (`Talker.ListenerRegistrationAfterAResetIsNoticed`, `AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice`).
++- **The sliced build.** THE TRANSMIT builds an interface's two MRPDUs in two slices at every point (`CTRL_LOOP_BUILD_MOST` 1). The pass the count's end owes declares the changed destination and builds the MSRP MRPDU, which lwSRP's join timer holds when a periodic MRPDU left in the JoinTime before it; the timer's end, among the centiseconds a held loop dispatches before the build's second slice, set the interface's due again. That due was set already, and the second slice's end cleared it, so the declaration waited for the next periodic MRPDU. The pause now takes the interface's due, the build waiting for its next slice is THE TRANSMIT's due and the poll's owed (`tx_owed`, the due and `tx_resume` read whole in one load), and what came due since its first slice is owed again once the build ends: a pass, as after a build made whole, and none when nothing came due, what its own sends moved included; a frame the ring refuses in the second slice stays the poll's with its interface due (A3), as in a build made whole (`Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue`; plants `build-paused-*` and `build-resumed-drops-what-came-due` in `srp_transmit_mutants.py`, `talker-resume-*` in `srp_talker_mutants.py`).
++- **The rom it fits in.** The target platform's 8x8 image at one interface, a product image, had 56 bytes of its 34 RAMB36 of `rom` left at the flip train's head (139,208 of 139,264 B; `plat_ledger.py`). A comparison of what the output shows at each copy, with a record and a delivery loop of its own, added 296 bytes at 8x8/1if and put the CPU budget harness's `declaring-outputs` image there over its 32 RAMB36; a second form, 152 bytes, put the platform's image over its ledgered 58 RAMB36. This one adds 40 bytes, all in `listener` (128 to 168 B at 8x8/1if, 132 to 172 at 1x1): 139,248 B, 16 left. The corrections that follow review add 4 bytes in `reset_interface` for the clear, and `transmit_aged` and the poll keep their sizes, reading `tx_owed` in one load (reading the two bytes apart took 16 more, and that form put the image over its 58 RAMB36, 139,280 B). In `transmit` the kept due took 12 more and filled the rom, 139,264 B; at one interface the build's interface is now 0 at compile time, as it always was there, so `transmit` is 112 bytes smaller there with the kept due and the refused slice's due: 139,136 B, 128 left. No budget moved. Each source's declaration is held beside the interface's other per-source byte arrays, so `struct ctrl_plat` keeps its ledgered size at every point (`ctrl_memory_ledger.py`, `PLAT_*`).
++- **The images.** At base and head: the target platform's four, the size fixture's four and the CPU budget harness's twelve. At 1x1 `srp_mbx.o` alone differs. At 8x8 the declarations' array moves the interface's later fields 8 bytes, so `ctrl_app_aecp.o`, `ctrl_app_srp.o` and `ctrl_plat.o` (the fixture's `ctrl_aecp_image.o`) differ in those offsets alone, no function's size with them. `plat_ledger.py` passes at every point. The release (all-fabric) image is byte-identical but for LiteX's generation times and the CPU netlist's per-run name. The corrections, `0d80f0ed` (its images `8845364d`'s) against `b4a1dde2`: in each of the target platform's and the size fixture's images `srp_mbx.o` alone differs, `transmit` 116 bytes smaller at 1x1/1if and 112 at 8x8/1if, 40 larger at 1x1/2if and 36 at 8x8/2if, and `reset_interface` 4 larger at 8x8, the same at 1x1. `plat_ledger.py` passes at every point, `rom` 126,360, 128,112, 139,136 and 140,864 B, and the CPU budget harness's images, every arm at its three points, link within their budgets. The release image is again byte-identical but for those and LiteX's per-run order of the CPU ISA string's extensions, which the same revision exported again also changes.
+ 
+ - **The rows.** Measured base against head on the legs the change's code runs in and those its placement may move, at 1x1/1if and 8x8/1if: arm A's `srp`, `backlog-owed`, `aecp` and `datapath-events` (and `aecp-largest-notice` at 1x1/1if), the `valid-destinations` arm's `srp-talker-held`, a Listener Ready for every source, so `listener` records each, and `srp-talker-loss`, and the `declaring-outputs` arm's `aecp-outputs`, whose output 0's Listener Ready is now its own notice. No probe changes its verdict, each side has arm A's seven `backlog-owed` misses and no other, and no pass is over the share. Every stated cost measured is within by the rule but one, restated: 8x8/1if's own MAAP record measures 17,259 cycles in `srp-talker-loss` (16,176 on the base in the same group), 185 us by the rule over its 180, so `load_grade.OWN` states 185. `flip_grade.py --check` and `load_grade.py --check` still pass at 8x8/1if: its load 0.744 of 0.75, and THE TRANSMIT's row by every source 76.86 ms of its 77 (76.81 at 180). The record runs none of the change's code: the 8 bytes each 8x8 interface's SRP state grew move the data after it, and at 1x1, where nothing grew, it measures the same on both. The SRP record's apply, where `listener` runs, grows most: `record.srp` 23,456 to 24,266 cycles at 1x1/1if, 255 of its 285 us. `centisecond` measures 16,064 there, 170 of its 170 us (15,672 on the base in the same group). The `declaring-outputs` arm now expects output 0's Listener notice to every registration after the declared Talker's (`declaring_outputs.order_findings`, three planted orders refused). This is a sample, not the formal measurement: the other groups and arms were not run.
++- **The rows after the corrections.** The same legs, round 1's head runs (images `0d80f0ed`'s) against `b4a1dde2`'s, at 1x1/1if and 8x8/1if, with the formal measurement's options. No probe changes its verdict, 71 and 95 paired, each side has arm A's seven `backlog-owed` misses and no other, and no pass is over the share. Every stated cost measured is within by the rule, 66 at 1x1/1if and 66 at 8x8/1if; at its statement, as before, only `item.acmp_declined` at both points, and at 8x8/1if `record.srp`, 35,507 cycles in `srp-talker-held`, 375 of its 375 us (35,273 before, also 375). THE TRANSMIT's passes: no pass makes both MRPDUs (each slice holds one), a build of one is at most 52,531 CPU cycles at 1x1/1if (53,168 before; 735 us stated) and 126,644 in `srp-talker-held` at 8x8/1if (125,209 before; 1,475 us stated), no MRPDU a timer owes is late, and the join timers' MRPDUs are 187.2 to 190.6 ms apart. 1x1/1if's centisecond measures 14,213 cycles, 150 of its 170 us (16,064 before, 170 of 170), and 8x8/1if's own MAAP record 17,014 cycles in `srp-talker-loss`, 180 of its 185 us (17,259 before, 185). No statement or bound changes, so `flip_grade.py --check` at both points, `load_grade.py --check` and `shape_costs.py --check` pass as before, THE TRANSMIT's row by every source 76.86 ms of its 77 at 8x8/1if. This is a sample, not the formal measurement.
+ 
+ ### What is left
+ 
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 48be4844cf..098115dccc 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -424,7 +424,7 @@ Their transition service has the same project bound.
+ | AECP liveness, unlock and optional identification | Milan v1.2 5.4.5.3: 30 to 60 s monitor then CONTROLLER_AVAILABLE; 5.4.2.2: 60 s unlock. IEEE 1722.1-2021 7.5.1/7.5.1.2.1: three Identify notifications, spaced 150 ms when enabled | 150 ms x 10% = 15 ms is the tightest enabled notification interval, and the bound, below T_svc, while identification is enabled; service <= 20 ms otherwise. Probe responses still obey 9.3.2.6 | Preserve registration, retry, removal and identification ordering; the optional feature is not enabled by this requirement |
+ | MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2 with constants B.3.3/Table B.8: strictly 500 ms < probe interval < 600 ms; `MAAP_PROBE_RETRANSMITS=3`. B.3.2/Table B.7 defines conflict handling; B.3.5.5 defines the conflicting-PROBE event and B.3.6.6 the DEFEND action | 500 ms x 10% = 50 ms; service <= T_svc = 20 ms. Three retransmissions do not multiply the per-action budget | DEFEND on the applicable conflicting PROBE transition. The probe interval is not a normative received-PROBE response timeout |
+ | MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1 with constants B.3.3/Table B.8: strictly 30 s < announcement interval < 32 s; B.3.2/Table B.7 governs loss and retry | Announcement gives 3 s; the shared 500 ms probe interval tightens this to 50 ms | Preserve randomization, strict bounds and address-loss handling; service time cannot push a timer beyond its upper bound |
+-| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms, relaxed to T_svc = 20 ms by the [owner's ruling of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082). LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. The bound is T_svc; it fits each. Under the control loop's priority tiers (option B, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)) SRP's records take decision D's 90 ms, and an MRPDU a timer owes 49 ms at the split, the most lateness the MRP timer budget holds ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; 40 ms at the 200 ms default): the armed JoinTime, 190 ms (above), plus it and the 1 ms `T_egress` within Table 4.3's 240 ms ([#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), where 90 ms would give 281 ms | Under the control loop's priority tiers ([#894](https://github.com/kebag-logic/milan-fpga/issues/894)) SRP's records are tier 2: the composed burst's last SRP record and SRP's last record beside a link change are held by every source to decision D's 90 ms, half of MRP's JoinTime as the firmware applies it (R5 and R6, `tb/verilator/ctrl_service_budget/rows_tiers.py`). Every MRPDU a join, periodic or LeaveAll timer makes owed is THE TRANSMIT's tier-2 build. By every source it waits for tier 1's records, and at 1x1/1if it is committed within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1): `CTRL_LOOP_TX_BOUND_MS`, the tx row of `rows_tiers.py` held by `flip_grade.py` (34.00 ms with SRP's Talker declarations composed with #894's SET_CONFIGURATION cut and measured again, at the slice rule's 900 us, [#895](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305)), and `CTRL_LOOP_TX_MS`, that row rounded up, held to it at compile time in `ctrl_loop.c`: 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897; 34 before). At 8x8/2if, whose rows are reported, `CTRL_LOOP_TX_MS` is 105 ms, its tx row's 104.25 with SRP's Talker declarations' costs restated there rounded up, and a withdrawn Talker's hold-off, `SRP_REDECLARE_CS`, which counts it and a JoinTime inside two nominal longest LeaveAll periods (#951, #956), follows it: 2,970 cs at two interfaces (2,971 at 99 ms), 2,977 at 1x1/1if, and 2,973 at 8x8/1if, whose `CTRL_LOOP_TX_MS` is its own tx row rounded up, 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; 75 ms for 74.26 before them), held to that row by `flip_grade.py --check` (`tx_held`; 2,026 at 70 ms before the row reached 74.26) and at most 80 ms, so the hold-off stays 2,027, each figure stated for its shape (THE SHAPES), never by the interface count, so a withdrawn Talker's hold-off follows its own shape's row. IEEE 802.1Q-2018 35.2.2.8 sets only the least, 2,000 cs, and the terms above it cover the Leave's latest departure, so a changed destination is declared 10 ms later at two interfaces, on the safe side ([#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865), items 1 to 3; #894's head keeps 99). The CPU budget harness measures it in every group against that bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.py`; [#894's round 2 ruling for 8x8/1if](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc's 20 ms before. lwSRP arms a participant's join timer as an MRPDU is committed, so its next transmit opportunity comes within JoinTime plus that lateness, and its frame within `T_egress` more, inside Table 4.3's 240 ms. Its periodic and LeaveAll timers restart at their expiry (IEEE 802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is on the wire late by at most that and `T_egress` against a fixed schedule: 950 to 1050 ms, and 9.96 to 15.04 s. 10.7.11 a) holds: 2 x 240 + 6 x 10 = 540 ms, under LeaveTime's least. At 8x8/2if the rows by every source are reported, not held (the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872). The loop before the tiers held both by construction. A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
++| SRP/MRP MSRP and MVRP join, leave, periodic and LeaveAll | IEEE 802.1Q-2018 10.7.4/10.7.11, Table 10-7; Milan v1.2 4.2.7.1.1, Table 4.3 overrides: JoinTime 200 ms (180 to 240), LeaveTime 5000 ms (4500 to 7500), periodic 1000 ms (900 to 1500), LeaveAll 10 to 15 s (+/-0.5 s) | Conservative shortest allowed interval: 180 ms x 10% = 18 ms, relaxed to T_svc = 20 ms by the [owner's ruling of 2026-11-06](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6681686082). LeaveTime gives 450 ms; periodic 90 ms; LeaveAll 950 ms. The bound is T_svc; it fits each. Under the control loop's priority tiers (option B, [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6732443213)) SRP's records take decision D's 90 ms, and an MRPDU a timer owes 49 ms at the split, the most lateness the MRP timer budget holds ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; 40 ms at the 200 ms default): the armed JoinTime, 190 ms (above), plus it and the 1 ms `T_egress` within Table 4.3's 240 ms ([#894's contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3, and its [egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1), where 90 ms would give 281 ms | Under the control loop's priority tiers ([#894](https://github.com/kebag-logic/milan-fpga/issues/894)) SRP's records are tier 2: the composed burst's last SRP record and SRP's last record beside a link change are held by every source to decision D's 90 ms, half of MRP's JoinTime as the firmware applies it (R5 and R6, `tb/verilator/ctrl_service_budget/rows_tiers.py`). Every MRPDU a join, periodic or LeaveAll timer makes owed is THE TRANSMIT's tier-2 build. By every source it waits for tier 1's records, and at 1x1/1if it is committed within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1): `CTRL_LOOP_TX_BOUND_MS`, the tx row of `rows_tiers.py` held by `flip_grade.py` (34.00 ms with SRP's Talker declarations composed with #894's SET_CONFIGURATION cut and measured again, at the slice rule's 900 us, [#895](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305)), and `CTRL_LOOP_TX_MS`, that row rounded up, held to it at compile time in `ctrl_loop.c`: 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897; 34 before). At 8x8/2if, whose rows are reported, `CTRL_LOOP_TX_MS` is 105 ms, its tx row's 104.25 with SRP's Talker declarations' costs restated there rounded up, and a withdrawn Talker's hold-off, `SRP_REDECLARE_CS`, which counts it and a JoinTime inside two nominal longest LeaveAll periods (#951, #956), follows it: 2,970 cs at two interfaces (2,971 at 99 ms), 2,977 at 1x1/1if, and 2,973 at 8x8/1if, whose `CTRL_LOOP_TX_MS` is its own tx row rounded up, 77 ms for the 76.81 ms of #665's final head with its cuts ([#665's ruling of 2026-11-18, re-ruled](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6972255348), item 2a; 75 ms for 74.26 before them), held to that row by `flip_grade.py --check` (`tx_held`) and at most 80 ms, so the hold-off stays 2,973 there, each figure stated for its shape (THE SHAPES), never by the interface count, so a withdrawn Talker's hold-off follows its own shape's row. The earlier figures are history: #951 added both terms past the two periods (3,027 cs at 8x8/1if), and before it the hold-off was two LeaveAllTime periods with the terms above them, 2,026 cs at 70 ms and 2,027 at 75 to 80 ms ([#895's ruling of 2026-11-15 on that figure](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6895331865), items 1 to 3; #894's head keeps 99). Counted inside the two periods, the terms cover the declaration's latest departure, so a longer row declares a changed destination sooner, 10 ms sooner at two interfaces than at 99 ms, and it reaches the wire no later than the two periods, 30.0 s, after the Leave's request, at every withdrawal phase and join timer state (the owner's decision of 2026-11-21 on #956; IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3). The CPU budget harness measures it in every group against that bound, `CTRL_LOOP_TX_BOUND_MS` as `ctrl_loop.h` derives it (`mrpdu_grade.py`; [#894's round 2 ruling for 8x8/1if](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6871343905), item (b)(i)), where it held it to T_svc's 20 ms before. lwSRP arms a participant's join timer as an MRPDU is committed, so its next transmit opportunity comes within JoinTime plus that lateness, and its frame within `T_egress` more, inside Table 4.3's 240 ms. Its periodic and LeaveAll timers restart at their expiry (IEEE 802.1Q-2018 Tables 10-6 and 10-5), so each of their MRPDUs is on the wire late by at most that and `T_egress` against a fixed schedule: 950 to 1050 ms, and 9.96 to 15.04 s. 10.7.11 a) holds: 2 x 240 + 6 x 10 = 540 ms, under LeaveTime's least. At 8x8/2if the rows by every source are reported, not held (the [owner's decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6814835849), owed to #872). The loop before the tiers held both by construction. A point-to-point requested transmit opportunity occurs within JoinTime, at most three per 1.5 x JoinTime. Timer resolution stays <= 1 centisecond; delayed service must not lose ticks |
+ 
+ MRP's 10 % ceiling of 18 ms is relaxed to T_svc by the owner's ruling of 2026-11-06, so MRP's paths are graded against 20 ms.
+ ACMP's ceiling, which also bounds a discovery input's resulting ACMP action, equals T_svc at 20 ms.
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index 26eb53e0aa..99e3dfe569 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -317,12 +317,24 @@ records nothing, and one registered again after a LeaveAll is not indicated. A
+ Ready replaced by a Ready Failed is recorded, though its flags are the same,
+ since the release processor's LISTENER_REG_CHANGE follows the registration
+ state. A link reset is not recorded here: it closes the output's declaration as
+-a reset does for the Talker (above). The record takes 40 bytes of code at
+-8x8/1if, whose image has 18 bytes of its 34 RAMB36 of `rom` left (#957). Tests:
+-`srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` (at 1x1/1if and
+-8x8/2if) and `test_aecp.cpp`'s `ListenerRegistrationChangeIsItsStreamOutputsNotice`
+-(real Listener MRPDUs, the notices read on the wire, at every output of the 1x1
+-shape at one and two interfaces and of the 8x8 at one); plants
++a reset does for the Talker (above). It destroys the interface's participants
++and the Listener registrations they hold with no indication, so
++`reset_interface` clears `declaration` with `listener_present`: the record then
++agrees with what the answer shows, no Listener, and the first registration after
++the reset is recorded whatever it declares, the destroyed one's declaration
++included. The record and that clear take 44 bytes of code at 8x8/1if (#957).
++With THE TRANSMIT's sliced build keeping what came due between its slices
++(#956, below), whose build is of interface 0 at compile time at one interface,
++the image has 128 bytes of its 34 RAMB36 of `rom` left (139,136 bytes).
++Tests: `srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` and
++`ListenerRegistrationAfterAResetIsNoticed` (each declaration, the link's edges
++apart, coalesced into one service and twice over, the other interface's record
++kept; at 1x1/1if, 8x8/1if and 8x8/2if) and `test_aecp.cpp`'s
++`ListenerRegistrationChangeIsItsStreamOutputsNotice` and
++`ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice` (real Listener
++MRPDUs, the notices read on the wire, one with the new flags to every registered
++controller, at every output of the 1x1 shape at one and two interfaces and of
++the 8x8 at one, and across a link reset at the first output); plants
+ `talker-registration-*` (`srp_talker_mutants.py`) and `registration-notice-*`
+ (`aecp_registration_mutants.py`).
+ 
+@@ -395,7 +407,7 @@ An MRPDU owed takes a tier-2 slice of a pass given whole, the first the loop giv
+ What owes that pass: a participant's join count ending, a LeaveAll where no join timer holds it (IEEE 802.1Q 10.7.4.1, Table 10-5), an Applicant moved outside a build with its own join timer idle, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a new participant, or the first link up (a binding itself owes none: the walk that finds its declaration does).
+ lwSRP arms a join timer as it sends and reports no expiry, so the adapter keeps the same count, restarted by what a build sent and by nothing else.
+ The call makes every interface's declarations, then sends both MRPDUs of the first interface that owes one (`SRP_MBX_TRANSMIT_FRAMES`, `srp_bounds.h`), and the next such pass takes the next interface; then it makes that interface's declarations again, for what a first VLAN send licensed.
+-A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming.
++A slice holds `CTRL_LOOP_BUILD_MOST` MRPDUs, one at every point (a 950 us slice at 1x1/1if, against 1,010 us for both of an interface's MRPDUs, `CTRL_LOOP_BUILD_PASS_US`; 1,475 us at 8x8/1if against 1,795, each stated for its shape, THE SHAPES in `ctrl_loop.h`): a build the slice cannot hold stops after them, reclaims as the next build would, and resumes in the next slice at the next participant (`tx_resume`) with its declarations already made, so the frames are those of the build made whole (`Srp.ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole`); an interface reset ends the build it was resuming. The pause takes its interface's due, and the build waiting for its next slice is THE TRANSMIT's due and the poll's owed (`tx_owed`, the due and `tx_resume` read whole), so what comes due between the two slices, a join timer's end among the centiseconds dispatched there or a declaration another pass made owed, is owed again once the build ends, as after a build made whole, a build with nothing due between its slices ends owing nothing, what its own sends moved included, and a frame the ring refuses in the second slice stays the poll's with its interface due, as in a build made whole (A3) (#956; `Srp.ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue`). Before it, the resumed slice's end cleared a due a join timer's end set again between the slices, so a declaration that timer held waited for the next periodic MRPDU, past two longest LeaveAll periods after a withdrawal with the loop held (`Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning`, and `EveryPhase/TalkerPhase.*`, every centisecond of a second, the loop held and serviced).
+ An MRPDU a join, periodic or LeaveAll timer owes now waits for tier 1's records. At 1x1/1if it is held within 49 ms of the centisecond that owes it ([#894's ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6840564634), item 1; [its contingent ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6858269025), item 3; [its egress ruling](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6867990126), item 1): `CTRL_LOOP_TX_BOUND_MS`, the most lateness the MRP timer budget holds, since the join timer is armed as an MRPDU is committed and the armed join time (`CTRL_LOOP_JOIN_CS`, 190 ms, which `SRP_JOIN_CS` configures lwSRP with) plus the lateness and the frame's `T_egress` (`CTRL_LOOP_T_EGRESS_MS`, 1 ms) must stay within Milan Table 4.3's 240 ms. By every source it is 34.00 ms there at the slice rule's 900 us, the last queued notice's bound at 140 ms, at the Talker declarations' costs composed with #894's SET_CONFIGURATION cut and measured again, which `CTRL_LOOP_TX_MS` states as 34 ms, and 35 ms since GET_AS_PATH's read composed with them puts the row at 34.20 (#897) (34.05 at 950 us after the one cut, 33.88 at the composed tables, 33.69 before that cut, 33.64 at 900 us, 33.39 at the edit cut's composed tables, 33.20 before that cut, 33.01 at its own; `rows_tiers.py`, the tx row, which `CTRL_LOOP_TX_MS` states as 35 ms; `ctrl_loop.c` holds it to the bound at compile time; #895), and the flip check holds it with every AECP notice the largest legal one too (txL) ([FR_NFR.md 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+ Where a slice holds both MRPDUs (`CTRL_LOOP_BUILD_MOST` 2, a slice of at least `CTRL_LOOP_BUILD_PASS_US`; no point's at this tree), a Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit.
+ Where a slice holds one (every point), the MVRP MRPDU follows in the next slice and an ordinary pass and its polls may run between the two; the Talker's licence still waits for the MVRP commit (`vlan_sent`; Milan v1.2 4.3.2), as `Srp.ASlicedAdoptionLicensesItsTalkerOnlyOnceItsVlanIsSent` checks with a poll between the slices.
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 1b0e168f7c..782675a30b 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -1186,7 +1186,9 @@ static void reset_interface(struct srp_interface *i)
+         revoked[k] = i->active[k];
+         i->active[k] = false;
+         i->stop_owed[k] = false;
+-        // the registrar it was walked from is destroyed below (#665)
++        // the registrar it was walked from, and the Listener it registers, are destroyed below (#665): a registration
++        // after the reset is a change of the Listener the source's STREAM_OUTPUT shows, whatever it declares (#957)
++        i->declaration[k] = 0u;
+         i->listener_present[k] = false;
+     }
+     publish_licence(i);
+@@ -1399,7 +1401,7 @@ static bool poll(void *ctx)
+             owed = true;
+         }
+     }
+-    owed = owed || m->tx_due != 0u;
++    owed = owed || m->tx_owed != 0u;
+     m->busy = false;
+     return owed;
+ }
+@@ -1409,14 +1411,16 @@ static bool poll(void *ctx)
+ // the next such pass takes the rest; then that interface's declarations again, for what a first VLAN send licensed. A
+ // slice that cannot hold both MRPDUs makes `most` of them (CTRL_LOOP_BUILD_MOST) and the next slice resumes at the next
+ // participant, its declarations already made, then makes that interface's declarations: the frames of the build made
+-// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). Where a slice holds both MRPDUs
+-// (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID unlicensed between
+-// them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU follows in the next
+-// slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit (vlan_sent;
+-// Milan v1.2 4.3.2). No declaration is made
+-// while a retained receive waits, so none takes the room it waits for. A refused or waiting declaration is tried again
+-// when the join count ends, at the JoinTime's rate and not every pass given whole, so the passes this client takes stay
+-// what THE RETRY's bound counts. A frame the ring refuses stays the poll's (A3) and the interface stays due.
++// whole, with a slice between two (#894; #665, the decision of 2026-11-09, item 2). The pause takes the interface's due
++// and the build stays owed (tx_owed), so what comes due between the two slices, a join timer's end among the
++// centiseconds dispatched there, is owed again once the build ends, as after a build made whole (#956). Where a slice
++// holds both MRPDUs (CTRL_LOOP_BUILD_MOST 2) a Domain adopted here is sent in this call, so no poll sees its VID
++// unlicensed between them. Where it holds one (both points' slices, #894's slice ruling of 2026-11-13) the MVRP MRPDU
++// follows in the next slice and polls may run between the two, and the Talker's licence still waits for the MVRP commit
++// (vlan_sent; Milan v1.2 4.3.2). No declaration is made while a retained receive waits, so none takes the room it waits
++// for. A refused or waiting declaration is tried again when the join count ends, at the JoinTime's rate and not every
++// pass given whole, so the passes this client takes stay what THE RETRY's bound counts. A frame the ring refuses stays
++// the poll's (A3) and the interface stays due.
+ static void transmit(void *ctx, unsigned most)
+ {
+     struct srp_mbx *m = ctx;
+@@ -1424,7 +1428,10 @@ static void transmit(void *ctx, unsigned most)
+         return;
+     }
+     const unsigned resume = m->tx_resume;
+-    const unsigned first = resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
++    // what came due since the slice the build resumes from, whose pause took its interface's due
++    const unsigned again = resume != 0u ? m->tx_due : 0u;
++    // the interface the build is of: one interface's always, or the one it resumes, or the first due
++    const unsigned first = MBX_N_IF == 1u ? 0u : resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
+     for (unsigned k = resume != 0u ? MBX_N_IF : 0u; k <= MBX_N_IF; ++k) {
+         const unsigned n = k < MBX_N_IF ? k : first;
+         struct srp_interface *i = &m->ifs[n];
+@@ -1445,12 +1452,12 @@ static void transmit(void *ctx, unsigned most)
+                     (void)build_mrpdu(m,i,slot);
+                 }
+             }
++            // a frame the ring refused stays the poll's and its interface stays due (A3), the pause's due taken or not
++            const unsigned bit = 1u << n;
++            m->tx_due = (uint8_t)((m->tx_due & ~bit) | (m->owed_len != 0u ? bit : again));
+             if (m->tx_resume != 0u) {
+                 break;
+             }
+-            if (!m->owed_len) {
+-                m->tx_due &= (uint8_t)~(1u << n);
+-            }
+         }
+         if (i->msrp && (m->pending_rx.len != 0u || prepare_declarations(i)) && m->join_left[2u * n] == 0u) {
+             m->join_left[2u * n] = SRP_JOIN_CS;
+@@ -1459,11 +1466,12 @@ static void transmit(void *ctx, unsigned most)
+     m->busy = false;
+ }
+ 
+-// THE TRANSMIT's due: an owed MRPDU, with no frame owed ahead of it, takes a pass of its own (ctrl_loop.h).
++// THE TRANSMIT's due: an owed MRPDU, or a build waiting for its next slice, with no frame owed ahead of it, takes a
++// pass of its own (ctrl_loop.h).
+ static bool transmit_aged(void *ctx)
+ {
+     const struct srp_mbx *m = ctx;
+-    return m->tx_due != 0u && !m->owed_len;
++    return m->tx_owed != 0u && !m->owed_len;
+ }
+ 
+ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index 26309435a7..6277fdc1b2 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -169,9 +169,17 @@ struct srp_mbx {
+     uint32_t transmitted;
+     uint32_t stops;
+     uint32_t walks;        // registrar walks snapshot made (#665)
+-    uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
++    // What THE TRANSMIT owes, read whole (tx_owed) by its due and the poll: the interfaces that owe an MRPDU now, bit n
++    // interface n (THE TRANSMIT's pass), and the participant + 1 a build resumes at in the next slice, 0 none (THE
++    // TIERS). A build's pause takes its interface's due, so a due set again before the build ends is owed after it.
++    union {
++        struct {
++            uint8_t tx_due;
++            uint8_t tx_resume;
++        };
++        uint16_t tx_owed;
++    };
+     uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
+-    uint8_t tx_resume;     // the participant + 1 a build resumes at in the next slice, 0 none (THE TIERS)
+     // The retained receive's retry (#665): the blocks the pools had returned at its last refusal (ctrl_pool_returned),
+     // and whether a retry was made since the last centisecond (tick).
+     uint32_t pending_freed;
+diff --git a/sw/firmware/ctrl/test/aecp_registration_mutants.py b/sw/firmware/ctrl/test/aecp_registration_mutants.py
+index 15da15bf07..353e8f0b0b 100644
+--- a/sw/firmware/ctrl/test/aecp_registration_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_registration_mutants.py
+@@ -3,14 +3,19 @@
+ """aecp_registration_mutants.py - the AECP campaign's planted defects in a STREAM_OUTPUT's notice of a Listener
+ registration change (#957; Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): SRP's record of a change of the
+ Listener declaration it indicates for the source's stream, while the source's DA gate is open on the interface, in the
+-record a Talker declaration's change is (srp_mbx.c, listener; #936). aecp_mutants.py plants each row; every named check
+-must fail on its own words, in AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice (real MSRP Listener
+-MRPDUs, the notices read on the wire) at two interfaces."""
++record a Talker declaration's change is (srp_mbx.c, listener; #936), and the reset's clear of it with the
++registrations it destroys. aecp_mutants.py plants each row; every named check must fail on its own words, in
++AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice or, across a link reset,
++AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice (real MSRP Listener MRPDUs, the notices read on
++the wire) at two interfaces."""
+ 
+ SRP = 'srp/srp_mbx.c'
+ NOTICE = 'AppOutputs.ListenerRegistrationChangeIsItsStreamOutputsNotice'
++RESET = 'AppOutputs.ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice'
+ #: SRP's record of a change of the Listener declaration it indicates (#957), as srp_mbx.c holds it.
+ RECORDED = '            i->noticed |= (uint32_t)(i->declaration[n] != declaration) << n & i->gate;\n'
++#: the reset's clear of the declaration a registration it destroys held (#957), as srp_mbx.c holds it.
++FORGOTTEN = '        i->declaration[k] = 0u;\n'
+ 
+ ROWS = (
+     # the split before #957: a Listener registration change raises no notice
+@@ -23,4 +28,9 @@ ROWS = (
+     ('registration-notice-unchanged-recorded', SRP, RECORDED,
+      RECORDED.replace('(uint32_t)(i->declaration[n] != declaration) << n', '1u << n'),
+      (NOTICE, 'a Listener declared New again unchanged notifies nothing')),
++    # the split before the correction: the destroyed registration's declaration kept across a link reset, so the
++    # Listener's return with the same declaration notifies nothing
++    ('registration-notice-kept-across-a-reset', SRP, FORGOTTEN, '',
++     (RESET, "a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every registered "
++             "controller")),
+ )
+diff --git a/sw/firmware/ctrl/test/srp_app.cpp b/sw/firmware/ctrl/test/srp_app.cpp
+index 2923f617f8..a4857fbfe4 100644
+--- a/sw/firmware/ctrl/test/srp_app.cpp
++++ b/sw/firmware/ctrl/test/srp_app.cpp
+@@ -145,7 +145,7 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
+     const auto record=cost([&]{ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&taken),MBX_STATUS_OK);});
+     check("SRP maximum RX record bound",record,SRP_MBX_RX_RECORD_MAX);
+     ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
+-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
++    while (adapter.tx_owed!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+     const auto pass=cost([&]{ctrl_loop_service(&loop);});
+     ASSERT_GT(pass,record);
+     check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
+@@ -218,7 +218,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
+     unsigned sends=0;
+     uint64_t most=0;
+     // a declaration made after a build owes the participant whose join timer is idle a pass of its own
+-    for (unsigned n=0;n<4u*MBX_N_IF && adapter.tx_due!=0u;++n) {
++    for (unsigned n=0;n<4u*MBX_N_IF && adapter.tx_owed!=0u;++n) {
+         srp_probe={&model,0,0,0,true};
+         const auto transmitting=build();
+         const auto observed=srp_probe;
+@@ -298,7 +298,7 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
+         << "pass event records are funded independently";
+     // Those resets' polls: receive waits until the new participants are built.
+     for (unsigned n=0;n<2u;++n) loop.polls[0].fn(loop.polls[0].ctx);
+-    while (adapter.tx_due!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
++    while (adapter.tx_owed!=0u) loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+     // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
+     // Ethernet padding needs no allocation; the real readiness check runs.
+     loop.rx[MBX_CH_SRP]=receive;
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+index 6ee3fee5a1..ce610554e7 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -100,9 +100,11 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
+ 
+ 
+ def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+-    """The Talker declarations as their validity moves them (#895): srp_talker.cpp at 1x1/1if and 8x8/2if, and the
+-    composition's (test_acmp_mbx.cpp's SrpGate, which its own arms run at the 1x1 entity) at 8x8/2if."""
++    """The Talker declarations as their validity moves them (#895): srp_talker.cpp at 1x1/1if, 8x8/1if and 8x8/2if (each
++    point's THE TRANSMIT term and slices, #956), and the composition's (test_acmp_mbx.cpp's SrpGate, which its own arms
++    run at the 1x1 entity) at 8x8/2if."""
+     return [arm_srp(tree, lwsrp, 1, test="srp_talker.cpp"),
++            arm_srp(tree, lwsrp, 1, test="srp_talker.cpp", config=ENTITY_8X8),
+             arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml"),
+             arm_srp(tree, lwsrp, 2, test=("test_acmp_mbx.cpp", "SrpGate.*"),
+                     config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
+diff --git a/sw/firmware/ctrl/test/srp_feedback.hpp b/sw/firmware/ctrl/test/srp_feedback.hpp
+index 1557b3928b..a90d11146a 100644
+--- a/sw/firmware/ctrl/test/srp_feedback.hpp
++++ b/sw/firmware/ctrl/test/srp_feedback.hpp
+@@ -191,11 +191,11 @@ TEST_F(SrpFeedback, AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews) {
+     const unsigned i=acfg.sink_interface[k];
+     bind(k); response(k); registration(k,true,1);
+     for (unsigned n=0;n<2000u && (srp_adapter.join_left[2u*i]!=0u || srp_adapter.join_left[2u*i+1u]!=0u ||
+-                                 srp_adapter.tx_due!=0u);++n) {
++                                 srp_adapter.tx_owed!=0u);++n) {
+         mbx_model_advance_ms(&model,1); settle();
+     }
+     ASSERT_EQ(srp_adapter.join_left[2u*i],0u) << "an idle join timer";
+-    ASSERT_EQ(srp_adapter.tx_due,0u);
++    ASSERT_EQ(srp_adapter.tx_owed,0u);
+     ASSERT_EQ(sink(k).declared,1u);
+     current_kind(k,true);
+     auto frame=talker(0,false,0);
+diff --git a/sw/firmware/ctrl/test/srp_mbx.cpp b/sw/firmware/ctrl/test/srp_mbx.cpp
+index 3414c05f1d..b173077aa9 100644
+--- a/sw/firmware/ctrl/test/srp_mbx.cpp
++++ b/sw/firmware/ctrl/test/srp_mbx.cpp
+@@ -1736,6 +1736,77 @@ TEST_F(Srp, ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole) {
+     loop.transmit = whole_transmit;
+ }
+ 
++// A build that stops at a slice boundary stays owed until its next slice, THE TRANSMIT's due and the poll's report
++// both, and what comes due between its two slices, a join timer's end among the centiseconds dispatched there, or a
++// declaration another pass made owed, is owed again once the build ends, as it is after a build made whole: the pause
++// takes its interface's due, so a due set again before the build ends is new (THE TIERS; #956). A build with nothing
++// due between its slices ends owing nothing, what its own sends moved included, and one whose second slice's frame the
++// ring refuses leaves its interface due, as a build made whole does (A3).
++TEST_F(Srp, ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue) {
++    ctrl_poll_fn poll = nullptr;
++    for (unsigned k = 0; k < loop.n_polls; ++k) {
++        if (loop.polls[k].ctx == &adapter) {
++            poll = loop.polls[k].fn;
++        }
++    }
++    ASSERT_NE(poll, nullptr);
++    // the start, served as far as it goes, so each check below is reached whatever the start left
++    const auto serve = [&] {
++        for (unsigned n = 0; n < 1000u && ctrl_loop_service(&loop) != 0u; ++n) {
++        }
++    };
++    serve();
++    EXPECT_EQ(adapter.tx_owed, 0u) << "(the start settles owing THE TRANSMIT nothing)";
++    for (const bool again : {false, true}) {
++        while (adapter.tx_resume != 0u) {
++            loop.transmit(loop.transmit_ctx, 1u);
++        }
++        adapter.tx_due = 1u;
++        loop.transmit(loop.transmit_ctx, 1u);
++        ASSERT_NE(adapter.tx_resume, 0u) << "(a build resuming at its next participant)";
++        // nothing else due: the paused build alone
++        const uint8_t due = adapter.tx_due;
++        adapter.tx_due = 0u;
++        EXPECT_TRUE(loop.transmit_aged(loop.transmit_ctx)) << "a build resuming in the next slice is THE TRANSMIT's due";
++        EXPECT_TRUE(poll(&adapter)) << "the poll reports a build resuming in the next slice owed";
++        adapter.tx_due = (uint8_t)(adapter.tx_due | due);
++        if (again) {
++            adapter.tx_due |= 1u;   // as a join timer's end dispatched between the two slices owes it (tick)
++        }
++        loop.transmit(loop.transmit_ctx, 1u);
++        ASSERT_EQ(adapter.tx_resume, 0u) << "(the build ended)";
++        if (again) {
++            EXPECT_NE(adapter.tx_due & 1u, 0u) << "a due set between a build's slices is owed once the build ends";
++        } else {
++            EXPECT_EQ(adapter.tx_due & 1u, 0u) << "a build with nothing due between its slices ends owing nothing";
++        }
++        serve();
++    }
++    // the ring refuses the second slice's frame, once a periodic MRPDU of each participant is owed: the frame stays the
++    // poll's and the interface stays due (A3), its pause's due taken or not
++    while (adapter.tx_resume != 0u) {
++        loop.transmit(loop.transmit_ctx, 1u);
++    }
++    for (unsigned n = 0; n < 120u; ++n) {
++        loop.ticks[0]();
++    }
++    adapter.tx_due = 1u;
++    loop.transmit(loop.transmit_ctx, 1u);
++    ASSERT_NE(adapter.tx_resume, 0u) << "(a build resuming at its next participant)";
++    mbx_model_tx_pause(&model, true);
++    std::vector<uint8_t> filler(60);
++    wire_put_be(filler.data(), 0x0180c200000eull, 6);
++    wire_put_be(filler.data() + 12, 0x22ea, 2);
++    while (mbx_tx_send(MBX_CH_SRP, 0, filler.data(), filler.size()) == MBX_STATUS_OK) {
++    }
++    loop.transmit(loop.transmit_ctx, 1u);
++    ASSERT_GT(adapter.owed_len, 0u) << "(the ring refuses the second slice's frame)";
++    EXPECT_NE(adapter.tx_due & (1u << adapter.owed_if), 0u)
++        << "a frame the ring refuses in a build's second slice leaves its interface due";
++    mbx_model_tx_pause(&model, false);
++    serve();
++}
++
+ // A join timer restarts on what a build sent and on nothing else, so its count (tick) stays the participant's: a
+ // build of a participant that sends nothing leaves it, and an Applicant moved while it runs owes nothing before it
+ // ends. LeaveAll's timer owes its LeaveAll whatever the join timer's count (802.1Q Table 10-5).
+diff --git a/sw/firmware/ctrl/test/srp_talker.cpp b/sw/firmware/ctrl/test/srp_talker.cpp
+index d937a66088..f05b16e2bb 100644
+--- a/sw/firmware/ctrl/test/srp_talker.cpp
++++ b/sw/firmware/ctrl/test/srp_talker.cpp
+@@ -7,9 +7,11 @@
+ // first. MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): an unchanged destination may be declared
+ // again at once, a changed one reaches the wire within two nominal longest LeaveAll periods of the Leave's request,
+ // its JoinTime and THE TRANSMIT's terms counted inside them (10.7.4.3; #951, #956), a type swaps in place, and a reset
+-// holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if (test_ctrl_firmware.py).
++// holds a moved source as its Leave would. Run at 1x1/1if, 8x8/1if and 8x8/2if (test_ctrl_firmware.py).
+ #include "srp_fixture.hpp"
+ #include <algorithm>
++#include <string>
++#include <tuple>
+ FW_TALLY_LABEL("ctrl SRP Talker declarations");
+ namespace {
+ 
+@@ -133,6 +135,63 @@ protected:
+             if (model.now_ms%100u==0u) collect();
+         }
+     }
++    // Source 0 withdrawn `phase` ms into a second of the participants' periodic transmissions, the request on a
++    // centisecond, and valid again at another destination 2 s later (#956), every frame traced from the withdrawal on.
++    // Held: the loop runs to the centisecond before the one whose tick ends the count, then is held from that tick for
++    // a JoinTime and THE TRANSMIT's figure, so the ticks it owes come together as it resumes; `busy` counts the
++    // interfaces whose join timer runs as the count ends. Serviced: the loop runs throughout.
++    struct Lapse {
++        uint32_t first=0;
++        uint32_t at=0;
++        uint32_t end=0;
++        unsigned busy=0;
++    };
++    void lapse(unsigned phase, bool held, Lapse &l) {
++        settle(); gate(1u,kBaseA); advance(phase);
++        while (model.tick_div!=0u) advance(1);
++        trace();
++        l.first=model.tx_sent;
++        l.at=model.now_ms;
++        gate(0u,kBaseA); settle();
++        advance(2000);
++        gate(1u,kBaseB);
++        if (!held) {
++            advance_to(l.at+kTwoLongestLeaveAllMs+1000u);
++            return;
++        }
++        advance_to(l.at+kHoldOffMs-100u);
++        for (unsigned k=0;k<1000u && adapter.held_cs[0]>1u;++k) advance_to(model.now_ms+1u);
++        ASSERT_EQ(adapter.held_cs[0],1u) << "the hold-off counts down a centisecond at a time";
++        while (model.tick_div!=9u) advance(1);
++        for (unsigned i=0;i<MBX_N_IF;++i) l.busy+=adapter.join_left[2u*i]!=0u;
++        l.end=model.now_ms+1u;
++        mbx_model_advance_ms(&model,1u+kLatestMs);
++        settle();
++        advance(1000);
++    }
++    // Each interface's changed destination after `l`'s Leave: declared at kBaseB no sooner than the hold-off and on the
++    // wire no later than two of the longest LeaveAll periods after the request; held, as the loop resumes.
++    void reaches_the_wire(const Lapse &l, bool held) {
++        untrace();
++        for (unsigned i=0;i<MBX_N_IF;++i) {
++            const auto ds=talker(i,0,l.first);
++            const auto *lv=leave(ds,1);
++            ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
++            const auto *adv=declared(ds,1,lv->time_ms+1u);
++            ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
++            EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
++            if (held) {
++                EXPECT_EQ(adv->time_ms,l.end+kLatestMs)
++                    << "the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow";
++            }
++            EXPECT_GE(adv->time_ms,l.at+kHoldOffMs)
++                << "the changed destination comes no sooner than two of the longest LeaveAll periods less a JoinTime "
++                   "and THE TRANSMIT's term after the withdrawal";
++            EXPECT_LE(adv->time_ms,l.at+kTwoLongestLeaveAllMs)
++                << "the changed destination reaches the wire no later than two of the longest LeaveAll periods after "
++                   "the withdrawal, at the latest";
++        }
++    }
+     // An MSRP frame of two Domain messages, each one value (IEEE 802.1Q-2018 10.8), the first with a LeaveAll if `la`.
+     std::vector<uint8_t> domains(const std::vector<uint8_t> &a, unsigned ea, bool la,
+                                  const std::vector<uint8_t> &b, unsigned eb) {
+@@ -362,42 +421,48 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriods) {
+ TEST_F(Talker, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest) {
+     // the withdrawal 700 ms into a second of the participants' periodic transmissions, so the count ends with no MRPDU
+     // of theirs in the JoinTime before it: lwSRP's join timer is idle there, and the held loop stands in for its wait
+-    settle(); gate(1u,kBaseA); advance(700);
+-    while (model.tick_div!=0u) advance(1);
+-    trace();
+-    const uint32_t first=model.tx_sent;
+-    const uint32_t at=model.now_ms;
+-    gate(0u,kBaseA); settle();
+-    advance(2000);
+-    gate(1u,kBaseB);
+-    // the loop runs to the centisecond before the one whose tick ends the count, then is held from that tick on
+-    advance_to(at+kHoldOffMs-100u);
+-    for (unsigned k=0;k<1000u && adapter.held_cs[0]>1u;++k) advance_to(model.now_ms+1u);
+-    ASSERT_EQ(adapter.held_cs[0],1u) << "the hold-off counts down a centisecond at a time";
+-    while (model.tick_div!=9u) advance(1);
+-    for (unsigned i=0;i<MBX_N_IF;++i) {
+-        ASSERT_EQ(adapter.join_left[2u*i],0u) << "the join timer is idle as the count ends, so the hold stands in for it";
+-    }
+-    const uint32_t end=model.now_ms+1u;
+-    mbx_model_advance_ms(&model,1u+kLatestMs);
+-    settle();
+-    advance(400);
+-    untrace();
+-    for (unsigned i=0;i<MBX_N_IF;++i) {
+-        const auto ds=talker(i,0,first);
+-        const auto *lv=leave(ds,1);
+-        ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
+-        const auto *adv=declared(ds,1,lv->time_ms+1u);
+-        ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
+-        EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
+-        EXPECT_EQ(adv->time_ms,end+kLatestMs)
+-            << "the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow";
+-        EXPECT_LE(adv->time_ms,at+kTwoLongestLeaveAllMs)
+-            << "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+-               "withdrawal, at the latest";
+-    }
++    Lapse l;
++    lapse(700u,true,l);
++    if (HasFatalFailure()) return;
++    EXPECT_EQ(l.busy,0u) << "the join timer is idle as the count ends, so the hold stands in for it";
++    reaches_the_wire(l,true);
++}
++
++// The same with lwSRP's join timer running as the count ends: the withdrawal 340 ms into the second, so a periodic
++// MRPDU of the participants' leaves within the JoinTime before it, at every point. The pass the count's end owes
++// declares the changed destination and builds the interface's MSRP MRPDU, which the join timer holds; the timer's end,
++// among the ticks the held loop owes before the build's next slice, owes the interface that pass again, and the build
++// it resumes keeps it owed (THE TIERS), so the declaration leaves in the next pass, as the loop resumes.
++TEST_F(Talker, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning) {
++    Lapse l;
++    lapse(340u,true,l);
++    if (HasFatalFailure()) return;
++    EXPECT_EQ(l.busy,MBX_N_IF) << "every interface's join timer runs as the count ends";
++    reaches_the_wire(l,true);
++}
++
++// Every withdrawal phase (#956): the request on each centisecond of a second of the participants' periodic
++// transmissions, so the count's end finds each interface's join timer idle at some and running at others, with the
++// loop held a JoinTime and THE TRANSMIT's figure from the tick that ends the count or serviced throughout. At each the
++// changed destination comes no sooner than the hold-off and reaches the wire no later than two of the longest LeaveAll
++// periods after the request, as late as the held loop allows and no later.
++class TalkerPhase : public Talker, public ::testing::WithParamInterface<std::tuple<unsigned,bool>> {};
++
++TEST_P(TalkerPhase, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods) {
++    const unsigned phase=std::get<0>(GetParam());
++    const bool held=std::get<1>(GetParam());
++    Lapse l;
++    lapse(phase,held,l);
++    if (HasFatalFailure()) return;
++    reaches_the_wire(l,held);
+ }
+ 
++INSTANTIATE_TEST_SUITE_P(EveryPhase, TalkerPhase, ::testing::Combine(::testing::Range(10u,1010u,10u),::testing::Bool()),
++                         [](const ::testing::TestParamInfo<std::tuple<unsigned,bool>> &info) {
++                             return std::string(std::get<1>(info.param) ? "Held" : "Serviced") +
++                                    std::to_string(std::get<0>(info.param));
++                         });
++
+ // A destination that changes while the source stays valid withdraws the old destination's Advertise and declares the
+ // new one only once the hold-off ends; no Talker carries the old destination after its Leave.
+ TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
+@@ -843,3 +908,51 @@ TEST_F(Talker, ListenerRegistrationChangeIsNoticed) {
+         EXPECT_EQ(taken(i),1u<<n) << "a Listener going is noticed";
+     }
+ }
++
++// #957 across a reset of the interface (its link down and up, apart, coalesced into one service or twice over in one):
++// the reset destroys the interface's participants and the Listener registrations they hold, with no indication, so
++// the output shows no Listener there, and the reset itself notices nothing. The first registration after it changes
++// what the output shows, whatever it declares (Asking Failed, Ready or Ready Failed) and whatever the destroyed
++// registration declared, the same included, and is noticed once on its interface; declared again unchanged it notices
++// nothing, and another interface's registration, which the reset kept, notices nothing.
++TEST_F(Talker, ListenerRegistrationAfterAResetIsNoticed) {
++    EXPECT_CALL(licence,Change(::testing::_,::testing::_,::testing::_)).Times(::testing::AnyNumber());
++    settle(); gate(1u,kBaseA); advance(400);
++    auto taken=[&](unsigned i){
++        const uint32_t r=adapter.ifs[i].noticed;
++        adapter.ifs[i].noticed=0u;
++        return r;
++    };
++    for (unsigned declaration=1u;declaration<=3u;++declaration) {
++        for (unsigned how=0u;how<3u;++how) {
++            for (unsigned i=0;i<MBX_N_IF;++i) {
++                for (unsigned k=0;k<MBX_N_IF;++k) {
++                    offer(frame(3,identity(k,0),1,declaration),k); advance(20);
++                    ASSERT_TRUE(adapter.ifs[k].listener_present[0]) << "(the Listener registers)";
++                    taken(k);
++                }
++                for (unsigned edges=0;edges<(how==2u?2u:1u);++edges) {
++                    mbx_model_set_link(&model,i,false);
++                    if (how==0u) settle();
++                    mbx_model_set_link(&model,i,true);
++                }
++                settle(); advance(20);
++                ASSERT_FALSE(adapter.ifs[i].listener_present[0]) << "(the reset destroyed the Listener's registration)";
++                for (unsigned k=0;k<MBX_N_IF;++k) {
++                    EXPECT_EQ(taken(k),0u) << "a reset notices no Listener change";
++                }
++                offer(frame(3,identity(i,0),1,declaration),i); advance(20);
++                EXPECT_EQ(taken(i),1u) << "the first Listener registration after a reset is noticed, whatever the one "
++                                          "before it declared";
++                offer(frame(3,identity(i,0),1,declaration),i); advance(20);
++                EXPECT_EQ(taken(i),0u) << "a Listener declared again unchanged after a reset is not noticed";
++                for (unsigned k=0;k<MBX_N_IF;++k) {
++                    if (k!=i) {
++                        offer(frame(3,identity(k,0),1,declaration),k); advance(20);
++                        EXPECT_EQ(taken(k),0u) << "a reset of another interface keeps this one's Listener record";
++                    }
++                }
++            }
++        }
++    }
++}
+diff --git a/sw/firmware/ctrl/test/srp_talker_mutants.py b/sw/firmware/ctrl/test/srp_talker_mutants.py
+index 00bea9f1a5..5d4defb80a 100644
+--- a/sw/firmware/ctrl/test/srp_talker_mutants.py
++++ b/sw/firmware/ctrl/test/srp_talker_mutants.py
+@@ -10,7 +10,9 @@ defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4)
+ licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one is held from its
+ Leave's request for two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's MRPDU, so it reaches the
+ wire no later than the two periods (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951, #956), whether it changed while
+-declared or while lapsed, at the latest THE TRANSMIT allows, and held across a reset; never at the two LeaveAllTime
++declared or while lapsed, at the latest THE TRANSMIT allows, at every withdrawal phase with the join timer idle or
++running as the count ends, a build resumed in a later slice keeping owed what came due since its first, and held
++across a reset; never at the two LeaveAllTime
+ periods it was before #951, alone or after a range lost to a conflict, nor with #951's terms added past the two
+ periods, nor a centisecond short of the hold-off or with its terms taken twice; an admission change swaps in
+ place; a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until
+@@ -26,7 +28,8 @@ starts with none (ctrl_app_srp.c). Each change of the Listener registered for a
+ STREAM_OUTPUT shows too (#957; #943's REGISTERING and REGISTERING_FAILED), is recorded on its interface: a Listener
+ appearing, replacing another or going, while its DA gate is open there, and nothing else, a Listener declared again
+ or registered again after a LeaveAll included: the declaration its indication copies compared, Ignore at a
+-registration's end, in the record a declaration's change is (noticed).
++registration's end, in the record a declaration's change is (noticed), and the first registration after a reset,
++which destroys the registrations with no indication, recorded whatever it declares.
+ """
+ from __future__ import annotations
+ 
+@@ -56,6 +59,10 @@ SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
+ VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
+ RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
+ REGISTRATION = "Talker.ListenerRegistrationChangeIsNoticed"
++REGISTRATION_RESET = "Talker.ListenerRegistrationAfterAResetIsNoticed"
++RUNNING = "Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning"
++#: the sweep's instance at a phase whose count's end finds the join timer running at every point (srp_talker.cpp)
++PHASES = "EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340"
+ TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
+ TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
+ PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
+@@ -116,6 +123,11 @@ OWED = "    bool pending = noticed;\n"
+ #: change (#957), as srp_mbx.c holds them: the indication's comparison and copy of the declaration.
+ RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declaration) << n & i->gate;\n"
+             "            i->declaration[n] = (uint8_t)declaration;\n")
++#: the reset's clear of the declaration a registration it destroys held (#957), as srp_mbx.c holds it.
++FORGOTTEN = "        i->declaration[k] = 0u;\n"
++#: what came due since the slice a build resumes from, which the build keeps owed once it ends (#956), as srp_mbx.c
++#: holds it.
++CAME_DUE = "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n"
+ 
+ 
+ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+@@ -248,6 +260,14 @@ def hold_off_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
+           "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
+           "a changed destination is declared once the hold-off ends"),
++        # the split before the correction: a build resumed in a later slice drops what came due since its first, so a
++        # join timer's end between the two leaves the declaration the count's end made for the next periodic MRPDU
++        d("talker-resume-drops-what-came-due", RUNNING, CAME_DUE, "    const unsigned again = 0u;\n",
++          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
++          "withdrawal, at the latest"),
++        d("talker-resume-drops-what-came-due-at-a-phase", PHASES, CAME_DUE, "    const unsigned again = 0u;\n",
++          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
++          "withdrawal, at the latest"),
+     )
+ 
+ 
+@@ -340,4 +360,6 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+           RECORDED.replace("(uint32_t)(i->declaration[n] != declaration) << n & i->gate",
+                            "(uint32_t)(i->declaration[n] != declaration) & i->gate"),
+           "a Listener Ready appearing is noticed"),
++        d("talker-registration-kept-across-a-reset", REGISTRATION_RESET, FORGOTTEN, "",
++          "the first Listener registration after a reset is noticed, whatever the one before it declared"),
+     )
+diff --git a/sw/firmware/ctrl/test/srp_transmit_mutants.py b/sw/firmware/ctrl/test/srp_transmit_mutants.py
+index 2306c38d30..55780bb959 100644
+--- a/sw/firmware/ctrl/test/srp_transmit_mutants.py
++++ b/sw/firmware/ctrl/test/srp_transmit_mutants.py
+@@ -19,7 +19,7 @@ COUNT = "TheJoinCountFollowsWhatABuildSent"
+ OWED = "AnOwedFrameComesBeforeTheBuild"
+ RETAINED = "SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding"
+ #: The poll's end: an owed build reported owed.
+-POLL_END = "    owed = owed || m->tx_due != 0u;\n    m->busy = false;\n    return owed;\n}\n"
++POLL_END = "    owed = owed || m->tx_owed != 0u;\n    m->busy = false;\n    return owed;\n}\n"
+ #: The centisecond's end of a join count, and a LeaveAll's.
+ ENDS = "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0u : la == MRP_LA_STATE_ACTIVE) {"
+ #: An interface's declarations, which wait for a retained receive and are tried again at the JoinTime.
+@@ -27,13 +27,21 @@ DECLARE = ("        if (i->msrp && (m->pending_rx.len != 0u || prepare_declarati
+            "m->join_left[2u * n] == 0u) {\n            m->join_left[2u * n] = SRP_JOIN_CS;\n        }\n")
+ #: A build's result, which restarts the count of the participant that sent.
+ SENT = "    if (result > 0) {\n        m->join_left[slot] = SRP_JOIN_CS;\n    }\n"
++#: A build's end or pause: its interface's due cleared, with what came due since its first slice kept (#956), and set
++#: while a frame the ring refused is owed (A3).
++BUILT = ("            const unsigned bit = 1u << n;\n"
++         "            m->tx_due = (uint8_t)((m->tx_due & ~bit) | (m->owed_len != 0u ? bit : again));\n")
++#: A build stopped at a slice boundary, which the next slice resumes.
++PAUSED = "            if (m->tx_resume != 0u) {\n                break;\n            }\n"
+ 
+ 
+ def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+     """THE TIERS (#894; #665, the decision of 2026-11-09, item 2): a build that stops at a slice boundary resumes at the
+     next participant with the frames of the build made whole, makes no more MRPDUs than its slice holds, reclaims as the
+-    next build would, and a reset ends the build it was resuming."""
++    next build would, stays owed between its slices and keeps owed what came due there (#956), and a reset ends the
++    build it was resuming."""
+     sliced = "ABuildResumedAcrossSlicesSendsTheFramesOfTheBuildMadeWhole"
++    paused = "ABuildPausedBetweenSlicesStaysOwedAndKeepsWhatCameDue"
+     boundary = ("                    reclaim(i);\n                    m->tx_resume = (uint8_t)(slot + 1u);\n")
+     return (
+         kind("build-resumed-from-the-first-participant", sliced,
+@@ -49,6 +57,18 @@ def sliced_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+         kind("build-resumed-past-a-reset", sliced,
+              "    m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;\n", "",
+              "a reset ends the build it was resuming: its new participants build whole, MSRP first"),
++        # #956: what came due between a build's slices is owed once it ends, and the build is owed between them
++        kind("build-resumed-drops-what-came-due", paused, "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n",
++             "    const unsigned again = 0u;\n", "a due set between a build's slices is owed once the build ends"),
++        kind("build-paused-keeps-its-due", paused, BUILT + PAUSED, PAUSED + BUILT,
++             "a build with nothing due between its slices ends owing nothing"),
++        kind("build-paused-not-aged", paused, "return m->tx_owed != 0u && !m->owed_len;",
++             "return m->tx_due != 0u && !m->owed_len;", "a build resuming in the next slice is THE TRANSMIT's due"),
++        kind("build-paused-unreported", paused, "    owed = owed || m->tx_owed != 0u;\n",
++             "    owed = owed || m->tx_due != 0u;\n", "the poll reports a build resuming in the next slice owed"),
++        kind("build-refused-second-slice-not-due", paused, BUILT,
++             BUILT.replace("(m->owed_len != 0u ? bit : again)", "(m->owed_len != 0u ? 0u : again)"),
++             "a frame the ring refuses in a build's second slice leaves its interface due"),
+     )
+ 
+ 
+@@ -62,9 +82,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+              "    m->loop->rx_held = rebuilds;\n", "    m->loop->rx_held = m->loop->rx_held || rebuilds;\n",
+              "and the rebuild ends the hold"),
+         kind("transmit-built-by-the-poll", WAITS, POLL_END,
+-             "    m->busy = false;\n    transmit(m, CTRL_LOOP_BUILD_MOST);\n    return owed || m->tx_due != 0u;\n}\n",
++             "    m->busy = false;\n    transmit(m, CTRL_LOOP_BUILD_MOST);\n    return owed || m->tx_owed != 0u;\n}\n",
+              "and no poll builds it"),
+-        kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_due != 0u;\n", "",
++        kind("transmit-due-unreported", WAITS, "    owed = owed || m->tx_owed != 0u;\n", "",
+              "an owed MRPDU is reported owed"),
+         kind("transmit-join-end-owes-nothing", WAITS, ENDS,
+              "if (m->join_left[slot] != 0u ? --m->join_left[slot] == 0xffu : la == MRP_LA_STATE_ACTIVE) {",
+@@ -126,11 +146,10 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+              "if (m->join_left[2u * i->index] == 0u || !m->loop->retry_queued) {", "if (m != NULL) {",
+              "an interface's passes given whole, a JoinTime"),
+         # a frame owed comes first
+-        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_due != 0u && !m->owed_len;",
+-             "return m->tx_due != 0u;", "no pass goes to the build while a frame is owed"),
+-        kind("transmit-due-cleared-with-a-frame-owed", OWED,
+-             "            if (!m->owed_len) {\n                m->tx_due &= (uint8_t)~(1u << n);\n            }\n",
+-             "            m->tx_due &= (uint8_t)~(1u << n);\n", "the interface stays due"),
++        kind("transmit-aged-beside-an-owed-frame", OWED, "return m->tx_owed != 0u && !m->owed_len;",
++             "return m->tx_owed != 0u;", "no pass goes to the build while a frame is owed"),
++        kind("transmit-due-cleared-with-a-frame-owed", OWED, BUILT,
++             BUILT.replace("(m->owed_len != 0u ? bit : again)", "again"), "the interface stays due"),
+         # the declarations with the build, none while a retained receive waits, a refusal tried again at the JoinTime
+         kind("transmit-declares-beside-a-retained-receive", RETAINED, DECLARE,
+              DECLARE.replace("(m->pending_rx.len != 0u || prepare_declarations(i))", "prepare_declarations(i)"),
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index e639f4ef25..013ca2804e 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -1058,6 +1058,122 @@ TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
+     }
+ }
+ 
++// #957 across a link reset of an output's interface (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the reset
++// destroys the interface's SRP participants and the Listener registrations they hold, so once MAAP holds the output's
++// address again and its Talker is declared again its answer shows no Listener, and the Listener's return, the bridge
++// declaring it again once it registers that Talker, is one unsolicited GET_STREAM_INFO response of the output to every
++// registered controller with the new flags, whatever the Listener declares (Asking Failed, Ready or Ready Failed) and
++// whatever it declared before the reset, the same included; declared again unchanged it notifies nothing, and no other
++// output is notified. The link's edges come apart and coalesced into one service. Where an output is on another
++// interface, its Listener, which the reset kept and the bridge keeps declaring, notifies nothing. The reset holds the
++// output's new MAAP address the hold-off (#956), longer than a registration's monitor (Milan v1.2 5.4.5.1), so each
++// controller registers again before the Listener returns.
++TEST_F(AppOutputs, ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice)
++{
++    aem(36);aem(36,{},CTLR+1);
++    unsigned cursor=fabric.tx_sent;
++    const unsigned n=0,interface=connection.source_interface[n];
++    // an output on another interface, OUTPUTS if there is none
++    unsigned other=OUTPUTS;
++    for(unsigned m=OUTPUTS;m-->0u;)other=connection.source_interface[m]!=interface?m:other;
++    //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
++    struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
++    auto take=[&]{
++        std::vector<Seen> seen(OUTPUTS);
++        for(;cursor<fabric.tx_sent;++cursor){auto p=mbx_model_tx_frame(&fabric,cursor);
++            EXPECT_NE(p,nullptr)<<"each step's frames are read before the capture drops them";
++            if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x800fu||get(p->bytes+38,2)!=6u)continue;
++            const unsigned n=unsigned(get(p->bytes+40,2));
++            const uint64_t controller=get(p->bytes+26,8);
++            if(n>=OUTPUTS||(controller!=CTLR&&controller!=CTLR+1))continue;
++            ++seen[n].count[controller==CTLR?0:1];
++            seen[n].flags=uint32_t(get(p->bytes+42,4));seen[n].flags_ex=uint32_t(get(p->bytes+86,4));
++        }
++        return seen;
++    };
++    //! A PROBE_TX_COMMAND of every output on its own interface (IEEE 1722.1-2021 8.2.1), so each DA gate is open.
++    auto probe=[&]{
++        for(unsigned m=0;m<OUTPUTS;++m){
++            acmp_test::Pdu p{};p.msg=0;p.controller=CTLR;p.talker=ENTITY;p.listener=0x0303cafef00d0001;
++            p.talker_uid=uint16_t(m);p.seq=uint16_t(0x700+m);
++            auto bytes=acmp_test::acmpdu(p);
++            ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),connection.source_interface[m]));settle(2);
++            take();
++        }
++    };
++    //! Every interface's MAAP holds its range (an announce after its probes, IEEE 1722-2016 B.3).
++    auto valid=[&]{
++        for(unsigned k=0;k<200u;++k){
++            bool held=true;
++            for(unsigned i=0;i<MBX_N_IF;++i)held=held&&application.maap.ifs[i].core.valid;
++            if(held)return true;
++            settle(100);take();
++            if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
++        }
++        return false;
++    };
++    auto gate=[&](unsigned m){return (reservation.ifs[connection.source_interface[m]].gate>>m&1u)!=0u;};
++    auto declared=[&]{return (reservation.ifs[interface].talkers>>n&1u)!=0u;};
++    ASSERT_TRUE(valid())<<"(MAAP holds every interface's range)";
++    probe();settle(400);take();
++    ASSERT_TRUE(gate(n)&&declared())<<"(output 0's DA gate is open and its Talker declared)";
++    for(unsigned declaration=1u;declaration<=3u;++declaration){
++        for(unsigned coalesced=0u;coalesced<2u;++coalesced){
++            const std::string step=std::string(declaration==1u?"Asking Failed":declaration==2u?"Ready":"Ready Failed")+
++                                   (coalesced!=0u?", the link's edges coalesced":", the link's edges apart");
++            declaring[n]=true;
++            listener(interface,sid(n),1u,declaration);
++            if(other<OUTPUTS){
++                declaring[other]=true;
++                listener(connection.source_interface[other],sid(other),1u,2u);
++            }
++            take();
++            ASSERT_EQ(info(n).flags_ex,1u)<<"(its Listener registers): "<<step;
++            mbx_model_set_link(&fabric,interface,false);
++            if(coalesced==0u){
++                settle(50);
++                declaring[n]=gate(n);
++            }
++            mbx_model_set_link(&fabric,interface,true);settle(50);
++            ASSERT_TRUE(valid())<<"(MAAP holds the range again): "<<step;
++            for(unsigned k=0;k<450u&&!(gate(n)&&declared());++k){
++                probe();settle(100);
++                if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
++            }
++            ASSERT_TRUE(gate(n)&&declared())<<"(output 0's Talker is declared again): "<<step;
++            declaring[n]=true;
++            aem(36);aem(36,{},CTLR+1);
++            probe();settle(400);take();
++            EXPECT_EQ(info(n).flags_ex,0u)<<"the answer shows no Listener once a reset destroyed its registration: "<<step;
++            listener(interface,sid(n),1u,declaration);
++            const auto seen=take();
++            for(unsigned m=0;m<OUTPUTS;++m){
++                for(unsigned c=0;c<2u;++c){
++                    EXPECT_EQ(seen[m].count[c],m==n?1u:0u)
++                        <<(m==n?"a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every "
++                                "registered controller":"no other STREAM_OUTPUT is notified")
++                        <<": "<<step<<", output "<<m<<", controller "<<c;
++                }
++            }
++            EXPECT_EQ(seen[n].flags_ex,1u)<<"the notice carries the new REGISTERING: "<<step;
++            EXPECT_EQ(seen[n].flags&0x40u,declaration==1u?0x40u:0u)<<"the notice carries the new REGISTERING_FAILED: "
++                                                                    <<step;
++            listener(interface,sid(n),1u,declaration);
++            if(other<OUTPUTS){
++                listener(connection.source_interface[other],sid(other),1u,2u);
++            }
++            const auto again=take();
++            for(unsigned m=0;m<OUTPUTS;++m){
++                EXPECT_EQ(again[m].count[0]+again[m].count[1],0u)
++                    <<"a Listener declared again unchanged, or kept on another interface, notifies nothing: "<<step
++                    <<", output "<<m;
++            }
++        }
++    }
++    declaring[n]=false;
++    if(other<OUTPUTS)declaring[other]=false;
++}
++
+ namespace {
+ //! The composition with the integrator's map store (#923), a saved input map restored by the walk.
+ struct AppStore : App {
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index e28fd162bd..d4033076be 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -97,8 +97,8 @@ MUTATIONS = {
+                       'answering-later'),
+     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
+     # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
+-    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
+-                      '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
++    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_owed != 0u && !m->owed_len;\n',
++                      '    static unsigned held;\n    held = m->tx_owed != 0u ? held + 1u : 0u;\n'
+                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
+     **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
+ }
