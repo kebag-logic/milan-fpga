@@ -265,7 +265,12 @@ void Walk::grade(int row, int col, const pp::AdvCell& c, const Window& w, std::u
         << fmt(b, sizeof b, "advertise state after", row, col);
     EXPECT_EQ(static_cast<std::uint64_t>(machine().draws - draws0), static_cast<std::uint64_t>(c.draws))
         << fmt(b, sizeof b, "T-ADP-DELAY draws", row, col);
-    if (c.draws > 0) {
+    if (c.draws > 0 && row == pp::R_LUP) {
+        // the firmware's one difference from the processor's T-ADP-DELAY: an interface leaving DOWN on LINK_UP draws
+        // from 0 to 0.5 s, so its first ENTITY_AVAILABLE leaves within 1 s of its link-up (#970)
+        EXPECT_EQ(static_cast<std::uint64_t>(machine().last_draw), static_cast<std::uint64_t>(ADP_DRAW_LINK_UP))
+            << fmt(b, sizeof b, "the draw is the 0..0.5 s LINK_UP kind", row, col);
+    } else if (c.draws > 0) {
         EXPECT_EQ(static_cast<std::uint64_t>(machine().last_draw), static_cast<std::uint64_t>(ADP_DRAW_DELAY))
             << fmt(b, sizeof b, "the draw is the 0..4 s kind", row, col);
     }
@@ -348,7 +353,7 @@ void Walk::check_boot_gate() {
 void Walk::check_first_advert_and_cadence() {
     boot(true);
     EXPECT_TRUE(machine().last_draw == ADP_DRAW_STARTUP && machine().last_draw_ms <= ADP_DELAY_STARTUP_MAX_MS)
-        << "P1 startup with the link up draws the 0..2 s kind (5.6.3.5.2)";
+        << "P1 startup with the link up draws the 0..0.5 s startup kind (5.6.3.5.2; #970)";
     std::uint32_t sent0 = m()->tx_sent;
     expire_current();
     Window w = observe(m()->tmr_ops, sent0);

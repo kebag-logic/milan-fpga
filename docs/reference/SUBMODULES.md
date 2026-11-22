@@ -24,7 +24,7 @@ Dirty submodules invalidate local evidence.
 | `gptp-processor` | `1616fc8f062fbf58c35ad31674b5b233207bbdb8` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `801ef2283ec793e35a2590fc6593c90313a64041` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
-| `third_party/tsn-c-stack` | `715589c1db7cf67e2f3259fd7083ebc7f0923376` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+| `third_party/tsn-c-stack` | `5d14a6d816a43a49299172a34e3eeaea44c267c6` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -982,6 +982,16 @@ Issue #665 adopts stack pin `715589c1`.
 | [28](https://github.com/kebag-logic/tsn-c-stack/pull/28) (issue 26) | A command behind the full owed set is declined, not dropped; the ACMP adapter keeps it and offers it again after an accepting poll |
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
+
+Issue #970 moves the pin to `5d14a6d8`, two commits on `715589c1`.
+
+An interface leaving DOWN, at startup with its link up and on LINK_UP, draws its ADP delay from 0 to 500 ms.
+
+Its first ENTITY_AVAILABLE then leaves within 1 s of its link-up.
+
+Every other ADP delay is still drawn from 0 to 4 s.
+
+The stack's change reaches this repository only through the stack's own review; the pin then moves to its merge.
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 

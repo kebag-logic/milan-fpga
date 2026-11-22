@@ -19,7 +19,15 @@
 //       ENTITY_AVAILABLE behind owed DEPARTINGs is committed (E5);
 //   F   the bound with full legal backlogs (ctrl_loop.h A1 to A4): both
 //       rings full, ticks coalesced behind them, every pass and path held to
-//       the stated figures, events first in every pass.
+//       the stated figures, events first in every pass;
+//   G   the first ENTITY_AVAILABLE after a link-up (#970): within 1 s of
+//       every LINK_UP and of a startup with the link up, its delay still a
+//       random draw, with a grandmaster change before it (carried by it) and
+//       after it (announced by a new ENTITY_AVAILABLE), available_index
+//       advancing by one per ENTITY_AVAILABLE across the link-ups, and every
+//       later delay still drawn from 0 to 4 s (Milan v1.2 5.6.3.5.2,
+//       5.6.3.5.3, 5.6.3.5.5, 5.6.3.5.7, 5.6.3.5.9 and Table 5.51; IEEE
+//       1722.1-2021 6.2.2.15 and 6.2.2.16).
 //
 // One test per labelled step or scenario; each assertion carries the check's
 // name from the hand-rolled suite it replaces (sw/firmware/gtest/README.md,
@@ -31,7 +39,9 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <set>
 #include <tuple>
+#include <vector>
 
 #include "adp.h"
 #include "adp_mbx.h"
@@ -540,6 +550,273 @@ void backlog_grade(const Backlog& b, const Passes& s) {
     EXPECT_EQ(model.tx_sent, b.sent0 + 1u) << "F7 the backlog left exactly one frame, the ENTITY_AVAILABLE";
 }
 
+// ---- G: the first ENTITY_AVAILABLE after a link-up (#970) ----------------------------
+//
+// The entity's declared discovery time is 6.0 s, and a controller waits that long for its first
+// ENTITY_AVAILABLE after a link-up (#970). This group requires it within kFirstWithinMs of the
+// LINK event's posting, at every link-up of a run of them and at a startup with the link up. Its
+// figures are stated here, independently of the core's names: kFirstDrawMaxMs is the draw of an
+// interface leaving DOWN, kDelayMaxMs Milan v1.2 Table 5.50's TMR_DELAY.
+
+constexpr uint32_t kFirstWithinMs = 1000u;
+constexpr uint32_t kDiscoveryMs = 6000u;
+constexpr uint32_t kFirstDrawMaxMs = 500u;
+constexpr uint32_t kDelayMaxMs = 4000u;
+constexpr uint32_t kAdvertiseMs = 5000u;
+constexpr uint64_t kGmA = 0x00AABBFFFE000001ull;
+constexpr uint64_t kGmB = 0x00CCDDFFFE000002ull;
+
+// One ENTITY_AVAILABLE interface 0 sent: when, its available_index and its gptp_grandmaster_id.
+struct Available {
+    uint32_t ms;
+    uint32_t index;
+    uint64_t gm;
+};
+
+// The ADP frames the model sent since the last call, read before its capture wraps.
+struct Wire {
+    uint32_t seen = 0;
+    std::vector<Available> available;
+    unsigned departing = 0;
+
+    void take() {
+        for (; seen < model.tx_sent; ++seen) {
+            const struct mbx_model_tx* f = mbx_model_tx_frame(&model, seen);
+            if (f == nullptr || f->channel != MBX_CH_ADP || f->interface != 0u || f->len < ADP_FRAME_BYTES) {
+                continue;
+            }
+            if ((f->bytes[15] & 0x0Fu) == ADP_MSG_ENTITY_AVAILABLE) {
+                available.push_back(Available{f->now_ms, wire_be32(f->bytes + 50), wire_be64(f->bytes + 54)});
+            } else {
+                departing++;
+            }
+        }
+    }
+};
+
+// Run the model one millisecond at a time, the loop serviced after each, for `ms`.
+void run_ms(Wire& w, uint32_t ms) {
+    for (uint32_t k = 0; k < ms; ++k) {
+        mbx_model_advance_ms(&model, 1);
+        settle();
+        w.take();
+    }
+}
+
+// Run until `n` ENTITY_AVAILABLEs have been seen or `limit` ms pass; true when they were.
+bool run_until(Wire& w, size_t n, uint32_t limit) {
+    for (uint32_t k = 0; k < limit && w.available.size() < n; ++k) {
+        run_ms(w, 1);
+    }
+    return w.available.size() >= n;
+}
+
+// The app on a fresh model, the link down, the grandmaster kGmA, the clock moved on by `skew` ms so
+// the seed the machine mixes in at its start differs from run to run.
+void boot_down(Wire& w, uint32_t skew) {
+    mbx_model_reset(&model);
+    mbx_model_bind(&model, nullptr, nullptr);
+    mbx_model_advance_ms(&model, skew);
+    mbx_model_set_gm(&model, 0, kGmA, 0);
+    struct ctrl_app_config cfg = {&entity, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr, nullptr,
+                                   nullptr, nullptr, 0};
+    EXPECT_TRUE(ctrl_app_start(&app, &cfg)) << "G0 the app starts on the model";
+    settle();
+    w = Wire{};
+    w.seen = model.tx_sent;
+}
+
+struct Spread {
+    uint32_t worst = 0;
+    std::set<uint32_t> values;
+    void add(uint32_t v) {
+        worst = v > worst ? v : worst;
+        values.insert(v);
+    }
+};
+
+// G1 64 link-ups, each LINK_UP to its first ENTITY_AVAILABLE, then that ENTITY_AVAILABLE's TMR_ADVERTISE
+// to the next one, then the link down. G5 reads the later delays from the same run.
+void first_after_link_up(Spread& first, Spread& later) {
+    Wire w;
+    boot_down(w, 3u);
+    bool within = true;
+    bool indexed = true;
+    bool later_within = true;
+    uint32_t expect_index = 0;
+    for (unsigned k = 0; k < 64u; ++k) {
+        mbx_model_set_link(&model, 0, true);
+        const uint32_t up = model.now_ms;
+        const size_t before = w.available.size();
+        settle();
+        w.take();
+        within = run_until(w, before + 1u, kDiscoveryMs) && within;
+        if (w.available.size() <= before) {
+            break;
+        }
+        const Available a = w.available[before];
+        within = within && a.ms - up <= kFirstWithinMs;
+        first.add(a.ms - up);
+        indexed = indexed && a.index == expect_index;
+        later_within = run_until(w, before + 2u, kAdvertiseMs + kDelayMaxMs + 2u) && later_within;
+        if (w.available.size() > before + 1u) {
+            const Available b = w.available[before + 1u];
+            later_within = later_within && b.ms - a.ms >= kAdvertiseMs && b.ms - a.ms <= kAdvertiseMs + kDelayMaxMs;
+            later.add(b.ms - a.ms - kAdvertiseMs);
+            indexed = indexed && b.index == expect_index + 1u;
+        }
+        expect_index += 2u;
+        mbx_model_set_link(&model, 0, false);
+        run_ms(w, 10u);
+    }
+    std::printf("  G1 64 LINK_UPs: the first ENTITY_AVAILABLE %u distinct delays, the latest %u ms after LINK_UP "
+                "(bound %u)\n", static_cast<unsigned>(first.values.size()), static_cast<unsigned>(first.worst),
+                static_cast<unsigned>(kFirstWithinMs));
+    std::printf("  G5 the TMR_ADVERTISE delays after them: %u distinct, the latest %u ms (0 to %u)\n",
+                static_cast<unsigned>(later.values.size()), static_cast<unsigned>(later.worst),
+                static_cast<unsigned>(kDelayMaxMs));
+    EXPECT_TRUE(within) << "G1 the first ENTITY_AVAILABLE leaves within 1 s of every LINK_UP";
+    EXPECT_TRUE(first.worst <= kFirstDrawMaxMs + 2u)
+        << "G1 its delay is drawn from 0 to 0.5 s, plus the passes that take the LINK and the expiry";
+    EXPECT_TRUE(first.values.size() >= 16u && first.worst >= kFirstDrawMaxMs / 2u)
+        << "G1 the delay stays a random draw across the link-ups (Milan v1.2 Table 5.49 DELAY)";
+    EXPECT_TRUE(indexed)
+        << "G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up (6.2.2.15)";
+    EXPECT_TRUE(later_within) << "G5 each TMR_ADVERTISE delay is drawn from 0 to 4 s (5.6.3.5.5, Table 5.50)";
+    EXPECT_TRUE(later.worst > kFirstDrawMaxMs)
+        << "G5 only the link-up's delay is shortened: the TMR_ADVERTISE delays pass 0.5 s";
+}
+
+// G2 32 startups with the link up, each from reset as another entity (the generator's seed is its entity ID and
+// the clock, IEEE 1722.1-2021 6.2.4.2.2), to the first ENTITY_AVAILABLE.
+void first_after_startup(void) {
+    bool within = true;
+    Spread first;
+    for (unsigned k = 0; k < 32u; ++k) {
+        Wire w;
+        struct adp_entity other = entity;
+        other.entity_id = entity.entity_id ^ (0x9E3779B97F4A7C15ull * (k + 1u));
+        mbx_model_reset(&model);
+        mbx_model_bind(&model, nullptr, nullptr);
+        mbx_model_advance_ms(&model, 7u * k + 1u);
+        mbx_model_set_gm(&model, 0, kGmA, 0);
+        mbx_model_set_link(&model, 0, true);
+        struct ctrl_app_config cfg = {&other, 2, arena, sizeof arena, classes, 1, nullptr, nullptr, nullptr,
+                                       nullptr, nullptr, nullptr, 0};
+        const uint32_t start = model.now_ms;
+        EXPECT_TRUE(ctrl_app_start(&app, &cfg)) << "G0 the app starts on the model";
+        w.seen = 0;
+        settle();
+        w.take();
+        within = run_until(w, 1u, kDiscoveryMs) && within;
+        if (!w.available.empty()) {
+            within = within && w.available[0].ms - start <= kFirstWithinMs && w.available[0].index == 0u;
+            first.add(w.available[0].ms - start);
+        }
+    }
+    std::printf("  G2 32 startups with the link up: the first ENTITY_AVAILABLE %u distinct delays, the latest %u ms "
+                "(bound %u)\n", static_cast<unsigned>(first.values.size()), static_cast<unsigned>(first.worst),
+                static_cast<unsigned>(kFirstWithinMs));
+    EXPECT_TRUE(within) << "G2 the first ENTITY_AVAILABLE, index 0, leaves within 1 s of a startup with the link up";
+    EXPECT_TRUE(first.worst <= kFirstDrawMaxMs + 2u) << "G2 its delay is drawn from 0 to 0.5 s (5.6.3.5.2)";
+    EXPECT_TRUE(first.values.size() >= 16u && first.worst >= kFirstDrawMaxMs / 2u)
+        << "G2 the startup delay stays a random draw across the entities";
+}
+
+// G3 a grandmaster change while the link-up's delay runs, at each of 32 link-ups: the first ENTITY_AVAILABLE
+// still leaves within 1 s and carries the new grandmaster (Table 5.51: GM_CHANGE in DELAY is ignored, and the
+// frame samples the grandmaster when it is built, 6.2.2.16).
+void gm_change_before_first(void) {
+    Wire w;
+    Spread first;
+    boot_down(w, 5u);
+    bool within = true;
+    bool carried = true;
+    unsigned changed = 0;
+    for (unsigned k = 0; k < 32u; ++k) {
+        mbx_model_set_gm(&model, 0, kGmA, 0);
+        mbx_model_set_link(&model, 0, true);
+        const uint32_t up = model.now_ms;
+        const size_t before = w.available.size();
+        settle();
+        w.take();
+        if (w.available.size() == before && adp0()->state == ADP_STATE_DELAY) {
+            mbx_model_gm_change(&model, 0, kGmB, 0);
+            settle();
+            w.take();
+            changed++;
+            within = run_until(w, before + 1u, kDiscoveryMs) && within;
+            if (w.available.size() > before) {
+                within = within && w.available[before].ms - up <= kFirstWithinMs;
+                first.add(w.available[before].ms - up);
+                carried = carried && w.available[before].gm == kGmB;
+            }
+        }
+        mbx_model_set_link(&model, 0, false);
+        run_ms(w, 10u);
+    }
+    std::printf("  G3 %u LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest %u ms "
+                "after LINK_UP (bound %u)\n", changed, static_cast<unsigned>(first.worst),
+                static_cast<unsigned>(kFirstWithinMs));
+    EXPECT_TRUE(changed >= 24u) << "G3 the grandmaster changed inside the link-up's delay in most runs";
+    EXPECT_TRUE(within) << "G3 a grandmaster change before the first ENTITY_AVAILABLE does not hold it past 1 s";
+    EXPECT_TRUE(carried) << "G3 and that ENTITY_AVAILABLE carries the new gptp_grandmaster_id";
+}
+
+// G4 the bench's order, at each of 16 link-ups: the first ENTITY_AVAILABLE, then a grandmaster change 4.5 s
+// after the link-up, in WAITING: a new ENTITY_AVAILABLE with the new grandmaster and the next index follows
+// within the 0 to 4 s delay (5.6.3.5.7), before the period's own.
+void gm_change_after_first(void) {
+    Wire w;
+    Spread first;
+    Spread change_to_new;
+    boot_down(w, 11u);
+    bool within = true;
+    bool announced = true;
+    for (unsigned k = 0; k < 16u; ++k) {
+        mbx_model_set_gm(&model, 0, kGmA, 0);
+        mbx_model_set_link(&model, 0, true);
+        const uint32_t up = model.now_ms;
+        const size_t before = w.available.size();
+        settle();
+        w.take();
+        within = run_until(w, before + 1u, kDiscoveryMs) && within;
+        if (w.available.size() <= before) {
+            break;
+        }
+        const Available a = w.available[before];
+        within = within && a.ms - up <= kFirstWithinMs && a.gm == kGmA;
+        first.add(a.ms - up);
+        if (model.now_ms - up >= 4500u) {
+            // a first ENTITY_AVAILABLE as late as the change: no WAITING to change in
+            mbx_model_set_link(&model, 0, false);
+            run_ms(w, 10u);
+            continue;
+        }
+        run_ms(w, 4500u - (model.now_ms - up));
+        const uint32_t change = model.now_ms;
+        mbx_model_gm_change(&model, 0, kGmB, 0);
+        settle();
+        w.take();
+        announced = announced && adp0()->state == ADP_STATE_DELAY && w.available.size() == before + 1u;
+        announced = run_until(w, before + 2u, kDelayMaxMs + 2u) && announced;
+        if (w.available.size() > before + 1u) {
+            const Available b = w.available[before + 1u];
+            announced = announced && b.gm == kGmB && b.index == a.index + 1u && b.ms - change <= kDelayMaxMs + 1u;
+            change_to_new.add(b.ms - change);
+        }
+        mbx_model_set_link(&model, 0, false);
+        run_ms(w, 10u);
+    }
+    std::printf("  G4 16 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest %u ms "
+                "after LINK_UP, the new grandmaster's the latest %u ms after the change\n",
+                static_cast<unsigned>(first.worst), static_cast<unsigned>(change_to_new.worst));
+    EXPECT_TRUE(within) << "G4 the first ENTITY_AVAILABLE leaves within 1 s of LINK_UP, a grandmaster change to come";
+    EXPECT_TRUE(change_to_new.values.size() >= 4u) << "G4 the grandmaster changed in WAITING in most runs";
+    EXPECT_TRUE(announced) << "G4 a grandmaster change after the first ENTITY_AVAILABLE starts a delay at once and "
+                              "is announced by a new one, its next index";
+}
+
 // ---- the tests -----------------------------------------------------------------------
 
 TEST(AdpAdapter, B1StaleTagDiscarded) {
@@ -625,6 +902,21 @@ TEST_P(AdpOwedBound, E5CommittedInPassKPlusOne) {
 
 INSTANTIATE_TEST_SUITE_P(Shutdowns, AdpOwedBound,
                          ::testing::Combine(::testing::Values(1u, 2u, 64u), ::testing::Bool()));
+
+TEST(AdpFirstAvailable, G1G5WithinOneSecondOfEveryLinkUp) {
+    Spread first;
+    Spread later;
+    first_after_link_up(first, later);
+}
+TEST(AdpFirstAvailable, G2WithinOneSecondOfAStartupWithTheLinkUp) {
+    first_after_startup();
+}
+TEST(AdpFirstAvailable, G3AGrandmasterChangeBeforeItIsCarriedByIt) {
+    gm_change_before_first();
+}
+TEST(AdpFirstAvailable, G4AGrandmasterChangeAfterItIsAnnounced) {
+    gm_change_after_first();
+}
 
 TEST(AdpBacklog, F0toF7FullBacklogs) {
     const Backlog b = backlog_post();
