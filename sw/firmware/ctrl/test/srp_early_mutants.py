@@ -12,16 +12,21 @@ Talker found for its first sink only); the bound itself (none, or a New of the o
 registers beside it, taken as kept); the count made before a receive (it forgets the registered, or adds to the count
 before it), an unbinding's registration counted against the bound (no count owed by the binding), and a kept attribute
 that left, counted until mrp_reclaim frees its block (the count skips it) and uncounted once freed (no count owed by
-the block's return); and the latest kind of two registered before the binding (#925), held for a StreamID no binding
-has.
+the block's return); what makes that count exact below the bound as at it (a reset's new participants counted from
+the old count, a kept registration's end or a kept attribute with no registration owing no count, a left one the
+count saw leaving none owed, a refresh counted again); and the latest kind of two registered before the binding
+(#925), held for a StreamID no binding has.
 srp_mutants.py plants each with the rest of its table, and the named test must fail on its own words. Every name
-starts with "feedback-", so both interface counts' campaigns plant it (test_ctrl_firmware.run_srp_mutants).
+starts with PREFIX, so both interface counts' campaigns and the 8x8/1if one plant it
+(test_ctrl_firmware.run_srp_mutants).
 """
 from __future__ import annotations
 
 from typing import Callable, TypeVar
 
 T = TypeVar("T")
+
+PREFIX = "feedback-early-"
 
 EARLY = "SrpEarlyTalker."
 BEFORE = EARLY + "ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput"
@@ -31,19 +36,31 @@ BOUNDED = EARLY + "RegistrationsKeptBeforeABindingAreBoundedByTheInputs"
 LEFT = EARLY + "AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed"
 LATEST = EARLY + "ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt"
 UNBOUND = EARLY + "AnUnboundRegistrationIsKeptAndCountedAgainstTheBound"
+RESET = EARLY + "AResetLeavesNoKeptRegistrationCounted"
+FREED = EARLY + "AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore"
+NEVER = EARLY + "AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed"
+REFRESHED = EARLY + "AKeptRegistrationRefreshedIsCountedOnce"
 #: srp_mbx.c's receive filter for a Talker no binding holds, and its search of the bindings, as it holds them.
 KEEPS = "    return keep_talker(i,type,value);\n"
 SEARCH = ("        for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {\n"
           "            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {\n")
-#: keep_talker's bound and its search of the kept list.
+#: keep_talker's bound, its search of the kept list, its listing of one kept now and the count it leaves pending.
 FULL = "    if (*count >= SRP_KEPT_TALKERS) {\n        return false;\n    }\n"
 KIND = "        if (kept[n].kind == kind && same(kept[n].stream_id.bytes,stream_id,8)) {\n"
-#: count_kept's count before a receive: when it is owed (a binding changed, or a block returned at the bound), its
-#: start, and the attributes it counts (a Talker no binding holds, the participant not declaring it, any Registrar).
-OWED_BINDING = "    m->kept_owed[interface] = true;\n"
-RETURNED = "(m->kept_count[n] >= SRP_KEPT_TALKERS && m->kept_returned[n] != ctrl_pool_returned)"
+LISTS = "    memcpy(kept[*count].stream_id.bytes,stream_id,8);\n    kept[(*count)++].kind = kind;\n"
+KEPT_PENDING = "    kept[(*count)++].kind = kind;\n    m->kept_due[i->index] |= SRP_KEPT_PENDING;\n"
+#: count_kept's count before a receive: when it is owed (a binding changed, or a block returned while one may have
+#: ended), its start, and the attributes it counts (a Talker no binding holds, the participant not declaring it, any
+#: Registrar), one left among them leaving it pending.
+OWED_BINDING = "    m->kept_due[interface] |= SRP_KEPT_BOUND;\n"
+RETURNED = "((due & SRP_KEPT_PENDING) != 0u && m->kept_returned[n] != ctrl_pool_returned)"
 RECOUNT = "        m->kept_count[n] = 0u;\n"
 COUNTED = "        (SRP_UNDECLARED_APPL >> status->appl & 1u) != 0u && !bound_stream(i,id)) {\n"
+VISIT_PENDING = ("        if (status->reg == MRP_REG_STATE_MT) {\n"
+                 "            m->kept_due[i->index] |= SRP_KEPT_PENDING;\n        }\n")
+#: talker_changed's pending count at the end of a registration no binding has, and create_participants' new count.
+LEFT_PENDING = "    if (!bound && !registered) {\n        m->kept_due[i->index] |= SRP_KEPT_PENDING;\n    }\n"
+CREATED = "    i->owner->kept_count[i->index] = 0u;\n"
 #: talker_changed's hold of a StreamID no binding has, from a registration it was kept for.
 HOLDS = "    if (registered && !bound && h == NULL && m->held_count < SRP_HELD_STREAMS) {\n"
 
@@ -75,6 +92,17 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "once its block is freed, another is kept"),
         kind("feedback-early-unbinding-uncounted", UNBOUND, OWED_BINDING, "",
              "an unbound registration is kept and counted"),
+        # what makes the count exact below the bound: a reset, a registration's end, one never registered, a left
+        # one the count saw, a refresh
+        kind("feedback-early-reset-counted", RESET, CREATED, "",
+             "after a reset, one vector of every input is kept whole"),
+        kind("feedback-early-end-unowed", FREED, LEFT_PENDING, "",
+             "a kept one freed below the bound: one vector of every input is kept"),
+        kind("feedback-early-unregistered-unowed", NEVER, KEPT_PENDING, "    kept[(*count)++].kind = kind;\n",
+             "a Leave kept for a StreamID never registered"),
+        kind("feedback-early-left-seen-unowed", LEFT, VISIT_PENDING, "", "once its block is freed, another is kept"),
+        kind("feedback-early-refresh-counted-again", REFRESHED, LISTS, "    ++*count;\n",
+             "a kept registration refreshed in one receive"),
         # the latest of two kinds registered before the binding: nothing held, so Failed whatever came latest
         kind("feedback-early-latest-unheld", LATEST, HOLDS, HOLDS.replace("if (registered &&", "if (false &&"),
              "the latest of two kinds registered before the binding"),
