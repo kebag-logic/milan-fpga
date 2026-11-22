@@ -1,0 +1,95 @@
+Public receipts: 4ee921e6bb38b753a83701cf89dfb6105739808d:review-evidence/584-r1/author-r1/receipts/
+PASS 983985379645607ff543a7f267fd1b672a93ddccfae7de32225a972fc8cde53c  budget/flip-1x1-1if.txt
+PASS e38ea5785c40a017f233d14354ec98f67c9a85a34a317b837634a79b92dc28bc  budget/flip-8x8-1if.txt
+PASS 92b4cc02c193bc5bc2448266103e79f172df01f24a7a425f9e6951b59ab5e6e9  budget/load-grade.txt
+PASS ac26b0f99b0f0303b691cf1e2bdd813c9975e084a02f3e46719bc5dd79f67aee  budget/run-selftest.txt
+PASS 2b73c0bad36f6518e2ae1291b7468710248d06f75bb504969d32e64e614b592b  budget/service-8x8-all-oracle-row.md
+PASS 5982d2e362e79f7609dd4be8089ffa31bf5ae3efc94e277fc4a5bfb62e06a5d3  builder/artifacts-base-vs-head.txt
+PASS 688a7024ff3d821a6c9276d847ad9260f13c102d02cef7bc8453811d4572f10a  builder/artifacts-receipt.json
+PASS ced938bd01b0e66b2a439341a86c0ffb3112691cbce998c05dfa0bd2b9cd0efe  builder/artifacts-routed-vs-head.txt
+PASS 7dfd144da9c8438f2c945d3a2df3fc047e2d9656c5f4373f89beb6e901af1d9d  builder/builder-mutants.txt
+PASS 10d639789b763efcb3a3967484e99258504641ae594edce3b2a60ab8f24b50a5  builder/declarations-584.txt
+PASS 1e7253020cf4226bf200f65d53fa2b139f4ab9a3fb66a481cc07b9de3dd234c9  builder/descriptor-stats.txt
+PASS 7a321b7fbe4c001b63585c4aa2e9fde6e59bb1547846f7a11727d3e97b91b93f  decision/base-facts.txt
+PASS c7b293c2737fa5cd6a917e8a4c1eaf0a34387ed7e87a7d680f9df78013289e3b  decision/render-ports-evidence.txt
+PASS c155c28ab73d387840950c8351b5e301273e3a302acf87fcb4b3e2c1b0c993c3  firmware/aecp-input-campaign.txt
+PASS 7e1c6353fe9ec64d54c4be0c2dd19e878ec84a9251e42ca8400eadbada32e7a5  firmware/aecp-inputs-base-planted.log
+PASS 798e289529692d5d713c9a907c9988175f34bb5ad98ceab89cc7e73b255a2299  firmware/aecp-inputs-head.log
+PASS 6745eb743dbda5e37bd28efa49ac2ac87dab049862fa2660f4e0e1ebd60000ce  firmware/fixture-base-dd163e41.log
+PASS 823da965b840f2221abe775d7786b78588b248b46c22ef78a6ba7148e403efac  firmware/ledger-base-dd163e41.log
+PASS 58dd677c6766cef6679827281f3a1595f85640b67a7562cac08775e278f34e6f  firmware/ledgerF.log
+PASS e57d5a442b3ba79075dcde9eab677d6c283fee84b9ec69bf4b52b53f73a5ff2c  firmware/variants-base-dd163e41.log
+PASS 9b1a53c78fcfe7b2683bbe05ab7a6290c11b434ed2f8df653b8ebb833c431ee1  firmware/variants-head.log
+PASS b0b610b3a3c14eb1b7da7461da632bc5933921b8ed5e483c4d94a65a1f3a0970  gates/builder-leg-0.json
+MISMATCH gates/builder-leg-1.json: indexed 16621 B / 430f60697deb909b66de798dc94f87ac38404edac1cd81957798eb7713504998; actual 16615 B / d68632796ac32a1104518146c5cac88507288f094220f3d7ba6cd93284811720
+MISMATCH gates/builder-leg0.txt: indexed 50280 B / 43a12b16c7e0120e0ffd9883bf7f7927c2acb1f528b35d0d3f16d9c7e05004d4; actual 50272 B / 43b61c6ffa8ae18073c5ca37994aab7bc3f3596945391eb82f937d1aeee3f7c8
+MISMATCH gates/builder-leg1.txt: indexed 42954 B / dca52f56fcb14cd0e379363dc6ef04cc80673f6b6baca73b89a57d948f6272c0; actual 42948 B / d899e94ddb78944557e76b4356d0ef041531a2f1921353f406eb1091766daaa9
+PASS 90172cb95fda8a1860661b9b1c564a7e30f21069390ec0c7b6dcf97d60725df2  gates/builder-legs-union.txt
+PASS 772fd358a4ac1ba9711a216ed829e4e5470b01d7cf4e162f175cc5fad3c4f1f4  gates/docswf-2b295a44.txt
+PASS caf8c581de7600c68a1664ee876ee1c116cc965632e4af35b7f354e1734cdec9  gates/docswf-b1d164ef.txt
+PASS 3e196223ff89c511ab094069c6799330b8a8fa9193f2a30dcd0074170a5ba2fd  gates/firmware-bank-shard0.txt
+PASS 41703a47c026cac7e6b7e77e387b811abdc8853a0428e63b14492ecd1480c2eb  gates/firmware-bank-shard1.txt
+PASS 855f10c7354abb051e088ba88fa4e861325f3f810914b9d41a93dd8370deb773  gates/firmware-bank-shard2.txt
+PASS fd23b9fd9b469a449913092009b0fe44fb4a38b0764280343e50322c73a8b58d  gates/firmware-bank-shard3.txt
+PASS c540504866240e41be289866239d25289f6ae0a107b9660e42396f68e4272041  gates/fw_service_budget-2b295a44.txt
+PASS 770d26562edf1129312031c127a27598dae22091203ae8803d744059ecb5d84f  gates/quick-selftests-b1d164ef.txt
+PASS 2ccd1c533c418d044a6b63dcd596692a01f1a8a4d41ca6037370541773151d26  gates/sweep-shard0.txt
+PASS 79bb7c5f7b69e4005fcb7f4237ad10d7ca0b1eeb569c6f234aa555bc3e6b81fb  gates/sweep-shard1.txt
+PASS ee0a58fbc247d4f0f14872e0a98aaf402b563c5c824f7aeacc0a2dcc365edc41  gates/sweep-shard2-fw_service_budget.log
+PASS 50a3371bc904ca99f5c7b70e22c30969bbd6f41f5a704b70be6a3c7a5e7e16a4  gates/sweep-shard2.txt
+PASS 5dbbc24907821d267ffb28c1858e5b4c39c19932cc91e601a11cb27155bba9c4  gates/sweep-shard3.txt
+PASS 586c654f596ebe0f8d33320b1c72da699bb7f8ece204bf7555cb6f8284b114d7  nvm/capture-8x8-100-off.measurement.json
+PASS 51d439d9d78a224cc79b01b04ceb4d2ed90a1228cbccaa0ecd591aa0755a1ce7  nvm/capture-8x8-100-off.rows.txt
+PASS 6f5c571d14261ff0580b5e4360c4dd04dbd27d34912c7af3abd043c028119313  nvm/capture-8x8-100-on.measurement.json
+PASS 914bfa42ebb1d83b9b6ee62be2c9334bfdf2520a4a1eea0358bdbc7d4c3265e5  nvm/capture-8x8-100-on.rows.txt
+PASS 6d65776e9835e720931692dab68d1338e94432070b604d981b49e5cf86a4913b  nvm/capture-8x8-50-off.measurement.json
+PASS 0d63777e152f2a0761403b1a41ce3f62da8d64070e8ab68c73fefc83e80e0d3d  nvm/capture-8x8-50-off.rows.txt
+PASS 0a1665607dfaa76b98c3c850ebc8d32eaab6adf3e3bcd4d375efea725d65a181  nvm/capture-8x8-50-on.measurement.json
+PASS 6df24e3dfa4473f97cc22b9aa2a6cf3ed5bf5e8415901b9ab0ce65a39b000f29  nvm/capture-8x8-50-on.rows.txt
+PASS 88995475b4c501502f45818d87998d2a2dec3f6cae84619754bf64d6abca790a  nvm/check_nvm_capture.txt
+PASS a4313de2f1e7d8df7da98e7e014c9a87885cdb076bccab97704246271dc27c06  nvm/split-8x8-results.json
+PASS d13a055e336b0c36579cc6c1ead956902971b1bbfbf60db4de477b828a662b78  nvm/split-8x8-table.md
+PASS 602a2aa59efed36a475f927b94e3dcbcbbc408482dfef4e1b751d16cd51990bc  public/review-ready.md
+PASS 2521961633a8a11fecbabe9737a6137bedbfdc53a0d3ecb4827fa7f2d8fe3472  public/taken.md
+PASS 6ff56c4d850964c5d5b950876a1e8050c29a3873cfdbbc83ae5f2f69e0410041  route/TIMING.md
+PASS c03e36b82f37e353cdffa2365eaa8d47fac4fe2e434b117407bc749a9ab051e7  route/argv.txt
+PASS 33e125febd2ddd5e58d71388ad639d6533e2451e091c6cd3cae5ff6da9fa1472  route/artifacts-AltSpreadLogic_high.sha256.txt
+PASS 2c6e0b2b6497b83bb858d114f5480d970ca1915f4c458fc0e390e26f85b8c9f4  route/artifacts-ExtraPostPlacementOpt.sha256.txt
+PASS 9be18597f4c0c2bd447a1c580eaa8e67623d6aaf2f7ec0e168d54f28ec14972b  route/artifacts-ExtraTimingOpt.sha256.txt
+PASS 7cecef3bbaffaaad05a36f62e332fe403169b2f45e4813e35b4ae795dc92ea64  route/hierdiff-flip-vs-head-AltSpreadLogic_high.txt
+PASS 566ff64ba446328570d386a75abc9220f5f843586f87eb412f77a763b48753bc  route/hierdiff-flip-vs-head-ExtraPostPlacementOpt.txt
+PASS d27cb1a62a8298d255e5a0efe2c1cd82b03b8de49ee2073a6ae37912cb7ae218  route/hierdiff-flip-vs-head-ExtraTimingOpt.txt
+PASS 24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0  route/identity-AltSpreadLogic_high.log
+PASS 24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0  route/identity-ExtraPostPlacementOpt.log
+PASS 24e56f2b7ae5d7fcc92f373824a4af70101fe0e85565ac1edcf0be173f4a74a0  route/identity-ExtraTimingOpt.log
+PASS c3e644ad3efdbe2e0e1b8977e2d5863c6c14d0a3213aa9c442b1fc73d78d9b5c  route/inputs-routed-vs-head.txt
+PASS 87254755162df263e2464d9dce6e23ec2dc4805010ed24c2fed93c4435780aea  route/reports-AltSpreadLogic_high.sha256.txt
+PASS 1571cbd28ff0f47da3615a93c0f96db2ebda0a71ae4624d673586a0cec979b45  route/reports-ExtraPostPlacementOpt.sha256.txt
+PASS be464afacd28fcc8b62ef5e0fe3ceb4a041de6657d6383ae33eaf8ebfb438700  route/reports-ExtraTimingOpt.sha256.txt
+PASS 02e1bb9702ab390c391122d5efe3cde7744751107b269fc09eee1d94211ad701  route/signoff-AltSpreadLogic_high.txt
+PASS 4e1bf44374227d2f674705e2a4e5b37d208c8997821eae98f93757a0aac4acca  route/signoff-ExtraPostPlacementOpt.txt
+PASS 21ef229680563b05ffbcfe96e6449e07424cc2982c05800a20cab94b73b75499  route/signoff-ExtraTimingOpt.txt
+PASS 2a9c6c9c64a221af160a326eb0f941ac5e79b937c55da49d0530bb27f8785dba  route/utilization-AltSpreadLogic_high.txt
+PASS 2269a03ff53c7726f633f4e93b894f10626e1f1154089cfe0d14e0e3c11be5dc  route/utilization-ExtraPostPlacementOpt.txt
+PASS 61166a5a52ddc11a34a9b931d36d40182e806cb18e2c959a0e061f2d938c4e0f  route/utilization-ExtraTimingOpt.txt
+PASS 895252f4aa034a67a6b9b52ca7dca8074feb379a0f841fc0523f126912c89a1e  rtl/lint-8x8-1if.txt
+PASS dd9b8d796ece35fea1feb97118fcf56fa60e64f657eb3d96a976fb6a57b65e29  rtl/nxn8-base-planted.txt
+PASS f58e9064845e39362c766904a3aa464173936d9c4a82cc629b3e05c26fd94586  rtl/nxn8-summary.txt
+PASS 3c4abb955418322dd312aeb97b1a11a9a00e4ed95894a52b984cc706679b1f8c  rtl/tdm_render-master-mutants.txt
+PASS 410c080c3b43cb4de4eede20e9ec4ce57eba9f56aa9d6c916601d643c49d430e  rtl/tdm_render-suite.txt
+PASS 5b1efba544076fc59f239caab00bf46236846f6418f50b1ffe77b09ba2f96573  rtl/yosys-dp-b1d164ef.txt
+PASS b705a6d1f556e83343d6e9d08c069e16de7a127bb3c32c3e89aff2089ce2e3c9  rtl/yosys-rm-b1d164ef.txt
+80 indexed public receipts checked against immutable Git blobs: 77 match, 3 mismatch.
+
+nxn8 recipe: $(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+default: parameter int AUDIO_IF_SLOTS_P = 0,
+default: parameter int AUDIO_IF_MASTER_P = 0,
+default: parameter int AUDIO_IF_RENDER_SLOTS_P = 0,
+default: parameter int CTRL_SPLIT_P = 0,
+AUDIO_IF_RENDER_SLOTS_P=0 selects g_tdm_render_parked; tdm_dout_o is zero.
+
+Memory-table arithmetic (base -> new, ROM / SRAM deltas):
+the target platform's 8x8, one interface (product): 1336 / 1744 B
+the target platform's 8x8, two interfaces: 1336 / 1808 B
+the size fixture's 8x8, one interface: 1336 / 1744 B
+the size fixture's 8x8, two interfaces: 1344 / 1744 B

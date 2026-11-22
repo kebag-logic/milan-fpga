@@ -1,0 +1,9 @@
+command: ['make', '-j16', 'master-mutants', 'VERILATOR=<pinned-verilator>']
+python3 -B master_mutants.py
+control: lane1of32 unplanted PASS
+narrow-lane-unmasked (lane1of32): CAUGHT - [FAIL] frame 0 slot 1 (past the lane: zero)     got=0x81020400 exp=0x0
+narrow-lane-one-slot-wide (lane2of8): CAUGHT - [FAIL] frame 0 slot 2 (past the lane: zero)     got=0x81020400 exp=0x0
+bank-slot-off-by-one (lane8of8): CAUGHT - [FAIL] frame 0 slot 0 (rendered: sample, 24-in-32 MSB first) got=0xf8797b00 exp=0x81020400
+narrow-lane-unmasked-on-the-capture-master (bus1of32): CAUGHT - [FAIL] slots 1..31 past the lane carry zero     got=31 exp=0
+narrow-lane-frames-its-own-slots (lane1of32): CAUGHT - [FAIL] frame 0 slot 2 (past the lane: zero)     got=0x8100 exp=0x0
+RESULT: 5 of 5 caught
