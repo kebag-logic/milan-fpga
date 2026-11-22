@@ -1,0 +1,17 @@
+0 :: python3 scripts/docs_check.py
+2 :: python3 scripts/check_em_dash.py --base dd163e41
+0 :: python3 scripts/check_doc_style.py
+0 :: python3 docs/DOC_MAP.gen.py --check
+0 :: python3 scripts/check_solution_docs.py
+0 :: python3 scripts/check_todo_ownership.py
+0 :: python3 scripts/measure_test_evidence.py --check
+0 :: python3 scripts/check_hygiene.py --check
+0 :: python3 scripts/check_cpp_idiom.py
+0 :: python3 scripts/check_py_idiom.py
+0 :: python3 scripts/check_doc_paths.py
+2 :: python3 scripts/gen_toc.py --verify-anchors
+2 :: python3 scripts/gen_toc.py --check
+0 :: python3 scripts/docs_inventory.py --check
+0 :: (venv) python3 scripts/check_em_dash.py --base dd163e41
+0 :: (venv) python3 scripts/gen_toc.py --verify-anchors
+0 :: (venv) python3 scripts/gen_toc.py --check

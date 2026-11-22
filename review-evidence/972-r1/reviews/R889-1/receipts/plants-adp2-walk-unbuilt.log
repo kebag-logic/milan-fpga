@@ -1,0 +1,34 @@
+CAUGHT  gm-change-draws-the-startup-kind adp AdpFirstAvailable.G4AGrandmasterChangeAfterItIsAnnounced :: G4 the grandmaster change's delay is the 0 to 4 s draw
+CAUGHT  link-loss-resets-the-index adp AdpFirstAvailable.G1G5WithinTheLinkUpDrawOfEveryLinkUp :: G1 each ENTITY_AVAILABLE carries the next available_index, across every link-up
+Traceback (most recent call last):
+  File "$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/ctrl/test/ctrl_build.py", line 149, in compile_tests
+    return fw_gtest.compile_tests(tree.build, [*includes(tree), f"-I{STACK_TESTS}", *extra],
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  [test_source(n) for n in names], tree.out / tag)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/gtest/fw_gtest.py", line 167, in compile_tests
+    raise BuildError(f"{src.name} does not preprocess:\n{pre.stderr}")
+fw_gtest.BuildError: adp_walk.cpp does not preprocess:
+$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/ctrl/test/adp_walk.cpp:48:10: fatal error: pp_adp_reuse.inc: No such file or directory
+   48 | #include "pp_adp_reuse.inc"
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/972-r889-1-packet/scripts/run_plants.py", line 25, in <module>
+    outs[arm] = ARMS[arm](tree)
+                ~~~~~~~~~^^^^^^
+  File "$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/ctrl/test/ctrl_arms.py", line 273, in arm_walk
+    objs = firmware(tree, PORTABLE, "walk") + compile_tests(tree, ("adp_walk.cpp",), "walk/tests", extra)
+                                              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/ctrl/test/ctrl_build.py", line 152, in compile_tests
+    raise Refusal(str(exc)) from exc
+ctrl_build.Refusal: adp_walk.cpp does not preprocess:
+$REVIEWS/972-r889-1-packet/scratch/mut-tree/sw/firmware/ctrl/test/adp_walk.cpp:48:10: fatal error: pp_adp_reuse.inc: No such file or directory
+   48 | #include "pp_adp_reuse.inc"
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+

@@ -1,0 +1,23 @@
+# clone integrity after the review's runs
+HEAD 0f508a01b5d02fbf192ab08e4d8a5bf514b32a3b
+tree 4a0fc0a2ee1159adffb276c1c00ef936c51b313f
+status (porcelain, untracked and ignored):
+end status
+diff-index vs HEAD (rc):
+rc=0
+index tree 4a0fc0a2ee1159adffb276c1c00ef936c51b313f
+worktree content check: git diff --stat HEAD:
+submodule gitlinks:
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+third_party/lwSRP: 0 changed
+third_party/tsn-c-stack: 0 changed
