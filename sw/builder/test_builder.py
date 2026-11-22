@@ -20234,19 +20234,20 @@ def test_dynamic_map_topology_reaches_shape_header() -> None:
             out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
         return out
 
-    # #259: the 8x8's listeners are empty-handed (0 physical),
-    # so the input face carries eight zero-cluster ports and the 1-key
-    # placeholder engine - the same retired posture the 1x1 leg below pins.
+    # #584: each of the 8x8's listeners owns ONE cluster, so the input face
+    # carries eight one-cluster ports and eight keys; port 0's key projects
+    # onto the TDM lane's first render key (the first TDM render channel,
+    # render_ports first) and the seven unrouted keys onto none.
     # The output face is the 9-cluster geometry: pilot (13'h1400) then the
     # eight fabric-disabled loopback templates, idxh = the talker's own rx
     # stream so the eight ports stay distinct.
     ax8 = eb.load_config(CONFIGS["ax7101_8x8"])
     h8 = eb.emit_adp_shape_svh(ax8, eb.emit_aem_overlay(ax8))
-    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 1
-    assert array(h8, "ADP_DMAP_IN_PBASE_C") == [0] * 8
-    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [0] * 8
-    assert array(h8, "ADP_DMAP_IN_PNMAPS_C") == [0] * 8
-    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0]
+    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 8
+    assert array(h8, "ADP_DMAP_IN_PBASE_C") == list(range(8))
+    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [1] * 8
+    assert array(h8, "ADP_DMAP_IN_PNMAPS_C") == [1] * 8
+    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0x40 | eb.RENDER_PHYS_LANES["tdm"][0]] + [0] * 7
     assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [9] * 8
     assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 72, 9))
     c8 = array(h8, "ADP_DMAP_OUT_CSRC_C")
@@ -26680,12 +26681,19 @@ def test_d8_role_pools_reject() -> None:
         ("unknown pool key", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
              "pools", {"pilot": True, "tdm": 8})),
-        # every pool zero: empty-handed STREAM_PORT_INPUTs are legal since
-        # #259, but a STREAM_PORT_OUTPUT with no cluster block still is not
-        # - a talker needs a source, so the refusal stands
+        # every pool zero: a STREAM_PORT_OUTPUT with no cluster block is
+        # refused by name, STREAM_PORT_CLUSTER_MINIMUM (Milan v1.2 5.3.3.8,
+        # #584); an input port never is, it owns one unrouted cluster
         ("all pools zero", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
              "pools", {"pilot": False, "loopback": 0})),
+        # #584: render_ports is `every` or `first`, read by role-pools alone
+        ("unknown render_ports", "ax7101_8x8",
+         lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
+             "render_ports", "some")),
+        ("render_ports under another policy", "ax7101_8x8",
+         lambda c: c["audio_interface"].__setitem__(
+             "cluster_mapping", {"policy": "cap-at-interface", "render_ports": "first"})),
         ("unknown policy", "ax7101_8x8",
          lambda c: c["audio_interface"]["cluster_mapping"].__setitem__(
              "policy", "role-pool")),
