@@ -1,0 +1,11 @@
+test_control_placement_key:
+Traceback (most recent call last):
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 30709, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 24260, in test_control_placement_key
+    assert not bad, "gate 23n:\n  " + "\n  ".join(bad)
+           ^^^^^^^
+AssertionError: gate 23n:
+  ax7101_1x1_tdm8: a tracked config is {'placement': 'all-fabric'}, not split
+  ax7101_1x1_tdm8: the config does not emit its own placement's variant

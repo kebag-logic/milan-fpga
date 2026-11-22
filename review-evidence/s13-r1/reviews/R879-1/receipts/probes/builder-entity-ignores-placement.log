@@ -1,0 +1,9 @@
+test_firmware_version_derived_from_rtl:
+Traceback (most recent call last):
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 30709, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 26152, in test_firmware_version_derived_from_rtl
+    assert cfg["entity"]["firmware_version"] == want, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ax7101_8x8: firmware_version '2.96.0' != '3.96.0' derived from VERSION 0x00020060 at split

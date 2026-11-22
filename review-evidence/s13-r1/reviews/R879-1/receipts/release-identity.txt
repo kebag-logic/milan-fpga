@@ -1,0 +1,43 @@
+### builder output endstation_arty_4x4 (base vs head release recipe)
+  IDENTICAL (every file)
+### builder output endstation_arty_8ch (base vs head release recipe)
+  IDENTICAL (every file)
+### builder output endstation_arty_current (base vs head release recipe)
+  IDENTICAL (every file)
+### builder output endstation_ax7101_1x1_tdm8 (base vs head release recipe)
+Only in rel-head/builder/endstation_ax7101_1x1_tdm8: ctrl_app.elf
+### builder output endstation_ax7101_8x8 (base vs head release recipe)
+Only in rel-head/builder/endstation_ax7101_8x8: ctrl_app.elf
+### argv endstation_ax7101_1x1_tdm8
+  argv IDENTICAL
+### SoC export endstation_ax7101_1x1_tdm8 (no software)
+  aem_desc.bin: byte-identical
+  aem_desc.json: byte-identical
+  aem_desc.map: byte-identical
+  csr.csv: byte-identical
+  csr.json: byte-identical
+  flashboot_layout.json: byte-identical
+  gateware/alinx_ax7101.tcl: identical but for clone paths/comments/banner
+  gateware/alinx_ax7101.v: identical but for clone paths/comments/banner
+  gateware/alinx_ax7101.xdc: byte-identical
+  gateware/alinx_ax7101_mem.init: byte-identical
+  gateware/alinx_ax7101_rom.init: byte-identical
+  gateware/alinx_ax7101_sram.init: byte-identical
+  gateware/build_alinx_ax7101.sh: byte-identical
+### argv endstation_ax7101_8x8
+  argv IDENTICAL
+### SoC export endstation_ax7101_8x8 (no software)
+  aem_desc.bin: byte-identical
+  aem_desc.json: byte-identical
+  aem_desc.map: byte-identical
+  csr.csv: byte-identical
+  csr.json: byte-identical
+  flashboot_layout.json: byte-identical
+  gateware/alinx_ax7101.tcl: identical but for clone paths/comments/banner
+  gateware/alinx_ax7101.v: identical but for clone paths/comments/banner
+  gateware/alinx_ax7101.xdc: byte-identical
+  gateware/alinx_ax7101_mem.init: byte-identical
+  gateware/alinx_ax7101_rom.init: byte-identical
+  gateware/alinx_ax7101_sram.init: byte-identical
+  gateware/build_alinx_ax7101.sh: byte-identical
+# note: the two 'Only in rel-head ... ctrl_app.elf' lines are the reviewer's own split platform image, copied into that clone's sw/builder/out by the identity step that ran there first; the release recipe neither writes nor reads it (its argv carries no --ctrl-firmware).

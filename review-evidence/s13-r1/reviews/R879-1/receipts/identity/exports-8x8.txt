@@ -1,0 +1,39 @@
+== ELF loaded segments: A 2, B 2
+  vaddr 0x00012209 (paddr 0x00012209) A 77ddd6 B f730b7  in ctrl_plat_generated_image+0x19
+  vaddr 0x0001220e (paddr 0x0001220e) A 974b B 17c9  in ctrl_plat_generated_image+0x1e
+  vaddr 0x0001c074 (paddr 0x0001c074) A 32 B 33  in aecp_entity_image+0x184
+  loaded bytes differing: 6
+== aem_desc.bin: 19520 vs 19520 B, runs [('0x184', b'2', b'3')]
+== aem_desc.json: byte-identical
+== aem_desc.map: byte-identical
+== csr.csv: 2 changed lines
+  @@ -88 +88 @@
+  -constant,milan_aem_image_crc32,3604837561,,
+  +constant,milan_aem_image_crc32,3073436817,,
+== csr.json: 2 changed lines
+  @@ -270 +270 @@
+  -        "milan_aem_image_crc32": 3604837561,
+  +        "milan_aem_image_crc32": 3073436817,
+== flashboot_layout.json: 4 changed lines
+  @@ -43,2 +43,2 @@
+  -  "aem_image_crc32": 3604837561,
+  -  "aem_image_sha256": "723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38"
+  +  "aem_image_crc32": 3073436817,
+  +  "aem_image_sha256": "3594c9457b6d6afcfb39af707ae4c993a39315950766f9c7f4a528071a78e86e"
+== gateware/alinx_ax7101.tcl: identical but for the clone path
+== gateware/alinx_ax7101.v (outside // comments): EQUAL
+== gateware/alinx_ax7101.xdc: byte-identical
+== gateware/alinx_ax7101_mem.init: byte-identical
+== gateware/alinx_ax7101_rom_bank0.init: 32768 vs 32768 words, 3 differ
+  word 18562: d6dd77b7 -> b730f7b7
+  word 18563: 4b978793 -> c9178793
+  word 28701: 36392e32 -> 36392e33
+== gateware/alinx_ax7101_rom_bank1.init: byte-identical
+== gateware/build_alinx_ax7101.sh: byte-identical
+== image_manifest.json: 4 changed lines
+  @@ -5 +5 @@
+  -  "version": "0x00020060",
+  +  "version": "0x00030060",
+  @@ -12 +12 @@
+  -    "sha256": "d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4",
+  +    "sha256": "25ec96d33f0610901e642a7fe5765a8d1926e00b53fd0926c4ad421d0c5c3334",

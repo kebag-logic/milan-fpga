@@ -1,0 +1,12 @@
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+Traceback (most recent call last):
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 30709, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 19245, in test_current_shape_matches_sweep_flags
+    assert got == want, f"{name} argv mismatch:\n got  {got}\n want {want}"
+           ^^^^^^^^^^^
+AssertionError: ax7101_1x1_tdm8 argv mismatch:
+ got  {'--board': ['ax7101'], '--milan-clk-freq': [50000000.0], '--gtx-tx-invert': [], '--floorplan': [], '--eth-port': ['e1'], '--no-i2s-playback': [], '--no-render-lpf': [], '--num-streams': [1.0], '--audio-interface': ['tdm8'], '--audio-interface-master': [], '--audio-interface-render': [8.0], '--talker-wire-chans': [8.0], '--loopback-lane': [], '--fabric-gptp': [], '--gptp-ingress-lat-ns': [656.0], '--gptp-egress-lat-ns': [219.0], '--cpu': ['vexiiriscv'], '--software-profile': ['baremetal'], '--xlen': [32.0], '--full': [], '--with-spiflash': [], '--flashboot': ['baremetal'], '--timing-opt': [], '--l2-bytes': [0.0], '--uart-baudrate': [115200.0], '--cpu-count': [1.0], '--ctrl-mailbox': [], '--ctrl-firmware': ['sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf']}
+ want {'--board': ['ax7101'], '--milan-clk-freq': [50000000.0], '--gtx-tx-invert': [], '--floorplan': [], '--eth-port': ['e1'], '--no-i2s-playback': [], '--no-render-lpf': [], '--num-streams': [1.0], '--audio-interface': ['tdm8'], '--audio-interface-master': [], '--audio-interface-render': [8.0], '--talker-wire-chans': [8.0], '--loopback-lane': [], '--fabric-gptp': [], '--gptp-ingress-lat-ns': [656.0], '--gptp-egress-lat-ns': [219.0], '--cpu': ['vexiiriscv'], '--software-profile': ['baremetal'], '--xlen': [32.0], '--full': [], '--with-spiflash': [], '--flashboot': ['baremetal'], '--timing-opt': [], '--l2-bytes': [0.0], '--uart-baudrate': [115200.0], '--cpu-count': [1.0]}

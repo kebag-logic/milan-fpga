@@ -1,0 +1,42 @@
+== ELF loaded segments: A 2, B 2
+  vaddr 0x00012255 (paddr 0x00012255) A 07a838 B f71ddb  in ctrl_plat_generated_image+0x19
+  vaddr 0x0001225a (paddr 0x0001225a) A 3732 B 57ab  in ctrl_plat_generated_image+0x1e
+  vaddr 0x0001c0b4 (paddr 0x0001c0b4) A 32 B 33  in aecp_entity_image+0x184
+  loaded bytes differing: 6
+== aem_desc.bin: 7512 vs 7512 B, runs [('0x184', b'2', b'3')]
+== aem_desc.json: byte-identical
+== aem_desc.map: byte-identical
+== csr.csv: 2 changed lines
+  @@ -88 +88 @@
+  -constant,milan_aem_image_crc32,950534947,,
+  +constant,milan_aem_image_crc32,3676170933,,
+== csr.json: 2 changed lines
+  @@ -270 +270 @@
+  -        "milan_aem_image_crc32": 950534947,
+  +        "milan_aem_image_crc32": 3676170933,
+== flashboot_layout.json: 4 changed lines
+  @@ -43,2 +43,2 @@
+  -  "aem_image_crc32": 950534947,
+  -  "aem_image_sha256": "bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180"
+  +  "aem_image_crc32": 3676170933,
+  +  "aem_image_sha256": "fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26"
+== gateware/alinx_ax7101.tcl: identical but for the clone path
+== gateware/alinx_ax7101.v (outside // comments): EQUAL
+== gateware/alinx_ax7101.xdc: byte-identical
+== gateware/alinx_ax7101_mem.init: byte-identical
+== gateware/alinx_ax7101_rom_bank0.init: byte-identical
+== gateware/alinx_ax7101_rom_bank1.init: 8192 vs 8192 words, 2 differ
+  word 2197: 38a807b7 -> db1df7b7
+  word 2198: 32378793 -> ab578793
+== gateware/alinx_ax7101_rom_bank2.init: byte-identical
+== gateware/alinx_ax7101_rom_bank3.init: 2048 vs 2048 words, 1 differ
+  word 45: 36392e32 -> 36392e33
+== gateware/alinx_ax7101_rom_bank4.init: byte-identical
+== gateware/build_alinx_ax7101.sh: byte-identical
+== image_manifest.json: 4 changed lines
+  @@ -5 +5 @@
+  -  "version": "0x00020060",
+  +  "version": "0x00030060",
+  @@ -12 +12 @@
+  -    "sha256": "c873a0aa8b9c39a003d7a78616c83d6469935debb5bb1107ad477b900ee607fb",
+  +    "sha256": "afc1a9cd5604a696f82fa794d48fdd02166ba3062129f7a46640fc64244cf9ed",

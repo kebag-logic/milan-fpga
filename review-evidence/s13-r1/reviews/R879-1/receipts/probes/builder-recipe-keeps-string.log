@@ -1,0 +1,24 @@
+test_placement_recipe:
+Traceback (most recent call last):
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 30709, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/s13-r879-1-packet/scratch/c-t3/sw/builder/test_builder.py", line 24385, in test_placement_recipe
+    assert not bad, "gate 23o:\n  " + "\n  ".join(bad)
+           ^^^^^^^
+AssertionError: gate 23o:
+  arty_current: the split recipe's config differs from the file stating the key in ['entity']
+  arty_current: the placements' aem_overlay differ in more than the firmware_version 2.96.0 -> 3.96.0
+  arty_current: the placements' aem_rom_svh differ in more than the firmware_version 2.96.0 -> 3.96.0
+  arty_4x4: the split recipe's config differs from the file stating the key in ['entity']
+  arty_4x4: the placements' aem_overlay differ in more than the firmware_version 2.96.0 -> 3.96.0
+  arty_4x4: the placements' aem_rom_svh differ in more than the firmware_version 2.96.0 -> 3.96.0
+  arty_8ch: the split recipe's config differs from the file stating the key in ['entity']
+  arty_8ch: the placements' aem_overlay differ in more than the firmware_version 2.96.0 -> 3.96.0
+  arty_8ch: the placements' aem_rom_svh differ in more than the firmware_version 2.96.0 -> 3.96.0
+  ax7101_8x8: the all-fabric recipe's config differs from the file stating the key in ['entity']
+  ax7101_8x8: the placements' aem_overlay differ in more than the firmware_version 2.96.0 -> 3.96.0
+  ax7101_8x8: the placements' aem_rom_svh differ in more than the firmware_version 2.96.0 -> 3.96.0
+  ax7101_1x1_tdm8: the all-fabric recipe's config differs from the file stating the key in ['entity']
+  ax7101_1x1_tdm8: the placements' aem_overlay differ in more than the firmware_version 2.96.0 -> 3.96.0
+  ax7101_1x1_tdm8: the placements' aem_rom_svh differ in more than the firmware_version 2.96.0 -> 3.96.0
