@@ -1,0 +1,39 @@
+== one stream bound to several Stream Inputs, N=8 (#948) ==
+  [ ok ] off-size 65-octet PDU transfers no payload beat: input 0 = 0
+  [ ok ] off-size PDU has no accept: input 0 = 0
+  [ ok ] off-size PDU counted UNSUPPORTED_FORMAT: input 0 = 1
+  [ ok ] off-size PDU leaves no partial payload: input 0 = 0
+  [ ok ] off-size PDU has no accept: input 1 = 0
+  [ ok ] off-size PDU counted UNSUPPORTED_FORMAT: input 1 = 1
+  [ ok ] off-size PDU leaves no partial payload: input 1 = 0
+  [ ok ] next valid PDU accept verdicts: input 0 = 1
+  [ ok ] next valid PDU payloads reach the depacketizer's output under the input's index: input 0 = 1
+  [ ok ] next valid PDU payloads equal the sent ones, byte for byte, in order: input 0 = 1
+  [ ok ] next valid PDU FRAMES_RX counts them: input 0 = 1
+  [ ok ] next valid PDU the DEPKT tally counts them: input 0 = 1
+  [ ok ] next valid PDU accept verdicts: input 1 = 1
+  [ ok ] next valid PDU payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] next valid PDU payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] next valid PDU FRAMES_RX counts them: input 1 = 1
+  [ ok ] next valid PDU the DEPKT tally counts them: input 1 = 1
+  [ ok ] off-size 65-octet PDU transfers no payload beat: input 0 = 0
+  [ ok ] off-size PDU has no accept: input 0 = 0
+  [ ok ] off-size PDU counted UNSUPPORTED_FORMAT: input 0 = 1
+  [ ok ] off-size PDU leaves no partial payload: input 0 = 0
+  [ ok ] off-size PDU has no accept: input 1 = 0
+  [ ok ] off-size PDU counted UNSUPPORTED_FORMAT: input 1 = 1
+  [ ok ] off-size PDU leaves no partial payload: input 1 = 0
+  [ ok ] next valid PDU accept verdicts: input 0 = 1
+  [ ok ] next valid PDU payloads reach the depacketizer's output under the input's index: input 0 = 1
+  [ ok ] next valid PDU payloads equal the sent ones, byte for byte, in order: input 0 = 1
+  [ ok ] next valid PDU FRAMES_RX counts them: input 0 = 1
+  [ ok ] next valid PDU the DEPKT tally counts them: input 0 = 1
+  [ ok ] next valid PDU accept verdicts: input 1 = 1
+  [ ok ] next valid PDU payloads reach the depacketizer's output under the input's index: input 1 = 1
+  [ ok ] next valid PDU payloads equal the sent ones, byte for byte, in order: input 1 = 1
+  [ ok ] next valid PDU FRAMES_RX counts them: input 1 = 1
+  [ ok ] next valid PDU the DEPKT tally counts them: input 1 = 1
+
+======================================================================
+FANOUT N=8: 34 checks, 0 failures
+RESULT: PASS

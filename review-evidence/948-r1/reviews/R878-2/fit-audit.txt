@@ -1,0 +1,204 @@
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/recipe.txt
+cpus 16-23 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r38x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r38x8/build_ExtraPostPlacementOpt
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/build.rc
+0
+
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/signoff.txt
+Slow_85C: WNS +0.339 ns (0 failing), WHS +0.060 ns (0 failing)
+Slow_0C: WNS +0.339 ns (0 failing), WHS +0.060 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.017 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.017 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+rc=1
+
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/utilization.txt
+r38x8/build_ExtraPostPlacementOpt/gateware Slice LUTs=45161 LUT as Logic=43959 LUT as Memory=1202 Slice Registers=51215 Slice=15706 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=445 Logic LUTs=390 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2168 Logic LUTs=1988 LUTRAMs=180 FFs=1737 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=478 Logic LUTs=478 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/8x8-ExtraPostPlacementOpt/hier-lut-moves-vs-round2.txt
+ +1170 LUT     +0 FF  depth 3     598 ->   1768  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/(g_gptp_plane.u_gptp_shadow)
+ +1103 LUT    +80 FF  depth 0   44058 ->  45161  alinx_ax7101
+ +1021 LUT    +92 FF  depth 1   25398 ->  26419  alinx_ax7101/milan_datapath
+  -891 LUT     -2 FF  depth 3    4710 ->   3819  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine
+  -639 LUT     +0 FF  depth 4    2771 ->   2132  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu
+  +587 LUT    -18 FF  depth 3    4939 ->   5526  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+   +29 LUT    +80 FF  depth 2     416 ->    445  alinx_ax7101/milan_datapath/aaf_rx_depkt
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/recipe.txt
+cpus 16-23 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r38x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraTimingOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r38x8/build_ExtraTimingOpt
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/build.rc
+0
+
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/signoff.txt
+Slow_85C: WNS +0.174 ns (0 failing), WHS +0.051 ns (0 failing)
+Slow_0C: WNS +0.174 ns (0 failing), WHS +0.051 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.024 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.024 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+rc=1
+
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/utilization.txt
+r38x8/build_ExtraTimingOpt/gateware Slice LUTs=45113 LUT as Logic=43911 LUT as Memory=1202 Slice Registers=51213 Slice=15131 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=446 Logic LUTs=391 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2163 Logic LUTs=1983 LUTRAMs=180 FFs=1737 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=480 Logic LUTs=480 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/8x8-ExtraTimingOpt/hier-lut-moves-vs-round2.txt
+ +1357 LUT    +81 FF  depth 0   43756 ->  45113  alinx_ax7101
+ +1169 LUT     +0 FF  depth 3     596 ->   1765  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/(g_gptp_plane.u_gptp_shadow)
+ +1118 LUT    +92 FF  depth 1   25322 ->  26440  alinx_ax7101/milan_datapath
+  -883 LUT     -2 FF  depth 3    4705 ->   3822  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine
+  +702 LUT    -18 FF  depth 2    4857 ->   5559  alinx_ax7101/KL_mbx_cdc/u_edit
+  +702 LUT    -18 FF  depth 3    4842 ->   5544  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+   +40 LUT    +80 FF  depth 2     406 ->    446  alinx_ax7101/milan_datapath/aaf_rx_depkt
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/recipe.txt
+cpus 16-23 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r38x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r38x8/build_AltSpreadLogic_high
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/build.rc
+0
+
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/signoff.txt
+Slow_85C: WNS +0.114 ns (0 failing), WHS +0.100 ns (0 failing)
+Slow_0C: WNS +0.114 ns (0 failing), WHS +0.100 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/utilization.txt
+r38x8/build_AltSpreadLogic_high/gateware Slice LUTs=45164 LUT as Logic=43962 LUT as Memory=1202 Slice Registers=51214 Slice=15130 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=446 Logic LUTs=391 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2163 Logic LUTs=1983 LUTRAMs=180 FFs=1737 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=480 Logic LUTs=480 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/8x8-AltSpreadLogic_high/hier-lut-moves-vs-round2.txt
+ +1373 LUT    +80 FF  depth 0   43791 ->  45164  alinx_ax7101
+ +1169 LUT     +0 FF  depth 3     596 ->   1765  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/(g_gptp_plane.u_gptp_shadow)
+ +1118 LUT    +92 FF  depth 1   25322 ->  26440  alinx_ax7101/milan_datapath
+  -883 LUT     -2 FF  depth 3    4705 ->   3822  alinx_ax7101/milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine
+  +701 LUT    -18 FF  depth 2    4857 ->   5558  alinx_ax7101/KL_mbx_cdc/u_edit
+  +701 LUT    -18 FF  depth 3    4842 ->   5543  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+   +40 LUT    +80 FF  depth 2     406 ->    446  alinx_ax7101/milan_datapath/aaf_rx_depkt
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/recipe.txt
+cpus 56-63 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r31x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r31x1/build_ExtraPostPlacementOpt
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/build.rc
+0
+
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/signoff.txt
+Slow_85C: WNS +0.046 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.046 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/utilization.txt
+r31x1/build_ExtraPostPlacementOpt/gateware Slice LUTs=32870 LUT as Logic=31571 LUT as Memory=1299 Slice Registers=42838 Slice=13746 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=501 Logic LUTs=460 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=814 Logic LUTs=698 LUTRAMs=116 FFs=769 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=516 Logic LUTs=516 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/1x1-ExtraPostPlacementOpt/hier-lut-moves-vs-round2.txt
+  +363 LUT    +45 FF  depth 1    1308 ->   1671  alinx_ax7101/KL_mbx_cdc
+  +326 LUT     +0 FF  depth 3     582 ->    908  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+  +326 LUT     +0 FF  depth 2     597 ->    923  alinx_ax7101/KL_mbx_cdc/u_edit
+  +253 LUT   +170 FF  depth 0   32617 ->  32870  alinx_ax7101
+  -158 LUT     +5 FF  depth 2    2283 ->   2125  alinx_ax7101/KL_mbx/(KL_mbx)
+  -129 LUT     +3 FF  depth 2    2424 ->   2295  alinx_ax7101/milan_datapath/csr
+   +80 LUT    +80 FF  depth 2     421 ->    501  alinx_ax7101/milan_datapath/aaf_rx_depkt
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/recipe.txt
+cpus 56-63 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r31x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraTimingOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r31x1/build_ExtraTimingOpt
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/build.rc
+0
+
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/signoff.txt
+Slow_85C: WNS +0.115 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.115 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/utilization.txt
+r31x1/build_ExtraTimingOpt/gateware Slice LUTs=32920 LUT as Logic=31621 LUT as Memory=1299 Slice Registers=42842 Slice=14217 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=496 Logic LUTs=455 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=815 Logic LUTs=699 LUTRAMs=116 FFs=769 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=515 Logic LUTs=515 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/1x1-ExtraTimingOpt/hier-lut-moves-vs-round2.txt
+  +365 LUT    +45 FF  depth 1    1307 ->   1672  alinx_ax7101/KL_mbx_cdc
+  +327 LUT     +0 FF  depth 3     581 ->    908  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+  +327 LUT     +0 FF  depth 2     596 ->    923  alinx_ax7101/KL_mbx_cdc/u_edit
+  +270 LUT   +172 FF  depth 0   32650 ->  32920  alinx_ax7101
+  -167 LUT     +5 FF  depth 2    2288 ->   2121  alinx_ax7101/KL_mbx/(KL_mbx)
+  -129 LUT     +3 FF  depth 2    2428 ->   2299  alinx_ax7101/milan_datapath/csr
+   +75 LUT    +80 FF  depth 2     421 ->    496  alinx_ax7101/milan_datapath/aaf_rx_depkt
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/recipe.txt
+cpus 56-63 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r31x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r31x1/build_AltSpreadLogic_high
+INFO: [DRC 23-27] Running DRC with 8 threads
+
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/build.rc
+0
+
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/signoff.txt
+Slow_85C: WNS +0.139 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.139 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/utilization.txt
+r31x1/build_AltSpreadLogic_high/gateware Slice LUTs=32918 LUT as Logic=31619 LUT as Memory=1299 Slice Registers=42843 Slice=14216 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=496 Logic LUTs=455 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=815 Logic LUTs=699 LUTRAMs=116 FFs=769 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=515 Logic LUTs=515 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+author-r2/receipts/round2b/fit/1x1-AltSpreadLogic_high/hier-lut-moves-vs-round2.txt
+  +365 LUT    +45 FF  depth 1    1307 ->   1672  alinx_ax7101/KL_mbx_cdc
+  +327 LUT     +0 FF  depth 3     581 ->    908  alinx_ax7101/KL_mbx_cdc/u_edit/(u_edit)
+  +327 LUT     +0 FF  depth 2     596 ->    923  alinx_ax7101/KL_mbx_cdc/u_edit
+  +268 LUT   +173 FF  depth 0   32650 ->  32918  alinx_ax7101
+  -165 LUT     +5 FF  depth 2    2286 ->   2121  alinx_ax7101/KL_mbx/(KL_mbx)
+  -129 LUT     +3 FF  depth 2    2428 ->   2299  alinx_ax7101/milan_datapath/csr
+   +75 LUT    +80 FF  depth 2     421 ->    496  alinx_ax7101/milan_datapath/aaf_rx_depkt

@@ -1,0 +1,5 @@
+Primary documents checked locally, only relevant clauses read; copyrighted extracts remain unpublished in scratch.
+Milan Specification Consolidated v1.2: 4.4.2.2 (discard off-format inputs), 5.3.8.7 (per-input STOP), 5.3.8.10/Table 5.6 (input counters), 6.4 (advertised Base rate families).
+IEEE 1722-2016: 4.4.4.10 (payload octets), Table 9 (sample encoding), 7.3.5 (fixed sample count within a stream), I.2.4.1 (samples per channel per frame).
+Minimum Base payload: 1 channel x 6 samples x 4 octets = 24; Ethernet+AAF totals excluding FCS are 62 untagged and 66 tagged.
+22-bit maximum frame product: 1023 x 1023 x 4 = 4186116; comparison extends the 16-bit wire length rather than truncating the product.

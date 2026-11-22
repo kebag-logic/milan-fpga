@@ -1,0 +1,34 @@
+git rev-parse HEAD HEAD^{tree}
+64e55a59e09339114926c2600056c3ad8b33b9b4
+ee8f0eb03b6f360cd507678ef029970ec43afc95
+
+git diff --name-only 4ceba3d4 HEAD
+docs/DOCUMENTATION_AUDIT.md
+docs/design/MEDIA_CLOCK_FOLLOWING.md
+docs/fpga/DATAPLANE_WALKTHROUGH.md
+docs/fpga/FPGA_DESIGN.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+scripts/measure_test_evidence_readers.py
+scripts/register_descriptions.json
+tb/verilator/avtp_rxmon/Makefile
+tb/verilator/avtp_rxmon/depkt_mutants.py
+tb/verilator/avtp_rxmon/fanout_mutants.py
+tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+tb/verilator/avtp_rxmon/sim_ctxfmt.cpp
+tb/verilator/avtp_rxmon/sim_depkt.cpp
+tb/verilator/avtp_rxmon/sim_fanout.cpp
+tb/verilator/avtp_rxmon/sim_lockstep.cpp
+tb/verilator/avtp_rxmon/sim_main_nx.cpp
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/fan_stop_plant.py
+tb/verilator/milan_dp/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+
+git diff --name-only e8252323 HEAD -- hdl sw configs
+hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv
+
+git diff --name-only 15168e14 HEAD -- sw configs protocol-processor gptp-processor

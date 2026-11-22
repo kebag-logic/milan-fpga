@@ -1,0 +1,263 @@
+author-r2/receipts/round2b/gates/gates-64e55a59.txt
+head 64e55a59e09339114926c2600056c3ad8b33b9b4
+lint rc=0 LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog rc=0 xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+yosys KL_avtp_rx_monitor_ctx rc=0   [PASS] KL_avtp_rx_monitor_ctx cells=12034 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+yosys KL_aaf_rx_depacketizer rc=0   [PASS] KL_aaf_rx_depacketizer cells=54392 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+docs steps: 104 of 104 rc=0
+tsn_fuzz aaf rc=0 == AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps == campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+
+author-r2/receipts/round2b/gates/docs-steps-64e55a59.txt
+00-check_wire_accountability-selftest rc=0  RESULT: PASS
+01-docs_check                rc=0  docs_check: 0 finding(s) across 223 md files + 1916 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+02-check_feature_status      rc=0  feature_status: 0 finding(s)
+03-gen_hdl_reference-selftest rc=0  HDL reference self-test: 44/44 arms passed
+04-check_em_dash-base15168e14 rc=0  check_em_dash: 0 finding(s) over 73 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [15168e14..HEAD]
+05-check_doc_style           rc=0  documentation style: OK (25 current documents)
+06-check_doc_style-selftest  rc=0  documentation style selftest: OK
+07-check_gptp_docs           rc=0  gPTP documentation: OK (8 current pages)
+08-check_gptp_docs-selftest  rc=0  gPTP documentation selftest: OK (30 controls)
+09-DOC_MAP_gen-check         rc=0  documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+10-DOC_MAP_gen-selftest      rc=0  documentation map selftest: OK (valid wrong-raster control)
+11-timesync_chain_gen-check  rc=0  time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+12-timesync_chain_gen-selftest rc=0  time-sync diagram selftest: OK (source, status, XML, raster)
+13-check_solution_docs       rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+14-check_solution_docs-selftest rc=0  solution documentation selftest: OK (47 mutation controls)
+15-submodule_boundaries_gen-check rc=0  submodule diagram: OK (6 exact gitlinks, decoded PNG)
+16-submodule_boundaries_gen-selftest rc=0  submodule diagram selftest: OK (valid wrong-raster control)
+17-check_submodule_docs      rc=0  submodule documentation: OK (6 exact gitlinks)
+18-check_submodule_docs-selftest rc=0  submodule documentation selftest: OK (table and diagram controls)
+19-gen_wavedrom-selftest     rc=0  gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+20-gen_wavedrom-docsdiagramswdaxisba rc=0  WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+21-gen_wavedrom-docsdiagramswdcdchan rc=0  WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+22-gen_wavedrom-docsdiagramswdgptppd rc=0  WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+23-check_diagram_pngs        rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+24-check_diagram_pngs-selftest rc=0  diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+25-check_feature_status-selftest rc=0  feature_status: 0 finding(s)
+26-gen_module_matrix-check   rc=0  traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+27-check_gptp_docs-withsubmodule rc=0  gPTP documentation: OK (8 current pages, donor checkout verified)
+28-measure_control_flow-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+29-measure_cohesion-selftest rc=0  18 checks: 18 PASS, 0 FAIL
+30-check_baremetal_only-check rc=0  baremetal-only: OK (0 findings across 1914 tracked first-party file(s))
+31-check_baremetal_only-selftest rc=0  baremetal-only selftest: PASS (867 arm(s))
+32-ci_rv32_sdk_selftest      rc=0  OK
+33-test_firmware_compiler-selftest rc=0  compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+34-check_nvm_record_space    rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+35-check_nvm_record_space-selftest rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied
+36-check_nvm_format_32x32    rc=0  docs/design/SAVED_STATE_FORMAT_32X32.md: 0 finding(s)
+37-check_nvm_format_32x32-selftest rc=0  self-test: PASS
+38-check_nvm_klj3            rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128
+39-check_nvm_klj3-selftest   rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+40-check_nvm_capture         rc=0  PASS: capture census, clocks, both timing arms and receipt agree
+41-test_nvm_firmware-selftest rc=0  saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+42-check_soc_sources         rc=0  SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+43-check_soc_sources-selftest rc=0  25 checks: 25 PASS, 0 FAIL
+44-iob_pack_selftest         rc=0  iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+45-check_rtl_source_lists    rc=0  RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+46-check_rtl_source_lists-selftest rc=0  50 checks: 50 PASS, 0 FAIL
+47-measure_naming-check      rc=0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+48-measure_naming-selftest   rc=0  66 checks: 66 PASS, 0 FAIL
+49-check_port_contracts      rc=0    review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hierarchical observation(s)
+50-check_port_contracts-selftest rc=0  82 checks: 82 PASS, 0 FAIL
+51-measure_fail_fast-check   rc=0    the ratchets can be lowered to 80, 3 and 0
+52-measure_fail_fast-selftest rc=0  106 checks: 106 PASS, 0 FAIL
+53-check_todo_ownership      rc=0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1594 first-party file(s) read)
+54-check_todo_ownership-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+55-measure_test_evidence-check rc=0    the mutation ratchet can be lowered to 67
+56-measure_test_evidence-selftest rc=0  105 checks: 105 PASS, 0 FAIL
+57-check_hygiene-check       rc=0  HYGIENE RATCHET: PASS (3 population(s), 1521 file(s))
+58-check_hygiene-selftest    rc=0  35 checks: 35 PASS, 0 FAIL
+59-check_sv_idiom            rc=0  SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+60-check_sv_idiom-selftest   rc=0  55 checks: 55 PASS, 0 FAIL
+61-check_cpp_idiom           rc=0    build without warnings: 0 <= 0
+62-check_cpp_idiom-selftest  rc=0  83 checks: 83 PASS, 0 FAIL
+63-check_py_idiom            rc=0    over-long line: 0 <= 0
+64-check_py_idiom-selftest   rc=0  54 checks: 54 PASS, 0 FAIL
+65-check_sh_idiom            rc=0    top-heavy long script: 0 <= 0
+66-check_sh_idiom-selftest   rc=0  48 checks: 48 PASS, 0 FAIL
+67-check_doc_paths           rc=0  doc path gate: OK (1755 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+68-check_archive             rc=0  archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+69-check_archive-selftest    rc=0  archive selftest: OK (24 controls)
+70-gen_toc-selftest          rc=0  TOC selftest: PASS (1501/1501 arm(s))
+71-gen_toc-verifyanchors     rc=0  anchor check: 755 existing cross-page fragment links reproduced
+72-gen_toc-check             rc=0  TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+73-docs_inventory-check      rc=0  documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+74-docs_inventory-selftest   rc=0  documentation inventory selftest: OK (60 controls)
+75-gen_aem_store-selftest    rc=0  gen_aem_store self-test: PASS
+76-check_sweep_shape-selftest rc=0    [self-test] OK: 1 drift(s) reported
+77-check_deploy_shape-selftest rc=0    [selftest] OK: 1 drift(s) reported
+78-check_entity_shape-selftest rc=0  RESULT: PASS
+79-gen_register_reference-check rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+80-gen_register_reference-selftest rc=0  register reference selftest: OK (61/61 controls)
+81-memory_map_gen-check      rc=0  memory map diagram: fresh
+82-ci_gate_workflows-check   rc=0  
+83-ci_gate_workflows_selftest rc=0  gate workflow and union controls: PASS
+84-ci_case_receipts_selftest rc=0  case receipt self-test: 36 driver cases, union and comparison controls pass
+85-ci_make_cases_selftest    rc=0  make case runner: all controls pass
+86-ci_maap_cases_selftest    rc=0  MAAP scheduling controls: 66 cases retain their source and checks
+87-ci_capture_cases_selftest rc=0  capture observations: full/sharded values match; failed unit remains failed
+88-ci_suite_pieces_selftest  rc=0  suite pieces: 65 parents, 82 scheduled units, all controls PASS
+89-ci_suite_collect_selftest rc=0  physical suite collection: all controls PASS
+90-ci_fail_fast_selftest     rc=0  fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+91-ci_runtime_evidence_selftest rc=0  runtime manifest collectors: all controls PASS
+92-ci_install_cache_selftest rc=0  constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+93-generate_ci_evidence_pins-check rc=0  
+94-ci_workflow_plan_selftest rc=0  workflow planner: all controls pass
+95-ci_manifest_selftest      rc=0  manifest comparison controls: PASS
+96-ci_events-check           rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+97-docs_inventory-check      rc=0  documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+98-docs_inventory-selftest   rc=0  documentation inventory selftest: OK (60 controls)
+99-register_reference-check  rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+100-register_reference-selftest rc=0  register reference selftest: OK (61/61 controls)
+101-memory_map_gen-check     rc=0  memory map diagram: fresh
+102-gen_toc-check            rc=0  TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+103-gen_toc-verify-anchors   rc=0  anchor check: 755 existing cross-page fragment links reproduced
+
+author-r2/receipts/round2b/sweep/small-suites-SUMMARY-64e55a59.txt
+aaf_audio_loop rc=0 seconds=8
+capture_coherence rc=0 seconds=3285
+follow_ring rc=0 seconds=959
+mbx rc=0 seconds=202
+milan_dp_gm_steps rc=0 seconds=1802
+milan_dp_render rc=0 seconds=2537
+pp_shadow rc=0 seconds=2331
+tsn_fuzz rc=0 seconds=16
+checks: 548216   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+tally rc=0
+
+author-r2/receipts/round2b/sweep/render_mutants-64e55a59.log
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 209.532, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 209.53, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 209.533, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.001}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 366.413, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 156.88, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 366.416, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "idle_s": 0.003}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 395.018, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "elapsed_s": 28.602, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 395.018, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 554.067, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 159.049, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 554.069, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 580.107, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 26.038, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 580.107, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 728.508, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 148.401, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 728.515, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.007}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 754.652, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 26.137, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 754.652, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 917.543, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 162.891, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 917.548, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.005}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 945.853, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 28.305, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 945.853, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 1163.343, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 217.49, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 1163.492, "state": "idle", "idle_s": 0.149}
+
+6 checks: 6 PASS, 0 FAIL
+
+author-r2/receipts/round2b/sweep/milan_dp-64e55a59-excerpt.txt.gz
+# milan_dp at 64e55a59: every case before render_mutants passed (14,148 checks, 0 failures); the sweep's 7200 s wall clock stopped the suite inside its last phase, render_mutants (rc=124, the sweep's UNKNOWN, host load ~145), which then ran alone on the same binaries: 6 of 6 (render_mutants-64e55a59.log)
+# full log: 3167761 bytes, sha256 c7e0339ce0d247598391741ceddf98f3c9086860d8ad6b16ae05ca6bd49d0901
+milan_dp rc=124 seconds=7200
+checks: 14148   in-suite failures: 0
+tally rc=0
+author-r2/receipts/round2b/rtl/avtp_rxmon-suite-64e55a59.log.gz
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+[PASS] mutant caught: lost increment: a pulse that lands on a queued dispatch drops out of the queue count - breaks "[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU"
+[PASS] mutant caught: torn read: the mirror takes a write's high half one cycle after its low half - breaks "[H2] GET_COUNTERS read identical to the reference in every cycle of the update window"
+[PASS] mutant caught: wrong stream index: the GET_COUNTERS read ignores the sink - breaks "[GC] every sink answers its own row and column (seeded signatures)"
+[PASS] mutant caught: missed reset: the bundle queue's count survives a reset - breaks "[H4] no bundle queued before a reset is served after it"
+[PASS] mutant caught (planted in the engine and the reference): silence: the watchdog's unlock is never marked an interruption (#762) - breaks "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): gap: a sequence gap of two lost PDUs no longer interrupts (#762) - breaks "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): unbind: an unbind's unlock is counted as an interruption (#762) - breaks "[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): consume race: an unbind erases a silence already expired, before its walk counts it (#762) - breaks "boundary (an unbind, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped: a stopped input's silence is marked an interruption (#762) - breaks "[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): stop at the walk: the stopped state is read when the walk counts, not at the expiry (#762) - breaks "boundary (a STOP, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped gap: a stopped input's sequence gap is counted an interruption (#762) - breaks "[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): sticky stop: a STOP disarms the gap until the next bind, START never re-arms it (#762) - breaks "[SI] after START a sequence gap counts STREAM_INTERRUPTED again"
+[PASS] mutant caught (planted in the engine and the reference): gap stop late: a gap's stopped state is read one cycle after its verdict (#762) - breaks "gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped"
+14 checks: 14 PASS, 0 FAIL
+[PASS] mutant caught: family compare: the channel count is not compared (the reading #765 replaces) - breaks "[UF2a] a 2-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: low byte: only channels_per_frame[7:0] is compared - breaks "[UF3a] a 264-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: inverted: a matching channel count is rejected - breaks "[UF1a] a matching 8-channel PDU is accepted"
+[PASS] mutant caught: fixed count: the compare reads a constant, not the current format - breaks "[UF4a] with a 2-channel current format, a 2-channel PDU is accepted"
+[PASS] mutant caught: stream 0: the channel word of fmt0_i is not loaded - breaks "[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict"
+[PASS] mutant caught: no advance: a discarded PDU leaves prev_seq (the defect #775 fixes) - breaks "[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"
+[PASS] mutant caught: whole state: a discarded PDU writes an accepted PDU's MON_STATE - breaks "[SQ2d] MEDIA_RESET unchanged"
+[PASS] mutant caught: accepted walk: a discarded PDU also writes the timestamp words - breaks "[SQ1d] ...and it writes no timestamp word (LAST_TSD)"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): lock set: a discarded PDU sets media_locked - breaks "[SQ4f] MEDIA_LOCKED +1 at the first accepted PDU"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): settle step: a discarded PDU steps the settle count - breaks "[SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed set: a discarded PDU sets the mr seed - breaks "[SQ6e] ...and counts no MEDIA_RESET: it seeds the reference"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed clear: a discarded PDU clears the mr seed - breaks "[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject"
+13 checks: 13 PASS, 0 FAIL
+RESULT: PASS
+[PASS] mutant caught: bind walk provisions every stream: streams above 0 take fmt0_i's words at the bind - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: stream 0's alias: a stream above 0 is judged against fmt0_i's channel count - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: another context: the window's write lands in the neighbouring stream's words - breaks "[CF2] the first in-format PDU is accepted"
+[PASS] mutant caught: an unbind's walk writes over the format: the unlock's MON_STATE write lands in FMT_HI - breaks "[CF5] the rebound input's first PDU is accepted"
+5 checks: 5 PASS, 0 FAIL
+FANOUT N=8: 1205 checks, 0 failures
+RESULT: PASS
+[PASS] mutant caught: the parser's one index: each PDU goes to the highest matching entry alone (the defect #948 found) - breaks "[FO1] accept verdicts: input 0"
+[PASS] mutant caught: the engine serves a bundle to its first context alone - breaks "[FO1] accept verdicts: input 1"
+[PASS] mutant caught: the done pulse leaves out the last context's own accept - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+[PASS] mutant caught: a new bundle inherits the previous bundle's accepts - breaks "[FO4] the 2-channel input: no payload: input 5"
+[PASS] mutant caught: the depacketizer reads a frame once: no pass for a second input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+[PASS] mutant caught: a second pass keeps the first pass's input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 0"
+[PASS] mutant caught: a second pass goes on from where the first ended, not from the frame's start - breaks "[FO1] payloads equal the sent ones, byte for byte, in order: input 1"
+[PASS] mutant caught: a frame no input accepted is read out to input 0 - breaks "[FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0"
+[PASS] mutant caught: the read side takes a frame before its verdicts are known - breaks "[FO6] payloads equal the sent ones, byte for byte, in order"
+[PASS] mutant caught: a frame that ends in its enqueue pulse's cycle has its fate written to the previous frame's entry - breaks "[FO8] only the full PDU reaches the depacketizer's output: input 0"
+[PASS] mutant caught: the verdict queue holds two entries, not the four a full ring and a lost PDU need - breaks "[FO9] only the three full PDUs reach the depacketizer's output"
+[PASS] mutant caught: a frame the full store dropped counts in no input's DEPKT drops - breaks "[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops"
+[PASS] mutant caught: the engine leaves stream_data_length out of the format verdict - breaks "[FO11] the 192-octet PDUs: accept verdicts: input 0"
+[PASS] mutant caught: the frame size takes six samples per frame, not the format's own - breaks "[FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1"
+[PASS] mutant caught: every input is judged by input 0's frame size - breaks "[FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1"
+[PASS] mutant caught: an INT_24BIT sample is sized as four octets - breaks "[FO12] 81 octets: accept verdicts: input 0"
+[PASS] mutant caught: an INT_16BIT sample is sized as four octets - breaks "[FO12] 70 octets: accept verdicts: input 0"
+[PASS] mutant caught: a tail left in the hold: the frame's last word is popped with the beat before it (#948) - breaks "[FO12] 81 octets: payloads equal the sent ones, byte for byte, in order: input 0"
+[PASS] mutant caught: a frame short of its payload is committed and read out in part - breaks "[FO13] ...each its own payload, in order: input 0"
+[PASS] mutant caught: a pulse is taken only while its frame is still on the tap (the #948 short-frame defect, nine and ten beats) - breaks "[FO14] 28 octets: payloads reach the depacketizer's output under the input's index: input 0"
+[PASS] mutant caught: the store's write side takes the tap as it comes (the #948 short-frame defect) - breaks "[FO14] 24 octets: payloads reach the depacketizer's output under the input's index: input 0"
+22 checks: 22 PASS, 0 FAIL
+DEPKT: 374 checks, 0 failures
+RESULT: PASS
+DEPKT: 374 checks, 0 failures
+RESULT: PASS
+[PASS] mutant caught: a tail left in the hold: the frame's last word is popped with the beat before it, so the pass ends and the read side resynchronises without the final beat (the #948 frame-boundary defect) - breaks "[DT1] a 65-octet payload: 9 beats, tlast on the last"
+[PASS] mutant caught: a tail left in the hold behind a C-VLAN tag is sized for an untagged frame - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: a frame short of its payload is committed and read out in part - breaks "[DT3] 192 octets, 40 short, inputs 3: ...each its beats, its tlast, its index and its bytes, in order"
+[PASS] mutant caught: a frame short of its payload is dropped but counted for none of its accepting inputs - breaks "[DT3] 192 octets, 1 short, inputs 3: drop_p_o names each short frame's accepting inputs"
+[PASS] mutant caught: drops_o leaves out a frame short of its payload - breaks "[DT3] 192 octets, 1 short, inputs 3: drops_o counts each short frame"
+[PASS] mutant caught: the length check reads a tagged frame's data_len where an untagged frame carries it - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: the length check takes a short last beat for a full one - breaks "[DT3] 192 octets, 1 short, inputs 3: output frames, one per accepting input"
+[PASS] mutant caught: the store's write side takes the tap as it comes, so a frame of ten beats or fewer ends before its enqueue pulse (the #948 short-frame defect) - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: a pulse is taken only while its frame is still on the tap, so one after a nine- or ten-beat frame's tlast is lost - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: the verdict at the stored eighth beat misses a pulse that lands in that same cycle - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+[PASS] mutant caught: the write side runs two cycles behind the tap, one short of the enqueue pulse's latency - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+12 checks: 12 PASS, 0 FAIL
+author-r2/receipts/round2b/twin/twin-gate-64e55a59.log.gz
+twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 88, 'MVRP': 24}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 53, 'MAAP': 8, 'MSRP': 96, 'MVRP': 92}}
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store
+fanout: 0 failed, 0 host timeouts, 676 ms
+caught: FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS
+caught: FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input
+caught: FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU
+caught: FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS
+caught (one-index): [FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)
+caught (one-index): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+caught (shared): [FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)
+caught (shared): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
