@@ -1830,7 +1830,8 @@ def cluster_layout(
     return ports_in, ports_out
 
 
-def validate_cluster_minimum(ports_in, ports_out):
+def validate_cluster_minimum(ports_in: list[dict[str, Any]],
+                             ports_out: list[dict[str, Any]]) -> None:
     """STREAM_PORT_CLUSTER_MINIMUM over a RESOLVED layout, both directions and
     every policy (#584; Milan v1.2 5.3.3.8). The pool builders cannot emit an
     empty port today; this is the one check that says so whatever produced

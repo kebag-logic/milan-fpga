@@ -10567,7 +10567,11 @@ class NxnDatapathHarness {
                     8, full_sc, full_co, 7, 0, 0, DT_SPI), 7);
         ck("T66: ...and leaves SPI 0's mapping", map_has(DT_SPI, 0, 0, 0, 0), 1);
 
-        const int sc0 = 0, sc1 = 1, sc2 = 2, co0 = 0, co1 = 1;
+        const int sc0 = 0;
+        const int sc1 = 1;
+        const int sc2 = 2;
+        const int co0 = 0;
+        const int co1 = 1;
         ck("T66: REMOVE of SPI 0's non-empty list SUCCEEDS",
            dmap_cmd("REMOVE-input-zero", CMD_REMOVE_AUDIO_MAPPINGS,
                     1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);

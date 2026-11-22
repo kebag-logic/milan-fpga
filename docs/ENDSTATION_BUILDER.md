@@ -269,14 +269,14 @@ index first; it states which behavior can be relied on today.
 
 | # | Decision, in one line | Rests on | Status |
 |---|---|---|---|
-| **D1** | one STREAM_PORT per AAF stream, each owning a contiguous, nonempty cluster block; a static output port owns one AUDIO_MAP, an input port none; CRF gets no port | 1722.1 7.2.13, 7.2.19; Milan 5.3.3.8, 5.3.3.9, 5.4.2.27/28 | **implemented** — emitted and layout-gated (gate 6); a zero-cluster port is refused by name (#584) |
+| **D1** | one STREAM_PORT per AAF stream, each owning a contiguous, nonempty cluster block; a static output port owns one AUDIO_MAP, an input port none; CRF gets no port | 1722.1 7.2.13, 7.2.19; Milan 5.3.3.8, 5.3.3.9, 5.4.2.27/28 | **implemented**: emitted and layout-gated (gate 6); a zero-cluster port is refused by name (#584) |
 | **D2** | cluster policy is config-selectable; a stream channel maps to a mono MBLA AUDIO_CLUSTER | 1722.1 7.2.16/7.2.16.1; Milan 6.4, 5.3.10.1, 5.4.2.27 | **implemented** — both policies gated (gate 7) |
 | **D3** | talker `clusters` is its own config field, never derived from `channels` | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1, 5.3.9.1, 6.3 | **implemented** — the shapes table above shows 8 vs 2 |
 | **D4** | `entity_model_id` = deterministic hash of the model-shaping fields only, or a pin for flashed silicon | 1722.1 6.2.2.8 (incl. its exclusion list) | **implemented** — determinism, shape-sensitivity and the pin are gated (gate 8) |
 | **D5** | the config is the single source of truth; flow flags stay in the launchers (`sweep.sh` and, since #402, `build.sh`); `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
 | **D6** | AEM store uses a DRAM descriptor tree loaded from a builder-emitted, verified image pair | engineering (area: ~80 RAMB36 vs ~36 free) | **implemented in the tracked flow**: the processor fetches the whole model from DRAM at a compile-time base; the builder emits the image, manifest, and map; bare-metal firmware verifies and copies the raw QSPI image before entity enable. See D6 below |
 | **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **implemented**: generated input geometry and output ownership sideband feed atomic ADD/REMOVE transactions and live projections |
-| **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane, and one cluster on every input port | 1722.1 7.2.19 (port-relative offsets); Milan 5.3.3.8 | **model implemented** (2026-07-28) — `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; every input port owns a cluster since #584; whether a build has the loopback **fabric lane** is its `fabric.loopback_lane` |
+| **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane, and one cluster on every input port | 1722.1 7.2.19 (port-relative offsets); Milan 5.3.3.8 | **model implemented** (2026-07-28): `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; every input port owns a cluster since #584; whether a build has the loopback **fabric lane** is its `fabric.loopback_lane` |
 | **D10** | every AUDIO_CLUSTER is named for its ROLE, not `"Input"`/`"Output"` | 1722.1 7.2.16; 6.2.2.8 (object_name excluded from model structure) | **implemented** (2026-07-28) — gates 24c/24d; `entity_model_id` provably unmoved |
 
 > **D2 has moved on since it was written.** Since schema 1.1 (1.2 today) the
@@ -861,7 +861,7 @@ with no way to tell a pilot tone from a dead TDM slot from a loopback lane.
 | `virtual` | `"Virtual Out <n>"` / `"Virtual In <n>"` |
 | `pilot` | `"Pilot Tone"` |
 | `loopback` | `"Loopback S<s> ch <c>"` — the received stream channel it offers |
-| `unrouted` | `"Unrouted S<p>"` — an input port's destination that reaches no pin (#584) |
+| `unrouted` | `"Unrouted S<p>"`: an input port's destination that reaches no pin (#584) |
 
 **Clause basis — and why this is free.** 1722.1-2021 6.2.2.8 lists
 `object_name` among the fields that do **not** constitute "the structure of

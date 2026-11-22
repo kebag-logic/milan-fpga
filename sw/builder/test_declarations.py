@@ -635,14 +635,15 @@ def _zero_cluster_refused(direction: str) -> None:
     produced it (the role pools are replaced by empty ones in that direction alone)."""
     original = eb._role_pool
 
-    def empty_pool(rules, actual, port_index, widths, render_from=0):
+    def _empty_pool(rules, actual: str, port_index: int, widths: tuple, render_from: int = 0) -> list:
+        """The role pools, empty in `direction` alone."""
         if actual == direction:
             return []
         return original(rules, actual, port_index, widths, render_from)
 
     cfg = eb.load_config(ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml")
     rules = eb.ClusterRules("role-pools", 8, {"render": 8, "capture": 8}, {"pilot": True, "loopback": 8})
-    with patch.object(eb, "_role_pool", side_effect=empty_pool):
+    with patch.object(eb, "_role_pool", side_effect=_empty_pool):
         try:
             eb.cluster_layout(cfg["listeners"], cfg["talkers"], rules)
         except eb.ConfigError as exc:

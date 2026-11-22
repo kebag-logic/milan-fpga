@@ -21,17 +21,17 @@
 #include <cstdio>
 #include <vector>
 
-#ifndef TB_SLOTS
-#error "TB_SLOTS (the lane's rendered slots) is set by the Makefile"
+#ifndef LANE_SLOTS
+#error "LANE_SLOTS (the lane's rendered slots) is set by the Makefile"
 #endif
-#ifndef TB_BUS_SLOTS
-#error "TB_BUS_SLOTS (the bus frame's slots) is set by the Makefile"
+#ifndef LANE_BUS_SLOTS
+#error "LANE_BUS_SLOTS (the bus frame's slots) is set by the Makefile"
 #endif
 
 namespace {
 
-constexpr int kSlots     = TB_SLOTS;
-constexpr int kBusSlots  = TB_BUS_SLOTS;
+constexpr int kSlots     = LANE_SLOTS;
+constexpr int kBusSlots  = LANE_BUS_SLOTS;
 constexpr int kSlotBits  = 32;
 constexpr int kFrame     = kBusSlots * kSlotBits;  // bit periods per frame
 constexpr int kHalf      = 2;                      // clk_tdm cycles per bclk half

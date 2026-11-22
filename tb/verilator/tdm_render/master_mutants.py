@@ -47,11 +47,12 @@ def run(leg: str, src: Path | None) -> tuple[int, str]:
     cmd = ["make", "--no-print-directory", leg]
     if src is not None:
         cmd += [f"RM_SRC={src}"]
-    p = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True, timeout=900)
+    p = subprocess.run(cmd, cwd=HERE, capture_output=True, text=True, check=False)
     return p.returncode, p.stdout + p.stderr
 
 
 def main() -> int:
+    """The unplanted control, then each defect; exit 0 only when every defect fails its leg with its words."""
     caught = 0
     rc, out = run("lane1of32", None)
     if rc != 0 or "RESULT: PASS" not in out:

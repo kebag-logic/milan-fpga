@@ -6,8 +6,8 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 `ctrl_memory.LEDGERED` lets four images plan past the 56-RAMB36 budget, each only as its own point, under #665's
 documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16). Since #584 gave each
 8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (its eight more descriptors and names, the stage 656 B longer at 14,250 B), the
-size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.5 with two (its arms' most), the platform's
-64.0 with two and 59.0 with one, each half a tile past its entry refused; before it: at 8x8 with two
+size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.5 with two (its arms' most),
+the platform's 64.0 with two and 59.0 with one, each half a tile past its entry refused; before it: at 8x8 with two
 interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
 #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
 #665) and the target platform's at 63.0 (60.5, the
