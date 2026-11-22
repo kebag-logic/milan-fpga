@@ -1,0 +1,325 @@
+# python3 -I tools/replay.py . (run from this directory), over the 229 files MANIFEST.sha256 listed before this output was added; exit 0
+== 1. manifest
+  ok    229 listed files hash as listed
+  ok    no file unlisted ([]) or missing ([])
+  ok    36 compressed operands' content hashes as MANIFEST.content.sha256 lists it, every compressed file listed
+== 2. binding to the published identities (binding.json)
+  ok    shipping/1x1/bench/alinx_ax7101.bit: c7189218a128b71d is c7189218 (the bench re-check's 1x1/1if bitstream, built at 8c5e2b4f (#665 issuecomment-7063917242))
+  ok    shipping/1x1/bench/ctrl_app.elf: c873a0aa8b9c39a0 is c873a0aa (the bench re-check's 1x1/1if firmware (#665 issuecomment-7063917242))
+  ok    shipping/8x8/bench/alinx_ax7101.bit: 7d90341299cc65e8 is 7d903412 (the bench re-check's 8x8/1if bitstream, built at 8c5e2b4f (#665 issuecomment-7063917242))
+  ok    shipping/8x8/bench/ctrl_app.elf: d67fd049a9d20b65 is d67fd049 (the bench re-check's 8x8/1if firmware (#665 issuecomment-7063917242))
+  ok    shipping/1x1/flip/alinx_ax7101.bit: 68e5308bf397df08 is 68e5308bf397df08 (round 1's flip image, the gating recipe at 822e3af0 (#665 issuecomment-7070924358; round-1 receipts identity/1x1/artifacts.sha256.txt))
+  ok    shipping/1x1/flip/ctrl_app.elf: afc1a9cd5604a696 is afc1a9cd5604a696 (round 1's flip platform image (round-1 receipts identity/1x1/artifacts.sha256.txt))
+  ok    shipping/8x8/flip/alinx_ax7101.bit: 6a1ff1efca0a6474 is 6a1ff1efca0a6474 (round 1's flip image, the gating recipe at 822e3af0 (#665 issuecomment-7070924358; round-1 receipts identity/8x8/artifacts.sha256.txt))
+  ok    shipping/8x8/flip/ctrl_app.elf: 25ec96d33f061090 is 25ec96d33f061090 (round 1's flip platform image (round-1 receipts identity/8x8/artifacts.sha256.txt))
+  ok    harness/1x1/none/measured.elf: 1d38aa279c0ef4d2 is 1d38aa279c0ef4d2 (the formal measurement's 1x1 none image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/none/head.elf: ffea0386823638ff is ffea0386823638ff (the re-measured 1x1 none image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-every-port/measured.elf: 3514124c76ee6886 is 3514124c76ee6886 (the formal measurement's 1x1 answering-every-port image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-every-port/head.elf: 45a233cdb5a67dc5 is 45a233cdb5a67dc5 (the re-measured 1x1 answering-every-port image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-ports/measured.elf: 125ea3309dff1a42 is 125ea3309dff1a42 (the formal measurement's 1x1 answering-ports image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-ports/head.elf: ef7b0b8e438ce874 is ef7b0b8e438ce874 (the re-measured 1x1 answering-ports image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-later/measured.elf: 633aa1c3b0ba1668 is 633aa1c3b0ba1668 (the formal measurement's 1x1 answering-later image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/answering-later/head.elf: cf7af9e08c95b0b8 is cf7af9e08c95b0b8 (the re-measured 1x1 answering-later image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/declaring-outputs/measured.elf: 5bda727f7e88a456 is 5bda727f7e88a456 (the formal measurement's 1x1 declaring-outputs image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/declaring-outputs/head.elf: 4653fe12c875c103 is 4653fe12c875c103 (the re-measured 1x1 declaring-outputs image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/shutdown-entry/measured.elf: 22848ab3a41ea962 is 22848ab3a41ea962 (the formal measurement's 1x1 shutdown-entry image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/shutdown-entry/head.elf: a8e244aff142c6e3 is a8e244aff142c6e3 (the re-measured 1x1 shutdown-entry image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/talker-notices/measured.elf: 590d512b6f039afe is 590d512b6f039afe (the formal measurement's 1x1 talker-notices image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/talker-notices/head.elf: 8e0e84cf3688ab57 is 8e0e84cf3688ab57 (the re-measured 1x1 talker-notices image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/valid-destinations/measured.elf: 0ef0bb72fe64b722 is 0ef0bb72fe64b722 (the formal measurement's 1x1 valid-destinations image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/valid-destinations/head.elf: 2ee7bddb594d34b6 is 2ee7bddb594d34b6 (the re-measured 1x1 valid-destinations image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/none/measured.elf: d4dee38514018583 is d4dee38514018583 (the formal measurement's 8x8-1if none image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/none/head.elf: c6ce195013b1539a is c6ce195013b1539a (the re-measured 8x8-1if none image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-every-port/measured.elf: 678a116855e94bf5 is 678a116855e94bf5 (the formal measurement's 8x8-1if answering-every-port image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-every-port/head.elf: 0771393e98c5e1fb is 0771393e98c5e1fb (the re-measured 8x8-1if answering-every-port image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-ports/measured.elf: a69e9773300aa49f is a69e9773300aa49f (the formal measurement's 8x8-1if answering-ports image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-ports/head.elf: e94fa66ea8398e33 is e94fa66ea8398e33 (the re-measured 8x8-1if answering-ports image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-later/measured.elf: 8c15860de5a2441e is 8c15860de5a2441e (the formal measurement's 8x8-1if answering-later image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/answering-later/head.elf: 0811e9db5152c226 is 0811e9db5152c226 (the re-measured 8x8-1if answering-later image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/declaring-outputs/measured.elf: 708e577b986ea57f is 708e577b986ea57f (the formal measurement's 8x8-1if declaring-outputs image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/declaring-outputs/head.elf: 0cf3342a3be729c8 is 0cf3342a3be729c8 (the re-measured 8x8-1if declaring-outputs image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/shutdown-entry/measured.elf: cafe933093481812 is cafe933093481812 (the formal measurement's 8x8-1if shutdown-entry image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/shutdown-entry/head.elf: 21a56a1651a5de5d is 21a56a1651a5de5d (the re-measured 8x8-1if shutdown-entry image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/talker-notices/measured.elf: 17cc688efb581da5 is 17cc688efb581da5 (the formal measurement's 8x8-1if talker-notices image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/talker-notices/head.elf: b026aa06229e0963 is b026aa06229e0963 (the re-measured 8x8-1if talker-notices image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/valid-destinations/measured.elf: 717afd504c22f197 is 717afd504c22f197 (the formal measurement's 8x8-1if valid-destinations image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/8x8-1if/valid-destinations/head.elf: fbfeea8e355a1cdf is fbfeea8e355a1cdf (the re-measured 8x8-1if valid-destinations image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt))
+  ok    harness/1x1/none/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/none/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-every-port/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-every-port/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-ports/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-ports/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-later/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/answering-later/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/declaring-outputs/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/declaring-outputs/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/shutdown-entry/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/shutdown-entry/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/talker-notices/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/talker-notices/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/valid-destinations/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/1x1/valid-destinations/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/none/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/none/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-every-port/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-every-port/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-ports/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-ports/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-later/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/answering-later/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/declaring-outputs/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/declaring-outputs/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/shutdown-entry/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/shutdown-entry/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/talker-notices/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/talker-notices/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/valid-destinations/measured.elf: equals the image rebuilt at bench head 8c5e2b4f (the harness build (legs.py build) rerun at that head in a clean clone)
+  ok    harness/8x8-1if/valid-destinations/head.elf: equals the image rebuilt at this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0 (the harness build (legs.py build) rerun at that head in a clean clone)
+== 3. shipping 1x1/1if: bench against flip
+     bench header: a=alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=7b2ab830;SW_HDR_SHA256=ac51e9c783685a195943e5c2617ef4f25393e7f218f0c4b24effb9dafd4e2644; b=7a100tfgg484; c=2026/11/20; d=18:23:08; e=3825788
+     flip header: a=alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=229310a9;SW_HDR_SHA256=47ea2eb8f10343400da093bf2997cd2465c589f47db1759eea22dbc991c9bfef; b=7a100tfgg484; c=2026/11/21; d=17:58:55; e=3825788
+  ok    1x1 .bit: same length, header field layout, payload and packet structure
+     differing bytes: 103
+         8  header 'a' (design name) SW_CRC: offsets [69, 70, 71, 72, 73, 74, 75, 76]
+        63  header 'a' (design name) SW_HDR_SHA256: offsets [92, 93, 94, 95, '...', 154, 155]
+         1  header 'c' (date): offsets [185]
+         5  header 'd' (time): offsets [191, 193, 194, 196, 197]
+         4  payload register CRC: offsets [3823920, 3823921, 3823922, 3823923]
+        18  FDRI frame words, 7 of 9464 frames, 22 bit(s): frame 7826 words [1, 3, 8] 3 bit(s); frame 7954 words [11, 13, 16] 4 bit(s); frame 8082 words [17] 1 bit(s); frame 8692 words [58] 1 bit(s); frame 8726 words [87, 88] 2 bit(s); frame 8822 words [20] 1 bit(s); frame 8854 words [62, 67, 68, 72, 73, 78, 79] 10 bit(s)
+  ok    1x1 .bit: outside the frames, only the design name's SW_CRC and SW_HDR_SHA256 text, the date, the time and the CRC register write differ (unexpected: [])
+     header bytes 77 = design name 71 + date 1 + time 5; CRC register bytes 4; frame bits 22
+  ok    1x1 ctrl_app.elf: the same loaded sections at the same addresses and sizes
+  ok    1x1 ctrl_app.elf: 6 loaded bytes differ: the lui/addi pair at 0x12254, 0x12258 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1 ctrl_app.elf: the whole files (159484 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1 ctrl_app.elf: aecp_entity_image is byte for byte the export's aem_desc.bin, both sides
+  ok    1x1 bench: the 5 ROM bank init files (126432 B) are the ELF's load segments [('0x0', 126302), ('0x1ed60', 128)], zero beyond
+  ok    1x1 flip: the 5 ROM bank init files (126432 B) are the ELF's load segments [('0x0', 126302), ('0x1ed60', 128)], zero beyond
+  ok    1x1 aem_desc.bin: 7512 B each, 1 byte differs, at ['0x184']: '2' -> '3'
+     aem_desc.json: equal
+     aem_desc.map: equal
+     csr.csv: 2 line(s) differ
+       - # Auto-generated by LiteX (a1e1c36) on 2026-11-20 18:02:13
+       + # Auto-generated by LiteX (a1e1c36) on 2026-11-21 17:30:38
+       - constant,milan_aem_image_crc32,950534947,,
+       + constant,milan_aem_image_crc32,3676170933,,
+     csr.json: 1 line(s) differ
+       - "milan_aem_image_crc32": 950534947,
+       + "milan_aem_image_crc32": 3676170933,
+     flashboot_layout.json: 3 line(s) differ
+       - "aem_image_crc32": 950534947,
+       + "aem_image_crc32": 3676170933,
+       - "aem_image_sha256": "bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180",
+       + "aem_image_sha256": "fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26",
+       - "bitstream_payload_sha256": "4b00c4af97e56f66db63cfbed1b9bc4b0f7702da91fdfef373c5ff16847ba7b5",
+       + "bitstream_payload_sha256": "b0ec58146044977221e2efc3cca947a2e7981b37ff3e247463a45d9951672e8f",
+     image_manifest.json: 3 line(s) differ
+       - "version": "0x00020060",
+       + "version": "0x00030060",
+       - "sha256": "c873a0aa8b9c39a003d7a78616c83d6469935debb5bb1107ad477b900ee607fb",
+       + "sha256": "afc1a9cd5604a696f82fa794d48fdd02166ba3062129f7a46640fc64244cf9ed",
+       - "bitstream_payload_sha256": "4b00c4af97e56f66db63cfbed1b9bc4b0f7702da91fdfef373c5ff16847ba7b5",
+       + "bitstream_payload_sha256": "b0ec58146044977221e2efc3cca947a2e7981b37ff3e247463a45d9951672e8f",
+     gateware/alinx_ax7101_mem.init: equal
+  ok    1x1 cells dump: present for both checkpoints
+  ok    1x1 cells: 86465 cells, every name, type and placement equal
+       milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1: 1 bit(s) in INITP_00 (1)
+       rom_bank1_dat0_reg_2 RAMB36E1: 1 bit(s) in INIT_22 (1)
+       rom_bank1_dat0_reg_3 RAMB36E1: 4 bit(s) in INIT_22 (4)
+       rom_bank1_dat0_reg_4 RAMB36E1: 2 bit(s) in INIT_22 (2)
+       rom_bank1_dat0_reg_5 RAMB36E1: 6 bit(s) in INIT_22 (6)
+       rom_bank1_dat0_reg_6 RAMB36E1: 3 bit(s) in INIT_22 (3)
+       rom_bank1_dat0_reg_7 RAMB36E1: 4 bit(s) in INIT_22 (4)
+       rom_bank3_dat0_reg_0 RAMB36E1: 1 bit(s) in INIT_02 (1)
+  ok    1x1 cells: 22 INIT bit(s) differ in 8 cell(s), the frame bits 22; each a ROM bank or the CSR defaults ROM
+     1x1 bram: not dumped separately (the cells dump holds every block RAM's INIT)
+  ok    1x1 nets dump: present for both checkpoints
+  ok    1x1 nets: 95172 nets, every route byte-identical
+     bench.summary: cells 86465 nets 95172; # of fully routed nets : 73381 :; # of nets with routing errors : 0 :
+     flip.summary: cells 86465 nets 95172; # of fully routed nets : 73381 :; # of nets with routing errors : 0 :
+== 3. shipping 8x8/1if: bench against flip
+     bench header: a=alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=c1289458;SW_HDR_SHA256=c23b587714e2ef876abadd7adb7566275c86caa3eb556ab3b9519b07f6fea106; b=7a100tfgg484; c=2026/11/20; d=18:28:20; e=3825788
+     flip header: a=alinx_ax7101;UserID=0XFFFFFFFF;Version=2026.1;SW_CRC=a59e6371;SW_HDR_SHA256=d9c3b8197000d53c3632fb18852fd644ffd4c02d9a42168d32ce02a277d63440; b=7a100tfgg484; c=2026/11/21; d=18:53:36; e=3825788
+  ok    8x8 .bit: same length, header field layout, payload and packet structure
+     differing bytes: 93
+         8  header 'a' (design name) SW_CRC: offsets [69, 70, 71, 72, 73, 74, 75, 76]
+        61  header 'a' (design name) SW_HDR_SHA256: offsets [92, 93, 94, 95, '...', 154, 155]
+         1  header 'c' (date): offsets [185]
+         4  header 'd' (time): offsets [193, 194, 196, 197]
+         4  payload register CRC: offsets [3823920, 3823921, 3823922, 3823923]
+        15  FDRI frame words, 7 of 9464 frames, 15 bit(s): frame 7736 words [6] 1 bit(s); frame 7792 words [42] 1 bit(s); frame 8636 words [61, 71, 81] 3 bit(s); frame 8764 words [71] 1 bit(s); frame 8892 words [51, 71] 2 bit(s); frame 9020 words [20, 36, 40, 51, 91, 97] 6 bit(s); frame 9060 words [90] 1 bit(s)
+  ok    8x8 .bit: outside the frames, only the design name's SW_CRC and SW_HDR_SHA256 text, the date, the time and the CRC register write differ (unexpected: [])
+     header bytes 74 = design name 69 + date 1 + time 4; CRC register bytes 4; frame bits 15
+  ok    8x8 ctrl_app.elf: the same loaded sections at the same addresses and sizes
+  ok    8x8 ctrl_app.elf: 6 loaded bytes differ: the lui/addi pair at 0x12208, 0x1220c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8 ctrl_app.elf: the whole files (172164 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8 ctrl_app.elf: aecp_entity_image is byte for byte the export's aem_desc.bin, both sides
+  ok    8x8 bench: the 2 ROM bank init files (139208 B) are the ELF's load segments [('0x0', 138686), ('0x21dc0', 520)], zero beyond
+  ok    8x8 flip: the 2 ROM bank init files (139208 B) are the ELF's load segments [('0x0', 138686), ('0x21dc0', 520)], zero beyond
+  ok    8x8 aem_desc.bin: 19520 B each, 1 byte differs, at ['0x184']: '2' -> '3'
+     aem_desc.json: equal
+     aem_desc.map: equal
+     csr.csv: 2 line(s) differ
+       - # Auto-generated by LiteX (a1e1c36) on 2026-11-20 18:02:23
+       + # Auto-generated by LiteX (a1e1c36) on 2026-11-21 17:59:10
+       - constant,milan_aem_image_crc32,3604837561,,
+       + constant,milan_aem_image_crc32,3073436817,,
+     csr.json: 1 line(s) differ
+       - "milan_aem_image_crc32": 3604837561,
+       + "milan_aem_image_crc32": 3073436817,
+     flashboot_layout.json: 3 line(s) differ
+       - "aem_image_crc32": 3604837561,
+       + "aem_image_crc32": 3073436817,
+       - "aem_image_sha256": "723225a54cc0f8a6a5b43cbf802495d09f0c28f56e7ec4d9c9d3ea7011816e38",
+       + "aem_image_sha256": "3594c9457b6d6afcfb39af707ae4c993a39315950766f9c7f4a528071a78e86e",
+       - "bitstream_payload_sha256": "88797768dbe54d39e254aa9b4daaf2d08ec60f355c248c1901b3a852a43a95df",
+       + "bitstream_payload_sha256": "ffda0c5c19256a5cbece51a0a87f4fd329c1aca65b210ad97d2e6bc268d2c2d1",
+     image_manifest.json: 3 line(s) differ
+       - "version": "0x00020060",
+       + "version": "0x00030060",
+       - "sha256": "d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4",
+       + "sha256": "25ec96d33f0610901e642a7fe5765a8d1926e00b53fd0926c4ad421d0c5c3334",
+       - "bitstream_payload_sha256": "88797768dbe54d39e254aa9b4daaf2d08ec60f355c248c1901b3a852a43a95df",
+       + "bitstream_payload_sha256": "ffda0c5c19256a5cbece51a0a87f4fd329c1aca65b210ad97d2e6bc268d2c2d1",
+     gateware/alinx_ax7101_mem.init: equal
+  ok    8x8 cells dump: present for both checkpoints
+  ok    8x8 cells: 109093 cells, every name, type and placement equal
+       milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1: 1 bit(s) in INITP_00 (1)
+       rom_bank0_dat0_reg_0_0 RAMB36E1: 1 bit(s) in INIT_70 (1)
+       rom_bank0_dat0_reg_0_15 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_16 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_18 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_19 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_21 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_22 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_23 RAMB36E1: 2 bit(s) in INIT_48 (2)
+       rom_bank0_dat0_reg_0_24 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_25 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_29 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_30 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_31 RAMB36E1: 1 bit(s) in INIT_48 (1)
+  ok    8x8 cells: 15 INIT bit(s) differ in 14 cell(s), the frame bits 15; each a ROM bank or the CSR defaults ROM
+  ok    8x8 bram dump: present for both checkpoints
+  ok    8x8 bram: 111 cells, every name, type and placement equal
+       milan_datapath/csr/sweep_cnt_reg_rep RAMB18E1: 1 bit(s) in INITP_00 (1)
+       rom_bank0_dat0_reg_0_0 RAMB36E1: 1 bit(s) in INIT_70 (1)
+       rom_bank0_dat0_reg_0_15 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_16 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_18 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_19 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_21 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_22 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_23 RAMB36E1: 2 bit(s) in INIT_48 (2)
+       rom_bank0_dat0_reg_0_24 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_25 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_29 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_30 RAMB36E1: 1 bit(s) in INIT_48 (1)
+       rom_bank0_dat0_reg_0_31 RAMB36E1: 1 bit(s) in INIT_48 (1)
+  ok    8x8 bram: 15 INIT bit(s) differ in 14 cell(s), the frame bits 15; each a ROM bank or the CSR defaults ROM
+  ok    8x8 nets dump: present for both checkpoints
+  ok    8x8 nets: 119085 nets, every route byte-identical
+     bench.summary: cells 109093 nets 119085; # of fully routed nets : 89056 :; # of nets with routing errors : 0 :
+     flip.summary: cells 109093 nets 119085; # of fully routed nets : 89056 :; # of nets with routing errors : 0 :
+== 4. CPU-budget harness images: measured against this head's
+  ok    1x1/answering-every-port: the same loaded sections at the same addresses and sizes
+  ok    1x1/answering-every-port: 6 loaded bytes differ: the lui/addi pair at 0x10764, 0x10784 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/answering-every-port: the whole files (149736 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/answering-every-port: the same group partition (parts.json)
+  ok    1x1/answering-later: the same loaded sections at the same addresses and sizes
+  ok    1x1/answering-later: 6 loaded bytes differ: the lui/addi pair at 0x106dc, 0x106fc loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/answering-later: the whole files (149660 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/answering-later: the same group partition (parts.json)
+  ok    1x1/answering-ports: the same loaded sections at the same addresses and sizes
+  ok    1x1/answering-ports: 6 loaded bytes differ: the lui/addi pair at 0x10814, 0x10834 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/answering-ports: the whole files (149660 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/answering-ports: the same group partition (parts.json)
+  ok    1x1/declaring-outputs: the same loaded sections at the same addresses and sizes
+  ok    1x1/declaring-outputs: 6 loaded bytes differ: the lui/addi pair at 0x10908, 0x10928 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/declaring-outputs: the whole files (149808 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/declaring-outputs: the same group partition (parts.json)
+  ok    1x1/none: the same loaded sections at the same addresses and sizes
+  ok    1x1/none: 6 loaded bytes differ: the lui/addi pair at 0x10660, 0x10680 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/none: the whole files (149516 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/none: the same group partition (parts.json)
+  ok    1x1/shutdown-entry: the same loaded sections at the same addresses and sizes
+  ok    1x1/shutdown-entry: 6 loaded bytes differ: the lui/addi pair at 0x106b4, 0x106d4 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/shutdown-entry: the whole files (149588 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/shutdown-entry: the same group partition (parts.json)
+  ok    1x1/talker-notices: the same loaded sections at the same addresses and sizes
+  ok    1x1/talker-notices: 6 loaded bytes differ: the lui/addi pair at 0x1070c, 0x1072c loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/talker-notices: the whole files (149584 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/talker-notices: the same group partition (parts.json)
+  ok    1x1/valid-destinations: the same loaded sections at the same addresses and sizes
+  ok    1x1/valid-destinations: 6 loaded bytes differ: the lui/addi pair at 0x106e4, 0x10704 loads crc32(aecp_entity_image) 38a80323 -> db1deab5, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    1x1/valid-destinations: the whole files (149544 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    1x1/valid-destinations: the same group partition (parts.json)
+  ok    8x8-1if/answering-every-port: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/answering-every-port: 6 loaded bytes differ: the lui/addi pair at 0x1071c, 0x1073c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/answering-every-port: the whole files (162416 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/answering-every-port: the same group partition (parts.json)
+  ok    8x8-1if/answering-later: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/answering-later: 6 loaded bytes differ: the lui/addi pair at 0x10694, 0x106b4 loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/answering-later: the whole files (162340 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/answering-later: the same group partition (parts.json)
+  ok    8x8-1if/answering-ports: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/answering-ports: 6 loaded bytes differ: the lui/addi pair at 0x107cc, 0x107ec loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/answering-ports: the whole files (162340 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/answering-ports: the same group partition (parts.json)
+  ok    8x8-1if/declaring-outputs: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/declaring-outputs: 6 loaded bytes differ: the lui/addi pair at 0x108c0, 0x108e0 loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/declaring-outputs: the whole files (162488 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/declaring-outputs: the same group partition (parts.json)
+  ok    8x8-1if/none: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/none: 6 loaded bytes differ: the lui/addi pair at 0x10618, 0x10638 loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/none: the whole files (162196 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/none: the same group partition (parts.json)
+  ok    8x8-1if/shutdown-entry: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/shutdown-entry: 6 loaded bytes differ: the lui/addi pair at 0x1066c, 0x1068c loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/shutdown-entry: the whole files (162268 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/shutdown-entry: the same group partition (parts.json)
+  ok    8x8-1if/talker-notices: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/talker-notices: 6 loaded bytes differ: the lui/addi pair at 0x106c4, 0x106e4 loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/talker-notices: the whole files (162264 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/talker-notices: the same group partition (parts.json)
+  ok    8x8-1if/valid-destinations: the same loaded sections at the same addresses and sizes
+  ok    8x8-1if/valid-destinations: 6 loaded bytes differ: the lui/addi pair at 0x1069c, 0x106bc loads crc32(aecp_entity_image) d6dd74b9 -> b730ec91, and aecp_entity_image+0x184 reads '2' -> '3'
+  ok    8x8-1if/valid-destinations: the whole files (162224 B) differ in those 6 bytes only (symbols, debug and headers equal)
+  ok    8x8-1if/valid-destinations: the same group partition (parts.json)
+  ok    16 of 16 arm images compared
+== 5. the 13 re-measured groups: measured against this head's
+  ok    1x1/answering-ports/aecp-reboot: 420 leaves, 5 probes, every leaf equal, none excluded
+  ok    1x1/answering-ports/aecp-reboot: raw log 96890 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    1x1/declaring-outputs/aecp-outputs: 512 leaves, 7 probes, every leaf equal, none excluded
+  ok    1x1/declaring-outputs/aecp-outputs: raw log 496914 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    1x1/none/aecp-fanout: 626 leaves, 9 probes, every leaf equal, none excluded
+  ok    1x1/none/aecp-fanout: raw log 100213 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    1x1/none/aecp-held: 245 leaves, 1 probes, every leaf equal, none excluded
+  ok    1x1/none/aecp-held: raw log 125033 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+       line 124959 WIRE: ...00000020000322e39362e3000... -> ...00000020000332e39362e3000...
+       line 124975 PASS: ...8874:a29:2e320000 1005188... -> ...8874:a29:2e330000 1005188...
+  ok    1x1/none/aecp-largest-notice: 429 leaves, 5 probes, every leaf equal, none excluded
+  ok    1x1/none/aecp-largest-notice: raw log 97934 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    1x1/none/aecp: 1321 leaves, 26 probes, every leaf equal, none excluded
+  ok    1x1/none/aecp: raw log 101495 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+       line 84238 WIRE: ...00000020000322e39362e3000... -> ...00000020000332e39362e3000...
+       line 84254 PASS: ...2409:a36:2e320000 6862241... -> ...2409:a36:2e330000 6862241...
+  ok    1x1/none/control: 325 leaves, 3 probes, every leaf equal, none excluded
+  ok    1x1/none/control: raw log 102101 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    8x8-1if/answering-ports/aecp-reboot: 423 leaves, 5 probes, every leaf equal, none excluded
+  ok    8x8-1if/answering-ports/aecp-reboot: raw log 76872 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    8x8-1if/declaring-outputs/aecp-outputs: 813 leaves, 14 probes, every leaf equal, none excluded
+  ok    8x8-1if/declaring-outputs/aecp-outputs: raw log 505692 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    8x8-1if/none/aecp-fanout: 532 leaves, 7 probes, every leaf equal, none excluded
+  ok    8x8-1if/none/aecp-fanout: raw log 80245 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    8x8-1if/none/aecp-held: 246 leaves, 1 probes, every leaf equal, none excluded
+  ok    8x8-1if/none/aecp-held: raw log 97169 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+       line 97096 WIRE: ...00000020000322e39362e3000... -> ...00000020000332e39362e3000...
+       line 97111 PASS: ...8177:a29:2e320000 1005181... -> ...8177:a29:2e330000 1005181...
+  ok    8x8-1if/none/aecp: 1322 leaves, 26 probes, every leaf equal, none excluded
+  ok    8x8-1if/none/aecp: raw log 82768 lines, 2 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+       line 68198 WIRE: ...00000020000322e39362e3000... -> ...00000020000332e39362e3000...
+       line 68213 PASS: ...3512:a36:2e320000 7252351... -> ...3512:a36:2e330000 7252351...
+  ok    8x8-1if/none/control: 332 leaves, 3 probes, every leaf equal, none excluded
+  ok    8x8-1if/none/control: raw log 81508 lines, 0 differ, each only inside the ENTITY firmware_version string (2.96.0 -> 3.96.0)
+  ok    13 of 13 groups compared
+== RESULT: ALL CLAIMS HOLD

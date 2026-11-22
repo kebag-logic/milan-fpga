@@ -1,0 +1,43 @@
+# the round's planted defects at dd163e41438acb86e0c4d4e76df90f3f91ace1c0, each in this clone, restored after; caught = nonzero exit and a FAIL line
+== control (nothing planted): python3 -B syn/resmap/soc_sweep.py --selftest: exit 0 (PASS)
+== control (nothing planted): python3 -B -c import sys; sys.path.insert(0, 'tb/verilator/ctrl_service_budget'); import selftest; r = selftest.build_checks(); [print(('PASS ' if ok else 'FAIL ') + n + ('' if ok else ': ' + d)) for n, ok, d in r]; sys.exit(not all(ok for _, ok, _ in r)): exit 0 (PASS)
+== R880-1-F1: the plan prices the split SoC
+   planted in syn/resmap/sweep_plan.json; exit 1 (CAUGHT)
+   SELF-TEST FAILED: the plan prices the split SoC, not the all-fabric one its recorded figures were taken at
+   soc_sweep self-test: FAIL
+== R880-1-F1: the soc section names no placement
+   planted in syn/resmap/sweep_plan.json; exit 1 (CAUGHT)
+   SELF-TEST FAILED: the plan: the soc section names no control placement
+   SELF-TEST FAILED: command_export refused the plan: the soc section names no control placement
+   soc_sweep self-test: FAIL
+== R880-1-F1: missing_images reports nothing
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: an absent platform image: missing images [], want ['sw/builder/out/cfg/ctrl_app.elf']
+   SELF-TEST FAILED: a platform image flag with no value: missing images [], want ['(no value)']
+   SELF-TEST FAILED: prepare(split) returned an argument list naming an absent platform image
+== R879-2-S1 M1: prepare stops passing --placement to the builder
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: prepare(all-fabric) was refused: the all-fabric SoC arguments name platform image(s) ['sw/builder/out/c/x.elf'] that the export tree does not hold; the sweep builds none (#665)
+   SELF-TEST FAILED: prepare(all-fabric) did not ask the builder for all-fabric: ...['-o', '<scratch>/tmp/resmap-wiring-lr7qo23f/builder-out', '<scratch>/tmp/resmap-wiring-lr7qo23f/tree/configs/endstation_ax7101_1x1_tdm8.yaml']
+   soc_sweep self-test: FAIL
+== R879-2-S1 M2: prepare never refuses a missing image
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: prepare(split) returned an argument list naming an absent platform image
+   soc_sweep self-test: FAIL
+== R879-2-S1 M3: command_export asks for the split whatever the plan names
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: command_export asked prepare() for split, the plan names all-fabric
+   soc_sweep self-test: FAIL
+== R879-2-S1 M4: missing_images reads paths against the wrong root
+   planted in syn/resmap/soc_sweep.py; exit 1 (CAUGHT)
+   SELF-TEST FAILED: a platform image present in the tree was reported missing
+   soc_sweep self-test: FAIL
+== R879-S1: split_argv appends a second image pair (the pre-fix behaviour)
+   planted in tb/verilator/ctrl_service_budget/build.py; exit 1 (CAUGHT)
+   FAIL endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf', '--ctrl-mailbox', '--ctrl-firmware', 'x.elf']
+   FAIL endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf', '--ctrl-mailbox', '--ctrl-firmware', 'x.elf']
+== R879-S1: split_argv keeps the config's image and drops the harness's
+   planted in tb/verilator/ctrl_service_budget/build.py; exit 1 (CAUGHT)
+   FAIL endstation_ax7101_1x1_tdm8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf']
+   FAIL endstation_ax7101_8x8: the split SoC argv names the harness image once, after the all-fabric argv: ['1', '--ctrl-mailbox', '--ctrl-firmware', 'sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf']
+plants caught: 9 of 9; tree after the plants: 0 changed paths

@@ -1,0 +1,103 @@
+00-check_wire_accountability-selftest	/usr/bin/python3 scripts/check_wire_accountability.py --self-test
+01-docs_check	/usr/bin/python3 scripts/docs_check.py
+02-check_feature_status	/usr/bin/python3 scripts/check_feature_status.py
+03-gen_hdl_reference-selftest	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_hdl_reference.py --selftest
+04-check_em_dash-base59b09884	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 59b09884
+05-check_doc_style	/usr/bin/python3 scripts/check_doc_style.py
+06-check_doc_style-selftest	/usr/bin/python3 scripts/check_doc_style.py --selftest
+07-check_gptp_docs	/usr/bin/python3 scripts/check_gptp_docs.py
+08-check_gptp_docs-selftest	/usr/bin/python3 scripts/check_gptp_docs.py --selftest
+09-DOC_MAP_gen-check	/usr/bin/python3 docs/DOC_MAP.gen.py --check
+10-DOC_MAP_gen-selftest	/usr/bin/python3 docs/DOC_MAP.gen.py --selftest
+11-timesync_chain_gen-check	/usr/bin/python3 docs/diagrams/timesync_chain.gen.py --check
+12-timesync_chain_gen-selftest	/usr/bin/python3 docs/diagrams/timesync_chain.gen.py --selftest
+13-check_solution_docs	/usr/bin/python3 scripts/check_solution_docs.py
+14-check_solution_docs-selftest	/usr/bin/python3 scripts/check_solution_docs.py --selftest
+15-submodule_boundaries_gen-check	/usr/bin/python3 docs/diagrams/submodule_boundaries.gen.py --check
+16-submodule_boundaries_gen-selftest	/usr/bin/python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+17-check_submodule_docs	/usr/bin/python3 scripts/check_submodule_docs.py
+18-check_submodule_docs-selftest	/usr/bin/python3 scripts/check_submodule_docs.py --selftest
+19-gen_wavedrom-selftest	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py --selftest
+20-gen_wavedrom-docsdiagramswdaxisba	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+21-gen_wavedrom-docsdiagramswdcdchan	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+22-gen_wavedrom-docsdiagramswdgptppd	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+23-check_diagram_pngs	/usr/bin/python3 scripts/check_diagram_pngs.py
+24-check_diagram_pngs-selftest	/usr/bin/python3 scripts/check_diagram_pngs.py --selftest
+25-check_feature_status-selftest	/usr/bin/python3 scripts/check_feature_status.py --self-test
+26-gen_module_matrix-check	/usr/bin/python3 docs/traceability/gen_module_matrix.py --check
+27-check_gptp_docs-withsubmodule	/usr/bin/python3 scripts/check_gptp_docs.py --with-submodule
+28-measure_control_flow-selftest	/usr/bin/python3 scripts/measure_control_flow.py --selftest
+29-measure_cohesion-selftest	/usr/bin/python3 scripts/measure_cohesion.py --selftest
+30-check_baremetal_only-check	/usr/bin/python3 scripts/check_baremetal_only.py --check
+31-check_baremetal_only-selftest	/usr/bin/python3 scripts/check_baremetal_only.py --selftest
+32-ci_rv32_sdk_selftest	/usr/bin/python3 scripts/ci_rv32_sdk_selftest.py
+33-test_firmware_compiler-selftest	/usr/bin/python3 sw/builder/test_firmware_compiler.py --selftest
+34-check_nvm_record_space	/usr/bin/python3 scripts/check_nvm_record_space.py
+35-check_nvm_record_space-selftest	/usr/bin/python3 scripts/check_nvm_record_space.py --self-test
+36-check_nvm_format_32x32	/usr/bin/python3 scripts/check_nvm_format_32x32.py
+37-check_nvm_format_32x32-selftest	/usr/bin/python3 scripts/check_nvm_format_32x32.py --self-test
+38-check_nvm_klj3	/usr/bin/python3 scripts/check_nvm_klj3.py
+39-check_nvm_klj3-selftest	/usr/bin/python3 scripts/check_nvm_klj3.py --self-test
+40-check_nvm_capture	/usr/bin/python3 scripts/check_nvm_capture.py
+41-test_nvm_firmware-selftest	/usr/bin/python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+42-check_soc_sources	/usr/bin/python3 scripts/check_soc_sources.py
+43-check_soc_sources-selftest	/usr/bin/python3 scripts/check_soc_sources.py --selftest
+44-iob_pack_selftest	/usr/bin/python3 sw/litex/iob_pack_selftest.py
+45-check_rtl_source_lists	/usr/bin/python3 scripts/check_rtl_source_lists.py
+46-check_rtl_source_lists-selftest	/usr/bin/python3 scripts/check_rtl_source_lists.py --selftest
+47-measure_naming-check	/usr/bin/python3 scripts/measure_naming.py --check
+48-measure_naming-selftest	/usr/bin/python3 scripts/measure_naming.py --selftest
+49-check_port_contracts	/usr/bin/python3 scripts/check_port_contracts.py
+50-check_port_contracts-selftest	/usr/bin/python3 scripts/check_port_contracts.py --selftest
+51-measure_fail_fast-check	/usr/bin/python3 scripts/measure_fail_fast.py --check
+52-measure_fail_fast-selftest	/usr/bin/python3 scripts/measure_fail_fast.py --selftest
+53-check_todo_ownership	/usr/bin/python3 scripts/check_todo_ownership.py
+54-check_todo_ownership-selftest	/usr/bin/python3 scripts/check_todo_ownership.py --selftest
+55-measure_test_evidence-check	/usr/bin/python3 scripts/measure_test_evidence.py --check
+56-measure_test_evidence-selftest	/usr/bin/python3 scripts/measure_test_evidence.py --selftest
+57-check_hygiene-check	/usr/bin/python3 scripts/check_hygiene.py --check
+58-check_hygiene-selftest	/usr/bin/python3 scripts/check_hygiene.py --selftest
+59-check_sv_idiom	/usr/bin/python3 scripts/check_sv_idiom.py
+60-check_sv_idiom-selftest	/usr/bin/python3 scripts/check_sv_idiom.py --selftest
+61-check_cpp_idiom	/usr/bin/python3 scripts/check_cpp_idiom.py
+62-check_cpp_idiom-selftest	/usr/bin/python3 scripts/check_cpp_idiom.py --selftest
+63-check_py_idiom	/usr/bin/python3 scripts/check_py_idiom.py
+64-check_py_idiom-selftest	/usr/bin/python3 scripts/check_py_idiom.py --selftest
+65-check_sh_idiom	/usr/bin/python3 scripts/check_sh_idiom.py
+66-check_sh_idiom-selftest	/usr/bin/python3 scripts/check_sh_idiom.py --selftest
+67-check_doc_paths	/usr/bin/python3 scripts/check_doc_paths.py
+68-check_archive	/usr/bin/python3 scripts/check_archive.py
+69-check_archive-selftest	/usr/bin/python3 scripts/check_archive.py --selftest
+70-gen_toc-selftest	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --selftest
+71-gen_toc-verifyanchors	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+72-gen_toc-check	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+73-docs_inventory-check	/usr/bin/python3 scripts/docs_inventory.py --check
+74-docs_inventory-selftest	/usr/bin/python3 scripts/docs_inventory.py --selftest
+75-gen_aem_store-selftest	/usr/bin/python3 avdecc/gen_aem_store.py --self-test
+76-check_sweep_shape-selftest	/usr/bin/python3 scripts/check_sweep_shape.py --self-test
+77-check_deploy_shape-selftest	/usr/bin/python3 scripts/check_deploy_shape.py --self-test
+78-check_entity_shape-selftest	/usr/bin/python3 scripts/check_entity_shape.py --self-test
+79-gen_register_reference-check	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --check
+80-gen_register_reference-selftest	<host-tools>/tools/md-venv-40cdefe08ebd/bin/python3 scripts/gen_register_reference.py --selftest
+81-memory_map_gen-check	/usr/bin/python3 docs/diagrams/memory_map.gen.py --check
+82-ci_gate_workflows-check	/usr/bin/python3 scripts/ci_gate_workflows.py --check
+83-ci_gate_workflows_selftest	/usr/bin/python3 scripts/ci_gate_workflows_selftest.py
+84-ci_case_receipts_selftest	/usr/bin/python3 scripts/ci_case_receipts_selftest.py
+85-ci_make_cases_selftest	/usr/bin/python3 scripts/ci_make_cases_selftest.py
+86-ci_maap_cases_selftest	/usr/bin/python3 scripts/ci_maap_cases_selftest.py
+87-ci_capture_cases_selftest	/usr/bin/python3 scripts/ci_capture_cases_selftest.py
+88-ci_suite_pieces_selftest	/usr/bin/python3 scripts/ci_suite_pieces_selftest.py
+89-ci_suite_collect_selftest	/usr/bin/python3 scripts/ci_suite_collect_selftest.py
+90-ci_fail_fast_selftest	/usr/bin/python3 scripts/ci_fail_fast_selftest.py
+91-ci_runtime_evidence_selftest	/usr/bin/python3 scripts/ci_runtime_evidence_selftest.py
+92-ci_install_cache_selftest	/usr/bin/python3 scripts/ci_install_cache_selftest.py
+93-generate_ci_evidence_pins-check	/usr/bin/python3 scripts/generate_ci_evidence_pins.py --check
+94-ci_workflow_plan_selftest	/usr/bin/python3 scripts/ci_workflow_plan_selftest.py
+95-ci_manifest_selftest	/usr/bin/python3 scripts/ci_manifest_selftest.py
+96-ci_events-check	/usr/bin/python3 scripts/ci_events.py --check
+97-ci_events-selftest	/usr/bin/python3 scripts/ci_events.py --selftest
+98-act_ci-selftest	/usr/bin/python3 scripts/act_ci.py --selftest
+99-_I-installdiractcipysel	/usr/bin/python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"
+100-ci_fail_fast-watch	/usr/bin/python3 scripts/ci_fail_fast.py watch
+101-ci_fail_fast-cancel	/usr/bin/python3 scripts/ci_fail_fast.py cancel
+102-ci_fail_fast-tail	/usr/bin/python3 scripts/ci_fail_fast.py tail

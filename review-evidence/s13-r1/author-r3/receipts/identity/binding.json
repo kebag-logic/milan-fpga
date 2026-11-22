@@ -1,0 +1,528 @@
+{
+ "operands": [
+  {
+   "path": "shipping/1x1/bench/alinx_ax7101.bit",
+   "sha256": "c7189218",
+   "source": "the bench re-check's 1x1/1if bitstream, built at 8c5e2b4f (#665 issuecomment-7063917242)"
+  },
+  {
+   "path": "shipping/1x1/bench/ctrl_app.elf",
+   "sha256": "c873a0aa",
+   "source": "the bench re-check's 1x1/1if firmware (#665 issuecomment-7063917242)"
+  },
+  {
+   "path": "shipping/8x8/bench/alinx_ax7101.bit",
+   "sha256": "7d903412",
+   "source": "the bench re-check's 8x8/1if bitstream, built at 8c5e2b4f (#665 issuecomment-7063917242)"
+  },
+  {
+   "path": "shipping/8x8/bench/ctrl_app.elf",
+   "sha256": "d67fd049",
+   "source": "the bench re-check's 8x8/1if firmware (#665 issuecomment-7063917242)"
+  },
+  {
+   "path": "shipping/1x1/flip/alinx_ax7101.bit",
+   "sha256": "68e5308bf397df080a0aec5f0b90f622a09abf7bdfe9f0017192ccb539abe4e3",
+   "source": "round 1's flip image, the gating recipe at 822e3af0 (#665 issuecomment-7070924358; round-1 receipts identity/1x1/artifacts.sha256.txt)"
+  },
+  {
+   "path": "shipping/1x1/flip/ctrl_app.elf",
+   "sha256": "afc1a9cd5604a696f82fa794d48fdd02166ba3062129f7a46640fc64244cf9ed",
+   "source": "round 1's flip platform image (round-1 receipts identity/1x1/artifacts.sha256.txt)"
+  },
+  {
+   "path": "shipping/8x8/flip/alinx_ax7101.bit",
+   "sha256": "6a1ff1efca0a64748876d42c46081153715fc2aef4fc9c4e98a21c0d3e71f363",
+   "source": "round 1's flip image, the gating recipe at 822e3af0 (#665 issuecomment-7070924358; round-1 receipts identity/8x8/artifacts.sha256.txt)"
+  },
+  {
+   "path": "shipping/8x8/flip/ctrl_app.elf",
+   "sha256": "25ec96d33f0610901e642a7fe5765a8d1926e00b53fd0926c4ad421d0c5c3334",
+   "source": "round 1's flip platform image (round-1 receipts identity/8x8/artifacts.sha256.txt)"
+  },
+  {
+   "path": "harness/1x1/none/measured.elf",
+   "sha256": "1d38aa279c0ef4d222a6a7b1433f3e74348b26e02db105e32ff8a37961dadd80",
+   "source": "the formal measurement's 1x1 none image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/none/head.elf",
+   "sha256": "ffea0386823638ff22f5dfb8024e2558f7f65a2676ab8059d0f07035ea116c3c",
+   "source": "the re-measured 1x1 none image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-every-port/measured.elf",
+   "sha256": "3514124c76ee6886ba258762a2e8e84045a501c3dd84473e1b60e1da7a1047ff",
+   "source": "the formal measurement's 1x1 answering-every-port image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-every-port/head.elf",
+   "sha256": "45a233cdb5a67dc596d63b99b7fad29574889433d41db929c99575338bb7be38",
+   "source": "the re-measured 1x1 answering-every-port image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-ports/measured.elf",
+   "sha256": "125ea3309dff1a423e9ef06250b8301a0e29d66e01ae6771da4e55b5244c74ed",
+   "source": "the formal measurement's 1x1 answering-ports image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-ports/head.elf",
+   "sha256": "ef7b0b8e438ce87496252cc18782ae5d99c83d8bace63fe63affb56f184a63fd",
+   "source": "the re-measured 1x1 answering-ports image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-later/measured.elf",
+   "sha256": "633aa1c3b0ba16682de685b9b23ae1929647b5444bec9216ba09fd23c6f70f7d",
+   "source": "the formal measurement's 1x1 answering-later image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/answering-later/head.elf",
+   "sha256": "cf7af9e08c95b0b8c6271dcda90c292b24e0ead0b4441e7099aa409acf43d3a7",
+   "source": "the re-measured 1x1 answering-later image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/declaring-outputs/measured.elf",
+   "sha256": "5bda727f7e88a456522ee06c7bcdff54cadfea787dd8937f5f07fba2cbe929ca",
+   "source": "the formal measurement's 1x1 declaring-outputs image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/declaring-outputs/head.elf",
+   "sha256": "4653fe12c875c1033a3bca95bab5b3c88365d9f9a97c00275742db52eea52f0b",
+   "source": "the re-measured 1x1 declaring-outputs image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/shutdown-entry/measured.elf",
+   "sha256": "22848ab3a41ea962414416553305d1aed81cc9c7f68e4be51ec3d05acf758aed",
+   "source": "the formal measurement's 1x1 shutdown-entry image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/shutdown-entry/head.elf",
+   "sha256": "a8e244aff142c6e3d0a20de1ad69bfe752753baa4536576848543e173cb299af",
+   "source": "the re-measured 1x1 shutdown-entry image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/talker-notices/measured.elf",
+   "sha256": "590d512b6f039afeb89595f3229bdbb9f1e4a9cf2583d45a3e06607bf0fd78ba",
+   "source": "the formal measurement's 1x1 talker-notices image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/talker-notices/head.elf",
+   "sha256": "8e0e84cf3688ab57cc70636fcf918aa9669d2ecdfff43791c91de2df2348ad90",
+   "source": "the re-measured 1x1 talker-notices image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/valid-destinations/measured.elf",
+   "sha256": "0ef0bb72fe64b722aa09e71fcf00df2707f5d3f58bc550ac1cec8842a7c1be0c",
+   "source": "the formal measurement's 1x1 valid-destinations image (8c5e2b4f; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/1x1/valid-destinations/head.elf",
+   "sha256": "2ee7bddb594d34b6eec6068cccabe9c987647ccb79f47799b893a5c6a7067280",
+   "source": "the re-measured 1x1 valid-destinations image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/none/measured.elf",
+   "sha256": "d4dee38514018583bc0541b85387d02d5b31f74fa8d7365cd03459eae9f63d69",
+   "source": "the formal measurement's 8x8-1if none image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/none/head.elf",
+   "sha256": "c6ce195013b1539ac9e35cf49f91af32dcc41290ea1e2d7d0acc280eaee7290d",
+   "source": "the re-measured 8x8-1if none image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-every-port/measured.elf",
+   "sha256": "678a116855e94bf5638b11494c0d3e3df938407b536c55dc49df17dcbcefa333",
+   "source": "the formal measurement's 8x8-1if answering-every-port image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-every-port/head.elf",
+   "sha256": "0771393e98c5e1fbdcc24290a73a3115384d6e80afe7f0b7519eae4998beb4b2",
+   "source": "the re-measured 8x8-1if answering-every-port image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-ports/measured.elf",
+   "sha256": "a69e9773300aa49f6727ebdcce5e0f5168d73c8ceb1cce0aa42d21c91c50abab",
+   "source": "the formal measurement's 8x8-1if answering-ports image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-ports/head.elf",
+   "sha256": "e94fa66ea8398e332487dd80dc02f92fcbf2326bc8a0ca097a3403a551e86fc3",
+   "source": "the re-measured 8x8-1if answering-ports image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-later/measured.elf",
+   "sha256": "8c15860de5a2441ebe77e891483134cef1b85af8ececf2ad1e7230dfdf115dc1",
+   "source": "the formal measurement's 8x8-1if answering-later image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/answering-later/head.elf",
+   "sha256": "0811e9db5152c22651a17c0e1d2ee6409de17b95f9fb1ca0a1a16b6ce8622a1b",
+   "source": "the re-measured 8x8-1if answering-later image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/declaring-outputs/measured.elf",
+   "sha256": "708e577b986ea57f0489f2c7d629e9c9fe871174c16d4a7d56c751d787aaba3b",
+   "source": "the formal measurement's 8x8-1if declaring-outputs image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/declaring-outputs/head.elf",
+   "sha256": "0cf3342a3be729c87f359ff312c11c00314531a9aa43850f4f5173fb25d8d58a",
+   "source": "the re-measured 8x8-1if declaring-outputs image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/shutdown-entry/measured.elf",
+   "sha256": "cafe9330934818123e087fe13aedfdb8075217bb450de2a85140cb1daa834d2b",
+   "source": "the formal measurement's 8x8-1if shutdown-entry image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/shutdown-entry/head.elf",
+   "sha256": "21a56a1651a5de5d595e1bad2fb24ab35d053b0d819de3ae3aedfe0f637b8beb",
+   "source": "the re-measured 8x8-1if shutdown-entry image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/talker-notices/measured.elf",
+   "sha256": "17cc688efb581da5f42f831ecc82ba716beef7cfd0708e9a37d9b671402b1bb1",
+   "source": "the formal measurement's 8x8-1if talker-notices image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/talker-notices/head.elf",
+   "sha256": "b026aa06229e09635c35e13907984db4176b448243d5fbacb09b7d1e9d4365c5",
+   "source": "the re-measured 8x8-1if talker-notices image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/valid-destinations/measured.elf",
+   "sha256": "717afd504c22f19735189d2f8c3a19296e64809dba53183004221ef30604813a",
+   "source": "the formal measurement's 8x8-1if valid-destinations image (92de01f7; round-1 receipts budget/harness-images-vs-measured.txt)"
+  },
+  {
+   "path": "harness/8x8-1if/valid-destinations/head.elf",
+   "sha256": "fbfeea8e355a1cdf2944f548b2ddf2e68a427b91434d4332ecce65bcb092438c",
+   "source": "the re-measured 8x8-1if valid-destinations image (f7139ce1; round-1 receipts budget/harness-images-vs-measured.txt)"
+  }
+ ],
+ "rebuilds": [
+  {
+   "operand": "harness/1x1/none/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "1d38aa279c0ef4d222a6a7b1433f3e74348b26e02db105e32ff8a37961dadd80",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/none/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "ffea0386823638ff22f5dfb8024e2558f7f65a2676ab8059d0f07035ea116c3c",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-every-port/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "3514124c76ee6886ba258762a2e8e84045a501c3dd84473e1b60e1da7a1047ff",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-every-port/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "45a233cdb5a67dc596d63b99b7fad29574889433d41db929c99575338bb7be38",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-ports/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "125ea3309dff1a423e9ef06250b8301a0e29d66e01ae6771da4e55b5244c74ed",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-ports/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "ef7b0b8e438ce87496252cc18782ae5d99c83d8bace63fe63affb56f184a63fd",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-later/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "633aa1c3b0ba16682de685b9b23ae1929647b5444bec9216ba09fd23c6f70f7d",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/answering-later/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "cf7af9e08c95b0b8c6271dcda90c292b24e0ead0b4441e7099aa409acf43d3a7",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/declaring-outputs/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "5bda727f7e88a456522ee06c7bcdff54cadfea787dd8937f5f07fba2cbe929ca",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/declaring-outputs/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "4653fe12c875c1033a3bca95bab5b3c88365d9f9a97c00275742db52eea52f0b",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/shutdown-entry/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "22848ab3a41ea962414416553305d1aed81cc9c7f68e4be51ec3d05acf758aed",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/shutdown-entry/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "a8e244aff142c6e3d0a20de1ad69bfe752753baa4536576848543e173cb299af",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/talker-notices/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "590d512b6f039afeb89595f3229bdbb9f1e4a9cf2583d45a3e06607bf0fd78ba",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/talker-notices/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "8e0e84cf3688ab57cc70636fcf918aa9669d2ecdfff43791c91de2df2348ad90",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/valid-destinations/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "0ef0bb72fe64b722aa09e71fcf00df2707f5d3f58bc550ac1cec8842a7c1be0c",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/1x1/valid-destinations/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "2ee7bddb594d34b6eec6068cccabe9c987647ccb79f47799b893a5c6a7067280",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/none/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "d4dee38514018583bc0541b85387d02d5b31f74fa8d7365cd03459eae9f63d69",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/none/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "c6ce195013b1539ac9e35cf49f91af32dcc41290ea1e2d7d0acc280eaee7290d",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-every-port/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "678a116855e94bf5638b11494c0d3e3df938407b536c55dc49df17dcbcefa333",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-every-port/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "0771393e98c5e1fbdcc24290a73a3115384d6e80afe7f0b7519eae4998beb4b2",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-ports/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "a69e9773300aa49f6727ebdcce5e0f5168d73c8ceb1cce0aa42d21c91c50abab",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-ports/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "e94fa66ea8398e332487dd80dc02f92fcbf2326bc8a0ca097a3403a551e86fc3",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-later/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "8c15860de5a2441ebe77e891483134cef1b85af8ececf2ad1e7230dfdf115dc1",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/answering-later/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "0811e9db5152c22651a17c0e1d2ee6409de17b95f9fb1ca0a1a16b6ce8622a1b",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/declaring-outputs/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "708e577b986ea57f0489f2c7d629e9c9fe871174c16d4a7d56c751d787aaba3b",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/declaring-outputs/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "0cf3342a3be729c87f359ff312c11c00314531a9aa43850f4f5173fb25d8d58a",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/shutdown-entry/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "cafe9330934818123e087fe13aedfdb8075217bb450de2a85140cb1daa834d2b",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/shutdown-entry/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "21a56a1651a5de5d595e1bad2fb24ab35d053b0d819de3ae3aedfe0f637b8beb",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/talker-notices/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "17cc688efb581da5f42f831ecc82ba716beef7cfd0708e9a37d9b671402b1bb1",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/talker-notices/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "b026aa06229e09635c35e13907984db4176b448243d5fbacb09b7d1e9d4365c5",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/valid-destinations/measured.elf",
+   "head": "bench head 8c5e2b4f",
+   "sha256": "717afd504c22f19735189d2f8c3a19296e64809dba53183004221ef30604813a",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  },
+  {
+   "operand": "harness/8x8-1if/valid-destinations/head.elf",
+   "head": "this head dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+   "sha256": "fbfeea8e355a1cdf2944f548b2ddf2e68a427b91434d4332ecce65bcb092438c",
+   "why": "the harness build (legs.py build) rerun at that head in a clean clone"
+  }
+ ],
+ "checkpoints": [
+  {
+   "shape": "1x1",
+   "side": "bench",
+   "file": "alinx_ax7101_route.dcp",
+   "bytes": 79064999,
+   "sha256": "52b9f2dbb4e7ec415a04e233056c040ad438e7ab621838054539e7ea3d33505b",
+   "note": "the routed checkpoint tools/dump.tcl read; not published here (over the size limit)"
+  },
+  {
+   "shape": "1x1",
+   "side": "flip",
+   "file": "alinx_ax7101_route.dcp",
+   "bytes": 78854027,
+   "sha256": "446cdef5e8bb9272080296d8fe7cbe57376981b3c85bd1c5d4b2e9c80c90d721",
+   "note": "the routed checkpoint tools/dump.tcl read; not published here (over the size limit)"
+  },
+  {
+   "shape": "8x8",
+   "side": "bench",
+   "file": "alinx_ax7101_route.dcp",
+   "bytes": 92869130,
+   "sha256": "62dc20e6ffdc5d531c86e24900080b4872403cb901f994de1c7ae0fa171bc360",
+   "note": "the routed checkpoint tools/dump.tcl read; not published here (over the size limit)"
+  },
+  {
+   "shape": "8x8",
+   "side": "flip",
+   "file": "alinx_ax7101_route.dcp",
+   "bytes": 92565572,
+   "sha256": "bdcab64c0c0b4196e9c9c2779be633acef5da2afddc0f2defd7759c2dc75b199",
+   "note": "the routed checkpoint tools/dump.tcl read; not published here (over the size limit)"
+  }
+ ],
+ "groups": [
+  {
+   "group": "groups/1x1/none/aecp-fanout",
+   "measured_part": "part3"
+  },
+  {
+   "group": "groups/1x1/none/aecp-held",
+   "measured_part": "part2"
+  },
+  {
+   "group": "groups/1x1/none/aecp-largest-notice",
+   "measured_part": "part19"
+  },
+  {
+   "group": "groups/1x1/none/aecp",
+   "measured_part": "part15"
+  },
+  {
+   "group": "groups/1x1/none/control",
+   "measured_part": "part0"
+  },
+  {
+   "group": "groups/1x1/answering-ports/aecp-reboot",
+   "measured_part": "part2"
+  },
+  {
+   "group": "groups/1x1/declaring-outputs/aecp-outputs",
+   "measured_part": "part0"
+  },
+  {
+   "group": "groups/8x8-1if/none/aecp-fanout",
+   "measured_part": "part9"
+  },
+  {
+   "group": "groups/8x8-1if/none/aecp-held",
+   "measured_part": "part13"
+  },
+  {
+   "group": "groups/8x8-1if/none/aecp",
+   "measured_part": "part11"
+  },
+  {
+   "group": "groups/8x8-1if/none/control",
+   "measured_part": "part8"
+  },
+  {
+   "group": "groups/8x8-1if/answering-ports/aecp-reboot",
+   "measured_part": "part14"
+  },
+  {
+   "group": "groups/8x8-1if/declaring-outputs/aecp-outputs",
+   "measured_part": "part0"
+  }
+ ],
+ "reencoded": [
+  {
+   "path": "groups/1x1/declaring-outputs/aecp-outputs.measured.log.gz",
+   "round2_sha256": "3ab0f4e3da1289b428892dd6a2dc7ec8182b8f7bf96c114696dc3c6cb2f8df20",
+   "sha256": "0e5edeb3a4633fd2da7d3dfa8adfdc394e002d883b6a717d311510621994bd4d",
+   "content_sha256": "441ee863505db759cf69fc084a75c133e35a746660b11c2cce8f294b88c938ab",
+   "encoding": "gzip level 9 (mtime 0)",
+   "why": "the round-2 bytes match a publication scrub pattern by chance, so the archive left the file out; the content is unchanged"
+  },
+  {
+   "path": "groups/8x8-1if/declaring-outputs/aecp-outputs.head.log.gz",
+   "round2_sha256": "936a668debc101cb7ed64273456a60e43961216e4d1a3649275d19493618e3c8",
+   "sha256": "99e290b37224705749b7185f983579ae41cae230bc621b2ed48bd3d12d620728",
+   "content_sha256": "3031de28ac5170d68039c94edf62d4df673ac5ec3b5c68fd6ff314360c9c9943",
+   "encoding": "gzip level 6 (mtime 0)",
+   "why": "the round-2 bytes match a publication scrub pattern by chance, so the archive left the file out; the content is unchanged"
+  },
+  {
+   "path": "groups/8x8-1if/declaring-outputs/aecp-outputs.measured.log.gz",
+   "round2_sha256": "19259754acedc19466fe2d22366e2da39df43a62f6f2908c267955e811666478",
+   "sha256": "99e290b37224705749b7185f983579ae41cae230bc621b2ed48bd3d12d620728",
+   "content_sha256": "3031de28ac5170d68039c94edf62d4df673ac5ec3b5c68fd6ff314360c9c9943",
+   "encoding": "gzip level 6 (mtime 0)",
+   "why": "the round-2 bytes match a publication scrub pattern by chance, so the archive left the file out; the content is unchanged"
+  },
+  {
+   "path": "shipping/1x1/dump/bench.cells.xz",
+   "round2_sha256": "d398ea222830adb27942696851603c867908206248660d89a02370f3bf6ab886",
+   "sha256": "481b9f7d485dbacf60e90f507cedcc8477ab28aa3d51a00e432ba1542b8a9c00",
+   "content_sha256": "0f115baee0eb42f1ea37cbd89fffefcf242c844b978732aeaf647d6332a1da71",
+   "encoding": "xz preset 6",
+   "why": "the round-2 bytes match a publication scrub pattern by chance, so the archive left the file out; the content is unchanged"
+  },
+  {
+   "path": "shipping/1x1/dump/flip.cells.xz",
+   "round2_sha256": "21d551bda4b3b0800a6532fe587d26cda7c885bf09113be6d9bbc2f4b147c07c",
+   "sha256": "9236170b7fb1e2adc015b1d72b1e88b27a5db55f9c3f82a79415fd4073fd6ec3",
+   "content_sha256": "ece5a067c4bbb608aacd93dfda66cb2b97770c1f674a68bdba872217b45c8abc",
+   "encoding": "xz preset 6",
+   "why": "the round-2 bytes match a publication scrub pattern by chance, so the archive left the file out; the content is unchanged"
+  }
+ ]
+}

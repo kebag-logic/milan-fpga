@@ -1,0 +1,6 @@
+soc_sweep_selftest	python3 -B syn/resmap/soc_sweep.py --selftest
+yosys_sweep_selftest	python3 -B syn/resmap/yosys_sweep_selftest.py && python3 -B syn/resmap/yosys_sweep.py --selftest
+build_flash_boot_regen	d=$(mktemp -d) && cp docs/BUILD_FLASH_BOOT.gen.py $d/ && (cd $d && python3 BUILD_FLASH_BOOT.gen.py && rsvg-convert -w 2400 BUILD_FLASH_BOOT.svg -o BUILD_FLASH_BOOT.png) && for x in svg drawio png; do cmp $d/BUILD_FLASH_BOOT.$x docs/BUILD_FLASH_BOOT.$x && echo "BUILD_FLASH_BOOT.$x regenerates byte-identical"; done; r=$?; rm -rf $d; exit $r
+harness_build_checks	python3 -B -c "import sys; sys.path.insert(0, 'tb/verilator/ctrl_service_budget'); import selftest; [print(('PASS ' if ok else 'FAIL ') + n) for n, ok, d in selftest.build_checks()]; sys.exit(not all(ok for _, ok, _ in selftest.build_checks()))"
+solution_docs	python3 -B scripts/check_solution_docs.py
+doc_paths	python3 -B scripts/check_doc_paths.py
