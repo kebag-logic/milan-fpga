@@ -310,7 +310,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. This remains the shipping allocator while the processor's internal MAAP engine is disabled |
+| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. This remains the all-fabric allocator while the processor's internal MAAP engine is disabled |
 
 ### `hdl/ieee17221/adp/`
 
