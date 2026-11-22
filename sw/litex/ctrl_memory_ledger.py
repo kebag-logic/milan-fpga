@@ -43,13 +43,13 @@ FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 #: the size fixture's 8x8 images built --with-gptp (#884's ruling of 2026-11-21, item 4), and sizeof(struct gptp_mbx)
 #: in each, one and two interfaces (gptp/gptp_mbx.h)
 GPTP1, GPTP2 = "8x8-one-interface-gptp", "8x8-two-interfaces-gptp"
-IMG_GPTP_1, IMG_GPTP_2 = 1_096, 2_136
+IMG_GPTP_1, IMG_GPTP_2 = 1_104, 2_152
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two; each 64 B more but 8x8's two-interface one with
 #: contract 2.5 (#884: the gptp channel's table entries and the face's gPTP answer port), and the 8x8 one-interface
 #: image built --with-gptp, its point PRODUCT_GPTP (the gPTP adapter a member, CTRL_PLAT_GPTP).
 PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_112, 19_776, 19_008, 21_568
-PRODUCT_GPTP, PLAT_8X8_1_GPTP = "platform-8x8-one-interface-gptp", 20_096
+PRODUCT_GPTP, PLAT_8X8_1_GPTP = "platform-8x8-one-interface-gptp", 20_160
 
 
 class Case(NamedTuple):

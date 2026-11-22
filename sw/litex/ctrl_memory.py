@@ -267,23 +267,23 @@ class Ledgered:
 #: CTRL_PLAT_GPTP), the image of an SoC built --sw-gptp, known by its ctrl_plat, the adapter one of its members.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-one-interface-gptp": Ledgered("8x8, one interface, gPTP in firmware",
-                                       ((STAGE_SYMBOL, 13_594), ("image_allocation", 8), ("image_gptp", 1_096)),
+                                       ((STAGE_SYMBOL, 13_594), ("image_allocation", 8), ("image_gptp", 1_104)),
                                        59.0, "#884's ruling of 2026-11-21, item 4: the gPTP ports' 3.0 RAMB36 (about "
                                              "12 KB of rom, 1 KB of sram) over the 56.0 this image plans without "
                                              "them, accepted as debt owed to the cold-code-to-flash work (S14) or a "
                                              "second hart's own memory; fit and timing gate"),
     "8x8-two-interfaces-gptp": Ledgered("8x8, two interfaces, gPTP in firmware",
-                                        ((STAGE_SYMBOL, 13_594), ("image_allocation", 16), ("image_gptp", 2_136)),
+                                        ((STAGE_SYMBOL, 13_594), ("image_allocation", 16), ("image_gptp", 2_152)),
                                         64.0, "#884's ruling of 2026-11-21, item 4: the two gPTP ports' 3.5 RAMB36 "
                                               "over the 60.5 of the size fixture's 8x8 two-interface entry, "
                                               "accepted as debt owed to the cold-code-to-flash work (S14) or a "
                                               "second hart's own memory; fit and timing gate"),
     "platform-8x8-one-interface-gptp": Ledgered("target platform's 8x8, one interface, gPTP in firmware",
-                                                ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_096)), 62.0,
+                                                ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_160)), 62.0,
                                                 "#884's ruling of 2026-11-21, item 4: the gPTP port's 3.5 RAMB36 "
-                                                "(12,544 B of rom, 1,104 B of sram) over the 58.5 of the platform's "
-                                                "8x8 one-interface entry, 151,952 B of rom and 99,328 B of sram, "
-                                                "ctrl_plat at its measured 20,096 B, accepted as debt owed to the "
+                                                "(12,656 B of rom, 1,168 B of sram) over the 58.5 of the platform's "
+                                                "8x8 one-interface entry, 152,064 B of rom and 99,392 B of sram, "
+                                                "ctrl_plat at its measured 20,160 B, accepted as debt owed to the "
                                                 "cold-code-to-flash work (S14) or a second hart's own memory; fit "
                                                 "and timing gate"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),

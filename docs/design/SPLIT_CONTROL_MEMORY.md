@@ -140,7 +140,7 @@ The other three are 8x8 images with gPTP in firmware, ledgered by [#884's ruling
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 19,008 B | 58.5 |
 | `8x8-one-interface-gptp` | the size fixture's, one interface, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 8 B, `image_gptp` of 1,096 B | 59.0 |
 | `8x8-two-interfaces-gptp` | the size fixture's, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 16 B, `image_gptp` of 2,136 B | 64.0 |
-| `platform-8x8-one-interface-gptp` | the target platform's, one interface, built `--with-gptp` (the image of an SoC built `--sw-gptp`) | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,096 B | 62.0 |
+| `platform-8x8-one-interface-gptp` | the target platform's, one interface, built `--with-gptp` (the image of an SoC built `--sw-gptp`) | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,160 B | 62.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -701,10 +701,10 @@ The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one
 | 1x1, one interface (shipping) | 126,632 / 56,800 | 45.0 | 18,112 | within 56 |
 | 1x1, two interfaces | 128,208 / 59,104 | 46.0 | 19,776 | within 56 |
 | 8x8, one interface (shipping) | 139,408 / 98,224 | 58.5 | 19,008 | at its entry's 58.5, S14's debt, 1,904 B of `rom` left |
-| 8x8, one interface, gPTP in firmware | 151,952 / 99,328 | 62.0 | 20,096 | at its entry's 62.0, #884's debt, 1,648 B of `rom` left |
+| 8x8, one interface, gPTP in firmware | 152,064 / 99,392 | 62.0 | 20,160 | at its entry's 62.0, #884's debt, 1,536 B of `rom` left |
 | 8x8, two interfaces (largest) | 140,952 / 115,568 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 360 B of `rom` left |
 
-gPTP in firmware adds 12,544 B of `rom` and 1,104 B of `sram` to the 8x8 one-interface platform image (the ports, the adapter and the PTP block's driver; `ctrl_plat` 1,088 B more, the adapter a member): 3.5 RAMB36.
+gPTP in firmware adds 12,656 B of `rom` and 1,168 B of `sram` to the 8x8 one-interface platform image (the ports, the adapter and the PTP block's driver; `ctrl_plat` 1,152 B more, the adapter a member): 3.5 RAMB36.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
