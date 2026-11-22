@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Planted defects for the render master's lane width (#584).
+"""Planted defects for KL_tdm_render_master's lane width (#584): `make master-mutants`.
 
 Each defect is planted in a copy of KL_tdm_render_master.sv, elaborated through
 this suite's own recipe (RM_SRC), and must fail the named leg with its own
@@ -32,6 +32,9 @@ MUTANTS = (
      "      if (smp_wr_en_i) bank_r[smp_wr_slot_i] <= smp_wr_data_i;",
      "      if (smp_wr_en_i) bank_r[smp_wr_slot_i + 1'b1] <= smp_wr_data_i;",
      "rendered: sample"),
+    ("narrow-lane-unmasked-on-the-capture-master", "bus1of32", NARROW,
+     "    assign bit_smp_w = frame_sel_w[24*32'(bit_slot_w) % FRAME_BITS_C +: 24];",
+     "past the lane carry zero"),
     ("narrow-lane-frames-its-own-slots", "lane1of32",
      "  if (BUS_SLOTS_P == SLOTS_P) begin : g_full_lane",
      "  if (1) begin : g_full_lane",
