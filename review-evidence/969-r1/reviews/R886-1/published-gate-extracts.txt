@@ -1,0 +1,123 @@
+
+FILE firmware-gate-4c5018eb-shard0.log
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+    == ctrl split platform bus map: checks: 5   failures: 0 ==
+    RESULT: PASS
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 14   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (14 tests, 0 failures, exit 0)
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 14   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (14 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+
+FILE firmware-gate-4c5018eb-shard1.log.gz
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 827 of 827 caught
+test_ctrl_firmware: PASS
+
+FILE firmware-gate-4c5018eb-shard2.log.gz
+[ok] configuration-unpaced: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-81mamgd1/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] configuration-past-the-count-bad-arguments: Core.SetConfigurationOutOfRangeIsNoSuchDescriptor
+test_ctrl_firmware: PASS
+
+FILE firmware-gate-4c5018eb-shard3.log.gz
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+
+EARLY PLANTS
+[ok] feedback-early-talker-ignored: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-latest-unheld: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+[ok] feedback-early-talker-ignored: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-latest-unheld: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+
+FILE firmware/fw_coverage-check-f863258d.log
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+sw/firmware/ctrl/srp/srp_mbx.c                   854/854     773/776     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+
+FILE ledger/plat_ledger-and-memory-test-4c5018eb.log
+POINT 1x1-if1: rom 127,224 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 128,832 B, sram 59,104 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19776 B: PASS
+POINT 8x8-if1: rom 139,984 B, sram 98,288 B, 58.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19072 B: PASS
+POINT 8x8-if2: rom 141,568 B, sram 115,760 B, 63.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21824 B: PASS
+plat_ledger: PASS (0 finding(s))
+RESULT: PASS
+
+FILE twin/twin-plants-maps-4c5018eb.txt
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+PASS [MAPS-STORE] the removal reached the render store
+PASS [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+PASS [MAPS-EDIT] an edited map reached the render store
+PASS [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+  echo "FAIL the no-edit plant passed"; exit 1; fi
+set -e; for w in "FAIL [MAPS-STORE] the removal reached the render store" "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" "FAIL [MAPS-EDIT] an edited map reached the render store"; do \
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store

@@ -1,0 +1,25 @@
+COMMAND ["python3", "-I", "tb/verilator/ctrl_service_budget/flip_grade.py", "--check", "--point", "1x1/1if"]
+Model: under the tiers (slice CTRL_LOOP_SLICE_US, tier 1 aecp-first, tier 2 srp-first, AECP queue)
+
+| Point | Row | W, ms | Bound, ms | Residual, ms | Passes | Largest terms, ms |
+|---|---|---:|---:|---:|---:|---|
+| 1x1/1if | R4 | 13.26 | 20 | -6.74 | 5 | aecp 4.000, timers 1.485, passes 1.325 |
+| 1x1/1if | R5 | 73.88 | 90 | -16.12 | 39 | others 11.240, passes 10.335, srp 9.120 |
+| 1x1/1if | R6 | 69.75 | 90 | -20.25 | 36 | others 10.855, passes 9.540, srp 9.120 |
+| 1x1/1if | first | 14.69 | 20 | -5.31 | 2 | spacing 8.000, others 1.000, steps 0.975 |
+| 1x1/1if | last | 127.31 | 130 | -2.69 | 66 | srp 25.935, passes 17.490, others 14.410 |
+| 1x1/1if | R4L | 203.48 | 238 | -34.52 | 3 | pace 195.000, timers 1.105, others 1.000 |
+| 1x1/1if | ACMP | 29.06 | 30 | -0.94 | 17 | aecp 5.250, passes 4.505, own 4.480 |
+| 1x1/1if | ADP | 27.51 | 30 | -2.49 | 13 | others 6.915, aecp 5.250, passes 3.445 |
+| 1x1/1if | MAAP | 27.61 | 30 | -2.39 | 13 | others 6.930, aecp 5.250, passes 3.445 |
+| 1x1/1if | tx | 33.44 | 49 | -15.56 | 17 | others 8.350, aecp 5.500, passes 4.505 |
+| 1x1/1if | txL | 47.88 | 49 | -1.12 | 23 | aecp 10.600, others 9.410, item.aecp 7.245 |
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS

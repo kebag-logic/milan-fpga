@@ -1,0 +1,42 @@
+[==========] Running 14 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from Sinks
+[ RUN      ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady
+[       OK ] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady (5 ms)
+[ RUN      ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses
+[       OK ] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses (0 ms)
+[ RUN      ] Sinks.S3AnUnacknowledgedCommitWritesNoContext
+[       OK ] Sinks.S3AnUnacknowledgedCommitWritesNoContext (0 ms)
+[ RUN      ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce
+[       OK ] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce (3 ms)
+[ RUN      ] Sinks.S5AChangeOfAnotherKindWritesNoContext
+[       OK ] Sinks.S5AChangeOfAnotherKindWritesNoContext (0 ms)
+[ RUN      ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile
+[       OK ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (0 ms)
+[ RUN      ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered
+[       OK ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (3 ms)
+[ RUN      ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce
+[       OK ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+[ RUN      ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind
+[       OK ] Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind (0 ms)
+[ RUN      ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput
+[       OK ] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput (0 ms)
+[ RUN      ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext
+[       OK ] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext (0 ms)
+[ RUN      ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut
+[       OK ] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut (4 ms)
+[----------] 12 tests from Sinks (22 ms total)
+
+[----------] 2 tests from Early
+[ RUN      ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled
+[       OK ] Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled (17 ms)
+[ RUN      ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[       OK ] Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (5 ms)
+[----------] 2 tests from Early (22 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 2 test suites ran. (45 ms total)
+[  PASSED  ] 14 tests.
+== ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 14   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (14 tests, 0 failures, exit 0)

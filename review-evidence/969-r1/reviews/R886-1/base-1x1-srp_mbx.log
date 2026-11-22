@@ -1,0 +1,522 @@
+Note: Google Test filter = SrpEarlyTalker.*:SrpTalkerKinds.*
+[==========] Running 21 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from SrpTalkerKinds
+[ RUN      ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime
+[       OK ] SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime
+[       OK ] SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime (0 ms)
+[ RUN      ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding
+[       OK ] SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding (0 ms)
+[ RUN      ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder
+[       OK ] SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder (0 ms)
+[ RUN      ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream
+[       OK ] SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream (0 ms)
+[ RUN      ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered
+[       OK ] SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset
+[       OK ] SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset (3 ms)
+[ RUN      ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore
+[       OK ] SrpTalkerKinds.AFullHeldTableHoldsNothingMore (0 ms)
+[ RUN      ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered
+[       OK ] SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered (0 ms)
+[ RUN      ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime
+[       OK ] SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime (1 ms)
+[----------] 10 tests from SrpTalkerKinds (10 ms total)
+
+[----------] 11 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+an Advertise registered before its binding: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+an Advertise registered before its binding: ACMP is told, input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: ACMP is told, input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+an Advertise registered before its binding: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: an Advertise registered before its binding: in THE TRANSMIT's next MRPDU, input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a Failed registered before its binding: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 1
+a Failed registered before its binding: ACMP is told, input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: ACMP is told, input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a Failed registered before its binding: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput: a Failed registered before its binding: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (3 ms)
+[ RUN      ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput
+[       OK ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput (0 ms)
+[ RUN      ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a rebind to a stream declared all along: input 0
+
+  [FAIL] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: a rebind to a stream declared all along: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a rebind to a stream declared all along: input 0
+
+  [FAIL] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: a rebind to a stream declared all along: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a rebind to a stream declared all along: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: a rebind to a stream declared all along: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a rebind to a stream declared all along: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit: a rebind to a stream declared all along: in THE TRANSMIT's next MRPDU, input 0
+[  FAILED  ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (0 ms)
+[ RUN      ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2277: Failure
+Expected equality of these values:
+  sink(0).registered_kinds
+    Which is: '\0'
+  3u
+    Which is: 3
+both kinds are registered
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: both kinds are registered
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 1
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 1
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 1
+the latest of two kinds registered before the binding: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2277: Failure
+Expected equality of these values:
+  sink(0).registered_kinds
+    Which is: '\0'
+  3u
+    Which is: 3
+both kinds are registered
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: both kinds are registered
+[  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (1 ms)
+[ RUN      ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a JoinIn of the other kind replaces the kept registration: input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a JoinIn of the other kind replaces the kept registration: input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a JoinIn of the other kind replaces the kept registration: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a JoinIn of the other kind replaces the kept registration: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2289: Failure
+Expected equality of these values:
+  sink(0).registered_kinds
+    Which is: '\0'
+  now
+    Which is: 2
+the replaced kind is no longer registered
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: the replaced kind is no longer registered
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 1
+a JoinIn of the other kind replaces the kept registration: input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 1
+a JoinIn of the other kind replaces the kept registration: input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 1
+a JoinIn of the other kind replaces the kept registration: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a JoinIn of the other kind replaces the kept registration: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: a JoinIn of the other kind replaces the kept registration: in THE TRANSMIT's next MRPDU, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2289: Failure
+Expected equality of these values:
+  sink(0).registered_kinds
+    Which is: '\0'
+  now
+    Which is: 1
+the replaced kind is no longer registered
+
+  [FAIL] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding: the replaced kind is no longer registered
+[  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2314: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 12
+  full-1u
+    Which is: 11
+the left one's block is freed
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed: the left one's block is freed
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+once its block is freed, another is kept: input 1
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed: once its block is freed, another is kept: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+once its block is freed, another is kept: input 1
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed: once its block is freed, another is kept: input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+once its block is freed, another is kept: ACMP is told, input 1
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed: once its block is freed, another is kept: ACMP is told, input 1
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+once its block is freed, another is kept: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed: once its block is freed, another is kept: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[       OK ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt
+[       OK ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 1
+no latest known: Failed: input 0
+
+  [FAIL] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration: no latest known: Failed: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 1
+no latest known: Failed: input 0
+
+  [FAIL] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration: no latest known: Failed: input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 1
+no latest known: Failed: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration: no latest known: Failed: ACMP is told, input 0
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+no latest known: Failed: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration: no latest known: Failed: in THE TRANSMIT's next MRPDU, input 0
+[  FAILED  ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing
+[       OK ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing (4 ms)
+[ RUN      ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2395: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 10
+  before+2u
+    Which is: 12
+one block for each registration kept
+
+  [FAIL] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs: one block for each registration kept
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2398: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 10
+  before+2u
+    Which is: 12
+a registration past the bound takes no block
+
+  [FAIL] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs: a registration past the bound takes no block
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2402: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 10
+  before+2u
+    Which is: 12
+counted again, they are still kept
+
+  [FAIL] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs: counted again, they are still kept
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2406: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 10
+  before+2u
+    Which is: 12
+the other kind of a kept StreamID, past the bound
+
+  [FAIL] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs: the other kind of a kept StreamID, past the bound
+[  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+[----------] 11 tests from SrpEarlyTalker (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 21 tests from 2 test suites ran. (24 ms total)
+[  PASSED  ] 14 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+[  FAILED  ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+[  FAILED  ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed
+[  FAILED  ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration
+[  FAILED  ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 21   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 21 checks, exit 1)

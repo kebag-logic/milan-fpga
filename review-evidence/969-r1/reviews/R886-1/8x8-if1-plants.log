@@ -1,0 +1,11 @@
+[ok] feedback-early-talker-ignored: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-latest-unheld: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
