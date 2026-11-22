@@ -722,7 +722,8 @@ def test_input_cluster_pools() -> None:
     for index, port in enumerate(cfg["ports_in"]):
         assert port["base_cluster"] == index and port["maps"] == 0 and port["map_page"] == 1, port
         if index:
-            assert port["pool"] == [dict(role="unrouted", offset=0, width=1, first=index)], port
+            assert port["pool"] == [dict(role="unrouted", offset=0, width=1, first=index)], \
+                f"STREAM_PORT_INPUT {index} is not the unrouted port render_ports first leaves it: {port}"
     assert [eb.cluster_names(cfg, p, "input")[0] for p in cfg["ports_in"]] == \
         ["TDM32 Out 0"] + [f"Unrouted S{k}" for k in range(1, 8)]
     assert _rphys(header) == [0x40 | lane] + [0] * 7, _rphys(header)
