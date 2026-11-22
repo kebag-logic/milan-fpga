@@ -1,0 +1,77 @@
+== head, the suite as shipped (one beat a cycle)
+   FANOUT N=8: 1205 checks, 0 failures
+   failing checks: 0
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 0 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 = 4
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 = 15
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 = 4
+   [PASS] mutant caught: a frame the full store dropped counts in no input's DEPKT drops - breaks "[FO10] every accepted PDU is delivered to the input or one of its DEPKT dr
+== head RTL, tap bubbles
+   FANOUT N=8: 1205 checks, 13 failures
+   failing checks: 13
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 0 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 = 15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 got=24 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 got=9 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 got=7 exp=15
+== round-1 RTL 4ceba3d4 (depacketizer + monitor), tap bubbles
+   FANOUT N=8: 1205 checks, 602 failures
+   failing checks: 602
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 0 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 = 15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 got=24 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 got=9 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 got=7 exp=15
+   [FAIL] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 got=22 exp=30
+   [FAIL] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 got=7 exp=15
+== head RTL with ddrop_pend_r widened to 6 bits, tap bubbles
+   FANOUT N=8: 1205 checks, 1 failures
+   failing checks: 1
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 0 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 = 15
+   [ ok ] [FO10] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 = 30
+   [ ok ] [FO10] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 = 15

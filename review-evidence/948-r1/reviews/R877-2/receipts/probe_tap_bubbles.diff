@@ -1,0 +1,52 @@
+diff --git a/tb/verilator/avtp_rxmon/sim_depkt.cpp b/tb/verilator/avtp_rxmon/sim_depkt.cpp
+index 02a821020f..3a16bcb648 100644
+--- a/tb/verilator/avtp_rxmon/sim_depkt.cpp
++++ b/tb/verilator/avtp_rxmon/sim_depkt.cpp
+@@ -50,6 +50,7 @@
+ 
+ #include "Vdepkt_top.h"
+ #include "verilated.h"
++static unsigned bub_lcg() { static unsigned x = 0x9e3779b9u; x = x * 1664525u + 1013904223u; return x >> 8; }
+ 
+ namespace {
+ 
+@@ -236,6 +237,16 @@ class Depkt {
+             d->s_tkeep_i = n == 8 ? 0xFF : ((1u << n) - 1);
+             d->s_tvalid_i = 1;
+             d->s_tlast_i = b + 1 == beats;
++            d->s_tlast_i = b + 1 == beats;
++            if (bub_lcg() % 10 < 6) {
++                const unsigned nb = 1 + bub_lcg() % 3;
++                for (unsigned i = 0; i < nb; i++) {
++                    if (bub_lcg() & 1) { d->s_tvalid_i = 0; d->s_tready_i = 1; }
++                    else               { d->s_tvalid_i = 1; d->s_tready_i = 0; }
++                    cycle();
++                }
++                d->s_tvalid_i = 1; d->s_tready_i = 1;
++            }
+             if (fr.queued && b == 7) enq_owed.push_back(Enq{now + enq_lat, fr.mask, lag});
+             cycle();
+         }
+diff --git a/tb/verilator/avtp_rxmon/sim_fanout.cpp b/tb/verilator/avtp_rxmon/sim_fanout.cpp
+index e41f9bb7df..8ae204d2c4 100644
+--- a/tb/verilator/avtp_rxmon/sim_fanout.cpp
++++ b/tb/verilator/avtp_rxmon/sim_fanout.cpp
+@@ -82,6 +82,7 @@
+ 
+ #include "Vavtp_rxmon_nx_wrap.h"
+ #include "verilated.h"
++static unsigned bub_lcg() { static unsigned x = 0x9e3779b9u; x = x * 1664525u + 1013904223u; return x >> 8; }
+ 
+ namespace {
+ 
+@@ -239,6 +240,10 @@ class FanOut {
+             }
+             dut->s_tdata_i = d;
+             dut->s_tkeep_i = (vb == 8) ? 0xFF : ((1u << vb) - 1);
++            if (bub_lcg() % 10 < 6) {
++                dut->s_tvalid_i = 0;
++                cyc(static_cast<int>(1 + bub_lcg() % 3));
++            }
+             dut->s_tvalid_i = 1;
+             dut->s_tlast_i = (b == beats - 1);
+             cyc();

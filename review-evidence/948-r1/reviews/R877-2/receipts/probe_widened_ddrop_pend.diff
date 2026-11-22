@@ -1,0 +1,35 @@
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index d9ea37cda3..13f1fce257 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -349,7 +349,7 @@ module KL_avtp_rx_monitor_ctx #(
+   //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
+   logic [N_LISTENERS_P-1:0] sil_si_r;
+   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
+-  logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
++  logic [5:0] ddrop_pend_r  [N_LISTENERS_P];
+ 
+   //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
+   //! CNT-column format (only the six anomaly columns and FRAMES_RX are ever set, so
+@@ -983,7 +983,7 @@ module KL_avtp_rx_monitor_ctx #(
+           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
+         if (depkt_drop_p_i && depkt_drop_mask_i[s] &&
+             !(&ddrop_pend_r[s]))
+-          ddrop_pend_r[s] <= ddrop_pend_r[s] + 3'd1;
++          ddrop_pend_r[s] <= ddrop_pend_r[s] + 6'd1;
+         //! silence watchdog: ms-tick flop scan (spec timer rule)
+         if (ms_tick_r && locked_sh_r[s]) begin
+           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
+@@ -1159,10 +1159,10 @@ module KL_avtp_rx_monitor_ctx #(
+                                           32'(depkt_pdu_idx_i) == 32'(ev_s_r))
+                                          ? 3'd1 : 3'd0);
+               ddrop_pend_r[ev_s_r] <= ddrop_pend_r[ev_s_r]
+-                                      - 3'(ddrop_add_r)
++                                      - 6'(ddrop_add_r)
+                                       + ((depkt_drop_p_i &&
+                                           depkt_drop_mask_i[ev_s_r])
+-                                         ? 3'd1 : 3'd0);
++                                         ? 6'd1 : 6'd0);
+               inc_rd_q_r <= 1'b0;
+               w11_mode_r <= 1'b0;
+               mst_r      <= M_IDLE_S;
