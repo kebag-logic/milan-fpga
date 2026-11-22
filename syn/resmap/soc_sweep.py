@@ -258,7 +258,8 @@ def wiring_problems(plan: dict) -> list[str]:
     problems, calls = [], []
     module = sys.modules[__name__]
 
-    def builder(argv, **_kwargs):
+    def builder(argv: list[str], **_kwargs: object) -> subprocess.CompletedProcess:
+        """The builder's stand-in: soc_params.json for the placement asked for (the split when none is)."""
         calls.append(list(argv))
         placement = argv[argv.index("--placement") + 1] if "--placement" in argv else "split"
         image = [] if placement == "all-fabric" else ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/c/x.elf"]
@@ -267,7 +268,8 @@ def wiring_problems(plan: dict) -> list[str]:
         (out / "soc_params.json").write_text(json.dumps({"argv": ["--xlen", "32", *image]}))
         return subprocess.CompletedProcess(argv, 0)
 
-    def stand_in(work, placement):
+    def stand_in(work: Path, placement: str) -> list[str]:
+        """prepare()'s stand-in: stops command_export, carrying the placement it was asked for."""
         raise _Exported(placement)
 
     with tempfile.TemporaryDirectory(prefix="resmap-wiring-") as tmp:
