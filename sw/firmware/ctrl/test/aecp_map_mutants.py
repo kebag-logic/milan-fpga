@@ -6,13 +6,15 @@ maps, and its turns, each against the edit's definition mapping by mapping; and 
 rows whole and checks the output owner itself. aecp_mutants.py plants each row; every named check must fail on its
 own words. THE PACE (aecp_mbx.h) holds the record after an edit; its rows are planted here too. So are the edit's
 commit to the datapath's map store (#923): the core's edit port, the face's transaction on the EDIT window and the
-restored maps' commit at AECP's open."""
+restored maps' commit at AECP's open. And the output port's running check, which observes each stream an edit maps
+once, at the first of its mappings to reach the check (#963)."""
 
 EDIT = 'Core.MapEditsAreTheirDefinitionRowForRow'
 RESTORE = 'Core.RestoredOutputMapsHaveOneGlobalOwner'
 OWNER = 'Core.OutputMappingsHaveOneGlobalOwner'
 PACE = 'Mailbox.AnEditHoldsTheNextRecordForThePaceAndDropsNone'
 WORK = 'Core.MapEditWorkIsLinearInItsMappings'
+STREAMS = 'Core.MapEditWorkObservesEachOutputStreamOnce'
 KEYS = 'Core.EveryAcceptedMapKeyIsItsOwn'
 STORE = 'Core.AnAcceptedEditReachesTheStoreBeforeTheMap'
 STORE_REFUSES = 'Core.AStoreRefusalIsTheAnswerAndChangesNothing'
@@ -99,19 +101,36 @@ ROWS = (
      '\t\t\te.flags[n] = ILLEGAL;\n',
      '',
      (EDIT, 'status for command')),
+    # an edit's reads are its streams' (#963), which a map's pass left out leaves as they are in the first edit it
+    # breaks, so each is caught by that edit's map
     ('map-port-rows-unread', 'aecp_maps.c',
      'mark(&e, m, adding ? BARRED : 0u, FOUND);',
      '(void)0;',
-     (EDIT, 'the edit reads its port for each output mapping its definition reaches')),
+     (EDIT, "the edit's map is its definition's, row for row")),
     ('map-owners-unread', 'aecp_maps.c',
      'mark(&e, v, BARRED, BARRED);',
      '(void)v;',
-     (EDIT, 'the edit reads its port for each output mapping its definition reaches'),
+     (EDIT, "the edit's map is its definition's, row for row"),
      (OWNER, 'another port already owns this stream channel')),
     ('map-checked-before-its-read', 'aecp_maps.c',
-     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, port, &e.rows[n].r) || (held & BARRED) != 0u ||',
-     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, port, &e.rows[n].r) ||',
-     (EDIT, 'the edit reads its port for each output mapping its definition reaches')),
+     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, &e, port, &e.rows[n].r) || (held & BARRED) != 0u ||',
+     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, &e, port, &e.rows[n].r) ||',
+     (EDIT, "the edit reads its port once for each stream its definition's output mappings reach")),
+    # #963: the running check observes each stream an edit maps once, at its first mapping to reach the check, from
+    # a table of streams the edit clears; one found running or unanswered refuses the edit at that mapping
+    ('map-stream-observed-every-mapping', 'aecp_maps.c',
+     '\t\t*word |= bit;\n',
+     '',
+     (STREAMS, 'an edit observes each stream it maps once, in its order'),
+     (EDIT, "the edit reads its port once for each stream its definition's output mappings reach")),
+    ('map-stream-idle-uncleared', 'aecp_maps.c',
+     '\tmemset(e.idle, 0, sizeof e.idle);\n',
+     '',
+     (STREAMS, 'an edit observes each stream it maps once, in its order')),
+    ('map-stream-idle-one-bit', 'aecp_maps.c',
+     'const uint32_t bit = held ? 1u << (r->stream % 32u) : 0u;',
+     'const uint32_t bit = held ? 1u : 0u;',
+     (STREAMS, 'a stream found running refuses the edit at its first mapping')),
     ('map-repeat-counted', 'aecp_maps.c',
      'additions += adding && e.rep[n] == n && (held & FOUND) == 0u;',
      'additions += adding && (held & FOUND) == 0u;',

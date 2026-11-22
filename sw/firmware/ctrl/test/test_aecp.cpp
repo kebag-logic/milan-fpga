@@ -2857,13 +2857,13 @@ TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
 
 // #904: an ADD_AUDIO_MAPPINGS or REMOVE_AUDIO_MAPPINGS is its definition, each mapping in its turn (IEEE 1722.1-2021
 // 7.4.45, 7.4.46; Milan v1.2 5.4.2.27, 5.4.2.28). A mapping is refused when it is not legal for its port, or at an
-// output port when the port, read for it, reports its stream running, or when another output port's map holds its
-// stream channel; an ADD's when an earlier mapping or a row of its port's map holds its key with another value; a
-// REMOVE's when its port's map does not hold it. An ADD past the map's room is NO_RESOURCES. Then each mapping in turn
-// adds itself where its map does not hold it, or removes the first row equal to it. Seeded edits of repeated and
-// conflicting mappings against maps that hold repeated rows, rows that conflict and keys spread over the command's
-// table: each edit's status, its port's map row for row, its CHANGE_MAP notice and the port's reads are the
-// definition's.
+// output port when the port reports its stream running, read for the edit's first mapping of that stream to reach the
+// check (#963), or when another output port's map holds its stream channel; an ADD's when an earlier mapping or a row
+// of its port's map holds its key with another value; a REMOVE's when its port's map does not hold it. An ADD past the
+// map's room is NO_RESOURCES. Then each mapping in turn adds itself where its map does not hold it, or removes the
+// first row equal to it. Seeded edits of repeated and conflicting mappings against maps that hold repeated rows, rows
+// that conflict and keys spread over the command's table: each edit's status, its port's map row for row, its
+// CHANGE_MAP notice and the port's reads are the definition's.
 TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
 {
     constexpr uint16_t ILLEGAL=65535;   // no such stream: refused before its port is read
@@ -2878,11 +2878,15 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
             return std::any_of(first,last,[&](const aecp_mapping &x){return same(x,r);});};
         Outcome o{0,held,0};
         size_t additions=0;
+        std::vector<uint16_t> observed; // the streams the edit has read its port for (#963)
         for(size_t n=0;n<edit.size();++n){
             const aecp_mapping &r=edit[n];
             bool refused=r.stream==ILLEGAL;
             if(!refused&&!in){
-                ++o.reads;
+                if(std::find(observed.begin(),observed.end(),r.stream)==observed.end()){
+                    observed.push_back(r.stream);
+                    ++o.reads;
+                }
                 refused=running||std::any_of(owned.begin(),owned.end(),
                                              [&](const aecp_mapping &x){return x.stream==r.stream&&x.channel==r.channel;});
             }
@@ -2900,7 +2904,10 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         }
         return o;
     };
-    // The fixture's legal mappings: stream 0, its channel, the port's cluster and its first channel.
+    // The fixture's legal mappings: stream 0 or 1, its channel, the port's cluster and its first channel. Stream 1 of
+    // each direction takes stream 0's format, so an edit's mappings span two streams and its reads are its streams'
+    // (#963).
+    for(unsigned type:{5u,6u})put(desc(type,1).value+74,get(desc(type).value+74,8),8);
     for(unsigned type:{14u,15u}){
         ASSERT_GE((get(desc(type==14u?5u:6u).value+74,8)>>22)&1023,4u);
         ASSERT_GE(get(desc(type).value+12,2),4u);
@@ -2908,7 +2915,7 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
     }
     uint32_t seed=0x904u;
     auto next=[&]{seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;};
-    auto legal=[&]{return aecp_mapping{0,uint16_t(next()%4),uint16_t(next()%4),0};};
+    auto legal=[&]{return aecp_mapping{uint16_t(next()%2),uint16_t(next()%4),uint16_t(next()%4),0};};
     auto wide=[&]{return aecp_mapping{uint16_t(next()%8),uint16_t(next()%1024),uint16_t(next()%1024),uint16_t(next()%4)};};
     std::array<aecp_mapping,8> other{};
     std::array<aecp_map,3> pools{maps[0],maps[1],aecp_map{15,1,0,8,other.data(),0,other.size(),nullptr,0}};
@@ -2927,7 +2934,7 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
             aecp_mapping r=pick<12||held.empty()?legal():pick<15?held[next()%held.size()]:pick<17?legal():wide();
             if(pick==15||pick==16)r.cluster_channel=1; // another cluster channel: not legal, and at an output a conflict
             held.push_back(r);
-            if(pick<12||(pick<15&&r.cluster_channel==0&&r.stream==0&&r.channel<4&&r.cluster<4))lawful.push_back(r);
+            if(pick<12||(pick<15&&r.cluster_channel==0&&r.stream<2&&r.channel<4&&r.cluster<4))lawful.push_back(r);
         }
         for(unsigned n=next()%4;n--;)owned.push_back(next()%3?legal():wide());
         for(unsigned n=next()%11;n--;){
@@ -2953,7 +2960,7 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         std::vector<aecp_mapping> got(own.rows,own.rows+own.count);
         EXPECT_TRUE(got.size()==want.rows.size()&&std::equal(got.begin(),got.end(),want.rows.begin(),same))
             <<"the edit's map is its definition's, row for row";
-        EXPECT_EQ(reads,want.reads)<<"the edit reads its port for each output mapping its definition reaches";
+        EXPECT_EQ(reads,want.reads)<<"the edit reads its port once for each stream its definition's output mappings reach";
         EXPECT_EQ(noted,want.status==0&&want.rows.size()!=held.size()?1u:0u)
             <<"the edit notifies CHANGE_MAP where its definition changes the map";
         const bool repeated=std::any_of(want.rows.begin(),want.rows.end(),[&](const aecp_mapping &x){
@@ -2966,6 +2973,45 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
     for(auto name:{"ADD 0","ADD 7","ADD 8","REMOVE 0","REMOVE 7","a REMOVE that keeps a row equal to one it removed",
                    "an output edit refused after its port is read"})
         EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
+}
+
+// #963: an edit of an output port's map observes each stream it maps once, at the first of its mappings to reach the
+// running check (aecp_maps.c, idle), and a stream found running, or whose observation goes unanswered, refuses the
+// edit at that mapping, as one observation a mapping did (#943). So an ADD and then a REMOVE of 63 mappings, the most
+// a legal-length command holds (IEEE 1722.1-2021 9.2.2.6), each one of three rows of two streams repeated, read the
+// port twice, a brief observation of each stream in its order, and change the map as their definition does (Milan
+// v1.2 5.4.2.27, 5.4.2.28). A stream found idle in one edit is observed again in the next. The work arm runs this from
+// the table an earlier edit left (aecp_maps.c, stale), so a stream the edit did not clear is never observed there.
+TEST_F(Core, MapEditWorkObservesEachOutputStreamOnce)
+{
+    put(desc(6,1).value+74,get(desc(6).value+74,8),8); // STREAM_OUTPUT 1 an audio stream, as 0 is
+    std::vector<uint16_t> observed,running,silent;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t type,uint16_t index,aecp_stream_info *v){
+        EXPECT_EQ(type,6u)<<"an output port's running check observes its STREAM_OUTPUT";
+        EXPECT_TRUE(v->brief)<<"a running check's observation is brief";
+        observed.push_back(index);*v={};v->brief=true;
+        v->running=std::find(running.begin(),running.end(),index)!=running.end();
+        return std::find(silent.begin(),silent.end(),index)==silent.end();});
+    const aecp_mapping zero{0,0,0,0},one{1,0,1,0},two{0,1,2,0};
+    std::vector<aecp_mapping> edit;
+    for(unsigned k=0;k<63;++k)edit.push_back(k%3==0?zero:k%3==1?one:two);
+    using Streams=std::vector<uint16_t>;
+    observed.clear();edit_map(44,15,edit,0);
+    EXPECT_EQ(observed,(Streams{0,1}))<<"an edit observes each stream it maps once, in its order";
+    EXPECT_TRUE(same_rows(maps[1],{zero,one,two}))<<"the ADD adds each distinct mapping once";
+    observed.clear();edit_map(45,15,edit,0);
+    EXPECT_EQ(observed,(Streams{0,1}))<<"an edit observes each stream it maps once, in its order";
+    EXPECT_EQ(maps[1].count,0u)<<"the REMOVE removes each row it holds";
+    running={1};observed.clear();edit_map(44,15,edit,7);
+    EXPECT_EQ(observed,(Streams{0,1}))<<"a stream found running refuses the edit at its first mapping";
+    EXPECT_EQ(maps[1].count,0u)<<"a refused edit changes nothing";
+    running.clear();silent={1};observed.clear();edit_map(44,15,edit,7);
+    EXPECT_EQ(observed,(Streams{0,1}))<<"an unanswered observation refuses the edit at its first mapping";
+    EXPECT_EQ(maps[1].count,0u)<<"a refused edit changes nothing";
+    silent.clear();observed.clear();edit_map(44,15,{zero},0);
+    running={0};observed.clear();edit_map(44,15,{two},7);
+    EXPECT_EQ(observed,(Streams{0}))<<"a stream found idle in one edit is observed again in the next";
+    EXPECT_TRUE(same_rows(maps[1],{zero}))<<"a refused edit changes nothing";
 }
 
 #ifdef AECP_MAP_WORK
