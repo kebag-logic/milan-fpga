@@ -160,12 +160,14 @@ ADP capabilities are `0x4001/0x4801` for arty_current, talker/listener.
 Every other configuration uses `0x4801/0x4801`.
 ENTITY capabilities are `0x0000C588` in all five images.
 
-The 8x8 inputs own zero clusters, as parent D8 specifies.
+Each 8x8 input owns one cluster since parent [#584][cluster-fix].
 The processor's F07.2 diagram requires a `1..*` minimum.
 The [processor #122 disposition][cluster-decision] retains that Milan 5.3.3.8 requirement.
 Dynamic mapping permits zero maps, not zero clusters.
-The 8x8 input pools violate the requirement.
-Parent [#584][cluster-fix] owns the D8 product correction.
+Port 0's cluster is the first TDM render channel, backed by the render lane.
+Ports 1-7 each own one `Unrouted S<p>` cluster with no render projection.
+The builder refuses a zero-cluster port by name, `STREAM_PORT_CLUSTER_MINIMUM`.
+The 8x8 configuration's L1 waiver is removed: every input port passes the check.
 
 The shipping `arty_current` image retains six static-map coherence deviations.
 They map channels 2..7 against a stereo output format.
@@ -330,7 +332,7 @@ Existing processor issues retain their published scope and acceptance criteria.
 | F2 (#574) | Enforced by `B._stream_buffer_ns` on every listener declaration. Coordinates [PP60][pp60] L4. | Declaration tests pack 2126000 and 0xFFFFFFFF unchanged at every listener index. They refuse 2125999, 2^32 and 2^32+2125999. Removing either bound fails. All five images remain unchanged. |
 | F3 (#575) | Enforced by `B._validate_stream_formats` and `_crf_format`. Coordinates [PP60][pp60] L3/L4. | Both directions accept legal families and 46 final entries. Declaration tests independently refuse count overflow, mixed families and altered CRF words. Removed-check mutants fail. |
 | F4 (#576) | Enforced by `B._validate_output_clock_sources` for every AAF/CRF output. Coordinates [PP60][pp60] L6. | Declaration tests accept INTERNAL+CRF with either selected. CRF-only outputs refuse; removed-check mutants fail. Input-only clock loading remains supported; full YAML still requires both AAF directions. |
-| F5 | [Processor #122][cluster-decision] retains F07.2's Milan 5.3.3.8 minimum. Parent [#584][cluster-fix] owns correcting D8's non-conforming zero-cluster 8x8 input pools. | Every input port must own at least one cluster. Product meaning, refusal tests and image changes remain #584's work; successful packing grants no waiver. |
+| F5 | [Processor #122][cluster-decision] retains F07.2's Milan 5.3.3.8 minimum. Parent [#584][cluster-fix] corrected D8's zero-cluster 8x8 input pools: one cluster per input port, port 0's the first TDM render channel and the rest unrouted. | Every input port owns at least one cluster; the builder refuses a zero-cluster port by name and the 8x8's L1 waiver is gone. |
 | F6 (#577) | Enforced by the processor packer's default model lint ([PP89][pp89], processor PR #144) inside `build()`, which `B._entity_model_image` and `G.build_desc_image` both call. The deployed bytes are packed from a linted model before writing or firmware CRC binding. #661 deleted the parent's duplicate packed-byte checker, `aem_image_checks.py`. | Builder gate 36b accepts one/eight rates and identity lists through both emitters. It requires the lint's named refusal for offset, count, count/extent, partial/extra words, reversed/gapped/duplicate sources, zero rates, unlisted current rates and source offset. A configuration without its AUDIO_UNIT or CLOCK_DOMAIN is refused as `L1 audio-unit-for-aaf` or `L1 required-type`. Either emitter switching the lint off fails. All five configurations pass. #478 loader scope remains unchanged. |
 | F7 | Body/key refusal is enforced by the processor packer at `493e5e4b`, adopted through `16be6768` in #580. This is separate from [PP60][pp60]'s published acceptance. | Processor `protocol-processor/tb/desc_store/test_gen_desc_image.py` retains a legal pair and independently rejects mismatched body type and index through `build()` and the CLI. |
 | F8 | Parent static-map product-policy follow-up. Disposition the six shipping arty_current stream-channel width deviations. Record a clause-backed policy and implement matching image validation and model changes. [#464][selftest] remains closed. | Decode AUDIO_MAP[0] channels 0..7 against stereo STREAM_OUTPUT[0]. Preserve a legal in-range control; detect each channel 2..7 deviation. Demonstrate the chosen policy with positive/negative image fixtures and matching shipping bytes. |

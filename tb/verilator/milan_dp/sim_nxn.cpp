@@ -77,6 +77,12 @@
 //! overrides it and the `#if` arms below read it; every C++ use goes
 //! through this (ES.31, Enum.1).
 constexpr int kNstreamsTb = NSTREAMS_TB;
+//! #584: the AX7101 8x8 leg, whose STREAM_PORT_INPUTs own ONE cluster each
+#ifdef AX8X8_TB
+constexpr bool kAx8x8 = true;
+#else
+constexpr bool kAx8x8 = false;
+#endif
 
 //! AXI4-Lite handshake guard: cycles a single beat may wait before the BFM
 //! gives up rather than hanging the leg.
@@ -7497,26 +7503,26 @@ class NxnDatapathHarness {
     //! (4 channels -> 4 clusters/port) and the 8x8 header, while the
     //! descriptor image is always the 1x1 config's (ONE
     //! STREAM_PORT_INPUT). On the arty legs both provisioned clusters sit
-    //! below 4 so the served path is proven there; the 8x8 header retired
-    //! its input pool (#259) and pins the zero-cluster posture instead.
+    //! below 4 so the served path is proven there. On the 8x8 header each
+    //! port owns one cluster (#584), so key 0 is SPI 0's one record and keys
+    //! 1..3 are SPI 1..3's, and only key 0 projects onto a render key.
     void grade_get_audio_map_against_the_chmap_readback() {
         printf("-- GET_AUDIO_MAP: the wire vs the CHMAP_LOOP readback --\n");
         constexpr uint16_t A_CHMAP_CTRL = 0x900;
         constexpr uint16_t A_CHMAP_SEL = 0x904;
         constexpr uint16_t A_CHMAP_WORD = 0x908;
-        #ifndef AX8X8_TB
         // #658: SPI 0 powers up with the identity map. The records below are
-        // graded exactly, so the section clears the port's four clusters
-        // first and puts the power-on map back when it is done.
+        // graded exactly, so the section clears keys 0..3 first and puts the
+        // power-on map back when it is done. #584: on the 8x8 each input port
+        // owns ONE cluster, so keys 0..3 are SPI 0..3's, one each.
         ck("[AMAP] SPI 0 powers up with the identity map (#658)",
-           power_on_page_off(0x000E, 0, 0, 4), 0);
+           power_on_page_off(0x000E, 0, 0, kAx8x8 ? 1 : 4), 0);
         axi_write(A_CHMAP_CTRL, 0x1);
         for (uint32_t k = 0; k < 4; k++) {
             axi_write(A_CHMAP_SEL, k);
             axi_write(A_CHMAP_WORD, 0x0000);
         }
         axi_write(A_CHMAP_CTRL, 0x0);
-        #endif
         // provision: cluster 0 <- AVB {stream 1, ch 1}, cluster 2 <- AVB
         // {stream 0, ch 3}, cluster 1 <- a retired/reserved source encoding
         // that must NOT appear as a 7.4.44.2.1 record, cluster 3 unmapped
@@ -7534,21 +7540,22 @@ class NxnDatapathHarness {
         grade_the_output_side_of_the_same_face(pl);
         // leave the map as this section found it
         axi_write(A_CHMAP_CTRL, 0x1);
-        #ifdef AX8X8_TB
-        axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x0000);
-        axi_write(A_CHMAP_SEL, 1);  axi_write(A_CHMAP_WORD, 0x0000);
-        axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x0000);
-        #else
-        for (uint32_t k = 0; k < 4; k++) {          // {en, AVB, stream 0, ch k}
+        for (uint32_t k = 0; k < 4; k++) {
+            // {en, AVB, stream 0, ch k}; on the 8x8 key k is SPI k's one
+            // cluster, so its power-on word is {en, AVB, stream k, ch 0}
             axi_write(A_CHMAP_SEL, k);
-            axi_write(A_CHMAP_WORD, 0x8000u | k);
+            axi_write(A_CHMAP_WORD, kAx8x8 ? (0x8000u | (k << 4)) : (0x8000u | k));
         }
-        #endif
         axi_write(A_CHMAP_CTRL, 0x0);
-        #ifndef AX8X8_TB
         ck("[AMAP] ...and the power-on map is back on SPI 0",
-           power_on_page_off(0x000E, 0, 0, 4), 0);
-        #endif
+           power_on_page_off(0x000E, 0, 0, kAx8x8 ? 1 : 4), 0);
+        if (kAx8x8) {
+            for (uint16_t k = 1; k < 4; k++) {
+                char w[96];
+                snprintf(w, sizeof w, "[AMAP] ...and on SPI %u, its one cluster (#584)", k);
+                ck(w, power_on_page_off(0x000E, k, k, 1), 0);
+            }
+        }
     }
 
     //! one RMAP-side entry, read back through the 0x904/0x910/0x914 window
@@ -7569,17 +7576,25 @@ class NxnDatapathHarness {
         const uint32_t e0 = loop_rd(0), e1 = loop_rd(1), e2 = loop_rd(2),
                        e3 = loop_rd(3);
         #ifdef AX8X8_TB
-        ck("[AMAP] retired input key 0 does not alias RMAP (#259)",
+        // #584: SPI 0's one cluster is the first TDM render channel, so key
+        // 0 projects onto render key 2 (the TDM lane's first key); render
+        // keys 0/1 are the pruned DAC lane, and keys 1..3 (SPI 1..3's
+        // unrouted clusters) project onto nothing
+        ck("[AMAP] the DAC lane's key 0 is driven by no input cluster (#584)",
            static_cast<long>(e0), 0x00);
-        ck("[AMAP] retired input key 1 does not alias RMAP (#259)",
+        ck("[AMAP] the DAC lane's key 1 is driven by no input cluster (#584)",
            static_cast<long>(e1), 0x00);
+        ck("[AMAP] render key 2 = SPI 0's cluster = {en, avb 1.1} (#584)",
+           static_cast<long>(e2), 0x89);
+        ck("[AMAP] render key 3 = unmapped: unrouted clusters alias nothing (#584)",
+           static_cast<long>(e3), 0x00);
         #else
         ck("[AMAP] LOOP reads cluster 0 = {en, avb 1.1}", static_cast<long>(e0), 0x89);
         ck("[AMAP] LOOP reads cluster 1 = {en, reserved 5}", static_cast<long>(e1), 0xC5);
-        #endif
         ck("[AMAP] non-physical cluster 2 does not alias RMAP",
            static_cast<long>(e2), 0x00);
         ck("[AMAP] LOOP reads cluster 3 = unmapped",      static_cast<long>(e3), 0x00);
+        #endif
     }
 
     //! the model's own record, DERIVED from the LOOP word: an AVB entry
@@ -7587,27 +7602,24 @@ class NxnDatapathHarness {
     //! channel idx[2:0], cluster_offset g (base 0 on port 0),
     //! cluster_channel 0 (mono clusters)}
     void grade_the_get_audio_map_page_zero(const std::vector<uint8_t>& pl) {
-        #ifndef AX8X8_TB
+        {
         auto rec_of = [](uint32_t ent, uint32_t g, uint8_t* out) {
             out[0] = 0; out[1] = static_cast<uint8_t>((ent >> 3) & 7);
             out[2] = 0; out[3] = static_cast<uint8_t>(ent & 7);
             out[4] = 0; out[5] = static_cast<uint8_t>(g);
             out[6] = 0; out[7] = 0;
         };
-        #endif
         const std::vector<uint8_t> r = aecp_xact(0x002B, 0x4030, pl);
         ck("[AMAP] GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED",
            static_cast<long>(r.size() >= 60), 1);
         if (r.size() >= 60) {
         #ifdef AX8X8_TB
-            // This shape has no Stream Port Input cluster pool, so this leg's
-            // SPI declares ZERO clusters. The correct answer for a port
-            // with nothing to map is NOT_IMPLEMENTED with zero maps; the
-            // arty legs keep proving the served path.
-            ck("[AMAP] status NOT_IMPLEMENTED(11): input maps retired (#259)",
-               aecp_status(r), 11);
-            ck("[AMAP] cdl = 24 (no records)",
-               static_cast<long>(((static_cast<unsigned>(r[16]) & 7) << 8) | r[17]), 24);
+            // #584: SPI 0 owns one cluster, so the provisioned cluster 0
+            // entry is its one record and the other keys are other ports'
+            ck("[AMAP] status SUCCESS(0): SPI 0 owns a cluster (#584)",
+               aecp_status(r), 0);
+            ck("[AMAP] cdl = 24 + 8 (one record)",
+               static_cast<long>(((static_cast<unsigned>(r[16]) & 7) << 8) | r[17]), 32);
             ck("[AMAP] the frame is as long as it claims", static_cast<long>(r.size()),
                60);
         #else
@@ -7625,10 +7637,10 @@ class NxnDatapathHarness {
             ck("[AMAP] map_index echoed",
                static_cast<long>((static_cast<unsigned>(r[42]) << 8) | r[43]), 0);
         #ifdef AX8X8_TB
-            ck("[AMAP] number_of_maps = 0: no partition remains (#259)",
-               static_cast<long>((static_cast<unsigned>(r[44]) << 8) | r[45]), 0);
-            ck("[AMAP] number_of_mappings = 0",
-               static_cast<long>((static_cast<unsigned>(r[46]) << 8) | r[47]), 0);
+            ck("[AMAP] number_of_maps = the ONE fixed partition (#584)",
+               static_cast<long>((static_cast<unsigned>(r[44]) << 8) | r[45]), 1);
+            ck("[AMAP] number_of_mappings = 1 (its one cluster)",
+               static_cast<long>((static_cast<unsigned>(r[46]) << 8) | r[47]), 1);
         #else
             ck("[AMAP] number_of_maps = the ONE fixed partition",
                static_cast<long>((static_cast<unsigned>(r[44]) << 8) | r[45]), 1);
@@ -7637,7 +7649,6 @@ class NxnDatapathHarness {
         #endif
             ck("[AMAP] reserved zero",
                static_cast<long>((static_cast<unsigned>(r[48]) << 8) | r[49]), 0);
-        #ifndef AX8X8_TB
             uint8_t want0[8];
             uint8_t want1[8];
             rec_of(0x89, 0, want0);
@@ -7645,11 +7656,12 @@ class NxnDatapathHarness {
             long bad = 0;
             for (int i = 0; i < 8; i++) {
                 if (r[50 + i] != want0[i]) bad++;
-                if (r[58 + i] != want1[i]) bad++;
+                if (!kAx8x8 && r[58 + i] != want1[i]) bad++;
             }
-            ck("[AMAP] both records equal the LOOP-derived expectation",
+            ck(kAx8x8 ? "[AMAP] the record equals the LOOP-derived expectation"
+                      : "[AMAP] both records equal the LOOP-derived expectation",
                bad, 0);
-        #endif
+        }
         }
     }
 
@@ -7657,24 +7669,14 @@ class NxnDatapathHarness {
     void grade_the_get_audio_map_page_rule(std::vector<uint8_t>& pl) {
         pl[5] = 0x01;
         const std::vector<uint8_t> rb = aecp_xact(0x002B, 0x4031, pl);
-        #ifdef AX8X8_TB
-        // #259: with zero input clusters there is no page to rule on -
-        // the retirement answer outranks the page check
-        ck("[AMAP] page 1 also answers NOT_IMPLEMENTED(11) (#259)",
-           aecp_status(rb), 11);
-        ck("[AMAP] ...with zero maps and an EMPTY page",
-           static_cast<long>(rb.size() >= 50
-                  ? static_cast<long>(((static_cast<unsigned>(rb[44]) << 8) | rb[45]) << 16
-                           | ((static_cast<unsigned>(rb[46]) << 8) | rb[47]))
-                  : -1), 0x00000000);
-        #else
+        {
         ck("[AMAP] page 1 answers BAD_ARGUMENTS(7)", aecp_status(rb), 7);
         ck("[AMAP] ...with the real number_of_maps and an EMPTY page",
            static_cast<long>(rb.size() >= 50
                   ? static_cast<long>(((static_cast<unsigned>(rb[44]) << 8) | rb[45]) << 16
                            | ((static_cast<unsigned>(rb[46]) << 8) | rb[47]))
                   : -1), 0x00010000);
-        #endif
+        }
     }
 
     //! the image is the existence authority: probe the first SPI index
@@ -8812,13 +8814,13 @@ class NxnDatapathHarness {
         const uint64_t fmt_base = be64_at(r2, 42);
         const uint64_t fmt_2ch =
             (fmt_base & ~(0x3FFull << 22)) | (2ull << 22);
-        #ifndef AX8X8_TB
         // #658: the high input powers up mapped (stream channel c on its own
         // port's cluster c), and a 2ch or 1ch format would orphan its
         // channels 2..3 (Milan 5.4.2.7). The setters below grade the format
         // faces on an unmapped stream, and the probe below maps SPI 0's
         // cluster 0, so both power-on mappings are removed first and put back
-        // at the end.
+        // at the end. #584: on the 8x8 each port owns one cluster, so each
+        // power-on map is one mapping.
         const unsigned hi_n = static_cast<unsigned>(
             std::min(static_cast<long>((fmt_base >> 22) & 0x3FF),
                      port_clusters(0x000E, hi_in)));
@@ -8826,7 +8828,6 @@ class NxnDatapathHarness {
            identity_edit(0x002D, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
         ck("#67 pre: SPI 0's cluster 0 is freed for the probe mapping",
            identity_edit(0x002D, 0x000E, 0, 0, 0, 0), 0);
-        #endif
         // the leg's DECLARED channel count: the 4x4 legs declare a 4ch
         // base, the 8x8 leg 8ch - reading the format octet at [47:38]
         // instead of channels at [31:22] returns 8 on EVERY leg, so
@@ -8855,12 +8856,10 @@ class NxnDatapathHarness {
         prove_the_divergent_rows_serve_their_own_base();
         grade_all_output_offset_rows();
         grade_set_stream_info_presentation_offset();
-        #ifndef AX8X8_TB
         ck("#67 cleanup: SPI 0's power-on cluster 0 mapping is back",
            identity_edit(0x002C, 0x000E, 0, 0, 0, 0), 0);
         ck("#67 cleanup: the high input's power-on mappings are back",
            identity_edit(0x002C, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
-        #endif
     }
 
     // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
@@ -8884,21 +8883,7 @@ class NxnDatapathHarness {
         ck("#67 baseline: the base format is in force",
            aecp_status(r2), 0);
         std::vector<uint8_t> ra = aecp_xact(0x002C, setter_sq++, ap);
-        #ifdef AX8X8_TB
-        // This shape has no Stream Port Input cluster pool, so this
-        // leg's Stream Port Inputs declare ZERO clusters - the
-        // mapping never lands and no format member can orphan it.
-        // The arty legs keep proving the served survival path.
-        ck("#67 input ADD refuses: retired input clusters (#259)",
-           aecp_status(ra), 7);
-        for (int i = 0; i < 200; i++) step();   // a sweep refresh
-        r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_1ch));
-        ck("#67 the 1ch member is free: nothing mapped to orphan",
-           aecp_status(r2), 0);
-        r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_2ch));
-        ck("#67 the 2ch member is free too",
-           aecp_status(r2), 0);
-        #else
+        // #584: SPI 0 owns a cluster on every leg now, the 8x8's included
         ck("#67 ADD_AUDIO_MAPPINGS(channel 2 of the high input) "
            "SUCCEEDS", aecp_status(ra), 0);
         for (int i = 0; i < 200; i++) step();   // a sweep refresh
@@ -8908,17 +8893,11 @@ class NxnDatapathHarness {
         r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_2ch));
         ck("#67 2ch still orphans channel 2 (needs 3)",
            aecp_status(r2), 7);
-        #endif
         r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_base));
         ck("#67 the 8ch base still satisfies the mapping",
            aecp_status(r2), 0);
         ra = aecp_xact(0x002D, setter_sq++, ap);
-        #ifdef AX8X8_TB
-        ck("#67 input REMOVE refuses the same retired surface (#259)",
-           aecp_status(ra), 7);
-        #else
         ck("#67 REMOVE_AUDIO_MAPPINGS SUCCEEDS", aecp_status(ra), 0);
-        #endif
         for (int i = 0; i < 200; i++) step();
         r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_1ch));
         ck("#67 ...and the 1ch format is accepted once the mapping "
@@ -8933,19 +8912,11 @@ class NxnDatapathHarness {
         r2 = aecp_xact(0x0008, setter_sq++, sf_pl(0x0005, hi_in, fmt_base));
         ck("#67 restore: the base format is back", aecp_status(r2), 0);
         ra = aecp_xact(0x002C, setter_sq++, ap);
-        #ifdef AX8X8_TB
-        ck("#67 ...and the base does not revive the surface (#259)",
-           aecp_status(ra), 7);
-        ra = aecp_xact(0x002D, setter_sq++, ap);
-        ck("#67 cleanup REMOVE refuses too: nothing landed (#259)",
-           aecp_status(ra), 7);
-        #else
         ck("#67 ...and the same ADD succeeds under the base again",
            aecp_status(ra), 0);
         ra = aecp_xact(0x002D, setter_sq++, ap);
         ck("#67 cleanup: the probe mapping is removed",
            aecp_status(ra), 0);
-        #endif
     }
 
     // a BOUND input refuses STREAM_IS_RUNNING (sink 0 is bound here)
@@ -10105,7 +10076,7 @@ class NxnDatapathHarness {
         prove_two_ports_cannot_own_one_stream_channel();
         prove_a_running_output_refuses_both_edits();
         grade_get_audio_map_on_the_output_side();
-        prove_the_retired_input_surface_refuses_every_edit();
+        prove_every_input_port_owns_one_mono_cluster();
         grade_the_milan_mandatory_command_set();
         prove_the_csr_mapped_tone_reaches_the_wire();
         #endif
@@ -10568,66 +10539,79 @@ class NxnDatapathHarness {
            static_cast<long>((static_cast<unsigned>(r[44]) << 8) | r[45]), 1);
     }
 
-    // Every Stream Port Input declares ZERO clusters. Walk the full
-    // former surface
-    // (port 0 key 0, the page of eight on port 6, port 7 cluster 7):
-    // every ADD/REMOVE must refuse BAD_ARGUMENTS without touching
-    // physical RMAP, and GET_AUDIO_MAP must answer the NOT_IMPLEMENTED
-    // zero-map posture. The arty legs keep proving the served path.
-    void prove_the_retired_input_surface_refuses_every_edit() {
-        const int full_sc[8] = {
-            0, 1, 2, 3, 4, 5, 6, 7};
-        const int full_co[8] = {
-            0, 1, 2, 3, 4, 5, 6, 7};
-        ck("T66: retired full input page ADD refuses (#259)",
+    //! #584 (Milan v1.2 5.3.3.8): each STREAM_PORT_INPUT of this shape owns
+    //! ONE mono AUDIO_CLUSTER. SPI 0's is the first TDM render channel and
+    //! projects onto render key 2, the TDM lane's first key; SPI 1..7's are
+    //! unrouted and project onto no key. Every edit is checked on the wire
+    //! (dmap_cmd) and at the render RAM read port (ren_ram).
+    void prove_every_input_port_owns_one_mono_cluster() {
+        auto render_keys_but = [this](int key) {
+            long driven = 0;
+            for (int k = 0; k < 10; k++)
+                if (k != key && ren_ram(k) != 0) driven++;
+            return driven;
+        };
+        for (int p = 0; p < 8; p++) {
+            char w[112];
+            snprintf(w, sizeof w, "T66: SPI %d holds its power-on mapping, stream %d channel 0 on its one "
+                     "cluster (#584)", p, p);
+            ck(w, power_on_page_off(DT_SPI, static_cast<uint16_t>(p), static_cast<uint16_t>(p), 1), 0);
+        }
+        ck("T66: SPI 0's power-on mapping drives render key 2 = {en, avb 0.0}", ren_ram(2), 0x80);
+        ck("T66: ...and no input port drives another render key", render_keys_but(2), 0);
+
+        const int full_sc[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+        const int full_co[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+        ck("T66: a full eight-row input page past the port's one cluster refuses",
            dmap_cmd("ADD-input-full-page", CMD_ADD_AUDIO_MAPPINGS,
-                    8, full_sc, full_co, 7, 6, 0, DT_SPI), 7);
-        std::vector<uint8_t> fpl = {
-            static_cast<uint8_t>(DT_SPI >> 8), static_cast<uint8_t>(DT_SPI), 0x00, 0x06,
-            0x00, 0x00, 0x00, 0x00 };
-        const uint16_t fseq = t66_sq++;
-        auto fr = aecp_xact(CMD_GET_AUDIO_MAP, fseq, fpl);
-        ck("T66: retired input port answers NOT_IMPLEMENTED, zero maps",
-           static_cast<long>(aecp_status(fr) == 11 && fr.size() >= 50
-                  && ((static_cast<unsigned>(fr[44]) << 8) | fr[45]) == 0
-                  && ((static_cast<unsigned>(fr[46]) << 8) | fr[47]) == 0), 1);
-        ck("T66: retired full input page REMOVE refuses (#259)",
-           dmap_cmd("REMOVE-input-full-page", CMD_REMOVE_AUDIO_MAPPINGS,
-                    8, full_sc, full_co, 7, 6, 0, DT_SPI), 7);
+                    8, full_sc, full_co, 7, 0, 0, DT_SPI), 7);
+        ck("T66: ...and leaves SPI 0's mapping", map_has(DT_SPI, 0, 0, 0, 0), 1);
 
-        const int sc0 = 1;
-        const int co0 = 0;
-        ck("T66: retired input ADD on port 0 refuses (#259)",
-           dmap_cmd("ADD-input-zero", CMD_ADD_AUDIO_MAPPINGS,
-                    1, &sc0, &co0, 7, 0, 0, DT_SPI), 7);
-        ck("T66: refused input ADD does not touch physical RMAP",
-           ren_ram(0), 0);
-
-        const int sch = 2;
-        const int coh = 7;
-        ck("T66: retired input ADD at port 7 cluster 7 refuses (#259)",
-           dmap_cmd("ADD-input-high", CMD_ADD_AUDIO_MAPPINGS,
-                    1, &sch, &coh, 7, 7, 0, DT_SPI), 7);
-        std::vector<uint8_t> pl = {
-            static_cast<uint8_t>(DT_SPI >> 8), static_cast<uint8_t>(DT_SPI), 0x00, 0x07,
-            0x00, 0x00, 0x00, 0x00 };
-        const uint16_t seq = t66_sq++;
-        auto r = aecp_xact(CMD_GET_AUDIO_MAP, seq, pl);
-        ck("T66: port 7 stays at the zero-map posture too",
-           static_cast<long>(aecp_status(r) == 11 && r.size() >= 50
-                  && ((static_cast<unsigned>(r[44]) << 8) | r[45]) == 0
-                  && ((static_cast<unsigned>(r[46]) << 8) | r[47]) == 0), 1);
-
-        const int bad = 8;
-        ck("T66: input cluster one past port 7 is rejected",
-           dmap_cmd("ADD-input-past", CMD_ADD_AUDIO_MAPPINGS,
-                    1, &sch, &bad, 7, 7, 0, DT_SPI), 7);
-        ck("T66: high input REMOVE refuses like its ADD (#259)",
-           dmap_cmd("REMOVE-input-high", CMD_REMOVE_AUDIO_MAPPINGS,
-                    1, &sch, &coh, 7, 7, 0, DT_SPI), 7);
-        ck("T66: input zero REMOVE refuses like its ADD (#259)",
+        const int sc0 = 0, sc1 = 1, sc2 = 2, co0 = 0, co1 = 1;
+        ck("T66: REMOVE of SPI 0's non-empty list SUCCEEDS",
            dmap_cmd("REMOVE-input-zero", CMD_REMOVE_AUDIO_MAPPINGS,
-                    1, &sc0, &co0, 7, 0, 0, DT_SPI), 7);
+                    1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
+        ck("T66: ...the page is empty", map_has(DT_SPI, 0, 0, 0, 0), 0);
+        ck("T66: ...and render key 2 is cleared", ren_ram(2), 0);
+        ck("T66: ADD of stream 0 channel 1 on SPI 0's cluster SUCCEEDS",
+           dmap_cmd("ADD-input-zero", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc1, &co0, 0, 0, 0, DT_SPI), 0);
+        ck("T66: ...render key 2 = {en, avb 0.1}", ren_ram(2), 0x81);
+        ck("T66: ...and no other render key moves", render_keys_but(2), 0);
+        ck("T66: cluster offset 1, past SPI 0's one cluster, refuses",
+           dmap_cmd("ADD-input-past", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc1, &co1, 7, 0, 0, DT_SPI), 7);
+
+        ck("T66: REMOVE of SPI 7's power-on mapping SUCCEEDS",
+           dmap_cmd("REMOVE-input-high", CMD_REMOVE_AUDIO_MAPPINGS,
+                    1, &sc0, &co0, 0, 7, 7, DT_SPI), 0);
+        ck("T66: ADD of stream 7 channel 2 on SPI 7's unrouted cluster SUCCEEDS",
+           dmap_cmd("ADD-input-high", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc2, &co0, 0, 7, 7, DT_SPI), 0);
+        ck("T66: ...GET_AUDIO_MAP returns it", map_has(DT_SPI, 7, 7, 2, 0), 1);
+        ck("T66: ...and the unrouted cluster drives no render key", render_keys_but(2), 0);
+        ck("T66: ...render key 2 keeps SPI 0's mapping", ren_ram(2), 0x81);
+        ck("T66: cluster offset 1, past SPI 7's one cluster, refuses",
+           dmap_cmd("ADD-input-past7", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc2, &co1, 7, 7, 7, DT_SPI), 7);
+        ck("T66: REMOVE of SPI 7's non-empty list SUCCEEDS",
+           dmap_cmd("REMOVE-input-high2", CMD_REMOVE_AUDIO_MAPPINGS,
+                    1, &sc2, &co0, 0, 7, 7, DT_SPI), 0);
+        ck("T66: ...its page is empty", map_has(DT_SPI, 7, 7, 2, 0), 0);
+
+        // the power-on maps back, as the sections after this one find them
+        ck("T66: restore: SPI 0's channel 1 mapping removed",
+           dmap_cmd("REMOVE-input-restore", CMD_REMOVE_AUDIO_MAPPINGS,
+                    1, &sc1, &co0, 0, 0, 0, DT_SPI), 0);
+        ck("T66: restore: SPI 0's power-on mapping back",
+           dmap_cmd("ADD-input-restore", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
+        ck("T66: restore: SPI 7's power-on mapping back",
+           dmap_cmd("ADD-input-restore7", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &sc0, &co0, 0, 7, 7, DT_SPI), 0);
+        ck("T66: ...SPI 0 and SPI 7 hold their power-on maps",
+           power_on_page_off(DT_SPI, 0, 0, 1) + power_on_page_off(DT_SPI, 7, 7, 1), 0);
+        ck("T66: ...and render key 2 = {en, avb 0.0} again", ren_ram(2), 0x80);
     }
 
     // ---- (B2) the Milan-mandatory set the demotion round landed ------
@@ -10666,12 +10650,12 @@ class NxnDatapathHarness {
         ck("B2: lock test output mapping setup succeeds",
            dmap_cmd("ADD-lock-output", CMD_ADD_AUDIO_MAPPINGS,
                     1, &lock_sc, &lock_co, 0, 0, 1, DT_SPO), 0);
-        // #259: no input clusters remain, so no input ownership row can
-        // be seeded - the 5.4.2.27/28 lock law is proven on the output
-        // row, and the input side pins the retired refusal instead.
-        ck("B2: retired input mapping setup refuses (#259)",
+        // #584: SPI 0 owns one cluster, holding its power-on mapping (stream
+        // 0 channel 0), so the 5.4.2.27/28 lock law is proven on that input
+        // row too: the ADD is that mapping, idempotent.
+        ck("B2: input mapping setup succeeds (#584)",
            dmap_cmd("ADD-lock-input", CMD_ADD_AUDIO_MAPPINGS,
-                    1, &lock_sc, &lock_co, 7, 0, 0, DT_SPI), 7);
+                    1, &lock_sc, &lock_co, 0, 0, 0, DT_SPI), 0);
 
         // LOCK -> SUCCESS naming the taker; foreign LOCK -> ENTITY_LOCKED
         std::vector<uint8_t> lk(16, 0);
@@ -10696,8 +10680,9 @@ class NxnDatapathHarness {
            cap_ram(8), out_word(lock_co));
         ck("B2: locked CSR write preserves output protocol ownership",
            map_has(DT_SPO, 0, 1, lock_sc, lock_co), 1);
-        ck("B2: input ownership stays absent under lock (#259)",
-           map_has(DT_SPI, 0, 0, lock_sc, lock_co), 0);
+        ck("B2: locked CSR write preserves the input mapping (#584)",
+           map_has(DT_SPI, 0, 0, lock_sc, lock_co), 1);
+        ck("B2: ...and its render key", ren_ram(2), 0x80);
 
         // UNLOCK and prove the same local writes become effective.
         std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
@@ -10716,9 +10701,13 @@ class NxnDatapathHarness {
            cap_ram(8), 0);
         ck("B2: unlocked CSR write clears output protocol ownership",
            map_has(DT_SPO, 0, 1, lock_sc, lock_co), 0);
-        ck("B2: input ownership still absent after unlock (#259)",
+        ck("B2: unlocked CSR write clears the input mapping (#584)",
            map_has(DT_SPI, 0, 0, lock_sc, lock_co), 0);
+        ck("B2: ...and its render key", ren_ram(2), 0);
         axi_write(A_CHMAP_CTRL2, 0);
+        ck("B2: SPI 0's power-on mapping is put back",
+           dmap_cmd("ADD-lock-input-back", CMD_ADD_AUDIO_MAPPINGS,
+                    1, &lock_sc, &lock_co, 0, 0, 0, DT_SPI), 0);
         // ACQUIRE: the Milan 5.4.2.1 refusal, command echoed
         std::vector<uint8_t> aq(16, 0);
         seq = t66_sq++;

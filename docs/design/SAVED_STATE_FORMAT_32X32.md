@@ -56,15 +56,15 @@ The interface count changes no saved record: the model has one AVB_INTERFACE eit
 | AAF streams per direction | 1 | 8 | 32 | 32 |
 | STREAM_INPUT / STREAM_OUTPUT | 2 / 2 | 9 / 9 | 33 / 33 | 33 / 33 |
 | STREAM_PORT_INPUT / OUTPUT | 1 / 1 | 8 / 8 | 32 / 32 | 32 / 32 |
-| AUDIO_CLUSTER | 25 | 72 | 288 | 800 |
+| AUDIO_CLUSTER | 25 | 80 | 320 | 800 |
 | CLOCK_SOURCE | 3 | 10 | 34 | 34 |
-| Clusters per input port | 8 | 0 | 0 | 8 |
+| Clusters per input port | 8 | 1 | 1 | 8 |
 | Clusters per output port | 17 | 9 | 9 | 17 |
 | Map entries per output port | 17 | 72 | 264 | 264 |
-| Descriptors | 42 | 124 | 460 | 972 |
-| Writable names, the builder's count | 39 | 107 | 395 | 907 |
-| Writable names, the AEMI header | 39 | 107 | 395 | refused |
-| Descriptor image bytes | 7,512 | 19,520 | 69,488 | refused |
+| Descriptors | 42 | 132 | 492 | 972 |
+| Writable names, the builder's count | 39 | 115 | 427 | 907 |
+| Writable names, the AEMI header | 39 | 115 | 427 | refused |
+| Descriptor image bytes | 7,512 | 20,800 | 74,608 | refused |
 <!-- nvm-format: end points -->
 
 The 32x32 TDM8 overlay builds, but its descriptor image does not.
@@ -81,14 +81,14 @@ The two formulas are that count for two config families:
 | Family | N: names, as built | Rule | First refusal, names |
 |---|---|---|---:|
 | `endstation_ax7101_1x1_tdm8` rows | 1: 39, 2: 67, 3: 95, 4: 123 | 11 + 28 x N | 151 |
-| `endstation_ax7101_8x8` rows | 1: 23, 2: 35, 4: 59, 8: 107, 9: 119 | 11 + 12 x N | 131 |
+| `endstation_ax7101_8x8` rows | 1: 24, 2: 37, 4: 63, 8: 115, 9: 128 | 11 + 13 x N | 141 |
 <!-- nvm-format: end rule -->
 
 - **#823's <!-- fig:t32_names -->907<!-- /fig -->** is the TDM8 family: <!-- fig:tdm8_const -->11<!-- /fig --> + <!-- fig:tdm8_per_stream -->28<!-- /fig --> per stream pair.
   Each listener port carries <!-- fig:t32_in_cl -->8<!-- /fig --> physical clusters, and each talker port <!-- fig:t32_out_cl -->17<!-- /fig -->: a pilot, 8 physical and 8 loopback.
-- **The census's <!-- fig:p32_names -->395<!-- /fig -->** is the 8x8 family: <!-- fig:census_const -->11<!-- /fig --> + <!-- fig:census_per_stream -->12<!-- /fig --> per pair.
+- **The census's <!-- fig:p32_names -->427<!-- /fig -->** is the 8x8 family: <!-- fig:census_const -->11<!-- /fig --> + <!-- fig:census_per_stream -->13<!-- /fig --> per pair.
   That board routes no physical audio, so a listener port carries no cluster (the L1 waiver, until #584) and a talker port <!-- fig:p32_out_cl -->9<!-- /fig -->.
-- The difference is <!-- fig:per_stream_diff -->16<!-- /fig --> clusters per stream pair.
+- The difference is <!-- fig:per_stream_diff -->15<!-- /fig --> clusters per stream pair.
   #584 adds input clusters to the 8x8 family, so its count grows toward the TDM8 one.
 
 ## 2. The record space
@@ -119,13 +119,13 @@ The ids are the same for every shape, so a decoder's bases are constants.
   The F07.8 header carries it in a <!-- fig:rid_field_bits -->16<!-- /fig -->-bit field (section 5).
 - RATE, CLKSRC and MCR keep the backend's present bounds of <!-- fig:au_max -->8<!-- /fig --> and <!-- fig:cd_max -->8<!-- /fig -->, read from `g_refuse_units`.
 - The NAME block runs from id <!-- fig:name_first -->222<!-- /fig --> to <!-- fig:name_last -->1,128<!-- /fig -->.
-- No 8-bit allocation can hold 32x32: the census shape needs <!-- fig:p32_records -->596<!-- /fig --> records, the bound <!-- fig:t32_records -->1,108<!-- /fig -->.
+- No 8-bit allocation can hold 32x32: the census shape needs <!-- fig:p32_records -->628<!-- /fig --> records, the bound <!-- fig:t32_records -->1,108<!-- /fig -->.
 
 <!-- nvm-format: begin ids -->
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
 |---|---:|---:|---:|---:|
-| Records | 54 | 164 | 596 | 1,108 |
-| Highest id, derived space | 260 | 328 | 616 | 1,128 |
+| Records | 54 | 172 | 628 | 1,108 |
+| Highest id, derived space | 260 | 336 | 648 | 1,128 |
 | Records within today's 256 ids | yes | yes | no | no |
 | Inside the derived space | yes | yes | yes | yes |
 <!-- nvm-format: end ids -->
@@ -155,27 +155,27 @@ Bases would then vary with the shape, and every producer would take them as para
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
 |---|---:|---:|---:|---:|
 | Fixed groups, framed | 266 | 770 | 2,498 | 2,498 |
-| Input maps, framed | 72 | 64 | 256 | 2,304 |
+| Input maps, framed | 72 | 128 | 512 | 2,304 |
 | Output maps, framed | 144 | 4,672 | 67,840 | 67,840 |
-| Names, framed | 2,808 | 7,704 | 28,440 | 65,304 |
-| Record area, 8-byte headers | 3,290 | 13,210 | 99,034 | 137,946 |
-| KLJ2 image today | 3,336 | 13,256 | 99,080 | 137,992 |
-| Share of one 64 KiB slot | 5% | 20% | 151% | 211% |
+| Names, framed | 2,808 | 8,280 | 30,744 | 65,304 |
+| Record area, 8-byte headers | 3,290 | 13,850 | 101,594 | 137,946 |
+| KLJ2 image today | 3,336 | 13,896 | 101,640 | 137,992 |
+| Share of one 64 KiB slot | 5% | 21% | 155% | 211% |
 | Largest payload (cap 1,024) | 136 | 576 | 2,112 | 2,112 |
-| Record area, 10-byte headers | 3,398 | 13,538 | 100,226 | 140,162 |
-| Base segment | 3,444 | 13,584 | 100,272 | 140,208 |
-| Base segment, pages | 14 | 54 | 392 | 548 |
+| Record area, 10-byte headers | 3,398 | 14,194 | 102,850 | 140,162 |
+| Base segment | 3,444 | 14,240 | 102,896 | 140,208 |
+| Base segment, pages | 14 | 56 | 402 | 548 |
 <!-- nvm-format: end image -->
 
 Three things this arithmetic shows:
 
 - **Output maps dominate at 32x32.**
-  They are <!-- fig:p32_maps_out_pct -->69<!-- /fig -->% of the census record area and <!-- fig:t32_maps_out_pct -->49<!-- /fig -->% of the bound's.
+  They are <!-- fig:p32_maps_out_pct -->67<!-- /fig -->% of the census record area and <!-- fig:t32_maps_out_pct -->49<!-- /fig -->% of the bound's.
   Each output port reserves every stream-channel key (the #501 decision), so the group grows as ports times keys.
 - **The largest payload is <!-- fig:t32_max_payload -->2,112<!-- /fig --> B**, one output map at 32x32.
   The port refuses any payload over its <!-- fig:max_payload_cap -->1,024<!-- /fig --> B default, so `MAX_PAYLOAD_P` must be derived too (section 6).
 - **No <!-- fig:slot_now_kib -->64<!-- /fig --> KiB slot holds 32x32.**
-  The census image is <!-- fig:p32_klj2_pct -->151<!-- /fig -->% of a slot, the bound's <!-- fig:t32_klj2_pct -->211<!-- /fig -->%.
+  The census image is <!-- fig:p32_klj2_pct -->155<!-- /fig -->% of a slot, the bound's <!-- fig:t32_klj2_pct -->211<!-- /fig -->%.
 
 ### The slot: derived size, no compact name encoding
 
@@ -220,10 +220,10 @@ The <!-- fig:window_kib -->1,024<!-- /fig --> KiB window would then leave <!-- f
 <!-- nvm-format: begin window -->
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
 |---|---:|---:|---:|---:|
-| Descriptor image | 7,512 | 19,520 | 69,488 | refused |
+| Descriptor image | 7,512 | 20,800 | 74,608 | refused |
 | Base fits today's 64 KiB sub-window | yes | yes | no | no |
-| Window use, proposal | 404,824 | 416,832 | 466,800 | -- |
-| F1 stage today | 3,344 | 13,264 | 99,088 | 138,000 |
+| Window use, proposal | 404,824 | 418,112 | 471,920 | -- |
+| F1 stage today | 3,344 | 13,904 | 101,648 | 138,000 |
 | F1 stage, proposal | 402 | 842 | 2,378 | 2,378 |
 
 Today the window holds the image plus 135,168 B; the proposal, plus 397,312 B, of 1,048,576 B.
@@ -231,7 +231,7 @@ Today the window holds the image plus 135,168 B; the proposal, plus 397,312 B, o
 
 The split's F1 store has no DDR3, so its stage is block RAM (#640 D4).
 Until the append path it holds the whole container, now KLJ3: its ten-byte headers add two bytes a record.
-In KLJ2 that was <!-- fig:p32_f1_stage_now -->99,088<!-- /fig --> B at the census shape.
+In KLJ2 that was <!-- fig:p32_f1_stage_now -->101,648<!-- /fig --> B at the census shape.
 The append needs only one page and one record, <!-- fig:t32_f1_stage_new -->2,378<!-- /fig --> B at 32x32.
 Compaction streams record by record from the owners, so it needs no more.
 
@@ -337,9 +337,9 @@ At tPP <!-- fig:t_pp_ms -->5<!-- /fig --> ms the flash programs one page per <!-
 <!-- nvm-format: begin compaction -->
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
 |---|---:|---:|---:|---:|
-| Base segment, pages | 14 | 54 | 392 | 548 |
-| Compaction, ms | 74.69 | 288.07 | 2,091.21 | 2,923.43 |
-| Today's whole-image commit, ms | 3,072.14 | 3,268.48 | 5,003.41 | 5,788.31 |
+| Base segment, pages | 14 | 56 | 402 | 548 |
+| Compaction, ms | 74.69 | 298.74 | 2,144.56 | 2,923.43 |
+| Today's whole-image commit, ms | 3,072.14 | 3,283.89 | 5,055.05 | 5,788.31 |
 <!-- nvm-format: end compaction -->
 
 Today's whole-image commit is <!-- fig:t32_commit_now_ms -->5,788.31<!-- /fig --> ms at the bound, so an append is the only way under 0.5 s.
@@ -474,7 +474,7 @@ Its area evidence is [the split memory plan](SPLIT_CONTROL_MEMORY.md#5-fit), 57.
 The append path's memory is #876's.
 
 - **At 1x1 and 8x8 the change is small.**
-  The ownership vector keeps one bit per record: <!-- fig:p1_open_ff -->54<!-- /fig --> and <!-- fig:p8_open_ff -->164<!-- /fig -->, as today.
+  The ownership vector keeps one bit per record: <!-- fig:p1_open_ff -->54<!-- /fig --> and <!-- fig:p8_open_ff -->172<!-- /fig -->, as today.
   Wider id compares, a 10-byte header and one more map index bit add about <!-- fig:width_lut -->40<!-- /fig --> LUT and <!-- fig:width_ff -->24<!-- /fig --> FF.
 - **At 32x32 the ownership vector is the risk.**
   Flop-held, it is <!-- fig:t32_open_ff -->1,108<!-- /fig --> FF and about <!-- fig:t32_open_lut -->3,612<!-- /fig --> LUT at the bound.
@@ -485,9 +485,9 @@ The append path's memory is #876's.
 <!-- nvm-format: begin area -->
 | Quantity | 1x1/1if | 8x8/2if | 32x32/2if | 32x32/2if TDM8 |
 |---|---:|---:|---:|---:|
-| Ownership bits, one per record | 54 | 164 | 596 | 1,108 |
-| Ownership read words | 2 | 6 | 19 | 35 |
-| ESTIMATE flop-held LUT, 3 per bit and the read mux | 194 | 556 | 1,948 | 3,612 |
+| Ownership bits, one per record | 54 | 172 | 628 | 1,108 |
+| Ownership read words | 2 | 6 | 20 | 35 |
+| ESTIMATE flop-held LUT, 3 per bit and the read mux | 194 | 580 | 2,044 | 3,612 |
 | ESTIMATE OR-reduce depth, LUT6 levels | 3 | 3 | 4 | 4 |
 | ESTIMATE read-mux depth, levels | 1 | 2 | 3 | 3 |
 <!-- nvm-format: end area -->

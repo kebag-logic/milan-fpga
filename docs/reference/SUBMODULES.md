@@ -68,8 +68,8 @@ Issue #580 adopted processor pin `16be6768`.
 - [Processor PR 124](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/124) rejects body/key type and index mismatches.
 - [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
 - [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
-- The zero-cluster 8x8 input pools violate that minimum.
-- Parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584) owns the D8 product correction.
+- The 8x8 input pools violated that minimum until parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584).
+- Since #584 each 8x8 input port owns one cluster, so the model lint needs no waiver.
 - All five configurations retain identical AEM images and builder outputs.
 
 Issues #606 and #608 adopted processor pin `c951a9ff`.
@@ -148,7 +148,7 @@ The parent can observe these processor changes.
 | P2 answers a silent NVM device at that deadline: err, cause DEADLINE | Three failed attempts raise `nvm_alarm`; the [D3 contract](../design/SAVED_STATE_MATERIALIZATION.md) is amended (W13, section 8.8, section 15 item 4) |
 | P1 adds the name stage; the channel maps are the parent's ([processor #83 ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83#issuecomment-5967611704)) | The D3 contract is amended; the map writer, restore and roll-back are #637's |
 | P1 keeps `pend_i`'s sticky live-name term | A parent lane transfers names to `d3_unflushed_o` |
-| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration carries its #584 waiver; the parent's duplicate L6/L10 checker is retired |
+| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration's #584 waiver is removed since its input ports own clusters; the parent's duplicate L6/L10 checker is retired |
 | C10 names six modules as Yosys tops and declares before use | `processor_yosys_tops.budget` is empty and the xvlog ratchet banks the fix |
 | #232 drops the `pd_ix_w` use-before-declaration | The xvlog ratchet banks it |
 | #85 resets `available_index` to 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15) | The [register map](REGISTER_MAP.md) `0x644` note says so |
