@@ -1,0 +1,24 @@
+64d539f12532b2591f734b8e756f8a9358bb742c Name every passing check in the 8x8 render leg's log, so its receipt shows what was graded (#584)
+3c33027ad9d8eef0d61f1e7704025e201174b5b2 Keep suite_shards.py at its 1000-line ratchet by recording the ship8 piece's scaled-run provenance in TESTING.md, shorten the changelog's long line and regenerate the documentation audit (#584)
+25ad9c9a9e2644ac97b4c62ceecfc5673804d885 State the 8x8's loopback and TDM32-slot departures from the owner's wording as pending disposition in D8, D10 and the ownership page, give the memory page's per-image growth, drop the removed waiver from L1, key map row 45 and the 32x32 census prose, and say render_ports first binds every channel to port 0 (#584)
+3a94bc3d6feb40b7527f43fe289d698c9dd190d8 Size the 8x8 render case's CI piece from its cold four-CPU run through ci_make_cases.py, 147.9 s at the 1.58 hosted slowdown (#584)
+e2a0858c19c344043ae9ae54c927b928d5354c1e Grade the 8x8/1if render lane at its pins: a milan_dp_render case at the generated 8x8 shape and the shipping render parameters, eight bound listeners and the decoded TDM32 bus, with planted projection, adapter and bus-binding faults (#584)
+ CHANGELOG.md                                      |    8 +
+ configs/endstation_ax7101_8x8.yaml                |    6 +-
+ docs/DOCUMENTATION_AUDIT.md                       |    2 +-
+ docs/ENDSTATION_BUILDER.md                        |   52 +-
+ docs/design/SAVED_STATE_FORMAT_32X32.md           |    4 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md               |    2 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md         |    5 +-
+ docs/testing/TESTING.md                           |    8 +
+ scripts/measure_test_evidence_readers.py          |    6 +
+ scripts/suite_shards.py                           |    2 +-
+ sw/builder/endstation_builder.py                  |   20 +-
+ tb/verilator/milan_dp/README.md                   |    2 +-
+ tb/verilator/milan_dp_render/.gitignore           |    5 +
+ tb/verilator/milan_dp_render/Makefile             |   75 +-
+ tb/verilator/milan_dp_render/ship8_mutants.py     |  189 ++++
+ tb/verilator/milan_dp_render/ship8_params.py      |  103 ++
+ tb/verilator/milan_dp_render/sim_ship8_render.cpp | 1166 +++++++++++++++++++++
+ 17 files changed, 1617 insertions(+), 38 deletions(-)
+RTL and firmware diff exit=0
