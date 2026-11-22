@@ -263,11 +263,12 @@ LEDGERED: dict[str, Ledgered] = {
     "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 14_250), ("image_allocation", 8)),
                                   57.0, "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 57.0 since "
                                         "#584 gave each 8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (Milan v1.2 5.3.3.8): "
-                                        "131,368 B of rom and 98,672 B of sram, past the 56 it held within, by the "
+                                        "131,368 B of rom and 98,672 B of sram, its arms up to 132,152 B of rom "
+                                        "(declaring-outputs), past the 56 it held within, by the "
                                         "owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): ROM debt of one "
                                         "RAMB36 owed to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
-                                   61.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   61.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -289,10 +290,12 @@ LEDGERED: dict[str, Ledgered] = {
                                          "the largest legal record's cut on that train (#665): the harness's "
                                          "answering-ports arm needs 131,128 B of rom, 56 B past the 131,072 B "
                                          "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
-                                         "ROM debt of 4.5 RAMB36 owed to S14; 61.0 with each 8x8 "
-                                         "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584): 132,880 B of rom and 116,064 B "
-                                         "of sram, the stage 14,250 B, by the same rule: ROM debt of 5.0 RAMB36 "
-                                         "owed to S14"),
+                                         "ROM debt of 4.5 RAMB36 owed to S14; 61.5 with each 8x8 "
+                                         "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584): the fixture needs 132,880 B of "
+                                         "rom and 116,064 B of sram, its arms up to 133,696 B and 116,080 B "
+                                         "(declaring-outputs; answering-ports and the saved-state harness's guard "
+                                         "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
+                                         "5.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_568)), 64.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

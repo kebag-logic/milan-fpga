@@ -6,7 +6,7 @@ planted ledgers that widen one, and the out-of-context mapper's override.
 `ctrl_memory.LEDGERED` lets four images plan past the 56-RAMB36 budget, each only as its own point, under #665's
 documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16). Since #584 gave each
 8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (its eight more descriptors and names, the stage 656 B longer at 14,250 B), the
-size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.0 with two, the platform's
+size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.5 with two (its arms' most), the platform's
 64.0 with two and 59.0 with one, each half a tile past its entry refused; before it: at 8x8 with two
 interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
 #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
@@ -61,10 +61,10 @@ class Case(NamedTuple):
 
 
 #: Each ledgered point's own image, at its ledgered tiles.
-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 61.0), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 64.0),
+OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 61.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 64.0),
        PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 59.0), FIXTURE1: Case(STAGE_8X8, 1, None, 57.0)}
 #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 61.0),
+HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 61.5),
         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 64.0),
         PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 59.0),
         FIXTURE1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8)), 57.0)}
@@ -72,13 +72,13 @@ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 1
 #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
 #: symbols, and names the ledger does not hold.
 REFUSED = (
-    ("its own image at 61.5 RAMB36, half a tile past its 61.0", FIXTURE, OWN[FIXTURE]._replace(tiles=61.5)),
-    ("the size fixture's 1x1 one-interface image at 61.0", FIXTURE, Case(STAGE_1X1, 1, None, 61.0)),
-    ("the size fixture's 1x1 two-interface image at 61.0", FIXTURE, Case(STAGE_1X1, 2, None, 61.0)),
-    ("the size fixture's 8x8 one-interface image at 61.0", FIXTURE, Case(STAGE_8X8, 1, None, 61.0)),
-    ("an 8x8 image with no image_allocation at 61.0", FIXTURE, Case(STAGE_8X8, None, None, 61.0)),
+    ("its own image at 62.0 RAMB36, half a tile past its 61.5", FIXTURE, OWN[FIXTURE]._replace(tiles=62.0)),
+    ("the size fixture's 1x1 one-interface image at 61.5", FIXTURE, Case(STAGE_1X1, 1, None, 61.5)),
+    ("the size fixture's 1x1 two-interface image at 61.5", FIXTURE, Case(STAGE_1X1, 2, None, 61.5)),
+    ("the size fixture's 8x8 one-interface image at 61.5", FIXTURE, Case(STAGE_8X8, 1, None, 61.5)),
+    ("an 8x8 image with no image_allocation at 61.5", FIXTURE, Case(STAGE_8X8, None, None, 61.5)),
     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
-    ("the platform's 8x8 two-interface image at 61.0", FIXTURE, OWN[PLATFORM]._replace(tiles=61.0)),
+    ("the platform's 8x8 two-interface image at 61.5", FIXTURE, OWN[PLATFORM]._replace(tiles=61.5)),
     ("its own image at 64.5 RAMB36, half a tile past its 64.0", PLATFORM, OWN[PLATFORM]._replace(tiles=64.5)),
     ("the platform's 1x1 one-interface image at 64.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 64.0)),
     ("the platform's 1x1 two-interface image at 64.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 64.0)),

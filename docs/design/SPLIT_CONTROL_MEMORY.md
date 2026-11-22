@@ -135,7 +135,7 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 57.0 |
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,568 B | 64.0 |
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 18,944 B | 59.0 |
 
@@ -307,9 +307,9 @@ At #923's head the entries are:
 | the target platform's 8x8, one interface (product) | 139,208 / 98,160 | 140,544 / 99,904 | 58.0 to 59.0 | 59.0, a debt of 3.0 RAMB36 owed to S14 |
 | the target platform's 8x8, two interfaces | 140,784 / 115,504 | 142,120 / 117,312 | 63.0 to 64.0 | 64.0, a debt of 8.0 |
 | the size fixture's 8x8, one interface | 130,032 / 96,928 | 131,368 / 98,672 | 56.0 to 57.0 | 57.0, a new entry, a debt of 1.0 |
-| the size fixture's 8x8, two interfaces | 131,536 / 114,320 | 132,880 / 116,064 | 60.5 to 61.0 | 61.0, a debt of 5.0 |
+| the size fixture's 8x8, two interfaces | 131,536 / 114,320 | 132,880 / 116,064 | 60.5 to 61.0 | 61.5, a debt of 5.5: its arms (answering-ports, declaring-outputs, the saved-state harness's guard probe) plan 61.5 |
 
-Every image grows by the same 1,336 B of `rom` and 1,744 B of `sram`: the 1,280 B of descriptors and names, the stage's 656 B and the input ports' map rows.
+Every image grows by the same 1,336 B of `rom` and 1,744 B of `sram`: the 1,280 B of descriptors and names, the stage's 656 B and the input ports' map rows. Each entry is the most any image of its point plans: every labelled variant of the CPU budget harness, every arm of the split saved-state harness and every planted mutation was linked at both 8x8 points, at the head and at the base (56.0 and 60.5 at the base, 57.0 and 61.5 at the head).
 
 Each entry is the image's measured tiles by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the ROM may overflow as recorded debt, and the physical fit and the timing floor gate every built image.
 
