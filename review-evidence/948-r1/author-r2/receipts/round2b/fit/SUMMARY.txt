@@ -1,0 +1,16 @@
+# round 2b's fit and timing at the head 64e55a59 (chain_r3.sh: the gating recipe, #818's three placement directives, 8 Vivado threads, two Vivado at a time through vivado-slot.sh, after the sweep)
+# #818's gate: WNS >= +0.030 ns and WHS >= 0 at every signoff corner: met by all six builds
+
+| Point | Directive | Slow WNS / WHS (ns) | Fast WNS / WHS (ns) | LUTs | FFs | Slices | BRAM tiles | DSPs | vs round 2 (LUT / FF / slice) |
+|---|---|---|---|---:|---:|---:|---:|---:|---|
+| 8x8/1if | **ExtraPostPlacementOpt** | **+0.339** / +0.060 | +1.636 / +0.017 | 45,161 | 51,215 | 15,706 | 94 | 13 | +1,103 / +80 / +191 |
+| 8x8/1if | ExtraTimingOpt | +0.174 / +0.051 | +1.641 / +0.024 | 45,113 | 51,213 | 15,131 | 94 | 13 | +1,357 / +81 / +30 |
+| 8x8/1if | AltSpreadLogic_high | +0.114 / +0.100 | +1.641 / +0.036 | 45,164 | 51,214 | 15,130 | 94 | 13 | +1,373 / +80 / +40 |
+| 1x1/1if | ExtraPostPlacementOpt | +0.046 / +0.102 | +1.641 / +0.036 | 32,870 | 42,838 | 13,746 | 79.5 | 13 | +253 / +170 / +302 |
+| 1x1/1if | ExtraTimingOpt | +0.115 / +0.102 | +1.687 / +0.036 | 32,920 | 42,842 | 14,217 | 79.5 | 13 | +270 / +172 / -78 |
+| 1x1/1if | **AltSpreadLogic_high** | **+0.139** / +0.102 | +1.687 / +0.036 | 32,918 | 42,843 | 14,216 | 79.5 | 13 | +268 / +173 / -88 |
+
+# the depacketizer's placed cost against round 2 (6ab8b355) at the same directive: 8x8 +29 / +40 / +40 LUT and +80 FF (the three-cycle shift register's valid-qualified stages), 1x1 +80 / +75 / +75 LUT and +80 FF; avtp_rx_monitor and avtp_rx_parser unchanged RTL
+# the 8x8 totals' other ~+1,100 LUT sit in unchanged hierarchies, the cross-boundary attribution of rounds 1 and 2: u_gptp_shadow's own level +1,169 against its u_engine -883 (the instance +153 net), KL_mbx_cdc/u_edit +702 against u_pub -549; no RTL outside the depacketizer changed since round 2
+# no setup path any signoff report lists (263-275 per report, Slow 85 C and Fast 0 C) touches avtp_rx_parser, avtp_rx_monitor or aaf_rx_depkt; the worst setup paths are on the CPU clock (KL_mbx) and reset synchronisers; the 8x8 Fast-corner hold minimum (+0.017 ns, ExtraPostPlacementOpt) is media_clock_restart's, unchanged
+# image identity gate: every build agrees

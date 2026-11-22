@@ -1,0 +1,21 @@
+# milan_dp at f89a3593: 11 in-suite failures, all in obj_ax1x1 (sim_main.cpp, the shipping 8-channel 1x1 shape): its PDU carried 8 channels and a 48-octet payload, off the declared format's 192-octet frame size; fixed in 29ffa248 (the PDU sized from the declared channels)
+milan_dp rc=2 seconds=4423
+checks: 13386   in-suite failures: 11
+tally rc=0
+---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+./obj_ax1x1/Vmilan_dp_ax1x1
+=== milan_datapath integration harness (§A.9 wrapper) ===
+9795:  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+23697:  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=1 0x6C0=0x00000000 0x6C4=0x00000001 render=6 beats
+24021:  [i] STREAM_INPUT[0] declared-format acceptance: 0x6BC=0 0x6C0=0x00000100 0x6C4=0x00000000 render=0 beats
+24022:  [FAIL] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000001 exp=0x00000000
+24023:  [FAIL] ...so FRAMES_RX moved (0x6BC)      got=0x00000000 exp=0x00000001
+24024:  [FAIL] ...and PCMRX advanced (0x6C4)      got=0x00000000 exp=0x00000001
+24025:  [FAIL] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000000 exp=0x00000006
+24026:  [FAIL] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000000 exp=0x00000001
+24027:  [FAIL] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000002 exp=0x00000000
+24028:  [FAIL] tagged: FRAMES_RX = 2              got=0x00000000 exp=0x00000002
+24029:  [FAIL] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000000 exp=0x00000006
+24042:  [FAIL] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000000 exp=0x00000002
+24046:  [FAIL] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000000 exp=0x00000002
+24047:  [FAIL] prefilter: fabric render KEPT consuming (+12 beats) got=0x00000000 exp=0x0000000c

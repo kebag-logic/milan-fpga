@@ -1,0 +1,7 @@
+head 64e55a59e09339114926c2600056c3ad8b33b9b4
+lint rc=0 LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog rc=0 xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+yosys KL_avtp_rx_monitor_ctx rc=0   [PASS] KL_avtp_rx_monitor_ctx cells=12034 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+yosys KL_aaf_rx_depacketizer rc=0   [PASS] KL_aaf_rx_depacketizer cells=54392 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+docs steps: 104 of 104 rc=0
+tsn_fuzz aaf rc=0 == AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps == campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL

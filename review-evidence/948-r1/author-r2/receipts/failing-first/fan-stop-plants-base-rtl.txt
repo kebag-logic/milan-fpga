@@ -1,0 +1,12 @@
+python3 -B fan_stop_plant.py ../../../hdl/milan/milan_datapath.sv obj_nxn8_plant_shared/milan_datapath.sv shared
+python3 -B fan_stop_plant.py ../../../hdl/milan/milan_datapath.sv obj_nxn8_plant_one-index/milan_datapath.sv one-index
+  echo "FAIL the shared stop-gate plant passed"; exit 1; fi
+  echo "FAIL the one-index stop-gate plant passed"; exit 1; fi
+  grep -qF -- "$w" obj_nxn8_plant_one-index/run.log || { echo "FAIL the one-index stop-gate plant escaped: $w"; exit 1; }; \
+  echo "caught (one-index): $w"; done
+caught (one-index): [FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)
+caught (one-index): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+  grep -qF -- "$w" obj_nxn8_plant_shared/run.log || { echo "FAIL the shared stop-gate plant escaped: $w"; exit 1; }; \
+  echo "caught (shared): $w"; done
+caught (shared): [FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)
+caught (shared): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)

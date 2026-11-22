@@ -1,0 +1,15 @@
+# round 2's fit and timing at 6ab8b355 (hdl/, sw/, configs/ and the pinned processors identical to the head e8252323): the gating recipe (chain_r2.sh: boot.sh, gprep.sh, gbuild.sh), #818's three placement directives, 8 Vivado threads, two Vivado at a time through vivado-slot.sh
+# #818's gate: WNS >= +0.030 ns and WHS >= 0 at every signoff corner (Slow/Fast at 0 C and 85 C): met by all six builds
+
+| Point | Directive | Slow WNS / WHS (ns) | Fast WNS / WHS (ns) | LUTs | FFs | Slices | BRAM tiles | DSPs | vs round 1 (LUT / FF / slice) |
+|---|---|---|---|---:|---:|---:|---:|---:|---|
+| 8x8/1if | ExtraPostPlacementOpt | +0.210 / +0.102 | +1.498 / +0.036 | 44,058 | 51,135 | 15,515 | 94 | 13 | -219 / +59 / -144 |
+| 8x8/1if | ExtraTimingOpt | +0.283 / +0.102 | +1.641 / +0.036 | 43,756 | 51,132 | 15,101 | 94 | 13 | -535 / +56 / -330 |
+| 8x8/1if | **AltSpreadLogic_high** | **+0.327** / +0.102 | +1.641 / +0.036 | 43,791 | 51,134 | 15,090 | 94 | 13 | -521 / +56 / -331 |
+| 1x1/1if | ExtraPostPlacementOpt | +0.151 / +0.063 | +1.641 / +0.036 | 32,617 | 42,668 | 13,444 | 79.5 | 13 | +74 / +8 / -227 |
+| 1x1/1if | ExtraTimingOpt | +0.088 / +0.102 | +1.660 / +0.026 | 32,650 | 42,670 | 14,295 | 79.5 | 13 | +102 / +10 / -4 |
+| 1x1/1if | **AltSpreadLogic_high** | **+0.391** / +0.102 | +1.660 / +0.026 | 32,650 | 42,670 | 14,304 | 79.5 | 13 | +126 / +9 / +19 |
+
+# the touched modules' placed cost against round 1 (e8a877a0) at ExtraPostPlacementOpt: 8x8 aaf_rx_depkt 310 -> 416 LUT, 200 -> 218 FF; avtp_rx_monitor 2,079 -> 2,178 LUT, 1,715 -> 1,737 FF, 0 -> 2 DSP (the frame-size product); 1x1 aaf_rx_depkt 363 -> 421 LUT, 207 -> 225 FF; avtp_rx_monitor 791 -> 832 LUT, 747 -> 769 FF, 0 -> 2 DSP
+# none of the 263-275 paths each signoff report lists (Slow 85 C) touches avtp_rx_parser, avtp_rx_monitor or aaf_rx_depkt; the worst setup paths are on the CPU clock (KL_mbx, the CPU's DMA bridges, the bus handler) and reset synchronisers
+# image identity gate: every build agrees (manifest, ident, firmware, bitstream, placement)

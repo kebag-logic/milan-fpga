@@ -1,0 +1,16 @@
+aaf_audio_loop rc=0 seconds=8
+capture_coherence rc=0 seconds=3285
+follow_ring rc=0 seconds=959
+mbx rc=0 seconds=202
+milan_dp_gm_steps rc=0 seconds=1802
+milan_dp_render rc=0 seconds=2537
+pp_shadow rc=0 seconds=2331
+tsn_fuzz rc=0 seconds=16
+checks: 548216   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+tally rc=0
