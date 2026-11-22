@@ -69,7 +69,8 @@ Issue #580 adopted processor pin `16be6768`.
 - [Processor PR 126](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/126) documents descriptor ownership.
 - [Processor #122](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/122#issuecomment-5853884588) retains Milan 5.3.3.8's cluster minimum.
 - The 8x8 input pools violated that minimum until parent [#584](https://github.com/kebag-logic/milan-fpga/issues/584).
-- Since #584 each 8x8 input port owns one cluster, so the model lint needs no waiver.
+- Since #584 each 8x8 input port owns one cluster.
+- The model lint therefore needs no waiver.
 - All five configurations retain identical AEM images and builder outputs.
 
 Issues #606 and #608 adopted processor pin `c951a9ff`.
