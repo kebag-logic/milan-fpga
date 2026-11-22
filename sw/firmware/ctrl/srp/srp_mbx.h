@@ -198,10 +198,9 @@ struct srp_mbx {
     // Ethernet header before it, so a frame is never copied (#665).
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
-    // After them, as it is read only through a scan from its start (#925).
-    struct srp_held held[SRP_HELD_STREAMS];
     // Each interface's Talker attributes kept for StreamIDs none of its bindings holds (#969, srp_mbx.c keep_talker),
-    // after the rest, as only a Talker no binding holds reads them: kept_count is at least those its participant holds
+    // after the frames, as only a Talker no binding holds reads them, and before held, which stays last so that the
+    // code reading the rest is compiled as it was (a trailing array's bound is not assumed): kept_count is at least those its participant holds
     // (the last count of them, count_kept, and each one the filter kept since), at most the pool's attribute blocks,
     // under 256, and kept lists the first SRP_KEPT_TALKERS of them; kept_owed, a binding changed since that count, and
     // kept_returned, the blocks the pools had returned at it (ctrl_pool_returned).
@@ -209,6 +208,8 @@ struct srp_mbx {
     uint8_t kept_count[MBX_N_IF];
     bool kept_owed[MBX_N_IF];
     struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
+    // After them, as it is read only through a scan from its start (#925).
+    struct srp_held held[SRP_HELD_STREAMS];
 };
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
