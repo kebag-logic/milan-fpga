@@ -694,17 +694,17 @@ The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120
 
 The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
 
-**On the gPTP-in-firmware line** (#884, contract 2.5; `plat_ledger.py` at `40bd7738`, every point PASS and its nine controls as required):
+**On the gPTP-in-firmware line** (#884, contract 2.5; `plat_ledger.py` at `631dc544`, the hot list relearned with the gPTP ports, every point PASS and its nine controls as required):
 
 | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
 |---|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 126,632 / 56,800 | 45.0 | 18,112 | within 56 |
+| 1x1, one interface (shipping) | 126,640 / 56,800 | 45.0 | 18,112 | within 56 |
 | 1x1, two interfaces | 128,208 / 59,104 | 46.0 | 19,776 | within 56 |
 | 8x8, one interface (shipping) | 139,408 / 98,224 | 58.5 | 19,008 | at its entry's 58.5, S14's debt, 1,904 B of `rom` left |
-| 8x8, one interface, gPTP in firmware | 152,064 / 99,392 | 62.0 | 20,160 | at its entry's 62.0, #884's debt, 1,536 B of `rom` left |
-| 8x8, two interfaces (largest) | 140,952 / 115,568 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 360 B of `rom` left |
+| 8x8, one interface, gPTP in firmware | 152,072 / 99,392 | 62.0 | 20,160 | at its entry's 62.0, #884's debt, 1,528 B of `rom` left |
+| 8x8, two interfaces (largest) | 140,960 / 115,568 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 352 B of `rom` left |
 
-gPTP in firmware adds 12,656 B of `rom` and 1,168 B of `sram` to the 8x8 one-interface platform image (the ports, the adapter and the PTP block's driver; `ctrl_plat` 1,152 B more, the adapter a member): 3.5 RAMB36.
+gPTP in firmware adds 12,664 B of `rom` and 1,168 B of `sram` to the 8x8 one-interface platform image (the ports, the adapter and the PTP block's driver; `ctrl_plat` 1,152 B more, the adapter a member): 3.5 RAMB36.
 
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.

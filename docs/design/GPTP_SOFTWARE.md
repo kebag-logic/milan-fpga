@@ -194,27 +194,34 @@ Adopting flexPTP itself instead is an owner decision.
 NFR-SCOUT-03 requires each gPTP path to state and test its firmware service bound.
 The 10 ms bound and THE SHARE of 2.0 ms are kept by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 1.
 
-Measured at `a6323318`:
+Measured at `631dc544`, the split hot list relearned with the gPTP ports in its image:
 
 | Path | Bound | Basis | 8x8/2if | 8x8/1if |
 |---|---|---|---:|---:|
-| Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.343 ms | 0.289 ms |
-| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.967 ms | 6.068 ms |
+| Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.292 ms | 0.309 ms |
+| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.750 ms | 6.115 ms |
 | Sync egress stamp to Follow_Up committed | 125 ms | followUpReceiptTimeout, Milan v1.2 Table 4.2 | one pass | one pass |
-| The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.661 ms | 1.666 ms |
+| The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.657 ms | 1.675 ms |
 | A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
 
 The images are built `--with-gptp` and planned at their ledgered points; the CPU is the split's, at 100 MHz.
-gPTP takes 0.29 % of it after link-up at 8x8/2if, 0.27 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
+gPTP takes 0.27 % of it after link-up at 8x8/2if, 0.21 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
 The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
 
 A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
 An image without gPTP opens five, so every existing row is unchanged; a gPTP image's windows also carry the gptp channel's admitted burst, seven Pdelay_Req records an interface, its dearest ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
-With that burst six of the seven held-egress rows at 8x8/1if are within their egress-ledger figures, `backlog-owed.service.acmp.last.if0` at 62.510 ms against 62.62 (62.640 ms at the provisional burst of 16 that [#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7072401468), item 1, replaced by the derived one); at 8x8/2if it is 62.513 ms.
-The seventh, `backlog-owed.service.aecp.last.if0`, is 62.182 ms against 62.16, over by 0.022 ms; it was 62.082 ms at `64a473be`.
-It moved by phase: the hold now releases 6,121 cycles before a pass begins, where it released 496 cycles into one, so that pass and a short AECP pass run first, and the pass that sends AECP's last record, though cheaper (148,126 cycles against 156,753), ends 10,028 cycles (0.100 ms) later after the release.
-The port's code grew by 196 B ahead of `gptp_mbx.c`, and its state by the LocalClock's 8 B; `gptp_mbx.c` is unchanged and runs as often, yet its cycles at 8x8/1if rose from 119,555 to 165,282 in `gptp-slave`, the cost of where that image now places code and data against the CPU's caches; at 8x8/2if they barely moved (142,428 to 145,753).
-The row stays over its figure until the figure is ruled again or the layout moves it back; the figure is #894's ruling and not this page's.
+With that burst every held-egress row at 8x8/1if is within its egress-ledger figure: `backlog-owed.service.acmp.last.if0` at 62.453 ms against 62.62 (62.640 ms at the provisional burst of 16 that [#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7072401468), item 1, replaced by the derived one), and `backlog-owed.service.aecp.last.if0` at 62.123 ms against 62.16.
+At 8x8/2if, which has no ledger of its own, the ACMP row is 62.587 ms, and the five owed rows are 63.910 to 64.957 ms, 0.05 to 0.10 ms past the 1if figures.
+
+**The layout.**
+Before the relearn, the AECP row was 62.182 ms at `a6323318`, over its figure by 0.022 ms.
+The port's code had grown 196 B ahead of `gptp_mbx.c`, and its state by the LocalClock's 8 B.
+`gptp_mbx.c` was unchanged and ran in as many passes, yet its cycles over `backlog-owed`'s passes at 8x8/1if rose from 149,287 to 214,320: the cost of where that image placed it against the CPU's caches.
+That moved the phase at which the egress hold releases against the passes, and the pass that sends AECP's last record ended 0.100 ms later.
+[#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7084113326) kept the figure and required the hot list relearned by its recorded procedure with the gPTP ports' and adapter's paths measured into it.
+The list is learned so ([`plat/ctrl_split_hot.txt`](../../sw/firmware/ctrl/plat/ctrl_split_hot.txt)), and its 15 entries of `gptp.c` and `gptp_mbx.c` serve the images built with gPTP, which alone compile them.
+`gptp_mbx.c`'s cycles over the same passes are now 104,430, and the port's 237,926 (271,145 before).
+The relearn reorders the images without gPTP too; at 8x8/1if every held row of theirs is within its figure, the AECP row at 61.840 ms.
 
 ## Verification
 

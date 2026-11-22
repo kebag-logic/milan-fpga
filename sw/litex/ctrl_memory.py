@@ -281,8 +281,8 @@ LEDGERED: dict[str, Ledgered] = {
     "platform-8x8-one-interface-gptp": Ledgered("target platform's 8x8, one interface, gPTP in firmware",
                                                 ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_160)), 62.0,
                                                 "#884's ruling of 2026-11-21, item 4: the gPTP port's 3.5 RAMB36 "
-                                                "(12,656 B of rom, 1,168 B of sram) over the 58.5 of the platform's "
-                                                "8x8 one-interface entry, 152,064 B of rom and 99,392 B of sram, "
+                                                "(12,664 B of rom, 1,168 B of sram) over the 58.5 of the platform's "
+                                                "8x8 one-interface entry, 152,072 B of rom and 99,392 B of sram, "
                                                 "ctrl_plat at its measured 20,160 B, accepted as debt owed to the "
                                                 "cold-code-to-flash work (S14) or a second hart's own memory; fit "
                                                 "and timing gate"),
