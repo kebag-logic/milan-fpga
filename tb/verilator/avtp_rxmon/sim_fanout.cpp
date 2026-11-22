@@ -49,11 +49,12 @@
 //         index (Milan v1.2 4.4.2.2); 65 octets is the review's case. Two
 //         inputs with different frame sizes on one stream each take only
 //         the PDUs of their own size
-//   [FO12] formats whose frame size is not a multiple of eight, untagged and
-//         behind a C-VLAN tag, two inputs on one stream and a third input
-//         on another between them: each PDU reaches each input as one
-//         frame of ceil(length/8) beats, zero-padded, with one tlast, and
-//         the other stream's PDUs keep their own boundaries and index
+//   [FO12] formats whose frame size is not a multiple of eight, every
+//         remainder 1 to 7, untagged and behind a C-VLAN tag, two inputs on
+//         one stream and a third input on another between them: each PDU
+//         reaches each input as one frame of ceil(length/8) beats,
+//         zero-padded, with one tlast, and the other stream's PDUs keep
+//         their own boundaries and index
 //   [FO13] frames that end short of their stream_data_length, by words and
 //         by one octet: each input counts the PDU (its header is whole) but
 //         receives none of it, the frame is one DEPKT drop for each, and
@@ -660,12 +661,15 @@ class FanOut {
         std::printf("\n[FO12] frame sizes that are not whole beats: inputs 0 and 1 on talker A, input 2 on talker B between\n");
         bind(2, kTalkerB, true);
         cyc(200);
-        // the final beat lies wholly in the depacketizer's hold untagged at a remainder of 1 or 2 octets, behind a
-        // C-VLAN tag at 1 to 6; 63 octets is neither
+        // every remainder 1 to 7: the final beat lies wholly in the depacketizer's hold untagged at a remainder of 1
+        // or 2 octets, behind a C-VLAN tag at 1 to 6. Each frame is at least 13 beats, long enough for its PDU to be
+        // queued in its flight ([FO8] holds the frames that are not)
         const Fmt tails[] = {
-            {0x03, 24, 1, 11},   // INT_24BIT, 33 octets: remainder 1
+            {0x03, 24, 3, 9},    // INT_24BIT, 81 octets: remainder 1
             {0x03, 24, 2, 11},   // 66 octets: remainder 2
-            {0x03, 24, 2, 6},    // 36 octets: remainder 4
+            {0x03, 24, 3, 11},   // 99 octets: remainder 3
+            {0x03, 24, 4, 5},    // 60 octets: remainder 4
+            {0x03, 24, 1, 31},   // 93 octets: remainder 5
             {0x04, 16, 5, 7},    // INT_16BIT, 70 octets: remainder 6
             {0x03, 24, 3, 7},    // 63 octets: remainder 7
         };

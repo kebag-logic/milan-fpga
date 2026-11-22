@@ -116,7 +116,7 @@ MUTATIONS = [
     ("an INT_24BIT sample is sized as four octets",
      "RXMON_SRC",
      [("      8'h03   : frame_octets = 22'(n) + 22'({n, 1'b0});\n", "")],
-     "[FO12] 33 octets: accept verdicts: input 0"),
+     "[FO12] 81 octets: accept verdicts: input 0"),
     ("an INT_16BIT sample is sized as four octets",
      "RXMON_SRC",
      [("      8'h04   : frame_octets = 22'({n, 1'b0});\n", "")],
@@ -126,7 +126,7 @@ MUTATIONS = [
      [("  wire keep_w      = ff_last && (remain_r > 16'd8) &&\n"
        "                     (remain_r <= 16'd8 + 16'(k_w));\n",
        "  wire keep_w      = 1'b0;\n")],
-     "[FO12] 33 octets: payloads equal the sent ones, byte for byte, in order: input 0"),
+     "[FO12] 81 octets: payloads equal the sent ones, byte for byte, in order: input 0"),
     ("a frame short of its payload is committed and read out in part",
      "DEPKT_SRC",
      [("          if (fw_good_w && !wshort_w) wc_r <= wp_r + 1'b1;\n",
