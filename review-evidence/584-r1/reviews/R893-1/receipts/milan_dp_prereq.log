@@ -1,0 +1,10 @@
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 95 programs
+python3 gen_gptp_leg_ucode.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1015 real (99.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@975 BECGATE@941 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@988 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@999 NOTEN@1009
+gptp_ucode.hex: endstation_ax7101_1x1_tdm8.yaml: --mac 0x02A1B2C3D4E5 --p1 248 --clk-hz 2000000 --clock-accuracy 0x22 --cease-ms 3000

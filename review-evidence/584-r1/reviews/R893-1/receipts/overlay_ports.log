@@ -1,0 +1,25 @@
+== endstation_arty_4x4.yaml model_id {'value': '0x001BC549808B210C', 'source': 'hash', 'hash': '0x001BC549808B210C'}
+ stream_ports {"input": [{"index": 0, "stream_index": 0, "clusters": 4, "base_cluster": 0, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 4, "pool": [{"role": "physical", "offset": 0, "width": 2}, {"role": "virtual", "offset": 2, "width": 2}], "primary_role": "physical"}, {"index": 1, "stream_index": 1, "clusters": 4, "base_cluster": 4, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 4, "pool": [{"role": "virtual", "offset": 0, "width": 4}], "primary_role": "virtual"}, {"index": 2, "stream_index": 2, "clusters": 4, "base_cluster": 8, "maps": 0, "base_map": 0, "map_mode": "dynamic"
+ audio_maps [{"index": 0, "direction": "output", "port_index": 0, "primary_role": "physical", "mappings": [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0]]}, {"index": 1, "direction": "output", "port_index": 1, "primary_role": "physical", "mappings": [[1, 0, 0, 0], [1, 1, 1, 0], [1, 2, 2, 0], [1, 3, 3, 0
+ audio_clusters type list 32
+ first {"index": 0, "name": "TDM8 Out 0", "direction": "input", "role": "physical", "port_index": 0, "offset": 0}
+== endstation_arty_8ch.yaml model_id {'value': '0x001BC55491CCAA9B', 'source': 'hash', 'hash': '0x001BC55491CCAA9B'}
+ stream_ports {"input": [{"index": 0, "stream_index": 0, "clusters": 8, "base_cluster": 0, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 8, "pool": [{"role": "physical", "offset": 0, "width": 2}, {"role": "virtual", "offset": 2, "width": 6}], "primary_role": "physical"}, {"index": 1, "stream_index": 1, "clusters": 8, "base_cluster": 8, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 8, "pool": [{"role": "virtual", "offset": 0, "width": 8}], "primary_role": "virtual"}, {"index": 2, "stream_index": 2, "clusters": 8, "base_cluster": 16, "maps": 0, "base_map": 0, "map_mode": "dynamic
+ audio_maps [{"index": 0, "direction": "output", "port_index": 0, "primary_role": "physical", "mappings": [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]]}, {"index": 1, "direction": "output", "port_index": 1, "primary_role": "virtual", "mappings":
+ audio_clusters type list 64
+ first {"index": 0, "name": "TDM8 Out 0", "direction": "input", "role": "physical", "port_index": 0, "offset": 0}
+== endstation_arty_current.yaml model_id {'value': '0x001BC50AC1000006', 'source': 'pin', 'hash': '0x001BC5E4438F5B7B'}
+ stream_ports {"input": [{"index": 0, "stream_index": 0, "clusters": 8, "base_cluster": 0, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 8, "pool": [{"role": "physical", "offset": 0, "width": 2}, {"role": "virtual", "offset": 2, "width": 6}], "primary_role": "physical"}], "output": [{"index": 0, "stream_index": 0, "clusters": 8, "base_cluster": 8, "maps": 1, "base_map": 0, "pool": [{"role": "physical", "offset": 0, "width": 2}, {"role": "virtual", "offset": 2, "width": 6}], "primary_role": "physical"}]}
+ audio_maps [{"index": 0, "direction": "output", "port_index": 0, "primary_role": "physical", "mappings": [[0, 0, 0, 0], [0, 1, 1, 0], [0, 2, 2, 0], [0, 3, 3, 0], [0, 4, 4, 0], [0, 5, 5, 0], [0, 6, 6, 0], [0, 7, 7, 0]]}]
+ audio_clusters type list 16
+ first {"index": 0, "name": "I2S Out 0", "direction": "input", "role": "physical", "port_index": 0, "offset": 0}
+== endstation_ax7101_1x1_tdm8.yaml model_id {'value': '0x001BC5CD179523AB', 'source': 'hash', 'hash': '0x001BC5CD179523AB'}
+ stream_ports {"input": [{"index": 0, "stream_index": 0, "clusters": 8, "base_cluster": 0, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 8, "pool": [{"role": "physical", "offset": 0, "width": 8}], "primary_role": "physical"}], "output": [{"index": 0, "stream_index": 0, "clusters": 17, "base_cluster": 8, "maps": 0, "base_map": 0, "map_mode": "dynamic", "pool": [{"role": "physical", "offset": 0, "width": 8}, {"role": "pilot", "offset": 8, "width": 1}, {"role": "loopback", "offset": 9, "width": 8}], "primary_role": "physical"}]}
+ audio_maps []
+ audio_clusters type list 25
+ first {"index": 0, "name": "TDM8 Out FL", "direction": "input", "role": "physical", "port_index": 0, "offset": 0}
+== endstation_ax7101_8x8.yaml model_id {'value': '0x001BC5CFD464421E', 'source': 'hash', 'hash': '0x001BC5CFD464421E'}
+ stream_ports {"input": [{"index": 0, "stream_index": 0, "clusters": 1, "base_cluster": 0, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 1, "pool": [{"role": "physical", "offset": 0, "width": 1}], "primary_role": "physical"}, {"index": 1, "stream_index": 1, "clusters": 1, "base_cluster": 1, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 1, "pool": [{"role": "unrouted", "offset": 0, "width": 1}], "primary_role": "unrouted"}, {"index": 2, "stream_index": 2, "clusters": 1, "base_cluster": 2, "maps": 0, "base_map": 0, "map_mode": "dynamic", "map_page": 1, "pool": [{"role": "unrouted
+ audio_maps []
+ audio_clusters type list 80
+ first {"index": 0, "name": "TDM32 Out 0", "direction": "input", "role": "physical", "port_index": 0, "offset": 0}
