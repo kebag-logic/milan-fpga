@@ -247,16 +247,17 @@ class Ledgered:
 #: 60.0 with the map edits' commit through the EDIT window (#923) composed
 #: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
 #: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
-#: image is refused at 63.5, its entry at 63.0 with each AAF Stream Input's current format written into its
-#: receive-monitor context (#946) on the composed flip train, 62.5 with the StreamIDs held with their latest Talker
+#: image is refused at 64.0, its entry at 63.5 with the Talkers SRP keeps for StreamIDs no binding holds (#969) on
+#: the composed flip train, 63.0 with each AAF Stream Input's current format written into its receive-monitor
+#: context (#946), 62.5 with the StreamIDs held with their latest Talker
 #: kind (#925) composed on the flip train's other changes, 62.0 with the map edits' commit (#923) before them:
 #: 60.5, the owner's decision's cap (#665), which #895's ruling of 2026-11-14 ledgers for the image with SRP's Talker
 #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
 #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
 #: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
-#: 58.5, its entry at 58.0 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
-#: composed train before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned
-#: on it (#665). The platform's image is linked at
+#: 59.0, its entry at 58.5 by the same rule with the Talkers SRP keeps (#969): 56.5 with #895's declarations and the
+#: PHY poll (#919), 57.0 on the composed train before the commit, 57.5 with it, 58.0 with the largest legal record's
+#: cut and the hot list relearned on it (#665). The platform's image is linked at
 #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
@@ -285,7 +286,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
                                          "ROM debt of 4.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_568)), 63.0,
+                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_824)), 63.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -324,9 +325,13 @@ LEDGERED: dict[str, Ledgered] = {
                                             "context (#946) on that train, 140,008 B of rom and 115,504 B of sram, "
                                             "744 B past the 139,264 B of rom 62.5 holds beside them, ctrl_plat "
                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
+                                            "S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
+                                            "holds (#969) on that train, 141,584 B of rom, 272 B past the "
+                                            "141,312 B of rom 63.0 holds beside 115,760 B of sram, ctrl_plat at "
+                                            "its measured 21,824 B, by the same rule: debt of 7.5 RAMB36 owed to "
                                             "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.0,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 19_072)), 58.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -345,7 +350,11 @@ LEDGERED: dict[str, Ledgered] = {
                                            "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
                                            "with each AAF Stream Input's current format written (#946), "
-                                           "138,432 B of rom, ctrl_plat unchanged"),
+                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with the Talkers SRP "
+                                           "keeps for StreamIDs no binding holds (#969) on that train, 140,008 B "
+                                           "of rom, 744 B past the 139,264 B 58.0 holds, and 98,288 B of sram, "
+                                           "ctrl_plat at its measured 19,072 B, by the same rule: ROM debt of "
+                                           "2.5 RAMB36 owed to S14"),
 }
 
 
