@@ -1226,12 +1226,16 @@ class MilanDatapathHarness {
     }
 
     // AAF PDU on the bound stream_id {02:00:00:00:00:02, uid 0} with the
-    // declared format's fields (48 kHz / INT32 / depth 32 / its channels).
-    // The 48-byte payload is six samples at two channels; at more channels
-    // it holds fewer, which no check here reads (no PDU field carries a
-    // sample count, and the monitor compares none)
+    // declared format's fields (48 kHz / INT32 / depth 32 / its channels)
+    // and its frame size: six four-octet samples per channel, 48 octets at
+    // two channels. The monitor compares stream_data_length with the
+    // format's frame size (#948), so a PDU of another size is off-format.
+    // kAafFrame is the frame injected: at least the 120 octets the
+    // two-channel stimulus has always been.
+    static constexpr int kAafPayload = 24 * kIn0ChansTb;
+    static constexpr int kAafFrame = 38 + kAafPayload > 120 ? 38 + kAafPayload : 120;
     uint8_t* mkaaf(uint8_t seq, uint8_t nsr) {
-        static uint8_t f[120];
+        static uint8_t f[kAafFrame + 4];
         memset(f, 0, sizeof f);
         const uint8_t dmac[6] = {
             0x91,0xE0,0xF0,0x00,0x2A,0x02};
@@ -1251,8 +1255,9 @@ class MilanDatapathHarness {
         f[31]=static_cast<uint8_t>(nsr << 4);                           // nsr
         f[32]=kIn0ChansTb;                                   // channels (#765)
         f[33]=32;                                            // bit depth
-        f[34]=0x00; f[35]=0x30;                              // data_len 48
-        for (int i = 0; i < 48; i++) f[38+i] = static_cast<uint8_t>(0x30+i); // payload
+        f[34]=static_cast<uint8_t>(kAafPayload >> 8);        // data_len
+        f[35]=static_cast<uint8_t>(kAafPayload);
+        for (int i = 0; i < kAafPayload; i++) f[38+i] = static_cast<uint8_t>(0x30+i); // payload
         return f;
     }
 
@@ -1362,7 +1367,7 @@ class MilanDatapathHarness {
     void prove_the_declared_format_acceptance_gate() {
         render0 = render_beats;
         uint32_t pcmrx0 = axi_read(A_PCMRX_CNT);
-        inject(mkaaf(5, 0x05), 120);
+        inject(mkaaf(5, 0x05), kAafFrame);
         printf("  [i] STREAM_INPUT[0] declared-format acceptance: "
                "0x6BC=%u 0x6C0=0x%08x 0x6C4=0x%08x render=%llu beats\n",
                axi_read(A_AVTPRX_FRX), axi_read(A_AVTPRX_ERR),
@@ -1373,8 +1378,8 @@ class MilanDatapathHarness {
         ck("...so FRAMES_RX moved (0x6BC)", axi_read(A_AVTPRX_FRX), 1);
         ck("...and PCMRX advanced (0x6C4)",
            axi_read(A_PCMRX_CNT), pcmrx0 + 1);
-        ck("...and the 48-byte PDU reached fabric render (6 beats)",
-           render_beats - render0, 6);
+        ck("...and the PDU reached fabric render (one beat per 8 octets)",
+           render_beats - render0, kAafPayload / 8);
         //! the MEDIA_LOCKED level is a consequence of acceptance
         ck("...and MEDIA_LOCKED asserts (0x6B8)",
            axi_read(A_AVTPRX_STAT) & 0x1, 1);
@@ -1383,19 +1388,19 @@ class MilanDatapathHarness {
         // PARSER, which is upstream of the format gate - and it must reach
         // fabric render too, or a C-tagged Milan stream is silently deaf.
         {
-            uint8_t tf[124]; memset(tf, 0, sizeof tf);
+            uint8_t tf[kAafFrame + 4]; memset(tf, 0, sizeof tf);
             const uint8_t* uf = mkaaf(6, 0x05);
             memcpy(tf, uf, 12);
             tf[12]=0x81; tf[13]=0x00; tf[14]=0x00; tf[15]=0x02;   // C-VLAN, VID 2
-            memcpy(tf+16, uf+12, 108);                            // shifted rest
+            memcpy(tf+16, uf+12, kAafFrame - 12);                 // shifted rest
             render0 = render_beats;
-            inject(tf, 124);
+            inject(tf, kAafFrame + 4);
         }
         ck("tagged: the format gate accepts it too (UNSUPPORTED still 0)",
            (axi_read(A_AVTPRX_ERR) >> 8) & 0xFF, 0);
         ck("tagged: FRAMES_RX = 2", axi_read(A_AVTPRX_FRX), 2);
-        ck("tagged: 48-byte PDU reached fabric render (6 beats)",
-           render_beats - render0, 6);
+        ck("tagged: the PDU reached fabric render (one beat per 8 octets)",
+           render_beats - render0, kAafPayload / 8);
     }
 
     // ---- RX parser probe (APRB 0x8B4-0x8C4) --------------------------
@@ -1423,10 +1428,10 @@ class MilanDatapathHarness {
             // the latch shows the stream_id LIFTED OFF THE WIRE - which is
             // exactly what a silicon listener that accepts nothing must be
             // able to report.
-            uint8_t nf[112]; memcpy(nf, mkaaf(7, 0x05), 112);
+            uint8_t nf[kAafFrame - 8]; memcpy(nf, mkaaf(7, 0x05), kAafFrame - 8);
             nf[18+5] = 0x09;                      // sid ...0009 0000: unknown
             render0 = render_beats;
-            inject(nf, 112);
+            inject(nf, kAafFrame - 8);
             ck("APRB unknown-sid: parsed = 3",  axi_read(A_APRB_PARSED), 3);
             ck("APRB unknown-sid: matched still 2", axi_read(A_APRB_MATCHED), 2);
             ck("APRB unknown-sid: SID_LO is the WIRE value",
@@ -1531,15 +1536,15 @@ class MilanDatapathHarness {
             pcm0 = axi_read(A_PCMRX_CNT);   // rebase: the 2ch default now
                                             // ACCEPTS the bisect probes above
             render0 = render_beats;
-            inject_cnt(mkaaf(8, 0x05), 124);
-            inject_cnt(mkaaf(9, 0x05), 124);
+            inject_cnt(mkaaf(8, 0x05), kAafFrame + 4);
+            inject_cnt(mkaaf(9, 0x05), kAafFrame + 4);
             //! The media tap is upstream of the station-address policy.
             //! PCMRX and the fabric render clone therefore advance by exactly
             //! the two PDUs injected into this window.
             ck("prefilter: PCMRX KEPT consuming (+2 PDUs)",
                axi_read(A_PCMRX_CNT), pcm0 + 2);
-            ck("prefilter: fabric render KEPT consuming (+12 beats)",
-               render_beats - render0, 12);
+            ck("prefilter: fabric render KEPT consuming (two PDUs' beats)",
+               render_beats - render0, 2 * kAafPayload / 8);
             axi_write(A_TCAM_CMD, 0x00010000);          // commit|remove entry 0
         }
     }
@@ -1575,7 +1580,7 @@ class MilanDatapathHarness {
             const uint32_t pt = static_cast<uint32_t>(
                 dut->rootp->milan_datapath__DOT__dom_ns_w) + kLeadNs;
             for (int b = 0; b < 4; b++) pdu[26 + b] = static_cast<uint8_t>(pt >> (24 - 8 * b));
-            inject(pdu, 120);
+            inject(pdu, kAafFrame);
         #if !I2SPB_TB
             // The AX7101 ships --no-i2s-playback: there is no DAC serializer
             // in this gateware, so there are no pins to decode. Not deleted,
@@ -1693,7 +1698,7 @@ class MilanDatapathHarness {
         long frx_before = axi_read(A_AVTPRX_FRX);
         long uns_before = static_cast<long>(axi_read(A_AVTPRX_ERR) >> 8);
         long pcm_before = axi_read(A_PCMRX_CNT);
-        inject(mkaaf(7, 0x07), 120);
+        inject(mkaaf(7, 0x07), kAafFrame);
         ck("UNSUPPORTED_FORMAT +1 (0x6C0)", static_cast<long>(axi_read(A_AVTPRX_ERR) >> 8) - uns_before, 1);
         ck("FRAMES_RX unchanged by wrong-rate", axi_read(A_AVTPRX_FRX), frx_before);
         ck("no fabric render for rejected PDU", render_beats - render0, 0);
@@ -1718,11 +1723,11 @@ class MilanDatapathHarness {
             long uf = static_cast<long>(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF;
             int  sent = 0;
             while (uf < 0xFF && sent < 400) {        // climb to the ceiling
-                inject(mkaaf(7, 0x07), 120); sent++;
+                inject(mkaaf(7, 0x07), kAafFrame); sent++;
                 uf = static_cast<long>(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF;
             }
             ck("UNSUPPORTED_FORMAT view reached its 0xFF ceiling", uf, 0xFF);
-            for (int k = 0; k < 8; k++) inject(mkaaf(7, 0x07), 120);
+            for (int k = 0; k < 8; k++) inject(mkaaf(7, 0x07), kAafFrame);
             ck("saturated view STAYS 0xFF (no wrap)",
                static_cast<long>(axi_read(A_AVTPRX_ERR) >> 8) & 0xFF, 0xFF);
             ck("neighbouring TIMESTAMP_UNCERTAIN byte untouched",
