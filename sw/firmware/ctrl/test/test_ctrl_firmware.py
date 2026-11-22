@@ -77,7 +77,10 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            against the reference walk over random record sequences (#930,
            srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
            reclaim and receive filter against the adapter before it
-           (#665's ruling of 2026-11-20, item 3) in the same suite;
+           (#665's ruling of 2026-11-20, item 3) in the same suite; a link
+           that comes up at each phase of a loop pass as SRP's first UP
+           (#973, srp_link_pass.cpp) at 1x1/1if and 8x8/1if, each run a
+           process of its own;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
