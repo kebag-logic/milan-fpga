@@ -602,7 +602,8 @@ def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = N
 
 
 def phy_rows(sys_hz: int) -> list[str]:
-    """A valid run's PHY lines (#919), as sim_main.cpp prints them: the boot's poll probing one miss, two steady
+    """A valid run's PHY lines (#919), as sim_main.cpp prints them: the arm's link down before any frame (#972), then
+    the boot's poll probing one miss, two steady
     polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart; the advertisement
     (#840) after the first BMSR of the boot's poll and of each poll that publishes a loss, its writes' PHYW lines."""
     period = int(phy_constants()[0] * sys_hz / 1e6)
@@ -620,7 +621,7 @@ def phy_rows(sys_hz: int) -> list[str]:
             ([(a, 1)] + loss + [(a, 1)], {0: 0, len(loss) + 1: 0}),
             (second[:2], {1: 0}), (second, {len(second) - 1: GIG_FULL})]
     events = {2: 'latched', 3: 'down', 5: 'back'}
-    rows = []
+    rows = ['PHYP 500000 0']
     for k, (frames, words) in enumerate(plan):
         start = 1_000_000 + k * period
         for j, frame in enumerate(frames):
