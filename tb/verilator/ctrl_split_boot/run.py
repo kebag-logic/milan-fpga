@@ -437,8 +437,8 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
         pubs = pubs[1:]
     else:
         findings.append(f'PHY: no link down published before the first MDIO frame (the first publication '
-                        f'{pubs[0]}, the first frame at {frames[0][0]}): after a CPU reset alone the datapath keeps the '
-                        f'last link until a poll publishes (#972)')
+                        f'{pubs[0]}, the first frame at {frames[0][0]}): after a CPU reset alone the datapath '
+                        f'keeps the last link until a poll publishes (#972)')
     if 'timeout' in events:
         findings.append('PHY: a step of the script waited past its limit for the publication it needs')
     found = next((k for k, f in enumerate(frames) if f[2] == PHY_ADDRESS), None)

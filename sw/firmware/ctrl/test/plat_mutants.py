@@ -532,20 +532,6 @@ def advertisement_mutants(mutant: type) -> tuple:
           also=(("platboot1", P11, "P11 a PHY that holds the advertisement at boot is not restarted"),)),
         m("plat-phy-arm-publishes-nothing", PHY, ARM_OWED, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1",
           "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down"),
-        # #840: the boot's no-restart path only where BMCR negotiates, and a forced mode never published up
-        m("plat-phy-held-ignores-bmcr", PHY, HELD, HELD.replace(" negotiating((uint32_t)phy->control) &&", ""),
-          "platboot1", P22, "P22 the boot's first poll restarts a forced PHY",
-          also=(("platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3"),)),
-        m("plat-phy-isolate-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_ISOLATE", ""),
-          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3",
-          also=(("platboot1", P23, "P23 an isolated PHY is published down"),)),
-        m("plat-phy-reset-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_RESET", ""),
-          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 4"),
-        m("plat-phy-forced-published", PHY, FORCED, "if (false) {", "platboot1", P23,
-          "P23 a forced mode on a PHY the advertisement is for is published down",
-          also=(("platboot1", P23, "P23 the forced link a lost restart left is published down"),)),
-        m("plat-phy-forced-on-unadvertised", PHY, FORCED, FORCED.replace("phy->adv != CTRL_PLAT_PHY_ADV_NONE && ", ""),
-          "platboot1", P23, "P23 a PHY the advertisement is not for: the forced mode BMCR names"),
         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
           "PlatPhy.P6FramesAreClause22Reads", P6),
@@ -606,4 +592,25 @@ def advertisement_mutants(mutant: type) -> tuple:
         m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
           OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
+    ) + bmcr_mutants(mutant)
+
+
+def bmcr_mutants(mutant: type) -> tuple:
+    """#840 on BMCR: the boot's (and a loss's) no-restart path only where BMCR negotiates, autonegotiation enabled
+    with isolate and reset clear, and a forced mode never published up on a PHY the advertisement is for."""
+    m = mutant
+    return (
+        m("plat-phy-held-ignores-bmcr", PHY, HELD, HELD.replace(" negotiating((uint32_t)phy->control) &&", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a forced PHY",
+          also=(("platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3"),)),
+        m("plat-phy-isolate-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_ISOLATE", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3",
+          also=(("platboot1", P23, "P23 an isolated PHY is published down"),)),
+        m("plat-phy-reset-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_RESET", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 4"),
+        m("plat-phy-forced-published", PHY, FORCED, "if (false) {", "platboot1", P23,
+          "P23 a forced mode on a PHY the advertisement is for is published down",
+          also=(("platboot1", P23, "P23 the forced link a lost restart left is published down"),)),
+        m("plat-phy-forced-on-unadvertised", PHY, FORCED, FORCED.replace("phy->adv != CTRL_PLAT_PHY_ADV_NONE && ", ""),
+          "platboot1", P23, "P23 a PHY the advertisement is not for: the forced mode BMCR names"),
     )

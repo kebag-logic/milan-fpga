@@ -35,6 +35,7 @@ def word(helper: Path) -> int:
 
 
 def main() -> int:
+    """Plant the helper's copy, run the published arm at each shape under it, and require each to fail."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--publish-ms", default="1500", help="the publication, as the Makefile's LINKRESET_PUBLISH_MS")
     ap.add_argument("--window-ms", default="1600", help="the window, as the Makefile's LINKRESET_WINDOW_MS")

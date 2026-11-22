@@ -69,7 +69,8 @@
 
 namespace {
 
-constexpr std::uint32_t kLinkUp = 1u, kFullDuplex = 1u << 3;
+constexpr std::uint32_t kLinkUp = 1u;
+constexpr std::uint32_t kFullDuplex = 1u << 3;
 constexpr std::uint32_t kPublished = 13u;   // link up, 1000 Mb/s, full duplex: the poll's word for the shipping PHY
 constexpr std::uint64_t kCyclesPerMs = LINKRESET_CLK_HZ / 1000u;
 constexpr unsigned kPhcTickNs = 8;   // the PHC's advance a cycle, GPTP_PHC_TICK_NS_P in the Makefile
@@ -87,7 +88,10 @@ struct Bench {
     bool phy_clocks = true;
     // the SoC's word in sys, and its two-flop crossings (MultiReg) into the datapath clock
     std::uint32_t word = 0;
-    unsigned link_s1 = 0, link_s2 = 0, fd_s1 = 0, fd_s2 = 0;
+    unsigned link_s1 = 0;   // the link bit's two flops
+    unsigned link_s2 = 0;
+    unsigned fd_s1 = 0;     // the duplex bit's
+    unsigned fd_s2 = 0;
     std::vector<Frame> frames;
     std::vector<std::uint8_t> cur;
     milan::tb::GptpLaunchObserver observer{kPhcTickNs};
@@ -95,7 +99,10 @@ struct Bench {
         const auto& acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
         return (static_cast<std::uint64_t>(acc[2]) << 40) | (static_cast<std::uint64_t>(acc[1]) << 8) | (acc[0] >> 24);
     }
-    std::uint64_t eff_first_up = 0, sw_down = 0, est_down = 0, ctl_up_before = 0;
+    std::uint64_t eff_first_up = 0;    // the effective link's first rise
+    std::uint64_t sw_down = 0;         // LINK_CTRL[0] seen at 0
+    std::uint64_t est_down = 0;        // the guard's estimate seen at 0
+    std::uint64_t ctl_up_before = 0;   // o_ctl_link_up seen up before the publication
     bool eff_seen_up = false;
 
     void edge() {
@@ -139,7 +146,9 @@ struct Bench {
         dut->s_axi_awaddr = addr; dut->s_axi_awvalid = 1;
         dut->s_axi_wdata = value; dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
         dut->s_axi_bready = 1;
-        bool aw = false, w = false, b = false;
+        bool aw = false;
+        bool w = false;
+        bool b = false;
         // the bound covers the CSR defaults sweep after reset, during which the window takes no access
         for (int k = 0; k < 4000 && !b; ++k) {
             dut->eval();
@@ -235,7 +244,8 @@ int main(int argc, char** argv) {
     b.axi_write(0x504, kPhcTickNs << 24);
     const std::uint64_t end = window_ms * kCyclesPerMs;
     const std::uint64_t boot_at = boot_ms * kCyclesPerMs;
-    bool booted = false, identity = false;
+    bool booted = false;
+    bool identity = false;
     std::uint64_t policy_done = 0;
     while (b.cyc < end) {
         if (publish_ms != 0 && b.cyc >= published_at && b.word != kPublished) b.word = kPublished;
@@ -255,7 +265,8 @@ int main(int argc, char** argv) {
     }
     // the publication's crossing: two flops, then the datapath's own registering of its effective link
     const std::uint64_t crossed = published_at + 2u;
-    std::size_t before = 0, after = 0;
+    std::size_t before = 0;
+    std::size_t after = 0;
     for (const Frame& f : b.frames) (publish_ms == 0 || f.cycle < crossed ? before : after) += 1u;
     std::printf("SHAPE %s word reset %u publish %llu ms window %llu ms (%llu cycles/ms)\n", LINKRESET_SHAPE,
                 reset_word, static_cast<unsigned long long>(publish_ms), static_cast<unsigned long long>(window_ms),
