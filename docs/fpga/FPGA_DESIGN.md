@@ -266,7 +266,7 @@ this table whenever `hdl/` changes shape.
 | `KL_aaf_capture_i2s` | physical-interface audio capture front-end (NXN Section 2.1 / P4): the I2S/CDC half |
 | `KL_aaf_latency_chain` / `KL_aaf_latency_taps` | per-stage TX/RX latency tap chains (item-11) feeding the `LTAP` CSR group at `0x870` |
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
-| `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sinks: one stored frame, read out once for each input that accepted it, as ceil(`stream_data_length`/8) beats with `tlast` on the last, a non-multiple tail zero-padded; a frame short of its payload is dropped whole and counted (#948) |
+| `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sinks: one stored frame, read out once for each input that accepted it, as ceil(`stream_data_length`/8) beats with `tlast` on the last, a non-multiple tail zero-padded; every frame from the Ethernet minimum up, the store taking the tap three cycles late so the monitor's enqueue pulse is in by the frame's end; a frame short of its payload is dropped whole and counted (#948) |
 | `KL_aes3_rx` / `KL_aes3_tx` | AES3 / S-PDIF biphase-mark receiver and transmitter (item-4 front-end family) |
 | `KL_chan_map_capture` | per-pair-slot TX source multiplexer (NxN capture mux); since #74 its `tdm_dup_cnt_o`/`tdm_skip_cnt_o` junction detector counts the grid slips at the capture holds, and since #617 its TDM bucket hands each walk one whole TDM frame, snapshotted in the media tick's cycle, and the detector counts that walk's own repeated and skipped frames |
 | `KL_chan_map_render` | 64 stream-channel → physical render crossbar |

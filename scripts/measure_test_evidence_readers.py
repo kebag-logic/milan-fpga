@@ -95,21 +95,25 @@ DUT_READER_DISPOSITIONS = {
         "[CF] check of the N=8 harness to fail; expected values come from the formats the harness "
         "writes and drives, never from the text",
     "tb/verilator/avtp_rxmon/fanout_mutants.py":
-        "mutation campaign; it plants one of nineteen #948 fan-out defects across the parser, the context "
+        "mutation campaign; it plants one of twenty-one #948 fan-out defects across the parser, the context "
         "engine and the depacketizer (each PDU to one matching entry, a bundle served to one context, "
         "a done mask without its last accept, accepts carried into the next bundle, no second pass, a "
         "second pass under the first input or from the wrong word, a frame none accepted read out, a "
-        "frame read before its verdicts, a lost PDU waiting for its frame, a two-entry verdict queue, a "
+        "frame read before its verdicts, a frame's fate written to the previous entry, a two-entry verdict "
+        "queue, a "
         "dropped frame counted for no input, no frame-size compare, six samples assumed, every input "
         "sized by input 0's format, a 24-bit or a 16-bit sample sized as four octets, a hold-only "
-        "tail's last word popped early, a frame short of its payload read out) into a copy and requires its "
+        "tail's last word popped early, a frame short of its payload read out, a pulse taken only while its "
+        "frame is on the tap, the store taking the tap as it comes) into a copy and requires its "
         "named [FO] check of the N=8 harness to fail; expected values come from the payloads and "
         "formats the harness drives, never from the text",
     "tb/verilator/avtp_rxmon/depkt_mutants.py":
-        "mutation campaign; it plants one of seven #948 depacketizer frame-boundary defects (a hold-only "
+        "mutation campaign; it plants one of eleven #948 depacketizer frame-boundary defects (a hold-only "
         "tail's last word popped with the beat before it, the tagged hold sized as untagged, a frame "
         "short of its payload read out in part, or dropped but counted for no input or not in drops_o, "
-        "its length read at the untagged offset, a short last beat taken for a full one) into a copy and "
+        "its length read at the untagged offset, a short last beat taken for a full one, the store taking the "
+        "tap as it comes, a pulse taken only while its frame is on the tap, a same-cycle pulse missed, a "
+        "two-cycle lag) into a copy and "
         "requires its named [DT] check of the four-input harness to fail; expected values come from the "
         "frames and verdicts the harness drives, never from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
