@@ -15,7 +15,7 @@
 //! cycle, faster than any processor store.
 //!
 //! The scenarios: an idle commit; a commit while one is in flight, then an
-//! update begun and not committed (the ordering that tore at f15b3a7d); three
+//! update begun and not committed (the ordering that tears a crossing of the live words); three
 //! commits back to back; an update begun after an idle commit; a commit on the
 //! edge the crossing takes the one before; GEN wrapping
 //! through 0xFF; a write that leaves GEN where it was; reset of both clocks

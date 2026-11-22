@@ -50,13 +50,13 @@
    mailbox cycle. Every snapshot that lands must be one GEN commit's words, in
    commit order, and each scenario's last commit must land. The scenarios are
    an idle commit, and a commit while one crosses followed by an update begun
-   and not committed: that is the ordering that tore at `f15b3a7d`. Then three
+   and not committed: that is the ordering that tears a crossing of the live words. Then three
    commits back to back, an update begun after an idle commit, and a commit on
    the edge the crossing takes the one before. Then GEN through 0xFF, a write
    that leaves GEN where it was, and reset with a crossing in flight. Its five
    planted defects ([`cdc_pub_mutants.py`](cdc_pub_mutants.py)) are each caught
-   by the words they name; the first is the live-word crossing #966's review
-   found. The host model is held to the same orderings by
+   by the words they name; the first is the live-word crossing REQ-PTP-07
+   forbids. The host model is held to the same orderings by
    `MbxModelGptp.TheSnapshotIsTheLastCommitWhole`
    ([`model_suite.cpp`](../../../sw/firmware/ctrl/test/model_suite.cpp)).
 

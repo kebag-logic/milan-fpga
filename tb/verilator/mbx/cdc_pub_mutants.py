@@ -45,7 +45,7 @@ class Arm:
 
 
 ARMS = (
-    # the defect #966's first review found: the crossing takes the live words when it is free, not the commit
+    # #884, REQ-PTP-07: crossing live words instead of the committed bank can tear a snapshot
     Arm("live-words-crossed", ".src_in(gptp_bank_r)", ".src_in(m_pub_gptp_i)",
         "not a commit newer than the last it took"),
     # a bank that follows the live words each cycle is no bank: an update begun after a commit reaches it
