@@ -105,14 +105,20 @@
 //   L1  the ready loop publishes the PHY's link to milan_mac_link_status
 //   L2  the datapath's effective link (milan_datapath.sv eff_link_w, the
 //       published link_up through the SoC's synchroniser), modelled as a level
-//       that stands between two turns: a 3 s loss, and a loss that recovered
-//       between two polls, each move LINK_DOWN and LINK_UP by one
+//       that stands between two turns: the boot moves each once, the arm's link
+//       down after the reset value's link up and the first poll's link up
+//       (#972), as a boot whose PHY has no link yet at its first poll does; a
+//       3 s loss, and a loss that recovered between two polls, each move
+//       LINK_DOWN and LINK_UP by one
 //   L3  each edge's counter change reaches AECP, which sends a registered
 //       controller one unsolicited GET_COUNTERS for the AVB_INTERFACE, LINK_DOWN
 //       then LINK_UP moved by one
-//   L4  the link's return is published by the first poll after it, so the
-//       gPTP plane's port enable rises then and its Pdelay_Req cease ends
-//       (Milan v1.2 4.2.6.2.5), within CTRL_PLAT_PHY_POLL_US of the return
+//   L4  the port enable is down from the poll's arm until its first
+//       publication of the PHY's link, so the gPTP plane sends nothing on the
+//       reset value's link (#972); the link's return is published by the first
+//       poll after it, so the gPTP plane's port enable rises then and its
+//       Pdelay_Req cease ends (Milan v1.2 4.2.6.2.5), within
+//       CTRL_PLAT_PHY_POLL_US of the return
 //   L5  a save in flight across several poll periods leaves the poll its
 //       period: a loss and a return during it are each published within one
 //       (#665's ruling of 2026-11-17)
@@ -1396,17 +1402,20 @@ TEST_F(Phy, L2EveryEdgeIsCounted) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
     run(kFirstPollMs);
     ASSERT_EQ(peer.word, kGigFull);
-    EXPECT_EQ(counters.up + counters.down, 0u) << "L2 a PHY up at boot moves neither counter";
+    // the reset value's link up, the arm's link down, then the first poll's (#972), as a boot whose PHY has no link
+    // yet at its first poll moves them
+    EXPECT_EQ(counters.down, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
+    EXPECT_EQ(counters.up, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
     flap(3000u);
     run(kPollMs + 10u);
-    EXPECT_EQ(counters.down, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
-    EXPECT_EQ(counters.up, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.down, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.up, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
     peer.latched_down = true;
     run(kPollMs + 10u);
-    EXPECT_EQ(counters.down, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
-    EXPECT_EQ(counters.up, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.down, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+    EXPECT_EQ(counters.up, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
     run(2u * kPollMs);
-    EXPECT_EQ(counters.up + counters.down, 4u) << "L2 a steady link moves neither";
+    EXPECT_EQ(counters.up + counters.down, 6u) << "L2 a steady link moves neither";
 }
 
 // REGISTER_UNSOLICITED_NOTIFICATION (IEEE 1722.1-2021 7.4.37) from a controller, as the datapath delivers it
@@ -1434,15 +1443,22 @@ TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
     ASSERT_TRUE(mbx_model_rx(&fabric, reg.data(), reg.size(), 0));
     run(20);
     notices.clear();
+    const std::uint32_t up0 = counters.up, down0 = counters.down;
     flap(3000u);
     run(1500u);
-    EXPECT_EQ(notices, (std::vector<std::pair<std::uint32_t, std::uint32_t>>{{0u, 1u}, {1u, 1u}}))
+    EXPECT_EQ(notices, (std::vector<std::pair<std::uint32_t, std::uint32_t>>{{up0, down0 + 1u}, {up0 + 1u, down0 + 1u}}))
         << "L3 each link edge sends one unsolicited GET_COUNTERS, LINK_DOWN then LINK_UP moved by one";
 }
 
 TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
     run(kFirstPollMs);
+    // #972: the port enable is down from the arm, so the gPTP plane sends nothing on the reset value's link, and
+    // rises with the PHY's link as the first poll publishes it
+    ASSERT_EQ(edges.size(), 2u) << "L4 the port enable falls as the poll arms and rises with its first publication";
+    EXPECT_TRUE(!edges[0].second && edges[1].second)
+        << "L4 the port enable falls as the poll arms and rises with its first publication";
+    edges.clear();
     flap(3000u);
     const std::uint64_t back = nvm_fmodel_now_us();
     run(2u * kPollMs + 10u);
@@ -1465,6 +1481,7 @@ TEST_F(Phy, L5ASaveKeepsThePollItsPeriod) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
     run(kFirstPollMs);
     ASSERT_EQ(peer.word, kGigFull);
+    edges.clear();   // the boot's pair, the arm's link down and the first poll's link up (L4)
     const unsigned commits = nvm_store_status()->commits_ok;
     ASSERT_EQ(nvm_store_commit_now(), 1);
     run(20u);

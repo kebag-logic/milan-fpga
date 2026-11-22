@@ -468,6 +468,8 @@ P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one re
 READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
 P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
 P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
+#: The arm's link-down publication and its advertisement owed with no restart of its own (#972).
+ARM_OWED = "\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n"
 
 
 def step_yield_mutants(mutant: type) -> tuple:
@@ -516,10 +518,16 @@ def advertisement_mutants(mutant: type) -> tuple:
           "platboot1", P11, "P11 autonegotiation restarted"),
         m("plat-phy-reset-kept", PHY, "~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)",
           "~CTRL_PLAT_PHY_BMCR_ISOLATE", "platboot1", P11, "P11 reset cleared"),
-        m("plat-phy-boot-restart-dropped", PHY,
-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n",
-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
-          "P11 the boot restarts negotiation whatever the PHY holds"),
+        # #972: the boot forms the link once, and the datapath sees no link before a poll publishes the PHY's
+        m("plat-phy-boot-restarts-whatever-held", PHY, ARM_OWED,
+          ARM_OWED.replace("CTRL_PLAT_PHY_ADV_OWED;", "CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;"),
+          "platboot1", "PlatPhy.P19TheBootFormsTheLinkOnce",
+          "P19 the boot restarts no negotiation the PHY already holds",
+          also=(("platboot1", P11, "P11 a PHY that holds the advertisement at boot is not restarted"),)),
+        m("plat-phy-arm-publishes-nothing", PHY, ARM_OWED, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1",
+          "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down",
+          also=(("platboot1", "Phy.L4ReturnEndsTheCeaseWithinAPoll",
+                 "L4 the port enable falls as the poll arms and rises with its first publication"),)),
         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
           "PlatPhy.P6FramesAreClause22Reads", P6),
@@ -561,7 +569,9 @@ def advertisement_mutants(mutant: type) -> tuple:
           "platboot1", "PlatPhy.P16AnUnacknowledgedReadWritesNothing", "P16 no write before its read"),
         # THE OUTCOME: a restart the PHY lost, seen by what it negotiates
         m("plat-phy-outcome-unchecked", PHY, OUTCOME, "if (false) {", "platboot1", P18,
-          "P18 no link at 100 after recovery", also=(P18_PACED,)),
+          "P18 no link at 100 after recovery",
+          also=(P18_PACED, ("platboot1", "PlatPhy.P21TheOutcomeStandsBehindTheBoot",
+                            "P21 THE OUTCOME owes the restart the boot did not take"))),
         m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
           OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
           also=(P18_PACED,)),

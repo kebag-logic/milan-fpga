@@ -35,7 +35,10 @@ void ctrl_plat_phy_arm(struct ctrl_plat_phy *phy, const struct ctrl_plat_phy_bus
 	phy->bus = *bus;
 	phy->clock = clock;
 	phy->ctx = ctx;
-	phy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;
+	// THE LINK BEFORE THE FIRST POLL (#972): the word resets to link up, so the datapath sees none until a poll
+	// publishes the PHY's verified link; the advertisement is owed, its restart only where the PHY does not hold it
+	ctrl_plat_io_write32(bus->link_status, 0u);
+	phy->adv = CTRL_PLAT_PHY_ADV_OWED;
 	// THE BIT: CYCLES_HALF turns, or one where a timed run of more than TIMED_ONE us (at least TIMED_ONE, less the
 	// clock's resolution) shows a turn alone holds 200 ns
 	phy->spin = CYCLES_HALF;
@@ -222,9 +225,9 @@ static void take(struct ctrl_plat_phy *phy)
 		break;
 	case CTRL_PLAT_PHY_ADV_SET_LOCAL:
 		// negotiation restarts after every write that repaired the advertisement, so the abilities in force are the
-		// ones written (28.2.4.1.3), and whatever the PHY held at boot (the release's init) and after THE OUTCOME
-		// found the negotiation in force not the verified one; a PHY that still held it is written and not
-		// restarted, so a restart's own latched loss never restarts again
+		// ones written (28.2.4.1.3), and whatever the PHY held after THE OUTCOME found the negotiation in force not
+		// the verified one; a PHY that still held it, at boot as after a loss, is written and not restarted, so the
+		// boot forms the link once (#972) and a restart's own latched loss never restarts again
 		if ((phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&
 		    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)) {
 			next = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;
