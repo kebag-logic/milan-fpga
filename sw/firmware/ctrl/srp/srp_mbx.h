@@ -112,6 +112,10 @@ struct srp_interface {
     // 2026-11-20, item 3): at most the attribute blocks of the pool, under
     // 256. Here, in the room before gate_base's alignment.
     uint8_t fresh;
+    // The Talker attributes it keeps for StreamIDs none of its bindings holds (#969, srp_mbx.c keep_talker), as its
+    // last registrar walk counted them and its filter kept them since, the first SRP_KEPT_TALKERS of them in
+    // srp_mbx.kept[index]: at most the attribute blocks of the pool, under 256. In the same room.
+    uint8_t kept_count;
     uint64_t gate_base;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
@@ -126,23 +130,33 @@ struct srp_mbx_config {
     // srp_mbx_gate (#895).
     bool sources_valid;
 };
+// The Talker attributes an interface keeps for StreamIDs none of its bindings holds, so a binding made later takes
+// their registration (#969; Milan v1.2 5.3.8.5, 5.5.3.5.18 step 4; IEEE 802.1Q-2018 10.7.8's NOTE, a likely future
+// Member): one for each STREAM_INPUT of the shape, each an lwSRP attribute and so a medium block of the pool.
+#define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+struct srp_kept {
+    struct msrp_stream_id stream_id;
+    uint8_t kind;   // the attribute's: 1 Talker Failed, 2 Talker Advertise (srp_sink.registered_kinds' bits)
+};
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.
 #define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
+#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS + SRP_KEPT_TALKERS) * MBX_N_IF)
 #define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
 #define SRP_POOL_N_CLASSES 3u
 #define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
-// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, and
-// the kind registered latest, which its next binding takes (#925, srp_mbx_bind). Each registration is an lwSRP
-// attribute, whose instance takes a medium or large block (it is over the small class's 64 bytes), and a StreamID is
-// held only while both of its own are, so half the pool's medium and large blocks bound the StreamIDs held.
+// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, or
+// since a registration it was kept for (#969, talker_changed), and the kind registered latest, which its next binding
+// takes (#925, srp_mbx_bind). Each registration is an lwSRP attribute, whose instance takes a medium or large block (it
+// is over the small class's 64 bytes). A StreamID held with both kinds has both of its own, and one held with one kind
+// has a kept one, at most SRP_KEPT_TALKERS an interface: so half the pool's medium and large blocks and half the kept
+// bound bound the StreamIDs held.
 struct srp_held {
     struct msrp_stream_id stream_id;
     uint8_t interface;
     uint8_t latest_kind;
 };
-#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS) / 2u)
+#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS + SRP_KEPT_TALKERS * MBX_N_IF) / 2u)
 struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
@@ -184,6 +198,8 @@ struct srp_mbx {
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
     // After them, as it is read only through a scan from its start (#925).
     struct srp_held held[SRP_HELD_STREAMS];
+    // Each interface's kept Talker attributes, the first kept_count (#969), read the same way.
+    struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
 };
 extern const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES];
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
