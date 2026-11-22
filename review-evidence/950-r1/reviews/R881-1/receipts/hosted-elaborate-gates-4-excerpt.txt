@@ -1,0 +1,15 @@
+# hosted elaborate-gates-4 (job 137052104255), step 21 'Standalone LiteX simulation aggregate, leg 2 of 3': the run_litex_sims summary; the per-test log was not uploaded
+2026-11-22T01:34:06.5011070Z python3 scripts/ci_litex_legs.py run 2 --receipt "$RUNNER_TEMP/gate-results/litex-leg-2.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+2026-11-22T01:34:06.5038615Z shell: /usr/bin/bash -e {0}
+2026-11-22T01:34:06.5038920Z env:
+2026-11-22T01:34:08.3757234Z run_litex_sims selftest: 16 checks: 16 PASS, 0 FAIL
+2026-11-22T01:34:08.3757481Z RESULT: PASS
+2026-11-22T01:35:20.0312190Z FAIL     test_ctrl_memory
+2026-11-22T01:40:28.3635988Z PASS     test_soc_timing_cuts   (308s)
+2026-11-22T01:40:28.3636409Z ----------------------------------------------------------------
+2026-11-22T01:40:28.3636981Z simulations: 2   passed: 1   failed: 1   skipped: 0   timed out: 0
+2026-11-22T01:40:28.3637387Z selection: 2 of the 8-member inventory; the reconciliation covered all of it
+2026-11-22T01:40:28.3637684Z failing: test_ctrl_memory
+2026-11-22T01:40:28.3637902Z logs: <home-path>/work/_temp/litex-sim-logs
+2026-11-22T01:40:28.4942231Z ##[error]Process completed with exit code 1.
+# base 15168e14: elaborate-gates-4 success, job 136556031267; other heads at the same hour (runs 44962309997, 44957644546, 44971911659): elaborate-gates-4 success

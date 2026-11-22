@@ -1,0 +1,17 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+planted aecp/aecp.c: '\t\tif (status == AECP_SUCCESS) {\n\t\t\tswap(a);\n\t\t}\n' -> '\t\tswap(a);\n'
+platsinks8: rc 1, 25 failure line(s)
+      [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the input keeps its format
+      [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 the rebind's stream is published on the new format
+      [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+      [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 no SET_STREAM_FORMAT's SUCCESS leaves before its context holds it
+    [  FAILED  ] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile (1 ms)
+      [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 the input keeps its format
+      [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+    [  FAILED  ] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered (0 ms)
+      [FAIL] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce: S8 the input keeps its format
+      [FAIL] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce: S8 a published stream's context holds its input's current format (input 7: current 0205022000806000, context 0205022002006000)
+    [  FAILED  ] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce (0 ms)
+      [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+platsinks1: rc 0, 0 failure line(s)
