@@ -17,7 +17,7 @@ What is read, and from where:
     decodes per address, so a reset value is computed the way simulation
     computes it, and every decoded word must be on the page. `register_fields.py`
     turns that and the write decodes into fields, named by the RTL.
-  * the parameters the shipping build elaborates come from the builder
+  * the parameters the recorded (all-fabric) build elaborates come from the builder
     export's top-level Verilog, recorded with the export's `csr.csv` (memory
     map, LiteX CSR banks) and `aem_desc.json` (the processor windows) in
     `scripts/register_map_soc.json`. That file is written by this script from

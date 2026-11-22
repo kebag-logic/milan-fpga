@@ -28,6 +28,7 @@ PAGE = "docs/reference/REGISTER_MAP.md"
 DIAGRAM_DIR = "docs/diagrams/regmap"
 MEMORY_MAP_SVG = "docs/diagrams/memory_map.svg"
 RECORD = "docs/design/CSR_REGISTER_NOTES.md"
+SPLIT_MAP = "docs/design/SPLIT_CONTROL_MEMORY.md#1-memory-map"
 GENERATOR = "scripts/gen_register_reference.py"
 DESCRIPTIONS = "scripts/register_descriptions.json"
 SOC = "scripts/register_map_soc.json"
@@ -515,9 +516,9 @@ def top_sections(model: Model) -> list[tuple[str, str]]:
     """(heading, one-line purpose) of every `##` section, in page order."""
     page = model.descriptions.get("page", {})
     rows = [("Reading this page", page.get("reading_purpose", "How the verdicts and codes read.")),
-            ("Memory map", "Regions and windows of the shipping SoC."),
+            ("Memory map", "Regions and windows of the all-fabric SoC."),
             ("Access types", "The access and reset codes the tables use."),
-            ("Build parameters", "The parameters the shipping build elaborates.")]
+            ("Build parameters", "The parameters the all-fabric build elaborates.")]
     rows += [(m.heading, m.purpose) for m in model.modules]
     rows += [("SoC CSR banks", "The LiteX CSR banks beside the Milan block."),
              ("Feature status", "Machine-checked status rows for this page.")]
@@ -648,7 +649,9 @@ def memory_map(model: Model) -> list[str]:
     """The SoC memory map: regions, the windows inside them, the Milan
     modules inside the Milan CSR window."""
     soc, desc = model.soc, model.descriptions
-    out = ["## Memory map", "", f"![Memory map of the shipping SoC]({relative(MEMORY_MAP_SVG)})", ""]
+    out = ["## Memory map", "", "This is the recorded all-fabric SoC's map.",
+           f"The shipping split SoC's map is in [SPLIT_CONTROL_MEMORY.md]({relative(SPLIT_MAP)}) (#665).", "",
+           f"![Memory map of the all-fabric SoC]({relative(MEMORY_MAP_SVG)})", ""]
     rows = []
     for region, start, size, text in soc_windows(soc, desc):
         rows.append([region, f"`0x{start:08X}`", f"`0x{start + size - 1:08X}`", human_size(size), text])
@@ -708,12 +711,13 @@ def legend() -> list[str]:
 
 
 def parameters(model: Model) -> list[str]:
-    """The milan_csr parameters the shipping build elaborates."""
+    """The milan_csr parameters the recorded all-fabric build elaborates; the split sets CTRL_SPLIT_P to 1."""
     rows = [[f"`{name}`", f"`{expr}`", f"{value:,}" if value > 9 else str(value)]
             for name, expr, value in model.parameters]
     return ["## Build parameters", "",
             "Some reset values depend on these parameters.", "",
-            "`milan_datapath` sets them; the export supplies its values.", ""] + \
+            "`milan_datapath` sets them; the export supplies its values.",
+            "The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).", ""] + \
         table(["Parameter", "Set from", "Value"], rows)
 
 

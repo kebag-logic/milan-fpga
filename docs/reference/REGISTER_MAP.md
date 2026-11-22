@@ -24,9 +24,9 @@ Rationale and version history are in the [design notes](../design/CSR_REGISTER_N
 | Section | What it holds |
 |---|---|
 | [Reading this page](#reading-this-page) | Verdicts, history notes and how to read the tables. |
-| [Memory map](#memory-map) | Regions and windows of the shipping SoC. |
+| [Memory map](#memory-map) | Regions and windows of the all-fabric SoC. |
 | [Access types](#access-types) | The access and reset codes the tables use. |
-| [Build parameters](#build-parameters) | The parameters the shipping build elaborates. |
+| [Build parameters](#build-parameters) | The parameters the all-fabric build elaborates. |
 | [0x000 - Identification / IRQ](#0x000-----identification--irq) | Identification, capabilities and the interrupt registers. |
 | [0x100 - MAC control / status (REQ-MAC-01..03)](#0x100-----mac-control--status--req-mac-0103) | MAC control, link status and the inert PHY reset. |
 | [0x200 - Statistics (RMON) (REQ-MAC-04)](#0x200-----statistics-rmon--req-mac-04) | RMON counter snapshot and its capability mask. |
@@ -151,7 +151,10 @@ Design record: [design notes](../design/CSR_REGISTER_NOTES.md#reading-the-regist
 
 ## Memory map
 
-![Memory map of the shipping SoC](../diagrams/memory_map.svg)
+This is the recorded all-fabric SoC's map.
+The shipping split SoC's map is in [SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md#1-memory-map) (#665).
+
+![Memory map of the all-fabric SoC](../diagrams/memory_map.svg)
 
 | Region | Start address | End address | Size | Description |
 |---|---|---|---|---|
@@ -242,6 +245,7 @@ A reserved `R/W` field stores bits that drive nothing.
 Some reset values depend on these parameters.
 
 `milan_datapath` sets them; the export supplies its values.
+The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).
 
 | Parameter | Set from | Value |
 |---|---|---|
