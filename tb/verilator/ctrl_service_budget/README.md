@@ -411,7 +411,7 @@ That is a CI change, outside this lane.
 - **timer0** is LiteX's timer.
 
 The linked image is a size fixture.
-Its saved-state flash port is compiled against the split SoC's own map ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258)): `build.flash_map` exports `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the point's config, and [`gen_flash_port.py`](../../../sw/firmware/ctrl_nvm/plat/gen_flash_port.py) writes the command master's, `timer0`'s and the flash window's addresses from that export's `csr.csv` (`ctrl_srp_image.py --flash-map`).
+Its saved-state flash port is compiled against the split SoC's own map ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258)): `build.flash_map` exports `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the point's config, naming the point's image in place of the one a split config's argv names (`build.split_argv`), and [`gen_flash_port.py`](../../../sw/firmware/ctrl_nvm/plat/gen_flash_port.py) writes the command master's, `timer0`'s and the flash window's addresses from that export's `csr.csv` (`ctrl_srp_image.py --flash-map`).
 The SoC places those devices from the same map, its `spiflash` bank laid out as the split SoC's, and refuses a build whose own `csr.csv` places a register the port uses, or the flash window, elsewhere (`split_soc.map_deviations`).
 The mailbox's address is still a placeholder, read from the fixture's own sources:
 
