@@ -178,6 +178,8 @@ struct gptp_port {
 	uint32_t now_ms;
 	bool link;
 	enum gptp_role role;
+	uint64_t local_off;      // every step applied to the PHC, modulo 2^64: the PHC less it is the LocalClock
+	                         // peer delay runs on (11.2.19.3.3), which a step never moves
 	// peer delay initiator (11.2.19)
 	struct {
 		bool in_flight;

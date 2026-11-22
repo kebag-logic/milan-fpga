@@ -307,12 +307,15 @@ static void pd_lost(struct gptp_port *p)
 		as_capable_set(p, false);
 }
 
-// A second Pdelay_Resp to the request of this interval: never asCapable on it (10.2.5.1 c). One from another
-// clock identity also counts the request toward Milan v1.2 4.2.6.2.5's cease, once, whenever in the interval it
-// comes: before the first responder's Follow_Up or after the exchange completed.
+// A second Pdelay_Resp to the request of this interval: never asCapable on it (10.2.5.1 c), and from the
+// moment it is received, not when its exchange completes, which a missing Follow_Up or the cease below would
+// prevent. One from another clock identity also counts the request toward Milan v1.2 4.2.6.2.5's cease, once,
+// whenever in the interval it comes: before the first responder's Follow_Up or after the exchange completed.
 static void pd_multi(struct gptp_port *p, const uint8_t *src, const uint8_t *first)
 {
 	p->pd.multi = true;
+	p->pd.good = 0;
+	as_capable_set(p, false);
 	if (p->pd.ex_multi || !memcmp(src, first, 8))
 		return;
 	p->pd.ex_multi = true;
@@ -416,11 +419,8 @@ static void pd_complete(struct gptp_port *p)
 	p->pd.in_flight = false;
 	p->pd.done_seq = p->pd.seq;
 	memcpy(p->pd.done_responder, p->pd.responder, sizeof p->pd.responder);
-	if (p->pd.multi) {
-		p->pd.good = 0;   // more than one response: no measurement, not asCapable (10.2.5.1 c)
-		as_capable_set(p, false);
-		return;
-	}
+	if (p->pd.multi)
+		return;   // more than one response: no measurement, and asCapable cleared when the second came
 	if (p->pd.t4 < p->pd.t1 || p->pd.t4 - p->pd.t1 > GPTP_PD_LATE_NS) {
 		p->ctr.pd_late++;
 		pd_lost(p);
@@ -516,15 +516,21 @@ static int64_t clamp64(int64_t v, int64_t lim)
 	return v > lim ? lim : (v < -lim ? -lim : v);
 }
 
-// This port's PHC stamps its Pdelay exchanges, where 802.1AS takes a LocalClock that is never stepped
-// (11.2.19.3.3). After a step the exchange in flight is void, neither lost nor good; the rate window restarts,
-// the last good ratio kept; and a response still owed to a peer is not completed, its t2 being the old time.
-// So no exchange whose times straddle the step reaches a rate or a delay on either side of the link.
-static void pd_own_step(struct gptp_port *p)
+// The LocalClock the peer delay mechanism runs on, which 802.1AS takes as never stepped (11.2.19.3.3): this
+// port's PHC less every step the servo has applied to it, modulo 2^64. Its own t1 and t4 and the t2 and t3 it
+// reports to a peer are all taken on it, so a step of this port's clock, whatever its size, moves no rate window
+// and no turnaround on either side of the link.
+static uint64_t local_clock(const struct gptp_port *p, uint64_t phc_ns)
 {
+	return phc_ns - p->local_off;
+}
+
+// A step moves the PHC, so a stamp taken before it reads the old time: the exchange in flight is void, neither
+// lost nor good, and a response still owed to a peer is not completed.
+static void pd_own_step(struct gptp_port *p, int64_t delta_ns)
+{
+	p->local_off += (uint64_t)delta_ns;
 	p->pd.in_flight = false;
-	p->pd.w_n = 0;
-	p->pd.w_head = 0;
 	p->rsp.resp_owed = false;
 	p->rsp.fu_owed = false;
 }
@@ -555,9 +561,11 @@ static void servo_pair(struct gptp_port *p, uint64_t t_rx, uint64_t gm_rx, int8_
 	p->pub.offset_ns = (int32_t)offset;
 	p->srv.linkup = false;   // every consumed pair locks the servo
 	if (offset > thresh || offset < -thresh) {
-		// a step starts no slew and holds one in progress (gptp-processor #75)
-		p->hal.phc_step(p->hal.ctx, p->index, -offset);
-		pd_own_step(p);
+		// a step starts no slew and holds one in progress (gptp-processor #75); the offset negated, modulo
+		// 2^64, so no offset overflows its negation
+		int64_t delta = (int64_t)(0u - (uint64_t)offset);
+		p->hal.phc_step(p->hal.ctx, p->index, delta);
+		pd_own_step(p, delta);
 		p->ctr.steps++;
 		p->pub.disc++;
 		p->srv.have_prev = false;   // the rate across a step is not the clock's
@@ -747,7 +755,7 @@ static void rx_pdelay_req(struct gptp_port *p, const uint8_t *f, uint16_t seq)
 	p->rsp.sent_ms = p->now_ms;
 	p->rsp.t2_ok = stamp_take(p, GPTP_MSG_PDELAY_REQ, seq, &ns);
 	if (p->rsp.t2_ok)
-		p->rsp.t2 = ns;
+		p->rsp.t2 = local_clock(p, ns);
 }
 
 static void rsp_send_resp(struct gptp_port *p)
@@ -776,11 +784,8 @@ static void rx_pdelay_resp(struct gptp_port *p, const uint8_t *f, uint16_t seq, 
 	if (!p->pd.in_flight) {
 		// a second response to the request already completed, inside its interval, counts against it as one
 		// before its completion would
-		if (!fu && seq == p->pd.done_seq && p->pd.done_seq == p->pd.seq) {
-			p->pd.good = 0;
-			as_capable_set(p, false);
+		if (!fu && seq == p->pd.done_seq && p->pd.done_seq == p->pd.seq)
 			pd_multi(p, f + F_SRC, p->pd.done_responder);
-		}
 		return;
 	}
 	if (seq != p->pd.seq)
@@ -797,7 +802,7 @@ static void rx_pdelay_resp(struct gptp_port *p, const uint8_t *f, uint16_t seq, 
 		p->pd.t2 += (uint64_t)((int64_t)get64(f + F_CORR) >> 16);
 		p->pd.t4_ok = stamp_take(p, GPTP_MSG_PDELAY_RESP, seq, &ns);
 		if (p->pd.t4_ok)
-			p->pd.t4 = ns;
+			p->pd.t4 = local_clock(p, ns);
 	} else {
 		if (!p->pd.resp_ok || memcmp(p->pd.responder, f + F_SRC, 10)) {
 			if (p->pd.resp_ok)
@@ -892,12 +897,12 @@ void gptp_port_ts(struct gptp_port *p, bool tx, unsigned msg_type, uint16_t seq,
 			p->slv.have_ts = true;
 			slave_try_pair(p);
 		} else if (msg_type == GPTP_MSG_PDELAY_REQ && p->rsp.resp_owed && p->rsp.seq == seq && !p->rsp.t2_ok) {
-			p->rsp.t2 = ns;
+			p->rsp.t2 = local_clock(p, ns);
 			p->rsp.t2_ok = true;
 			rsp_send_resp(p);
 		} else if (msg_type == GPTP_MSG_PDELAY_RESP && p->pd.in_flight && p->pd.seq == seq &&
 			   p->pd.resp_ok && !p->pd.t4_ok) {
-			p->pd.t4 = ns;
+			p->pd.t4 = local_clock(p, ns);
 			p->pd.t4_ok = true;
 			pd_try_complete(p);
 		} else {
@@ -910,7 +915,7 @@ void gptp_port_ts(struct gptp_port *p, bool tx, unsigned msg_type, uint16_t seq,
 	switch (msg_type) {
 	case GPTP_MSG_PDELAY_REQ:
 		if (p->pd.in_flight && p->pd.seq == seq && ok) {
-			p->pd.t1 = ns;
+			p->pd.t1 = local_clock(p, ns);
 			p->pd.t1_ok = true;
 			pd_try_complete(p);
 			return;
@@ -920,7 +925,7 @@ void gptp_port_ts(struct gptp_port *p, bool tx, unsigned msg_type, uint16_t seq,
 		if (p->rsp.fu_owed && p->rsp.seq == seq) {
 			p->rsp.fu_owed = false;
 			if (ok)
-				send_pdelay_resp_fu(p, ns);
+				send_pdelay_resp_fu(p, local_clock(p, ns));
 			return;
 		}
 		break;

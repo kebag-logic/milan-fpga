@@ -229,6 +229,8 @@ struct Scripted : ::testing::Test {
 	uint16_t last_seq() { return uint16_t(rd(of_type(0x2).back(), 44, 2)); }
 	// this port's PHC moved by a step it asked for: its own stamps (t1, t4) carry the shift from here on
 	int64_t own_shift = 0;
+	// the responder's clock stepped, as a peer that stamps on a stepped PHC would: its t2 and t3 carry it
+	int64_t peer_shift = 0;
 	// answer the request in flight from a responder with a 500 ns link
 	void answer(uint64_t responder, uint64_t t1, uint64_t t2, uint64_t t3, uint64_t t4)
 	{
@@ -248,7 +250,8 @@ struct Scripted : ::testing::Test {
 			uint64_t t2 = uint64_t(double(t1) * (1.0 + ppm * 1e-6)) + uint64_t(delay);
 			uint64_t t3 = t2 + uint64_t(turn_ns);
 			uint64_t t4 = t1 + uint64_t(2 * delay) + uint64_t(turn_ns / (1.0 + ppm * 1e-6));
-			answer(kClockB, t1 + uint64_t(own_shift), t2, t3, t4 + uint64_t(own_shift));
+			answer(kClockB, t1 + uint64_t(own_shift), t2 + uint64_t(peer_shift), t3 + uint64_t(peer_shift),
+			       t4 + uint64_t(own_shift));
 			tick(1000);
 		}
 	}
@@ -494,6 +497,100 @@ TEST_F(Scripted, OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease)
 	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "two responses to each request were asCapable";
 }
 
+TEST_F(Scripted, MultipleResponsesWithoutFollowUpClearAsCapableAtOnce)
+{
+	// 802.1AS-2020 11.2.2 c), 10.2.5.1 c): a port that receives multiple Pdelay_Resp to one request is not
+	// asCapable, from that response, not from a Follow_Up that may never come or a request the Milan v1.2
+	// 4.2.6.2.5 cease then prevents. From an asCapable port, three requests each answered by two clocks and no
+	// Follow_Up: asCapable falls at the first, stays down through the cease, and returns after its five minutes
+	start();
+	exchanges(2);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	for (unsigned i = 0; i < 3; i++) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 10'000'000'000ull + 1'000'000'000ull * i;
+		gptp_port_ts(&port, true, 0x2, seq, t1, true);
+		rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'000);
+		rx(pdelay_resp(0x1234ull, seq, t1 + 600, kClockA, false), true, t1 + 32'000);
+		EXPECT_FALSE(gptp_port_pub(&port)->as_capable)
+			<< "multiple responses without Follow_Up kept asCapable, request " << i + 1;
+		if (i < 2)
+			tick(1000);
+	}
+	ASSERT_TRUE(port.pd.ceased);
+	tick(10'000);
+	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "asCapable came back during the cease";
+	tick(300'000);
+	ASSERT_FALSE(port.pd.ceased);
+	exchanges(2);
+	EXPECT_TRUE(gptp_port_pub(&port)->as_capable) << "asCapable did not return after the cease ended";
+}
+
+TEST_F(Scripted, ASecondResponseClearsAsCapableBeforeItsExchangeCompletes)
+{
+	// ibid., in flight: the second clock's response clears asCapable at once, and the first responder's
+	// Follow_Up, coming only after the next request, completes nothing
+	start();
+	exchanges(2);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	uint16_t seq = last_seq();
+	uint64_t t1 = 10'000'000'000ull;
+	gptp_port_ts(&port, true, 0x2, seq, t1, true);
+	rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'000);
+	rx(pdelay_resp(0x1234ull, seq, t1 + 600, kClockA, false), true, t1 + 32'000);
+	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "a second response in flight kept asCapable until a Follow_Up";
+	tick(1000);
+	rx(pdelay_resp(kClockB, seq, t1 + 30'500, kClockA, true));   // the late Follow_Up
+	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "a late Follow_Up restored asCapable";
+}
+
+TEST_F(Scripted, ALateSecondResponderClearsTheAsCapableOfACompletedExchange)
+{
+	// ibid., after completion: the second clock answers once the exchange is done, inside its interval
+	start();
+	exchanges(2);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	uint16_t seq = last_seq();
+	uint64_t t1 = 10'000'000'000ull;
+	answer(kClockB, t1, t1 + 500, t1 + 30'500, t1 + 31'000);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	rx(pdelay_resp(0x1234ull, seq, t1 + 600, kClockA, false), true, t1 + 32'000);
+	EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "a second responder after completion kept asCapable";
+}
+
+TEST_F(Scripted, OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease)
+{
+	// ibid.: one clock's two responses to a request are multiple responses (10.2.5.1 c), cleared at once
+	// without a Follow_Up, but they are not the multiple clock identities the cease counts
+	start();
+	exchanges(2);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	for (unsigned i = 0; i < 4; i++) {
+		uint16_t seq = last_seq();
+		uint64_t t1 = 10'000'000'000ull + 1'000'000'000ull * i;
+		gptp_port_ts(&port, true, 0x2, seq, t1, true);
+		rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'000);
+		rx(pdelay_resp(kClockB, seq, t1 + 500, kClockA, false), true, t1 + 31'100);
+		EXPECT_FALSE(gptp_port_pub(&port)->as_capable) << "one clock answering twice kept asCapable, request " << i + 1;
+		tick(1000);
+	}
+	EXPECT_FALSE(port.pd.ceased) << "one clock answering twice, without Follow_Up, ceased Pdelay_Req";
+}
+
+TEST_F(Scripted, AResponderThatStepsItsClockReachesNoRate)
+{
+	// 11.2.19.3.3 takes the responder's LocalClock as never stepped; a peer whose stamps come from a stepped PHC
+	// moves its t2 and t3 by the step between two exchanges. A window spanning that step is no rate (the
+	// envelope, 2^-12): it restarts, and the delay, at a 10 ms turnaround, stays the link's
+	start();
+	exchanges(3, 0.0, 500, 10'000'000.0);
+	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
+	peer_shift = 100'000'000;   // the responder stepped 100 ms on
+	exchanges(3, 0.0, 500, 10'000'000.0);
+	EXPECT_NEAR(port.pd.delay_ns, 500, 2) << "a responder's step reached the delay through the rate";
+	EXPECT_TRUE(gptp_port_pub(&port)->as_capable) << "a responder's step cleared asCapable";
+}
+
 TEST_F(Scripted, TheCeaseEndsAfterFiveMinutes)
 {
 	// Milan v1.2 4.2.6.2.5: Pdelay_Req resumes after 5 minutes
@@ -532,11 +629,12 @@ TEST_F(Scripted, ATurnaroundLongerThanTheRoundTripIsNoMeasurement)
 	EXPECT_TRUE(gptp_port_pub(&port)->as_capable);
 }
 
-TEST_F(Scripted, AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow)
+TEST_F(Scripted, AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate)
 {
 	// 11.2.19.3.3 takes the LocalClock as never stepped, and this port's PHC steps (gptp-processor #68): the
-	// exchange whose own stamps straddle the step is void, and the rate window restarts, so the step reaches
-	// neither the delay nor neighborRateRatio. The 10 ms turnaround makes a step's rate error visible.
+	// exchange whose own stamps straddle the step is void, and the port's own t1 and t4 are taken on the PHC
+	// less its steps, so the step reaches neither the delay nor neighborRateRatio. The 10 ms turnaround makes a
+	// step's rate error visible.
 	start();
 	exchanges(3, 0.0, 500, 10'000'000.0);
 	ASSERT_TRUE(gptp_port_pub(&port)->as_capable);
@@ -1129,6 +1227,39 @@ TEST_F(Net, AStepOf1sKeepsAsCapableAt10msTurnaround)
 TEST_F(Net, ABackwardStepOf100msKeepsAsCapableAt10msTurnaround)
 {
 	step_across_the_link(1'000'000'000.0L, 1'100'000'000.0L, 1e7L);
+}
+
+// Steps above the 100 us locked threshold and inside the rate envelope's reach (about 0.7 ms over a window of
+// three seconds), both ways: a rate window spanning one would pass it as up to 240 ppm and, at a 10 ms
+// turnaround, carry about 1 us into the delay. The LocalClock (11.2.19.3.3) keeps them out of every window.
+TEST_F(Net, AForwardStepOf150usKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'150'000.0L, 1'000'000'000.0L, 1e7L);
+}
+
+TEST_F(Net, AForwardStepOf300usKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'300'000.0L, 1'000'000'000.0L, 1e7L);
+}
+
+TEST_F(Net, AForwardStepOf400usKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'400'000.0L, 1'000'000'000.0L, 1e7L);
+}
+
+TEST_F(Net, ABackwardStepOf300usKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'000'000.0L, 1'000'300'000.0L, 1e7L);
+}
+
+TEST_F(Net, ABackwardStepOf400usKeepsAsCapableAt10msTurnaround)
+{
+	step_across_the_link(1'000'000'000.0L, 1'000'400'000.0L, 1e7L);
+}
+
+TEST_F(Net, ABackwardStepOf475usKeepsAsCapableAt5msTurnaround)
+{
+	step_across_the_link(1'000'000'000.0L, 1'000'475'000.0L, 5e6L);
 }
 
 TEST_F(Net, SlaveLocksToTheGrandmaster)
