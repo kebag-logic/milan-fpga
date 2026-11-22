@@ -11,7 +11,11 @@ silently keep its place among the rest. Two rules, each a finding:
 
   ORDER   the script's list is the recorded one, entry for entry;
   LINKED  every entry names a section of the linked image, read from its link
-          map (not its discarded input sections).
+          map (not its discarded input sections), but an entry of an object
+          the image compiles none of: without --with-gptp, ctrl_srp_image.py
+          compiles neither gptp.c nor gptp_mbx.c, and their entries place
+          nothing there (#884). Such an object linked all the same is a
+          finding, so the exemption names only what is truly absent.
 
 ctrl_srp_image.py applies both to every split image it links. --check applies
 ORDER to the tree's two files, and LINKED too with --map. --self-test plants
@@ -20,7 +24,7 @@ the recorded order, and requires its rule to refuse it; the unplanted copies
 must pass both.
 
 Usage:
-    python3 sw/firmware/ctrl/test/ctrl_hot.py --check [--map ctrl_app.map]
+    python3 sw/firmware/ctrl/test/ctrl_hot.py --check [--map ctrl_app.map [--without STEM ...]]
     python3 sw/firmware/ctrl/test/ctrl_hot.py --self-test
 
 Exit 0 = no finding (with --self-test, every plant refused by its own rule);
@@ -76,8 +80,9 @@ def entry(e: Entry) -> str:
     return f"*{e[0]}.o(.text.{e[1]})" if ":" in e[0] else f"*-{e[0]}.o(.text.{e[1]})"
 
 
-def findings(script: str, order: str, link_map: str | None = None) -> list[str]:
-    """ORDER, then LINKED when a map is given: each finding one line."""
+def findings(script: str, order: str, link_map: str | None = None, without: frozenset[str] = frozenset()) -> list[str]:
+    """ORDER, then LINKED when a map is given: each finding one line. `without` names the objects the image compiles
+    none of, whose entries LINKED leaves aside, and requires that the map link none of their sections."""
     out = []
     have = listed(script)
     want = recorded(order)
@@ -91,7 +96,10 @@ def findings(script: str, order: str, link_map: str | None = None) -> list[str]:
                    f"recorded {expected}")
     if link_map is not None:
         names = linked(link_map)
-        out += [f"LINKED: hot-list name {entry(e)} is no section of the linked image" for e in have if e not in names]
+        out += [f"LINKED: hot-list name {entry(e)} is no section of the linked image" for e in have
+                if e not in names and e[0] not in without]
+        out += [f"LINKED: object {stem} is named compiled out, yet the image links its sections"
+                for stem in sorted(without) if any(s == stem for s, _ in names)]
     return out
 
 
@@ -111,15 +119,17 @@ def written_map(entries: list[Entry], discarded: list[Entry] = ()) -> str:
             + rows(entries, 0x8c))
 
 
-def plants(script: str, order: str) -> list[tuple[str, str, str, str, str]]:
-    """Each planted defect: its name, the rule that must refuse it, and the script, order and map it makes."""
+def plants(script: str, order: str) -> list[tuple[str, str, str, str, str, frozenset[str]]]:
+    """Each planted defect: its name, the rule that must refuse it, and the script, order, map and objects named
+    compiled out it makes."""
     want = recorded(order)
     first, second = want[0], want[1]
     good_map = written_map(want)
     swapped = script.replace(entry(first), "\0").replace(entry(second), entry(first)).replace("\0", entry(second))
     renamed = (first[0], first[1] + "_old")
     extra = ("mbx", "mbx_open")
-    return [
+    none: frozenset[str] = frozenset()
+    rows = [
         ("stale-name", "LINKED", script.replace(entry(first), entry(renamed)),
          order.replace(f"{first[0]} {first[1]}\n", f"{renamed[0]} {renamed[1]}\n", 1), good_map),
         ("absent-from-image", "LINKED", script, order, written_map(want[1:])),
@@ -130,6 +140,14 @@ def plants(script: str, order: str) -> list[tuple[str, str, str, str, str]]:
         ("recorded-elsewhere", "ORDER", script, order.replace(f"{second[0]} {second[1]}\n", "", 1), good_map),
         ("no-end-marker", "ORDER", script.replace(END, ""), order, good_map),
     ]
+    rows = [(*row, none) for row in rows]
+    # #884: the exemption covers only an object the image compiles none of, and only that object's entries
+    rows += [
+        ("compiled-out-but-linked", "LINKED", script, order, good_map, frozenset({first[0]})),
+        ("another-object-compiled-out", "LINKED", script, order,
+         written_map([e for e in want[1:] if e[0] != "gptp_mbx"]), frozenset({"gptp_mbx"})),
+    ]
+    return rows
 
 
 def self_test(script: str, order: str) -> int:
@@ -138,8 +156,19 @@ def self_test(script: str, order: str) -> int:
     control = findings(script, order, written_map(recorded(order)))
     print(f"control: the tree's script and order, linked: {'PASS' if not control else control}")
     failures += bool(control)
-    for name, rule, planted_script, planted_order, planted_map in plants(script, order):
-        found = findings(planted_script, planted_order, planted_map)
+    # #884: an entry of an object the image compiles none of places nothing and is no finding there; one is
+    # appended when the list holds none, and the image links none of that object's sections
+    optional = ("gptp_mbx", "gptp_mbx_attach")
+    o_script, o_order = script, order
+    if not any(e[0] == optional[0] for e in recorded(order)):
+        o_script = script.replace(END, f"{entry(optional)}\n\t\t{END}")
+        o_order = order + f"{optional[0]} {optional[1]}\n"
+    exempt = findings(o_script, o_order, written_map([e for e in recorded(o_order) if e[0] != optional[0]]),
+                      frozenset({optional[0]}))
+    print(f"control: an entry of an object compiled out, absent from the image: {'PASS' if not exempt else exempt}")
+    failures += bool(exempt)
+    for name, rule, planted_script, planted_order, planted_map, without in plants(script, order):
+        found = findings(planted_script, planted_order, planted_map, without)
         caught = bool(found) and all(f.startswith(rule + ":") for f in found)
         print(f"[{'caught' if caught else 'ESCAPED'}] {name}: {found[0] if found else 'no finding'}")
         failures += not caught
@@ -154,12 +183,14 @@ def main() -> int:
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--self-test", action="store_true")
     parser.add_argument("--map", type=Path, help="with --check: the linked split image's map")
+    parser.add_argument("--without", action="append", default=[], metavar="STEM",
+                        help="with --map: an object the image compiles none of (gptp, gptp_mbx without --with-gptp)")
     args = parser.parse_args()
     script = SCRIPT.read_text()
     order = ORDER.read_text()
     if args.self_test:
         return self_test(script, order)
-    found = findings(script, order, args.map.read_text() if args.map else None)
+    found = findings(script, order, args.map.read_text() if args.map else None, frozenset(args.without))
     print("\n".join(found) or f"hot list: {len(recorded(order))} entries, "
                                f"{'linked and ' if args.map else ''}in the recorded order")
     return 1 if found else 0

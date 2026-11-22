@@ -133,15 +133,20 @@ def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Pat
     return elf,mapfile
 
 
-def hot_list(src: Path, mapfile: Path, layout: str) -> None:
-    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665);
-    a tree from before the list has neither file's part and is not checked."""
+#: The objects only --with-gptp compiles (#884): without it their hot-list entries place nothing (ctrl_hot.py LINKED).
+GPTP_OBJECTS = frozenset({"gptp", "gptp_mbx"})
+
+
+def hot_list(src: Path, mapfile: Path, layout: str, without: frozenset[str] = frozenset()) -> None:
+    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665), but
+    an entry of an object it compiles none of (without); a tree from before the list has neither file's part and is
+    not checked."""
     if layout != "split":
         return
     script=(src/"plat/ctrl_split.ld").read_text(); order=src/"plat/ctrl_split_hot.txt"
     if not order.is_file() and ctrl_hot.START not in script:
         return
-    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text())
+    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text(),without)
     if found:
         raise Refusal("\n".join(found))
 
@@ -253,7 +258,7 @@ def main() -> int:
         nm=cc.removesuffix("gcc")+"nm"
         memory_calls_nothing(nm,sources,objects)
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
-        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout)
+        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout,frozenset() if args.with_gptp else GPTP_OBJECTS)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")

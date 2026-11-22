@@ -4,57 +4,43 @@
 #
 # Each function a service pass ran, in the order the passes first ran it, from
 # committed-PC traces of the CPU budget harness (tb/verilator/ctrl_service_budget)
-# on the 1x1/1if split image, arm A, built and run as run.py does by default, in
-# three windows, each traced from 300,000 bus cycles before its first record's
+# on the 1x1/1if split image, arm A, built and run as run.py does by default with
+# the gPTP ports in it (--with-gptp; #884's ruling of 2026-11-22,
+# issuecomment-7084113326: their paths measured into the list), in three
+# windows, each traced from 300,000 bus cycles before its first record's
 # commit for 900,000 committed PCs (BUDGET_TRACE_AFTER, BUDGET_TRACE_PCS): the
 # groups backlog and backlog-adp, each from its first record's commit, then the
 # largest legal AECP command's group, aecp-largest-notice, from its first record's
 # commit after its load's mark (aecp_long.*), its functions appended after the
 # other two windows' in the order it first ran them (#665's ruling of 2026-11-17,
-# as amended, item 1). Every function the windows ran stands where
+# issuecomment-6959600243, item 1). Every function the windows ran stands where
 # they first ran it, and none is placed by hand. Each list is learned so at the
 # head it ships with; a fourth window, or a window chosen for one head, needs a
 # ruling of its own.
 # The list keeps a traced entry only if its section links in every image the
-# list serves (#665's ruling of 2026-11-18, item 1);
+# list serves (#665's ruling of 2026-11-18, issuecomment-6967930396, item 1);
 # nothing else is dropped, added or reordered. The images it serves are the
 # split images ctrl_srp_image.py links and holds to this list: the size fixture
-# at 1x1/1if, 8x8/1if and 8x8/2if in each of the CPU budget harness's six arms,
-# each as itself and as the SoC plan's stand-in and mapped images. The target
-# platform's image (ctrl_plat_image.py) links the same script without that
-# check, and an entry it lacks places nothing there.
+# at 1x1/1if, 8x8/1if and 8x8/2if in each of the CPU budget harness's arms,
+# without gPTP and with it, each as itself and as the SoC plan's stand-in and
+# mapped images. An entry of gptp.c or gptp_mbx.c serves the images built with
+# gPTP, which alone compile them, and places nothing in the others (#884;
+# ctrl_hot.py's LINKED rule leaves it aside there). The target platform's
+# image (ctrl_plat_image.py) links the same script without that check, and an
+# entry it lacks places nothing there.
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
 # The traces' sha256:
-#   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
-#   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
-#   aecp-largest-notice  d03e4494ef4b4cb23d98f00ceb978a639f07e225a1df0d340c9d3797b9a53eee
+#   backlog              e2f8315efec591d9154f7cb5e3b59c5141dfdd0ad53f198267669839cb043113
+#   backlog-adp          1ac967096ba699beb7b828107ca137745e7dada4f88d9badf2b33fc297caaa3e
+#   aecp-largest-notice  56161e50db354231626dee379d7efeaec1ac6586954fd6e68fd816724658192c
 #
 # sw/firmware/ctrl/test/ctrl_hot.py requires the script's list to be this one,
 # entry for entry, and every entry to name a section of the linked image.
 # One entry a line: the object, then the function's section name. A firmware
 # object is its source's stem; a runtime archive's member is <archive>:<member>.
-ctrl_loop ctrl_loop_service
-nvm_store nvm_store_clock
-nvm_store nvm_now
-nvm_flash_litespi ls_now_us
-ctrl_loop round_of
-aecp_mbx retry
-aecp aecp_retry
-aecp aecp_enter
-aecp round_waits
-aecp now
-aecp_mbx now
-mbx mbx_now_ms
-aecp scan
-aecp arm
-aecp_mbx timer
-nvm_store nvm_store_step
-ctrl_loop ctrl_loop_step
-mbx_plat_mmio mbx_hal_wait
-ctrl_loop ctrl_loop_run
-aecp_mbx retry_aged
 aecp aecp_retry_aged
+ctrl_loop ctrl_loop_service
 srp_mbx transmit_aged
 mbx mbx_rx_mark
 ctrl_loop dispatch_ticks
@@ -62,8 +48,12 @@ mbx mbx_event_take
 ctrl_loop service_rx
 aecp_mbx ready
 aecp aecp_ready
+aecp aecp_enter
 mbx mbx_rx_take
 acmp_mbx on_rx_ready
+nvm_store nvm_store_clock
+nvm_store nvm_now
+nvm_flash_litespi ls_now_us
 srp_mbx rx_ready
 mbx mbx_rx_waiting
 adp_mbx on_poll
@@ -85,7 +75,12 @@ maap pump
 maap_mbx declaring
 aecp_mbx poll
 aecp aecp_poll
+aecp now
+aecp_mbx now
+mbx mbx_now_ms
 aecp transmit
+aecp arm
+aecp_mbx timer
 ctrl_app_aecp deliver
 aecp_nvm aecp_nvm_poll
 ctrl_app_aecp publish_store
@@ -97,48 +92,68 @@ srp_mbx poll
 srp_mbx enter
 mbx mbx_link_up
 srp_mbx snapshot
-srp_mbx capture
 srp_mbx reclaim
 ctrl_app_srp deliver
 srp_mbx srp_mbx_gate
-srp_mbx tick
-timer shlan_timer_tick
-mrp_mad mrp_port_status
-nvm_store nvm_store_tick
-adp_mbx on_event
-acmp_mbx on_event
-maap_mbx event
-aecp_mbx event
-ctrl_app_aecp face_event
-srp_mbx on_event
-nvm_store nvm_store_service
-nvm_store nvm_publish
-adp adp_gm_change
-adp enter_delay
-adp_mbx port_timer_start
-mbx mbx_timer_arm
-aecp_mbx frame
-aecp aecp_rx
-aecp wire_be32
-aecp wire_be64
+ctrl_loop round_of
+aecp_mbx retry
+aecp aecp_retry
+aecp round_waits
+aecp scan
+nvm_store nvm_store_step
+ctrl_loop ctrl_loop_step
+mbx_plat_mmio mbx_hal_wait
+ctrl_loop ctrl_loop_run
+aecp_mbx retry_aged
 aecp header
 aecp aecp_put48
 aecp aecp_put32
 aecp aecp_put64
-aecp applied
-aecp_mbx applied
-ctrl_app_aecp applied
-aecp_face applied
-mbx mbx_face_busy
 aecp_commands aecp_command
+aecp_commands avb
 aecp_commands body
 ctrl_mem memcpy
 ctrl_mem forward
 aecp_commands aecp_find
 aecp aecp_port_begin
+aecp_mbx avb
+ctrl_app_aecp avb
+aecp_face avb
+aecp_face gsi
+mbx mbx_win_read
+mbx mbx_win_ask
+aecp aecp_port_end
+mbx mbx_timer_arm
+adp_mbx on_event
+acmp_mbx on_event
+maap_mbx event
+aecp_mbx event
+ctrl_app_aecp face_event
+gptp_mbx on_event
+srp_mbx on_event
+gptp_mbx on_tick
+gptp gptp_port_tick
+gptp_mbx publish
+srp_mbx tick
+timer shlan_timer_tick
+mrp_mad mrp_port_status
+nvm_store nvm_store_tick
+nvm_store nvm_store_service
+nvm_store nvm_publish
+adp adp_gm_change
+adp enter_delay
+adp_mbx port_timer_start
+aecp_mbx frame
+aecp aecp_rx
+aecp wire_be32
+aecp wire_be64
+aecp applied
+aecp_mbx applied
+ctrl_app_aecp applied
+aecp_face applied
+mbx mbx_face_busy
 aecp_mbx available_index
 ctrl_app_aecp available_index
-aecp aecp_port_end
 aecp finish
 aecp_mbx send
 mbx mbx_tx_send
@@ -155,6 +170,7 @@ timer shlan_timer_remove
 shlan_port shlan_free
 ctrl_pool ctrl_pool_free
 mvrp mvrp_app_destroy
+srp_mbx capture
 mbx mbx_rx_before
 adp adp_link_change
 adp timer_stop
@@ -168,6 +184,14 @@ maap_mbx range
 mbx mbx_filter_set_maap_range
 mbx mbx_pub_da_gate
 ctrl_aecp_image allocation
+gptp gptp_port_link
+gptp bmca
+gptp put64
+gptp pub_set_gm
+gptp pub_set_path
+gptp pub_set_flags
+gptp_mbx gptp_mbx_changes
+ctrl_mem memcmp
 srp_mbx open_interface
 msrp msrp_app_create
 mrp_mad mrp_app_create
@@ -202,6 +226,13 @@ srp_mbx hold
 mrp_mad mrp_attr_visit
 srp_mbx registrations
 mrp_mad mrp_reclaim
+gptp_mbx on_rx
+gptp gptp_frame_key
+gptp gptp_port_ts
+gptp gptp_port_rx
+acmp_mbx on_adp_frame
+adp_mbx on_frame
+adp adp_rx
 acmp_mbx on_frame
 acmp acmp_rx
 acmp wire_be64
@@ -218,9 +249,6 @@ acmp finish
 maap_mbx receive
 maap maap_rx
 maap mac_at
-acmp_mbx on_adp_frame
-adp_mbx on_frame
-adp adp_rx
 srp_mbx receive
 srp_mbx transmit
 ctrl_app_srp locked
@@ -259,9 +287,6 @@ aecp_commands observe
 aecp_mbx stream
 ctrl_app_aecp stream
 aecp_face stream
-aecp_face gsi
-mbx mbx_win_read
-mbx mbx_win_ask
 acmp acmp_adp_rx
 acmp_mbx port_gptp
 mbx mbx_gm_id
