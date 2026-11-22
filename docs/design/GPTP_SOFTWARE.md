@@ -112,13 +112,16 @@ It implements the time-aware end station of IEEE 802.1AS-2020 clauses 10 and 11:
 
 - Peer delay as initiator in every state and as responder (11.2.19, 11.2.20).
 - neighborRateRatio over four exchanges, a median of three delays.
-  A window whose ratio lies further from 1 than two in-tolerance clocks can (2^-12, 244 ppm; B.1.1) holds a step of the responder's clock: it restarts and the last good ratio stays in use.
+- Peer delay runs on the LocalClock 802.1AS takes as never stepped (11.2.19.3.3): the PHC less every step the servo has applied to it.
+  The port's own t1 and t4, and the t2 and t3 it reports to a peer, are taken on it, so a step of either of two such ports, of any size, moves no rate window and no turnaround, and asCapable holds across it at turnarounds up to 10 ms.
+  A step also voids the exchange in flight and completes no response the port owes, whose stamps are the old time.
+- For a peer that stamps on a stepped PHC instead: a window whose ratio lies further from 1 than two in-tolerance clocks can (2^-12, 244 ppm; B.1.1) holds the step, so it restarts and the last good ratio stays in use.
+  That catches a step larger than about 0.7 ms over a window of three seconds; a smaller one can reach the delay at a long turnaround.
   A turnaround longer than its round trip is no measurement.
-- This port's own PHC step voids the exchange in flight, restarts its rate window and completes no response it owes, so a step on either side of the link never reaches a delay or a rate and asCapable holds across it (802.1AS takes the LocalClock as never stepped, 11.2.19.3.3).
 - asCapable after two good exchanges with a measured rate (Milan v1.2 4.2.6.2.4).
 - The fifth lost response clears it (allowedLostResponses 3); 800 ns is the threshold.
 - The Pdelay_Req cease after three successive requests each answered from more than one clock identity, whenever in the request's interval the second answer comes; a link edge or five minutes end it (Milan v1.2 4.2.6.2.5).
-  Any second response to a request is not asCapable (10.2.5.1 c).
+  Any second response to a request clears asCapable when it is received (10.2.5.1 c), not when its exchange completes, which a missing Follow_Up or the cease would prevent.
 - The BMCA of a one-port end station with path trace (10.3); receipt timeouts (Milan v1.2 Table 4.2).
   The sync receipt timeout restarts only when a Sync and its Follow_Up are consumed as a pair (10.2.8.2.1 c), never on a Sync alone.
 - Two-step Sync and Follow_Up as slave and as grandmaster, Announce each second.
@@ -161,10 +164,10 @@ Ruling item 4 accepts the gPTP ports' memory at 8x8 and above as debt with a led
 
 A port adds about 12 KB of `rom` and 1 KB of `sram`.
 
-Fit and timing at 8x8/1if, routed at `9d753fa0` (Vivado 2026.1, the train's recipe, the `--sw-gptp` SoC with the platform's gPTP image at 62.0 RAMB36): 38.2k LUT, 45.9k FF, 95.5 of 135 block RAM tiles and 5 DSP.
-All three placement directives meet #818's floor at every signoff corner: ExtraTimingOpt, the best, at WNS +0.220 ns and WHS +0.056 ns; AltSpreadLogic_high at +0.174 ns and +0.056 ns; ExtraPostPlacementOpt at +0.154 ns and +0.026 ns.
+Fit and timing at 8x8/1if, routed at `a6323318` (Vivado 2026.1, the train's recipe, the `--sw-gptp` SoC with the platform's gPTP image at 62.0 RAMB36): 38.1k LUT, 45.9k FF, 95.5 of 135 block RAM tiles and 5 DSP.
+All three placement directives meet #818's floor at every signoff corner: ExtraPostPlacementOpt, the best, at WNS +0.292 ns and WHS +0.036 ns; AltSpreadLogic_high at +0.281 ns and +0.036 ns; ExtraTimingOpt at +0.173 ns and +0.067 ns.
 The plane, routed at `40bd7738` with the same recipe (ExtraPostPlacementOpt, its image without gPTP at 58.5): 43.2k LUT, 51.3k FF, 11 DSP, the same 95.5 tiles, WNS +0.139 ns.
-So the firmware's ports cost the device 3.5 tiles of memory and save it about 5.0k LUT, 5.4k FF and 6 DSP of fabric.
+So the firmware's ports cost the device 3.5 tiles of memory and save it about 5.1k LUT, 5.4k FF and 6 DSP of fabric.
 Contract 2.5 itself costs every image a little: the gptp channel's table entries and the face's answer port, 64 B of the platform's `ctrl_plat` and 200 B of `rom` at 8x8 with one interface, which re-measured that entry at 58.5.
 
 ## Why not flexPTP as it is
@@ -191,29 +194,33 @@ Adopting flexPTP itself instead is an owner decision.
 NFR-SCOUT-03 requires each gPTP path to state and test its firmware service bound.
 The 10 ms bound and THE SHARE of 2.0 ms are kept by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 1.
 
-Measured at `64a473be`:
+Measured at `a6323318`:
 
 | Path | Bound | Basis | 8x8/2if | 8x8/1if |
 |---|---|---|---:|---:|
-| Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.309 ms | 0.223 ms |
-| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.853 ms | 5.998 ms |
+| Pdelay_Req received to Pdelay_Resp committed | 10 ms | IEEE 802.1AS-2011 B.2.3; Milan v1.2 4.2.6.2.6 tolerates 15 ms | 0.343 ms | 0.289 ms |
+| A gptp record under the composed load, last released | 10 ms | the gptp family | 7.967 ms | 6.068 ms |
 | Sync egress stamp to Follow_Up committed | 125 ms | followUpReceiptTimeout, Milan v1.2 Table 4.2 | one pass | one pass |
-| The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.655 ms | 1.634 ms |
+| The composed maximum, the gptp burst in every backlog window | THE SHARE, 2.0 ms | `ctrl_loop.h` | 1.661 ms | 1.666 ms |
 | A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
 
 The images are built `--with-gptp` and planned at their ledgered points; the CPU is the split's, at 100 MHz.
-gPTP takes 0.31 % of it after link-up at 8x8/2if, 0.24 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
+gPTP takes 0.29 % of it after link-up at 8x8/2if, 0.27 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
 The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
 
 A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.
 An image without gPTP opens five, so every existing row is unchanged; a gPTP image's windows also carry the gptp channel's admitted burst, seven Pdelay_Req records an interface, its dearest ([the harness](../../tb/verilator/ctrl_service_budget/README.md#markers-and-grading)).
-With that burst every held-egress row at 8x8/1if is within its egress-ledger figure, `backlog-owed.service.acmp.last.if0` at 62.411 ms against 62.62 (62.640 ms at the provisional burst of 16 that [#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7072401468), item 1, replaced by the derived one); at 8x8/2if it is 62.460 ms.
+With that burst six of the seven held-egress rows at 8x8/1if are within their egress-ledger figures, `backlog-owed.service.acmp.last.if0` at 62.510 ms against 62.62 (62.640 ms at the provisional burst of 16 that [#884's ruling of 2026-11-22](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7072401468), item 1, replaced by the derived one); at 8x8/2if it is 62.513 ms.
+The seventh, `backlog-owed.service.aecp.last.if0`, is 62.182 ms against 62.16, over by 0.022 ms; it was 62.082 ms at `64a473be`.
+It moved by phase: the hold now releases 6,121 cycles before a pass begins, where it released 496 cycles into one, so that pass and a short AECP pass run first, and the pass that sends AECP's last record, though cheaper (148,126 cycles against 156,753), ends 10,028 cycles (0.100 ms) later after the release.
+The port's code grew by 196 B ahead of `gptp_mbx.c`, and its state by the LocalClock's 8 B; `gptp_mbx.c` is unchanged and runs as often, yet its cycles at 8x8/1if rose from 119,555 to 165,282 in `gptp-slave`, the cost of where that image now places code and data against the CPU's caches; at 8x8/2if they barely moved (142,428 to 145,753).
+The row stays over its figure until the figure is ruled again or the layout moves it back; the figure is #894's ruling and not this page's.
 
 ## Verification
 
 | Bench | What it proves | Planted defects |
 |---|---|---|
-| `sw/firmware/ctrl/test/test_gptp.cpp` | The port's clauses on scripted frames; two ports over simulated PHCs, a responder's turnaround up to 10 ms and a step on either side of the link; the same suite under UndefinedBehaviorSanitizer (the gate's `gptp_ubsan` arm) | 40, `gptp_mutants.py` |
+| `sw/firmware/ctrl/test/test_gptp.cpp` | The port's clauses on scripted frames; two ports over simulated PHCs, a responder's turnaround up to 10 ms and a step on either side of the link, of any size, inside or across a rate window; the same suite under UndefinedBehaviorSanitizer (the gate's `gptp_ubsan` arm) | 41, `gptp_mutants.py` |
 | `tb/verilator/gptp_tsu` | Both stamp points, 426 ns and 3,770 ns, the guard, the seal, the egress FIFO; the trailer read where the mailbox reads it, and an 80-frame flood: 64 kept with their stamps, 16 refused | 24, `tsu_mutants.py` |
 | `tb/verilator/milan_dp` (`split-sw`, the suite's last case) | The split datapath built `GPTP_SW_EN_P`: the narrowed words decoded onto the consumers' nets, the detectors off, a commit made while one crosses held whole | the bench's own |
 | `tb/verilator/mbx` (`run-cdc-pub`) | `KL_mbx_cdc`'s publication crossing at a datapath clock under and over the mailbox's: every snapshot that lands is one GEN commit's words | 5, `cdc_pub_mutants.py` |
