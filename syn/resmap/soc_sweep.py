@@ -43,6 +43,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -131,7 +132,7 @@ def compiler_triple() -> str:
 def command_export(work: Path, plan: dict, names: list[str], tools: argparse.Namespace) -> int:
     """Run milan_soc.py without --build for each variant and record its outcome."""
     base = prepare(work, plan_placement(plan))
-    env ={**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
+    env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
            "PATH": f"{tools.sdk / 'bin'}:{Path(tools.litex_python).parent}:{os.environ['PATH']}"}
     records = {}
     for name, spec in plan_variants(plan).items():
@@ -245,6 +246,61 @@ def command_price(work: Path, names: list[str]) -> int:
     return 1 if failures else 0
 
 
+class _Exported(Exception):
+    """Raised by the self-test's stand-in for prepare(), carrying the placement command_export asked for."""
+
+
+def wiring_problems(plan: dict) -> list[str]:
+    """prepare() and command_export() with the builder and the export stubbed (#665): the builder is asked for the
+    placement given, and a builder run without one gives the config's own, the split; an argument list naming an
+    absent platform image is refused before any export; an all-fabric one comes back with the shape's include;
+    command_export asks prepare() for the plan's placement."""
+    problems, calls = [], []
+    module = sys.modules[__name__]
+
+    def builder(argv, **_kwargs):
+        calls.append(list(argv))
+        placement = argv[argv.index("--placement") + 1] if "--placement" in argv else "split"
+        image = [] if placement == "all-fabric" else ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/c/x.elf"]
+        out = Path(argv[argv.index("-o") + 1]) / yosys_sweep.BASE_CONFIG
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "soc_params.json").write_text(json.dumps({"argv": ["--xlen", "32", *image]}))
+        return subprocess.CompletedProcess(argv, 0)
+
+    def stand_in(work, placement):
+        raise _Exported(placement)
+
+    with tempfile.TemporaryDirectory(prefix="resmap-wiring-") as tmp:
+        work = Path(tmp)
+        (work / "tree/sw/builder").mkdir(parents=True)
+        with mock.patch.object(module, "git_listable", lambda tree: None), mock.patch("subprocess.run", builder):
+            try:
+                argv = prepare(work, "all-fabric")
+                if argv[-2:-1] != ["--entity-gen-dir"]:
+                    problems.append(f"prepare(all-fabric) returned {argv}")
+            except yosys_sweep.PlanError as refusal:
+                problems.append(f"prepare(all-fabric) was refused: {refusal}")
+            if not calls or calls[-1][-2:] != ["--placement", "all-fabric"]:
+                problems.append(f"prepare(all-fabric) did not ask the builder for all-fabric: {calls[-1:]}")
+            try:
+                prepare(work, "split")
+                problems.append("prepare(split) returned an argument list naming an absent platform image")
+            except yosys_sweep.PlanError as refusal:
+                if "x.elf" not in str(refusal):
+                    problems.append(f"prepare(split) refused without naming the image: {refusal}")
+        with mock.patch.object(module, "prepare", stand_in):
+            try:
+                command_export(work, plan, [], argparse.Namespace(sdk=work, litex_python=sys.executable))
+                problems.append("command_export ran past a refusing prepare()")
+            except _Exported as asked:
+                if str(asked) != plan_placement(plan):
+                    problems.append(f"command_export asked prepare() for {asked}, the plan names "
+                                    f"{plan_placement(plan)}")
+        if (work / "soc").exists():
+            problems.append("command_export wrote under soc/ before prepare() returned")
+    return problems
+
+
 SELFTEST_TOP = """module top(input a);
 //------------------------------------------------------------------------------
 // Instance core of core Module.
@@ -308,6 +364,7 @@ def selftest() -> int:
         image.write_bytes(b"\x7fELF")
         if missing_images(split, Path(tmp)):
             problems.append("a platform image present in the tree was reported missing")
+        problems += wiring_problems(plan)
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"soc_sweep self-test: {'PASS' if not problems else 'FAIL'}")
