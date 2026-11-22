@@ -1,7 +1,7 @@
 # Architecture
 
 Milan FPGA is a Milan 1.2 end station.
-The current shipping build places control protocols in fabric.
+The shipping AX7101 build runs control protocols in firmware.
 
 Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
 AECP includes unsolicited notifications and counter serving.
@@ -16,7 +16,7 @@ Framing, timestamps, ingress filtering and media remain in fabric.
 gPTP stays in fabric until F6, then moves to firmware.
 
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines placement and service timing.
-The implementation sections below describe today's all-fabric shipping build.
+The implementation sections below describe the all-fabric build.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):

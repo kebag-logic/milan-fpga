@@ -2,7 +2,7 @@
 # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
 
 Status: **F0 implemented behind a default-off build switch.**
-The all-fabric build is unchanged and remains the shipping image.
+The all-fabric build remains available behind its placement switch.
 
 This page designs the fabric's contract with the control-plane firmware.
 The split integrates before P3.
@@ -623,7 +623,7 @@ F0's advertiser checks do not establish this listener timing.
 F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md).
 Its H-MAAP tests use the FC channel and the existing AAF/CRF CSR allocation output.
 The page records Annex B coverage, per-event work and host timing assumptions.
-The shipping all-fabric placement remains unchanged.
+The all-fabric placement remains available.
 F3 composes it with ADP and ACMP in one app
 ([the composition](../../sw/firmware/ctrl/README.md#the-composition)).
 
@@ -1801,14 +1801,16 @@ defects, its parallel gate and the two-placement simulation are local.
 
 ### The split image's identity
 
-Since the flip (S13) a split image reads VERSION `0x0003_0060` and an all-fabric
+Since the flip (#665) a split image reads VERSION `0x0003_0060` and an all-fabric
 one `0x0002_0060`. Before it VERSION was `0x0002_0060` in both, so a split image
 is also identified another way (#665, decision D2):
 
 - **The recipe.** `endstation_builder.py <config> --placement split` builds a
   shipped config at the split placement without editing it. Its shape artifacts
-  are the all-fabric build's byte for byte, and it writes no tracked file
-  (builder gate 23o).
+  are the all-fabric build's byte for byte but for one field: the ENTITY's
+  `firmware_version` (3.96.0 against 2.96.0, from VERSION's major), in the AEM
+  overlay (`aem_overlay.json`) and the AEM ROM (`aecp_aem_rom.svh`). It writes
+  no tracked file (builder gate 23o, which holds both).
 - **The ident.** A split image's SoC ident ends in `split`, for example
   `Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split`. The all-fabric
   ident is unchanged.
@@ -2113,8 +2115,8 @@ in parallel, so the entries stay in flip-flops.
 
 Contract 2.4's sixteen source entries (#799) add 1,024 bits of storage at
 one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
-read-back. They were not measured with this recipe. No shipping build
-carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
+read-back. They were not measured with this recipe. The mailbox is only in
+the `--ctrl-mailbox` SoC, the split placement the AX7101 builds ship since #665.
 
 The bound-talker term was measured again with this recipe on 2026-11-10 (#665
 S9), at one and at two interfaces, on the mailbox RTL of `1d6bf555`, which

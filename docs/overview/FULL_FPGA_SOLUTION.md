@@ -1,6 +1,6 @@
 # Full FPGA solution
 
-The current shipping image uses the all-fabric control placement.
+The all-fabric build remains available behind its placement switch.
 One bare-metal RV32 core boots and configures that image.
 
 Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
@@ -16,7 +16,7 @@ Audio, framing, timestamps and ingress filtering remain in fabric.
 gPTP stays in fabric until F6, then moves to firmware.
 
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines these requirements.
-The implementation inventory below describes the current shipping build.
+The implementation inventory below describes the all-fabric build.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):

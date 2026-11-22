@@ -4,7 +4,7 @@ The implementation evidence below describes the all-fabric image.
 The split placement ships since the flip (#665 S13); its bench gate is on #665.
 It does not establish firmware-placement acceptance.
 The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) requires separate timing evidence
-for each selected control owner before the default changes.
+for each selected control owner; for the flip that evidence is the bench gate on #665.
 # Milan v1.2 compliance matrix — all five standards, one page
 
 The per-clause compliance position of this end-station against its five
