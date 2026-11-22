@@ -793,11 +793,11 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
             release_held(m,h);
         }
     }
+    // the walk owed below counts the kept Talkers again: a binding made now takes its StreamID's, an unbinding keeps
+    // them (#969, keep_talker)
     const struct srp_sink old = *s;
     *s = replacement;
-    // snapshot matches registrations against the bindings (#665): the kept Talkers' too, which a binding made now takes
-    // and an unbinding keeps (#969)
-    i->stale = true;
+    i->stale = true; // snapshot matches registrations against the bindings (#665)
     if (old.bound) {
         // Judge the complete new binding set, including the replacement.
         // a declaration withdrawn here is sent by THE TRANSMIT's call
@@ -1297,8 +1297,7 @@ static void reset_interface(struct srp_interface *i)
             release_held(m,&m->held[n]);
         }
     }
-    // and so are the Talker attributes it kept (#969)
-    i->kept_count = 0u;
+    // and so are the Talker attributes it kept: the new participants' first walk counts none (#969, create_participants)
     // The next pass's poll builds the new participants: both halves in one
     // pass are over the per-pass share at 8x8 (#665, srp_bounds.h).
     i->reopen_polls = 1u;
