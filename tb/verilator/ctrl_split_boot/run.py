@@ -31,8 +31,8 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     between two response bytes, which bounds the loop pass that sends them.
   - PHY (#919): the published link word, milan_mac_link_status, as the
     testbench's clause 22 PHY answers: link down published as the poll
-    arms, before its first frame, so the datapath sees no link on the
-    word's reset value (#972); the boot's probe one address a
+    arms, before its first frame, for a CPU reset alone, which keeps the
+    word (its reset is link down, #972); the boot's probe one address a
     frame, a miss published link down, then the PHY's 1000BASE-T full
     duplex; a poll every CTRL_PLAT_PHY_POLL_US, within the release's
     250 ms publication bound; a loss latched between two polls published
@@ -135,7 +135,7 @@ PLANTS = {
     'phy-unadvertised': ('plat/ctrl_plat_phy.c',
                          '\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n',
                          '\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = 0u;\n', 'PHY'),
-    # the datapath left on the word's reset value, link up, until the first poll's publication (#972)
+    # a CPU reset alone leaves the datapath on the last boot's link until the first poll's publication (#972)
     'phy-arm-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(bus->link_status, 0u);\n', '', 'PHY'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
@@ -429,16 +429,16 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
     if not frames or not pubs:
         findings.append(f'PHY: {len(frames)} MDIO frame(s) and {len(pubs)} publication(s): the PHY is not polled')
         return findings, report
-    # the arm's publication (#972): link down before the poll's first frame, so the datapath sees no link on the
-    # word's reset value; the polls' publications follow
+    # the arm's publication (#972): link down before the poll's first frame, so a CPU reset alone, which keeps the
+    # word, leaves the datapath no link; the polls' publications follow
     if pubs[0][0] < frames[0][0] and pubs[0][1] == 0:
         report.append(f'PHY the arm published link down at {pubs[0][0] / per_us / 1000:.3f} ms, before the first '
                       f'frame at {frames[0][0] / per_us / 1000:.3f} ms and ready at {ready_at / per_us / 1000:.3f} ms')
         pubs = pubs[1:]
     else:
         findings.append(f'PHY: no link down published before the first MDIO frame (the first publication '
-                        f'{pubs[0]}, the first frame at {frames[0][0]}): the datapath keeps the reset value\'s link up '
-                        f'until a poll publishes (#972)')
+                        f'{pubs[0]}, the first frame at {frames[0][0]}): after a CPU reset alone the datapath keeps the '
+                        f'last link until a poll publishes (#972)')
     if 'timeout' in events:
         findings.append('PHY: a step of the script waited past its limit for the publication it needs')
     found = next((k for k, f in enumerate(frames) if f[2] == PHY_ADDRESS), None)

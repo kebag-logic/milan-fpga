@@ -63,9 +63,12 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 - #972: the split's boot forms its link once.
 - A PHY holding the advertisement is not restarted.
-- The poll publishes link down as it arms.
+- Holding it needs BMCR negotiating, as #840 asks.
+- A forced or isolated PHY is renegotiated, never published up.
+- The split's link word now resets to link down.
+- Boards without an MDIO pair keep link up.
 - So nothing is sent before the PHY's verified link.
-- #840's 1000BASE-T-only advertisement is unchanged.
+- A datapath leg checks it from reset at both shapes.
 - FR_NFR derives the declared 6.0 s discovery time.
 
 ## Unreleased - the Mark II split ships

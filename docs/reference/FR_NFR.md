@@ -214,8 +214,8 @@ It is derived here for the split placement, term by term, from the interface's l
 The declared 6.0 s leaves 1,689 ms above the sum.
 A startup with the link up draws 0 to 2,000 ms instead (Milan v1.2 5.6.3.5.2), less than LINK_UP's draw.
 A grandmaster change adds nothing to the first advertisement: in DELAY it is ignored (Milan v1.2 Table 5.51), and the frame samples the grandmaster when it is built (IEEE 1722.1-2021 6.2.2.16); in WAITING it is announced by a new `ENTITY_AVAILABLE` after its own 0 to 4 s draw (5.6.3.5.7).
-The boot path adds nothing either ([#972](https://github.com/kebag-logic/milan-fpga/issues/972)): the datapath sees no link before a poll publishes the PHY's verified one, and the boot restarts no negotiation the PHY already holds.
-A boot whose PHY must be advertised again (#840) renegotiates before that first publication, so before the link-up this derivation starts from.
+The boot path adds nothing either ([#972](https://github.com/kebag-logic/milan-fpga/issues/972)): the split's link-status word resets to link down (`sw/litex/mac_link_status.py`), so the datapath sees no link before a poll publishes the PHY's verified one, and the boot restarts no negotiation the PHY already holds.
+A boot whose PHY must be advertised again (#840), or whose BMCR does not negotiate (forced, isolated or resetting), renegotiates before that first publication, so before the link-up this derivation starts from.
 `sw/firmware/ctrl/test/test_adp.cpp` G1 to G5 hold ADP's part on the host model: each first `ENTITY_AVAILABLE` within its draw, inside the 6,000 ms stated here.
 The all-fabric placement's boot path is not covered by #972, and this derivation does not claim it.
 
