@@ -21,6 +21,10 @@ short); the window's words wrong (halves swapped, the talker selection, the sele
 back); the AECP refusal the race argument rests on, a bound input accepting SET_STREAM_FORMAT; and the saved
 state's format restore reading the verdict's survival bit against the map store's reset set, which loses a
 narrowed input at every boot where that set maps its channels (REQUIREMENTS.md, the persisted inventory).
+
+The suite's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
+holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a bind
+while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
 """
 from __future__ import annotations
 
@@ -40,6 +44,14 @@ S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
 S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
 S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
 S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
+S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+#: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
+KEEPS = "    return (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && keep_talker(i,type,value);\n"
+POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
+            "TRANSMIT's next MRPDU, input 0")
+REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
+           "MRPDU, input 0")
 #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
 VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
@@ -157,4 +169,8 @@ def mutants(mutant: type) -> tuple:
         # reads the verdict's bit 1 against it refuses the saved format
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
+        # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
+        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return (", "return false && ("), "platsinks8",
+          S13, POWER_ON,
+          also=(("platsinks1", S13, POWER_ON), ("platsinks8", S14, REBOUND), ("platsinks1", S14, REBOUND))),
     )
