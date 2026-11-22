@@ -1,0 +1,10 @@
+# make -C tb/verilator/milan_dp_render ship8-mutants (ship8_mutants.py --jobs 4), clean clone at 25ad9c9a
+[PASS] the unplanted leg passes
+[PASS] plant caught: projection: input key 0 onto render key 3, past the one-slot lane - breaks "P1 POWER-ON: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: projection: unrouted port 1's cluster onto render key 2, the lane's key - breaks "U3: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: adapter: the walk's first write takes the key after the lane base - breaks "P3 POWER-ON RENDER: slot 0 carries stream 0 channel 0 in every frame" and 1 more
+[PASS] plant caught: bus binding: the serializer framed as eight slots inside the 32-slot bus frame - breaks "P3 POWER-ON RENDER: slots 1-31 carry zero in every frame" and 1 more
+[PASS] refused at elaboration: bus binding: BUS_SLOTS_P bound to the render width - "does not match $clog2(BUS_SLOTS_P*SLOT_BITS_P)"
+6 checks: 6 PASS, 0 FAIL
+MUTANTS WALL 274.68 s
+mutants_rc=0

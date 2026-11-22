@@ -1,0 +1,39 @@
+# the ship8 case's output inside the suite run above
+./obj_ship8/Vmilan_dp_ship8
+
+[POWER-ON] the 8x8 shape's input ports, read back
+  [i]    5 descriptor burst(s) served from the 20800-byte image
+  [i]    P3 POWER-ON RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 39/144 39/144 39/144 39/144 39/144 39/144 39/144 39/144
+  [i]    P3 POWER-ON RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 24..142, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.4 ns over 119 events (band 1041.7)
+
+[ROUTES] port 0's one cluster, remapped through ADD and REMOVE
+  [i]    R1 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 64/291 64/291 64/291 64/291 64/291 64/291 64/291 64/291
+  [i]    R1 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 170..288, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [i]    R2 RENDER: bound FF, lane streams 08; accepted PDUs / presented events per stream: 88/438 88/438 88/438 88/438 88/438 88/438 88/438 88/438
+  [i]    R2 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 317..435, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.2 ns over 119 events (band 1041.7)
+
+[UNROUTED] ports 1-7, mapped, against the pins
+  [i]    U4 RENDER: bound FF, lane streams 08; accepted PDUs / presented events per stream: 113/588 113/588 113/588 113/588 113/588 113/588 113/588 113/588
+  [i]    U4 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 467..585, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+
+[REMOVE] port 0's mapping removed: silence
+  [i]    X2 SILENCE: bound FF, lane streams 00; accepted PDUs / presented events per stream: 138/734 138/734 138/734 138/734 138/734 138/734 138/734 138/734
+  [i]    X2 SILENCE: 119 frames, slot 0 rendered 0 silent 119 other 0, events -1..-1, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 0.0 ns over 0 events (band 1041.7)
+  [i]    X3 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 162/881 162/881 162/881 162/881 162/881 162/881 162/881 162/881
+  [i]    X3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 760..878, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.4 ns over 119 events (band 1041.7)
+
+[BIND] bind falls and the rebind's freshness
+  [i]    B1 RENDER: bound DF, lane streams 01; accepted PDUs / presented events per stream: 182/1002 182/1002 182/1002 182/1002 182/1002 162/881 182/1002 182/1002
+  [i]    B1 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 881..999, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [i]    B2 UNBOUND: bound DE, lane streams 01; accepted PDUs / presented events per stream: 182/1002 204/1130 204/1130 204/1130 204/1130 162/881 204/1130 204/1130
+  [i]    B2 UNBOUND: 119 frames, slot 0 rendered 0 silent 119 other 0, events -1..-1, 0 skipped (0 counted) 0 repeated (120 counted), presentation max 0.0 ns over 0 events (band 1041.7)
+  [i]    B3 RENDER: bound DF, lane streams 01; accepted PDUs / presented events per stream: 221/1144 243/1366 243/1366 243/1366 243/1366 162/881 243/1366 243/1366
+  [i]    B3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 1245..1363, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.4 ns over 119 events (band 1041.7)
+
+[RESET] a datapath reset while the lane renders
+  [i]    Z2 UNBOUND AFTER RESET: bound 00, lane streams 01; accepted PDUs / presented events per stream: 221/1146 243/1368 243/1368 243/1368 243/1368 162/881 243/1368 243/1368
+  [i]    Z2 UNBOUND AFTER RESET: 119 frames, slot 0 rendered 0 silent 119 other 0, events -1..-1, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 0.0 ns over 0 events (band 1041.7)
+  [i]    Z3 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 262/1299 284/1521 284/1521 283/1515 283/1515 202/1028 283/1515 282/1509
+  [i]    Z3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 1731..1849, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 11.8 ns over 119 events (band 1041.7)
+== ship8_render: checks: 124   failures: 0 ==
+RESULT: PASS

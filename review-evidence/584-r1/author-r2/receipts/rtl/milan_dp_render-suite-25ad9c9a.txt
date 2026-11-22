@@ -1,0 +1,25 @@
+# make -C tb/verilator/milan_dp_render (default: ship, multi, ship8, leg-defects) then make ship8-mutants, clean clone at 25ad9c9a, 8 CPUs of a loaded host; rc 0 and 0 (verdict lines)
+== tdm8_render: checks: 263   failures: 0 ==
+RESULT: PASS
+== tdm8_render: checks: 79   failures: 0 ==
+RESULT: PASS
+== ship8_render: checks: 124   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)
+[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)
+SUITE WALL 2317.80 s
+suite_rc=0
+---- #584 8x8 render lane: planted projection, adapter and bus-binding faults ----
+[PASS] the unplanted leg passes
+[PASS] plant caught: projection: input key 0 onto render key 3, past the one-slot lane - breaks "P1 POWER-ON: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: projection: unrouted port 1's cluster onto render key 2, the lane's key - breaks "U3: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: adapter: the walk's first write takes the key after the lane base - breaks "P3 POWER-ON RENDER: slot 0 carries stream 0 channel 0 in every frame" and 1 more
+[PASS] plant caught: bus binding: the serializer framed as eight slots inside the 32-slot bus frame - breaks "P3 POWER-ON RENDER: slots 1-31 carry zero in every frame" and 1 more
+[PASS] refused at elaboration: bus binding: BUS_SLOTS_P bound to the render width - "does not match $clog2(BUS_SLOTS_P*SLOT_BITS_P)"
+6 checks: 6 PASS, 0 FAIL
+MUTANTS WALL 274.68 s
+mutants_rc=0
