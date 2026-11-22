@@ -31,10 +31,12 @@ Do not rebind or destroy the pool while any participant owns storage.
 There is no firmware heap or operating-system dependency.
 
 The pool has two small and two large blocks per interface, plus
-`16 + 3 * sources + 4 * sinks` medium blocks per interface.
+`16 + 3 * sources + 4 * sinks` medium blocks per interface, and one more for each
+sink: a Talker kept for a StreamID no binding holds (`SRP_KEPT_TALKERS`, #969).
 The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
-IDs, bound input Talker IDs and required VLANs.
+IDs, bound input Talker IDs and required VLANs, and up to `SRP_KEPT_TALKERS` Talker
+attributes of StreamIDs no binding holds (#969, below).
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
 `refused` counts unsuccessful attempts, including retries, rather than records.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
@@ -91,7 +93,7 @@ Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.
 Expiry before receive remains visible, as does interface reset.
-Poll observation covers a newly accepted binding's existing registrations.
+Poll observation covers a newly accepted binding's existing registrations, a Talker's kept before the binding too (#969).
 No observer calls ACMP or delivers a port action.
 
 Pending ACMP intent gates obsolete feedback immediately.
@@ -315,16 +317,59 @@ whatever its destination, and a binding made later, or one replaced in place,
 takes it from them. A StreamID whose last binding ends while both kinds stay
 registered is held with its latest (`srp_held`) for its interface's next
 binding of it, until either kind leaves or the interface resets; its
-registrations' leave timers still run, as the talker's messages for a StreamID
-no binding has are ignored. Each registration is an lwSRP attribute in a medium
-or large pool block, so half those blocks bound the StreamIDs held, and the
-table does not fill. `srp_mbx.cpp`'s `SrpTalkerKinds` and `test_acmp_mbx.cpp`'s
+registrations are kept (#969, below), and their leave timers run. A StreamID no
+binding has is held too from a registration it is kept for, with the kind
+registered latest, until either kind leaves, so a binding made later takes the
+latest as one made earlier does. Each registration is an lwSRP attribute in a
+medium or large pool block, a StreamID held with one kind has a kept one, and
+the kept are bounded per interface, so half those blocks and half the kept bound
+the StreamIDs held, and the table does not fill. `srp_mbx.cpp`'s `SrpTalkerKinds` and `test_acmp_mbx.cpp`'s
 `SrpFeedback` tests hold both replacements, each New in turn, either leave,
 coincident registrations in one MRPDU, a replacement before a message that
 changes nothing (the Listener declaration and ACMP's GET_RX_STATE), a later
 binding, one replaced in place, a final unbinding, the hold's ends and its
 interface, each with a planted defect in `srp_kind_mutants.py`. No SRP timer
 changes.
+A Talker registered before the binding that wants it is declared within one
+transmit of the binding (#969). ACMP initiates the SRP reservation only once the
+talker answers its probe (Milan v1.2 5.5.3.5.18 step 4), after a power-on settle
+of a saved binding and after a BIND_RX alike, and a talker's applicant declares
+once and then stays quiet (QA) until a LeaveAll (IEEE 802.1Q-2018 Table 10-3).
+A receive filter that refused a Talker of a StreamID no binding holds left the
+registrar without it, so the walk a binding owes found nothing, and the Listener
+waited for the talker's next declaration, up to a LeaveAll period. Milan v1.2
+5.3.8.5 has a settled input declare Ready while a matching Advertise is being
+received, and 802.1Q-2018 10.7.8's NOTE keeps a Registrar for an attribute of
+immediate interest "as a Member or as a likely future Member". So the filter
+keeps a Talker attribute of a StreamID none of the interface's bindings holds,
+one already kept or while the interface keeps fewer than `SRP_KEPT_TALKERS`, one
+for each STREAM_INPUT of the shape, each a pool block set aside for them; the
+release processor's listener keeps the same count of port registrars
+(`KL_srp_listener_fsm.sv`, protocol-processor #212). Its registration is then
+the registrar's, and the walk a binding made later owes takes it as one made
+after the binding is taken; the binding declares in THE TRANSMIT's next MRPDU.
+`kept_count` is at least the attributes kept: the last walk counted every Talker
+no binding holds that is registered, or that left and still holds its block
+until `mrp_reclaim` frees it, and each one the filter keeps since adds one; a
+block returned while the interface keeps one owes the walk that counts it no
+more. An unbound StreamID's indication owes no walk otherwise, since it changes
+no binding. Past the bound, a Talker no binding holds is ignored, as every one
+was before #969, and a binding made later declares with the talker's next
+declaration. A New of the other kind of a kept StreamID registers beside it, an
+attribute of its own, and is kept only within the bound; a JoinIn of the other
+kind, which replaces the kept one (35.2.6), is kept the same way, so at the bound
+the old kind stays until the talker's Leave of it, or its LeaveAll, ends it.
+`srp_mbx.cpp`'s `SrpEarlyTalker` tests hold, on every STREAM_INPUT of the shape
+at 1x1 and 8x8, one and two interfaces, registration then binding (at a
+power-on's spacing, within the DUT's first LeaveAll period), binding then
+registration with the kept ones at their bound, a bind while bound to a stream
+declared all along, the latest of two kinds, a JoinIn replacement, a registration
+that ended before the binding, the bound, and a kept registration that left
+before its block is freed; `test_plat_sinks.cpp`'s S13 and S14 hold the platform's
+power-on restore and bind while bound through ACMP's probe, with GET_STREAM_INFO's
+REGISTERING and REGISTERING_FAILED (Milan v1.2 Tables 5.9, 5.10), at 8x8/1if and
+1x1/1if. Each rule has a planted defect in `srp_early_mutants.py`, and the
+platform's in `sink_mutants.py`.
 Ready follows the accepted MVRP membership request (802.1Q 35.1.2.2).
 
 Startup declares Domain class 6, priority 3, VID 2 and MVRP membership in VID 2.
@@ -555,6 +600,7 @@ of every processor state. The complete original processor suites run separately.
 | D1, resolved | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Firmware agrees under Milan v1.2 4.2.7.2.2. A later Lv in LV retains the original LeaveTime deadline; the #608 cases remain covered. |
 | D2 | Sections B/E encode Listener withdrawal with FourPackedEvent Ignore (0) | Retain the last declaration subtype on Lv. IEEE 802.1Q-2018 35.2.2.7.2: Ignore is not a Listener declaration to register or withdraw. |
 | D3 | `KL_srp_listener_fsm.sv` holds one Talker registrar a sink, whose type a registering event of either swaps in place: a Talker Lv of either type on IN unregisters it | With both kinds registered the latest decides; its Lv hands the declaration to the older kind, still registered, and the older's Lv changes nothing (`SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding`). The registrations that remain decide (IEEE 802.1Q-2018 35.2.6, Milan v1.2 5.3.8.5, the ruling on #925). |
+| D4 | `KL_srp_listener_fsm.sv` keeps N port registrars, N the sink count, one a {stream_id, DA, VLAN} value whatever its type, which a settle on that value starts its sink's registrar from (#212) | The same count of Talker attributes kept for StreamIDs no binding holds, each lwSRP's attribute of one type and StreamID, the destination and VID matched by the walk a binding owes (#969). Past the count both ignore a new value until the talker's next declaration; a New of the other kind is a second attribute here, a swap there. |
 
 Milan v1.2 4.2.7.2.2 governs D1; IEEE 802.1Q-2018 35.2.2.7.2 governs D2.
 JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6. Of a
