@@ -2158,9 +2158,10 @@ protected:
     // stream s, one for each STREAM_INPUT and one past them: its StreamID, destination and Talker record
     static msrp_stream_id stream(unsigned s) { return {{2,1,2,3,4,5,0x40,static_cast<uint8_t>(s)}}; }
     static std::array<uint8_t,6> dest(unsigned s) { return {0x91,0xe0,0xf0,0,1,static_cast<uint8_t>(s)}; }
-    std::vector<uint8_t> talker(unsigned s, unsigned kind, unsigned event, bool la=false) {
+    std::vector<uint8_t> talker(unsigned s, unsigned kind, unsigned event, bool la=false, uint32_t latency=0u) {
         const auto d=dest(s);
         auto v=talker_value(stream(s),d.data(),2);
+        wire_put_be(v.data()+21,latency,4);
         if (kind==kFailed) { v.resize(34); v[33]=1; }
         return frame(kind==kAdvertise ? 1u : 2u,v,event,0,la);
     }
@@ -2218,9 +2219,12 @@ TEST_F(SrpEarlyTalker, ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTrans
 }
 
 // Binding, then registration, the order that always worked, at every input too: each declares within a JoinTime of
-// its registration.
+// its registration, also with the registrations kept for StreamIDs no binding has at their bound (streams past the
+// inputs' own), as a binding's own Talker is taken whatever is kept.
 TEST_F(SrpEarlyTalker, ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput) {
     settle(); advance(400);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) offer(talker(0x80u+k,kAdvertise,kJoinIn));
+    quiet(400);
     for (unsigned k=0;k<CTRL_SRP_SINKS;++k) {
         bind_stream(k,k); settle();
         const uint32_t from=model.tx_sent; const unsigned start=model.now_ms;
@@ -2287,6 +2291,31 @@ TEST_F(SrpEarlyTalker, AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBi
     }
 }
 
+// A kept registration that ends holds its block until mrp_reclaim frees it, so it is counted until then, by a walk made
+// meanwhile too (a bound Talker's indication owes one); once the block is freed, the walk its return owes counts it no
+// more, and another StreamID's Talker is kept in its place.
+TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed) {
+    settle(); advance(400);
+    const unsigned past=CTRL_SRP_SINKS, bound=CTRL_SRP_SINKS+1u;
+    bind_stream(0,bound); settle();
+    offer(talker(bound,kAdvertise,kJoinIn)); advance(kJoinMs);
+    ASSERT_EQ(sink(0).declared,kAdvertise);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    quiet(400);
+    const unsigned full=ctrl_pool_in_use(&pool);
+    // stream 0's Talker leaves, and the bound one's registers a new accumulated latency, in one MRPDU: the walk the
+    // bound indication owes runs before any poll reclaims, and the declaration it leaves as it was owes no transmit
+    receive_before_poll(then(talker(0,kAdvertise,kLv),talker(bound,kAdvertise,kJoinIn,false,1000u)));
+    ASSERT_EQ(sink(0).declared,kAdvertise);
+    const unsigned left=ctrl_pool_in_use(&pool);
+    receive_before_poll(talker(past,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),left)<<"a kept registration that left is counted until its block is freed";
+    settle(); advance(kJoinMs);
+    EXPECT_EQ(ctrl_pool_in_use(&pool),full-1u)<<"the left one's block is freed";
+    offer(talker(past,kAdvertise,kJoinIn));
+    expect_bound_declares(1,past,kAdvertise,"once its block is freed, another is kept");
+}
+
 // What the talker withdrew before the binding is not declared: a Leave, or a LeaveAll it no longer answers, ends the
 // registration, and the binding declares nothing; nor does a registration a reset of the interface destroyed.
 TEST_F(SrpEarlyTalker, ARegistrationThatEndedBeforeTheBindingDeclaresNothing) {
@@ -2320,6 +2349,14 @@ TEST_F(SrpEarlyTalker, RegistrationsKeptBeforeABindingAreBoundedByTheInputs) {
     const unsigned past=CTRL_SRP_SINKS;
     offer(talker(past,kAdvertise,kJoinIn));
     EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a registration past the bound takes no block";
+    // a walk counts them again (a binding owes one, here of a stream nobody declares)
+    bind_stream(CTRL_SRP_SINKS-1u,0x90u); settle(); advance(kJoinMs);
+    offer(talker(past,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"a walk keeps counting them";
+    // a New of the other kind of a kept StreamID registers beside it (lwSRP, as srp_mbx.c's listener_kind notes): a
+    // registration of its own, past the bound too
+    offer(talker(1,kFailed,kNew));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+CTRL_SRP_SINKS)<<"the other kind of a kept StreamID, past the bound";
     quiet(400);
     bind_stream(0,past); settle(); advance(kJoinMs);
     EXPECT_EQ(sink(0).declared,0u)<<"past the bound, nothing is declared before the talker's next declaration";
