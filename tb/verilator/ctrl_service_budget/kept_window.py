@@ -20,8 +20,14 @@ the group declares is one no binding holds. On every interface, after the link s
 - the link goes down and up, a reset whose new participants keep none, then srp.kept_failed: one MRPDU declaring a
   Talker Failed for each STREAM_INPUT, each kept.
 
-kept_grade.py holds each of the group's SRP records (srp_mbx.c receive, a SPAN line) to ctrl_loop.h's
-CTRL_LOOP_SRP_UNIT_US at the point's shape, by the stated rule, and each pass given whole to a build to its stated cost.
+A second group, srp-bound, is the bound path the base has, beside it on the same image: every STREAM_INPUT bound to its
+own stream through BIND_RX and the talker's PROBE_TX_RESPONSE naming it (Milan v1.2 5.5.3.5.18 step 4), then the same
+MRPDU as srp.kept_advertise (srp.bound_advertise), as a bridge re-declares the Talkers after any LeaveAll.
+
+A record that registers Talkers is past CTRL_LOOP_SRP_UNIT_US on the bound path the base has (#977), and the kept
+Talkers make the same registrations before the bindings. kept_grade.py grades both groups as owed to #977, held at
+kept <= bound on the same image and no work pass of srp-kept over THE SHARE, each pass given whole to a build within
+its stated cost; run.py gives their #977 lines that disposition (kept_grade.disposed).
 """
 from __future__ import annotations
 
@@ -29,6 +35,7 @@ import frames as f
 import scenario
 
 NAME = 'srp-kept'
+BOUND = 'srp-bound'
 #: The talker the group's Talkers are declared by, and their streams: stream k's StreamID and destination are the
 #: first's plus k, as a vector increments them (35.2.2.8.4).
 STREAM = 0x0C0D0E0F10020000
@@ -61,8 +68,37 @@ def declared(first: int, count: int, failed: bool = False, event: int = 1) -> by
     return f.msrp(scenario.TALKER_A_MAC, [message])
 
 
+def answer(i: int, k: int) -> str:
+    """The talker's PROBE_TX_RESPONSE on interface i to the last PROBE_TX, naming stream k (IEEE 1722.1-2021 8.2.1:
+    the command's fields echoed, the talker's stream_id, stream_dest_address and stream_vlan_id answered)."""
+    acmp = scenario.CH['acmp']
+    return (f'reply {i} {acmp} 15:{f.ACMP["PROBE_TX"]:02x} 6={scenario.TALKER_A_MAC:012x} '
+            f'15={f.ACMP["PROBE_TX_RESPONSE"]:02x} 16={44:04x} 18={STREAM + k:016x} 54={STREAM_DA + k:012x} '
+            f'66={VID:04x}')
+
+
+def bound(p: scenario.Point) -> scenario.Group:
+    """srp-bound: every sink bound to its own stream (the fixture puts sink k on interface k % N_IF), then on every
+    interface the same MRPDU as srp.kept_advertise, its own inputs' Talkers registered for their bindings."""
+    srp, acmp, ms, n = scenario.CH['srp'], scenario.CH['acmp'], scenario.MS, p.sinks
+    g = scenario.Group(BOUND, sim_ms=650 + SETTLE_MS + 400 * n + 3000)
+    scenario.ready(g, p)
+    g.add(f'wait cycles {SETTLE_MS * ms}', 'wait quiet 3 within 2000000')
+    for k in range(n):
+        i = k % p.interfaces
+        g.add(f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", k, 0x6900 + k).hex()}',
+              f'wait tx {acmp} 2 within {40 * ms}', 'wait quiet 3 within 2000000', answer(i, k),
+              f'wait cycles {300 * ms}', 'wait quiet 3 within 2000000')
+    for i in range(p.interfaces):
+        g.probe(scenario.Probe(f'srp.bound_advertise.if{i}', 'Talker Advertise RX for every input, bound',
+                               'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
+                f'frame {i} {declared(0, n).hex()}', wait=f'cycles {30 * ms}')
+    g.add(f'wait cycles {1000 * ms}', 'wait quiet 3 within 2000000')
+    return g
+
+
 def groups(p: scenario.Point) -> list[scenario.Group]:
-    """The group, every probe on every interface."""
+    """Both groups, every probe on every interface."""
     srp, ms, n = scenario.CH['srp'], scenario.MS, p.sinks
     g = scenario.Group(NAME, sim_ms=650 + LEAVEALL_MS + 2 * LINK_MS * p.interfaces + 1000)
     scenario.ready(g, p)
@@ -86,4 +122,4 @@ def groups(p: scenario.Point) -> list[scenario.Group]:
         g.probe(scenario.Probe(f'srp.kept_failed.if{i}', 'Talker Failed RX for every input, no binding (kept)',
                                'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
                 f'frame {i} {declared(0, n, failed=True).hex()}', wait=f'cycles {30 * ms}')
-    return [g]
+    return [g, bound(p)]

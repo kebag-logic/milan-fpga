@@ -904,7 +904,7 @@ def main() -> int:
         parser.error('use an external scratch build directory')
     os.environ.setdefault('PYTHONHASHSEED', '0')
     import build as builder
-    import scenario
+    import kept_grade, scenario   # kept_grade: the registrations' cost owed to #977 while held (#969)
     import share
     shape, n_if = POINTS[args.point]
     if args.reuse_build or args.regrade:
@@ -935,7 +935,7 @@ def main() -> int:
             logs = list(pool.map(lambda g: run_group(build_dir, out, g, spec.get('flash_image') or '-'), groups))
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
-    shares = share_misses(results)
+    shares = (owed := kept_grade.Disposition(results, out, spec)).shares(share_misses(results))  # #977, #969
     hz = dict(cpu_hz=spec['cpu_hz'], cpu_cd=spec.get('cpu_cd'), sys_hz=spec['sys_hz'], label=clock)
     (out / 'table.md').write_text(table(results, args.point, clock))
     record = dict(summary(args.point, spec['executable_sha256'], results, refusals, misses, shares), clock=hz)
@@ -979,9 +979,9 @@ def main() -> int:
           f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
           + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
-    stated = stated_misses(results)
-    for line in stated:
-        print('STATED', line)
+    stated = owed.stated(stated_misses(results))
+    for line in [*(f'OWED {o}' for o in owed.owed), *(f'STATED {s}' for s in stated)]:
+        print(line)
     import build as builder
     import declaring_outputs
     late += notice_misses(results, n_if) + declaring_outputs.findings(spec, out, groups)
