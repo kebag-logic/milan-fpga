@@ -27,17 +27,17 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages |
 |---|---:|
-| current | 188 |
+| current | 189 |
 | stale | 16 |
 | superseded | 0 |
 | obsolete | 21 |
-| **total** | **225** |
+| **total** | **226** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
 | archive | 22 | 1 | 0 | 0 | 21 | 0 |
 | design | 28 | 27 | 1 | 0 | 0 | 0 |
-| findings | 25 | 25 | 0 | 0 | 0 | 0 |
+| findings | 26 | 26 | 0 | 0 | 0 | 0 |
 | module READMEs | 88 | 88 | 0 | 0 | 0 | 0 |
 | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
 | reference | 23 | 11 | 12 | 0 | 0 | 18 |
@@ -98,7 +98,7 @@ Areas follow the directory tree.
 - [docs/design](#docsdesign) (18)
 - [docs/development](#docsdevelopment) (1)
 - [docs/diagrams](#docsdiagrams) (1)
-- [docs/findings](#docsfindings) (25)
+- [docs/findings](#docsfindings) (26)
 - [docs/fpga](#docsfpga) (2)
 - [docs/guides](#docsguides) (10)
 - [docs/history](#docshistory) (22)
@@ -214,6 +214,7 @@ Areas follow the directory tree.
 | [docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md](findings/75_RECONNECT_RESTART_MEASUREMENT.md) | bench/qualification | Reconnect restart measurement | `scripts`, `tools` | current | no recorded contradiction | area lane | findings |
 | [docs/findings/872_OPT_ROUND1.md](findings/872_OPT_ROUND1.md) | bench/qualification | Execution and fabric for 64x64 streams on two interfaces: round 1, measured, modelled and planned (#872) | `third_party/lwSRP`, `tb/verilator/ctrl_split_boot`, 802.1Q | current | no recorded contradiction | area lane | findings |
 | [docs/findings/872_OPT_ROUND2.md](findings/872_OPT_ROUND2.md) | bench/qualification | Execution for 64x64 streams on two interfaces: round 2, three exact cuts measured (#872) | `sw/firmware/ctrl`, `tb/verilator/ctrl_service_budget` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/872_OPT_ROUND3.md](findings/872_OPT_ROUND3.md) | bench/qualification | Execution for 64x64 streams on two interfaces: round 3, the firmware levers folded and held egress graded (#872) | `tb/verilator/ctrl_service_budget`, Milan v1.2, 802.1Q | current | no recorded contradiction | area lane | findings |
 | [docs/findings/B14_BENCH_5603C353.md](findings/B14_BENCH_5603C353.md) | bench/qualification | B14 bench on dev 5603c353, 2026-10-10 | `hdl/ieee1722/avtp`, `hdl/ieee1722/crf`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | findings |
 | [docs/findings/CBS_DATAPATH_BUG.md](findings/CBS_DATAPATH_BUG.md) | bench/qualification | CBS datapath bug - classifier `tdest` mis-timing under back-to-back frames [FIXED] | `tb/verilator/classifier`, `tb/verilator/controller_rate`, `hdl/common/csr`, 802.1Q | current | no recorded contradiction | area lane | findings |
 | [docs/findings/COMMERCIAL_TIMING_395.md](findings/COMMERCIAL_TIMING_395.md) | bench/qualification | Commercial-grade timing measurement for issue 395 | `sw/litex` | current | no recorded contradiction | area lane | findings |
