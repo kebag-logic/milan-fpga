@@ -9,10 +9,11 @@ binding made later takes its registration in the walk it owes and declares withi
 One defect a rule, for each order: registration then binding (the filter ignores it, the shipped firmware's state,
 also on a bind while bound); binding then registration with the kept attributes at their bound (the binding's own
 Talker found for its first sink only); the bound itself (none, or a New of the other kind of a kept StreamID, which
-registers beside it, taken as kept); the count made before a receive (it forgets the registered, or adds to the
-count before it), an unbinding's registration counted against the bound (no count owed by the binding), and a kept attribute that left, counted until
-mrp_reclaim frees its block (the count skips it) and uncounted once freed (no count owed by the block's return); and
-the latest kind of two registered before the binding (#925), held for a StreamID no binding has.
+registers beside it, taken as kept); the count made before a receive (it forgets the registered, or adds to the count
+before it), an unbinding's registration counted against the bound (no count owed by the binding), and a kept attribute
+that left, counted until mrp_reclaim frees its block (the count skips it) and uncounted once freed (no count owed by
+the block's return); and the latest kind of two registered before the binding (#925), held for a StreamID no binding
+has.
 srp_mutants.py plants each with the rest of its table, and the named test must fail on its own words. Every name
 starts with "feedback-", so both interface counts' campaigns plant it (test_ctrl_firmware.run_srp_mutants).
 """
