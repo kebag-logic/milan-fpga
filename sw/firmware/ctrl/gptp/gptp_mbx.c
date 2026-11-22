@@ -98,7 +98,7 @@ static bool moved(const struct gptp_pub *a, const struct gptp_pub *b)
 
 // Publish interface i's state when it moved: the words the datapath takes and the AECP owner's notice. Each callback
 // below runs it for the port it ran, in the pass that moved the port, so the adapter needs no poll and a pass that
-// ran none of them costs nothing (#884, R2-5).
+// ran none of them costs nothing (#884).
 static void publish(struct gptp_mbx *g, unsigned i)
 {
 	uint32_t w[MBX_PUB_GPTP_WORDS];

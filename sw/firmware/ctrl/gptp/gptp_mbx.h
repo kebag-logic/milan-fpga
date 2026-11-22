@@ -10,7 +10,7 @@
 // an egress stamp, to the port that launched it; LINK to the port's
 // portEnabled) and a centisecond consumer (the ports' timers, on NOW_MS),
 // and no poll: each of the three publishes the port it ran, in the pass that
-// ran it, so a pass that ran none of them costs nothing (#884, R2-5). Its HAL
+// ran it, so a pass that ran none of them costs nothing (#884). Its HAL
 // sends on the gptp channel's transmit ring and drives each interface's PHC
 // through `phc`, the platform's (the CSR's PTP block on the split,
 // ctrl_plat_csr.h).

@@ -130,7 +130,7 @@ The HAL is four calls: send a frame, adjust the rate, step the time, and the tim
 On the split, `gptp_mbx.c` sends on the gptp ring and the PHC is the CSR's PTP block.
 
 The adapter binds the gptp channel, an event sink and a centisecond, and no poll.
-Each of the three publishes the port it ran, in the pass that ran it, so a pass that runs none of them costs nothing (R2-5).
+Each of the three publishes the port it ran, in the pass that ran it, so a pass that runs none of them costs nothing (#884).
 The platform's poll table is full besides (eight of eight), so the adapter could take no slot there.
 
 **In the platform image.** `ctrl_plat_image.py --with-gptp` builds `plat/ctrl_plat.c` with `CTRL_PLAT_GPTP`: one port an interface, each the EUI-64 of its interface's MAC (IEEE 802.1AS-2020 8.5.2.2), bound after the saved-state store's centisecond and before the mailbox opens.

@@ -210,7 +210,7 @@ struct Bench {
 	struct ctrl_loop loop {};
 	struct gptp_mbx g {};
 	unsigned tx_seen = 0;
-	unsigned late = 0;   // passes that left a published port's change for a later one (R2-5: no poll)
+	unsigned late = 0;   // passes that left a published port's change for a later one (no poll, #884)
 	std::array<Lane, kIf> lane;
 	unsigned ms = 0;
 
