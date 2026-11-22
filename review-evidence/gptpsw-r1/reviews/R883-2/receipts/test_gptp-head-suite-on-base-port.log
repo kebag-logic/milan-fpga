@@ -1,0 +1,427 @@
+[==========] Running 52 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from GptpCodec
+[ RUN      ] GptpCodec.TimestampIsSecondsThenNanoseconds
+[       OK ] GptpCodec.TimestampIsSecondsThenNanoseconds (0 ms)
+[ RUN      ] GptpCodec.RateEnvelopeIsTheTxretOne
+[       OK ] GptpCodec.RateEnvelopeIsTheTxretOne (0 ms)
+[----------] 2 tests from GptpCodec (0 ms total)
+
+[----------] 40 tests from Scripted
+[ RUN      ] Scripted.LinkUpSendsOnePdelayReqAtOnce
+[       OK ] Scripted.LinkUpSendsOnePdelayReqAtOnce (0 ms)
+[ RUN      ] Scripted.PdelayReqEverySecond
+[       OK ] Scripted.PdelayReqEverySecond (0 ms)
+[ RUN      ] Scripted.ResponderAnswersWithBothTimestamps
+[       OK ] Scripted.ResponderAnswersWithBothTimestamps (0 ms)
+[ RUN      ] Scripted.ResponderTakesAStampThatComesAfterItsFrame
+[       OK ] Scripted.ResponderTakesAStampThatComesAfterItsFrame (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate
+[       OK ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodInARow
+[       OK ] Scripted.AsCapableNeedsTwoGoodInARow (0 ms)
+[ RUN      ] Scripted.RateRatioAndDelayWithAFastNeighbor
+[       OK ] Scripted.RateRatioAndDelayWithAFastNeighbor (0 ms)
+[ RUN      ] Scripted.DelayOverThresholdIsNotAsCapable
+[       OK ] Scripted.DelayOverThresholdIsNotAsCapable (0 ms)
+[ RUN      ] Scripted.FifthLostResponseClearsAsCapable
+[       OK ] Scripted.FifthLostResponseClearsAsCapable (0 ms)
+[ RUN      ] Scripted.LateResponseIsLost
+[       OK ] Scripted.LateResponseIsLost (0 ms)
+[ RUN      ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes
+[       OK ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes (0 ms)
+[ RUN      ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:443: Failure
+Value of: port.pd.ceased
+  Actual: false
+Expected: true
+three requests each answered by two clocks, the second late, did not cease
+
+  [FAIL] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases: three requests each answered by two clocks, the second late, did not cease
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:446: Failure
+Expected equality of these values:
+  of_type(0x2).size()
+    Which is: 13
+  before
+    Which is: 3
+Pdelay_Req still sent after three late second responders
+
+  [FAIL] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases: Pdelay_Req still sent after three late second responders
+[  FAILED  ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases (0 ms)
+[ RUN      ] Scripted.ARequestAnsweredByOneClockEndsTheRun
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:476: Failure
+Value of: port.pd.ceased
+  Actual: false
+Expected: true
+three multi-answered requests in a row after a clean one did not cease
+
+  [FAIL] Scripted.ARequestAnsweredByOneClockEndsTheRun: three multi-answered requests in a row after a clean one did not cease
+[  FAILED  ] Scripted.ARequestAnsweredByOneClockEndsTheRun (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:493: Failure
+Value of: port.pd.ceased
+  Actual: true
+Expected: false
+one clock answering twice ceased Pdelay_Req
+
+  [FAIL] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease: one clock answering twice ceased Pdelay_Req
+[  FAILED  ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease (0 ms)
+[ RUN      ] Scripted.TheCeaseEndsAfterFiveMinutes
+[       OK ] Scripted.TheCeaseEndsAfterFiveMinutes (0 ms)
+[ RUN      ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:528: Failure
+Expected equality of these values:
+  port.pd.delay_ns
+    Which is: -99497
+  500
+a turnaround over the round trip reached the delay
+
+  [FAIL] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement: a turnaround over the round trip reached the delay
+[  FAILED  ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement (0 ms)
+[ RUN      ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:557: Failure
+Expected equality of these values:
+  port.ctr.pd_done
+    Which is: 4
+  done
+    Which is: 3
+the exchange straddling the step was used
+
+  [FAIL] Scripted.AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow: the exchange straddling the step was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:560: Failure
+The difference between port.pd.delay_ns and 500 is 84, which exceeds 2, where
+port.pd.delay_ns evaluates to 416,
+500 evaluates to 500, and
+2 evaluates to 2.
+the rate across the step reached the delay
+
+  [FAIL] Scripted.AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow: the rate across the step reached the delay
+[  FAILED  ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow (0 ms)
+[ RUN      ] Scripted.AnOwnStepCompletesNoResponseOwed
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:579: Failure
+Value of: of_type(0xA).empty()
+  Actual: false
+Expected: true
+a Pdelay_Resp_Follow_Up across this port's step was sent
+
+  [FAIL] Scripted.AnOwnStepCompletesNoResponseOwed: a Pdelay_Resp_Follow_Up across this port's step was sent
+[  FAILED  ] Scripted.AnOwnStepCompletesNoResponseOwed (0 ms)
+[ RUN      ] Scripted.OwnResponseIsIgnored
+[       OK ] Scripted.OwnResponseIsIgnored (0 ms)
+[ RUN      ] Scripted.LinkDownClearsAsCapableAtOnce
+[       OK ] Scripted.LinkDownClearsAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.NoAnnounceOrSyncBeforeAsCapable
+[       OK ] Scripted.NoAnnounceOrSyncBeforeAsCapable (0 ms)
+[ RUN      ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce
+[       OK ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce (0 ms)
+[ RUN      ] Scripted.SyncIntervalHoldsTheTickGrain
+[       OK ] Scripted.SyncIntervalHoldsTheTickGrain (0 ms)
+[ RUN      ] Scripted.BetterAnnounceMakesASlave
+[       OK ] Scripted.BetterAnnounceMakesASlave (0 ms)
+[ RUN      ] Scripted.WorseAnnounceKeepsTheGrandmaster
+[       OK ] Scripted.WorseAnnounceKeepsTheGrandmaster (0 ms)
+[ RUN      ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded
+[       OK ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded (0 ms)
+[ RUN      ] Scripted.AnnounceReceiptTimeoutAgesTheMaster
+[       OK ] Scripted.AnnounceReceiptTimeoutAgesTheMaster (0 ms)
+[ RUN      ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster
+[       OK ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:770: Failure
+Expected: (s.port.ctr.rto_sync) >= (1u), actual: 0 vs 1
+Sync without Follow_Up held off the sync receipt timeout
+
+  [FAIL] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge: Sync without Follow_Up held off the sync receipt timeout
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:780: Failure
+Expected: (gptp_port_role(&port)) != (GPTP_ROLE_SLAVE), actual: 2 vs 2
+720 ms of Sync without Follow_Up kept the master
+
+  [FAIL] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge: 720 ms of Sync without Follow_Up kept the master
+[  FAILED  ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:770: Failure
+Expected: (s.port.ctr.rto_sync) >= (1u), actual: 0 vs 1
+Sync without Follow_Up held off the sync receipt timeout
+
+  [FAIL] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster: Sync without Follow_Up held off the sync receipt timeout
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:788: Failure
+Value of: gptp_port_pub(&port)->sync_ok
+  Actual: true
+Expected: false
+720 ms of Sync without Follow_Up kept the verdict
+
+  [FAIL] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster: 720 ms of Sync without Follow_Up kept the verdict
+[  FAILED  ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:770: Failure
+Expected: (s.port.ctr.rto_sync) >= (1u), actual: 0 vs 1
+Sync without Follow_Up held off the sync receipt timeout
+
+  [FAIL] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict: Sync without Follow_Up held off the sync receipt timeout
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:801: Failure
+Value of: stale
+  Actual: true
+Expected: false
+Sync and Announce without Follow_Up kept a slave with the verdict past the timeout
+
+  [FAIL] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict: Sync and Announce without Follow_Up kept a slave with the verdict past the timeout
+[  FAILED  ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict (0 ms)
+[ RUN      ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 1
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is absent was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is absent was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 2
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is cut short was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is cut short was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 3
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is of another type was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is of another type was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 4
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is of another length was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is of another length was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 5
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is of another organization was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is of another organization was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:831: Failure
+Expected equality of these values:
+  port.ctr.sync_used
+    Which is: 6
+  0u
+    Which is: 0
+a Follow_Up whose information TLV is of another subtype was used
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a Follow_Up whose information TLV is of another subtype was used
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:834: Failure
+Value of: hal.steps[0].empty() && hal.trim[0] == 0
+  Actual: false
+Expected: true
+a refused Follow_Up moved the PHC
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a refused Follow_Up moved the PHC
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:836: Failure
+Expected equality of these values:
+  gptp_port_role(&port)
+    Which is: 2
+  GPTP_ROLE_MASTER
+    Which is: 3
+a refused Follow_Up renewed the sync receipt deadline
+
+  [FAIL] Scripted.FollowUpWithoutItsInformationTlvIsNoPair: a refused Follow_Up renewed the sync receipt deadline
+[  FAILED  ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair (0 ms)
+[ RUN      ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair
+[       OK ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair (0 ms)
+[ RUN      ] Scripted.FollowUpWithAFurtherTlvStillPairs
+[       OK ] Scripted.FollowUpWithAFurtherTlvStillPairs (0 ms)
+[ RUN      ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict
+[       OK ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict (0 ms)
+[ RUN      ] Scripted.SyncFromAnotherPortIsIgnored
+[       OK ] Scripted.SyncFromAnotherPortIsIgnored (0 ms)
+[ RUN      ] Scripted.FirstPairStepsAtTheLinkUpThreshold
+[       OK ] Scripted.FirstPairStepsAtTheLinkUpThreshold (0 ms)
+[ RUN      ] Scripted.LockedThresholdSlewsUnder100us
+[       OK ] Scripted.LockedThresholdSlewsUnder100us (0 ms)
+[ RUN      ] Scripted.FollowUpBeforeItsSyncStampStillPairs
+[       OK ] Scripted.FollowUpBeforeItsSyncStampStillPairs (0 ms)
+[ RUN      ] Scripted.TrimNeverLeavesTheEnvelope
+[       OK ] Scripted.TrimNeverLeavesTheEnvelope (0 ms)
+[----------] 40 tests from Scripted (1 ms total)
+
+[----------] 10 tests from Net
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+  [FAIL] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 367
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+  [FAIL] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+  [FAIL] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 367
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+  [FAIL] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+  [FAIL] Net.AStepOf100msKeepsAsCapableAt1msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1096: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+  [FAIL] Net.AStepOf100msKeepsAsCapableAt1msTurnaround: the slave's port fell from asCapable across its own step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+  [FAIL] Net.AStepOf100msKeepsAsCapableAt1msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (5 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 3000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+  [FAIL] Net.AStepOf1sKeepsAsCapableAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1096: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+  [FAIL] Net.AStepOf1sKeepsAsCapableAt10msTurnaround: the slave's port fell from asCapable across its own step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+  [FAIL] Net.AStepOf1sKeepsAsCapableAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+  [FAIL] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1096: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+  [FAIL] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround: the slave's port fell from asCapable across its own step
+$REVIEWS/gptpsw-r883-2-packet/scratch/tree/sw/firmware/ctrl/test/test_gptp.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+  [FAIL] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.SlaveLocksToTheGrandmaster
+[ NET ] port 0 role 3 ann_rx 1 ann_bad 0 sync_rx 0 used 0 pd_done 21 lost 0 asCap 1 rx 66 bad 0
+[ NET ] port 1 role 2 ann_rx 19 ann_bad 0 sync_rx 146 used 146 pd_done 21 lost 0 asCap 1 rx 376 bad 0
+[ NET ] slave lock (100 ns band) at 3.13 s, last 5 s worst |offset| 1.0 ns, steps 1
+[       OK ] Net.SlaveLocksToTheGrandmaster (0 ms)
+[ RUN      ] Net.LockTimeHoldsTheFabricBench
+[ NET ] fabric-bench lock: pair 24 offset 11 ns, first pair under 150 ns: 16, addend 33534 (ideal 33554)
+[ NET ] tracking with +/-10 ns stamps, pairs 41..76: worst |offset| 24 ns
+[       OK ] Net.LockTimeHoldsTheFabricBench (0 ms)
+[ RUN      ] Net.GrandmasterWinsByPriorityAndThePeerFollows
+[       OK ] Net.GrandmasterWinsByPriorityAndThePeerFollows (0 ms)
+[ RUN      ] Net.BothSeeTheLinkDelay
+[       OK ] Net.BothSeeTheLinkDelay (0 ms)
+[ RUN      ] Net.GrandmasterFailoverThroughSyncLapse
+[       OK ] Net.GrandmasterFailoverThroughSyncLapse (0 ms)
+[----------] 10 tests from Net (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 52 tests from 3 test suites ran. (8 ms total)
+[  PASSED  ] 37 tests.
+[  FAILED  ] 15 tests, listed below:
+[  FAILED  ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases
+[  FAILED  ] Scripted.ARequestAnsweredByOneClockEndsTheRun
+[  FAILED  ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+[  FAILED  ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement
+[  FAILED  ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndRestartsTheRateWindow
+[  FAILED  ] Scripted.AnOwnStepCompletesNoResponseOwed
+[  FAILED  ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge
+[  FAILED  ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster
+[  FAILED  ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict
+[  FAILED  ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair
+[  FAILED  ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[  FAILED  ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[  FAILED  ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+
+15 FAILED TESTS
+== ctrl gPTP end station port (host): checks: 52   failures: 15 ==
+RESULT: FAIL
+rc=1

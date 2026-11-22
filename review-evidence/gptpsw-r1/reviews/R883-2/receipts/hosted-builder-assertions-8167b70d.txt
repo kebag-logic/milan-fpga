@@ -1,0 +1,12 @@
+elaborate-gates-0	Elaboration gates, leg 0 of 2	2026-11-22T12:57:43.0662318Z AssertionError: datapath PHC nets must retain sole-driver reference ownership: gptp_adj_w must have exactly 4 live references, found 5
+elaborate-gates-0	Elaboration gates, leg 0 of 2	2026-11-22T12:57:43.0718349Z     raise AssertionError(
+elaborate-gates-0	Elaboration gates, leg 0 of 2	2026-11-22T12:57:43.0738256Z AssertionError: under the arm selection line 971 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections grad
+docs-gates-1	End-station builder gates, leg 0 of 2	2026-11-22T12:57:17.9743627Z AssertionError: datapath PHC nets must retain sole-driver reference ownership: gptp_adj_w must have exactly 4 live references, found 5
+docs-gates-1	End-station builder gates, leg 0 of 2	2026-11-22T12:57:17.9790585Z     raise AssertionError(
+docs-gates-1	End-station builder gates, leg 0 of 2	2026-11-22T12:57:17.9792647Z AssertionError: under the arm selection line 971 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections g
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8299379Z AssertionError
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8280880Z     fn()
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8281531Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/builder/test_builder.py", line 18095, in test_gptp_product_default_and_legacy_option
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8298258Z     assert 'self._gptp_owner = "software"' not in soc_source
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8298874Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs-gates-2	End-station builder gates, leg 1 of 2	2026-11-22T12:57:16.8299379Z AssertionError

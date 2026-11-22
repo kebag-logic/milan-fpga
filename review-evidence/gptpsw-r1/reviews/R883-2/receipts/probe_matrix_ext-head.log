@@ -1,0 +1,100 @@
+Note: Google Test filter = Net.Probe*:Net.AStep*:Net.ABackward*
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from Net
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ProbeAForwardStepOf300usAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+  [FAIL] Net.ProbeAForwardStepOf300usAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 367
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+  [FAIL] Net.ProbeAForwardStepOf300usAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.ProbeAForwardStepOf300usAt10msTurnaround (0 ms)
+[ RUN      ] Net.ProbeAForwardStepOf400usAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+  [FAIL] Net.ProbeAForwardStepOf400usAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 367
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+  [FAIL] Net.ProbeAForwardStepOf400usAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.ProbeAForwardStepOf400usAt10msTurnaround (20 ms)
+[ RUN      ] Net.ProbeABackwardStepOf400usAt10msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+  [FAIL] Net.ProbeABackwardStepOf400usAt10msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 367
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+  [FAIL] Net.ProbeABackwardStepOf400usAt10msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.ProbeABackwardStepOf400usAt10msTurnaround (0 ms)
+[ RUN      ] Net.ProbeABackwardStepOf475usAt5msTurnaround
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1095: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 3000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+  [FAIL] Net.ProbeABackwardStepOf475usAt5msTurnaround: the grandmaster's port fell from asCapable across the slave's step
+$REVIEWS/gptpsw-r883-2-packet/scratch/gtest/ext/suite.cpp:1097: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 267
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+  [FAIL] Net.ProbeABackwardStepOf475usAt5msTurnaround: the slave left its grandmaster after it first followed it
+[  FAILED  ] Net.ProbeABackwardStepOf475usAt5msTurnaround (0 ms)
+[ RUN      ] Net.ProbeAForwardStepOf150usAt10msTurnaround
+[       OK ] Net.ProbeAForwardStepOf150usAt10msTurnaround (6 ms)
+[----------] 10 tests from Net (29 ms total)
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (29 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Net.ProbeAForwardStepOf300usAt10msTurnaround
+[  FAILED  ] Net.ProbeAForwardStepOf400usAt10msTurnaround
+[  FAILED  ] Net.ProbeABackwardStepOf400usAt10msTurnaround
+[  FAILED  ] Net.ProbeABackwardStepOf475usAt5msTurnaround
+ 4 FAILED TESTS
+== ctrl gPTP end station port (host): checks: 10   failures: 4 ==
+RESULT: FAIL
