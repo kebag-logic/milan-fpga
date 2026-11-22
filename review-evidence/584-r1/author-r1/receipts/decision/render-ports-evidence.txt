@@ -1,0 +1,17 @@
+# Why the 8x8's in-order binding is a declared key (cluster_mapping.render_ports: first), not a new default
+
+Measured in this lane on a candidate that bound role-pools physical render channels in order for every config
+(commit 47be7ceb's builder, before render_ports existed), with scripts/check_nvm_format_32x32.py:
+
+  FINDING: inline figure t32_names reads 907, recomputed 690
+  FINDING: inline figure t32_in_cl reads 8, recomputed 1 / 8
+  FINDING: inline figure sectors reads 5, recomputed 4
+  FINDING: inline figure journal_kib reads 640, recomputed 512
+  FINDING: the layout 3 declaration (nvm_layout3.h) is not the bound shape's derived space
+  docs/design/SAVED_STATE_FORMAT_32X32.md: 41 finding(s)
+
+The 32x32/2if TDM8 bound shape (scripts/nvm_format_32x32.py, BOUND = "t32", family "tdm8" = the 1x1 TDM8 config at 32
+streams) sizes saved-state layout 3 (sw/firmware/ctrl_nvm/nvm_layout3.h, NVM3_CAP_NAME 907), and the 1x1's own
+nvm_split.json carries that layout's id_space (1129). Binding in order by default would shrink the bound shape's names
+to 690 and so move a firmware layout and a 1x1 artifact. With render_ports declared by the 8x8 alone, the same check
+reports only the 8x8 family's figures (15 findings, regenerated with --write) and the bound shape is unchanged.

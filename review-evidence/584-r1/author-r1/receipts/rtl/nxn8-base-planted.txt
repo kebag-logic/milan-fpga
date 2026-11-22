@@ -1,0 +1,14 @@
+# the head's tb/verilator/milan_dp/sim_nxn.cpp (8x8 leg, AX8X8_TB) run against the BASE tree dd163e41's 8x8 model (zero input clusters), as the planted defect: the rewritten checks fail with their words. The run then ended in its unit's 10 GB memory cap (OOM kill, 17:41) in a later section; at the head the same bench passes with 0 failures.
+  [FAIL] [AMAP] SPI 0 powers up with the identity map (#658) got=0xffffffffffffffff exp=0x0
+  [FAIL] [AMAP] render key 2 = SPI 0's cluster = {en, avb 1.1} (#584) got=0x0 exp=0x89
+  [FAIL] [AMAP] status SUCCESS(0): SPI 0 owns a cluster (#584) got=0xb exp=0x0
+  [FAIL] [AMAP] cdl = 24 + 8 (one record)               got=0x18 exp=0x20
+  [FAIL] [AMAP] number_of_maps = the ONE fixed partition (#584) got=0x0 exp=0x1
+  [FAIL] [AMAP] number_of_mappings = 1 (its one cluster) got=0x0 exp=0x1
+  [FAIL] [AMAP] the record equals the LOOP-derived expectation got=0x2 exp=0x0
+  [FAIL] [AMAP] page 1 answers BAD_ARGUMENTS(7)         got=0xb exp=0x7
+  [FAIL] [AMAP] ...with the real number_of_maps and an EMPTY page got=0x0 exp=0x10000
+  [FAIL] [AMAP] ...and the power-on map is back on SPI 0 got=0xffffffffffffffff exp=0x0
+  [FAIL] [AMAP] ...and on SPI 1, its one cluster (#584) got=0xffffffffffffffff exp=0x0
+  [FAIL] [AMAP] ...and on SPI 2, its one cluster (#584) got=0xffffffffffffffff exp=0x0
+  [FAIL] [AMAP] ...and on SPI 3, its one cluster (#584) got=0xffffffffffffffff exp=0x0

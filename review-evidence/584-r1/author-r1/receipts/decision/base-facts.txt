@@ -1,0 +1,22 @@
+# Facts the decision rests on, read at the base dd163e41
+board_audio_routing.routes_tdm("ax7101") = True
+
+## the 8x8 config at the base
+199:  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES, and on
+200:    capture: 0                       # the AX7101 that is NOTHING, in either
+201:    render: 0                        # direction. Measured 2026-07-28 by
+229:    policy: role-pools               # D8: the port's cluster block is a
+261:      loopback_lane: false           # milan_soc --loopback-lane ->
+
+## the loopback tap: the depacketizer clone, gated by LOOPBACK_P alone (no input map term)
+8040:  assign lb_tap_tvalid_w = (LOOPBACK_P != 0)
+8041-                           && dpkt_pcm_tvalid_w && dpkt_pcm_tready_w;
+8042-  assign lb_tap_tlast_w  = dpkt_pcm_tlast_w;
+
+## the base refuses a TDM render lane narrower than its bus
+1179:    $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame, and the 
+
+## base 8x8 input geometry
+79:  localparam int ADP_DMAP_IN_KEYS_C    = 1;
+84:  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
+86:  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:0] = '{7'h00};

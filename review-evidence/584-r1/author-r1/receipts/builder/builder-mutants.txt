@@ -1,0 +1,7 @@
+control: PASS
+render_ports ignored: every port takes the render channel: CAUGHT - AssertionError: STREAM_PORT_INPUT 1 is not the unrouted port render_ports first leaves it: {'index': 1, 'stream_index': 1, 'clusters': 1, 'base_cluster': 1, 'maps': 0, 'base_map': 0, 'map_mode': 'dyna
+unrouted fallback dropped: a headless input port again: CAUGHT - endstation_builder.ConfigError: STREAM_PORT_CLUSTER_MINIMUM: STREAM_PORT_INPUT 1 would own no AUDIO_CLUSTER, and Milan v1.2 5.3.3.8 requires at least one in every Stream Port Input and Output. Its res
+the minimum check accepts an empty block: CAUGHT - AssertionError: accepted zero-cluster input port
+an unrouted cluster projected onto the render lane: CAUGHT - AssertionError: [66, 67, 68, 69, 70, 71, 72, 73]
+a slave lane allowed narrower than its bus: CAUGHT - AssertionError: accepted invalid physical_channels.render 1: slave TDM render lane
+RESULT: 5 of 5 caught

@@ -1,0 +1,32 @@
+endstation_arty_4x4/all-fabric: IDENTICAL (15 equal of 15) model 0x001BC549808B210C -> 0x001BC549808B210C clusters_in [4, 4, 4, 4] -> [4, 4, 4, 4]
+endstation_arty_4x4/split: IDENTICAL (16 equal of 16) model 0x001BC549808B210C -> 0x001BC549808B210C clusters_in [4, 4, 4, 4] -> [4, 4, 4, 4]
+endstation_arty_8ch/all-fabric: IDENTICAL (15 equal of 15) model 0x001BC55491CCAA9B -> 0x001BC55491CCAA9B clusters_in [8, 8, 8, 8] -> [8, 8, 8, 8]
+endstation_arty_8ch/split: IDENTICAL (16 equal of 16) model 0x001BC55491CCAA9B -> 0x001BC55491CCAA9B clusters_in [8, 8, 8, 8] -> [8, 8, 8, 8]
+endstation_arty_current/all-fabric: IDENTICAL (15 equal of 15) model 0x001BC50AC1000006 -> 0x001BC50AC1000006 clusters_in [8] -> [8]
+endstation_arty_current/split: IDENTICAL (16 equal of 16) model 0x001BC50AC1000006 -> 0x001BC50AC1000006 clusters_in [8] -> [8]
+endstation_ax7101_1x1_tdm8/all-fabric: IDENTICAL (15 equal of 15) model 0x001BC5CD179523AB -> 0x001BC5CD179523AB clusters_in [8] -> [8]
+endstation_ax7101_1x1_tdm8/split: IDENTICAL (16 equal of 16) model 0x001BC5CD179523AB -> 0x001BC5CD179523AB clusters_in [8] -> [8]
+endstation_ax7101_8x8/all-fabric: DIFFERS (5 equal of 15) model 0x001BC5F6CB4A37D1 -> 0x001BC5CFD464421E clusters_in [0, 0, 0, 0, 0, 0, 0, 0] -> [1, 1, 1, 1, 1, 1, 1, 1]
+    adp_shape_defaults.gen.svh: 9462 -> 9511 B
+    adp_shape_defaults.svh: 9462 -> 9511 B
+    aecp_aem_rom.svh: 91470 -> 96141 B
+    aem_desc.bin: 19520 -> 20800 B
+    aem_desc.json: 227 -> 227 B
+    aem_desc.map: 1774 -> 1602 B
+    aem_overlay.json: 21543 -> 23044 B
+    build_plan.md: 15176 -> 15205 B
+    nvm_split.json: 1806 -> 1806 B
+    soc_params.json: 786 -> 823 B
+endstation_ax7101_8x8/split: DIFFERS (5 equal of 16) model 0x001BC5F6CB4A37D1 -> 0x001BC5CFD464421E clusters_in [0, 0, 0, 0, 0, 0, 0, 0] -> [1, 1, 1, 1, 1, 1, 1, 1]
+    adp_shape_defaults.gen.svh: 9462 -> 9511 B
+    adp_shape_defaults.svh: 9462 -> 9511 B
+    aecp_aem_rom.svh: 91470 -> 96141 B
+    aecp_entity_gen.h: 106037 -> 112942 B
+    aem_desc.bin: 19520 -> 20800 B
+    aem_desc.json: 227 -> 227 B
+    aem_desc.map: 1774 -> 1602 B
+    aem_overlay.json: 21543 -> 23044 B
+    build_plan.md: 15257 -> 15286 B
+    nvm_split.json: 1806 -> 1806 B
+    soc_params.json: 882 -> 919 B
+RESULT: only the 8x8 differs

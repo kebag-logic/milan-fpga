@@ -1,0 +1,182 @@
+{
+ "point": "8x8",
+ "shape": "endstation_ax7101_8x8",
+ "cpu_hz": 100000000,
+ "sys_hz": 100000000,
+ "t_svc_ms": 20.0,
+ "results": [
+  {
+   "case": "commit",
+   "findings": [],
+   "service_steps": 1195,
+   "longest_step_cycles": 103861,
+   "longest_step_ms": 1.03861,
+   "capture": {
+    "steps": 173,
+    "latches": 172,
+    "cycles": 2888803,
+    "ms": 28.88803,
+    "elapsed_cycles": 6678489,
+    "elapsed_ms": 66.78489,
+    "longest_cycles": 103861,
+    "longest_ms": 1.03861,
+    "decomposed": {
+     "per_step_cycles": 5907,
+     "per_byte_cycles": 149.8,
+     "idle_step_cycles": 881,
+     "payload_bytes": 12474
+    }
+   },
+   "phases": {
+    "idle": {
+     "steps": 628,
+     "longest_cycles": 2639,
+     "cycles": 550566,
+     "longest_ms": 0.02639,
+     "within_t_svc": true
+    },
+    "capture": {
+     "steps": 173,
+     "longest_cycles": 103861,
+     "cycles": 2888803,
+     "longest_ms": 1.03861,
+     "within_t_svc": true
+    },
+    "seal": {
+     "steps": 56,
+     "longest_cycles": 34777,
+     "cycles": 1129372,
+     "longest_ms": 0.34777,
+     "within_t_svc": true
+    },
+    "erase": {
+     "steps": 1,
+     "longest_cycles": 3674,
+     "cycles": 3674,
+     "longest_ms": 0.03674,
+     "within_t_svc": true
+    },
+    "poll": {
+     "steps": 57,
+     "longest_cycles": 3789,
+     "cycles": 176492,
+     "longest_ms": 0.03789,
+     "within_t_svc": true
+    },
+    "read": {
+     "steps": 224,
+     "longest_cycles": 75427,
+     "cycles": 16563214,
+     "longest_ms": 0.75427,
+     "within_t_svc": true
+    },
+    "program": {
+     "steps": 56,
+     "longest_cycles": 79762,
+     "cycles": 4342153,
+     "longest_ms": 0.79762,
+     "within_t_svc": true
+    }
+   },
+   "passed": true
+  },
+  {
+   "case": "step-over-t-svc",
+   "caught": true,
+   "words": [
+    "every phase's longest step at T_svc (2,000,000 cycles) passes and one cycle past it is caught: capture, erase, idle, poll, program, read, seal"
+   ],
+   "passed": true,
+   "findings": [],
+   "escaped": [],
+   "limit_cycles": 2000000
+  },
+  {
+   "case": "valid",
+   "findings": [],
+   "service_steps": 40,
+   "longest_step_cycles": 1101,
+   "longest_step_ms": 0.01101,
+   "applies": 141,
+   "boot_cycles": 35378320,
+   "passed": true
+  },
+  {
+   "case": "absent",
+   "findings": [],
+   "service_steps": 40,
+   "longest_step_cycles": 1093,
+   "longest_step_ms": 0.01093,
+   "applies": 0,
+   "boot_cycles": 1595173,
+   "passed": true
+  },
+  {
+   "case": "torn",
+   "findings": [],
+   "service_steps": 40,
+   "longest_step_cycles": 1101,
+   "longest_step_ms": 0.01101,
+   "applies": 141,
+   "boot_cycles": 55240711,
+   "passed": true
+  },
+  {
+   "case": "version",
+   "findings": [],
+   "service_steps": 40,
+   "longest_step_cycles": 1093,
+   "longest_step_ms": 0.01093,
+   "applies": 0,
+   "boot_cycles": 1593722,
+   "passed": true
+  },
+  {
+   "case": "guard",
+   "findings": [],
+   "service_steps": 40,
+   "longest_step_cycles": 1216,
+   "longest_step_ms": 0.01216,
+   "passed": true
+  },
+  {
+   "case": "reorder-settle",
+   "findings": [],
+   "caught": true,
+   "words": [
+    "apply order: entry 25 is aecp_value_restore, the container needs aecp_restore_settle (141 entries, 141 wanted)"
+   ],
+   "passed": true
+  },
+  {
+   "case": "reorder-bindings",
+   "findings": [],
+   "caught": true,
+   "words": [
+    "apply order: entry 0 is aecp_map_restore, the container needs acmp_restore_binding (141 entries, 141 wanted)"
+   ],
+   "passed": true
+  },
+  {
+   "case": "guard-removed",
+   "findings": [
+    "testbench: FAIL: flash write escaped the journal",
+    "the testbench result is FAIL"
+   ],
+   "caught": true,
+   "words": [
+    "flash write escaped the journal"
+   ],
+   "passed": true
+  },
+  {
+   "case": "slow-step",
+   "findings": [],
+   "caught": true,
+   "words": [
+    "step 0 (idle) takes 30.0058 ms of CPU time, over T_svc 20.0 ms"
+   ],
+   "passed": true
+  }
+ ]
+}

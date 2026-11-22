@@ -1,0 +1,14 @@
+== tdm_render_master 1of32: checks: 131   failures: 0 ==
+RESULT: PASS
+== KL_tdm_render harness (TDM8 out: 8 slots x 32 bclk, 48 kHz frame) ==
+  [ ok ] frames_o == fsync frames issued                = 11
+  [ ok ] underruns_o == 1 (single stale frame)          = 1
+  [ ok ] overruns_o == 0 (consumer kept up)             = 0
+======================================================================
+RESULT: PASS
+== tdm_render_master 8of8: checks: 35   failures: 0 ==
+RESULT: PASS
+== tdm_render_master 2of8: checks: 35   failures: 0 ==
+RESULT: PASS
+== tdm_render_master 1of32 on the capture master: checks: 11   failures: 0 ==
+RESULT: PASS
