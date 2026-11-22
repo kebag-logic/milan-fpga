@@ -9361,9 +9361,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign ctlg3_tvalid = ctlg2_tvalid;
     assign ctlg3_tlast  = ctlg2_tlast;
     assign ctlg2_tready = ctlg3_tready;
-    assign gptp_adj_w = '0;
-    assign gptp_step_we_w = 1'b0;
-    assign gptp_step_w = '0;
     wire signed [31:0] phc_adj_eff_ns_ts_w = signed'(phc_adj_ts_w);
     KL_gptp_tsu #(
         .TDATA_WIDTH_P      (TDATA_WIDTH),
@@ -9442,10 +9439,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign ctlg3_tvalid = ctlg2_tvalid;
     assign ctlg3_tlast  = ctlg2_tlast;
     assign ctlg2_tready = ctlg3_tready;
-    assign gptp_adj_w = '0;
-    assign gptp_step_we_w = 1'b0;
     assign gptp_slew_active_w = 1'b0;
-    assign gptp_step_w = '0;
     assign gptp_pub_gm_w = '0;
     assign gptp_pub_parent_w = '0;
     assign gptp_pub_annq_w = '0;
@@ -9468,6 +9462,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign gptp_recov_req_w  = 1'b0;
     assign o_ctl_ts_valid    = 1'b0;
     assign o_ctl_ts_data     = '0;
+  end endgenerate
+  //! the engine's PHC knobs, once for every build without the plane (gPTP in
+  //! firmware, whose servo drives the CSR face, or the option off): constant,
+  //! so the effective PHC is the CSR's, and the plane's port the one other
+  //! driver of each, in the exclusive arm
+  generate if (!GPTP_PLANE_EN_P) begin : g_gptp_engine_off
+    assign gptp_adj_w     = '0;
+    assign gptp_step_we_w = 1'b0;
+    assign gptp_step_w    = '0;
   end endgenerate
   //! the firmware's gPTP publication is read only by g_gptp_sw
   logic gptp_pub_unused_w;

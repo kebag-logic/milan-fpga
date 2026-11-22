@@ -11340,14 +11340,18 @@ def test_baremetal_profile_contract() -> None:
                 #: those are the only signals that say what the accumulator
                 #: actually did. They are READS: the plane drives none of
                 #: them, and this census is what keeps it that way.
-                "phc_enable_ts_w": 4,
-                "phc_incr_ts_w": 4,
-                "phc_adj_ts_w": 4,
+                #: #884 (the ruling of 2026-11-21, item 6): in the exclusive
+                #: GPTP_SW_EN_P arm the timestamp unit, KL_gptp_tsu, stands
+                #: in the plane's place and reads the same five for the same
+                #: reconstruction: one more READ each, and it drives none.
+                "phc_enable_ts_w": 5,
+                "phc_incr_ts_w": 5,
+                "phc_adj_ts_w": 5,
                 "phc_tod_wr_ts_w": 3,
                 "phc_offset_ts_w": 3,
                 "phc_tod_snap_ts_w": 3,
-                "phc_load_ts_w": 4,
-                "phc_adjust_ts_w": 4,
+                "phc_load_ts_w": 5,
+                "phc_adjust_ts_w": 5,
                 "phc_snapshot_ts_w": 3,
                 "phc_tod_snap_valid_ts_w": 3,
             }, phc_net_reason)
@@ -15950,7 +15954,7 @@ def test_baremetal_profile_contract() -> None:
          MutantFiles(datapath=mcr_restart_port_gated)),
         ("additional PHC crossing reader", firmware_source,
          docs_source, csr_source,
-         "phc_load_ts_w must have exactly 4 live references, found 5",
+         "phc_load_ts_w must have exactly 5 live references, found 6",
          MutantFiles(datapath=phc_crossing_extra_reader)),
         ("additional effective adjtime reader", firmware_source,
          docs_source, csr_source,
@@ -18062,7 +18066,7 @@ def test_baremetal_profile_contract() -> None:
 
 
 def test_gptp_product_default_and_legacy_option() -> None:
-    """Gate 1c: fabric ownership is the product default and only config value."""
+    """Gate 1c: fabric ownership is the product default and only config value; software is an opt-in."""
     default_cfg = _variant(
         CONFIGS["ax7101_1x1_tdm8"],
         lambda cfg: cfg["board"]["features"].pop("fabric_gptp", None))
@@ -18072,6 +18076,7 @@ def test_gptp_product_default_and_legacy_option() -> None:
             assert result["cfg"]["features"]["fabric_gptp"] is True
             assert "--fabric-gptp" in result["argv"]
             assert "--no-fabric-gptp" not in result["argv"]
+            assert "--sw-gptp" not in result["argv"]
             assert "gptp_ucode" in result["paths"]
     finally:
         default_cfg.unlink()
@@ -18092,11 +18097,22 @@ def test_gptp_product_default_and_legacy_option() -> None:
     soc_source = (ROOT / "sw/litex/milan_soc.py").read_text()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
-    assert 'self._gptp_owner = "software"' not in soc_source
+    #: #884's ruling of 2026-11-21, item 6: on this line the firmware may own gPTP, and only `--sw-gptp` opts
+    #: into it. Fabric stays the product default and the only config value, so the software owner is set in one
+    #: place, under that flag, which defaults off; no config (above), launcher or recipe (below) passes it.
+    owner_at = soc_source.find('self._gptp_owner = "software"')
+    assert owner_at >= 0 and soc_source.count('self._gptp_owner = "software"') == 1, \
+        "gate 1c: the software owner is set in more than one place, or nowhere"
+    branch = soc_source.rfind("\n        elif ", 0, owner_at)
+    assert soc_source[branch:].startswith("\n        elif gptp_sw:"), \
+        "gate 1c: the software owner is set outside the --sw-gptp branch"
+    assert re.search(r'add_argument\("--sw-gptp", dest="sw_gptp", action="store_true"', soc_source), \
+        "gate 1c: --sw-gptp is not an opt-in flag that defaults off"
     for launcher in ("sw/litex/sweep.sh", "sw/litex/sweep_extra.sh"):
         source = (ROOT / launcher).read_text()
         assert "--fabric-gptp" in source
         assert "--no-fabric-gptp" not in source
+        assert "--sw-gptp" not in source, f"gate 1c: {launcher} opts into software gPTP"
     # build.sh spells no design flag since #402: the owner flag its config
     # emits is read off the launch line each recipe's own dry run prints.
     for name in _build_sh_recipe_names():
@@ -18104,7 +18120,9 @@ def test_gptp_product_default_and_legacy_option() -> None:
             assert "--fabric-gptp" in argv, \
                 f"build.sh {name}: no --fabric-gptp on its launch line"
             assert "--no-fabric-gptp" not in argv
-    print("  [gate 1c] fabric ownership is the only product configuration")
+            assert "--sw-gptp" not in argv, f"build.sh {name}: opts into software gPTP"
+    print("  [gate 1c] fabric ownership is the only product configuration; software ownership is the "
+          "--sw-gptp opt-in alone")
 
 
 #: The RTL sources the SoC synthesises in which the gPTP EtherType may
