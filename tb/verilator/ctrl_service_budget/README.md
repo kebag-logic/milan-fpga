@@ -769,10 +769,18 @@ declares every STREAM_INPUT's Talker Advertise in one MRPDU before any binding (
 kept; one of them leaves, and past its leave timer a receive of one stream more than the inputs counts the kept
 again after the block's return, keeps one in the freed place and refuses the rest past the bound; the LeaveAll
 timer then runs out with the kept present, so the build that sends the LeaveAll carries them; and after a link
-down and up, a reset, every input's Talker Failed in one MRPDU is kept. [`kept_grade.py`](kept_grade.py) holds
-each of the group's SRP records (`srp_mbx:receive`) to `CTRL_LOOP_SRP_UNIT_US` at the build's shape by the stated
-rule, and each pass given whole to a build to its stated cost, as `whole_grade.py` does; `--selftest` plants a
-record one cycle past the unit and a probe with no record.
+down and up, a reset, every input's Talker Failed in one MRPDU is kept. Beside it on the same image, `srp-bound`
+is the bound path the base has: every input bound to its own stream through BIND_RX and the talker's
+PROBE_TX_RESPONSE, then the same MRPDU, as a bridge re-declares the bound Talkers after any LeaveAll.
+
+A record that registers more than one or two Talkers is past `CTRL_LOOP_SRP_UNIT_US`, on that bound path as for the
+kept ones. That cost is owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977), and the unit is not
+restated (the owner's ruling on #969, 2026-11-22). [`kept_grade.py`](kept_grade.py) grades both groups as owed to
+it: each record over the unit, and the bound group's walk, polls base and passes over THE SHARE, are named OWED #977
+while every kept record costs no more than the bound record of its interface on the same image, no work pass of
+`srp-kept` is over THE SHARE, every build pass of both is within its stated cost and every probe has its record;
+any breach is a finding. `run.py` gives its STATED and SHARE lines the same disposition (`kept_grade.Disposition`),
+and one of the two groups graded alone is a finding. `--selftest` plants each breach.
 
 ### Backlog rows
 
