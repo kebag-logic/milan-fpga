@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - the first ENTITY_AVAILABLE after a link-up](#unreleased---the-first-entity_available-after-a-link-up)** -- Within 1 s of it.
+- **[Unreleased - first advertisement after link-up](#unreleased---first-advertisement-after-link-up)** -- Within one second.
 - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
 - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
 - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
@@ -59,13 +59,15 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
 
-## Unreleased - the first ENTITY_AVAILABLE after a link-up
+## Unreleased - first advertisement after link-up
 
-- #970: the split's ADP draws an interface's TMR_DELAY from 0 to 0.5 s as it leaves DOWN.
-- That is at startup with the link up and on LINK_UP (Milan v1.2 5.6.3.5.2, 5.6.3.5.3).
-- Its first ENTITY_AVAILABLE leaves within 1 s of its link-up; it was up to 4 s.
-- Every other ADP delay is still 0 to 4 s; a grandmaster change still re-advertises.
-- The tsn-c-stack pin moves to `5d14a6d8`, the core's new `ADP_DRAW_LINK_UP` draw.
+- #970: a link-up's first ENTITY_AVAILABLE leaves within 1 s.
+- It was up to 4 s after LINK_UP.
+- Its delay is now 0 to 0.5 s.
+- Startup with the link up draws the same range.
+- Every other ADP delay stays 0 to 4 s.
+- A grandmaster change still re-advertises.
+- The tsn-c-stack pin moves to `5d14a6d8`.
 
 ## Unreleased - the Mark II split ships
 

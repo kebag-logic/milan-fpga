@@ -983,15 +983,21 @@ Issue #665 adopts stack pin `715589c1`.
 | [33](https://github.com/kebag-logic/tsn-c-stack/pull/33) (issue 31) | The owed-release mask is sized from `ACMP_MAX_SINKS`; one word at the firmware's 16 sinks |
 | [34](https://github.com/kebag-logic/tsn-c-stack/pull/34) (issue 32) | Each ACMP entry walks only the sinks it changed |
 
-Issue #970 moves the pin to `5d14a6d8`, two commits on `715589c1`.
+Issue #970 moves the pin to `5d14a6d8`.
 
-An interface leaving DOWN, at startup with its link up and on LINK_UP, draws its ADP delay from 0 to 500 ms.
+It adds two commits to `715589c1`.
 
-Its first ENTITY_AVAILABLE then leaves within 1 s of its link-up.
+Leaving DOWN, an interface draws 0 to 500 ms.
 
-Every other ADP delay is still drawn from 0 to 4 s.
+That covers startup with the link up and LINK_UP.
 
-The stack's change reaches this repository only through the stack's own review; the pin then moves to its merge.
+Its first ENTITY_AVAILABLE leaves within 1 s.
+
+Other ADP delays are still 0 to 4 s.
+
+Stack changes arrive only through the stack's own review.
+
+The pin then moves to that merge.
 
 Parent adapter tests exercise every ADP refusal and valid discovery.
 
