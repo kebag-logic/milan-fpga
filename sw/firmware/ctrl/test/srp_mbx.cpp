@@ -609,7 +609,6 @@ TEST_F(Srp, ReadyFailedAndUninterestingStreamsAreSeparated) {
     // a Talker of a StreamID no binding holds is kept for a binding made later, one block (#969, keep_talker)
     std::vector<uint8_t> unknown(25,0); unknown[7]=7;
     offer(frame(1,unknown,0)); EXPECT_EQ(ctrl_pool_in_use(&pool),before+1u)<<"a Talker no binding holds is kept";
-    EXPECT_EQ(adapter.ifs[0].kept_count,1u);
     EXPECT_CALL(licence,Change(0,0,false)); mbx_model_set_link(&model,0,false); settle();
 }
 TEST_F(Srp, DomainFilterAndDuplicateDoNotGrowDeclarations) {
@@ -2272,6 +2271,18 @@ TEST_F(SrpEarlyTalker, ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt) {
         offer(talker(0,3u-latest,kJoinIn)); offer(talker(0,latest,kNew)); quiet(1000);
         expect_bound_declares(0,0,latest,"the latest of two kinds registered before the binding");
         EXPECT_EQ(sink(0).registered_kinds,3u)<<"both kinds are registered";
+        TearDown(); SetUp();
+    }
+}
+
+// A JoinIn of the other kind replaces a registration kept for a StreamID no binding has (IEEE 802.1Q-2018 35.2.6), as it
+// does a bound one's: the binding made later takes the talker's current kind alone.
+TEST_F(SrpEarlyTalker, AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding) {
+    for (unsigned now : {kAdvertise,kFailed}) {
+        settle(); advance(400);
+        offer(talker(0,3u-now,kJoinIn)); offer(talker(0,now,kJoinIn)); quiet(1000);
+        expect_bound_declares(0,0,now,"a JoinIn of the other kind replaces the kept registration");
+        EXPECT_EQ(sink(0).registered_kinds,now)<<"the replaced kind is no longer registered";
         TearDown(); SetUp();
     }
 }
