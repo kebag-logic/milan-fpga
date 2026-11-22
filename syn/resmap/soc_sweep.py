@@ -281,7 +281,7 @@ def wiring_problems(plan: dict) -> list[str]:
             except yosys_sweep.PlanError as refusal:
                 problems.append(f"prepare(all-fabric) was refused: {refusal}")
             if not calls or calls[-1][-2:] != ["--placement", "all-fabric"]:
-                problems.append(f"prepare(all-fabric) did not ask the builder for all-fabric: {calls[-1:]}")
+                problems.append(f"prepare(all-fabric) did not ask the builder for all-fabric: ...{calls[-1][-3:]}")
             try:
                 prepare(work, "split")
                 problems.append("prepare(split) returned an argument list naming an absent platform image")
@@ -296,6 +296,8 @@ def wiring_problems(plan: dict) -> list[str]:
                 if str(asked) != plan_placement(plan):
                     problems.append(f"command_export asked prepare() for {asked}, the plan names "
                                     f"{plan_placement(plan)}")
+            except yosys_sweep.PlanError as refusal:
+                problems.append(f"command_export refused the plan: {refusal}")
         if (work / "soc").exists():
             problems.append("command_export wrote under soc/ before prepare() returned")
     return problems
