@@ -21,10 +21,13 @@
 
                 The accept verdicts are NOT re-derived here: the paired
                 monitor pulses pdu_enq_p when it queues a PDU (bound +
-                stream_id match), in the frame's flight, and later
-                pdu_done_p with the inputs whose current format the PDU
-                matches, the ones it counts in FRAMES_RX. A frame without the
-                enqueue pulse is dropped at its tlast. A committed frame is
+                stream_id match), three cycles after the frame's eighth beat
+                on the tap, and later pdu_done_p with the inputs whose
+                current format the PDU matches, the ones it counts in
+                FRAMES_RX. The store takes the tap three cycles late, so even
+                a frame that ends on its eighth beat has its enqueue pulse in
+                time; a frame without one is dropped at its tlast. A
+                committed frame is
                 read out once for each accepting input, tuser that input,
                 from its one stored copy, and not at all when none accepted
                 it, so each input receives exactly the PDUs its FRAMES_RX
@@ -58,9 +61,11 @@
   Project     : Milan AVTP
 
   Notes       :
-    - The write side drops a frame at its tlast unless the monitor's enqueue
-      pulse arrived in its flight; the verdicts may come later, so the read
-      side waits for them before it reads the frame.
+    - The write side runs three cycles behind the tap, the enqueue pulse's
+      latency after a frame's eighth beat, so every frame's queueing is known
+      by its tlast there, however short the frame; a frame whose PDU was not
+      queued is dropped at its tlast. The verdicts may come later, so the
+      read side waits for them before it reads the frame.
     - Store overflow (downstream consumer stalled) drops WHOLE frames and counts
       them in drops_o — the tap itself never stalls the RX datapath. A queued
       PDU's frame short of its payload is dropped and counted the same way.
@@ -99,8 +104,10 @@ module KL_aaf_rx_depacketizer #(
   input  wire         s_tlast_i,
 
   //! --- verdicts from the monitor ------------------------------------------
-  input  wire         pdu_enq_p_i,        //! pulse: the in-flight frame's PDU
-                                          //! was queued (bound + sid match)
+  input  wire         pdu_enq_p_i,        //! pulse: the PDU of the frame whose
+                                          //! eighth beat the tap carried three
+                                          //! cycles before was queued (bound +
+                                          //! sid match)
   input  wire         pdu_done_p_i,       //! pulse: the oldest queued PDU's
                                           //! verdicts are complete
   input  wire [N_STREAMS_P-1:0] pdu_done_mask_i, //! with done: its accepting
@@ -148,19 +155,84 @@ module KL_aaf_rx_depacketizer #(
   // Write side: every tapped frame enters the frame store and is kept     //
   // only if the monitor queued its PDU (#948)                             //
   // ------------------------------------------------------------------ //
-  wire in_acc = s_tvalid_i && s_tready_i;
+  //! The tap as it comes: the verdicts' attribution counts its beats.
+  wire tap_acc_w = s_tvalid_i && s_tready_i;
 
   //! The monitor's enqueue pulse follows the parser's match, and the parser
-  //! matches on a frame's eighth beat (its 56-byte header buffer). The pulse
-  //! comes fewer than eight cycles after that beat, and the next frame
-  //! cannot reach its own eighth beat sooner, so a pulse is the PDU of the
-  //! frame that passed its eighth beat last: the in-flight frame if
-  //! p7_r is still set, otherwise a frame that ended first, which is lost.
-  logic [3:0] bc_r;                       //! the in-flight frame's beats, to 8
-  logic       p7_r;                       //! it passed its eighth beat
+  //! matches on a frame's eighth beat (its 56-byte header buffer). The
+  //! parser's input register, its registered match and the monitor's
+  //! registered pulse put the pulse ENQ_LAT_C = 3 cycles after the tap
+  //! carries that beat, or nowhere (no bound entry holds the stream_id, or
+  //! the monitor's ring is full). A frame may end on that very beat: eight
+  //! beats are 57 to 64 octets, and one channel of 48 kHz Base AAF is 62
+  //! (Milan v1.2 Table 6.1, IEEE 1722-2016 7.3). So the tap's own beat count
+  //! names the pulse's frame, the one that passed its eighth beat last (the
+  //! next cannot reach its own eighth beat sooner than eight cycles on), and
+  //! the store's write side runs ENQ_LAT_C cycles behind the tap: each
+  //! frame's verdict is known when its eighth beat reaches the write side,
+  //! on or before its tlast, however short the frame (#948).
+  localparam int ENQ_LAT_C = 3;
+  logic [3:0] tbc_r;                      //! the tap frame's beats, to 8
+  logic       taw_r;                      //! its PDU may still be queued
+  logic       tq_r;                       //! its PDU was queued
+  //! the tap's eighth beat, and a pulse for the frame that passed it
+  wire        tp7_w     = tap_acc_w && (tbc_r == 4'd7);
+  wire        enq_tap_w = pdu_enq_p_i && taw_r;
+
+  always_ff @(posedge clk_i) begin : tap_attrib
+    if (!rst_n) begin
+      tbc_r <= '0;
+      taw_r <= 1'b0;
+      tq_r  <= 1'b0;
+    end
+    else begin
+      if (enq_tap_w) begin
+        taw_r <= 1'b0;
+        tq_r  <= 1'b1;
+      end
+      if (tap_acc_w) begin
+        if (tbc_r != 4'd8) tbc_r <= tbc_r + 4'd1;
+        if (s_tlast_i)     tbc_r <= '0;
+      end
+      if (tp7_w) begin
+        taw_r <= 1'b1;
+        tq_r  <= 1'b0;
+      end
+    end
+  end : tap_attrib
+
+  //! the tap ENQ_LAT_C cycles late, as the store's write side takes it. The
+  //! valid stages are reset; the data stages carry no reset ON PURPOSE (a
+  //! shift register): each is read only with its valid.
+  logic [ENQ_LAT_C-1:0] dv_r;
+  logic [ENQ_LAT_C-1:0] dl_r;
+  logic [63:0]          dd_r [ENQ_LAT_C];
+  logic [7:0]           dk_r [ENQ_LAT_C];
+  always_ff @(posedge clk_i) begin : tap_delay_valid
+    if (!rst_n) dv_r <= '0;
+    else        dv_r <= {dv_r[ENQ_LAT_C-2:0], tap_acc_w};
+  end : tap_delay_valid
+  always_ff @(posedge clk_i) begin : tap_delay_data
+    dl_r    <= {dl_r[ENQ_LAT_C-2:0], s_tlast_i};
+    dd_r[0] <= s_tdata_i;
+    dk_r[0] <= s_tkeep_i;
+    for (int i = 1; i < ENQ_LAT_C; i++) begin
+      dd_r[i] <= dd_r[i-1];
+      dk_r[i] <= dk_r[i-1];
+    end
+  end : tap_delay_data
+  wire        in_acc    = dv_r[ENQ_LAT_C-1];
+  wire [63:0] w_tdata_w = dd_r[ENQ_LAT_C-1];
+  wire [7:0]  w_tkeep_w = dk_r[ENQ_LAT_C-1];
+  wire        w_tlast_w = dl_r[ENQ_LAT_C-1];
+
+  logic [3:0] bc_r;                       //! the stored frame's beats, to 8
   logic       good_r;                     //! its PDU was queued
-  wire        enq_mine_w = pdu_enq_p_i && p7_r;
-  wire        fw_good_w  = good_r || enq_mine_w;
+  //! the stored frame's eighth beat, and its verdict: the pulse came by now,
+  //! in this very cycle at the latency ENQ_LAT_C
+  wire        m7_w      = in_acc && (bc_r == 4'd7);
+  wire        q7_w      = tq_r || enq_tap_w;
+  wire        fw_good_w = good_r || (m7_w && q7_w);
 
   //! A frame is kept only with its whole payload (#948): data_len octets
   //! after the 24-octet AAF header, which starts at frame byte 14, or 18
@@ -169,32 +241,30 @@ module KL_aaf_rx_depacketizer #(
   //! payload octets still to come; a frame whose last beat brings fewer is
   //! dropped whole at its tlast, as the full store drops one, and the read
   //! side only ever reads complete payloads. A frame with a queued PDU is
-  //! at least nine beats long, so its tlast is never before beat 4.
+  //! at least eight beats long, so its tlast is never before beat 4.
   logic        wvlan_r;                   //! the in-flight frame is tagged
   logic [16:0] wowe_r;                    //! its payload octets after these beats
-  wire  [3:0]  wkeep_n_w = 4'(s_tkeep_i[0]) + 4'(s_tkeep_i[1]) +
-                           4'(s_tkeep_i[2]) + 4'(s_tkeep_i[3]) +
-                           4'(s_tkeep_i[4]) + 4'(s_tkeep_i[5]) +
-                           4'(s_tkeep_i[6]) + 4'(s_tkeep_i[7]);
-  wire  [15:0] wlen_w    = wvlan_r ? {s_tdata_i[55:48], s_tdata_i[63:56]}
-                                   : {s_tdata_i[23:16], s_tdata_i[31:24]};
+  wire  [3:0]  wkeep_n_w = 4'(w_tkeep_w[0]) + 4'(w_tkeep_w[1]) +
+                           4'(w_tkeep_w[2]) + 4'(w_tkeep_w[3]) +
+                           4'(w_tkeep_w[4]) + 4'(w_tkeep_w[5]) +
+                           4'(w_tkeep_w[6]) + 4'(w_tkeep_w[7]);
+  wire  [15:0] wlen_w    = wvlan_r ? {w_tdata_w[55:48], w_tdata_w[63:56]}
+                                   : {w_tdata_w[23:16], w_tdata_w[31:24]};
   wire         wshort_w  = (wowe_r > 17'(wkeep_n_w));
 
   always_ff @(posedge clk_i) begin : write_verdict
     if (!rst_n) begin
       bc_r    <= '0;
-      p7_r    <= 1'b0;
       good_r  <= 1'b0;
       wvlan_r <= 1'b0;
       wowe_r  <= '0;
     end
     else begin
-      if (enq_mine_w) good_r <= 1'b1;
+      if (m7_w) good_r <= q7_w;
       if (in_acc) begin
         if (bc_r != 4'd8) bc_r <= bc_r + 4'd1;
-        if (bc_r == 4'd7) p7_r <= !s_tlast_i;
         if (bc_r == 4'd1)
-          wvlan_r <= (s_tdata_i[39:32] == 8'h81) && (s_tdata_i[47:40] == 8'h00);
+          wvlan_r <= (w_tdata_w[39:32] == 8'h81) && (w_tdata_w[47:40] == 8'h00);
         //! beat 4 holds frame bytes 32..39: an untagged payload ends at
         //! 38 + data_len, a tagged one at 42 + data_len
         if (bc_r == 4'd4)
@@ -202,9 +272,8 @@ module KL_aaf_rx_depacketizer #(
                             : ((wlen_w > 16'd2) ? 17'(wlen_w) - 17'd2 : 17'd0);
         else if (bc_r > 4'd4)
           wowe_r <= (wowe_r > 17'd8) ? wowe_r - 17'd8 : 17'd0;
-        if (s_tlast_i) begin
+        if (w_tlast_w) begin
           bc_r    <= '0;
-          p7_r    <= 1'b0;
           good_r  <= 1'b0;
           wvlan_r <= 1'b0;
           wowe_r  <= '0;
@@ -238,13 +307,13 @@ module KL_aaf_rx_depacketizer #(
   wire           full_w = (wp_r == {~fs_r[FW_C], fs_r[FW_C-1:0]});
   wire           wdrop_w = full_w || drop_r;
   //! the in-flight frame's end: committed, dropped (store full) or discarded
-  wire           tl_w    = in_acc && s_tlast_i;
+  wire           tl_w    = in_acc && w_tlast_w;
   //! a frame with a queued PDU that ends short of its payload (#948)
   wire           trunc_w = tl_w && fw_good_w && !wdrop_w && wshort_w;
   wire           ovf_w   = tl_w && (wdrop_w || trunc_w);
 
   always_ff @(posedge clk_i) begin : store_write
-    if (in_acc && !wdrop_w) fmem_r[wp_r[FW_C-1:0]] <= {s_tlast_i, s_tdata_i};
+    if (in_acc && !wdrop_w) fmem_r[wp_r[FW_C-1:0]] <= {w_tlast_w, w_tdata_w};
   end : store_write
 
   always_ff @(posedge clk_i) begin : store_write_ptr
@@ -255,12 +324,12 @@ module KL_aaf_rx_depacketizer #(
     end
     else if (in_acc) begin
       if (wdrop_w) begin
-        drop_r <= !s_tlast_i;
-        if (s_tlast_i) wp_r <= wc_r;
+        drop_r <= !w_tlast_w;
+        if (w_tlast_w) wp_r <= wc_r;
       end
       else begin
         wp_r <= wp_r + 1'b1;
-        if (s_tlast_i) begin
+        if (w_tlast_w) begin
           if (fw_good_w && !wshort_w) wc_r <= wp_r + 1'b1;
           else                        wp_r <= wc_r;
         end
@@ -327,12 +396,12 @@ module KL_aaf_rx_depacketizer #(
   logic [(1 << RQ_LOG2_C)-1:0] rq_com_r;                 //! ...committed
   logic [(1 << RQ_LOG2_C)-1:0] rq_drp_r;                 //! ...dropped (store full)
   logic [N_STREAMS_P-1:0]   rq_msk_r [1 << RQ_LOG2_C];   //! the accepting inputs
-  logic [RQ_LOG2_C:0]       ifl_e_r;                     //! the in-flight frame's entry
+  logic [RQ_LOG2_C:0]       te_r;                        //! the pulse's frame's entry
   wire [RQ_LOG2_C-1:0]      rq_a_w = rq_ap_r[RQ_LOG2_C-1:0];
   wire [RQ_LOG2_C-1:0]      rq_h_w = rq_rp_r[RQ_LOG2_C-1:0];
-  //! the in-flight frame ends with its PDU queued: its entry learns its fate
+  //! the stored frame ends with its PDU queued: its entry learns its fate
   wire                      fate_w = tl_w && fw_good_w;
-  wire [RQ_LOG2_C-1:0]      fate_e_w = enq_mine_w ? rq_a_w : ifl_e_r[RQ_LOG2_C-1:0];
+  wire [RQ_LOG2_C-1:0]      fate_e_w = enq_tap_w ? rq_a_w : te_r[RQ_LOG2_C-1:0];
   wire                      retire_w = (rq_rp_r != rq_vp_r) && rq_res_r[rq_h_w];
 
   //! the read side's queue: the accepting inputs of each committed frame, in
@@ -351,7 +420,7 @@ module KL_aaf_rx_depacketizer #(
       rq_res_r  <= '0;
       rq_com_r  <= '0;
       rq_drp_r  <= '0;
-      ifl_e_r   <= '0;
+      te_r      <= '0;
       idxq_wp_r <= '0;
       idxq_rp_r <= '0;
       drop_p_o  <= 1'b0;
@@ -359,14 +428,16 @@ module KL_aaf_rx_depacketizer #(
     end
     else begin
       drop_p_o <= 1'b0;
-      //! an enqueue pulse takes the next entry: the in-flight frame's, or a
-      //! frame already ended, whose PDU is lost
+      //! an enqueue pulse takes the next entry, the frame's that passed its
+      //! eighth beat last on the tap; its fate comes at that frame's tlast on
+      //! the write side. A pulse no frame awaits is defensive only: its PDU
+      //! is lost and its entry has its fate at once
       if (pdu_enq_p_i) begin
-        rq_res_r[rq_a_w] <= !p7_r;
+        rq_res_r[rq_a_w] <= !taw_r;
         rq_com_r[rq_a_w] <= 1'b0;
         rq_drp_r[rq_a_w] <= 1'b0;
         rq_ap_r          <= rq_ap_r + 1'b1;
-        if (p7_r) ifl_e_r <= rq_ap_r;
+        if (taw_r) te_r <= rq_ap_r;
       end
       if (fate_w) begin
         rq_res_r[fate_e_w] <= 1'b1;

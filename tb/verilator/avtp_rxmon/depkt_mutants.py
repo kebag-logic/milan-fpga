@@ -63,13 +63,31 @@ MUTATIONS = [
        "  wire           ovf_w   = tl_w && wdrop_w;\n")],
      "[DT3] 192 octets, 1 short, inputs 3: drops_o counts each short frame"),
     ("the length check reads a tagged frame's data_len where an untagged frame carries it",
-     [("  wire  [15:0] wlen_w    = wvlan_r ? {s_tdata_i[55:48], s_tdata_i[63:56]}\n",
-       "  wire  [15:0] wlen_w    = 1'b0    ? {s_tdata_i[55:48], s_tdata_i[63:56]}\n")],
+     [("  wire  [15:0] wlen_w    = wvlan_r ? {w_tdata_w[55:48], w_tdata_w[63:56]}\n",
+       "  wire  [15:0] wlen_w    = 1'b0    ? {w_tdata_w[55:48], w_tdata_w[63:56]}\n")],
      "[DT2] cases whose every output frame is whole, in order, under its index"),
     ("the length check takes a short last beat for a full one",
      [("  wire         wshort_w  = (wowe_r > 17'(wkeep_n_w));\n",
        "  wire         wshort_w  = (wowe_r > 17'd8);\n")],
      "[DT3] 192 octets, 1 short, inputs 3: output frames, one per accepting input"),
+    ("the store's write side takes the tap as it comes, so a frame of ten beats or fewer ends before its enqueue "
+     "pulse (the #948 short-frame defect)",
+     [("  wire        in_acc    = dv_r[ENQ_LAT_C-1];\n", "  wire        in_acc    = tap_acc_w;\n"),
+      ("  wire [63:0] w_tdata_w = dd_r[ENQ_LAT_C-1];\n", "  wire [63:0] w_tdata_w = s_tdata_i;\n"),
+      ("  wire [7:0]  w_tkeep_w = dk_r[ENQ_LAT_C-1];\n", "  wire [7:0]  w_tkeep_w = s_tkeep_i;\n"),
+      ("  wire        w_tlast_w = dl_r[ENQ_LAT_C-1];\n", "  wire        w_tlast_w = s_tlast_i;\n")],
+     "[DT4] cases whose every output frame is whole, in order, under its index"),
+    ("a pulse is taken only while its frame is still on the tap, so one after a nine- or ten-beat frame's tlast "
+     "is lost",
+     [("        if (s_tlast_i)     tbc_r <= '0;\n",
+       "        if (s_tlast_i)     tbc_r <= '0;\n        if (s_tlast_i)     taw_r <= 1'b0;\n")],
+     "[DT4] cases whose every output frame is whole, in order, under its index"),
+    ("the verdict at the stored eighth beat misses a pulse that lands in that same cycle",
+     [("  wire        q7_w      = tq_r || enq_tap_w;\n", "  wire        q7_w      = tq_r;\n")],
+     "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"),
+    ("the write side runs two cycles behind the tap, one short of the enqueue pulse's latency",
+     [("  localparam int ENQ_LAT_C = 3;\n", "  localparam int ENQ_LAT_C = 2;\n")],
+     "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"),
 ]
 
 
