@@ -8,9 +8,9 @@ a Talker of a StreamID no binding holds (srp_mbx.c keep_talker), at most one for
 binding made later takes its registration in the walk it owes and declares within one transmit (Milan v1.2 5.3.8.5).
 One defect a rule, for each order: registration then binding (the filter ignores it, the shipped firmware's state,
 also on a bind while bound); binding then registration with the kept attributes at their bound (the binding's own
-Talker found for its first sink only); the bound itself (none, or a New of the other kind of a kept StreamID, which registers beside it, taken as kept);
-the count made before a receive (it forgets the registered, or adds to the count before it), an unbinding's
-registration counted against the bound (no count owed by the binding), and a kept attribute that left, counted until
+Talker found for its first sink only); the bound itself (none, or a New of the other kind of a kept StreamID, which
+registers beside it, taken as kept); the count made before a receive (it forgets the registered, or adds to the
+count before it), an unbinding's registration counted against the bound (no count owed by the binding), and a kept attribute that left, counted until
 mrp_reclaim frees its block (the count skips it) and uncounted once freed (no count owed by the block's return); and
 the latest kind of two registered before the binding (#925), held for a StreamID no binding has.
 srp_mutants.py plants each with the rest of its table, and the named test must fail on its own words. Every name
@@ -31,7 +31,7 @@ LEFT = EARLY + "AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed"
 LATEST = EARLY + "ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt"
 UNBOUND = EARLY + "AnUnboundRegistrationIsKeptAndCountedAgainstTheBound"
 #: srp_mbx.c's receive filter for a Talker no binding holds, and its search of the bindings, as it holds them.
-KEEPS = "    return (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && keep_talker(i,type,value);\n"
+KEEPS = "    return keep_talker(i,type,value);\n"
 SEARCH = ("        for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {\n"
           "            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {\n")
 #: keep_talker's bound and its search of the kept list.
@@ -51,9 +51,9 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the rule, built with srp_mutants.Defect."""
     return (
         # registration then binding: the filter before #969 ignores a Talker no binding holds
-        kind("feedback-early-talker-ignored", BEFORE, KEEPS, KEEPS.replace("return (", "return false && ("),
+        kind("feedback-early-talker-ignored", BEFORE, KEEPS, KEEPS.replace("return ", "return false && "),
              "an Advertise registered before its binding"),
-        kind("feedback-early-rebind-ignored", REBIND, KEEPS, KEEPS.replace("return (", "return false && ("),
+        kind("feedback-early-rebind-ignored", REBIND, KEEPS, KEEPS.replace("return ", "return false && "),
              "a rebind to a stream declared all along"),
         # binding then registration, the kept attributes at their bound: the binding's own Talker, first sink only
         kind("feedback-early-bound-first-sink-only", AFTER, SEARCH, SEARCH.replace("n < CTRL_SRP_SINKS", "n < 1u"),

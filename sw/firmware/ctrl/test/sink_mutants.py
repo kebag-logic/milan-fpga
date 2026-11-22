@@ -47,7 +47,7 @@ S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
 S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
 S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
 #: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
-KEEPS = "    return (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && keep_talker(i,type,value);\n"
+KEEPS = "    return keep_talker(i,type,value);\n"
 POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
             "TRANSMIT's next MRPDU, input 0")
 REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
@@ -170,7 +170,7 @@ def mutants(mutant: type) -> tuple:
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
         # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
-        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return (", "return false && ("), "platsinks8",
+        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
           S13, POWER_ON,
           also=(("platsinks1", S13, POWER_ON), ("platsinks8", S14, REBOUND), ("platsinks1", S14, REBOUND))),
     )

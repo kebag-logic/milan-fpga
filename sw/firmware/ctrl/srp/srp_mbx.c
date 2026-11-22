@@ -513,7 +513,9 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
             }
         }
     }
-    return (type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && keep_talker(i,type,value);
+    // the Domain's and the Listener's above, lwSRP delivers MSRP's Talker types alone here (mrp_pdu.c skips a type its
+    // application does not know)
+    return keep_talker(i,type,value);
 }
 
 static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *value)

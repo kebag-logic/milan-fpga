@@ -2333,6 +2333,36 @@ TEST_F(SrpEarlyTalker, AnUnboundRegistrationIsKeptAndCountedAgainstTheBound) {
     expect_bound_declares(1,mine,kAdvertise,"an unbound registration kept, bound again");
 }
 
+// An unbinding at the bound leaves one registration more than the bound kept: the count before the next receive counts
+// it, and lists the bound's first, so a Talker of another StreamID is kept no more until one ends; the binding made
+// again takes it.
+TEST_F(SrpEarlyTalker, AnUnbindingAtTheBoundIsCountedPastIt) {
+    settle(); advance(400);
+    const unsigned mine=CTRL_SRP_SINKS, past=CTRL_SRP_SINKS+1u;
+    bind_stream(0,mine); settle();
+    offer(talker(mine,kAdvertise,kJoinIn)); advance(kJoinMs);
+    for (unsigned k=0;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); advance(kJoinMs);
+    const unsigned full=ctrl_pool_in_use(&pool);
+    offer(talker(past,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),full)<<"one past the bound is counted: no other is kept";
+    offer(talker(0,kAdvertise,kJoinIn));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),full)<<"a kept one refreshed takes no block";
+    quiet(400);
+    expect_bound_declares(1,mine,kAdvertise,"the registration an unbinding left past the bound, bound again");
+}
+
+// Past the held table's bound, a registration kept for a StreamID no binding has holds nothing: a binding made later
+// of both kinds with no latest known takes Failed (#925's fallback, AFullHeldTableHoldsNothingMore).
+TEST_F(SrpEarlyTalker, AFullHeldTableHoldsNoKeptRegistration) {
+    settle(); advance(400);
+    adapter.held_count=SRP_HELD_STREAMS; // every entry interface 0, StreamID 0, as init left them
+    offer(talker(1,kFailed,kJoinIn)); offer(talker(1,kAdvertise,kNew)); quiet(1000);
+    EXPECT_EQ(adapter.held_count,SRP_HELD_STREAMS)<<"a full table holds nothing more";
+    expect_bound_declares(0,1,kFailed,"no latest known: Failed");
+    adapter.held_count=0u;
+}
+
 // What the talker withdrew before the binding is not declared: a Leave, or a LeaveAll it no longer answers, ends the
 // registration, and the binding declares nothing; nor does a registration a reset of the interface destroyed.
 TEST_F(SrpEarlyTalker, ARegistrationThatEndedBeforeTheBindingDeclaresNothing) {
