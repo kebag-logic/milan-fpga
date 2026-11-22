@@ -123,9 +123,8 @@ bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp
 
 // A stream that refuses a change: an input bound, an output streaming, or one
 // whose observation cannot be made. Brief: bound and running are all it uses
-// (#894). An output map edit's check of each stream it maps is this one too
-// (aecp_maps.c, idle; #943, #963).
-unsigned aecp_running(struct aecp *a, uint16_t type, uint16_t index)
+// (#894).
+static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 {
 	struct aecp_stream_info info = {.brief = true};
 	if (!observe(a, type, index, &info)) return AECP_ENTITY_MISBEHAVING;
@@ -137,7 +136,7 @@ static unsigned any_running(struct aecp *a)
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		if (d->configuration == a->configuration && (d->type == 5u || d->type == 6u)) {
-			unsigned status = aecp_running(a, d->type, d->index);
+			unsigned status = running(a, d->type, d->index);
 			if (status != AECP_SUCCESS) return status;
 		}
 	}
@@ -329,7 +328,7 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 		return AECP_NO_SUCH_DESCRIPTOR;
 	}
 	if (set && format) {
-		unsigned state = aecp_running(a, type, index);
+		unsigned state = running(a, type, index);
 		if (state != AECP_SUCCESS) return state;
 	}
 	if (set && aecp_foreign_lock(a)) {

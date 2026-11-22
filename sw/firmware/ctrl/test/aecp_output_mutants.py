@@ -73,8 +73,6 @@ ROWS = (
      '\tif (index >= a->n_sources || index >= CTRL_SRP_SOURCES) return false;\n',
      (TEST, "a source past SRP's shape is answered")),
     # an output map edit's check of its stream read whole again, as before #943 (aecp_maps.c, idle)
-    ('map-idle-reads-whole', 'aecp_maps.c', '\treturn aecp_running(a, 6u, r->stream) == AECP_SUCCESS;\n',
-     '\tstruct aecp_stream_info info = {.brief = false};\n'
-     '\treturn aecp_stream_read(a, 6u, r->stream, &info) && !info.running;\n',
+    ('map-idle-reads-whole', 'aecp_maps.c', '\tinfo.brief = true;\n', '\tinfo.brief = false;\n',
      ('Core.TheRunningCheckObservesEveryStreamBriefly', "an output map edit's running check is brief")),
 )

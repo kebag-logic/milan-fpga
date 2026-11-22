@@ -258,16 +258,19 @@ static size_t place(const struct edit *e, const union held *x)
 
 // The check a legal mapping of an output port reads its port for, after every
 // other of its own: its stream must not be running, observed briefly as a
-// running check (#943; aecp_commands.c, aecp_running). Each stream is observed
-// once an edit, at the first of its mappings to reach the check (#963): one
-// found running or unanswered refuses the edit at that mapping, as before, and
-// its table with it, so a later mapping of a stream the table holds is only
-// ever checked after the stream was found idle in the same record, which
-// nothing else runs beside. So an edit observes each stream it maps once, not
-// each mapping: a REMOVE or ADD of 63 of 8x8/1if's output map made 63
-// observations, most of its pass, which was over THE SHARE. A mapping that
-// reaches the check has its key in the domain (place), so its stream is below
-// MAP_FIRSTS, and the word is reduced to the table's so no index leaves it.
+// running check (#943). Each stream is observed once an edit, at the first of
+// its mappings to reach the check (#963): one found running or unanswered
+// refuses the edit at that mapping, as before, and its table with it, so a
+// later mapping of a stream the table holds is only ever checked after the
+// stream was found idle in the same record, which nothing else runs beside. So
+// an edit observes each stream it maps once, not each mapping: a REMOVE or ADD
+// of 63 of 8x8/1if's output map made 63 observations, most of its pass, which
+// was over THE SHARE (Milan v1.2 5.4.2.27, 5.4.2.28: the condition is the
+// Stream Output's). The observation is aecp_stream_read's, which zeroes all
+// but brief, so it is zeroed once (#963: the record zeroed it twice, at every
+// mapping, an input port's too). A mapping that reaches the check has its key
+// in the domain (place), so its stream is below MAP_FIRSTS, and the word is
+// reduced to the table's so no index leaves it.
 static bool idle(struct aecp *a, struct edit *e, const struct aecp_descriptor *port, const struct aecp_mapping *r)
 {
 	if (port->type == 14u) {
@@ -279,7 +282,9 @@ static bool idle(struct aecp *a, struct edit *e, const struct aecp_descriptor *p
 		return true;
 	}
 	*word |= bit;
-	return aecp_running(a, 6u, r->stream) == AECP_SUCCESS;
+	struct aecp_stream_info info;
+	info.brief = true;
+	return aecp_stream_read(a, 6u, r->stream, &info) && !info.running;
 }
 
 // A mapping copied a coordinate at a time. A whole one is a call of memcpy on

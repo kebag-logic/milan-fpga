@@ -117,8 +117,7 @@ ROWS = (
      'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, &e, port, &e.rows[n].r) ||',
      (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
     # #963: the running check observes each stream an edit maps once, at its first mapping to reach the check, from
-    # a table of streams the edit clears; one found running or unanswered refuses the edit at that mapping, by the
-    # running check's own verdict (aecp_commands.c, aecp_running)
+    # a table of streams the edit clears; one found running or unanswered refuses the edit at that mapping
     ('map-stream-observed-every-mapping', 'aecp_maps.c',
      '\t*word |= bit;\n',
      '',
@@ -133,8 +132,8 @@ ROWS = (
      'const uint32_t bit = 1u;',
      (STREAMS, 'a stream found running refuses the edit at its first mapping')),
     ('map-stream-running-accepted', 'aecp_maps.c',
-     'return aecp_running(a, 6u, r->stream) == AECP_SUCCESS;',
-     'return aecp_running(a, 6u, r->stream) != AECP_ENTITY_MISBEHAVING;',
+     'return aecp_stream_read(a, 6u, r->stream, &info) && !info.running;',
+     'return aecp_stream_read(a, 6u, r->stream, &info);',
      (STREAMS, 'a stream found running refuses the edit at its first mapping')),
     ('map-repeat-counted', 'aecp_maps.c',
      'additions += adding && e.rep[n] == n && (held & FOUND) == 0u;',
