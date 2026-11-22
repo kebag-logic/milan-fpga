@@ -1,0 +1,82 @@
+wrote <scratch>/gsw-obj3/gen/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/gsw-obj3/gen/KL_mbx.sv (2 interfaces)
+wrote <scratch>/gsw-obj3/gen/mbx_contract.h (2 interfaces)
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:98:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   98 | module timestamp_counter #(
+      |        ^~~~~~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/common/cdc_handshake.sv:22:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   22 | module cdc_handshake #(
+      |        ^~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/common/cdc_pulse.sv:19:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   19 | module cdc_pulse #(
+      |        ^~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:127:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  127 | module KL_gptp_gmii_launch #(
+      |        ^~~~~~~~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee8021as/gptp_tsu/KL_gptp_tsu.sv:54:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   54 | module KL_gptp_tsu #(
+      |        ^~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/milan/KL_ctrl_split.sv:64:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   64 | module KL_ctrl_split #(
+      |        ^~~~~~~~~~~~~
+                       ../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-SELRANGE: ../../../third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 74:0
+                                                                           : ... note: In instance 'tb_gptp_sw.g_if[1].u_tap.rx_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 74:0
+                                                                           : ... note: In instance 'tb_gptp_sw.g_if[1].u_tap.rx_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.563 MB sources in 9 modules, into 0.354 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.098 s (elab=0.008, cvt=0.038, bld=5.031); cpu 0.078 s on 96 threads; allocated 663.820 MB
+[ SLAVE if0 ] role 2, asCapable 1, GM 02aabbfffe000001, steps 1, lock (PHC within 100 ns of its GM) 2.7 s, then worst |offset| 93.0 ns; pdelay 293 ns
+    t= 0.1 s  PHC0 - GM0 = -1000000003980.0 ns
+    t= 2.1 s  PHC0 - GM0 =          669.0 ns
+    t= 4.1 s  PHC0 - GM0 =           14.0 ns
+    t= 6.1 s  PHC0 - GM0 =            8.0 ns
+    t= 8.1 s  PHC0 - GM0 =            5.0 ns
+[ SLAVE if1 ] role 2, asCapable 1, GM 02aaccfffe000002, steps 1, lock (PHC within 100 ns of its GM) 2.5 s, then worst |offset| 82.0 ns; pdelay 292 ns
+    t= 0.1 s  PHC1 - GM1 = -499999997480.0 ns
+    t= 2.1 s  PHC1 - GM1 =         -410.0 ns
+    t= 4.1 s  PHC1 - GM1 =          -35.0 ns
+    t= 6.1 s  PHC1 - GM1 =           -9.0 ns
+    t= 8.1 s  PHC1 - GM1 =            4.0 ns
+[ MASTER if0 ] role 3, asCapable 1, GM 001b92fffe000001, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.4 s, then worst |offset| 74.8 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC0 - peer0 =     -4993980.0 ns
+    t= 2.1 s  PHC0 - peer0 =         3712.5 ns
+    t= 4.1 s  PHC0 - peer0 =           12.4 ns
+    t= 6.1 s  PHC0 - peer0 =            9.0 ns
+    t= 8.1 s  PHC0 - peer0 =            9.0 ns
+[ MASTER if1 ] role 3, asCapable 1, GM 001b92fffe000002, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.1 s, then worst |offset| 96.9 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC1 - peer1 =     -9003480.0 ns
+    t= 2.1 s  PHC1 - peer1 =        -2151.4 ns
+    t= 4.1 s  PHC1 - peer1 =            4.0 ns
+    t= 6.1 s  PHC1 - peer1 =            9.1 ns
+    t= 8.1 s  PHC1 - peer1 =            9.0 ns
+[ FLOOD ] 32 Pdelay_Req every 200 ms from 2.5 s: event messages handed out 977, committed at once 462, refused or held frames 526, received stamped 490, unstamped 0, egress records lost 0; lock 2.9 s, then worst |offset| 95.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 48   failures: 0 ==
+RESULT: PASS
+rc=0

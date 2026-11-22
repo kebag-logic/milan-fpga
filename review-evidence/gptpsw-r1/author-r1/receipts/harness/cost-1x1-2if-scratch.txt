@@ -1,0 +1,7 @@
+== gptp-slave.log
+run: link up at sys 7582402, end at 167670866: 1.601 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 278553, gptp_mbx 1082292, together 1360845: 0.850 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 186; its cycles a pass: max 23688, p95 4181, median 1253
+  after the first second: 71 passes, max 22145, median 1455; the longest such pass, all modules: 66552
+  the five dearest: sys 7582402: gptp 20106 + gptp_mbx 3582 of 96409, sys 107588319: gptp 19476 + gptp_mbx 2669 of 66552, sys 107404427: gptp 14192 + gptp_mbx 2607 of 56979, sys 120088559: gptp 11925 + gptp_mbx 1562 of 39547, sys 132583696: gptp 6207 + gptp_mbx 1562 of 29483
+== gptp-slave.log steady state, 0.601 s from a second after link-up: work passes 71, their gPTP cycles 163435: 0.272 % of the CPU, 271991 cycles a second

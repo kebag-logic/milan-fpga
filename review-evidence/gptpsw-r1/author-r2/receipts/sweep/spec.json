@@ -1,0 +1,18 @@
+{
+ "cwd": "<lane>",
+ "head": "ee0d920cc2f4159411cb1dafc60c3d50adabdbda",
+ "base": "59b09884",
+ "commands": [
+  [
+   "env",
+   "PATH=<scratch>/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:<home>/br-milan-rv32/host/bin",
+   "VERILATOR_ROOT=<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+   "SUITE_TIMEOUT=7200",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "LOGS",
+   "--wait"
+  ]
+ ]
+}

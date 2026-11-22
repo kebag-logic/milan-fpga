@@ -1,0 +1,11 @@
+# The 8x8-1if gPTP legs' raw logs at `f828861c` (not copied; sizes and sha256)
+
+| Log | Bytes | sha256 |
+|---|---:|---|
+| backlog-adp.log | 14342872 | 104d96bffaf0636cb273df1042c70ff7697f17d5115cc4cee91e21910709aa86 |
+| backlog-adp-refill.log | 14497138 | 9c0125309bb7383251be6290489891d9fd18a48c85df4f40db79136bb523e8f6 |
+| backlog.log | 14042293 | e729e3e7051724b1a7d08709bb52cceb8e6afca612e8837762cdf1a6233ebd6e |
+| backlog-owed.log | 14623776 | 4b74b8490d41cdc48d2e354876160915071548770d3ba762514868f56f6fe087 |
+| fixture.log | 2777591 | f2dbf15238dc31ac3bf2462bf83750106785a9470d6cc4288c657c9afda6d4db |
+| gptp-master.log | 8658234 | 40852b3dfbb74122e6a8394743dbb28383947e5e25398f21e67ffda15e414349 |
+| gptp-slave.log | 8654172 | 696d4d01001156ccaeaadf3986bfd1822938a06e07cdfd8f9699fdacf49a06f3 |

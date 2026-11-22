@@ -1,0 +1,28 @@
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.326 MB sources in 7 modules, into 0.126 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 31.640 s (elab=0.024, cvt=0.121, bld=31.402); cpu 0.063 s on 96 threads; allocated 852.523 MB
+[ SLAVE ] role 2, asCapable 1, GM 02aabbfffe000001, steps 1, lock (PHC within 100 ns of the GM) 2.7 s, then worst |offset| 93.0 ns; pdelay 293 ns; ts lost 0
+    t= 0.1 s  PHC - GM = -1000000003980.0 ns   (the port: pairs 0 steps 0 last offset 0 ns trim 0 fu_lost 0 sync_rx 0 ts_lost 0)
+    t= 1.1 s  PHC - GM =        -3999.0 ns   (the port: pairs 1 steps 1 last offset 727339987 ns trim 0 fu_lost 0 sync_rx 1 ts_lost 0)
+    t= 2.1 s  PHC - GM =          669.0 ns   (the port: pairs 9 steps 1 last offset 855 ns trim 12792 fu_lost 0 sync_rx 9 ts_lost 0)
+    t= 3.1 s  PHC - GM =           38.0 ns   (the port: pairs 17 steps 1 last offset 45 ns trim 13373 fu_lost 0 sync_rx 17 ts_lost 0)
+    t= 4.1 s  PHC - GM =           14.0 ns   (the port: pairs 25 steps 1 last offset 14 ns trim 13394 fu_lost 0 sync_rx 25 ts_lost 0)
+    t= 5.1 s  PHC - GM =           13.0 ns   (the port: pairs 33 steps 1 last offset 12 ns trim 13397 fu_lost 0 sync_rx 33 ts_lost 0)
+    t= 6.1 s  PHC - GM =            8.0 ns   (the port: pairs 41 steps 1 last offset 19 ns trim 13381 fu_lost 0 sync_rx 41 ts_lost 0)
+    t= 7.1 s  PHC - GM =            5.0 ns   (the port: pairs 49 steps 1 last offset 12 ns trim 13396 fu_lost 0 sync_rx 49 ts_lost 0)
+    t= 8.1 s  PHC - GM =            5.0 ns   (the port: pairs 57 steps 1 last offset 12 ns trim 13396 fu_lost 0 sync_rx 57 ts_lost 0)
+    t= 9.1 s  PHC - GM =            5.0 ns   (the port: pairs 65 steps 1 last offset 12 ns trim 13396 fu_lost 0 sync_rx 65 ts_lost 0)
+[ MASTER ] role 3, asCapable 1, GM 001b92fffe000001, peer slave pairs 70, lock (peer within 100 ns of the PHC) 3.4 s, then worst |offset| 74.8 ns; peer's link delay 289.0 ns
+    t= 0.1 s  PHC - peer =     -4993980.0 ns
+    t= 1.1 s  PHC - peer =         5470.5 ns
+    t= 2.1 s  PHC - peer =         3712.5 ns
+    t= 3.1 s  PHC - peer =          257.1 ns
+    t= 4.1 s  PHC - peer =           12.4 ns
+    t= 5.1 s  PHC - peer =            8.6 ns
+    t= 6.1 s  PHC - peer =            9.0 ns
+    t= 7.1 s  PHC - peer =            9.0 ns
+    t= 8.1 s  PHC - peer =            9.0 ns
+    t= 9.1 s  PHC - peer =            9.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp unit: checks: 13   failures: 0 ==
+RESULT: PASS

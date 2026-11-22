@@ -1,0 +1,75 @@
+MUTANT caught: burst: the cut is not read: burst: a name the cut's container lacks fails by its name
+MUTANT caught: marker: the frame tag is ignored: tagged start
+MUTANT caught: marker: any response on the channel ends the path: sequence and interface
+MUTANT caught: marker: a held record's commit goes to the last frame ended (earlier rule): raised Refusal
+MUTANT caught: answers: a response's status is not checked: the expected response is checked
+MUTANT caught: answers: a row that ends at a response need not state it (earlier rule): a probe that ends at a response and states no type and status is named
+MUTANT caught: scenario: the face's getters stated SUCCESS on the image as linked: the get_avb_info row sends GET_AVB_INFO on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer
+MUTANT caught: scenario: the talker's refusals stated SUCCESS: the talker rows state the statuses Milan gives them, restated
+MUTANT caught: flip: 8x8/1if held to a looser ceiling: the flip check refuses the flip ceilings not 0.70 at 8x8/2if and 0.75 at 8x8/1if
+MUTANT caught: shapes: the slice held at the interface count (earlier rule): a slice at 8x8/1if is held to its shape's length, which ctrl_loop.h lists for one interface's 8x8 streams apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))
+MUTANT caught: shapes: 8x8/1if's polls held at the interface count's (earlier rule): a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+MUTANT caught: rows: the rows by every source not held: the flip check refuses 1x1/1if R4 over its bound
+MUTANT caught: rows: a retained record retried once a pass (earlier rule): each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if
+MUTANT caught: rows: a datapath event neither counted nor excluded: the flip check refuses the arrival rules not held at this head
+MUTANT caught: notify: the first unsolicited response on any interface ends it (earlier rule): two recipients across interfaces end at the last
+MUTANT caught: clock ratio: CPU cycles equal bus cycles: clock conversion
+MUTANT caught: clock ratio: a pass's milliseconds from the bus clock: clock conversion
+MUTANT caught: composition: the composed maximum is the run's worst pass: fixture passes: worst pass and composed maximum
+MUTANT caught: composition: a window that committed more than its load is accepted: raised TypeError
+MUTANT caught: flash: the hybrid-XIP arm is held to the uncached window: raised RuntimeError
+MUTANT caught: opening: the refusal does not name the records held: raised TypeError
+MUTANT caught: service: a record never released is omitted: a starved channel is reported by name, and its window reports its load unreleased
+MUTANT caught: composition: the composed maximum includes the fixture's short window: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+MUTANT caught: tables: the composed maximum line drops its lower-bound label: raised TypeError
+MUTANT caught: service: a record's service ends at its release, not at its pass's end: fixture row fixture.service.adp.first.if0
+MUTANT caught: deadline: T_svc pinned at the 10 ms proposal (earlier rule): raised ValueError
+MUTANT caught: deadline: the ceiling drops the normative wait: W + T_svc passes
+MUTANT caught: run: a refusal does not fail the run: a refusal fails the run, recorded or not
+MUTANT caught: run: the as-built control is caught whatever the boot does: the as-built control escapes on a clean boot and on a trap of any other cause
+MUTANT caught: tables: a path's first instance is reported, not its worst (earlier rule): each path reports its worst instance
+MUTANT caught: build: the 1x1 point names the ledgered override too: the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it
+MUTANT caught: fetch bus: one beat a refill: a refill's beats are read off the netlist
+MUTANT caught: build: an XIP build records the block-RAM arm: the run builds and records the fetch L1 and the arm it selected
+MUTANT caught: xip: the hot code and the rest stay in rom: the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash
+MUTANT caught: share: the passes are not held to it: a work pass at the share fits it and one a cycle over it does not
+MUTANT caught: load: any window may hold the flood's last change: raised Refusal
+MUTANT caught: stated: one point's costs at both: each point has its own stated costs
+MUTANT caught: stated: an aged step's silent pass is not held: an aged step in a pass that wrote nothing to the mailbox is held too
+MUTANT caught: save: a window outside its flash phase is graded: a save's window is refused unless it opens inside its flash phase of the first save: the blank check between the erase and the first page, the program phase within 2 ms of a page or before a later one, as a flooded save's pages 60 ms apart, the verify 2 ms or more after its last page with no later page and before its read-backs have read back every programmed byte
+MUTANT caught: save: the bound counts one tick a step, not the age limit's: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load
+MUTANT caught: save: a save over its stated worst case is no finding: a save not durable within its stated worst case fails the run, whatever the options record
+MUTANT caught: save: the held load a burst once, then nothing: every receive channel the image opened is held at its contract refill rate with its bursts through a save's stated worst case: admission's records at once, again every as many refill periods, each channel's bursts apart
+MUTANT caught: save: the second change timed to the save in flight: a change marked while a save is in flight is timed from its mark to durable in the next save, against the bound with that save in flight, and refused when marked inside the first change's first-dirty window or after the save in flight erased its slot
+MUTANT caught: aged: the opening age counts TICK records, not their centiseconds: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond
+MUTANT caught: aged: an aged step's work pass is read as not aged: a step pass at its stated cost fits it and one a cycle over it does not
+MUTANT caught: aged: a step a pass that took nothing ran is not counted: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond
+MUTANT caught: notice: a retried notice is held to its ceiling, not its bound: raised KeyError
+MUTANT caught: transmit: any row over its bound catches the aged build's plant: the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row
+MUTANT caught: transmit: THE TRANSMIT's row held to T_svc's 20 ms (earlier rule): THE TRANSMIT's row is held to CTRL_LOOP_TX_BOUND_MS as ctrl_loop.h derives it, never a typed figure (#894's held-egress ruling, item (b)(i))
+MUTANT caught: round: no round is held to its cost: a round at its stated cost, by notices built and attempts refused, fits it and one a cycle over it does not
+MUTANT caught: round: a round held at its point's interface count, not the image's shape (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's retry-cost ruling, item 1)
+MUTANT caught: slice: no slice is held to its length: a slice at one interface is held to that point's length
+MUTANT caught: slice: SRP's slice from its first record: a slice of SRP's records at the stated length fits it and one a cycle over does not
+MUTANT caught: polls: no base is held to its cost: a pass's polls at 8x8/1if are held to its shape's stated costs, apart from the interface count's (THE SHAPES, #894's held-egress ruling, item (b)(iii)): its base at them fits and a cycle over does not, where 1x1/1if's refuses it
+MUTANT caught: polls: a long notice is the aecp item's: a notice longer than AECP_FAN_BYTES is a long notice's item at its own stated cost: at it fits, a cycle over does not, and neither is the aecp item's
+MUTANT caught: polls: an ACMP or AECP call that sent nothing is an item: an ACMP call that committed no ACMP frame is the base's
+MUTANT caught: polls: no offer is the kept record's re-offer, so none is told declined: an offer the kept record's re-offer follows is declined and held to its own cost, and the kept record's re-offer the next record follows is accepted and held to the ACMP record's
+MUTANT caught: polls: the declined offers held to no bound: declined ACMP offers over two a sent owed frame and one are refused, named with the sends
+MUTANT caught: joins: a periodic or LeaveAll timer's MRPDU taken for a join's: a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no join timer, between them are none
+MUTANT caught: joins: the wire's 180.0 to 240.0 ms held at the commit, T_egress uncounted: a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold
+MUTANT caught: joins: an unresolved build taken for one that owes nothing: no build after a run-out is absent and named where the log runs on past THE TRANSMIT's bound, and unresolved, counted and not named, where it ends first; neither is taken for a run-out that owes nothing
+MUTANT caught: transmit: an expiry with no owner recorded given the participant whose opportunity is latest (the fallback restored): an MRP timer's run-out with no owner recorded at its expiry, or its owner recorded unresolved, is unowned, named and fails the run whatever its builds sent: no other participant's opportunity stands in, and its frames are still its builds'
+MUTANT caught: transmit: another participant's MRPDU credited to a run-out, timed from its owner: another participant's build or MRPDU answers nothing for a run-out, for either application on either interface: absent where its owner builds nothing, late where a build comes only past the bound; the owner's own build that sends nothing is empty though the other's MRPDU follows in its run, no row; the owner's own MRPDU on time is released and times the owner's row
+MUTANT caught: transmit: the owner's own build before its transmit opportunity settling its run-out: the owner's own build before its transmit opportunity settles nothing: its MRPDU at the opportunity is released and times its row, for either application on either interface
+MUTANT caught: leaveall: a late LeaveAll not failing the run: a LeaveAll its owner sends after an MRPDU without it, a transmit opportunity skipped, is named; one past THE TRANSMIT's bound after its first opportunity is named late
+MUTANT caught: leaveall: an expiry bound to the participant whose LeaveAll comes first after it, not its recorded owner (earlier rule): no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+MUTANT caught: leaveall: an absent LeaveAll taken for an unresolved one: no MRPDU of its owner after a run-out is absent and named where the log runs on past the owner's opportunity and the bound, and unresolved, not named, where it ends first
+MUTANT caught: polls: a reference control held to no margin: the SRP record cut's control is held to this image's unplanted SRP record, not to a stated cost, with a margin of 5 %
+MUTANT caught: polls: a reference control's other run in the planted build's place: a reference control's other run is its group alone on this point's unplanted image, at its variant and core, in the build directory's reference
+MUTANT caught: aged: windows at the age limit only: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load
+MUTANT caught: save: the held AECP channel bursts with its change, the SET_NAME's token not yet back: the held AECP channel's first burst comes one refill period after the change, so the SET_NAME's token is back before it, and every other channel's at the change
+MUTANT caught: save: the blank check staged after the first page program: each flash phase of a save is staged at eight phases spread evenly across its heavy step's period, a step a pass, the window opening after the save's own flash event
+MUTANT caught: clock: the CPU is built on the Milan clock: the run builds and records the fetch L1 and the arm it selected
+MUTANT caught: clock: the CPU's clock is not checked against the bus clock: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain
+rc=0

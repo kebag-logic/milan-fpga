@@ -1,0 +1,74 @@
+MUTANT caught: burst: a SET_NAME's status is not read: burst: a SET_NAME refused is refused
+MUTANT caught: marker: a timer path starts one millisecond after its deadline: fixture row fixture.tmr_no_resp1.if0
+MUTANT caught: marker: the first required output ends the path: fixture row fixture.set_name.if0
+MUTANT caught: marker: a held record's commit before its hold is taken (no ordering guard): a held record's commit stamped before its hold is refused
+MUTANT caught: answers: a probe's response is the first on its channel, whatever its sequence_id: a probe's response is the one answering its sequence_id, not an earlier one on its channel
+MUTANT caught: run: a group whose row states no response is graded as any other: a run refuses a group whose row states no response, by name
+MUTANT caught: scenario: get_as_path stated SUCCESS on the image as linked: the get_as_path row sends GET_AS_PATH on AVB_INTERFACE 0 at its length, SUCCESS where the ports answer
+MUTANT caught: flip: read on the column graded with tsn-c-stack#32: the flip check refuses the graded column read, not the pin
+MUTANT caught: shapes: the slice and builds keyed on the interface count alone (earlier rule): a round at 8x8/1if is held to its shape's cold start and refused attempt, the costs ctrl_loop.h lists for one interface's 8x8 streams, apart from the interface count's (THE SHAPES; #894's retry-cost ruling, item 1)
+MUTANT caught: shapes: an owed MRPDU held to the interface count's build of one (earlier rule): THE TRANSMIT's builds at 8x8/1if are its shape's, a pass given whole held to them and an owed MRPDU to its build of one, apart from 1x1/1if's (THE SHAPES, #894's shape ruling, item (b))
+MUTANT caught: load: 8x8/2if held by the merge gate again (earlier rule): the load gate refuses a held point not held
+MUTANT caught: rows: SRP's rows held to T_svc's 20 ms: the flip check refuses the tier bounds or the points not decision D's
+MUTANT caught: rows: a retained record's retry counted in SRP's own rows: the flip check refuses the arrival rules not held at this head
+MUTANT caught: rows: read on the column graded with tsn-c-stack#32: the flip check refuses 8x8/1if's CTRL_LOOP_TX_MS planted at 60 ms, under its tx row
+MUTANT caught: notify: a missing recipient is not refused: a missing recipient is refused
+MUTANT caught: clock ratio: CPU cycles rounded down: clock conversion
+MUTANT caught: pass bound: it starts at the input, not at the running pass: fixture row fixture.malformed.if0
+MUTANT caught: worst pass: the run's last pass is dropped: raised Refusal
+MUTANT caught: pacing: an AECP group's frames meet an empty token bucket: each frame of an AECP group waits a refill period of its token bucket
+MUTANT caught: opening: the window opens with records held: every backlog window waits for the event ring to drain, then opens
+MUTANT caught: composition: the backlog stimulus omits MAAP: every composed window's stimulus is its defined load
+MUTANT caught: composition: the composed maximum is taken over the windows that released their load (earlier rule): the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+MUTANT caught: composition: the composed maximum does not name the backlog rows a run did not include: a run without every backlog row names the rows not run, and its composed maximum is partial
+MUTANT caught: service: the records ahead count only those never released: a served record's records ahead are those not yet released at its commit
+MUTANT caught: owed: a command never answered fits: a command never answered is reported, unbounded, where it may be dropped
+MUTANT caught: deadline: strictly below the budget: exact budget passes
+MUTANT caught: run: a CPU trap is not refused: a CPU trap is refused
+MUTANT caught: run: the as-built control is caught by any trap: the as-built control escapes on a clean boot and on a trap of any other cause
+MUTANT caught: reuse: an input outside the checkout is not rechecked (earlier rule): reuse refuses the image
+MUTANT caught: tables: a control instance is its own path (earlier rule): a control instance is its functional path
+MUTANT caught: build: arm B's path port answers no entries at once, reading no window (earlier rule): the answering-ports arm's path port is arm_path.py's, which reads the window
+MUTANT caught: reuse: the fetch L1 and the arm are not compared: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless
+MUTANT caught: xip: the reset entry moves to flash with the other code: the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash
+MUTANT caught: share: a pass at the share is over it: the per-pass share is T_svc's 20 ms, the tightest family bound, over ten passes: 2.0 ms, 200,000 CPU cycles at the product's 100 MHz
+MUTANT caught: share: the planted store step is judged as a budget control: the planted store step is caught by a group with a pass over the share and every row of its own within its budget, and escapes with only a row over it there too, a refusal, or no pass over the share
+MUTANT caught: stated: no pass is held to its cost: a build pass at its stated cost fits it and one a cycle over it does not
+MUTANT caught: stated: a pass whose round did something is held too: a pass whose round did something is not its work alone, and a pass that neither built nor stepped has no stated cost
+MUTANT caught: stated: in bus cycles, not CPU time: a build pass at its stated cost fits it and one a cycle over it does not
+MUTANT caught: save: the program phase ends at the window's last page, not the save's: a save's window is refused unless it opens inside its flash phase of the first save: the blank check between the erase and the first page, the program phase within 2 ms of a page or before a later one, as a flooded save's pages 60 ms apart, the verify 2 ms or more after its last page with no later page and before its read-backs have read back every programmed byte
+MUTANT caught: save: durable at the verify's first read-back, not the one that completes it: a save is timed from its change to the last read-back that completes its verify: durable within its stated worst case, over it, or never in the run, each named
+MUTANT caught: save: a held group that commits fewer records than it offered is graded: a held group is refused unless its receive channels commit every record its load offered from its change: one committed, one refused by the filter, of two offered
+MUTANT caught: save: the in-flight change waits for every step of the save in flight: a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save, its steps less two, then its own, which starts at the first idle step after it with no window (#920): for a SET_NAME of the entity beside another's save, 22,150 ms at 8x8/2if (368 and 370 steps), 6,070 ms at 1x1 (100 and 102), and a 768-byte container's 1,570 ms (25 and 27), shorter than its window and its save
+MUTANT caught: save: the second change the same name as the first: a change while a save is in flight is a SET_NAME of the entity to another value, 1,035 ms and one step after a first just after a step, under a grandmaster change as every pass starts, timed against the bound with that save of two records in flight
+MUTANT caught: aged: a pass that took nothing before the window does not end the age: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond
+MUTANT caught: aged: a window at the age limit with no aged step in it is graded: an aged window is graded only at the age its name declares, the centiseconds its TICK records carried since its last step, every pass between them a work pass, and, at the age limit, with a step taking its phase's heavy step (a read-back, a page's issue) in it once a centisecond came in it, aged among its records or, where it drains before its next centisecond, after the last of them, its pass a work pass or not, or run by a pass that took nothing; one short of it needs none, nor does a window that closes before its next centisecond
+MUTANT caught: aged: the heavier aged step's plant is judged as a budget control: the heavier aged step's plant is caught by an aged window's row over its budget or its aged step over its stated cost, and escapes with every row within it, a miss in another group only, a refusal or a pass over the share
+MUTANT caught: notice: the port answers before the load: every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark
+MUTANT caught: transmit: a timer's row starts at its entry, not at the deadline: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+MUTANT caught: notice: the first of a queue is held to the queue's bound: a queue's first notice's bound is the constants', T_svc at one interface and 22 ms at two
+MUTANT caught: round: one point's costs at both: each point's round costs are its headers' own, a notice to 16 recipients cheaper than one to 32
+MUTANT caught: round: calls outside it are counted: calls outside a round count none of its notices or attempts
+MUTANT caught: slice: one point's length at both: each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if
+MUTANT caught: slice: a build pass's round a slice of its own: a slice of THE TRANSMIT's build at the stated length fits it and one a cycle over does not
+MUTANT caught: polls: no SRP record's apply is held to its retry's cost: an SRP record's own apply, outside the polls, is held to its retry's stated cost: at it fits, a cycle over does not, and neither is a polls item
+MUTANT caught: polls: a long notice is any AECP frame over the fan port's: a notice of AECP_FAN_BYTES, or a longer solicited response, is the aecp item's
+MUTANT caught: polls: an item nested in another is counted twice: an item inside another is counted once, as the outer one
+MUTANT caught: polls: no kept command's accepted offer is held to its cost: a declined ACMP offer over its stated cost, and a kept command's accepted offer over the ACMP record's, are named, with the cost each passed
+MUTANT caught: joins: the range from the armed 190 ms: a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold
+MUTANT caught: joins: any two MRPDUs, with no join timer between: a join interval under 181.0 ms or over 239.0 ms is named with its participant
+MUTANT caught: joins: a late build's run-out not failing the run: a run-out's build past THE TRANSMIT's bound is late and named, and its interval is graded, on either side of the 100 ms the search once stopped at: 241, 289, 291 and 500 ms fail, 191 and 239 hold
+MUTANT caught: transmit: an MRPDU a timer owes timed from its run-out, not its participant's transmit opportunity (earlier rule): a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+MUTANT caught: transmit: a run-out with no build after it held to the latest of every participant's opportunity (earlier rule): a run-out with no build after it is absent past THE TRANSMIT's bound after its owner's first transmit opportunity, though another participant's join timer runs on, for either application on either interface; a log that ends first leaves it unresolved
+MUTANT caught: transmit: a run-out settled by the first build after it, whichever participant's (earlier rule): another participant's build or MRPDU answers nothing for a run-out, for either application on either interface: absent where its owner builds nothing, late where a build comes only past the bound; the owner's own build that sends nothing is empty though the other's MRPDU follows in its run, no row; the owner's own MRPDU on time is released and times the owner's row
+MUTANT caught: transmit: the participant's join timer run out a centisecond early: a LeaveAll whose owner's join timer still runs is timed from that timer's run-out, its transmit opportunity: 1 ms after the 1,180 ms TICK, though 131 ms after the run-out, and sent there
+MUTANT caught: leaveall: the participants' applications not told apart: a join interval is two MRPDUs of one participant, the second one a join timer released: 181 and 239 ms, Table 4.3's 180 and 240 less T_egress, hold
+MUTANT caught: leaveall: the participants' interfaces not told apart: a participant's join intervals are its own, and two MRPDUs with a periodic or LeaveAll timer, or no join timer, between them are none
+MUTANT caught: polls: one point's costs at both: each point's slice is ctrl_loop.h's stated length at it, the slice rule's at 1x1/1if, 1,300 us at 8x8/2if
+MUTANT caught: polls: a reference control's refusals ignored: a reference control escapes with a refusal in either run, or without its group in either
+MUTANT caught: aged: one delay an aged window: each flash phase's aged window opens after the save's own flash event, a grandmaster change as every pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load
+MUTANT caught: steps: a pass that carries a step and writes nothing to the mailbox is left out: every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike, with the longest of them and the longest step's own CPU time
+MUTANT caught: save: four tick phases a flash phase: each flash phase of a save is staged at eight phases spread evenly across its heavy step's period, a step a pass, the window opening after the save's own flash event
+MUTANT caught: share: the rows option records the passes too: a pass over the share fails a run whose rows all fit, unless --record-share-findings records it; --record-budget-findings does not
+MUTANT caught: clock: no CPU clock refusal: a build whose SoC puts the CPU on the Milan clock is refused and records nothing
+rc=0

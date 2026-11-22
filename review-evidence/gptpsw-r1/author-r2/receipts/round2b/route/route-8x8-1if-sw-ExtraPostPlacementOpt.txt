@@ -1,0 +1,32 @@
+# route 8x8/1if --sw-gptp ExtraPostPlacementOpt at 62fcd154: 2026-11-22T03:19:37+01:00 to 2026-11-22T03:38:34+01:00, rc 0
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+ Slice LUTs                      38178  of    63400
+ Slice Registers                 45815  of   126800
+ Slice                           15215  of    15850
+ LUT as Memory                     672  of    19000
+ Block RAM Tile                   95.5  of      135
+ RAMB18                             35  of      270
+ DSPs                                5  of      240
+## hierarchy (utilization_hierarchical_place.rpt: instance, LUT, LUTRAM, FF, RAMB36, RAMB18)
+   alinx_ax7101                                                        38178    604   45815   78   35
+   (alinx_ax7101)                                                       1020     62    2425   66    7
+   KL_gptp_gmii_launch                                                   170      0     221    0    0
+   KL_mac_rmon_events                                                     49      0      78    0    0
+   KL_mbx                                                               5561     22    9060    1   12
+   KL_mbx_cdc                                                           6680      0    6545    0    0
+   KL_mbx_dma                                                            806      0     713    0    0
+   KL_mbx_wb                                                              53      0       1    0    0
+   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51                     3812    134    4368    6    9
+   milan_datapath                                                      20091    386   22404    5    7
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.205 failing 0 WHS 0.142 failing 0
+Slow_0C: WNS 0.205 failing 0 WHS 0.142 failing 0
+Fast_85C: WNS 1.641 failing 0 WHS 0.013 failing 0
+Fast_0C: WNS 1.641 failing 0 WHS 0.013 failing 0
+## worst setup path, Slow_85C
+ Slack (MET) :             0.205ns  (required time - arrival time)
+ Source:                 VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_spinal_port1_reg[6]/C
+ Destination:            VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_reg_0_3_6_11/RAMA/WE
+ Path Group:             milansoc_crg_clkout0
+ Data Path Delay:        9.309ns  (logic 2.257ns (24.244%)  route 7.052ns (75.756%))
+ Logic Levels:           13  (LUT2=3 LUT4=4 LUT5=4 LUT6=2)

@@ -1,0 +1,19 @@
+baseline: PASS
+  ok   stamp-at-beat-1: KILLED: [FAIL] I1 the stamp is the first beat's PHC less INGRESS_LAT (656 ns) got=999999999484 exp=999999999464
+  ok   ingress-latency-added: KILLED: [FAIL] I1 the stamp is the first beat's PHC less INGRESS_LAT (656 ns) got=1000000000776 exp=999999999464
+  ok   general-messages-timed: KILLED: [FAIL] I3 general messages (Follow_Up, Announce, Pdelay_Resp_Follow_Up) are not timed got=3 exp=0
+  ok   ethertype-ignored: KILLED: [FAIL] I4 another EtherType at the gPTP address is not timed got=1 exp=0
+  ok   sdo-ignored: KILLED: [FAIL] I4 majorSdoId 0 (IEEE 1588, not 802.1AS) is not timed got=1 exp=0
+  ok   half-tick-dropped: KILLED: [FAIL] E2 GMII: the launch's PHC less 426 ns (GPTP_PLANE.md) plus EGRESS_LAT 219 ns got=1000000027043 exp=1000000027033
+  ok   egress-latency-subtracted: KILLED: [FAIL] E2 GMII: the launch's PHC less 426 ns (GPTP_PLANE.md) plus EGRESS_LAT 219 ns got=1000000026595 exp=1000000027033
+  ok   mii-octet-term-dropped: KILLED: [FAIL] E2 MII: the launch's PHC less 3770 ns (GPTP_PLANE.md) got=1000000023510 exp=1000000023470
+  ok   delta-unchecked: KILLED: [FAIL] E3 an aborted launch and a fragmented one are losses got=0 exp=0
+  ok   abort-unchecked: KILLED: [FAIL] E3 an aborted launch and a fragmented one are losses got=0 exp=0
+  ok   guard-ignored: KILLED: [FAIL] G1 a launch 20 cycles after a PHC step is a loss, not a stamp got=0 exp=0
+  ok   envelope-ignored: KILLED: [FAIL] G3 an addend past the 200 ppm envelope is a loss got=0 exp=0
+  ok   unsealed-accepted: KILLED: [FAIL] E1 before the echo a launch is a counted loss got=1 exp=0
+  ok   generation-unchecked: KILLED: [FAIL] S1 a record of generation 0 (the observer reset) is a loss got=0 exp=0
+  ok   no-reseal: KILLED: [FAIL] S1 and the unit offers its seal again got=0 exp=3
+  ok   full-overwrites: KILLED: [FAIL] F1 the ninth record past eight held is counted got=0 exp=1
+== gptp timestamp unit planted defects: checks: 16   failures: 0 ==
+RESULT: PASS

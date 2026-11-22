@@ -1,0 +1,14 @@
+== gptp-slave.log
+run: link up at sys 7516682, end at 167611886: 1.601 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 212155, gptp_mbx 1611702, together 1823857: 1.139 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 180; its cycles a pass: max 19529, p95 4807, median 964
+  after the first second: 69 passes, max 19529, median 973; the longest such pass, all modules: 61991
+  the five dearest: sys 107522897: gptp 18030 + gptp_mbx 1499 of 61991, sys 7516682: gptp 16692 + gptp_mbx 1974 of 76464, sys 107403924: gptp 12622 + gptp_mbx 1750 of 49850, sys 120016921: gptp 10708 + gptp_mbx 1102 of 36093, sys 137520465: gptp 6222 + gptp_mbx 421 of 27043
+== gptp-master.log
+run: link up at sys 7516682, end at 167612317: 1.601 s of CPU time after link-up at 100 MHz
+gPTP cycles in the run: gptp 186355, gptp_mbx 1606621, together 1792976: 1.120 % of the CPU after link-up (an upper bound: boot passes before link-up included)
+work passes with gPTP work after link-up: 169; its cycles a pass: max 17322, p95 5723, median 964
+  after the first second: 65 passes, max 8799, median 999; the longest such pass, all modules: 35796
+  the five dearest: sys 7516682: gptp 15427 + gptp_mbx 1895 of 68667, sys 107400269: gptp 12445 + gptp_mbx 1750 of 49468, sys 107518860: gptp 8359 + gptp_mbx 440 of 35796, sys 137520957: gptp 6150 + gptp_mbx 421 of 27059, sys 108404220: gptp 5937 + gptp_mbx 570 of 31854
+== gptp-slave.log steady state, 0.601 s from a second after link-up: work passes 69, their gPTP cycles 124669: 0.207 % of the CPU, 207452 cycles a second
+== gptp-master.log steady state, 0.601 s from a second after link-up: work passes 65, their gPTP cycles 110020: 0.183 % of the CPU, 183075 cycles a second

@@ -1,0 +1,16 @@
+vivado-slot: slot 0 ($VIVADO_LOCK), MemAvailable 40 GB, 2026-11-21T17:04:04+01:00
+cpus 0-95 threads 8
+head 4493fc956618a157d89a976bfef38ab34cb529a8; status 
+d67fd049a9d20b6522a635cb4aa7d6abc536e61ec036cc0c32485c64f69af0c4  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --sw-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/clones/s2/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --no-compile-software --vivado-max-threads 8 --output-dir <scratch>/syn/s2-sw/b
+| Slice LUTs*                | 40349 |     0 |          0 |     63400 | 63.64 |
+|   LUT as Logic             | 39678 |     0 |          0 |     63400 | 62.58 |
+|   LUT as Memory            |   671 |     0 |          0 |     19000 |  3.53 |
+|     LUT as Distributed RAM |   538 |     0 |            |           |       |
+|     LUT as Shift Register  |   133 |     0 |            |           |       |
+| Slice Registers            | 48952 |    20 |          0 |    126800 | 38.61 |
+|   Register as Flip Flop    | 48952 |    20 |          0 |    126800 | 38.61 |
+|   Register as Latch        |     0 |     0 |          0 |    126800 |  0.00 |
+| F7 Muxes                   |  2508 |     0 |          0 |     31700 |  7.91 |
+== END rc=0 2026-11-21T17:37:19+01:00
+rc=0
