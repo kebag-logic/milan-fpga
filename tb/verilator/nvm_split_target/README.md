@@ -187,7 +187,7 @@ Recorded, not bounded ([The capture's timing](#the-captures-timing)); CPU 50 MHz
 The fixed cost and the cost a byte are the least-squares line through the latch steps' CPU cycles against the payload of the record each latched.
 An idle step, which every step pays too, is mostly the flash port's 64-bit clock conversion (`ls_now_us`).
 The elapsed time is the loop's pacing, one record a 10 ms tick; the CPU time is spread over it, at most 2.641 ms in any one step.
-For comparison, the current flash writer's capture copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte, holding its owners while it does.
+For comparison, the current flash writer's capture copies 13,850 bytes at 8x8 in 14.53 ms (`nvm_capture_cpu/measurements.json`, #584's census), about 52 cycles a byte, holding its owners while it does.
 
 ### The commit's steps
 
