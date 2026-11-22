@@ -94,18 +94,18 @@ Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz; 
 
 | Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 27.978 ms | 2,797,817 | 18 of 18 equal | 5.366 / 0.647 / 0.303 ms | 0.399 / 0.236 / 0.143 ms |
-| 8x8, one interface | 67.228 ms | 6,722,765 | 18 of 18 equal | 6.858 / 0.778 / 0.367 ms | 0.549 / 0.314 / 0.214 ms |
+| 1x1, one interface | 27.940 ms | 2,794,027 | 18 of 18 equal | 5.323 / 0.641 / 0.297 ms | 0.395 / 0.234 / 0.141 ms |
+| 8x8, one interface | 67.214 ms | 6,721,395 | 18 of 18 equal | 7.043 / 0.877 / 0.371 ms | 0.554 / 0.316 / 0.218 ms |
 
-The PHY at this head (#919, with #840's advertisement and #972's arm), both shapes:
-- Link down published as the poll arms: at 2.636 ms at 1x1 and 4.434 ms at 8x8, before the first frame (27.125 and 66.186 ms) and ready (27.978 and 67.228 ms). Before #972 nothing was published before the first frame, so the word kept its reset value, link up, until 27.3 ms at 1x1.
-- 59 frames and 10 publications after the arm's. The longest frame is 14,582 CPU cycles (145.82 us) at 1x1 and 14,707 (147.07 us) at 8x8, against the stated 155 us.
-- Seven polls, 125.092 to 125.485 ms apart before the loss.
-- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.4 ms after it.
+The PHY at this head (#919, with #840's advertisement and BMCR rule and #972's arm), both shapes:
+- Link down published as the poll arms: at 2.637 ms at 1x1 and 4.437 ms at 8x8, before the first frame (27.096 and 66.163 ms) and ready (27.940 and 67.214 ms). The stand-in's word resets to link down, as the split's does since #972; at `dd163e41`, before #972, nothing was published before the first frame, and the word, then reset to link up, kept that until 27.3 ms at 1x1.
+- 59 frames and 10 publications after the arm's. The longest frame is 14,538 CPU cycles (145.38 us) at 1x1 and 14,595 (145.95 us) at 8x8, against the stated 155 us.
+- Seven polls, 125.015 to 125.398 ms apart before the loss at 1x1, 125.049 to 125.378 ms at 8x8.
+- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.187 and 126.490 ms after it.
 - The advertisement's seven writes: the boot's register 9 0x0200, 4 0x0001 and 0 0x1200, then 9 and 4 after each loss, each group read back.
 - MDC at least 950 ns high, 1,120 ns low and 2,260 ns a period.
 
-At `dd163e41`, before #972, the boot reached ready in 27.952 and 67.223 ms.
+At `0f508a01`, round 2's #972 head, the boot reached ready in 27.978 and 67.228 ms; at `dd163e41`, before #972, in 27.952 and 67.223 ms.
 At `55769f09`, before the advertisement and the merge of dev-soft-core `70f4056f`, the PHY gave 34 frames, the longest 14,537 CPU cycles at 1x1. The boot reached ready in 27.605 and 67.347 ms, and `milan_status` took 4.268 / 0.674 / 0.317 and 5.550 / 0.751 / 0.371 ms.
 The PHY adds to the boot and the console: the arm's timed run (1,024 spin turns, about 0.28 ms) before ready, and a frame in an empty pass between two of the console's output passes, which lengthens its longest gap by a frame's 0.15 ms.
 At `659d7687`, the head before the PHY, the same host gave 26.883 ms to ready at 1x1 and `milan_status` 3.027 / 0.486 / 0.133 ms.
