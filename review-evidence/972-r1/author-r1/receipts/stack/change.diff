@@ -1,0 +1,65 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 814a380..34eb408 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -2,6 +2,7 @@
+ 
+ ## Unreleased
+ 
++- Assert that a grandmaster change in WAITING enters DELAY with the zero to four second draw kind ([MFDISC-01](docs/REQUIREMENTS.md#mfdisc-01), Milan v1.2 5.6.3.5.7), and plant the startup kind at that call site, which the suite now catches ([milan-fpga #970](https://github.com/kebag-logic/milan-fpga/issues/970), review finding R887-1-F1). No constant or behaviour changes.
+ - Walk only the sinks an ACMP entry changed. Each entry marks the sinks it changes, and its interface's timer for an expiry; completion and each publication before a new frame publish, re-arm, admit, persist and report only those, with the calls a walk over every sink makes, in its order and with its arguments ([ACMP-13](docs/REQUIREMENTS.md#acmp-changed-sink-walk)). Add `dirty`, `ACMP_DIRTY_WORDS` words, and `dirty_if` to `struct acmp`. A differential test drives random entries into a core and one with every sink marked before each entry, at 1, 8, 32 and 33 sinks, and requires the same calls. At 33 sinks its commands reach sink 32, alone on a third interface, and transmit room is withdrawn as at the other sizes. After each entry it requires every mark cleared.
+ - Size the ACMP owed-release mask from `ACMP_MAX_SINKS`: `acmp_owed.release` holds `ACMP_RELEASE_WORDS` 32-bit words, and no shift reaches the word width. With more than 32 sinks, sink 32 and sink 0 no longer share a bit, so each sink's change waits only behind its own owed response. A build whose mask cannot hold every sink is refused, and so is a build of more than 255 sinks, which `probe_of` cannot name. Add a 33-sink test binary under `-fsanitize=shift,undefined`. It checks that sinks 31 and 32, on both sides of the word boundary, wait only behind their own owed responses, and that a probe owed in a slot that held another sink's response holds no sink. The 16-sink tests check the same slot reuse ([issue 31](https://github.com/kebag-logic/tsn-c-stack/issues/31)).
+ - Exempt the merge of #29 from the one-line message rule by its exact commit; its identity and content are still checked.
+diff --git a/docs/VERIFICATION.md b/docs/VERIFICATION.md
+index af8d880..11695e8 100644
+--- a/docs/VERIFICATION.md
++++ b/docs/VERIFICATION.md
+@@ -21,7 +21,7 @@ No failing build, skipped test or empty test binary can establish a pass.
+ | Entity YAML | `python3 scripts/entity_yaml.py --examples --check` and `python3 scripts/entity_selftest.py --work build-entity-controls` | Schema refusals, exact golden bytes, version guard, planted drift, the AX7101 mapping and 13 registered mapper plants pass. [Round trips](ENTITY_YAML.md#validation-and-tests) execute on Linux and RV32. |
+ | GCC C11 and core tests | `cmake -S . -B build-gcc -DTSN_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug`, then `cmake --build build-gcc -j16` and `ctest --test-dir build-gcc --output-on-failure -j16` | All tests pass. Warnings fail. |
+ | Coverage | `python3 scripts/coverage.py build-gcc` | 100% lines and branches after exact exclusions. |
+-| Mutation | `python3 scripts/mutation.py --work build-mutations --jobs 16` | All 473 core plants and four generated configuration plants caught by their named assertions. Fifteen of the 18 changed-sink walk plants each drop one mark, one drops `mark()`'s interface bit, and two write or read word 0 for every sink (caught at 33 sinks), each built at 33 sinks under the shift and undefined-behaviour sanitizers like the `acmp_walk` test. Four more drop the mark only for the second mark word's sink, at `bind()`, `unbind()`, the release loop and `probe_left()` (caught at 33 sinks), and three drop the clear of the sink marks, of the interface mark or of the second mark word (caught by the assertion that a completed entry leaves no mark). |
++| Mutation | `python3 scripts/mutation.py --work build-mutations --jobs 16` | All 474 core plants and four generated configuration plants caught by their named assertions. Fifteen of the 18 changed-sink walk plants each drop one mark, one drops `mark()`'s interface bit, and two write or read word 0 for every sink (caught at 33 sinks), each built at 33 sinks under the shift and undefined-behaviour sanitizers like the `acmp_walk` test. Four more drop the mark only for the second mark word's sink, at `bind()`, `unbind()`, the release loop and `probe_left()` (caught at 33 sinks), and three drop the clear of the sink marks, of the interface mark or of the second mark word (caught by the assertion that a completed entry leaves no mark). |
+ | Sanitizers and Clang | `cmake -S . -B build-sanitize -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DTSN_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug`, then build and test as above | Address and undefined-behavior sanitizers pass. The full runner enables leak detection and stops on findings. |
+ | ACMP at 33 sinks | `ctest --test-dir build-gcc -R acmp_wide` or `ctest --test-dir build-sanitize -R acmp_wide` | `acmp_wide` builds the ACMP core and its test with `ACMP_MAX_SINKS` 33, one sink past the first release word, under `-fsanitize=shift,undefined` with no recovery. Sinks 0, 31 and 32 each wait only behind their own owed response and are released only when it leaves. A probe owed in a slot that held sink 31's or sink 32's response holds no sink. The 16-sink `acmp_tests` checks the same slot reuse with the last sink. |
+ | Static analysis | `python3 scripts/static_analysis.py` | No project findings after [listed suppressions](STATIC_ANALYSIS.md). |
+diff --git a/tests/mutations.json b/tests/mutations.json
+index b2a49c0..60a9908 100644
+--- a/tests/mutations.json
++++ b/tests/mutations.json
+@@ -359,6 +359,21 @@
+       "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING"
+     ]
+   },
++  {
++    "name": "gm-change-draws-startup-kind",
++    "path": "src/adp.c",
++    "old": "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n",
++    "new": "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\tenter_delay(a, ADP_DRAW_STARTUP);                       // Milan v1.2 5.6.3.5.7\n\t}\n",
++    "kills": [
++      {
++        "test": "AdpCore.A0toA2Schedule",
++        "needle": "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)"
++      }
++    ],
++    "original_tests": [
++      "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING"
++    ]
++  },
+   {
+     "name": "delay-ignores-link-down",
+     "path": "src/adp.c",
+diff --git a/tests/test_adp.cpp b/tests/test_adp.cpp
+index c90855a..2ae42f2 100644
+--- a/tests/test_adp.cpp
++++ b/tests/test_adp.cpp
+@@ -136,6 +136,9 @@ void core_schedule(void) {
+         << "A2 the next cycle carries index 1 and the grandmaster sampled at build";
+     adp_set_current_configuration(&a, 0x0103);
+     adp_gm_change(&a);
++    EXPECT_TRUE(a.state == ADP_STATE_DELAY && a.last_draw == ADP_DRAW_DELAY && fk.last_delay == a.last_draw_ms &&
++                fk.last_delay <= 4000u)
++        << "A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)";
+     adp_timer_expired(&a);
+     EXPECT_EQ(fk.sends, 3) << "A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)";
+     EXPECT_EQ(wire_be16(fk.last + 64), 0x0103) << "A2 with the new current_configuration_index (6.2.2.18)";

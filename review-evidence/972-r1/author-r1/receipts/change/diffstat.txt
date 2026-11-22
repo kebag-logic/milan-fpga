@@ -1,0 +1,16 @@
+ CHANGELOG.md                               |  10 +
+ docs/DOCUMENTATION_AUDIT.md                |   2 +-
+ docs/design/MAILBOX_SPLIT.md               |   5 +-
+ docs/reference/FR_NFR.md                   |  23 ++
+ sw/firmware/ctrl/plat/README.md            |   6 +-
+ sw/firmware/ctrl/plat/ctrl_plat_phy.c      |  11 +-
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h      |  32 ++-
+ sw/firmware/ctrl/test/adp_first_mutants.py |  59 ++++++
+ sw/firmware/ctrl/test/ctrl_mutants.py      |  15 +-
+ sw/firmware/ctrl/test/plat_mutants.py      |  20 +-
+ sw/firmware/ctrl/test/test_adp.cpp         | 327 ++++++++++++++++++++++++++++-
+ sw/firmware/ctrl/test/test_plat_boot.cpp   |  41 ++--
+ sw/firmware/ctrl/test/test_plat_phy.cpp    |  88 +++++++-
+ tb/verilator/ctrl_split_boot/README.md     |  20 +-
+ tb/verilator/ctrl_split_boot/run.py        |  25 ++-
+ 15 files changed, 620 insertions(+), 64 deletions(-)

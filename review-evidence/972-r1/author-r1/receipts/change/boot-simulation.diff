@@ -1,0 +1,110 @@
+diff --git a/tb/verilator/ctrl_split_boot/README.md b/tb/verilator/ctrl_split_boot/README.md
+index f51e326c53..5cdcd92a1b 100644
+--- a/tb/verilator/ctrl_split_boot/README.md
++++ b/tb/verilator/ctrl_split_boot/README.md
+@@ -77,13 +77,13 @@ A step of that script that waits past 300 ms says so and moves on, so a run whos
+ - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
+ - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
+ - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and the approved T_svc = 20 ms.
+-- **PHY** (#919): the published link word, `milan_mac_link_status`. The boot's probe reads PHYID1 at each address below the PHY's once, each miss published link down, then the PHY's 1000BASE-T full duplex; a poll starts every `CTRL_PLAT_PHY_POLL_US` (`ctrl_plat_phy.h`, read by its derivation from `scripts/nvm_shape.py`), within the release's 250 ms publication bound; the loss latched between two polls is published down, then up, by the next poll; the sustained loss is published down; the link's return is published up by the first poll after it, within the release's 250 ms publication bound. Each frame, from its pins leaving 0 to their release, is within `CTRL_PLAT_PHY_STEP_US`, and MDC's shortest high and low times and period are at least IEEE 802.3 22.2.2.13's 160, 160 and 400 ns. The advertisement (#840, `ctrl_plat_phy.h` THE ADVERTISEMENT) is checked as writes:
++- **PHY** (#919): the published link word, `milan_mac_link_status`. Link down is published as the poll arms, before its first frame, so the datapath sees no link on the word's reset value (#972); its time is reported. The boot's probe reads PHYID1 at each address below the PHY's once, each miss published link down, then the PHY's 1000BASE-T full duplex; a poll starts every `CTRL_PLAT_PHY_POLL_US` (`ctrl_plat_phy.h`, read by its derivation from `scripts/nvm_shape.py`), within the release's 250 ms publication bound; the loss latched between two polls is published down, then up, by the next poll; the sustained loss is published down; the link's return is published up by the first poll after it, within the release's 250 ms publication bound. Each frame, from its pins leaving 0 to their release, is within `CTRL_PLAT_PHY_STEP_US`, and MDC's shortest high and low times and period are at least IEEE 802.3 22.2.2.13's 160, 160 and 400 ns. The advertisement (#840, `ctrl_plat_phy.h` THE ADVERTISEMENT) is checked as writes:
+   - at boot, register 9 with 1000BASE-T full duplex alone (0x0200), 4 without 10/100 (0x0001), then 0 restarting negotiation (0x1200);
+   - after each of the script's two losses (a publication from link up to down), 9 and 4 again with no restart, the PHY still holding them;
+   - no other write;
+   - each group read back, registers 4 then 9.
+ - **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
+-- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; the PHY's word never written to `milan_mac_link_status`, the loss a poll's first BMSR latched not published, and the boot's advertisement never owed (`ctrl_plat_phy.c`), must each be a PHY finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
++- **Controls** (`--self-test`): the SoC exported with `milan_soc.ctrl_uncached_flash` made a no-op, as `boot_soc.py` without its call, must be refused by the flash window's check (`PLANT flash-window-cached`); a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; the PHY's word never written to `milan_mac_link_status`, the loss a poll's first BMSR latched not published, the boot's advertisement never owed, and the arm's link-down publication removed (`phy-arm-unpublished`, #972; `ctrl_plat_phy.c`), must each be a PHY finding; a console that spins 2,000,000 turns, about 0.55 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+ - **Placement controls** (`--placement-controls` on a finished run, and last in `--self-test`): `split_soc.map_deviations` must find nothing on the true flash map, and must name a moved register, a register the SoC lacks, a moved window and a resized window. `boot_soc.build` must refuse, in its own words, an export given the map with `spiflash_master_cs` moved four bytes. Each planted defect of that refusal must then let the same map through: the refusal taken out of the build (`guard-removed`), and a `map_deviations` that finds nothing (`deviations-empty`). They need the product LiteX tree, as the boot does, and no hosted job runs them.
+ - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
+ 
+@@ -94,16 +94,18 @@ Every figure is simulated time, the split CPU and its bus on `sys`, at 100 MHz;
+ 
+ | Shape | Boot to ready | CPU cycles at 100 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+ |---|---:|---:|---|---|---|
+-| 1x1, one interface | 27.540 ms | 2,754,032 | 18 of 18 equal | 5.814 / 0.667 / 0.312 ms | 0.433 / 0.251 / 0.162 ms |
+-| 8x8, one interface | 66.615 ms | 6,661,535 | 18 of 18 equal | 7.106 / 0.763 / 0.371 ms | 0.555 / 0.314 / 0.221 ms |
+-
+-The PHY at this head (#919, with #840's advertisement), both shapes:
+-- 59 frames and 10 publications. The longest frame is 14,537 CPU cycles (145.37 us) at 1x1 and 14,545 (145.45 us) at 8x8, against the stated 155 us.
+-- Seven polls, 125.041 to 125.557 ms apart before the loss.
+-- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.5 ms after it.
++| 1x1, one interface | 27.978 ms | 2,797,817 | 18 of 18 equal | 5.366 / 0.647 / 0.303 ms | 0.399 / 0.236 / 0.143 ms |
++| 8x8, one interface | 67.228 ms | 6,722,765 | 18 of 18 equal | 6.858 / 0.778 / 0.367 ms | 0.549 / 0.314 / 0.214 ms |
++
++The PHY at this head (#919, with #840's advertisement and #972's arm), both shapes:
++- Link down published as the poll arms: at 2.636 ms at 1x1 and 4.434 ms at 8x8, before the first frame (27.125 and 66.186 ms) and ready (27.978 and 67.228 ms). Before #972 nothing was published before the first frame, so the word kept its reset value, link up, until 27.3 ms at 1x1.
++- 59 frames and 10 publications after the arm's. The longest frame is 14,582 CPU cycles (145.82 us) at 1x1 and 14,707 (147.07 us) at 8x8, against the stated 155 us.
++- Seven polls, 125.092 to 125.485 ms apart before the loss.
++- The latched loss's poll published `[0, 13]`, the loss's `[0, 0]`, and the return's `[13]`, 126.2 and 126.4 ms after it.
+ - The advertisement's seven writes: the boot's register 9 0x0200, 4 0x0001 and 0 0x1200, then 9 and 4 after each loss, each group read back.
+ - MDC at least 950 ns high, 1,120 ns low and 2,260 ns a period.
+ 
++At `dd163e41`, before #972, the boot reached ready in 27.952 and 67.223 ms.
+ At `55769f09`, before the advertisement and the merge of dev-soft-core `70f4056f`, the PHY gave 34 frames, the longest 14,537 CPU cycles at 1x1. The boot reached ready in 27.605 and 67.347 ms, and `milan_status` took 4.268 / 0.674 / 0.317 and 5.550 / 0.751 / 0.371 ms.
+ The PHY adds to the boot and the console: the arm's timed run (1,024 spin turns, about 0.28 ms) before ready, and a frame in an empty pass between two of the console's output passes, which lengthens its longest gap by a frame's 0.15 ms.
+ At `659d7687`, the head before the PHY, the same host gave 26.883 ms to ready at 1x1 and `milan_status` 3.027 / 0.486 / 0.133 ms.
+diff --git a/tb/verilator/ctrl_split_boot/run.py b/tb/verilator/ctrl_split_boot/run.py
+index 719b4cc7ea..01b7a178ab 100644
+--- a/tb/verilator/ctrl_split_boot/run.py
++++ b/tb/verilator/ctrl_split_boot/run.py
+@@ -30,7 +30,9 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
+     #397's 500 ms tick rule and T_svc = 20 ms: its span, and its longest gap
+     between two response bytes, which bounds the loop pass that sends them.
+   - PHY (#919): the published link word, milan_mac_link_status, as the
+-    testbench's clause 22 PHY answers: the boot's probe one address a
++    testbench's clause 22 PHY answers: link down published as the poll
++    arms, before its first frame, so the datapath sees no link on the
++    word's reset value (#972); the boot's probe one address a
+     frame, a miss published link down, then the PHY's 1000BASE-T full
+     duplex; a poll every CTRL_PLAT_PHY_POLL_US, within the release's
+     250 ms publication bound; a loss latched between two polls published
+@@ -131,8 +133,10 @@ PLANTS = {
+     'phy-loss-not-latched': ('plat/ctrl_plat_phy.c', '\t\t\t\tpublish(phy, 0u);\n', '\t\t\t\tphy->published = 0u;\n',
+                              'PHY'),
+     'phy-unadvertised': ('plat/ctrl_plat_phy.c',
+-                         '\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n',
+-                         '\tphy->ctx = ctx;\n\tphy->adv = 0u;\n', 'PHY'),
++                         '\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n',
++                         '\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = 0u;\n', 'PHY'),
++    # the datapath left on the word's reset value, link up, until the first poll's publication (#972)
++    'phy-arm-unpublished': ('plat/ctrl_plat_phy.c', '\tctrl_plat_io_write32(bus->link_status, 0u);\n', '', 'PHY'),
+     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
+                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
+                        '\n\t\tstatus(c);', 'UART'),
+@@ -425,6 +429,16 @@ def grade_phy(log: str, spec: dict, ready_at: int) -> tuple[list[str], list[str]
+     if not frames or not pubs:
+         findings.append(f'PHY: {len(frames)} MDIO frame(s) and {len(pubs)} publication(s): the PHY is not polled')
+         return findings, report
++    # the arm's publication (#972): link down before the poll's first frame, so the datapath sees no link on the
++    # word's reset value; the polls' publications follow
++    if pubs[0][0] < frames[0][0] and pubs[0][1] == 0:
++        report.append(f'PHY the arm published link down at {pubs[0][0] / per_us / 1000:.3f} ms, before the first '
++                      f'frame at {frames[0][0] / per_us / 1000:.3f} ms and ready at {ready_at / per_us / 1000:.3f} ms')
++        pubs = pubs[1:]
++    else:
++        findings.append(f'PHY: no link down published before the first MDIO frame (the first publication '
++                        f'{pubs[0]}, the first frame at {frames[0][0]}): the datapath keeps the reset value\'s link up '
++                        f'until a poll publishes (#972)')
+     if 'timeout' in events:
+         findings.append('PHY: a step of the script waited past its limit for the publication it needs')
+     found = next((k for k, f in enumerate(frames) if f[2] == PHY_ADDRESS), None)
+@@ -588,7 +602,8 @@ def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = N
+ 
+ 
+ def phy_rows(sys_hz: int) -> list[str]:
+-    """A valid run's PHY lines (#919), as sim_main.cpp prints them: the boot's poll probing one miss, two steady
++    """A valid run's PHY lines (#919), as sim_main.cpp prints them: the arm's link down before any frame (#972), then
++    the boot's poll probing one miss, two steady
+     polls, the latched loss's, the loss's two and the return's, each poll's frames 0.2 ms apart; the advertisement
+     (#840) after the first BMSR of the boot's poll and of each poll that publishes a loss, its writes' PHYW lines."""
+     period = int(phy_constants()[0] * sys_hz / 1e6)
+@@ -606,7 +621,7 @@ def phy_rows(sys_hz: int) -> list[str]:
+             ([(a, 1)] + loss + [(a, 1)], {0: 0, len(loss) + 1: 0}),
+             (second[:2], {1: 0}), (second, {len(second) - 1: GIG_FULL})]
+     events = {2: 'latched', 3: 'down', 5: 'back'}
+-    rows = []
++    rows = ['PHYP 500000 0']
+     for k, (frames, words) in enumerate(plan):
+         start = 1_000_000 + k * period
+         for j, frame in enumerate(frames):

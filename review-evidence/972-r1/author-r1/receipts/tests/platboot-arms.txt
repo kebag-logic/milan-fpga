@@ -1,0 +1,29 @@
+# the platboot arms (1 and 2 interfaces) with the #972 tests
+=== arm platboot1 rc 0
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (11 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (6 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 55   failures: 0 ==
+=== arm platboot2 rc 0
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (16 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (8 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 55   failures: 0 ==

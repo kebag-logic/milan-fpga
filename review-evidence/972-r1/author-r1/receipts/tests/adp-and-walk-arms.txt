@@ -1,0 +1,14 @@
+# the adp and walk arms with group G
+=== arm adp rc 0
+  G1 64 LINK_UPs: the first ENTITY_AVAILABLE 64 distinct delays, the latest 3990 ms after LINK_UP (its draw 0 to 4000 ms; the declared discovery time 6000 ms)
+  G5 the TMR_ADVERTISE delays after them: 63 distinct, the latest 3966 ms (0 to 4000)
+  G1 the LINK_UP delays, by 4 parts of 0 to 4000 ms: 17 9 19 19
+  G5 the TMR_ADVERTISE delays, by 4 parts of 0 to 4000 ms: 18 11 15 20
+  G2 32 startups with the link up: the first ENTITY_AVAILABLE 32 distinct delays, the latest 1981 ms (its draw 0 to 2000 ms)
+  G2 the startup delays, by 2 parts of 0 to 2000 ms: 18 14
+  G3 32 LINK_UPs with a grandmaster change in the delay: the first ENTITY_AVAILABLE the latest 3649 ms after LINK_UP
+  G4 32 LINK_UPs, a grandmaster change 4.5 s after each: the first ENTITY_AVAILABLE the latest 3697 ms after LINK_UP, the new grandmaster's the latest 3994 ms after the change
+  G4 the grandmaster change's delays, by 2 parts of 0 to 4000 ms: 6 26
+== ctrl ADP slice (fake ports and host model): checks: 58   failures: 0 ==
+=== arm walk rc 0
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==

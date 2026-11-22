@@ -1,0 +1,98 @@
+# receipts_spec_r2.py: round 2's receipts, run by receipts.py (keep, put, lines, run, S, L in scope).
+BASE, CODE, BOOTH, HEAD = 'dd163e4143', '48c39b5b0f', 'ba0f80ed3b', '0f508a01b5'
+SW = S / 'stack-wt'
+
+# --- the change
+put('change/commits.txt', run('git', 'log', '--format=%H %s', f'{BASE}..{HEAD}'))
+put('change/diffstat.txt', run('git', 'diff', '--stat', BASE, HEAD))
+put('change/gitlink-unchanged.txt', '# the tsn-c-stack gitlink, base and head\n' +
+    run('git', 'ls-tree', BASE, 'third_party/tsn-c-stack') + run('git', 'ls-tree', HEAD, 'third_party/tsn-c-stack'))
+put('change/firmware.diff', run('git', 'diff', BASE, HEAD, '--', 'sw/firmware/ctrl/plat/ctrl_plat_phy.c',
+                                'sw/firmware/ctrl/plat/ctrl_plat_phy.h'))
+put('change/tests-and-plants.diff', run('git', 'diff', BASE, HEAD, '--', 'sw/firmware/ctrl/test'))
+put('change/boot-simulation.diff', run('git', 'diff', BASE, HEAD, '--', 'tb/verilator/ctrl_split_boot'))
+put('change/docs.diff', run('git', 'diff', BASE, HEAD, '--', 'CHANGELOG.md', 'docs', 'sw/firmware/ctrl/plat/README.md'))
+put('change/after-the-code-head.txt', f'# files changed after the code head {CODE}: the boot simulation\'s stand-in and '
+    'README, and the documentation audit; the firmware gate reads none of them\n' +
+    run('git', 'diff', '--stat', CODE, HEAD))
+
+# --- tsn-c-stack 970-gm-change-draw-kind
+put('stack/commits.txt', run('git', 'log', '--format=%H %s', '715589c1..HEAD', cwd=SW))
+put('stack/diffstat.txt', run('git', 'diff', '--stat', '715589c1', 'HEAD', cwd=SW))
+put('stack/src-include-unchanged.txt', '# git diff --stat 715589c1 HEAD -- src include (empty: no source change)\n' +
+    run('git', 'diff', '--stat', '715589c1', 'HEAD', '--', 'src', 'include', cwd=SW))
+put('stack/change.diff', run('git', 'diff', '715589c1', 'HEAD', '--', 'tests/test_adp.cpp', 'tests/mutations.json',
+                             'CHANGELOG.md', 'docs/VERIFICATION.md', cwd=SW))
+d = S / 'stack/r2'
+for f in ('validate.log', 'baremetal.log', 'tools.txt', 'before.txt', 'after.txt', 'times.txt'):
+    keep(f'stack/gates-61a504e/{f}', d / f)
+keep('stack/gates-61a504e/gates.json', d / 'build-validation/gates.json')
+keep('stack/gates-61a504e/mutation-summary.txt', d / 'build-validation/mutation.log',
+     lambda t: '# mutation.py: the ADP plants and the summary\n' + ''.join(
+         x + '\n' for x in t.splitlines() if 'adp' in x.lower() or 'gm-change' in x or x.startswith('{')))
+for v in ('base', 'head'):
+    keep(f'stack/sensitivity/{v}-planted-ctest.txt', S / f'stack/sens/{v}-ctest.txt',
+         lambda t, v=v: f'# the plant gm-change-draws-startup-kind applied to src/adp.c of the {v} '
+                        f'({"715589c1" if v == "base" else "61a504e"}) and ctest run: '
+                        f'{"it escapes" if v == "base" else "adp_tests catches it"}\n' + t)
+
+# --- the new tests and plants, quick runs before the gate
+keep('tests/platboot-arms.txt', S / 'logs/r2-platboot.log',
+     lambda t: lines(r'\[FAIL\]|checks:|=== arm|P19|P20|P21|P11TheBoot|L2Every|L4Return', t,
+                     '# the platboot arms (1 and 2 interfaces) with the #972 tests\n'))
+keep('tests/adp-and-walk-arms.txt', S / 'logs/r2-adp.log',
+     lambda t: lines(r'^\s*G[0-9]|\[FAIL\]|checks:|=== arm', t, '# the adp and walk arms with group G\n'))
+keep('tests/quick-plants.txt', S / 'logs/plants2.log',
+     lambda t: lines(r'^\[|first:|mutants:', t, '# plants.py: the round-2 plants, each graded as the gate grades it\n'))
+
+# --- the gates
+GATE = (r'^(HEAD |END |suite verdicts|test_ctrl_firmware:|mutants:|planted|\[ok\]|\[FAIL\] mutant|ESCAPED|REFUSED|'
+        r'== .*checks:|\s+verdict:|.*not caught|    named plants|\s+G[1-5] )')
+for k in range(4):
+    keep(f'gates/{CODE[:8]}/firmware-gate-shard{k}.txt', S / f'units/r2-fw{k}.log',
+         lambda t, k=k: lines(GATE, t, f'# test_ctrl_firmware.py --require-rv32 --self-test --shard {k}/4 at '
+                                       f'{CODE[:8]}, condensed\n'))
+keep(f'gates/{CODE[:8]}/fw-coverage.txt', S / 'units/r2-cov.log')
+TWIN = r'^(HEAD |== |END |twin:|twin rc|plant |\[LEDGER\]|\[OWED\]|\[DIFF\]|.*REFUSED|.*finding)'
+keep(f'gates/{CODE[:8]}/twin.txt', S / 'units/r2-twin.log', lambda t: lines(TWIN, t))
+BOOT = r'^(HEAD|== |END|dirty|NATIVE|BOOT|TRACE|UART|PHY|GRADER|PLANT|ctrl_split_boot)'
+keep(f'gates/{CODE[:8]}/split-boot.txt', S / 'units/r2-boot.log',
+     lambda t: lines(BOOT, t, f'# at {CODE[:8]}: 1x1 and 8x8 pass, every plant caught; the native controls fail '
+                              '(the stand-in predates the arm), fixed by 3cfc2cd8\n'))
+keep('gates/3cfc2cd8/split-boot-native-controls.txt', S / 'logs/native-controls.log',
+     lambda t: lines(r'NATIVE-CONTROL|native controls', t, '# run.py --native-controls at 3cfc2cd8\n'))
+keep(f'gates/{BOOTH[:8]}/split-boot.txt', S / 'units/f-boot.log', lambda t: lines(BOOT, t))
+keep('gates/base-dd163e41/split-boot.txt', S / 'units/boot-base.log', lambda t: lines(BOOT, t))
+BUILDER = r'^(HEAD |END |ALL GATES|.*DID NOT RUN|  - \[gate|\s*\[gate [0-9a-z]+\] [0-9]+ .* pass|builder legs|Assertion|SUBSET)'
+keep(f'gates/{BOOTH[:8]}/builder-leg-0.txt', S / 'units/f-b0.log', lambda t: lines(BUILDER, t))
+keep(f'gates/{HEAD[:8]}/builder-leg-1.txt', S / 'units/f2-b1.log', lambda t: lines(BUILDER, t))
+keep(f'gates/{HEAD[:8]}/docs-workflow-steps.txt', S / 'docs/f2/steps.txt')
+keep(f'gates/{BOOTH[:8]}/docs-workflow-steps-first-run.txt', S / 'docs/f/steps.txt')
+
+# --- images
+keep('images/SUMMARY.txt', S / 'cmp/r2/SUMMARY.txt',
+     lambda t: f'# the platform and size-fixture image pairs, base {BASE[:8]} against head {CODE[:8]}\n' + t)
+for f in sorted((S / 'cmp/r2').glob('*.txt')):
+    if f.name != 'SUMMARY.txt':
+        keep(f'images/pairs/{f.name}', f)
+for side, d in (('head', 'plat-r2'), ('base', 'plat-base')):
+    keep(f'images/platform-ledger-{side}.txt', S / f'img/{d}/plat_ledger.log',
+         lambda x: lines(r'^(POINT|plat_ledger|LINK|KEY|TILES|LEDGER)', x))
+
+# --- CPU
+for p in ('1x1', '8x8-1if'):
+    keep(f'cpu/compare/{p}-probes.txt', S / f'cpu/r2/{p}-probes.txt')
+    keep(f'cpu/legs/head-{p}.txt', S / f'units/r2-leg-{p}.log')
+    keep(f'cpu/legs/base-{p}.txt', S / f'units/leg-base-{p}.log')
+put('cpu/harness-images-identical.txt', '# the CPU budget harness images (ctrl_app.elf), base dd163e41 and head '
+    f'{CODE[:8]}: identical, the harness links no platform PHY code\n' +
+    run('bash', '-c', f'cd {S}/meas && sha256sum base/1x1/none/image/ctrl_app.elf r2/1x1/none/image/ctrl_app.elf '
+                      'base/8x8-1if/none/image/ctrl_app.elf r2/8x8-1if/none/image/ctrl_app.elf'))
+
+# --- tools
+for f in sorted((S / 'bin').glob('*')):
+    if f.is_file() and f.suffix in ('.sh', '.py') and f.name not in ('receipts_spec.py',):
+        keep(f'tools/{f.name}.txt', f)
+for f in sorted((S / 'bin/t').glob('*')):
+    if f.is_file() and f.name != 'receipts.py':
+        keep(f'tools/t/{f.name}.txt', f)
