@@ -1,0 +1,56 @@
+firmware sources: <clone>/sw/firmware/ctrl
+=== probe_reattach_elided.cpp@1@endstation_ax7101_1x1_tdm8 arm=srp-probe_reattach_elided-if1-endstation_ax7101_1x1_tdm8 rc=1
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeReattachWhileItsDownRecordIsElided
+<clone>/sw/firmware/ctrl/test/probe_reattach_elided.cpp:23: Failure
+Value of: adapter.ifs[0].link
+  Actual: false
+Expected: true
+PROBE: SRP does not follow a link that is up
+
+  [FAIL] Srp.ProbeReattachWhileItsDownRecordIsElided: PROBE: SRP does not follow a link that is up
+[  FAILED  ] Srp.ProbeReattachWhileItsDownRecordIsElided (0 ms)
+[ RUN      ] Srp.ProbeReattachThenALaterUpIsCarried
+[       OK ] Srp.ProbeReattachThenALaterUpIsCarried (2 ms)
+[----------] 2 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeReattachWhileItsDownRecordIsElided
+
+ 1 FAILED TEST
+== probe reattach with an elided DOWN: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+=== probe_reattach_elided.cpp@1@endstation_ax7101_8x8 arm=srp-probe_reattach_elided-if1-endstation_ax7101_8x8 rc=1
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeReattachWhileItsDownRecordIsElided
+<clone>/sw/firmware/ctrl/test/probe_reattach_elided.cpp:23: Failure
+Value of: adapter.ifs[0].link
+  Actual: false
+Expected: true
+PROBE: SRP does not follow a link that is up
+
+  [FAIL] Srp.ProbeReattachWhileItsDownRecordIsElided: PROBE: SRP does not follow a link that is up
+[  FAILED  ] Srp.ProbeReattachWhileItsDownRecordIsElided (0 ms)
+[ RUN      ] Srp.ProbeReattachThenALaterUpIsCarried
+[       OK ] Srp.ProbeReattachThenALaterUpIsCarried (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeReattachWhileItsDownRecordIsElided
+
+ 1 FAILED TEST
+== probe reattach with an elided DOWN: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+ARMS FAIL (2 failed of 2)

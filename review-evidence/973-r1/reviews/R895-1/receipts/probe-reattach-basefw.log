@@ -1,0 +1,34 @@
+firmware sources: <packet>/scratch/basefw-ctrl
+=== probe_reattach_elided.cpp@1@endstation_ax7101_1x1_tdm8 arm=srp-probe_reattach_elided-if1-endstation_ax7101_1x1_tdm8 rc=0
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeReattachWhileItsDownRecordIsElided
+[       OK ] Srp.ProbeReattachWhileItsDownRecordIsElided (0 ms)
+[ RUN      ] Srp.ProbeReattachThenALaterUpIsCarried
+[       OK ] Srp.ProbeReattachThenALaterUpIsCarried (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+== probe reattach with an elided DOWN: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+=== probe_reattach_elided.cpp@1@endstation_ax7101_8x8 arm=srp-probe_reattach_elided-if1-endstation_ax7101_8x8 rc=0
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.ProbeReattachWhileItsDownRecordIsElided
+[       OK ] Srp.ProbeReattachWhileItsDownRecordIsElided (0 ms)
+[ RUN      ] Srp.ProbeReattachThenALaterUpIsCarried
+[       OK ] Srp.ProbeReattachThenALaterUpIsCarried (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 2 tests.
+== probe reattach with an elided DOWN: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+ARMS PASS (0 failed of 2)

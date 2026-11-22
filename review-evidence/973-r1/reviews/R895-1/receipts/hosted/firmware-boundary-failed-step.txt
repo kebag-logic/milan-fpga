@@ -1,0 +1,10 @@
+2026-11-22T19:39:24.1288781Z no capture given: running every known builder the run judges under one
+2026-11-22T19:39:34.1110506Z     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+2026-11-22T19:49:53.0309296Z     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (619 s)
+2026-11-22T19:51:20.6608191Z     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (88 s)
+2026-11-22T19:56:35.2623347Z     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (315 s)
+2026-11-22T19:56:35.6395594Z     sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+2026-11-22T19:57:04.0233292Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+2026-11-22T19:57:32.4988847Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+2026-11-22T19:58:17.8531474Z REFUSED: sw/firmware/ctrl/test/srp_link_mutants.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+2026-11-22T19:58:17.9633847Z ##[error]Process completed with exit code 2.
