@@ -1,0 +1,29 @@
+# make linkreset at 77a74b2f: each shape published and refused
+HEAD 77a74b2f dirty 0
+BOOT identity ok VERSION 0x00030060, policy written by 3.005 ms
+SHAPE 1x1/1if word reset 12 publish 1500 ms window 1600 ms (10000 cycles/ms)
+FRAME 0 at 1500.032 ms ethertype 0x88f7 68 bytes
+ETHERTYPE 0x88f7 1 frames
+EFF first up at 1500.000300 ms; LINK_CTRL[0] 1 throughout; guard estimate 1 throughout
+FRAMES before the publication 0, after 1
+== linkreset 1x1/1if published: checks: 10   failures: 0 ==
+RESULT: PASS
+SHAPE 1x1/1if word reset 12 publish 0 ms window 1600 ms (10000 cycles/ms)
+EFF first up at never ms; LINK_CTRL[0] 1 throughout; guard estimate 1 throughout
+FRAMES before the publication 0, after 0
+== linkreset 1x1/1if refused: checks: 6   failures: 0 ==
+RESULT: PASS
+BOOT identity ok VERSION 0x00030060, policy written by 3.005 ms
+SHAPE 8x8/1if word reset 12 publish 1500 ms window 1600 ms (10000 cycles/ms)
+FRAME 0 at 1500.032 ms ethertype 0x88f7 68 bytes
+ETHERTYPE 0x88f7 1 frames
+EFF first up at 1500.000300 ms; LINK_CTRL[0] 1 throughout; guard estimate 1 throughout
+FRAMES before the publication 0, after 1
+== linkreset 8x8/1if published: checks: 10   failures: 0 ==
+RESULT: PASS
+SHAPE 8x8/1if word reset 12 publish 0 ms window 1600 ms (10000 cycles/ms)
+EFF first up at never ms; LINK_CTRL[0] 1 throughout; guard estimate 1 throughout
+FRAMES before the publication 0, after 0
+== linkreset 8x8/1if refused: checks: 6   failures: 0 ==
+RESULT: PASS
+LEG rc=0

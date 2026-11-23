@@ -1,0 +1,46 @@
+# the parameters each split export hands its milan_datapath instance (the route preps' stand-in exports at 93d9eaaf), against which the linkreset leg's LINKRESET_1X1_G / LINKRESET_8X8_G are set; the leg's own: CTRL_SPLIT_P=1, MILAN_CLK_FREQ_HZ=10000000 (compressed), the gPTP image for it
+## 1x1
+.AUDIO_IF_CLK_HZ_P       (25'h1770000),
+.AUDIO_IF_MASTER_P       (1'd1),
+.AUDIO_IF_RENDER_SLOTS_P (4'd8),
+.AUDIO_IF_SLOTS_P        (4'd8),
+.CTRL_SPLIT_P            (1'd1),
+.GPTP_EGRESS_LAT_NS_P    (8'd219),
+.GPTP_INGRESS_LAT_NS_P   (10'd656),
+.GPTP_PLANE_EN_P         (1'd1),
+.I2SPB_P                 (1'd0),
+.LOOPBACK_P              (1'd1),
+.LPF_P                   (1'd0),
+.MILAN_CLK_FREQ_HZ       (26'd50000000),
+.N_STREAMS               (1'd1),
+.PP_DESC_BASE_P          (31'h7f700000),
+.PP_RESP_BASE_P          (31'h7f7ff000),
+.REBOOT_MAC_MIN_MBPS_P   (10'd1000),
+.REBOOT_MAC_TX_OCTETS_P  (14'd11656),
+.TALKER_WIRE_CHANS_P     (4'd8)
+## 8x8
+.AUDIO_IF_CLK_HZ_P      (27'h5dc0000),
+.AUDIO_IF_MASTER_P      (1'd1),
+.AUDIO_IF_SLOTS_P       (6'd32),
+.CTRL_SPLIT_P           (1'd1),
+.DPROBES_P              (1'd0),
+.GPTP_EGRESS_LAT_NS_P   (8'd219),
+.GPTP_INGRESS_LAT_NS_P  (10'd656),
+.GPTP_PLANE_EN_P        (1'd1),
+.I2SPB_P                (1'd0),
+.LPF_P                  (1'd0),
+.LTAP_P                 (1'd0),
+.MILAN_CLK_FREQ_HZ      (26'd50000000),
+.N_STREAMS              (4'd8),
+.PP_DESC_BASE_P         (31'h7f700000),
+.PP_RESP_BASE_P         (31'h7f7ff000),
+.REBOOT_MAC_MIN_MBPS_P  (10'd1000),
+.REBOOT_MAC_TX_OCTETS_P (14'd11656),
+.TALKER_WIRE_CHANS_P    (4'd8)
+## the Makefile
+LINKRESET_COMMON_G = -GAUDIO_IF_MASTER_P=1 -GI2SPB_P=0 -GLPF_P=0 -GTALKER_WIRE_CHANS_P=8 \
+  -GGPTP_INGRESS_LAT_NS_P=656 -GGPTP_EGRESS_LAT_NS_P=219 -GREBOOT_MAC_MIN_MBPS_P=1000 -GREBOOT_MAC_TX_OCTETS_P=11656
+LINKRESET_1X1_G = $(LINKRESET_COMMON_G) -GN_STREAMS=1 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_RENDER_SLOTS_P=8 \
+  -GLOOPBACK_P=1 -GAUDIO_IF_CLK_HZ_P=24576000
+LINKRESET_8X8_G = $(LINKRESET_COMMON_G) -GN_STREAMS=8 -GAUDIO_IF_SLOTS_P=32 -GDPROBES_P=0 -GLTAP_P=0 \
+  -GAUDIO_IF_CLK_HZ_P=98304000

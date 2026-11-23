@@ -1,0 +1,18 @@
+# files changed after the code head 93d9eaaf32: the linkreset leg, the docs, the boot simulation's README and its grader's comments and one finding message; no firmware or gateware
+ CHANGELOG.md                                |   7 +-
+ docs/design/CSR_REGISTER_NOTES.md           |   4 +-
+ docs/reference/FR_NFR.md                    |   4 +-
+ docs/reference/REGISTER_MAP.md              |  16 +-
+ scripts/register_descriptions.json          |  12 +-
+ sw/firmware/ctrl/plat/README.md             |   8 +-
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h       |   8 +-
+ sw/firmware/ctrl/test/plat_mutants.py       |  35 ++--
+ tb/verilator/ctrl_split_boot/README.md      |  22 +-
+ tb/verilator/ctrl_split_boot/run.py         |  14 +-
+ tb/verilator/milan_dp/Makefile              |  57 +++++
+ tb/verilator/milan_dp/README.md             |  51 +++++
+ tb/verilator/milan_dp/gen_gptp_leg_ucode.py |  13 +-
+ tb/verilator/milan_dp/linkreset_plants.py   |  77 +++++++
+ tb/verilator/milan_dp/linkreset_probes.vlt  |   7 +
+ tb/verilator/milan_dp/sim_link_reset.cpp    | 310 ++++++++++++++++++++++++++++
+ 16 files changed, 586 insertions(+), 59 deletions(-)

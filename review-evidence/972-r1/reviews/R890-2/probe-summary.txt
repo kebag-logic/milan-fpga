@@ -1,0 +1,6 @@
+Command: python3 -B probe_phy.py <review-clone>
+Parallel processes: 2, eight compile jobs each; total maximum 16
+Current head PHY: rc 0; 57 tests, 0 failures
+Prior 0f508a01 PHY: rc 1; 57 tests, 2 failures; 27 P22 and 13 P23 assertion failures
+Only the PHY C file in a disposable copy differs between builds; same current tests and pinned dependencies.
+All disposable trees remain below scratch/.

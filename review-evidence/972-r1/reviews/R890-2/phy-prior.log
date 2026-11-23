@@ -1,0 +1,473 @@
+Suite from 77a74b2f; PHY source 0f508a01b5d02fbf192ab08e4d8a5bf514b32a3b; jobs 8
+[==========] Running 57 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 24 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (1 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (1 ms)
+[ RUN      ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets
+[       OK ] Boot.B11ARebootIsAnsweredNotifiedDepartsAndThenResets (0 ms)
+[ RUN      ] Boot.B12TheResetWaitsForTheResponseToLeave
+[       OK ] Boot.B12TheResetWaitsForTheResponseToLeave (0 ms)
+[ RUN      ] Boot.B13RefusalsLeaveTheEntityInService
+[       OK ] Boot.B13RefusalsLeaveTheEntityInService (0 ms)
+[ RUN      ] Boot.B14WithoutAResetPortRebootIsNotImplemented
+[       OK ] Boot.B14WithoutAResetPortRebootIsNotImplemented (0 ms)
+[ RUN      ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain
+[       OK ] Boot.B15TheResetRestoresTheSavedStateAndAdvertisesAgain (1 ms)
+[ RUN      ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange
+[       OK ] Boot.B16ARebootDuringTheJournalWriteKeepsTheChange (0 ms)
+[ RUN      ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired
+[       OK ] Boot.B17NothingIsTakenOrSentOnceTheResetPortFired (1 ms)
+[ RUN      ] Boot.B18ADepartingTheRingRefusedHoldsTheReset
+[       OK ] Boot.B18ADepartingTheRingRefusedHoldsTheReset (0 ms)
+[ RUN      ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess
+[       OK ] Boot.B19NoFrameOfAnyChannelIsTakenFromTheSuccess (0 ms)
+[ RUN      ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting
+[       OK ] Boot.B20NoOtherChannelTransmitsAfterTheDeparting (0 ms)
+[ RUN      ] Boot.B21TheDepartingWaitsForEveryOtherRing
+[       OK ] Boot.B21TheDepartingWaitsForEveryOtherRing (0 ms)
+[ RUN      ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot
+[       OK ] Boot.B22TheGateHoldsInThePassThatTakesTheReboot (0 ms)
+[ RUN      ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver
+[       OK ] Boot.B23TheGateHoldsWhileTheResponseCannotBeHandedOver (0 ms)
+[ RUN      ] Boot.B24GetAsPathAnswersTheDatapathsSequence
+[       OK ] Boot.B24GetAsPathAnswersTheDatapathsSequence (0 ms)
+[----------] 24 tests from Boot (13 ms total)
+
+[----------] 8 tests from Phy
+[ RUN      ] Phy.B11ArmedPastTheIdentityCheck
+[       OK ] Phy.B11ArmedPastTheIdentityCheck (0 ms)
+[ RUN      ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame
+[       OK ] Phy.B12StepCarriesTheStoresSaveOrAPhyFrame (0 ms)
+[ RUN      ] Phy.L1ReadyLoopPublishesTheLink
+[       OK ] Phy.L1ReadyLoopPublishesTheLink (0 ms)
+[ RUN      ] Phy.L2EveryEdgeIsCounted
+[       OK ] Phy.L2EveryEdgeIsCounted (7 ms)
+[ RUN      ] Phy.L3EachEdgeNotifiesTheCounters
+[       OK ] Phy.L3EachEdgeNotifiesTheCounters (6 ms)
+[ RUN      ] Phy.L4ReturnEndsTheCeaseWithinAPoll
+[       OK ] Phy.L4ReturnEndsTheCeaseWithinAPoll (3 ms)
+[ RUN      ] Phy.L5ASaveKeepsThePollItsPeriod
+[       OK ] Phy.L5ASaveKeepsThePollItsPeriod (1 ms)
+[ RUN      ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase
+[       OK ] Phy.L6AProbeThatAlwaysMissesLeavesTheSaveItsWorstCase (13 ms)
+[----------] 8 tests from Phy (34 ms total)
+
+[----------] 25 tests from PlatPhy
+[ RUN      ] PlatPhy.P1OneAddressIsProbedACall
+[       OK ] PlatPhy.P1OneAddressIsProbedACall (0 ms)
+[ RUN      ] PlatPhy.P2PollsArePaced
+[       OK ] PlatPhy.P2PollsArePaced (0 ms)
+[ RUN      ] PlatPhy.P3LatchedLossPublishesBothEdges
+[       OK ] PlatPhy.P3LatchedLossPublishesBothEdges (0 ms)
+[ RUN      ] PlatPhy.P4ResolvedModesAreTheReleases
+[       OK ] PlatPhy.P4ResolvedModesAreTheReleases (0 ms)
+[ RUN      ] PlatPhy.P5ErrorsAreLinkDown
+[       OK ] PlatPhy.P5ErrorsAreLinkDown (0 ms)
+[ RUN      ] PlatPhy.P6FramesAreClause22Reads
+[       OK ] PlatPhy.P6FramesAreClause22Reads (0 ms)
+[ RUN      ] PlatPhy.P7OneFrameACallWithItsRoom
+[       OK ] PlatPhy.P7OneFrameACallWithItsRoom (0 ms)
+[ RUN      ] PlatPhy.P8OwedWhileAFrameIsDue
+[       OK ] PlatPhy.P8OwedWhileAFrameIsDue (0 ms)
+[ RUN      ] PlatPhy.P9NoMdioArmsNothing
+[       OK ] PlatPhy.P9NoMdioArmsNothing (0 ms)
+[ RUN      ] PlatPhy.P10TheClockWraps
+[       OK ] PlatPhy.P10TheClockWraps (0 ms)
+[ RUN      ] PlatPhy.P11TheBootAdvertisesGigabitOnly
+[       OK ] PlatPhy.P11TheBootAdvertisesGigabitOnly (0 ms)
+[ RUN      ] PlatPhy.P12A10100PhyIsNeverWritten
+[       OK ] PlatPhy.P12A10100PhyIsNeverWritten (0 ms)
+[ RUN      ] PlatPhy.P13ALossWritesAndVerifiesItAgain
+[       OK ] PlatPhy.P13ALossWritesAndVerifiesItAgain (0 ms)
+[ RUN      ] PlatPhy.P14AResetPhyIsAdvertisedAgain
+[       OK ] PlatPhy.P14AResetPhyIsAdvertisedAgain (0 ms)
+[ RUN      ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed
+[       OK ] PlatPhy.P15AnUnverifiedAdvertisementStaysOwed (0 ms)
+[ RUN      ] PlatPhy.P16AnUnacknowledgedReadWritesNothing
+[       OK ] PlatPhy.P16AnUnacknowledgedReadWritesNothing (0 ms)
+[ RUN      ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce
+[       OK ] PlatPhy.P17TheRepairedAdvertisementIsTheOneInForce (0 ms)
+[ RUN      ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome
+[       OK ] PlatPhy.P18TheRestartIsVerifiedByItsOutcome (0 ms)
+[ RUN      ] PlatPhy.P18OneRestartAPollUntilOneTakes
+[       OK ] PlatPhy.P18OneRestartAPollUntilOneTakes (0 ms)
+[ RUN      ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart
+[       OK ] PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart (0 ms)
+[ RUN      ] PlatPhy.P19TheBootFormsTheLinkOnce
+[       OK ] PlatPhy.P19TheBootFormsTheLinkOnce (0 ms)
+[ RUN      ] PlatPhy.P20TheArmPublishesLinkDownFirst
+[       OK ] PlatPhy.P20TheArmPublishesLinkDownFirst (0 ms)
+[ RUN      ] PlatPhy.P21TheOutcomeStandsBehindTheBoot
+[       OK ] PlatPhy.P21TheOutcomeStandsBehindTheBoot (0 ms)
+[ RUN      ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:958: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a forced PHY
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a forced PHY
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:959: Failure
+Expected: (peer.regs[0] & 0x1000u) != (0u), actual: 0 vs 0
+P22 the boot enables autonegotiation on a forced PHY
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot enables autonegotiation on a forced PHY
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:961: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a forced PHY once
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a forced PHY once
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:962: Failure
+Expected: (peer.word) != (kFull100), actual: 11 vs 11
+P22 the forced 100 Mb/s link is never published
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the forced 100 Mb/s link is never published
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:963: Failure
+Value of: below_gigabit(*this, 0).empty()
+  Actual: false
+Expected: true
+P22 no link below 1000BASE-T is ever published
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:971: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a PHY not negotiating, case 0
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 0
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:974: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a PHY not negotiating once, case 0
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 0
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:975: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x9400u
+    Which is: 0
+  0x1000u
+    Which is: 4096
+P22 autonegotiation on, isolate and reset clear, case 0
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 0
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:976: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  kGigFull
+    Which is: 13
+P22 the link is the advertisement's, case 0
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's, case 0
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:977: Failure
+Value of: below_gigabit(*this, 0).empty()
+  Actual: false
+Expected: true
+P22 no link below 1000BASE-T is ever published, case 0
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published, case 0
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:971: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a PHY not negotiating, case 1
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 1
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:974: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a PHY not negotiating once, case 1
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 1
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:975: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x9400u
+    Which is: 0
+  0x1000u
+    Which is: 4096
+P22 autonegotiation on, isolate and reset clear, case 1
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 1
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:976: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 1
+  kGigFull
+    Which is: 13
+P22 the link is the advertisement's, case 1
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's, case 1
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:977: Failure
+Value of: below_gigabit(*this, 0).empty()
+  Actual: false
+Expected: true
+P22 no link below 1000BASE-T is ever published, case 1
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published, case 1
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:971: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a PHY not negotiating, case 2
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 2
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:974: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a PHY not negotiating once, case 2
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 2
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:975: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x9400u
+    Which is: 0
+  0x1000u
+    Which is: 4096
+P22 autonegotiation on, isolate and reset clear, case 2
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 2
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:971: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a PHY not negotiating, case 3
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 3
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:974: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a PHY not negotiating once, case 3
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 3
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:975: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x9400u
+    Which is: 5120
+  0x1000u
+    Which is: 4096
+P22 autonegotiation on, isolate and reset clear, case 3
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 3
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:971: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot's first poll restarts a PHY not negotiating, case 4
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 4
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:974: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 the boot restarts a PHY not negotiating once, case 4
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 4
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:975: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x9400u
+    Which is: 36864
+  0x1000u
+    Which is: 4096
+P22 autonegotiation on, isolate and reset clear, case 4
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 4
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:989: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P22 a loss with BMCR forced restarts it once
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 a loss with BMCR forced restarts it once
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:990: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  kGigFull
+    Which is: 13
+P22 the link is the advertisement's after the loss
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's after the loss
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:991: Failure
+Value of: below_gigabit(*this, 0).empty()
+  Actual: false
+Expected: true
+P22 no link below 1000BASE-T is ever published
+
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published
+[  FAILED  ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating (0 ms)
+[ RUN      ] PlatPhy.P23AForcedModeIsNeverPublishedUp
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1003: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  0u
+    Which is: 0
+P23 a forced mode on a PHY the advertisement is for is published down
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a forced mode on a PHY the advertisement is for is published down
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1004: Failure
+Expected equality of these values:
+  phy.renegotiations
+    Which is: 0
+  counted + 1u
+    Which is: 1
+P23 its renegotiation is counted
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 its renegotiation is counted
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1007: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 1
+  restarts + 1u
+    Which is: 2
+P23 the next poll restarts it
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1008: Failure
+Expected: (peer.regs[0] & 0x1000u) != (0u), actual: 0 vs 0
+P23 with autonegotiation enabled
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 with autonegotiation enabled
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1009: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  kGigFull
+    Which is: 13
+P23 and the link is the advertisement's again
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the link is the advertisement's again
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1013: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 13
+  0u
+    Which is: 0
+P23 an isolated PHY is published down
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 an isolated PHY is published down
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1016: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 1
+  restarts + 1u
+    Which is: 2
+P23 the next poll restarts it
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1017: Failure
+Expected equality of these values:
+  peer.regs[0] & 0x0400u
+    Which is: 1024
+  0u
+    Which is: 0
+P23 and the restart clears isolate
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the restart clears isolate
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1019: Failure
+Value of: below_gigabit(*this, pubs).empty()
+  Actual: false
+Expected: true
+P23 no link below 1000BASE-T is ever published
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 no link below 1000BASE-T is ever published
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1028: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  0u
+    Which is: 0
+P23 the forced link a lost restart left is published down
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the forced link a lost restart left is published down
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1030: Failure
+Expected equality of these values:
+  peer.restarts
+    Which is: 0
+  1u
+    Which is: 1
+P23 the next poll restarts it
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1031: Failure
+Expected equality of these values:
+  peer.word
+    Which is: 11
+  kGigFull
+    Which is: 13
+P23 and the link is the advertisement's
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the link is the advertisement's
+<review-clone>/sw/firmware/ctrl/test/test_plat_phy.cpp:1032: Failure
+Value of: below_gigabit(*this, 0).empty()
+  Actual: false
+Expected: true
+P23 no link below 1000BASE-T is ever published
+
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 no link below 1000BASE-T is ever published
+[  FAILED  ] PlatPhy.P23AForcedModeIsNeverPublishedUp (0 ms)
+[----------] 25 tests from PlatPhy (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 57 tests from 3 test suites ran. (52 ms total)
+[  PASSED  ] 55 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] PlatPhy.P22TheBootRestartsAPhyNotNegotiating
+[  FAILED  ] PlatPhy.P23AForcedModeIsNeverPublishedUp
+
+ 2 FAILED TESTS
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 57   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 57 checks, exit 1)

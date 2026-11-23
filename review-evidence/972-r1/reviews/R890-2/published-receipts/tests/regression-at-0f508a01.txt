@@ -1,0 +1,43 @@
+# old_phy.py: this head's platform suites against 0f508a01's ctrl_plat_phy.c, the rest of the tree this head's: P22 fails 27 checks and P23 13, no other test fails
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a forced PHY
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot enables autonegotiation on a forced PHY
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a forced PHY once
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the forced 100 Mb/s link is never published
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 0
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 0
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 0
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's, case 0
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published, case 0
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 1
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 1
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 1
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's, case 1
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published, case 1
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 2
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 2
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 2
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 3
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 3
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 3
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot's first poll restarts a PHY not negotiating, case 4
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the boot restarts a PHY not negotiating once, case 4
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 autonegotiation on, isolate and reset clear, case 4
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 a loss with BMCR forced restarts it once
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 the link is the advertisement's after the loss
+  [FAIL] PlatPhy.P22TheBootRestartsAPhyNotNegotiating: P22 no link below 1000BASE-T is ever published
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 a forced mode on a PHY the advertisement is for is published down
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 its renegotiation is counted
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 with autonegotiation enabled
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the link is the advertisement's again
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 an isolated PHY is published down
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the restart clears isolate
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 no link below 1000BASE-T is ever published
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the forced link a lost restart left is published down
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 the next poll restarts it
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 and the link is the advertisement's
+  [FAIL] PlatPhy.P23AForcedModeIsNeverPublishedUp: P23 no link below 1000BASE-T is ever published
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 57   failures: 2 ==
+ARM rc 1

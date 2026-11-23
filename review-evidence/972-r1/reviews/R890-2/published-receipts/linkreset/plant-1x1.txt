@@ -1,0 +1,12 @@
+BOOT identity ok VERSION 0x00030060, policy written by 3.005 ms
+SHAPE 1x1/1if word reset 13 publish 1500 ms window 1600 ms (10000 cycles/ms)
+FRAME 0 at 1200.069 ms ethertype 0x88f7 68 bytes
+ETHERTYPE 0x88f7 1 frames
+EFF first up at 0.000300 ms; LINK_CTRL[0] 1 throughout; guard estimate 1 throughout
+FRAMES before the publication 1, after 0
+  [FAIL] no frame crosses the MAC boundary before the firmware's publication got=1 exp=0
+  [FAIL] the effective link (the gPTP port enable, the mailbox LINK) stays down before the publication
+  [FAIL] o_ctl_link_up, the mailbox's LINK level, stays down before the publication got=3 exp=0
+  [FAIL] frames follow the publication within the window (transmit admitted)
+== linkreset 1x1/1if published: checks: 10   failures: 4 ==
+RESULT: FAIL
