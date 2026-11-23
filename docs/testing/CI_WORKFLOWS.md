@@ -76,11 +76,24 @@ pull-request update and on every push to `dev`. It produces one stable
   The four jobs' budgets are in the table below (#716).
 - the TSN stack boundary over the compiles of every builder it judges but
   those that need Verilator, `firmware-boundary` (#697), when RTL or its
-  tooling changes. The step is
-  `ctrl_boundary.py --require-rv32 --selftest --without verilator`, given no
-  capture: the gate runs each builder of its own known set
-  (`ctrl_configs.BUILDERS`) under one capture of its own, by its builds and
-  not its suites, and judges that capture.
+  tooling changes. Its builds run in the three `firmware-boundary-shards`
+  jobs (#980), `firmware-boundary shard 0/3` to `2/3`, before it.
+  Each shard runs
+  `ctrl_boundary.py --require-rv32 --without verilator --shard <k>/3 --capture-out <capture>`:
+  it builds its share of the compile set (`ctrl_configs.SHARDS`) under one
+  capture of its own, by each builder's builds and not its suites (`ctrl_configs.BUILDERS`), and judges nothing.
+  A unit of that compile set is one run of a known builder; the control gate's run is cut into two by its `--build-part 0/2` and `1/2`.
+  The table holds each unit in exactly one shard, and every run refuses, by name, a unit no shard builds or two build.
+  Each shard uploads its capture's records, manifest and kept texts; its wrappers link the SDK's tools and stay behind.
+  `firmware-boundary` downloads the three captures and runs
+  `ctrl_boundary.py --require-rv32 --selftest --without verilator --shards 3 --capture <capture> ...`.
+  It requires each unit's run in exactly one capture, refusing by name a unit no capture holds a run of, one two hold and a run that is no unit's.
+  It then judges the captures as one capture, with the controls and the self-test, once.
+  A failed shard skips it, and the `rtl-fast` verdict requires the shards' own result as well as its.
+  The control gate's `--build-part` proves, through its live dispatch, that its parts build every suite of the default build-only run once.
+  Its self-test refuses a planted dropped suite and a planted duplicated one.
+  The judging run's shard controls drop a unit from the table and add it to a second shard.
+  They also drop that unit's run from the shards' captures and repeat it; each must be refused naming the unit.
   The suite builders run by their `--build-only`: the control gate builds and links every arm's binaries and its RV32 build, the store's gate every shape's binaries and its RV32 build, and the coverage gate both gates' coverage builds.
   None runs a binary, plants a defect or measures anything; each ends `BUILT`.
   The RV32 self-test runs as it is: it compiles its planted cases and runs no binary.
@@ -110,9 +123,14 @@ pull-request update and on every push to `dev`. It produces one stable
   Its controls compile planted copies through captures of their own, four at once, the hosted runner's CPU count, and the stack's own self-test runs beside them.
   The capture's recorder is compiled C; to each compile it adds a dependency pass, a preprocessing of that compile's source.
   The compiler's own expansion runs once for each distinct argument vector and is reused for the rest.
-  Its budget is the job's own 30 minutes.
-  On the runner's Ubuntu 24.04 with four CPUs, a replica of the step at `0a9c5fa8` took 682 s, 38% of 1800 s.
-  Of that the builds took 614 s: the control gate's 299 s, the coverage gate's 226 s, the store's 80 s and the RV32 self-test's 9 s.
+  Each job's budget is its own 30 minutes, and each shard is held well under 15.
+  Unsharded, the step took 1273 s on a hosted runner at `e816c74d` (run 45071981993), and exceeded the 30 minutes on PR #961.
+  Of that the builds took 1063 s: the control gate's 603 s, the coverage gate's 309 s, the store's 86 s, the F5 builder's 56 s and the RV32 self-test's 10 s.
+  The judgement, its controls and the stack's own gate took the other 210 s.
+  On a shared host with the builders' four jobs each, the same builds at `854bd723` took 1.19 times as long: the control gate 714 s, the coverage gate 378 s, the store 96 s.
+  At `d7da99cf` there the shards took 462 s, 393 s and 449 s, and the judging run 259 s.
+  The control gate's two parts took 358 s and 392 s against its whole 714 s.
+  Scaled by 1.19, with the 70 s of checkout and installation before the step, each shard projects at about 8 minutes, and the judging job at about 5.
 - the same TSN stack boundary over the compiles only the builders that need
   Verilator make, `firmware-verilator` (#697), when RTL or its tooling
   changes: the mailbox bench at its default target, the MAAP differential
@@ -143,7 +161,7 @@ It also runs the tally checks and complete coverage ratchet.
 The normal shard includes the SRP wire comparator self-test.
 Both SRP interface campaigns retain F-INT's publication mutants.
 The aggregate also requires the separate `publication-census` and `split-cdc` jobs.
-It also requires the two TSN stack boundary jobs above (#697), which run none of the four phases.
+It also requires the TSN stack boundary jobs above (#697), which run none of the four phases: the boundary shards (#980), `firmware-boundary` and `firmware-verilator`.
 All jobs verify the same pinned SDK.
 Only that authenticated SDK is cached; builds remain fresh.
 
@@ -172,7 +190,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs (`yosys-tool` included), `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census`, `split-cdc`, all four firmware jobs, `firmware-boundary-shards`, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -3616,8 +3634,8 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 ```
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
-them, and the TSN stack boundary as `firmware-boundary` and `firmware-verilator`
-run it together. F4 fetches the pinned lwSRP and tsn-c-stack submodules and installs the pinned SDK before
+them, and the TSN stack boundary as `firmware-boundary`, its shards and `firmware-verilator`
+run it together: one unsharded run judges the same compile set as the shards and their judging run. F4 fetches the pinned lwSRP and tsn-c-stack submodules and installs the pinned SDK before
 the required RV32 control build and its `--self-test` mutation campaign.
 The saved-state campaign remains a local `--self-test` addition, and the
 tally listener's campaign uses `--mutants`
