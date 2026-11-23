@@ -1,0 +1,23 @@
+"""old_phy.py LANE OUT REV: the platform boot arm (one interface) of LANE's tests against REV's ctrl_plat_phy.c, the
+rest of LANE's ctrl tree unchanged: the regression the new PHY tests must fail at REV."""
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+lane, out, rev = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3]
+sys.path.insert(0, str(lane / 'sw/firmware/ctrl/test'))
+sys.path.insert(0, str(lane / 'sw/firmware/gtest'))
+import fw_gtest  # noqa: E402
+import plat_arms  # noqa: E402
+from ctrl_build import CTRL, Tree  # noqa: E402
+from ctrl_reuse import cut_reuse  # noqa: E402
+src = out / 'ctrl'
+shutil.rmtree(src, ignore_errors=True)
+shutil.copytree(CTRL, src, ignore=shutil.ignore_patterns('__pycache__'))
+(src / 'plat/ctrl_plat_phy.c').write_bytes(subprocess.check_output(
+    ['git', '-C', str(lane), 'show', f'{rev}:sw/firmware/ctrl/plat/ctrl_plat_phy.c']))
+tree = Tree(src, out / 'build', out / 'reuse', fw_gtest.Build(jobs=8))
+cut_reuse(tree.reuse)
+o = plat_arms.arm_platboot(tree, 1)
+print(o.log)
+print(f'ARM rc {o.rc}')

@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Report the best of the three routes by worst-corner WNS, preserving setup/hold floors."""
+import hashlib,re
+from pathlib import Path
+S=Path('<scratch>')
+D=('ExtraPostPlacementOpt','AltSpreadLogic_high','ExtraTimingOpt')
+C=('Slow_85C','Slow_0C','Fast_85C','Fast_0C')
+rows=[]
+for shape in ('1x1','8x8'):
+    choices=[]
+    for directive in D:
+        b=S/f'viv/{shape}/build_{directive}'
+        assert Path(str(b)+'.rc').read_text().strip()=='0', (shape,directive)
+        txt=Path(str(b)+'.signoff.txt').read_text()
+        vals=[]
+        for corner in C:
+            m=re.search(rf'{corner}: WNS ([+-]?[0-9.]+) ns \((\d+) failing\), WHS ([+-]?[0-9.]+) ns \((\d+) failing\)',txt)
+            assert m, (shape,directive,corner)
+            vals.append((float(m[1]),float(m[3]),int(m[2]),int(m[4])))
+        choices.append((min(x[0] for x in vals),min(x[1] for x in vals),directive,vals))
+    best=max(choices,key=lambda v:v[0])
+    assert all(w>=0.030 and h>=0 and not wf and not hf for w,h,wf,hf in best[3]), shape
+    b=S/f'viv/{shape}/build_{best[2]}/gateware'
+    route=(b/'alinx_ax7101_route_status.rpt').read_text()
+    assert re.search(r'# of nets with routing errors[^:]*:\s+0\s*:',route), shape
+    for w,h,d,_ in choices: rows.append(f'{shape} {d}: worst-corner WNS {w:+.3f} ns; WHS {h:+.3f} ns')
+    rows.append(f'SELECTED {shape}: {best[2]}; WNS {best[0]:+.3f} ns; WHS {best[1]:+.3f} ns; #818 PASS')
+    bit=b/'alinx_ax7101.bit'; raw=bit.read_bytes()
+    rows.append(f'BITSTREAM {shape}: {len(raw)} bytes; sha256 {hashlib.sha256(raw).hexdigest()} (not copied)')
+print('\n'.join(rows))
+(S/'r3rec/vivado/SELECTION.txt').write_text('\n'.join(rows)+'\n')

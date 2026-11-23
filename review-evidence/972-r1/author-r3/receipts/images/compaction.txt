@@ -1,0 +1,12 @@
+# The 8x8/1if image against its ledger while #840's BMCR rule was written (ctrl_plat_image.py at 8x8, one interface,
+# on round 3's stand-in export; .text.ctrl_plat_phy_step of the image's 19-ctrl_plat_phy.o, and the verdict)
+round 2's head (0f508a01): ctrl_plat_phy_step 1504 B; rom 139,224 B of the 139,264 B its 34 tiles hold (40 B left)
+eeef34af (the rule, renegotiate() inlined twice):      1596 B; rom 139,312 B: REFUSED, 58.5 RAMB36 over the 58 ledgered
+one renegotiation site (an owed flag):                  1556 B; rom 139,272 B: REFUSED, 58.5 RAMB36
+  the BMCR mask written as a shift:                     1556 B (the compiler emits the same mask)
+  a branch-free saturating count:                       1552 B; rom 139,272 B: REFUSED (section alignment)
+  one shared BMCR test before the switch:               1616 B: REFUSED (evaluated for every stage)
+93d9eaaf (one site, and the MDIO command's address bits shared by a read's and a write's command):
+                                                        1544 B; rom 139,264 B: 58.0 RAMB36, inside the ledger
+In the platform images plat_ledger.py builds, the linked (link-map) input section is 1,472 B at round 2 and 1,512 B
+here: +40 B, and rom +40 B at each of the four points (images/platform-ledger-*.txt).

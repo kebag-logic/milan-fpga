@@ -1,0 +1,23 @@
+{
+ "cwd": "<data>/lanes/970-a820-r3native-shard0",
+ "head": "77a74b2f4e289c5a5a89687e07a6925cfedf6860",
+ "base": "dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+ "commands": [
+  [
+   "env",
+   "PATH=<litex>/venv/bin:<sdk>/host/bin:<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<data>/scratch/a662/make43/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<mgmt>/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp",
+   "PYTHONHASHSEED=0",
+   "PYTHONDONTWRITEBYTECODE=1",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/native-r3/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

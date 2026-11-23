@@ -1,0 +1,601 @@
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index b01e50baa7..7f68fc35a0 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -907,6 +907,63 @@ exec-ax1x1:
+ build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+ 	$(ACLK_BUILD)
+ 
++# #972: THE LINK FROM RESET (sim_link_reset.cpp). milan_datapath at
++# CTRL_SPLIT_P = 1 with the gPTP plane at its product default, at both shipping
++# shapes, its link input the SoC's link-status word at the reset
++# sw/litex/mac_link_status.py gives the split with an MDIO pair (LINKRESET_PY,
++# overridable so linkreset_plants.py runs a planted copy), the PHY's link
++# retained. Each shape runs published (the firmware's publication at 200 ms)
++# and refused (none, a boot refused before the PHY poll arms); linkreset-plants
++# plants a premature qualification, the word's reset at link up, and requires
++# the check to fail on each shape. Outside the hosted case inventory: run it by
++# name. Each shape takes the parameters the split SoC's export hands its
++# milan_datapath instance (milan_soc.py from the config's soc_params.json),
++# but the clock: the fabric clock is compressed to LINKRESET_CLK_HZ, the
++# gPTP plane's image generated for it (2 MHz, the gptp leg's, is too short a
++# period for the 8x8 talker's fixed delay, Milan v1.2 5.3.7.6).
++LINKRESET_PY ?= ../../../sw/litex/mac_link_status.py
++LINKRESET_COMMON_G = -GAUDIO_IF_MASTER_P=1 -GI2SPB_P=0 -GLPF_P=0 -GTALKER_WIRE_CHANS_P=8 \
++  -GGPTP_INGRESS_LAT_NS_P=656 -GGPTP_EGRESS_LAT_NS_P=219 -GREBOOT_MAC_MIN_MBPS_P=1000 -GREBOOT_MAC_TX_OCTETS_P=11656
++LINKRESET_1X1_G = $(LINKRESET_COMMON_G) -GN_STREAMS=1 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_RENDER_SLOTS_P=8 \
++  -GLOOPBACK_P=1 -GAUDIO_IF_CLK_HZ_P=24576000
++LINKRESET_8X8_G = $(LINKRESET_COMMON_G) -GN_STREAMS=8 -GAUDIO_IF_SLOTS_P=32 -GDPROBES_P=0 -GLTAP_P=0 \
++  -GAUDIO_IF_CLK_HZ_P=98304000
++LINKRESET_CLK_HZ = 10000000
++LINKRESET_WORD = $(shell python3 -B $(LINKRESET_PY) gmii 1 | cut -d' ' -f2)
++LINKRESET_MDIR ?= obj_linkreset
++# the publication after the plane's boot cadence (1200 ms), whose Pdelay_Req a
++# link qualified from reset sends, and the window past the publication's own
++LINKRESET_PUBLISH_MS = 1500
++LINKRESET_WINDOW_MS = 1600
++LINKRESET_PLAT = $(abspath ../../../sw/firmware/ctrl/plat)
++define LINKRESET_BUILD
++mkdir -p $(LINKRESET_MDIR)_$(2)/policy
++python3 -B $(LINKRESET_PLAT)/ctrl_plat_gen.py policy $(5) -o $(LINKRESET_MDIR)_$(2)/policy/ctrl_plat_policy_gen.h
++python3 -B gen_gptp_leg_ucode.py $(5) -o $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex --clk-hz $(LINKRESET_CLK_HZ)
++$(VERILATOR) linkreset_probes.vlt $(1) $(GPTP_ON_VFLAGS) --Mdir $(LINKRESET_MDIR)_$(2) \
++  -GCTRL_SPLIT_P=1 -GMILAN_CLK_FREQ_HZ=$(LINKRESET_CLK_HZ) -GGPTP_PHC_TICK_NS_P=8 $(4) \
++  -GGPTP_UCODE_HEX_P=\"$(abspath $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex)\" \
++  -CFLAGS "-DLINKRESET_POINT=$(3) -DLINKRESET_CLK_HZ=$(LINKRESET_CLK_HZ)u -I$(LINKRESET_PLAT) \
++  -I$(abspath $(LINKRESET_MDIR)_$(2)/policy) -Wall -Wextra" \
++  $(SRCS) sim_link_reset.cpp $(LINKRESET_PLAT)/ctrl_plat_csr.c -o Vmilan_dp_linkreset
++endef
++.PHONY: linkreset build-linkreset-1x1 build-linkreset-8x8 exec-linkreset linkreset-plants
++build-linkreset-1x1: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
++	$(call LINKRESET_BUILD,$(SHAPE_AX1x1),1x1,1,$(LINKRESET_1X1_G),../../../configs/endstation_ax7101_1x1_tdm8.yaml)
++build-linkreset-8x8: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
++	$(call LINKRESET_BUILD,$(SHAPE_8x8),8x8,8,$(LINKRESET_8X8_G),../../../configs/endstation_ax7101_8x8.yaml)
++exec-linkreset:
++	@test -n "$(LINKRESET_WORD)" || { echo "linkreset: no reset from $(LINKRESET_PY)"; exit 2; }
++	set -e; for s in 1x1 8x8; do \
++	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms $(LINKRESET_PUBLISH_MS) \
++	    --window-ms $(LINKRESET_WINDOW_MS); \
++	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms 0 \
++	    --window-ms $(LINKRESET_WINDOW_MS); done
++linkreset: build-linkreset-1x1 build-linkreset-8x8
++	$(MAKE) --no-print-directory exec-linkreset
++linkreset-plants: build-linkreset-1x1 build-linkreset-8x8
++	python3 -B linkreset_plants.py --publish-ms $(LINKRESET_PUBLISH_MS) --window-ms $(LINKRESET_WINDOW_MS)
++
+ # #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
+ # KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
+ # CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index c1ed124c2e..64aab38eca 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -113,6 +113,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+ - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
+ - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
++- **[The #972 link from reset (obj_linkreset_\*)](#the-972-link-from-reset-obj_linkreset_)** -- The split datapath at 1x1/1if and 8x8/1if from reset with the PHY's link retained: no frame before the firmware's publication, the gPTP plane's frames after it, a refused boot that sends nothing, and a planted reset at link up caught
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -1973,6 +1974,56 @@ frame's source. The others:
+ 
+ What it does not grade: `nvm_boot()`'s own CSR traffic.
+ 
++## The #972 link from reset (`obj_linkreset_*`)
++
++The question: from reset, does the split datapath send anything before the
++firmware publishes the PHY's verified link? The datapath's effective link
++(`eff_link_w`) is the SoC's link-status word AND `LINK_CTRL[0]` AND the link
++guard's estimate. The gPTP plane's port enable, the mailbox's LINK level and
++the AVB_INTERFACE counters all read it. With the PHY's link retained, as after
++a reload that kept it, `LINK_CTRL[0]` resets to 1 and the guard's estimate
++qualifies, so the word's reset decides. The split's word resets to link down
++(`sw/litex/mac_link_status.py`, which `milan_soc.py`'s MilanMAC resets the
++word from). Before #972 it reset to link up.
++
++`sim_link_reset.cpp` elaborates `milan_datapath` at `CTRL_SPLIT_P = 1`, the
++gPTP plane at its product default, with each shape's parameters as the split
++SoC's export hands them (`LINKRESET_1X1_G`, `LINKRESET_8X8_G`). The fabric
++clock is 10 MHz and the plane's image is generated for it. The word is a sys
++register at the reset the Makefile reads from `mac_link_status.py`, crossed
++by two flops into the datapath clock, as MilanMAC's MultiReg crosses it. The
++bench is the MAC behind the boundary through the shared launch observer.
++The firmware's boot before its PHY poll arms is its own code:
++`ctrl_plat_csr.c`'s identity check and CSR policy, built for the host with the
++shape's generated policy, each access an AXI4-Lite transaction, at 3 ms. Two
++arms run from a fresh model at each shape:
++
++- **published**: the firmware's publication at 1,500 ms, after the plane's
++  boot cadence (1,200 ms), whose Pdelay_Req a link qualified from reset sends.
++  No frame crosses the MAC boundary before it; the plane's first Pdelay_Req
++  (`INITIAL_SEND_PDELAY_REQ` at the port's rise) follows it.
++- **refused**: no policy and no publication, as on a boot refused at the CSR
++  identity check. No frame in 1,600 ms.
++
++Each arm also checks that `LINK_CTRL[0]` and the guard's estimate qualify
++throughout, so only the word holds the link down, and that `o_ctl_link_up`,
++the mailbox's LINK level, stays down before the publication.
++
++`make linkreset` builds both shapes and runs the four arms;
++`make linkreset-plants` runs `linkreset_plants.py`. Its plant is made at the
++cause: a copy of `mac_link_status.py` whose link_up reset is 1 whatever owns
++the PHY. Under it the published arm must fail at each shape with "no frame
++crosses the MAC boundary before the firmware's publication". The leg is outside
++the hosted case inventory (`ORDINARY_CASES`), which takes a case only with a
++hosted measurement; run it by name.
++
++At the #972 head:
++
++| Shape | published | refused | plant |
++|---|---|---|---|
++| 1x1/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
++| 8x8/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
++
+ ## GM step re-base leg (#387)
+ 
+ The true-ratio leg also commands an absolute software settime under the
+diff --git a/tb/verilator/milan_dp/gen_gptp_leg_ucode.py b/tb/verilator/milan_dp/gen_gptp_leg_ucode.py
+index 51b9276f37..1907c3c54a 100644
+--- a/tb/verilator/milan_dp/gen_gptp_leg_ucode.py
++++ b/tb/verilator/milan_dp/gen_gptp_leg_ucode.py
+@@ -2,7 +2,7 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Generate a gPTP leg's engine image from a config, through the builder.
+ 
+-usage: gen_gptp_leg_ucode.py <config.yaml> -o <image.hex>
++usage: gen_gptp_leg_ucode.py <config.yaml> -o <image.hex> [--clk-hz <hz>]
+ 
+ The image takes the generator options the builder resolves for the config
+ (`endstation_builder.gptp_ucode_args`), so priority1 and clockAccuracy are
+@@ -10,7 +10,8 @@ that config's, as the shipping image's are (#843, 802.1AS-2011 8.6.2.3).
+ Three options are this leg's own and replace the builder's:
+ 
+   --clk-hz 2000000   the leg's compressed fabric clock (the Makefile's
+-                     MILAN_CLK_FREQ_HZ), not the board's
++                     MILAN_CLK_FREQ_HZ), not the board's; a leg that
++                     elaborates at another names it (the linkreset leg, #972)
+   --cease-ms 3000    the leg's cease delay, which its link-loss phases time
+   --mac              the generator's default MAC, whose clockIdentity the
+                      leg's pathTrace checks name (sim_gptp.cpp THIS_CLOCK)
+@@ -37,14 +38,15 @@ LEG_OPTIONS = {"--clk-hz": "2000000", "--cease-ms": "3000",
+ BUILDER_OPTIONS = ("--mac", "--p1", "--clk-hz", "--clock-accuracy")
+ 
+ 
+-def leg_options(config: Path) -> list[str]:
+-    """The generator options for `config`'s image in this leg."""
++def leg_options(config: Path, clk_hz: str = LEG_OPTIONS["--clk-hz"]) -> list[str]:
++    """The generator options for `config`'s image in this leg, its fabric clock `clk_hz`."""
+     built = eb.gptp_ucode_args(eb.load_config(str(config)))
+     options = dict(zip(built[::2], built[1::2]))
+     if tuple(options) != BUILDER_OPTIONS or len(built) != 2 * len(options):
+         raise SystemExit(f"gen_gptp_leg_ucode: the builder passes {built}, "
+                          f"this leg expects the options {BUILDER_OPTIONS}")
+     options.update(LEG_OPTIONS)
++    options["--clk-hz"] = clk_hz
+     return [part for item in options.items() for part in item]
+ 
+ 
+@@ -53,8 +55,9 @@ def main() -> None:
+     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     ap.add_argument("config", type=Path)
+     ap.add_argument("-o", "--out", type=Path, required=True)
++    ap.add_argument("--clk-hz", default=LEG_OPTIONS["--clk-hz"], help="the leg's fabric clock")
+     args = ap.parse_args()
+-    options = leg_options(args.config)
++    options = leg_options(args.config, args.clk_hz)
+     print(f"{args.out.name}: {args.config.name}: {' '.join(options)}")
+     subprocess.run([sys.executable, str(eb.GPTP_UCODE_GENERATOR),
+                     "-o", str(args.out), *options], check=True)
+diff --git a/tb/verilator/milan_dp/linkreset_plants.py b/tb/verilator/milan_dp/linkreset_plants.py
+new file mode 100644
+index 0000000000..da6d9d72c3
+--- /dev/null
++++ b/tb/verilator/milan_dp/linkreset_plants.py
+@@ -0,0 +1,77 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""linkreset_plants.py - the linkreset leg's planted premature qualification (#972).
++
++The plant is made at the word's cause: a copy of sw/litex/mac_link_status.py,
++which milan_soc.py's MilanMAC resets milan_mac_link_status from, whose
++link_up_reset gives link up whatever owns the PHY (the reset before #972). The
++leg's published arm runs at each shape with the copy's reset, and must fail
++with the finding that a frame crossed the MAC boundary before the firmware's
++publication. The models are the ones `make linkreset` built: the word is the
++bench's input, so the plant needs no rebuild.
++"""
++from __future__ import annotations
++
++import argparse
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++HELPER = HERE.parents[2] / "sw/litex/mac_link_status.py"
++#: The helper's statement the plant rewrites, and what it writes.
++ANCHOR = "    return 0 if fw_link_owner else 1\n"
++PLANTED = "    return 1\n"
++#: The finding the published arm must give under the plant.
++FINDING = "no frame crosses the MAC boundary before the firmware's publication"
++SHAPES = ("1x1", "8x8")
++
++
++def word(helper: Path) -> int:
++    """The split's word reset as `helper` gives it."""
++    out = subprocess.run([sys.executable, "-B", str(helper), "gmii", "1"], check=True, capture_output=True, text=True)
++    return int(out.stdout.split()[1])
++
++
++def main() -> int:
++    """Plant the helper's copy, run the published arm at each shape under it, and require each to fail."""
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("--publish-ms", default="1500", help="the publication, as the Makefile's LINKRESET_PUBLISH_MS")
++    ap.add_argument("--window-ms", default="1600", help="the window, as the Makefile's LINKRESET_WINDOW_MS")
++    args = ap.parse_args()
++    work = HERE / "obj_linkreset_plants"
++    shutil.rmtree(work, ignore_errors=True)
++    work.mkdir()
++    text = HELPER.read_text()
++    if text.count(ANCHOR) != 1:
++        print(f"PLANT REFUSED: the anchor occurs {text.count(ANCHOR)} times in {HELPER.name}")
++        return 2
++    planted = work / HELPER.name
++    planted.write_text(text.replace(ANCHOR, PLANTED))
++    head, bad = word(HELPER), word(planted)
++    print(f"linkreset plant premature-qualification: the word resets to {bad} (the head's {head})")
++    if bad == head or (bad & 1) == 0:
++        print("PLANT REFUSED: the planted reset does not qualify the link")
++        return 2
++    caught = 0
++    for shape in SHAPES:
++        model = HERE / f"obj_linkreset_{shape}" / "Vmilan_dp_linkreset"
++        run = subprocess.run([str(model), "--word-reset", str(bad), "--publish-ms", args.publish_ms,
++                              "--window-ms", args.window_ms], capture_output=True, text=True)
++        log = run.stdout + run.stderr
++        (work / f"{shape}.log").write_text(log)
++        found = any("[FAIL]" in line and FINDING in line for line in log.splitlines())
++        ok = run.returncode == 1 and found
++        caught += ok
++        print(f"[{'ok' if ok else 'ESCAPED'}] premature-qualification at {shape}/1if: rc {run.returncode}, "
++              f"finding {'given' if found else 'absent'}")
++        for line in log.splitlines():
++            if line.startswith(("FRAME 0", "FRAMES", "  [FAIL]")):
++                print(f"    {line.strip()}")
++    print(f"linkreset plants: {caught} of {len(SHAPES)} caught")
++    return 0 if caught == len(SHAPES) else 1
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/linkreset_probes.vlt b/tb/verilator/milan_dp/linkreset_probes.vlt
+new file mode 100644
+index 0000000000..69c489373e
+--- /dev/null
++++ b/tb/verilator/milan_dp/linkreset_probes.vlt
+@@ -0,0 +1,7 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// #972: the effective link and its two other factors, read only by sim_link_reset.cpp.
++`verilator_config
++public_flat_rd -module "milan_datapath" -var "eff_link_w"
++public_flat_rd -module "milan_datapath" -var "cfg_sw_link"
++public_flat_rd -module "milan_datapath" -var "linkg_est_w"
+diff --git a/tb/verilator/milan_dp/sim_link_reset.cpp b/tb/verilator/milan_dp/sim_link_reset.cpp
+new file mode 100644
+index 0000000000..e0c374515d
+--- /dev/null
++++ b/tb/verilator/milan_dp/sim_link_reset.cpp
+@@ -0,0 +1,310 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++//
++// sim_link_reset.cpp - #972: from reset, the split datapath transmits nothing
++// until the firmware publishes the PHY's verified link, at the shipping shape
++// it is elaborated for (1x1/1if or 8x8/1if), with the PHY's link retained.
++//
++// Boundary: milan_datapath at CTRL_SPLIT_P = 1, the gPTP plane at its product
++// default (on), the MAC's transmit stream taken every cycle. Its i_link_up and
++// i_full_duplex are the SoC's link-status word, milan_mac_link_status, as
++// milan_soc.py's MilanMAC builds it: a sys register at the reset --word-reset
++// names (the Makefile reads it from sw/litex/mac_link_status.py, the split's
++// with an MDIO pair), its link and duplex bits crossed into the datapath clock
++// by two flops each (MultiReg, its flops at 0 from configuration). One clock
++// stands in for sys and the datapath's.
++//
++// The firmware's boot before its PHY poll arms is its own code: ctrl_plat.c's
++// identity check and CSR policy (ctrl_plat_csr.c, built for the host with the
++// shape's generated policy), each access an AXI4-Lite transaction on the
++// datapath's CSR window, at --boot-ms. They program the station address and
++// the fabric's media policy, as the firmware does before its PHY poll arms.
++// The firmware's publication is a write of the word, link up at 1000 Mb/s full
++// duplex as the PHY poll publishes the shipping PHY's, at --publish-ms.
++//
++// The PHY's link is retained: its receive and transmit clock toggles run from
++// the first cycle, as after a reload that kept the link, so the link guard's
++// estimate qualifies and LINK_CTRL[0] keeps its reset, 1. Each run is a fresh
++// model, a configuration reload:
++//   --publish-ms T  the firmware publishes at T: no frame crosses the MAC
++//                   boundary before the publication has crossed, and the gPTP
++//                   plane's frames follow it within the window, so transmit
++//                   admission is observed, not assumed
++//   --publish-ms 0  nothing ever publishes and no policy is written, as on a
++//                   boot refused at the CSR identity check, before the PHY poll
++//                   arms: no frame in the window
++// Probes, read only (linkreset_probes.vlt): eff_link_w, which the gPTP plane's
++// port enable and o_ctl_link_up (the mailbox's LINK level, which the split's
++// firmware MAAP, ADP and SRP follow) both are, the split building no KL_maap;
++// cfg_sw_link (LINK_CTRL[0]) and linkg_est_w (the guard's estimate).
++// The MAC behind the boundary is the shared launch observer
++// (gptp_launch_observer.hpp), the SoC's KL_gptp_gmii_launch interface, without
++// which the plane never unseals. The gPTP plane's timebase is compressed as
++// the gptp leg's is (MILAN_CLK_FREQ_HZ in the Makefile, the PHC at 8 ns a
++// cycle, written to PTP_INCR at reset in every run).
++// Omitted: LiteEth, the PHY, the CPU and the rest of its firmware, the mailbox.
++
++#include "../../common/verilator_harness.hpp"
++#include "../../common/gptp_launch_observer.hpp"
++#include "ctrl_plat_csr.h"
++#include "ctrl_plat_io.h"
++#include "ctrl_plat_policy_gen.h"
++#include "Vmilan_datapath.h"
++#include "Vmilan_datapath___024root.h"
++#include <verilated.h>
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <cstring>
++#include <string>
++#include <vector>
++
++#ifndef LINKRESET_POINT
++#error "LINKRESET_POINT: the shape this model is elaborated at, 1 (1x1/1if) or 8 (8x8/1if), from the Makefile"
++#endif
++#define LINKRESET_SHAPE (LINKRESET_POINT == 8 ? "8x8/1if" : "1x1/1if")
++#ifndef LINKRESET_CLK_HZ
++#error "LINKRESET_CLK_HZ: the model's MILAN_CLK_FREQ_HZ (the Makefile's)"
++#endif
++
++namespace {
++
++constexpr std::uint32_t kLinkUp = 1u;
++constexpr std::uint32_t kFullDuplex = 1u << 3;
++constexpr std::uint32_t kPublished = 13u;   // link up, 1000 Mb/s, full duplex: the poll's word for the shipping PHY
++constexpr std::uint64_t kCyclesPerMs = LINKRESET_CLK_HZ / 1000u;
++constexpr unsigned kPhcTickNs = 8;   // the PHC's advance a cycle, GPTP_PHC_TICK_NS_P in the Makefile
++
++struct Frame {
++    std::uint64_t cycle;
++    std::uint16_t ethertype;
++    std::size_t bytes;
++};
++
++struct Bench {
++    milan::tb::Model<Vmilan_datapath> model;
++    Vmilan_datapath* dut = model.get();
++    std::uint64_t cyc = 0;
++    bool phy_clocks = true;
++    // the SoC's word in sys, and its two-flop crossings (MultiReg) into the datapath clock
++    std::uint32_t word = 0;
++    unsigned link_s1 = 0;   // the link bit's two flops
++    unsigned link_s2 = 0;
++    unsigned fd_s1 = 0;     // the duplex bit's
++    unsigned fd_s2 = 0;
++    std::vector<Frame> frames;
++    std::vector<std::uint8_t> cur;
++    milan::tb::GptpLaunchObserver observer{kPhcTickNs};
++    std::uint64_t phc_ns() const {
++        const auto& acc = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
++        return (static_cast<std::uint64_t>(acc[2]) << 40) | (static_cast<std::uint64_t>(acc[1]) << 8) | (acc[0] >> 24);
++    }
++    std::uint64_t eff_first_up = 0;    // the effective link's first rise
++    std::uint64_t sw_down = 0;         // LINK_CTRL[0] seen at 0
++    std::uint64_t est_down = 0;        // the guard's estimate seen at 0
++    std::uint64_t ctl_up_before = 0;   // o_ctl_link_up seen up before the publication
++    bool eff_seen_up = false;
++
++    void edge() {
++        // the PHY's clocks: alive from the first cycle (the link retained)
++        dut->i_ethrx_tgl = phy_clocks ? (cyc >> 1) & 1u : 0u;
++        dut->i_ethtx_tgl = phy_clocks ? (cyc >> 1) & 1u : 0u;
++        dut->i_ethact_tgl = 0;
++        dut->i_link_up = link_s2;
++        dut->i_full_duplex = fd_s2;
++        dut->m_axis_mac_tx_tready = 1;
++        dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; dut->i_ps_clk = 0;
++        dut->eval();
++        // the transmit beat taken at this rising edge
++        const bool take = dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready;
++        const std::uint64_t data = dut->m_axis_mac_tx_tdata;
++        const unsigned keep = dut->m_axis_mac_tx_tkeep;
++        const bool last = dut->m_axis_mac_tx_tlast;
++        dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->i_ps_clk = 1;
++        dut->eval();
++        if (take) {
++            for (unsigned k = 0; k < 8; ++k) {
++                if (keep & (1u << k)) cur.push_back(static_cast<std::uint8_t>(data >> (8 * k)));
++            }
++            if (last) {
++                const std::uint16_t type = cur.size() >= 14 ? static_cast<std::uint16_t>(cur[12] << 8 | cur[13]) : 0;
++                frames.push_back({cyc, type, cur.size()});
++                observer.offer(cur, cyc);
++                cur.clear();
++            }
++        }
++        observer.edge(dut, cyc, phc_ns());
++        // the crossings' flops on the same edge (MultiReg's two stages)
++        link_s2 = link_s1; link_s1 = word & kLinkUp;
++        fd_s2 = fd_s1; fd_s1 = (word & kFullDuplex) != 0u;
++        ++cyc;
++        observe();
++    }
++
++    //! One AXI4-Lite write of the CSR window, address and data offered together, as ctrl_plat_io.h makes it.
++    void axi_write(std::uint16_t addr, std::uint32_t value) {
++        dut->s_axi_awaddr = addr; dut->s_axi_awvalid = 1;
++        dut->s_axi_wdata = value; dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
++        dut->s_axi_bready = 1;
++        bool aw = false;
++        bool w = false;
++        bool b = false;
++        // the bound covers the CSR defaults sweep after reset, during which the window takes no access
++        for (int k = 0; k < 4000 && !b; ++k) {
++            dut->eval();
++            const bool aw_take = dut->s_axi_awvalid && dut->s_axi_awready;
++            const bool w_take = dut->s_axi_wvalid && dut->s_axi_wready;
++            const bool b_take = dut->s_axi_bvalid && dut->s_axi_bready;
++            edge();
++            if (aw_take) { aw = true; dut->s_axi_awvalid = 0; }
++            if (w_take) { w = true; dut->s_axi_wvalid = 0; }
++            b = b_take;
++        }
++        if (!(aw && w && b)) { std::printf("FAIL CSR write at 0x%x never answered\n", addr); ++faults; }
++    }
++    //! One AXI4-Lite read of the CSR window.
++    std::uint32_t axi_read(std::uint16_t addr) {
++        dut->s_axi_araddr = addr; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
++        for (int k = 0; k < 4000; ++k) {
++            dut->eval();
++            const bool ar_take = dut->s_axi_arvalid && dut->s_axi_arready;
++            const bool r_take = dut->s_axi_rvalid && dut->s_axi_rready;
++            const std::uint32_t data = dut->s_axi_rdata;
++            edge();
++            if (ar_take) dut->s_axi_arvalid = 0;
++            if (r_take) return data;
++        }
++        std::printf("FAIL CSR read at 0x%x never answered\n", addr);
++        ++faults;
++        return 0;
++    }
++    unsigned faults = 0;
++
++    std::uint64_t published_at = 0;   // the publication's cycle, 0 for none
++    void observe() {
++        const auto* r = dut->rootp;
++        const bool eff = r->milan_datapath__DOT__eff_link_w;
++        if (eff && !eff_seen_up) { eff_seen_up = true; eff_first_up = cyc; }
++        if (!r->milan_datapath__DOT__cfg_sw_link && !sw_down) sw_down = cyc ? cyc : 1;
++        if (!r->milan_datapath__DOT__linkg_est_w && !est_down && dut->axis_resetn) est_down = cyc;
++        if (dut->o_ctl_link_up && (published_at == 0 || cyc < published_at) && !ctl_up_before) ctl_up_before = cyc;
++    }
++};
++
++std::uint64_t arg(int argc, char** argv, const char* name, std::uint64_t fallback) {
++    for (int k = 1; k + 1 < argc; ++k) {
++        if (std::strcmp(argv[k], name) == 0) return std::strtoull(argv[k + 1], nullptr, 0);
++    }
++    return fallback;
++}
++
++Bench* current = nullptr;
++//! The CSR window's base in ctrl_plat_io.h's addresses: the window at 0, as the bench passes it.
++constexpr std::uintptr_t kCsr = 0;
++
++}  // namespace
++
++// ctrl_plat_io.h: the datapath's CSR window; nothing else is addressed before the PHY poll arms
++extern "C" std::uint32_t ctrl_plat_io_read32(std::uintptr_t address) {
++    return current->axi_read(static_cast<std::uint16_t>(address - kCsr));
++}
++
++extern "C" void ctrl_plat_io_write32(std::uintptr_t address, std::uint32_t value) {
++    current->axi_write(static_cast<std::uint16_t>(address - kCsr), value);
++}
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    const std::uint32_t reset_word = static_cast<std::uint32_t>(arg(argc, argv, "--word-reset", 0x100));
++    const std::uint64_t publish_ms = arg(argc, argv, "--publish-ms", 1500);
++    const std::uint64_t boot_ms = arg(argc, argv, "--boot-ms", 3);
++    const std::uint64_t window_ms = arg(argc, argv, "--window-ms", 1600);
++    std::string label = std::string("linkreset ") + LINKRESET_SHAPE + (publish_ms ? " published" : " refused");
++    milan::tb::Checker check{label.c_str()};
++    if (reset_word > 15u) {
++        std::printf("FAIL --word-reset: the word's reset (mac_link_status.py) is required\n");
++        return 2;
++    }
++    Bench b;
++    current = &b;
++    b.phy_clocks = arg(argc, argv, "--phy-clocks", 1) != 0;
++    Vmilan_datapath* dut = b.dut;
++    // configuration: every register at its initial value, the word at its reset, the crossings' flops at 0
++    b.word = reset_word;
++    dut->axis_resetn = 0; dut->gtx_resetn = 0;
++    dut->i_mac_speed = 2; dut->i_mmcm_locked = 1;
++    dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; dut->s_axi_arvalid = 0; dut->s_axi_bready = 1; dut->s_axi_rready = 1;
++    dut->s_axis_mac_rx_tvalid = 0;
++    milan::tb::GptpLaunchObserver::tie_off(dut);
++    const std::uint64_t published_at = publish_ms * kCyclesPerMs;
++    b.published_at = published_at;
++    for (int k = 0; k < 64; ++k) b.edge();
++    dut->axis_resetn = 1; dut->gtx_resetn = 1;
++    // the compressed timebase: the PHC at kPhcTickNs a cycle (PTP_INCR, ns in [31:24]), as the gptp leg sets it
++    b.axi_write(0x504, kPhcTickNs << 24);
++    const std::uint64_t end = window_ms * kCyclesPerMs;
++    const std::uint64_t boot_at = boot_ms * kCyclesPerMs;
++    bool booted = false;
++    bool identity = false;
++    std::uint64_t policy_done = 0;
++    while (b.cyc < end) {
++        if (publish_ms != 0 && b.cyc >= published_at && b.word != kPublished) b.word = kPublished;
++        if (publish_ms != 0 && !booted && b.cyc >= boot_at) {
++            // ctrl_plat_boot's steps before the PHY poll arms: the identity check, then the policy
++            booted = true;
++            std::uint32_t version = 0;
++            identity = ctrl_plat_csr_identity(kCsr, &version);
++            const struct ctrl_plat_policy policy = CTRL_PLAT_POLICY_INIT;
++            if (identity) ctrl_plat_csr_policy(kCsr, &policy);
++            policy_done = b.cyc;
++            std::printf("BOOT identity %s VERSION 0x%08x, policy written by %.3f ms\n", identity ? "ok" : "refused",
++                        version, static_cast<double>(policy_done) / kCyclesPerMs);
++            continue;
++        }
++        b.edge();
++    }
++    // the publication's crossing: two flops, then the datapath's own registering of its effective link
++    const std::uint64_t crossed = published_at + 2u;
++    std::size_t before = 0;
++    std::size_t after = 0;
++    for (const Frame& f : b.frames) (publish_ms == 0 || f.cycle < crossed ? before : after) += 1u;
++    std::printf("SHAPE %s word reset %u publish %llu ms window %llu ms (%llu cycles/ms)\n", LINKRESET_SHAPE,
++                reset_word, static_cast<unsigned long long>(publish_ms), static_cast<unsigned long long>(window_ms),
++                static_cast<unsigned long long>(kCyclesPerMs));
++    for (std::size_t k = 0; k < b.frames.size() && k < 6; ++k) {
++        std::printf("FRAME %zu at %.3f ms ethertype 0x%04x %zu bytes\n", k,
++                    static_cast<double>(b.frames[k].cycle) / kCyclesPerMs, b.frames[k].ethertype, b.frames[k].bytes);
++    }
++    {
++        std::vector<std::pair<std::uint16_t, unsigned>> types;
++        for (const Frame& f : b.frames) {
++            bool found = false;
++            for (auto& t : types) {
++                if (t.first == f.ethertype) { ++t.second; found = true; }
++            }
++            if (!found) types.push_back({f.ethertype, 1u});
++        }
++        for (const auto& t : types) std::printf("ETHERTYPE 0x%04x %u frames\n", t.first, t.second);
++    }
++    std::printf("EFF first up at %s ms; LINK_CTRL[0] %s; guard estimate %s\n",
++                b.eff_seen_up ? std::to_string(static_cast<double>(b.eff_first_up) / kCyclesPerMs).c_str() : "never",
++                b.sw_down ? "fell" : "1 throughout", b.est_down ? "fell" : "1 throughout");
++    std::printf("FRAMES before the publication %zu, after %zu\n", before, after);
++    check.dec("every CSR access of the boot answered", b.faults, 0);
++    if (publish_ms != 0) {
++        check.that("the boot's identity check passes on the split datapath", identity);
++        check.that("the policy is written before the publication", booted && policy_done < published_at);
++    }
++    // the other two factors of the effective link qualify throughout: only the word holds it down
++    check.that("LINK_CTRL[0] qualifies the link throughout (its reset, 1)", b.sw_down == 0);
++    check.that("the link guard's estimate qualifies the link throughout (the PHY's clocks retained)", b.est_down == 0);
++    check.dec("no frame crosses the MAC boundary before the firmware's publication", before, 0);
++    check.that("the effective link (the gPTP port enable, the mailbox LINK) stays down before the publication",
++               publish_ms == 0 ? !b.eff_seen_up : (!b.eff_seen_up || b.eff_first_up >= crossed));
++    check.dec("o_ctl_link_up, the mailbox's LINK level, stays down before the publication", b.ctl_up_before, 0);
++    if (publish_ms != 0) {
++        check.that("the effective link rises with the publication", b.eff_seen_up && b.eff_first_up <= crossed + 4u);
++        check.that("frames follow the publication within the window (transmit admitted)", after > 0);
++    }
++    return check.report();
++}

@@ -1,0 +1,26 @@
+ CHANGELOG.md                                |   7 +-
+ docs/design/CSR_REGISTER_NOTES.md           |   4 +-
+ docs/reference/FR_NFR.md                    |   4 +-
+ docs/reference/REGISTER_MAP.md              |  16 +-
+ scripts/register_descriptions.json          |  12 +-
+ sw/firmware/ctrl/plat/README.md             |   8 +-
+ sw/firmware/ctrl/plat/ctrl_plat_phy.c       |  54 +++--
+ sw/firmware/ctrl/plat/ctrl_plat_phy.h       |  52 +++--
+ sw/firmware/ctrl/test/adp_first_mutants.py  |   2 +-
+ sw/firmware/ctrl/test/phy_peer.hpp          |   2 +-
+ sw/firmware/ctrl/test/plat_arms.py          |  12 +-
+ sw/firmware/ctrl/test/plat_mutants.py       |  46 ++++-
+ sw/firmware/ctrl/test/test_plat_boot.cpp    |  58 +++---
+ sw/firmware/ctrl/test/test_plat_phy.cpp     | 155 ++++++++++++--
+ sw/litex/mac_link_status.py                 |  56 +++++
+ sw/litex/milan_soc.py                       |  24 ++-
+ tb/verilator/ctrl_split_boot/README.md      |  22 +-
+ tb/verilator/ctrl_split_boot/boot_soc.py    |  10 +-
+ tb/verilator/ctrl_split_boot/run.py         |  14 +-
+ tb/verilator/milan_dp/Makefile              |  57 +++++
+ tb/verilator/milan_dp/README.md             |  51 +++++
+ tb/verilator/milan_dp/gen_gptp_leg_ucode.py |  13 +-
+ tb/verilator/milan_dp/linkreset_plants.py   |  77 +++++++
+ tb/verilator/milan_dp/linkreset_probes.vlt  |   7 +
+ tb/verilator/milan_dp/sim_link_reset.cpp    | 310 ++++++++++++++++++++++++++++
+ 25 files changed, 934 insertions(+), 139 deletions(-)

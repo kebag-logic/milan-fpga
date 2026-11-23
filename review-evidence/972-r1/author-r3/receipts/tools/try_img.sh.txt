@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# try_img.sh <point 1x1|8x8> <ifs>: the lane's platform image linked against round 3's stand-in export of <point>,
+# into tmp/try-<point>-<ifs>: the PHY object's sections and the allocation verdict.
+S=<scratch>; P=$1; N=$2; L=<lane>
+case $P in 1x1) STEM=endstation_ax7101_1x1_tdm8;; 8x8) STEM=endstation_ax7101_8x8;; esac
+. $S/bin/env.sh
+RT=$S/meas/r2/1x1/none/runtime; O=$S<systmp>/try-$P-$N; rm -rf $O
+cd $L && python3 -B sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/$STEM.yaml --interfaces $N \
+  --csr-csv $S/viv/$P/standin/csr.csv --flash-map $S/viv/$P/flash-map --output $O --libc $RT/libc.a \
+  --compiler-runtime $RT/libcompiler_rt.a > $O.log 2>&1; echo "rc $?"
+<sdk>/host/bin/riscv32-buildroot-linux-gnu-size -A $O/*-ctrl_plat_phy.o 2>/dev/null | grep -E 'text\.ctrl'
+grep -E 'REFUSED|RAMB36|rom ' $O.log | tail -3

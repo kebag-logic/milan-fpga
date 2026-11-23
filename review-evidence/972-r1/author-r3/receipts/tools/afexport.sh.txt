@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# afexport.sh <clone> <stem> <out>: the all-fabric placement's export of <stem> (the builder's --placement all-fabric,
+# milan_soc.py with its argv, no Vivado, no software), and the generated link-status storage's reset lines.
+set -euo pipefail
+L=$1; STEM=$2; O=$3
+source <scratch>/bin/env.sh
+export TSN_GEN_ROOT=<mgmt>/tools/tsn-gen-deca300c GIT_ALLOW_PROTOCOL=file:https
+cd "$L"; echo "head $(git rev-parse HEAD) status: $(git status --porcelain | tr '\n' ' ')"
+/usr/bin/python3 sw/builder/endstation_builder.py configs/$STEM.yaml --placement all-fabric > "$O.builder.log" 2>&1
+mapfile -t ARGV < <(/usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))['argv']))" sw/builder/out/$STEM/soc_params.json)
+echo "argv: ${ARGV[*]}"
+(cd sw/litex && python3 milan_soc.py "${ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" --no-compile-software --output-dir "$O" > "$O.log" 2>&1)
+grep -n 'link_status_storage = \|link_status_storage <= 4' "$O/gateware/"*.v | head -4

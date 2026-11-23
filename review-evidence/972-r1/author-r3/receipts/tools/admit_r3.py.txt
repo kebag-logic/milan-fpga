@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Wait up to 50 seconds for real gate work to obtain a CPU booking; never reserve a placeholder unit."""
+import subprocess,time
+from pathlib import Path
+S=Path('<scratch>')
+end=time.monotonic()+50
+while True:
+    if not (S/'native-r3').exists():
+        r=subprocess.run(['python3',str(S/'bin/start_native_r3.py')],capture_output=True,text=True)
+        if r.returncode==0:
+            print(r.stdout+r.stderr); break
+        if r.returncode!=75: raise SystemExit(r.stdout+r.stderr)
+    for k in range(4):
+        if (S/f'units/r3-fw{k}.log').exists(): continue
+        r=subprocess.run(['python3',str(S/'bin/start_fw_r3.py'),str(k)],capture_output=True,text=True)
+        if r.returncode==0:
+            print(r.stdout+r.stderr); raise SystemExit(0)
+        if r.returncode!=75: raise SystemExit(r.stdout+r.stderr)
+        break
+    if time.monotonic()>=end:
+        print('QUEUED: no available booking for pending work'); break
+    time.sleep(10)

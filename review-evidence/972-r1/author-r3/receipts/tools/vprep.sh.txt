@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# vprep.sh <clone> <stem> <work-dir>: the split gating recipe's prep (the opt lanes' gprep.sh, one hart): the builder's
+# split placement, a stand-in export for the CSR map (the size fixture's image: the map does not depend on the image),
+# the flash port's map, the platform image at one interface linked against them, copied to the path the recipe argv
+# names; the argv to <work-dir>/argv.txt.
+set -euo pipefail
+L=$1; STEM=$2; W=$3; S=<scratch>
+source $S/bin/env.sh
+export TSN_GEN_ROOT=<mgmt>/tools/tsn-gen-deca300c GIT_ALLOW_PROTOCOL=file:https
+RT=$S/meas/r2/1x1/none/runtime
+CFG=configs/$STEM.yaml
+mkdir -p "$W"; cd "$L"
+echo "head $(git rev-parse HEAD) status: $(git status --porcelain | tr '\n' ' ')"; date -Iseconds
+/usr/bin/python3 sw/builder/endstation_builder.py "$CFG" --placement split
+mapfile -t ARGV < <(/usr/bin/python3 -c "import json,sys; print('\n'.join(json.load(open(sys.argv[1]))['argv']))" sw/builder/out/$STEM/soc_params.json)
+FW=$(printf '%s\n' "${ARGV[@]}" | grep -A1 -x -- --ctrl-firmware | tail -1)
+echo "recipe argv: ${ARGV[*]}"
+rm -rf "$W/standin" "$W/flash-map" "$W/image" "$W/fixture"
+python3 -B sw/firmware/ctrl/test/ctrl_srp_image.py --config "$CFG" --interfaces 1 --with-aecp --layout split \
+  --output "$W/fixture" --libc "$RT/libc.a" --compiler-runtime "$RT/libcompiler_rt.a" > "$W/fixture.log" 2>&1
+STAND_ARGV=("${ARGV[@]}"); for i in "${!STAND_ARGV[@]}"; do [ "${STAND_ARGV[$i]}" = "$FW" ] && STAND_ARGV[$i]=$W/fixture/ctrl_app.elf; done
+FLOW=(--synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt)
+(cd sw/litex && python3 milan_soc.py "${STAND_ARGV[@]}" --entity-gen-dir "$L/configs/generated/$STEM" "${FLOW[@]}" --no-compile-software --output-dir "$W/standin" > "$W/standin.log" 2>&1)
+echo "standin export rc=0"
+python3 -B sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv "$W/standin/csr.csv" --csr-h "$W/standin/software/include/generated/csr.h" --out "$W/flash-map"
+python3 -B sw/firmware/ctrl/test/ctrl_plat_image.py --config "$CFG" --interfaces 1 --csr-csv "$W/standin/csr.csv" --flash-map "$W/flash-map" --output "$W/image" --libc "$RT/libc.a" --compiler-runtime "$RT/libcompiler_rt.a" > "$W/image.log" 2>&1
+cp "$W/image/ctrl_app.elf" "$FW"
+printf '%s\n' "${ARGV[@]}" > "$W/argv.txt"
+sha256sum "$W/image/ctrl_app.elf" "$FW" "$CFG" sw/builder/out/$STEM/soc_params.json "$RT/libc.a" "$RT/libcompiler_rt.a"
+echo "status after prep: $(git status --porcelain | tr '\n' ' ')"
+date -Iseconds; echo PREP_DONE

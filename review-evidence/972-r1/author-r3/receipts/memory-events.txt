@@ -1,0 +1,38 @@
+Memory-event check 2026-11-23T00:12:46.841708+01:00
+milan-970-a820-r3native-shard0
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+milan-970-a820-r3native-shard1
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+milan-970-a820-r3native-shard2
+low 0
+high 0
+max 49248
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+milan-970-a820-r3native-shard3
+low 0
+high 0
+max 0
+oom 0
+oom_kill 0
+oom_group_kill 0
+sock_throttled 0
+All four sweep summaries contain only PASS verdicts so far; no OOM or killed process recorded. Shard 2 reached its cap and reclaimed memory, without an OOM event.
+
+Host crash 2026-11-23 00:39 (the manager: RAM fault class; reboot 00:44). Shard 2/4 was cut before its verdict
+(15 of 17 suites PASS in its partial log, not counted). Rerun from a cleaned clone 05:47 to 07:33 on CPUs 8-15:
+17 of 17 suites PASS, 284,336 checks, 0 in-suite failures, exit 0; no restart of its unit.

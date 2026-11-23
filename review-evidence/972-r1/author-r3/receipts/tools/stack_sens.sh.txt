@@ -1,0 +1,23 @@
+#!/bin/bash
+# stack_sens.sh REV TAG: the plant gm-change-rearms-without-a-draw (tests/mutations.json at 5585226) applied to src/adp.c
+# of a clean clone of the stack at REV, then a Debug build and ctest: whether the suite at REV catches it.
+set -u
+S=<scratch>; REV=$1; TAG=$2; D=$S/stack/sens3/$TAG
+. $S/bin/stack_env.sh
+rm -rf "$D" "$D-b"; mkdir -p "$S/stack/sens3"
+git clone -q --no-local <lane>/third_party/tsn-c-stack "$D" && git -C "$D" checkout -q --detach "$REV" || exit 3
+python3 - "$D" <<'PY'
+import json, sys
+from pathlib import Path
+d = Path(sys.argv[1])
+plants = json.loads(Path('<scratch>/stack-wt/tests/mutations.json').read_text())
+m = next(p for p in plants if p['name'] == 'gm-change-rearms-without-a-draw')
+src = d / m['path']
+text = src.read_text()
+assert text.count(m['old']) == 1, 'anchor'
+src.write_text(text.replace(m['old'], m['new']))
+print('planted', m['name'], 'into', m['path'])
+PY
+cmake -S "$D" -B "$D-b" -DCMAKE_BUILD_TYPE=Debug > "$D.cmake.log" 2>&1 && cmake --build "$D-b" -j8 > "$D.build.log" 2>&1 || { echo "build failed"; tail -20 "$D.build.log"; exit 4; }
+cd "$D-b" && ctest --output-on-failure -j8 > "$D.ctest.log" 2>&1; rc=$?
+echo "ctest rc=$rc"; grep -E 'tests passed|tests failed|A2 GM_CHANGE|Failed' "$D.ctest.log" | head -8

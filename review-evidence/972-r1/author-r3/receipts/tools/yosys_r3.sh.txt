@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -u
+. <scratch>/bin/env.sh
+export MAKEFLAGS='-j16 --no-print-directory'
+exec > <scratch>/units/r3-yosys.log 2>&1
+date -Iseconds
+git rev-parse HEAD
+bash syn/yosys/run.sh --results <scratch>/yosys-r3
+rc=$?
+echo "$rc" > <scratch>/units/r3-yosys.rc
+echo "END rc=$rc"
+exit "$rc"

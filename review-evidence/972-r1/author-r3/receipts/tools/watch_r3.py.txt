@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Bounded foreground monitor for this lane's remaining gates."""
+from pathlib import Path
+import datetime,json,re,time,subprocess
+S=Path('<scratch>')
+for cycle in range(8):
+    states=[]; done=0;failed=False
+    for k in range(4):
+        d=S/f'native-r3/shard-{k}/spec'; t=(d/'01.log').read_text()
+        n=len(re.findall(r'^PASS\s',t,re.M)); c=d/'complete.json'
+        failed |= bool(re.search(r'^(FAIL|TIMEOUT)\s',t,re.M))
+        if c.exists():
+            result=json.loads(c.read_text()); rc=result['exit_code']; done+=1; failed|=rc!=0
+            states.append(f'{k}:{n} passed, rc={rc}')
+        else: states.append(f'{k}:{n} passed, running')
+    yr=S/'units/r3-yosys.rc';yt=(S/'units/r3-yosys.log').read_text()
+    yn=len(re.findall(r'^  \[PASS\]',yt,re.M)); ydone=yr.exists()
+    if ydone: failed|=yr.read_text().strip()!='0'
+    mem=int(next(x.split()[1] for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:')))//1048576
+    print(datetime.datetime.now().astimezone().isoformat(timespec='seconds'),'; '.join(states),f'; synthesis {yn} passed, '+('rc='+yr.read_text().strip() if ydone else 'running'),f'; available memory {mem} GiB',flush=True)
+    subprocess.run(['python3',str(S/'bin/refresh_status_r3.py')],check=True,stdout=subprocess.DEVNULL)
+    if failed: raise SystemExit(1)
+    if done==4 and ydone: raise SystemExit(0)
+    if cycle<7: time.sleep(48)

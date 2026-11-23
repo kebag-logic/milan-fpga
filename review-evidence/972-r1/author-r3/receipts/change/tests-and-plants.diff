@@ -1,0 +1,495 @@
+diff --git a/sw/firmware/ctrl/test/adp_first_mutants.py b/sw/firmware/ctrl/test/adp_first_mutants.py
+index 55a798efb2..c864474fd5 100644
+--- a/sw/firmware/ctrl/test/adp_first_mutants.py
++++ b/sw/firmware/ctrl/test/adp_first_mutants.py
+@@ -37,7 +37,7 @@ MUTANTS: tuple[Mutant, ...] = (
+     Mutant("draw-kinds-merged", ADP_C, DRAW_RANGE, "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds",
+            "A9 every startup draw",
+            also=(("adp", G2, "G2 the first ENTITY_AVAILABLE, index 0, leaves within its 0 to 2 s draw"),)),
+-    # #970, R888-1-F1: a LINK_UP delay narrowed to 0 to 0.5 s is not Milan's draw (the ruling on #970)
++    # #970: a LINK_UP delay narrowed to 0 to 0.5 s is not Milan's draw (the ruling on #970)
+     Mutant("link-up-draws-half-a-second", ADP_C, DRAW_RANGE,
+            "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS / 8u", "adp", G1, SPREAD),
+     Mutant("first-delays-not-drawn", ADP_C, "\tuint32_t ms = (r16 * (max_ms + 1u)) >> 16;\n",
+diff --git a/sw/firmware/ctrl/test/phy_peer.hpp b/sw/firmware/ctrl/test/phy_peer.hpp
+index 465d308bfc..47a79b3a22 100644
+--- a/sw/firmware/ctrl/test/phy_peer.hpp
++++ b/sw/firmware/ctrl/test/phy_peer.hpp
+@@ -67,7 +67,7 @@ struct Peer {
+     bool negotiates = false;                   // a restart latches the abilities in force and sets the link
+     std::uint16_t active_anar = 0, active_gctrl = 0;
+     unsigned active_speed = 0;                 // Mb/s of the link negotiated on them, 0: none
+-    std::uint32_t word = 13u;                  // link_status's value: the reset value, 1000 Mb/s full duplex, up
++    std::uint32_t word = 13u;                  // link_status's value; a suite sets the reset it models
+     std::vector<Frame> frames;
+     std::vector<Publication> published;
+     std::string fault;
+diff --git a/sw/firmware/ctrl/test/plat_arms.py b/sw/firmware/ctrl/test/plat_arms.py
+index dae1babc20..d170f928da 100644
+--- a/sw/firmware/ctrl/test/plat_arms.py
++++ b/sw/firmware/ctrl/test/plat_arms.py
+@@ -82,6 +82,15 @@ def generated(tree: Tree, config: Path, out: Path) -> list[str]:
+     return [f"-I{out}", f"-I{out / 'gen'}"]
+ 
+ 
++def split_link_reset() -> int:
++    """milan_mac_link_status's reset on the shipping board where firmware owns the PHY, the split's (#972): read from
++    sw/litex/mac_link_status.py, which milan_soc.py's MilanMAC resets the word from, so the PHY suites start where the
++    gateware does."""
++    sys.path.insert(0, str(ROOT / "sw/litex"))
++    import mac_link_status  # noqa: E402
++    return mac_link_status.word_reset("gmii", fw_link_owner=True)
++
++
+ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
+     """ctrl_plat.c's boot and composition at the shipping shape, one or two interfaces."""
+     from aecp_arms import AECP_SOURCES
+@@ -101,6 +110,7 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
+     firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
+     models = [tree.src / n for n in HOST if n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
+     label = f"-DPLAT_TEST_SHAPE=\"{SHIPPING.stem} if{interfaces}\""
++    link_reset = f"-DPLAT_TEST_LINK_RESET={split_link_reset()}u"
+     # The variant's include path alone, so its two-interface contract is the one every unit sees
+     # (srp_arms.prepared); the harness's build and grade, as aecp_arms.core_arm uses them.
+     try:
+@@ -109,7 +119,7 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
+         objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
+                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
+         # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
+-        objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
++        objs += fw_gtest.compile_tests(tree.build, [*inc, label, link_reset, f"-I{STACK_TESTS}"],
+                                        [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp",
+                                         HERE / "test_plat_phy.cpp"], out / "tests")
+     except fw_gtest.BuildError as exc:
+diff --git a/sw/firmware/ctrl/test/plat_mutants.py b/sw/firmware/ctrl/test/plat_mutants.py
+index da2cda4d12..21b2820ab8 100644
+--- a/sw/firmware/ctrl/test/plat_mutants.py
++++ b/sw/firmware/ctrl/test/plat_mutants.py
+@@ -451,8 +451,14 @@ def phy_mutants(mutant: type) -> tuple:
+ ANAR_MASK = "(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)"
+ GCTRL_SET = "((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :"
+ RESTART_BITS = "| CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &"
+-HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n"
++HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u && negotiating((uint32_t)phy->control) &&\n"
+         "\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)")
++#: BMCR negotiating as the restart leaves it (#840): autonegotiation enabled, reset and isolate clear.
++NEGOTIATING = "(bmcr & (CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE))"
++#: CONTROL's rule (#840): on a PHY the advertisement is for, BMCR not negotiating is link down, renegotiated.
++FORCED = "if (v >= 0 && phy->adv != CTRL_PLAT_PHY_ADV_NONE && !negotiating(u)) {"
++P22 = "PlatPhy.P22TheBootRestartsAPhyNotNegotiating"
++P23 = "PlatPhy.P23AForcedModeIsNeverPublishedUp"
+ #: The repair's restart, as ctrl_plat_phy.c's take() decides it and takes it, and the defect of a restart marked
+ #: taken before the read-back verifies, so the repair of a dropped write restarts nothing (#919).
+ REPAIR = ("\t\tif (" + HELD + ") {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n\t\t}\n\t\tbreak;\n"
+@@ -461,8 +467,8 @@ RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x8u) != 0u || (" + HELD + ")) {\n\t\t\t
+                    "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x8u;\n")
+ #: THE OUTCOME's judgement (#919): a completed negotiation sharing no 1000BASE-T mode, the advertisement verified.
+ OUTCOME = "if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {"
+-OUTCOME_OWED = ("\t\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
+-                "\t\t\t\tif (phy->renegotiations")
++OUTCOME_OWED = ("\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
++                "\tif (phy->renegotiations")
+ P18 = "PlatPhy.P18TheRestartIsVerifiedByItsOutcome"
+ P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one restart a poll, paced like the poll")
+ READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
+@@ -525,9 +531,7 @@ def advertisement_mutants(mutant: type) -> tuple:
+           "P19 the boot restarts no negotiation the PHY already holds",
+           also=(("platboot1", P11, "P11 a PHY that holds the advertisement at boot is not restarted"),)),
+         m("plat-phy-arm-publishes-nothing", PHY, ARM_OWED, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1",
+-          "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down",
+-          also=(("platboot1", "Phy.L4ReturnEndsTheCeaseWithinAPoll",
+-                 "L4 the port enable falls as the poll arms and rises with its first publication"),)),
++          "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down"),
+         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
+           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
+           "PlatPhy.P6FramesAreClause22Reads", P6),
+@@ -575,10 +579,11 @@ def advertisement_mutants(mutant: type) -> tuple:
+         m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
+           OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
+           also=(P18_PACED,)),
+-        m("plat-phy-outcome-uncounted", PHY, "\t\t\t\t\t++phy->renegotiations;\n", "", "platboot1", P18,
+-          "P18 the outcome's restart is counted"),
+-        m("plat-phy-outcome-count-wraps", PHY, "\t\t\t\tif (phy->renegotiations != 0xffffu) {\n",
+-          "\t\t\t\tif (true) {\n", "platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes",
++        m("plat-phy-outcome-uncounted", PHY, "\t\t++phy->renegotiations;\n", "", "platboot1", P18,
++          "P18 the outcome's restart is counted",
++          also=(("platboot1", P23, "P23 its renegotiation is counted"),)),
++        m("plat-phy-outcome-count-wraps", PHY, "\tif (phy->renegotiations != 0xffffu) {\n",
++          "\tif (true) {\n", "platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes",
+           "P18 the count saturates at 0xffff"),
+         m("plat-phy-outcome-at-gigabit", PHY, OUTCOME, "if (phy->adv == 0u) {", "platboot1",
+           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a negotiation at 1000BASE-T owes no restart"),
+@@ -587,4 +592,25 @@ def advertisement_mutants(mutant: type) -> tuple:
+         m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
+           OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
+           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
++    ) + bmcr_mutants(mutant)
++
++
++def bmcr_mutants(mutant: type) -> tuple:
++    """#840 on BMCR: the boot's (and a loss's) no-restart path only where BMCR negotiates, autonegotiation enabled
++    with isolate and reset clear, and a forced mode never published up on a PHY the advertisement is for."""
++    m = mutant
++    return (
++        m("plat-phy-held-ignores-bmcr", PHY, HELD, HELD.replace(" negotiating((uint32_t)phy->control) &&", ""),
++          "platboot1", P22, "P22 the boot's first poll restarts a forced PHY",
++          also=(("platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3"),)),
++        m("plat-phy-isolate-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_ISOLATE", ""),
++          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3",
++          also=(("platboot1", P23, "P23 an isolated PHY is published down"),)),
++        m("plat-phy-reset-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_RESET", ""),
++          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 4"),
++        m("plat-phy-forced-published", PHY, FORCED, "if (false) {", "platboot1", P23,
++          "P23 a forced mode on a PHY the advertisement is for is published down",
++          also=(("platboot1", P23, "P23 the forced link a lost restart left is published down"),)),
++        m("plat-phy-forced-on-unadvertised", PHY, FORCED, FORCED.replace("phy->adv != CTRL_PLAT_PHY_ADV_NONE && ", ""),
++          "platboot1", P23, "P23 a PHY the advertisement is not for: the forced mode BMCR names"),
+     )
+diff --git a/sw/firmware/ctrl/test/test_plat_boot.cpp b/sw/firmware/ctrl/test/test_plat_boot.cpp
+index 9b99d26f28..7acbc1f3d6 100644
+--- a/sw/firmware/ctrl/test/test_plat_boot.cpp
++++ b/sw/firmware/ctrl/test/test_plat_boot.cpp
+@@ -94,8 +94,10 @@
+ //
+ // THE PHY (#919), the Phy fixture's own tests (Phy.B11, Phy.B12, Phy.L1 to L6):
+ //   B11 the PHY poll (#919, ctrl_plat_phy.h) is armed past the identity check:
+-//       a foreign window's MDIO pins are never touched; a stage refused past
+-//       it keeps publishing the PHY's link on its console's turns (#70)
++//       a foreign window's MDIO pins are never touched, so its word keeps
++//       its reset, link down, and the link is never qualified (#972); a stage
++//       refused past it keeps publishing the PHY's link on its console's
++//       turns (#70)
+ //   B12 THE STEP's client: a call whose store takes a step of its save carries
+ //       no PHY frame, and one whose store step is an idle one, or that has no
+ //       store step, carries one; a call that owes no centisecond's step takes
+@@ -105,17 +107,16 @@
+ //   L1  the ready loop publishes the PHY's link to milan_mac_link_status
+ //   L2  the datapath's effective link (milan_datapath.sv eff_link_w, the
+ //       published link_up through the SoC's synchroniser), modelled as a level
+-//       that stands between two turns: the boot moves each once, the arm's link
+-//       down after the reset value's link up and the first poll's link up
+-//       (#972), as a boot whose PHY has no link yet at its first poll does; a
+-//       3 s loss, and a loss that recovered between two polls, each move
+-//       LINK_DOWN and LINK_UP by one
++//       that stands between two turns from the word's reset, link down in the
++//       split (#972): the boot moves LINK_UP once, at the first poll's
++//       publication, and LINK_DOWN not at all; a 3 s loss, and a loss that
++//       recovered between two polls, each move LINK_DOWN and LINK_UP by one
+ //   L3  each edge's counter change reaches AECP, which sends a registered
+ //       controller one unsolicited GET_COUNTERS for the AVB_INTERFACE, LINK_DOWN
+ //       then LINK_UP moved by one
+-//   L4  the port enable is down from the poll's arm until its first
+-//       publication of the PHY's link, so the gPTP plane sends nothing on the
+-//       reset value's link (#972); the link's return is published by the first
++//   L4  the port enable is down from reset until the poll's first
++//       publication of the PHY's link, so the gPTP plane sends nothing before
++//       it (#972); the link's return is published by the first
+ //       poll after it, so the gPTP plane's port enable rises then and its
+ //       Pdelay_Req cease ends (Milan v1.2 4.2.6.2.5), within
+ //       CTRL_PLAT_PHY_POLL_US of the return
+@@ -125,6 +126,10 @@
+ //   L6  a probe that always misses owes a frame in every call, and the save
+ //       is still durable within its stated worst case (nvm_store.h)
+ 
++#ifndef PLAT_TEST_LINK_RESET
++#error "PLAT_TEST_LINK_RESET: milan_mac_link_status's reset, from sw/litex/mac_link_status.py (plat_arms.py)"
++#endif
++
+ #include <gtest/gtest.h>
+ 
+ #include <algorithm>
+@@ -1249,7 +1254,7 @@ constexpr unsigned kFirstPollMs = 10u;
+ // port enable
+ struct Phy : Boot {
+     phy_peer::Peer peer;
+-    bool level = true;                                  // link_status resets link up
++    bool level = false;                                 // the split's link_status resets link down (#972)
+     std::size_t seen = 0;
+     std::vector<std::pair<std::uint64_t, bool>> edges;  // the port enable's edges, (us, level)
+     std::uint32_t scanned = 0;                          // the mailbox's frames read for notices
+@@ -1257,7 +1262,8 @@ struct Phy : Boot {
+     void SetUp() override {
+         Boot::SetUp();
+         peer = phy_peer::Peer{};
+-        level = true;
++        peer.word = PLAT_TEST_LINK_RESET;
++        level = (PLAT_TEST_LINK_RESET & 1u) != 0u;
+         seen = 0;
+         edges.clear();
+         scanned = 0;
+@@ -1326,6 +1332,10 @@ TEST_F(Phy, B11ArmedPastTheIdentityCheck) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IDENTITY);
+     run(2u * kPollMs);
+     EXPECT_EQ(pin_accesses(), 0u) << "B11 a foreign window's MDIO pins are never touched";
++    // #972: so the word keeps its reset, link down, and the datapath never sees a link
++    EXPECT_EQ(peer.word, PLAT_TEST_LINK_RESET) << "B11 a boot refused at the identity check leaves the word at reset";
++    EXPECT_TRUE(edges.empty() && (peer.word & 1u) == 0u)
++        << "B11 a boot refused at the identity check never qualifies the link";
+     TearDown();
+     SetUp();
+     image.assign(env.aem, env.aem + env.aem_bytes);
+@@ -1402,20 +1412,19 @@ TEST_F(Phy, L2EveryEdgeIsCounted) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
+     ASSERT_EQ(peer.word, kGigFull);
+-    // the reset value's link up, the arm's link down, then the first poll's (#972), as a boot whose PHY has no link
+-    // yet at its first poll moves them
+-    EXPECT_EQ(counters.down, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
+-    EXPECT_EQ(counters.up, 1u) << "L2 a PHY up at boot: the arm's link down and the first poll's link up, one each";
++    // the word's reset, link down (#972), then the first poll's link up
++    EXPECT_EQ(counters.down, 0u) << "L2 a PHY up at boot: the first poll's link up alone moves a counter";
++    EXPECT_EQ(counters.up, 1u) << "L2 a PHY up at boot: the first poll's link up alone moves a counter";
+     flap(3000u);
+     run(kPollMs + 10u);
+-    EXPECT_EQ(counters.down, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.down, 1u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+     EXPECT_EQ(counters.up, 2u) << "L2 a 3 s loss moves LINK_DOWN and LINK_UP by one each";
+     peer.latched_down = true;
+     run(kPollMs + 10u);
+-    EXPECT_EQ(counters.down, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
++    EXPECT_EQ(counters.down, 2u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+     EXPECT_EQ(counters.up, 3u) << "L2 a loss that recovered between two polls moves LINK_DOWN and LINK_UP by one each";
+     run(2u * kPollMs);
+-    EXPECT_EQ(counters.up + counters.down, 6u) << "L2 a steady link moves neither";
++    EXPECT_EQ(counters.up + counters.down, 5u) << "L2 a steady link moves neither";
+ }
+ 
+ // REGISTER_UNSOLICITED_NOTIFICATION (IEEE 1722.1-2021 7.4.37) from a controller, as the datapath delivers it
+@@ -1453,11 +1462,10 @@ TEST_F(Phy, L3EachEdgeNotifiesTheCounters) {
+ TEST_F(Phy, L4ReturnEndsTheCeaseWithinAPoll) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
+-    // #972: the port enable is down from the arm, so the gPTP plane sends nothing on the reset value's link, and
+-    // rises with the PHY's link as the first poll publishes it
+-    ASSERT_EQ(edges.size(), 2u) << "L4 the port enable falls as the poll arms and rises with its first publication";
+-    EXPECT_TRUE(!edges[0].second && edges[1].second)
+-        << "L4 the port enable falls as the poll arms and rises with its first publication";
++    // #972: the port enable is down from reset, so the gPTP plane sends nothing before the PHY's link, and rises
++    // as the first poll publishes it
++    ASSERT_EQ(edges.size(), 1u) << "L4 the port enable is down from reset and rises with the first publication";
++    EXPECT_TRUE(edges[0].second) << "L4 the port enable is down from reset and rises with the first publication";
+     edges.clear();
+     flap(3000u);
+     const std::uint64_t back = nvm_fmodel_now_us();
+@@ -1481,7 +1489,7 @@ TEST_F(Phy, L5ASaveKeepsThePollItsPeriod) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+     run(kFirstPollMs);
+     ASSERT_EQ(peer.word, kGigFull);
+-    edges.clear();   // the boot's pair, the arm's link down and the first poll's link up (L4)
++    edges.clear();   // the boot's edge, the first poll's link up (L4)
+     const unsigned commits = nvm_store_status()->commits_ok;
+     ASSERT_EQ(nvm_store_commit_now(), 1);
+     run(20u);
+diff --git a/sw/firmware/ctrl/test/test_plat_phy.cpp b/sw/firmware/ctrl/test/test_plat_phy.cpp
+index 157f46fb56..d3ad0ff9ca 100644
+--- a/sw/firmware/ctrl/test/test_plat_phy.cpp
++++ b/sw/firmware/ctrl/test/test_plat_phy.cpp
+@@ -14,8 +14,8 @@
+ //       link down, and the second BMSR read publishes the current state in
+ //       the same poll; a sustained loss publishes link down until it ends
+ //   P4  the resolved mode: 1000BASE-T full and half, 100 and 10 full and
+-//       half, the forced modes, incomplete negotiation and a master-slave
+-//       fault, each the release's word
++//       half, incomplete negotiation and a master-slave fault, each the
++//       release's word (the forced modes are P23's)
+ //   P5  an unacknowledged read, a NAKed register and an all-ones BMSR are
+ //       link down, never a mode
+ //   P6  every frame a Clause-22 read of the release's registers in its order,
+@@ -61,14 +61,31 @@
+ //       and read back and never restarted, its link published up by the first
+ //       poll and never down after it; a PHY at its defaults is still written
+ //       and restarted once (P11)
+-//   P20 arming publishes link down before any frame (#972): the word resets to
+-//       link up, so the datapath sees no link until a poll publishes the PHY's
+-//       verified one; a bus with no MDIO pair publishes nothing
++//   P20 arming publishes link down before any frame (#972): the split's word
++//       resets to link down (sw/litex/mac_link_status.py), and a CPU reset
++//       alone keeps it, so the arm writes it again; the datapath sees no link
++//       until a poll publishes the PHY's verified one; a bus with no MDIO pair
++//       publishes nothing
+ //   P21 THE OUTCOME stands behind the boot that restarts nothing: a PHY that
+ //       holds the advertisement with a 100 Mb/s negotiation of its defaults
+ //       still in force is published down and restarted by the next poll, so a
+ //       100BASE-TX-only partner has no link (#840)
++//   P22 the boot restarts a PHY whose BMCR does not negotiate, though 4 and 9
++//       hold the advertisement (#840; IEEE 802.3 22.2.4.1): forced to 100, 10
++//       or 1000 Mb/s with autonegotiation off, isolated or resetting, each is
++//       restarted once with autonegotiation enabled and isolate and reset
++//       clear, and no link below 1000BASE-T is ever published; a forced
++//       100 Mb/s PHY whose negotiation never completes is never published up
++//   P23 a forced mode is never published up (#840): on a PHY the
++//       advertisement is for, a forced mode or isolate with no loss is
++//       published down by the poll that reads it and renegotiated by the next,
++//       counted; a boot restart the forced PHY lost leaves it published down
++//       until the next poll's restart takes; a PHY the advertisement is not for
++//       keeps the release's forced-mode words
+ 
++#ifndef PLAT_TEST_LINK_RESET
++#error "PLAT_TEST_LINK_RESET: milan_mac_link_status's reset, from sw/litex/mac_link_status.py (plat_arms.py)"
++#endif
+ #include <gtest/gtest.h>
+ 
+ #include <cstdint>
+@@ -112,6 +129,7 @@ struct PlatPhy : ::testing::Test {
+         peer.w = kBus.mdio_w;
+         peer.r = kBus.mdio_r;
+         peer.status = kBus.link_status;
++        peer.word = PLAT_TEST_LINK_RESET;
+         peer.gigabit(7u);
+         bus().phy = &peer;
+         arm(kBus);
+@@ -262,17 +280,9 @@ TEST_F(PlatPhy, P4ResolvedModesAreTheReleases) {
+     peer.regs[10] = 0x0c00u;
+     peer.regs[9] = 0x0300u;
+     // the fault's loss owes the advertisement, which restarts negotiation on a PHY that no longer holds it (P14):
+-    // the link resolved again, then the forced modes, autonegotiation off
++    // the link resolved again
+     next();
+     EXPECT_EQ(peer.word, kGigFull) << "P4 the fault's end resolves 1000BASE-T full duplex";
+-    const std::uint16_t forced[3] = {0x2100u, 0x0140u, 0x0000u};
+-    const std::uint32_t mode[3] = {kFull100, kGigFull, kHalf10};
+-    for (unsigned k = 0; k < 3u; ++k) {
+-        peer.regs[0] = forced[k];
+-        next();
+-        EXPECT_EQ(peer.word, mode[k]) << "P4 the forced mode BMCR names, case " << k;
+-    }
+-    peer.regs[0] = 0x1000u;
+     peer.regs[1] = 0x0104u;   // link, negotiation incomplete
+     next();
+     EXPECT_EQ(peer.word, 0u) << "P4 incomplete negotiation stays link down";
+@@ -741,6 +751,7 @@ void hundred_in_force(PlatPhy& f) {
+     f.peer.w = kBus.mdio_w;
+     f.peer.r = kBus.mdio_r;
+     f.peer.status = kBus.link_status;
++    f.peer.word = PLAT_TEST_LINK_RESET;
+     f.peer.gigabit(7u);
+     f.peer.negotiates = true;
+     f.peer.regs[5] = 0x0101u;
+@@ -890,7 +901,9 @@ TEST_F(PlatPhy, P19TheBootFormsTheLinkOnce) {
+ }
+ 
+ TEST_F(PlatPhy, P20TheArmPublishesLinkDownFirst) {
+-    // the reset value, link up at 1000 Mb/s full duplex, as milan_soc.py's MilanMAC resets the word
++    EXPECT_EQ(PLAT_TEST_LINK_RESET & CTRL_PLAT_PHY_LINK_UP, 0u) << "P20 the split's word resets to link down";
++    // the word as a CPU reset alone leaves it (LiteX's cpu_rst keeps the CSRs): link up at 1000 Mb/s full duplex, as
++    // the last boot's poll published it
+     peer.word = kGigFull;
+     const std::size_t pubs = peer.published.size(), frames = peer.frames.size();
+     arm_again();
+@@ -923,4 +936,116 @@ TEST_F(PlatPhy, P21TheOutcomeStandsBehindTheBoot) {
+     EXPECT_TRUE(peer.fault.empty()) << peer.fault;
+ }
+ 
++// A PHY at address 7 holding the advertisement in registers 4 and 9, BMCR `bmcr`, its link up.
++void held_advertisement(PlatPhy& f, std::uint16_t bmcr) {
++    f.peer = phy_peer::Peer{};
++    f.peer.w = kBus.mdio_w;
++    f.peer.r = kBus.mdio_r;
++    f.peer.status = kBus.link_status;
++    f.peer.word = PLAT_TEST_LINK_RESET;
++    f.peer.gigabit(7u);
++    f.peer.regs[4] = 0x0001u;
++    f.peer.regs[9] = 0x0200u;
++    f.peer.regs[0] = bmcr;
++}
++
++TEST_F(PlatPhy, P22TheBootRestartsAPhyNotNegotiating) {
++    // forced 100 Mb/s full duplex with autonegotiation off (22.2.4.1.4), no negotiation completed
++    held_advertisement(*this, 0x2100u);
++    peer.regs[1] &= ~0x0020u;
++    arm_again();
++    (void)poll(now);
++    EXPECT_EQ(peer.restarts, 1u) << "P22 the boot's first poll restarts a forced PHY";
++    EXPECT_NE(peer.regs[0] & 0x1000u, 0u) << "P22 the boot enables autonegotiation on a forced PHY";
++    next();
++    EXPECT_EQ(peer.restarts, 1u) << "P22 the boot restarts a forced PHY once";
++    EXPECT_NE(peer.word, kFull100) << "P22 the forced 100 Mb/s link is never published";
++    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P22 no link below 1000BASE-T is ever published";
++    // forced 100, 10 and 1000 Mb/s, isolated (22.2.4.1.6) and resetting, each restart negotiating as a PHY's does
++    const std::uint16_t bmcr[5] = {0x2100u, 0x0000u, 0x0140u, 0x1400u, 0x9000u};
++    for (unsigned k = 0; k < 5u; ++k) {
++        held_advertisement(*this, bmcr[k]);
++        peer.negotiates = true;
++        arm_again();
++        (void)poll(now);
++        EXPECT_EQ(peer.restarts, 1u) << "P22 the boot's first poll restarts a PHY not negotiating, case " << k;
++        next();
++        next();
++        EXPECT_EQ(peer.restarts, 1u) << "P22 the boot restarts a PHY not negotiating once, case " << k;
++        EXPECT_EQ(peer.regs[0] & 0x9400u, 0x1000u) << "P22 autonegotiation on, isolate and reset clear, case " << k;
++        EXPECT_EQ(peer.word, kGigFull) << "P22 the link is the advertisement's, case " << k;
++        EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P22 no link below 1000BASE-T is ever published, case " << k;
++    }
++    // the loss path: a loss with BMCR forced restarts as the boot does
++    held_advertisement(*this, 0x1000u);
++    peer.negotiates = true;
++    arm_again();
++    (void)poll(now);
++    ASSERT_EQ(peer.restarts, 0u) << "a PHY that holds the advertisement is not restarted (P19)";
++    peer.regs[0] = 0x2100u;
++    peer.latched_down = true;
++    next();
++    next();
++    EXPECT_EQ(peer.restarts, 1u) << "P22 a loss with BMCR forced restarts it once";
++    EXPECT_EQ(peer.word, kGigFull) << "P22 the link is the advertisement's after the loss";
++    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P22 no link below 1000BASE-T is ever published";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
++TEST_F(PlatPhy, P23AForcedModeIsNeverPublishedUp) {
++    // the link up at 1000BASE-T, then BMCR forced to 100 Mb/s full duplex with no loss
++    peer.negotiates = true;
++    found();
++    const std::size_t pubs = peer.published.size();
++    const unsigned counted = phy.renegotiations;
++    peer.regs[0] = 0x2100u;
++    next();
++    EXPECT_EQ(peer.word, 0u) << "P23 a forced mode on a PHY the advertisement is for is published down";
++    EXPECT_EQ(phy.renegotiations, counted + 1u) << "P23 its renegotiation is counted";
++    unsigned restarts = peer.restarts;
++    next();
++    EXPECT_EQ(peer.restarts, restarts + 1u) << "P23 the next poll restarts it";
++    EXPECT_NE(peer.regs[0] & 0x1000u, 0u) << "P23 with autonegotiation enabled";
++    EXPECT_EQ(peer.word, kGigFull) << "P23 and the link is the advertisement's again";
++    // isolated with no loss
++    peer.regs[0] = 0x1400u;
++    next();
++    EXPECT_EQ(peer.word, 0u) << "P23 an isolated PHY is published down";
++    restarts = peer.restarts;
++    next();
++    EXPECT_EQ(peer.restarts, restarts + 1u) << "P23 the next poll restarts it";
++    EXPECT_EQ(peer.regs[0] & 0x0400u, 0u) << "P23 and the restart clears isolate";
++    EXPECT_EQ(peer.word, kGigFull) << "P23 and the link is the advertisement's again";
++    EXPECT_TRUE(below_gigabit(*this, pubs).empty()) << "P23 no link below 1000BASE-T is ever published";
++    // the boot's restart lost on a forced PHY: BMCR stays forced and 4 and 9 read back
++    held_advertisement(*this, 0x2100u);
++    peer.negotiates = true;
++    peer.drop_restarts = 1u;
++    arm_again();
++    (void)poll(now);
++    ASSERT_EQ(peer.restarts, 0u) << "the boot's restart write was lost";
++    ASSERT_EQ(peer.regs[0], 0x2100u) << "BMCR stays forced";
++    EXPECT_EQ(peer.word, 0u) << "P23 the forced link a lost restart left is published down";
++    next();
++    EXPECT_EQ(peer.restarts, 1u) << "P23 the next poll restarts it";
++    EXPECT_EQ(peer.word, kGigFull) << "P23 and the link is the advertisement's";
++    EXPECT_TRUE(below_gigabit(*this, 0).empty()) << "P23 no link below 1000BASE-T is ever published";
++    // a PHY the advertisement is not for (1000BASE-T half duplex alone, never written): the release's words
++    held_advertisement(*this, 0x1000u);
++    peer.regs[15] = 0x1000u;
++    peer.regs[9] = 0x0100u;
++    arm_again();
++    (void)poll(now);
++    const std::uint16_t forced[3] = {0x2100u, 0x0140u, 0x0000u};
++    const std::uint32_t mode[3] = {kFull100, kGigFull, kHalf10};
++    for (unsigned k = 0; k < 3u; ++k) {
++        peer.regs[0] = forced[k];
++        next();
++        EXPECT_EQ(peer.word, mode[k]) << "P23 a PHY the advertisement is not for: the forced mode BMCR names, case "
++                                      << k;
++    }
++    EXPECT_TRUE(writes_since(0).empty()) << "P23 a PHY the advertisement is not for is never written";
++    EXPECT_TRUE(peer.fault.empty()) << peer.fault;
++}
++
+ }  // namespace

@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Verify tracked bytes, modes, index, commit-message shape and submodule pins for the two local heads."""
+import hashlib, json, os, stat, subprocess
+from pathlib import Path
+LANE=Path('<lane>')
+STACK=Path('<scratch>/stack-wt')
+def git(root,*args):
+    return subprocess.check_output(['git','--no-replace-objects','-C',str(root),*args])
+def verify(root, label):
+    top=git(root,'rev-parse','--show-toplevel').decode().strip()
+    assert Path(top).resolve()==root.resolve(), (label,top)
+    origin=git(root,'remote','get-url','origin').decode().strip()
+    if root.name=='protocol-processor':
+        assert 'protocol-processor-control-plane-avb-milan' in origin or origin.endswith('/protocol-processor'), origin
+    head=git(root,'rev-parse','HEAD').decode().strip()
+    assert not git(root,'diff','--cached','--name-only'), label
+    count=0
+    for row in git(root,'ls-tree','-rz','HEAD').split(b'\0'):
+        if not row: continue
+        info,name=row.split(b'\t',1); mode,kind,oid=info.split()
+        if kind!=b'blob': continue
+        p=root/os.fsdecode(name)
+        if mode==b'120000':
+            assert p.is_symlink(), name
+            data=os.fsencode(os.readlink(p))
+        else:
+            assert p.is_file() and not p.is_symlink(), name
+            data=p.read_bytes()
+            executable=bool(p.stat().st_mode & stat.S_IXUSR)
+            assert executable==(mode==b'100755'), name
+        digest=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest().encode()
+        assert digest==oid, (label,os.fsdecode(name))
+        count+=1
+    print(f'{label}: {head}; {count} tracked blobs and modes match HEAD; staged diff empty')
+    return head
+verify(LANE,'milan-fpga')
+for row in git(LANE,'ls-tree','-r','HEAD').decode().splitlines():
+    info,name=row.split('\t',1)
+    if not info.startswith('160000 '): continue
+    if name=='external':
+        print('external: unused, unchanged and not initialized'); continue
+    head=verify(LANE/name,name)
+    assert head==info.split()[2], (name,head,info)
+verify(STACK,'tsn-c-stack correction branch')
+for repo,base in ((LANE,'dd163e41'),(STACK,'715589c1')):
+    for commit in git(repo,'rev-list',base+'..HEAD').decode().splitlines():
+        body=git(repo,'show','-s','--format=%B',commit).decode().strip('\n')
+        assert len(body.splitlines())==1, commit
+    print(f'{repo.name}: all task commit messages have one line, no trailers')
+print('PASS: both branches and initialized pins match their committed bytes')

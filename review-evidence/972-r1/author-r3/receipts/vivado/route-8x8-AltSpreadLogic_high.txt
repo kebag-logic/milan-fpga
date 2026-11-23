@@ -1,0 +1,40 @@
+# route 8x8-AltSpreadLogic_high: 2026-11-22T21:56:07+01:00 to 2026-11-22T22:31:33+01:00, rc 0
+vivado-slot: slot 0 (<systmp>/milan-vivado.lock), MemAvailable 58 GB, 2026-11-22T21:56:07+01:00
+head 93d9eaaf321ac352a13c0c6d02411b34c332119f; status 
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+| Slice LUTs                 | 43102 |     0 |          0 |     63400 | 67.98 |
+| Slice Registers            | 50993 |     0 |          0 |    126800 | 40.22 |
+| Slice                                      | 15275 |     0 |          0 |     15850 | 96.37 |
+| LUT as Memory                              |  1141 |     0 |          0 |     19000 |  6.01 |
+| Slice Registers                            | 50993 |     0 |          0 |    126800 | 40.22 |
+| Block RAM Tile    | 94.5 |     0 |          0 |       135 | 70.00 |
+|   RAMB36/FIFO*    |   78 |     0 |          0 |       135 | 57.78 |
+|   RAMB18          |   33 |     0 |          0 |       270 | 12.22 |
+|     RAMB18E1 only |   33 |       |            |           |       |
+| DSPs           |   11 |     0 |          0 |       240 |  4.58 |
+## signoff corners against #818's floor (signoff.py)
+Slow_85C: WNS +0.150 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.150 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.150 ns, WHS +0.036 ns
+## worst setup path, Slow_85C
+Slack (MET) : 0.150ns (required time - arrival time)
+Source: FDPE_1/C
+Destination: KL_mbx_dma/buf_r_reg[11][10]/R
+Path Group: milansoc_crg_clkout0
+Data Path Delay: 19.182ns (logic 0.348ns (1.814%) route 18.834ns (98.186%))
+Logic Levels: 0
+## route status
+:      # nets :
+# of logical nets.......................... :      119112 :
+# of nets not needing routing.......... :       29975 :
+# of internally routed nets........ :       29141 :
+# of nets with no loads............ :         834 :
+# of routable nets..................... :       89137 :
+# of fully routed nets............. :       89137 :
+# of nets with routing errors.......... :           0 :
+## image identity (check_image_identity.py)
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+## bitstream (not copied): 3825992 bytes, sha256 b656c21efc2861f8f306617ca29d6f7738bf9239a816899455026c263be043bc

@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Start one real firmware shard after routing; CPU booking comes from cpu_ranges.py pick."""
+import subprocess, sys
+from pathlib import Path
+S=Path('<scratch>')
+M=Path('<mgmt>/2026-09-23')
+k=int(sys.argv[1]); assert 0 <= k < 4
+name=f'r3-fw{k}'
+assert (S/'units/viv-8x8-eto.rc').is_file(), 'last route is still running'
+assert not (S/f'units/{name}.log').exists(), 'shard already started'
+mem=int(next(x.split()[1] for x in Path('/proc/meminfo').read_text().splitlines() if x.startswith('MemAvailable:')))
+assert mem>=20*1024*1024, 'less than 20 GiB available'
+cp=subprocess.run(['python3',str(M/'cpu_ranges.py'),'pick'],capture_output=True,text=True)
+if cp.returncode: raise SystemExit(75)
+cpus=cp.stdout.strip()
+clone=S/f'clones/r3-fw{k}'
+script=S/f'bin/fw{k}_r3.sh'
+script.write_text(f"""#!/usr/bin/env bash
+source {S}/bin/env.sh
+bash {S}/bin/t/fw.sh {clone} {k} 4 {S}/fw/r3/shard{k}
+rc=$?
+printf '%s\\n' \"$rc\" > {S}/units/{name}.rc
+exit \"$rc\"
+""")
+# Scripts are created from fixed lane paths and a checked integer, never user-supplied shell text.
+script.write_text(script.read_text().replace('\\"','"'))
+subprocess.run(['systemd-run','--user','--collect',f'--unit=milan-970-a820-{name}',
+ '--property=MemoryMax=10G',f'--property=StandardOutput=append:{S}/units/{name}.log',
+ '--property=StandardError=inherit',f'--working-directory={clone}',
+ '/usr/bin/taskset','-c',cpus,'/bin/bash',str(script)],check=True)
+print(f'START {name}, CPUs {cpus}, available {mem/1048576:.1f} GiB')

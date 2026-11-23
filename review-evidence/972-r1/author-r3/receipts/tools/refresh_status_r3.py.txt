@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Refresh the handoff status from actual gate files, without changing readiness or acceptance."""
+import datetime,json,re
+from pathlib import Path
+S=Path('<scratch>')
+P=Path('<mgmt>/2026-09-23/970-a820/round3/HANDOFF-r3.md')
+states=[]
+for k in range(4):
+    rc=S/f'units/r3-fw{k}.rc'; log=S/f'units/r3-fw{k}.log'
+    state=('PASS' if rc.read_text().strip()=='0' else 'FAIL rc='+rc.read_text().strip()) if rc.exists() else ('running' if log.exists() else 'queued')
+    states.append(f'{k}: {state}')
+native='queued'
+if (S/'native-r3').exists():
+    finished=list((S/'native-r3').glob('shard-*/spec/complete.json'))
+    if len(finished)==4:
+        native='PASS' if all(json.loads(f.read_text())['exit_code']==0 for f in finished) else 'FAIL; inspect shard receipts'
+    else: native=f'running ({len(finished)}/4 complete)'
+yr=S/'units/r3-yosys.rc'
+yosys=('PASS' if yr.read_text().strip()=='0' else 'FAIL') if yr.exists() else 'running'
+now=datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M %Z')
+text=P.read_text(); a=text.index('STATUS ('); b=text.index('\nScope interpretation:',a)
+intro=f"""STATUS ({now}): verification in progress. ETA approximately 02:30 CET, dependent on gate runtimes.
+Local milan-fpga `pf-972-1` is clean at `77a74b2f4e`;
+stack `970-gm-change-draw-kind` is clean at `5585226`. All six routes PASS at all four corners.
+Best directives: ExtraPostPlacementOpt, 1x1 WNS/WHS +0.331/+0.031 ns, 8x8 +0.176/+0.036 ns.
+Split boot PASS at both shapes, 6/6 native controls, 7/7 plants, 8/8 placement controls.
+Firmware shards: {'; '.join(states)}. Native sweep: {native}. Synthesis portability: {yosys}.
+Other requested gates PASS, with builder NOT RUN arms retained explicitly. Receipts are indexed
+and will be refreshed after the pending gates.
+No round-3 REVIEW READY comment has been posted; round-2's comment is unchanged.
+"""
+text=text[:a]+intro+text[b:]
+text=re.sub(r'\| Firmware gate, all four shards \| `77a74b2f` \|[^\n]+', '| Firmware gate, all four shards | `77a74b2f` | '+ '; '.join(states) + ' |',text)
+text=re.sub(r'\| Parent default suite sweep \| `77a74b2f` \|[^\n]+', '| Parent default suite sweep | `77a74b2f` | '+native+' |',text)
+text=re.sub(r'\| Synthesis portability \| `77a74b2f` \|[^\n]+', '| Synthesis portability | `77a74b2f` | '+yosys+' |',text)
+P.write_text(text)
+print('Firmware '+ '; '.join(states) + '; native '+native)

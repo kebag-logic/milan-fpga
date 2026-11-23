@@ -1,0 +1,20 @@
+# make linkreset-plants at 77a74b2f
+    --window-ms 1600; \
+    --window-ms 1600; done
+linkreset plant premature-qualification: the word resets to 13 (the head's 12)
+[ok] premature-qualification at 1x1/1if: rc 1, finding given
+    FRAME 0 at 1200.069 ms ethertype 0x88f7 68 bytes
+    FRAMES before the publication 1, after 0
+    [FAIL] no frame crosses the MAC boundary before the firmware's publication got=1 exp=0
+    [FAIL] the effective link (the gPTP port enable, the mailbox LINK) stays down before the publication
+    [FAIL] o_ctl_link_up, the mailbox's LINK level, stays down before the publication got=3 exp=0
+    [FAIL] frames follow the publication within the window (transmit admitted)
+[ok] premature-qualification at 8x8/1if: rc 1, finding given
+    FRAME 0 at 1200.069 ms ethertype 0x88f7 68 bytes
+    FRAMES before the publication 1, after 0
+    [FAIL] no frame crosses the MAC boundary before the firmware's publication got=1 exp=0
+    [FAIL] the effective link (the gPTP port enable, the mailbox LINK) stays down before the publication
+    [FAIL] o_ctl_link_up, the mailbox's LINK level, stays down before the publication got=3 exp=0
+    [FAIL] frames follow the publication within the window (transmit admitted)
+linkreset plants: 2 of 2 caught
+PLANTS rc=0

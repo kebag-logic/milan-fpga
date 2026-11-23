@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""finalize_r3.py SHARD2_LINE: write r3rec/FINAL-GATES.txt and fill the round's PR-BODY.md and REVIEW-READY.md with
+it (GATES_TABLE, MILAN_HEAD_FULL, CAMPAIGN_COUNT, the status line); refuses if a placeholder survives."""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+S = Path('<scratch>')
+R = Path('<mgmt>/2026-09-23/970-a820/round3')
+L = Path('<lane>')
+shard2 = sys.argv[1]
+head = subprocess.check_output(['git', '-C', str(L), 'rev-parse', 'HEAD'], text=True).strip()
+assert head.startswith('77a74b2f'), head
+table = f'''| Gate | Head | Result |
+|---|---|---|
+| Firmware gate, four shards (`test_ctrl_firmware.py --require-rv32 --self-test --shard k/4`) | `77a74b2f` | PASS: 75 of 75 suite verdicts; control campaign 837 of 837 caught (round 2's 832 and the five BMCR plants); no `[FAIL]` or escaped line |
+| Native suite sweep, four shards (`scripts/run_all_suites.sh --shard k/4`) | `77a74b2f` | shards 0, 1 and 3 PASS; shard 2 {shard2} |
+| `linkreset` and `linkreset-plants` | `77a74b2f` | 4 of 4 arms PASS; 2 of 2 plants caught |
+| Split boot simulation, both shapes and `--self-test` | `77a74b2f` | 1x1 and 8x8 PASS: ready 27.940 / 67.214 ms; the arm's link down at 2.637 / 4.437 ms, before the first frame at 27.096 / 66.163 ms; 6 of 6 native controls, 7 of 7 plants, 8 of 8 placement controls |
+| The reviewers' forced scenario (`focused.py`) | `77a74b2f` | PASS here; their receipt fails it at `0f508a01` |
+| fw_coverage `--selftest`, `--check` | `d9e1d728` | PASS, 40 files |
+| Twin, `twin-plants`, `twin-maps`, `twin-maps-plants` | `d9e1d728` | PASS, 0 findings |
+| `plat_ledger` and the image diff against round 2 | `fc7504f1` | PASS; RAMB36 45 / 46 / 58 / 63 unchanged; rom +40 B at each point; only `ctrl_plat_phy.o` differs; size fixtures identical |
+| CPU budget legs, 9 groups, 1x1/1if and 8x8/1if | `fc7504f1` | harness images byte-identical to round 2; 63 of 63 probes equal at each shape; 0 verdicts changed; 0 misses |
+| Routes, three directives at each shape (the gating recipe, `vivado-slot.sh`) | `93d9eaaf` | all six meet #818 at every corner. 1x1: ExtraPostPlacementOpt +0.331 / +0.031 ns (best), AltSpreadLogic_high +0.130 / +0.036, ExtraTimingOpt +0.133 / +0.036. 8x8: ExtraPostPlacementOpt +0.176 / +0.036 (best), AltSpreadLogic_high +0.150 / +0.036, ExtraTimingOpt +0.059 / +0.036 (worst-corner WNS / WHS). Routed `link_status_storage` `4'd12` in all six |
+| Synthesis portability (Yosys) | `77a74b2f` | PASS |
+| RTL lint, behaviour scenarios, xvlog | `77a74b2f` | lint PASS (89 of ratchet 89); 511 of 511 scenarios; xvlog 0 findings |
+| Docs workflow steps | `77a74b2f` | 104 of 104 |
+| Builder legs 0 and 1 | `d9e1d728` | PASS, each with the one NOT RUN arm the tree declares on this host (as round 2) |
+| tsn-c-stack `validate.py --graphs`, `baremetal.py` | `5585226` | rc 0, 28 of 28 gates; 479 of 479 plants caught; rc 0 |
+
+Heads: the commits after the code head `93d9eaaf` change test code, the leg, documentation and comments, no firmware or gateware code. The commits after `fc7504f1` and `d9e1d728` change no file those gates read but comments, READMEs and test-only idiom fixes; the gates that read them ran at `77a74b2f`. The host crashed at 00:39 during the native sweep; shard 2, cut before its verdict, was rerun whole from a cleaned clone, and only that rerun is counted.'''
+(S / 'r3rec/FINAL-GATES.txt').write_text(table + '\n')
+for name in ('PR-BODY.md', 'REVIEW-READY.md'):
+    p = R / name
+    t = p.read_text()
+    t = t.replace('GATES_TABLE', table).replace('MILAN_HEAD_FULL', head)
+    t = t.replace('control campaign CAMPAIGN_COUNT', 'control campaign 837 of 837 caught')
+    t = re.sub(r'^DRAFT:.*\n\n', '', t)
+    t = re.sub(r'^WIP: .*$', f'GREEN. Every gate passes (the table below), at local head `{head}`.', t, flags=re.M)
+    left = [w for w in ('GATES_TABLE', 'MILAN_HEAD_FULL', 'CAMPAIGN_COUNT', 'DRAFT', 'WIP') if w in t]
+    assert not left, (name, left)
+    p.write_text(t)
+print('filled', head)

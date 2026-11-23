@@ -1,0 +1,17 @@
+[unit milan-970-a820-r3-forced cpus 32-39 start 22:38:21]
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+Note: Google Test filter = PlatPhy.ReviewHeldAdvertisementForced100
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PlatPhy
+[ RUN      ] PlatPhy.ReviewHeldAdvertisementForced100
+PROBE BMCR=0x3100 publication=0 restarts=1 renegotiations=0
+[       OK ] PlatPhy.ReviewHeldAdvertisementForced100 (0 ms)
+[----------] 1 test from PlatPhy (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 1   failures: 0 ==
+RESULT: PASS
+[unit end 22:38:35 rc 0]

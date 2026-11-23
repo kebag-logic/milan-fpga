@@ -1,0 +1,161 @@
+diff --git a/sw/litex/mac_link_status.py b/sw/litex/mac_link_status.py
+new file mode 100644
+index 0000000000..7c1ec0bcba
+--- /dev/null
++++ b/sw/litex/mac_link_status.py
+@@ -0,0 +1,56 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The reset of the MAC link-status word, milan_mac_link_status (MAC_STATUS 0x110).
++
++[`milan_soc.py`](milan_soc.py)'s MilanMAC resets the word's fields from here.
++The word's link_up bit is the datapath's i_link_up, a factor of its effective
++link (eff_link_w in hdl/milan/milan_datapath.sv). Every consumer of that link
++reads it: the gPTP plane's port enable, the fabric MAAP engine, the mailbox's
++LINK level and the AVB_INTERFACE link counters.
++
++#972: where firmware owns the PHY, the word resets to link down. That is the
++split placement (--ctrl-mailbox) with an MDIO pair. Its firmware publishes the
++PHY's verified link (sw/firmware/ctrl/plat/ctrl_plat_phy.h). So from the
++datapath's reset to that publication, nothing transmits on the link. This holds
++after a reload that kept the PHY's link, and on a boot that firmware refuses
++before its PHY poll starts.
++
++Without firmware PHY management, the word keeps its reset at link up, the
++constant it replaced. That is the all-fabric placement, and any board without
++an MDIO pair. Nothing publishes the link there.
++
++Nothing here imports LiteX, so a harness reads the same reset without it
++(tb/verilator/milan_dp's linkreset leg, the split boot simulation).
++"""
++
++#: The word's fields: (name, bit offset, width).
++FIELDS = (("link_up", 0, 1), ("speed", 1, 2), ("full_duplex", 3, 1))
++
++
++def link_up_reset(fw_link_owner: bool) -> int:
++    """MAC_STATUS[0]'s reset: link down where firmware owns the PHY (#972), else link up."""
++    return 0 if fw_link_owner else 1
++
++
++def speed_reset(phy_model: str) -> int:
++    """MAC_STATUS[2:1]'s reset, the board's PHY wiring: mii 100 Mb/s (1), gmii 1000 Mb/s (2)."""
++    return 0b01 if phy_model == "mii" else 0b10
++
++
++def full_duplex_reset() -> int:
++    """MAC_STATUS[3]'s reset: full duplex."""
++    return 1
++
++
++def word_reset(phy_model: str, fw_link_owner: bool) -> int:
++    """The whole word's reset, its fields at their offsets."""
++    values = {"link_up": link_up_reset(fw_link_owner), "speed": speed_reset(phy_model),
++              "full_duplex": full_duplex_reset()}
++    return sum(values[name] << offset for name, offset, _width in FIELDS)
++
++
++if __name__ == "__main__":
++    import sys
++    # the reset a harness elaborates: `mac_link_status.py <phy_model> <owner 0|1>` prints link_up's, then the word's
++    model, owner = sys.argv[1], sys.argv[2] == "1"
++    print(link_up_reset(owner), word_reset(model, owner))
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index 27127cecb6..1a658fd4ed 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -44,6 +44,7 @@ from boot_policy import fabric_constants
+ import check_image_identity
+ import ctrl_memory
+ from gptp_owner_contract import GPTP_OWNER_CODES
++import mac_link_status
+ from qspi_owner_transition import aem_image_binding, bitstream_binding
+ 
+ from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
+@@ -1669,7 +1670,7 @@ class MilanMAC(LiteXModule):
+     validated on hardware (there is no RGMII PHY to exercise in sim). See
+     docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.7 and the protocol/test matrix."""
+     def __init__(self, platform, data_width=64, phy_index=0, milan_cd="sys",
+-                 gtx_tx_invert=False, phy_model="gmii", **_rgmii):
++                 gtx_tx_invert=False, phy_model="gmii", fw_link_owner=False, **_rgmii):
+         from liteeth.phy.gmii import LiteEthPHYGMII
+         from liteeth.mac.core import LiteEthMACCore
+         from liteeth.common import eth_phy_description
+@@ -2020,19 +2021,29 @@ class MilanMAC(LiteXModule):
+         # the link. Reset values REPRODUCE the old constants exactly, so a build whose
+         # software never writes this register behaves bit-identically to before; the
+         # difference is that software CAN now publish the truth.
++        #
++        # #972: EXCEPT where firmware owns the PHY. The split placement's firmware
++        # (fw_link_owner, --ctrl-mailbox) publishes the PHY's verified link, so there
++        # link_up resets to 0: the effective link stays down from reset until that
++        # publication, on a reload that kept the PHY's link and on a refused boot too.
++        # A PHY without an MDIO pair has no firmware owner; it keeps reset 1
++        # (mac_link_status.py).
++        self.fw_link_owner = bool(fw_link_owner) and hasattr(self.phy, "mdio")
+         self.link_status = CSRStorage(fields=[
+-            CSRField("link_up", size=1, offset=0, reset=1,
++            CSRField("link_up", size=1, offset=0,
++                     reset=mac_link_status.link_up_reset(self.fw_link_owner),
+                      description="PHY link is up (MAC_STATUS[0]). Software-published "
+-                                 "from the MDIO autoneg result; reset 1 = the "
+-                                 "pre-2026-07-26 hardwired constant."),
++                                 "from the MDIO autoneg result; reset 0 where firmware "
++                                 "owns the PHY (#972), else 1 = the pre-2026-07-26 "
++                                 "hardwired constant."),
+             CSRField("speed", size=2, offset=1,
+-                     reset=(0b01 if phy_model == "mii" else 0b10),
++                     reset=mac_link_status.speed_reset(phy_model),
+                      description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+                                  "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
+                                  "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
+                                  "manual-override is set. Reset = the board's PHY "
+                                  "wiring (mii -> 100, gmii -> 1000)."),
+-            CSRField("full_duplex", size=1, offset=3, reset=1,
++            CSRField("full_duplex", size=1, offset=3, reset=mac_link_status.full_duplex_reset(),
+                      description="Full-duplex indication (MAC_STATUS[3])."),
+         ], description="PHY/MAC link status published by software (MDIO). See "
+                        "MAC_STATUS 0x110 in docs/reference/REGISTER_MAP.md.")
+@@ -3916,6 +3927,7 @@ class MilanSoC(SoCCore):
+                                           gtx_tx_invert=gtx_tx_invert,
+                                           phy_index=eth_phy_index,
+                                           phy_model=_BOARD_PHY_MODEL[board],
++                                          fw_link_owner=ctrl_mailbox,
+                                           rgmii_tx_delay=rgmii_tx_delay,
+                                           rgmii_rx_delay=rgmii_rx_delay)
+                 if board == "ax7101":
+diff --git a/tb/verilator/ctrl_split_boot/boot_soc.py b/tb/verilator/ctrl_split_boot/boot_soc.py
+index fc2c6187ce..4ff4feb577 100644
+--- a/tb/verilator/ctrl_split_boot/boot_soc.py
++++ b/tb/verilator/ctrl_split_boot/boot_soc.py
+@@ -22,7 +22,7 @@ devices the platform adds, so this one adds them:
+   - the PHY's MDIO bit-bang pair and link-status word (#919), named as the
+     product's MilanMAC names them (milan_mac_phy_mdio_w and _r, LiteEth's
+     LiteEthPHYMDIO, its input through the same two-register synchroniser;
+-    milan_mac_link_status, at its reset value), their pins on pads: the
++    milan_mac_link_status, at the split's reset value, link down: #972), their pins on pads: the
+     testbench is the PHY, and reads each publication.
+ 
+ The datapath is not built: the window answers as the datapath's reset
+@@ -52,6 +52,7 @@ from litex.soc.interconnect.csr import CSRStatus, CSRStorage  # noqa: E402
+ from migen.genlib.cdc import MultiReg  # noqa: E402
+ 
+ milan_soc = split_soc.milan_soc
++import mac_link_status  # noqa: E402  beside milan_soc, on its path: the word's reset (#972)
+ capture_soc = split_soc.capture_soc
+ #: The window's Wishbone signals on the testbench's pads.
+ CSR_FIELDS = (('cyc', 1), ('stb', 1), ('we', 1), ('adr', 30), ('dat_w', 32), ('sel', 4), ('dat_r', 32), ('ack', 1))
+@@ -70,9 +71,10 @@ class CsrWindow(LiteXModule):
+ #: The PHY boundary's signals on the testbench's pads (#919): MDIO's three pins (MDC, the output enable, the driven
+ #: bit), the PHY's reply, and the link-status word with its write strobe.
+ PHY_FIELDS = (('pins', 3), ('reply', 1), ('status', 4), ('publish', 1))
+-#: milan_mac_link_status's reset value, as milan_soc.py's MilanMAC resets its fields on a gmii board: link up (bit 0),
+-#: 1000 Mb/s (speed 0b10 at bits 2:1) and full duplex (bit 3).
+-LINK_STATUS_RESET = 1 | 0b10 << 1 | 1 << 3
++#: milan_mac_link_status's reset value, as milan_soc.py's MilanMAC resets its fields on a gmii board whose firmware
++#: owns the PHY, the split placement with an MDIO pair (mac_link_status.py, #972): link down (bit 0), 1000 Mb/s
++#: (speed 0b10 at bits 2:1) and full duplex (bit 3).
++LINK_STATUS_RESET = mac_link_status.word_reset('gmii', fw_link_owner=True)
+ 
+ 
+ class PhyBoundary(LiteXModule):

@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""Finish the round-3 packet only after all running gates have succeeded."""
+from pathlib import Path
+import datetime,json,re,subprocess
+S=Path('<scratch>')
+O=Path('<mgmt>/2026-09-23/970-a820/round3')
+H='77a74b2f4e289c5a5a89687e07a6925cfedf6860'
+T='55852269db3554900d2b71e6f9a7b153cff69e14'
+for name in ['r3-fw0','r3-fw1','r3-fw2','r3-fw3','r3-yosys','r3-static','r3-xvlog','r3-forced','r3f-boot','r3-docs','r3h-twin','r3h-cov','r3-b0','r3-b1','r3-leg-1x1','r3-leg-8x8','lr4']:
+    p=S/f'units/{name}.rc'
+    assert p.exists() and p.read_text().strip()=='0',f'not passed: {name}'
+fw=[]
+for k in range(4):
+    t=(S/f'units/r3-fw{k}.log').read_text()
+    assert 'test_ctrl_firmware: PASS' in t
+    n=len(re.findall(r'^\s+verdict: PASS',t,re.M)) if k==0 else len(re.findall(r'^\[ok\]',t,re.M))
+    fw.append(n)
+assert fw==[75,837,385,543],fw
+native=[];names=[];summaries=[]
+for k in range(4):
+    d=S/f'native-r3/shard-{k}/spec'
+    done=json.loads((d/'complete.json').read_text());result=json.loads((d/'results.json').read_text())
+    assert done['head']==H and done['exit_code']==0 and result['head']==H
+    assert all(r['exit_code']==0 for r in result['results'])
+    t=(d/'01.log').read_text(); passed=re.findall(r'^PASS\s+(\S+)',t,re.M)
+    native.append(len(passed));names.extend(passed)
+    summaries.append(f'shard {k}: '+ '\n'.join(t.splitlines()[-10:]))
+assert native==[15,17,17,16] and len(set(names))==65,native
+ys=[]
+for p in sorted((S/'yosys-r3').glob('*.result')):
+    row=dict(x.split('=',1) for x in p.read_text().splitlines());assert row['status']=='PASS',(p.name,row)
+    ys.append(row)
+ntop=sum(r['kind']=='top' for r in ys)
+assert ntop and {r['name'] for r in ys if r['kind']=='gate'}=={'tied-input','tap-purity'}
+now=datetime.datetime.now().astimezone().strftime('%Y-%m-%d %H:%M %Z')
+summary=f"""Final gate summary, {now}
+Main head: {H}
+Stack head: {T}
+Firmware: 75/75 suite verdicts; 837 control, 385 AECP, 543 SRP successful campaign cases; all four exits 0.
+Native default sweep: 65/65 suites, shards {native}; all four exits 0; no missing accounting.
+Synthesis portability: {ntop}/{ntop} tops plus tied-input and tap-purity PASS; exit 0.
+"""
+(S/'r3rec/FINAL-GATES.txt').write_text(summary+'\n'+'\n'.join(summaries)+'\n')
+rows=[
+('Firmware, four shards','77a74b2f','PASS: 75/75 suite verdicts; 837 control, 385 AECP, 543 SRP campaign cases','gates/77a74b2f/firmware-gate-shard0.txt'),
+('Default native sweep, four shards','77a74b2f','PASS: 65/65 suites; all shards exit 0, complete check accounting','native4/shard0.txt'),
+('Synthesis portability','77a74b2f',f'PASS: {ntop}/{ntop} tops; tied-input and tap-purity pass','gates/77a74b2f/yosys.txt'),
+('Firmware coverage','d9e1d728','PASS: 40 files; later changes do not touch covered firmware','gates/d9e1d728/fw-coverage.txt'),
+('Twin, plants, maps and map plants','d9e1d728','PASS: all four targets, zero findings','gates/d9e1d728/twin.txt'),
+('Retained-link integration','77a74b2f','PASS: four arms and 2/2 premature-qualification plants','linkreset/run.txt'),
+('Split boot','77a74b2f','PASS: both shapes, 6/6 native controls, 7/7 plants, 8/8 placement controls','gates/77a74b2f/split-boot.txt'),
+('Platform images, four ledger points','93d9eaaf','PASS: RAMB36 45/46/58/63 unchanged, ROM +40 B; size fixtures identical','images/SUMMARY.txt'),
+('CPU budgets, nine groups per shape','fc7504f1','PASS: 63 paired probes per shape identical, zero changed verdicts or misses','cpu/compare/1x1-probes.txt'),
+('Routes, three directives per shape','93d9eaaf','PASS: 6/6 at four corners; selected WNS/WHS 1x1 +0.331/+0.031 ns, 8x8 +0.176/+0.036 ns','vivado/SELECTION.txt'),
+('Documentation workflow','77a74b2f','PASS: 104/104 steps; tracked files unchanged','gates/77a74b2f/docs-workflow-steps.txt'),
+('Builder legs 0/1','d9e1d728','Executed arms pass; one declared NOT RUN arm per leg','gates/d9e1d728/builder-leg-0.txt'),
+('RTL lint and behavior scenarios','77a74b2f','PASS: 89 within unchanged ratchet; 511 scenarios, 2,346 steps','gates/77a74b2f/lint-behavior.txt'),
+('Synthesis front end','77a74b2f','PASS: zero findings','gates/77a74b2f/xvlog.txt'),
+('Stack validation with graphs and bare-metal builds','5585226','PASS: 28/28 gates; 479 CAUGHT, 0 ESCAPED, 0 ERROR; Debug/Release pass','stack/gates-5585226/validate.log')]
+table='| Gate | Head | Result | Receipt |\n|---|---|---|---|\n'+'\n'.join(f'| {a} | `{b}` | {c} | [evidence](receipts/{d}) |' for a,b,c,d in rows)
+p=O/'HANDOFF-r3.md';t=p.read_text();a=t.index('\nScope interpretation:')
+t=f"""STATUS ({now}): local verification complete; review-ready packet prepared. ETA: ready now.
+Main `pf-972-1`: `{H}`. Stack `970-gm-change-draw-kind`: `{T}`.
+All four firmware shards, 65 native suites, synthesis portability, focused tests, split boot,
+twin, CPU rows, image ledgers, six routes and documentation gates passed. Builder exclusions
+remain explicit below. Both branches are local and clean; nothing was pushed.
+The single round-3 REVIEW READY comment is prepared and has not yet been posted.
+"""+t[a:]
+a=t.index('| Gate | Head |');b=t.index('\nCompleted evidence',a);t=t[:a]+table+'\n'+t[b:]
+t=t.replace('Completed evidence and commands are in [receipts/INDEX.md](receipts/INDEX.md); it will be refreshed after the pending gates.', 'Completed evidence and exact commands are in [receipts/INDEX.md](receipts/INDEX.md). Native per-shard results and raw-log hashes are in `receipts/native4/`; firmware campaign receipts name all four shards. Later source changes after the routed code head affect tests and documentation, not production gateware or firmware.')
+t=t.replace('comment will name both local heads after all required evidence is assembled.', 'comment names both local heads; its post receipt will be indexed with the packet.')
+t=re.sub(r'\nREVIEW READY [0-9a-f]+ [0-9a-f]+\n?$', '', t)
+t += '\nREVIEW READY '+H+' '+T+'\n';p.write_text(t)
+p=O/'PR-BODY.md';t=p.read_text();t=re.sub(r'WIP:.*?Local head `[^`]+`\.',f'Local verification passed: all four firmware shards, 65 native suites, synthesis portability, focused regressions, both routed shapes and documentation. Builder exclusions are listed below. Correction review and the physical discovery rerun remain pending. Local head `{H}`.',t,count=1)
+short='| Gate | Result |\n|---|---|\n'+'\n'.join(f'| {a} (`{b}`) | {c} |' for a,b,c,d in rows)
+t=t.replace('GATES_TABLE',short)
+t=t.replace('- [ ] Required local verification bar passes', '- [ ] Required local verification bar passes (two declared builder arms remain NOT RUN)')
+t=t.replace('## Known limitations / out of scope\n', '## Known limitations / out of scope\n\n- Builder leg 0 declares the ineffective `MAKEFLAGS += -e` plant NOT RUN on this make; leg 1 declares its historical calibration-report arm NOT RUN because the report is absent. Neither is counted as passed.\n')
+t=t.replace('Every shard must pass', 'Also run `scripts/run_all_suites.sh <logs> --shard K/4` for each K in 0 through 3, `syn/yosys/run.sh`, the documentation workflow steps, both builder legs, the lint ratchet and synthesis front end.\n\nEvery shard must pass')
+p.write_text(t)
+comment=f"""[A820] REVIEW READY
+
+Round-3 corrections, committed locally; the manager pushes:
+- milan-fpga `pf-972-1`: `{H}` (PR #974, base `dev-soft-core`).
+- tsn-c-stack `970-gm-change-draw-kind`: `{T}` (PR #36, base `main`).
+
+Changed:
+- BMCR must enable autonegotiation with reset/isolate clear before the boot skips a restart. Retained forced-speed modes, including `0x2100`, are renegotiated and never published up on the managed gigabit PHY. P22/P23 fail 27/13 checks with the previous PHY implementation and pass here; the reviewer's forced-mode regression passes. Five BMCR plants are caught.
+- Firmware-managed split builds reset the MAC status link bit down. This keeps the effective gPTP port and mailbox LINK unqualified from reset through verified publication, including retained-link reload and boot refusal. Firmware MAAP follows mailbox LINK; the split has no fabric MAAP engine. The actual datapath integration test passes four arms at 1x1/1if and 8x8/1if; premature qualification causes early MAC output and is caught at both shapes. Builds without firmware PHY management retain reset-up behavior.
+- Stack A2 requires exactly one fresh GM_CHANGE draw. Re-arming without a draw escapes the preceding head and fails A2 here. Both source/changelog review-label residues are removed.
+- Milan's literal 4,000/2,000 ms draws, both GM orders, available_index checks, declared-discovery derivation and the parent's stack pin `715589c1` are retained. CPU and image bounds are unchanged.
+
+Validation:
+
+| Command / gate | Result |
+|---|---|
+| `test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard K/4`, K=0..3 | PASS: 75/75 suite verdicts; 837 control, 385 AECP, 543 SRP campaign cases |
+| `scripts/run_all_suites.sh <logs> --shard K/4`, K=0..3 | PASS: 65/65 suites, complete accounting |
+| `syn/yosys/run.sh` | PASS: {ntop}/{ntop} tops; tied-input and tap-purity pass |
+| `make -C tb/verilator/milan_dp linkreset linkreset-plants` | PASS: four arms, 2/2 plants |
+| Split boot, both shapes and self-test | PASS: 6/6 native controls, 7/7 plants, 8/8 placement controls |
+| Twin and its three plant/map targets; firmware coverage | PASS; coverage 40 files |
+| Platform ledgers and image comparison | PASS: RAMB36 45/46/58/63 unchanged; ROM +40 B; size fixtures identical |
+| CPU budget rows, nine groups per shape | 63 paired probes per shape identical; zero changed verdicts or misses |
+| Three routes per shape | All six PASS at four corners; selected ExtraPostPlacementOpt: 1x1 WNS/WHS +0.331/+0.031 ns, 8x8 +0.176/+0.036 ns |
+| Documentation, lint, behavior, synthesis front end | 104/104 docs steps; unchanged lint ratchet; 511 scenarios / 2,346 steps; zero front-end findings |
+| Builder legs 0/1 | Executed arms pass; each retains one declared NOT RUN arm |
+| Stack `validate.py --graphs`, `baremetal.py` | 28/28 gates; 479 CAUGHT, 0 ESCAPED, 0 ERROR; Debug/Release pass |
+
+Main firmware/native/boot/linkreset/docs gates cover `77a74b2f`; twin/coverage/builders cover `d9e1d728`; routes/images cover production code head `93d9eaaf`. Subsequent changes are tests and documentation. Stack gates cover `5585226`.
+
+Limits: no bench access or physical discovery pass is claimed. The CPU harness excludes PHY code; split boot exercises that publication path separately. The retained-link model uses the real datapath and product CSR policy with modeled status crossing, and omits the physical PHY and CPU. 8x8/1if ROM fits exactly, with zero headroom. Builder exclusions are an ineffective make-option plant and an unavailable historical calibration report. Correction review, hosted/act checks, candidate-merge validation, merge, containment and the physical discovery rerun remain with the manager.
+
+REVIEW READY {H} {T}
+"""
+(O/'REVIEW-READY.md').write_text(comment)
+print(summary)

@@ -1,0 +1,17 @@
+"""plants.py LANE ROOT NAMES: plant the named defects of the control campaign (ctrl_mutants.MUTANTS) one at a time
+into copies under ROOT, each graded as the gate grades it (its arm fails and a [FAIL] line names its test with its
+words). A quick subset run; the gate's own campaign remains the authority."""
+import sys
+from pathlib import Path
+lane, root, names = Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3].split(',')
+sys.path.insert(0, str(lane / 'sw/firmware/ctrl/test'))
+sys.path.insert(0, str(lane / 'sw/firmware/gtest'))
+import ctrl_mutants  # noqa: E402
+from ctrl_reuse import cut_reuse  # noqa: E402
+sel = tuple(m for m in ctrl_mutants.MUTANTS if m.name in names)
+missing = set(names) - {m.name for m in sel}
+assert not missing, missing
+ctrl_mutants.MUTANTS = sel
+ctrl_mutants.unnamed_tests = lambda: []
+cut_reuse(root / 'reuse')
+sys.exit(1 if ctrl_mutants.campaign(root, root / 'reuse', 8) else 0)

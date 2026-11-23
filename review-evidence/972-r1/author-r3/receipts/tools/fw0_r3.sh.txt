@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+source <scratch>/bin/env.sh
+bash <scratch>/bin/t/fw.sh <scratch>/clones/r3-fw0 0 4 <scratch>/fw/r3/shard0
+rc=$?
+printf '%s\n' "$rc" > <scratch>/units/r3-fw0.rc
+exit "$rc"

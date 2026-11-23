@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""vrec.py: one receipt per finished route of round 3 (viv/<shape>/build_<directive>) in r3rec/vivado/, the routed
+link-status storage of each in r3rec/routed-link-status.txt, and r3rec/vivado/SUMMARY.txt: the route's times and rc,
+the build's head, the placed utilization, the hierarchy's top rows, every signoff corner's WNS and WHS against #818's
+floor (signoff.py), the worst setup path at Slow_85C, the route status, the image identity, and the bitstream's
+sha256 and size (not copied)."""
+import hashlib
+import re
+from pathlib import Path
+
+S = Path('<scratch>')
+OUT = S / 'r3rec/vivado'
+OUT.mkdir(parents=True, exist_ok=True)
+DIRECTIVES = ('ExtraPostPlacementOpt', 'AltSpreadLogic_high', 'ExtraTimingOpt')
+SHORT = {'ExtraPostPlacementOpt': 'eppo', 'AltSpreadLogic_high': 'asl', 'ExtraTimingOpt': 'eto'}
+UTIL = re.compile(r'^\| (Slice LUTs|Slice Registers|Slice  |Slice\s+\||LUT as Memory|Block RAM Tile|\s+RAMB36/FIFO|'
+                  r'\s+RAMB18|DSPs)')
+
+
+def read(p: Path) -> str:
+    return p.read_text(errors='replace') if p.is_file() else ''
+
+
+def worst_path(rpt: str) -> list[str]:
+    """The setup path with the smallest slack in the report: its slack, ends, group, delay and levels."""
+    blocks, cur = [], None
+    for line in rpt.splitlines():
+        m = re.match(r'\s*Slack \((MET|VIOLATED)\)\s*:\s*(-?[0-9.]+)ns', line)
+        if m and 'required time - arrival time' in line:   # a setup check, not a hold one
+            cur = [float(m[2]), [re.sub(r'\s+', ' ', line.strip())]]
+            blocks.append(cur)
+        elif m:
+            cur = None
+        elif cur is not None and len(cur[1]) < 6 and line.strip().startswith(
+                ('Source:', 'Destination:', 'Path Group:', 'Data Path Delay:', 'Logic Levels:')):
+            cur[1].append(re.sub(r'\s+', ' ', line.strip()))
+    return min(blocks, key=lambda b: b[0])[1] if blocks else ['no path in the report']
+
+
+summary, linkst = [], ['# the routed images\' generated milan_mac_link_status storage (gateware/alinx_ax7101.v): its '
+                       'initial value and its sys-reset assignment']
+for shape in ('1x1', '8x8'):
+    for d in DIRECTIVES:
+        b = S / f'viv/{shape}/build_{d}'
+        if not (S / f'viv/{shape}/build_{d}.rc').is_file():
+            summary.append(f'{shape} {d}: not finished')
+            continue
+        g = b / 'gateware'
+        rc = read(S / f'viv/{shape}/build_{d}.rc').strip()
+        lines = [f'# route {shape}-{d}: {read(S / f"viv/{shape}/build_{d}.start").strip()} to '
+                 f'{read(S / f"viv/{shape}/build_{d}.end").strip()}, rc {rc}']
+        log = read(S / f'units/viv-{shape}-{SHORT[d]}.log')
+        lines += [x for x in log.splitlines() if x.startswith(('head ', 'vivado-slot:'))][:2]
+        lines.append('## placed utilization (alinx_ax7101_utilization_place.rpt)')
+        lines += [x for x in read(g / 'alinx_ax7101_utilization_place.rpt').splitlines() if UTIL.match(x)][:12]
+        lines.append('## signoff corners against #818\'s floor (signoff.py)')
+        lines += read(S / f'viv/{shape}/build_{d}.signoff.txt').splitlines()
+        lines.append('## worst setup path, Slow_85C')
+        lines += worst_path(read(g / 'alinx_ax7101_signoff_Slow_85C_timing.rpt'))
+        lines.append('## route status')
+        lines += [x.strip() for x in read(g / 'alinx_ax7101_route_status.rpt').splitlines()
+                  if re.search(r'nets|errors|unrouted|routable', x)][:8]
+        lines.append('## image identity (check_image_identity.py)')
+        lines += read(S / f'viv/{shape}/build_{d}.identity.log').splitlines()[-3:]
+        bit = g / 'alinx_ax7101.bit'
+        if bit.is_file():
+            data = bit.read_bytes()
+            lines.append(f'## bitstream (not copied): {len(data)} bytes, sha256 {hashlib.sha256(data).hexdigest()}')
+        v = read(g / 'alinx_ax7101.v')
+        ls = [x.strip() for x in v.splitlines() if re.search(r'link_status_storage( = |\s*<= 4)', x)]
+        linkst.append(f'## {shape} {d}: ' + ' | '.join(ls))
+        (OUT / f'route-{shape}-{d}.txt').write_text('\n'.join(lines).replace(str(S), '<scratch>') + '\n')
+        sig = read(S / f'viv/{shape}/build_{d}.signoff.txt').splitlines()
+        summary.append(f'{shape} {d}: rc {rc}; ' + '; '.join(x for x in sig if x.startswith(('worst', '#818'))))
+(OUT / 'SUMMARY.txt').write_text('# the six routes at 93d9eaaf (the gating recipe: --synth-directive AreaOptimized_high '
+                                 '--opt-directive ExploreArea --place-directive <D>, --eth-port e2, through '
+                                 'vivado-slot.sh)\n' + '\n'.join(summary) + '\n')
+(S / 'r3rec/routed-link-status.txt').write_text('\n'.join(linkst) + '\n')
+print('\n'.join(summary))

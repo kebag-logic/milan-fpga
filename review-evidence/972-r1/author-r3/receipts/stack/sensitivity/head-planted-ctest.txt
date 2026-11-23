@@ -1,0 +1,130 @@
+# the plant gm-change-rearms-without-a-draw applied to src/adp.c of 5585226 and ctest run: adp_tests catches it
+Test project <scratch>/stack/sens3/head-b
+      Start  1: adp_tests
+      Start  2: acmp_tests
+      Start  3: acmp_wide
+      Start  4: acmp_walk
+      Start  5: maap_tests
+      Start  6: entity_tests
+      Start  7: port_tests
+      Start  8: adp_release
+ 1/10 Test  #2: acmp_tests .......................   Passed    0.01 sec
+ 2/10 Test  #3: acmp_wide ........................   Passed    0.01 sec
+ 3/10 Test  #7: port_tests .......................   Passed    0.01 sec
+      Start  9: adp_debug
+      Start 10: maap_debug
+ 4/10 Test  #6: entity_tests .....................   Passed    0.01 sec
+ 5/10 Test  #8: adp_release ......................   Passed    0.01 sec
+ 6/10 Test  #1: adp_tests ........................***Failed    0.04 sec
+[==========] Running 39 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 19 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+<scratch>/stack/sens3/head/tests/test_adp.cpp:140: Failure
+Value of: a.state == ADP_STATE_DELAY && a.draws == draws + 1u && a.last_draw == ADP_DRAW_DELAY && fk.last_delay == a.last_draw_ms && fk.last_delay <= 4000u
+  Actual: false
+Expected: true
+A2 GM_CHANGE in WAITING: DELAY with a 0..4 s draw (5.6.3.5.7)
+
+[  FAILED  ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+[       OK ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+[       OK ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+[       OK ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[       OK ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+[       OK ] AdpCore.A21DepartingCapacity (4 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[ RUN      ] AdpCore.LinkLevelsAndDisabledInputs
+[       OK ] AdpCore.LinkLevelsAndDisabledInputs (0 ms)
+[ RUN      ] AdpCore.EntityFieldsUseIndependentCounts
+[       OK ] AdpCore.EntityFieldsUseIndependentCounts (0 ms)
+[ RUN      ] AdpCore.AdvertisementFieldsMatchCaller
+[       OK ] AdpCore.AdvertisementFieldsMatchCaller (0 ms)
+[ RUN      ] AdpCore.MockedPortOrder
+[       OK ] AdpCore.MockedPortOrder (0 ms)
+[----------] 19 tests from AdpCore (4 ms total)
+
+[----------] 20 tests from AllStates/AdpInputControl
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4
+[       OK ] AllStates/AdpInputControl.RejectsUnsupportedVersion/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/0
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/1
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/2
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/3
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsShortFrame/4
+[       OK ] AllStates/AdpInputControl.RejectsShortFrame/4 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/0 (7 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/1 (4 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/2 (4 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/3 (4 ms)
+[ RUN      ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4
+[       OK ] AllStates/AdpInputControl.RejectsWrongControlDataLength/4 (4 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/0
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/0 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/1
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/1 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/2
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/2 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/3
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/3 (0 ms)
+[ RUN      ] AllStates/AdpInputControl.ValidDiscovery/4
+[       OK ] AllStates/AdpInputControl.ValidDiscovery/4 (0 ms)
+[----------] 20 tests from AllStates/AdpInputControl (26 ms total)
+
+[----------] Global test environment tear-down
+[==========] 39 tests from 2 test suites ran. (30 ms total)
+[  PASSED  ] 38 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpCore.A0toA2Schedule
+
+ 1 FAILED TEST
+
+ 7/10 Test  #5: maap_tests .......................   Passed    0.04 sec
+ 8/10 Test  #4: acmp_walk ........................   Passed    0.28 sec
+ 9/10 Test  #9: adp_debug ........................   Passed    0.31 sec
+10/10 Test #10: maap_debug .......................   Passed    0.37 sec
+
+90% tests passed, 1 tests failed out of 10
+
+Total Test time (real) =   0.38 sec
+
+The following tests FAILED:
+	  1 - adp_tests (Failed)
+Errors while running CTest

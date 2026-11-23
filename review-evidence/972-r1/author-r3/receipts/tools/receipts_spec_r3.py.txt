@@ -1,0 +1,189 @@
+# receipts_spec_r3.py: round 3's receipts, run by receipts.py (keep, put, lines, run, S, L in scope).
+TITLE = '#972 round 3'
+BASE, R2, CODE, HEAD = 'dd163e4143', '0f508a01b5', '93d9eaaf32', '77a74b2f4e'
+MID, PREV = 'fc7504f133', 'd9e1d72899'
+SW = S / 'stack-wt'
+DP = L / 'tb/verilator/milan_dp'
+
+# --- the change, against round 2's head
+put('change/commits.txt', run('git', 'log', '--format=%H %s', f'{R2}..{HEAD}'))
+put('change/diffstat.txt', run('git', 'diff', '--stat', R2, HEAD))
+put('change/gitlink-unchanged.txt', '# the tsn-c-stack gitlink at round 2 and round 3\n' +
+    run('git', 'ls-tree', R2, 'third_party/tsn-c-stack') + run('git', 'ls-tree', HEAD, 'third_party/tsn-c-stack'))
+put('change/gateware.diff', run('git', 'diff', R2, HEAD, '--', 'sw/litex', 'tb/verilator/ctrl_split_boot/boot_soc.py'))
+put('change/firmware.diff', run('git', 'diff', R2, HEAD, '--', 'sw/firmware/ctrl/plat/ctrl_plat_phy.c',
+                                'sw/firmware/ctrl/plat/ctrl_plat_phy.h'))
+put('change/tests-and-plants.diff', run('git', 'diff', R2, HEAD, '--', 'sw/firmware/ctrl/test'))
+put('change/linkreset-leg.diff', run('git', 'diff', R2, HEAD, '--', 'tb/verilator/milan_dp'))
+put('change/docs.diff', run('git', 'diff', R2, HEAD, '--', 'CHANGELOG.md', 'docs/design', 'docs/reference/FR_NFR.md',
+                            'docs/reference/REGISTER_MAP.md', 'scripts/register_descriptions.json',
+                            'sw/firmware/ctrl/plat/README.md', 'tb/verilator/ctrl_split_boot/README.md',
+                            'tb/verilator/ctrl_split_boot/run.py'))
+put('change/after-the-code-head.txt', f'# files changed after the code head {CODE}: the linkreset leg, the docs, the '
+    'boot simulation\'s README and its grader\'s comments and one finding message; no firmware or gateware\n' +
+    run('git', 'diff', '--stat', CODE, HEAD))
+
+# --- the gateware: the word's reset where firmware owns the PHY, and where it does not
+keep('gateware/milanmac-reset.txt', S / 'r3rec/milanmac-reset.txt',
+     lambda t: '# milan_soc.MilanMAC on the AX7101 platform (gmii), elaborated at fc7504f1 with the product venv\n' + t)
+keep('gateware/link-status-exports.txt', S / 'r3rec/link-status-exports.txt')
+keep('gateware/routed-link-status.txt', S / 'r3rec/routed-link-status.txt')
+
+# --- #840: the regression at round 2's PHY poll, the suites, the plants
+keep('tests/regression-at-0f508a01.txt', S / 'logs/r3-old-phy.log',
+     lambda t: lines(r'\[FAIL\]|checks:|ARM rc', t, '# old_phy.py: this head\'s platform suites against 0f508a01\'s '
+                     'ctrl_plat_phy.c, the rest of the tree this head\'s: P22 fails 27 checks and P23 13, no other '
+                     'test fails\n'))
+keep('tests/platboot-arms.txt', S / 'logs/r3-platboot.log',
+     lambda t: lines(r'\[FAIL\]|checks:|=== arm|OK \] (PlatPhy\.P(4|19|2[0-3])|Phy\.(B11|L[1-6]))', t,
+                     '# the platboot arms (1 and 2 interfaces) at 93d9eaaf\'s firmware\n'))
+keep('tests/phy-plants.txt', S / 'logs/r3-plants2.log',
+     lambda t: lines(r'^\[|first:|mutants:', t, '# plants.py at 93d9eaaf: the five new PHY plants and those whose '
+                     'anchors moved, each graded as the gate grades it\n'))
+keep('images/compaction.txt', S / 'r3rec/compaction.txt')
+
+# --- the linkreset leg
+keep('linkreset/run.txt', S / 'units/lr4.log',
+     lambda t: lines(r'^(HEAD|SHAPE|BOOT|FRAME|ETHERTYPE|EFF|FRAMES|  \[|== |RESULT|LEG|\./)', t,
+                     f'# make linkreset at {HEAD[:8]}: each shape published and refused\n'))
+keep('linkreset/plants.txt', S / 'units/lr4.log',
+     lambda t: lines(r'^(linkreset plant|\[ok\]|\[ESCAPED\]|    |linkreset plants|PLANTS)', t,
+                     f'# make linkreset-plants at {HEAD[:8]}\n'))
+for shape in ('1x1', '8x8'):
+    keep(f'linkreset/plant-{shape}.txt', DP / f'obj_linkreset_plants/{shape}.log',
+         lambda t: lines(r'^(SHAPE|BOOT|FRAME|ETHERTYPE|EFF|FRAMES|  \[|== |RESULT)', t))
+keep('linkreset/export-datapath-parameters.txt', S / 'r3rec/export-datapath-parameters.txt')
+
+# --- the gates
+GATE = (r'^(HEAD |END |suite verdicts|test_ctrl_firmware:|mutants:|planted|\[ok\]|\[FAIL\] mutant|ESCAPED|REFUSED|'
+        r'== .*checks:|\s+verdict:|.*not caught|    named plants|\s+G[1-5] )')
+for k in range(4):
+    keep(f'gates/{HEAD[:8]}/firmware-gate-shard{k}.txt', S / f'units/r3-fw{k}.log',
+         lambda t, k=k: lines(GATE, t, f'# test_ctrl_firmware.py --require-rv32 --self-test --shard {k}/4 at '
+                                       f'{HEAD[:8]}, condensed\n'))
+keep(f'gates/{PREV[:8]}/fw-coverage.txt', S / 'units/r3h-cov.log')
+keep(f'gates/{MID[:8]}/fw-coverage.txt', S / 'units/r3-cov.log')
+TWIN = r'^(HEAD |== |END |twin:|twin rc|plant |\[LEDGER\]|\[OWED\]|\[DIFF\]|.*REFUSED|.*finding)'
+keep(f'gates/{PREV[:8]}/twin.txt', S / 'units/r3h-twin.log', lambda t: lines(TWIN, t))
+keep(f'gates/{MID[:8]}/twin.txt', S / 'units/r3-twin.log', lambda t: lines(TWIN, t))
+BOOT = r'^(HEAD|== |END|dirty|NATIVE|BOOT|TRACE|UART|PHY|GRADER|PLANT|ctrl_split_boot)'
+keep(f'gates/{CODE[:8]}/split-boot.txt', S / 'units/r3-boot.log', lambda t: lines(BOOT, t))
+keep(f'gates/{HEAD[:8]}/split-boot.txt', S / 'units/r3f-boot.log', lambda t: lines(BOOT, t))
+BUILDER = r'^(HEAD |END |ALL GATES|.*DID NOT RUN|  - \[gate|\s*\[gate [0-9a-z]+\] [0-9]+ .* pass|builder legs|Assertion|SUBSET)'
+for k in (0, 1):
+    keep(f'gates/{PREV[:8]}/builder-leg-{k}.txt', S / f'units/r3-b{k}.log', lambda t: lines(BUILDER, t))
+keep(f'gates/{HEAD[:8]}/docs-workflow-steps.txt', S / 'docs/r3/steps.txt')
+keep(f'gates/{PREV[:8]}/docs-workflow-steps-idiom-failures.txt', S / 'r3rec/docs-steps-d9e1d728-failures.txt')
+
+# --- images
+keep('images/SUMMARY.txt', S / 'cmp/r3/SUMMARY.txt',
+     lambda t: f'# the platform and size-fixture image pairs, round 2 {R2[:8]} against round 3 {HEAD[:8]}\n' + t)
+for f in sorted((S / 'cmp/r3').glob('*.txt')):
+    if f.name != 'SUMMARY.txt':
+        keep(f'images/pairs/{f.name}', f)
+for side, d in (('round3', 'plat-r3'), ('round2', 'plat-r2')):
+    keep(f'images/platform-ledger-{side}.txt', S / f'img/{d}/plat_ledger.log',
+         lambda x: lines(r'^(POINT|plat_ledger|LINK|KEY|TILES|LEDGER)', x))
+
+# --- CPU
+for p in ('1x1', '8x8-1if'):
+    keep(f'cpu/compare/{p}-probes.txt', S / f'cpu/r3/{p}-probes.txt')
+    keep(f'cpu/legs/round3-{p}.txt', S / f'units/r3-leg-{"8x8" if p != "1x1" else "1x1"}.log')
+put('cpu/harness-images-identical.txt', '# the CPU budget harness images (ctrl_app.elf), round 2 and round 3: '
+    'identical, the harness links no platform PHY code\n' +
+    run('bash', '-c', f'cd {S}/meas && sha256sum r2/1x1/none/image/ctrl_app.elf r3/1x1/none/image/ctrl_app.elf '
+                      'r2/8x8-1if/none/image/ctrl_app.elf r3/8x8-1if/none/image/ctrl_app.elf'))
+
+# --- Vivado
+for f in sorted((S / 'r3rec/vivado').glob('*.txt')):
+    keep(f'vivado/{f.name}', f)
+
+# --- tsn-c-stack 970-gm-change-draw-kind
+put('stack/commits.txt', run('git', 'log', '--format=%H %s', '715589c1..HEAD', cwd=SW))
+put('stack/diffstat.txt', run('git', 'diff', '--stat', '715589c1', 'HEAD', cwd=SW))
+put('stack/src-include-unchanged.txt', '# git diff --stat 715589c1 HEAD -- src include (empty: no source change)\n' +
+    run('git', 'diff', '--stat', '715589c1', 'HEAD', '--', 'src', 'include', cwd=SW))
+put('stack/round3.diff', run('git', 'diff', '61a504e', 'HEAD', '--', 'tests/test_adp.cpp', 'tests/mutations.json',
+                             'CHANGELOG.md', 'docs/VERIFICATION.md', cwd=SW))
+d = S / 'stack/r3'
+for f in ('validate.log', 'baremetal.log', 'tools.txt', 'before.txt', 'after.txt', 'times.txt'):
+    keep(f'stack/gates-5585226/{f}', d / f)
+keep('stack/gates-5585226/gates.json', d / 'build-validation/gates.json')
+keep('stack/gates-5585226/mutation-summary.txt', d / 'build-validation/mutation.log',
+     lambda t: '# mutation.py: the ADP plants and the summary\n' + ''.join(
+         x + '\n' for x in t.splitlines() if 'adp' in x.lower() or 'gm-change' in x or x.startswith('{')))
+for v, rev, verdict in (('base', '61a504e', 'it escapes: 10 of 10 pass'), ('head', '5585226', 'adp_tests catches it')):
+    keep(f'stack/sensitivity/{v}-planted-ctest.txt', S / f'stack/sens3/{v}.ctest.log',
+         lambda t, rev=rev, verdict=verdict: f'# the plant gm-change-rearms-without-a-draw applied to src/adp.c of '
+                                             f'{rev} and ctest run: {verdict}\n' + t)
+
+# --- tools
+for f in sorted((S / 'bin').glob('*')):
+    if f.is_file() and f.suffix in ('.sh', '.py') and f.name not in ('receipts_spec.py', 'receipts_spec_r2.py', 'bg.sh', 'go.sh', 'queue.sh', 'vqueue.sh'):
+        keep(f'tools/{f.name}.txt', f)
+for f in sorted((S / 'bin/t').glob('*')):
+    if f.is_file() and f.name != 'receipts.py':
+        keep(f'tools/t/{f.name}.txt', f)
+
+# Resumed-session verification, exact final head.
+keep('change/integrity.txt', S / 'r3rec/integrity.txt')
+keep(f'gates/{HEAD[:8]}/lint-behavior.txt', S / 'units/r3-static.log',
+     lambda t: lines(r'^(\[unit|LINT GATE:|[0-9]+ (features|scenarios|steps) passed|Took )', t))
+keep(f'gates/{HEAD[:8]}/xvlog.txt', S / 'units/r3-xvlog.log')
+keep('tests/reviewer-forced-scenario.txt', S / 'units/r3-forced.log')
+
+# Routed-image recipe and immutable input identities; binaries stay in scratch.
+import hashlib
+for shape, stem in (('1x1', 'endstation_ax7101_1x1_tdm8'), ('8x8', 'endstation_ax7101_8x8')):
+    keep(f'vivado/recipe-{shape}.txt', S / f'viv/{shape}/argv.txt',
+         lambda t: '# Product argv; vbuild.sh adds --eth-port e2, the selected placement directive, no software rebuild, and eight threads.\n'
+                   '# Synthesis AreaOptimized_high; optimization ExploreArea; default implementation seed; PYTHONHASHSEED=0.\n' + t)
+    files=[S/f'viv/{shape}/image/ctrl_app.elf', S/f'clones/r3-viv/configs/{stem}.yaml',
+           S/f'clones/r3-viv/sw/builder/out/{stem}/soc_params.json']
+    entries=[]
+    for f in files:
+        raw=f.read_bytes()
+        entries.append(f'{f.name}: {len(raw)} bytes; sha256 {hashlib.sha256(raw).hexdigest()}')
+    put(f'vivado/inputs-{shape}.txt', '\n'.join(entries)+'\n')
+
+keep('tools/reviewer-forced-probe.py.txt', Path('<mgmt>/2026-09-23/972-r890-1/focused.py'))
+
+if (S / 'native-r3').exists():
+    for k in range(4):
+        # shard 2 was cut by the host crash at 00:39 (15 of 17 suites PASS, no verdict); its whole rerun is the record
+        n = S / (f'native-r3-s2/shard-{k}' if k == 2 else f'native-r3/shard-{k}')
+        keep(f'native4/shard{k}.txt', n / 'spec/01.log')
+        keep(f'native4/shard{k}-spec.json', n / 'spec.json')
+        keep(f'native4/shard{k}-results.json', n / 'spec/results.json')
+        keep(f'native4/shard{k}-complete.json', n / 'spec/complete.json')
+    keep('native4/shard2-cut-by-the-host-crash.txt', S / 'native-r3/shard-2/spec/01.log',
+         lambda t: '# shard 2/4 of the first pass, cut by the host crash at 00:39 before its verdict; not counted. '
+                   'Its rerun from a cleaned clone is shard2.txt.\n' + t)
+    all_logs=[]
+    for f in sorted(list((S / 'native-r3').rglob('*.log')) + list((S / 'native-r3-s2').rglob('*.log'))):
+        raw=f.read_bytes()
+        all_logs.append(f'{f.relative_to(S)}\t{len(raw)}\t{hashlib.sha256(raw).hexdigest()}')
+    put('native4/RAW-LOGS.tsv', 'source\tbytes\tsha256\n' + '\n'.join(all_logs)+'\n')
+put('cpu/approved-bounds-unchanged.txt', '# The CPU budget harness is unchanged from the reviewed flip base.\n' +
+    run('git', 'diff', '--stat', BASE, HEAD, '--', 'tb/verilator/ctrl_service_budget'))
+
+# Required synthesis portability gate at the final source head.
+keep(f'gates/{HEAD[:8]}/yosys.txt', S / 'units/r3-yosys.log')
+for f in sorted((S / 'yosys-r3').glob('*.result')):
+    keep(f'yosys/{f.name}', f)
+if (S / 'r3rec/FINAL-GATES.txt').is_file():
+    keep('FINAL-GATES.txt', S / 'r3rec/FINAL-GATES.txt')
+if (S / 'r3rec/review-ready-post.txt').is_file():
+    keep('review-ready-post.txt', S / 'r3rec/review-ready-post.txt')
+
+keep('resource-snapshot.txt', S / 'r3rec/resource-snapshot.txt')
+
+keep('memory-events.txt', S / 'r3rec/memory-events.txt')
+
+# The reviewer's original failing case on the preceding head, supplied with the review.
+old_review = Path('<mgmt>/2026-09-23/972-r890-1')
+keep('tests/reviewer-forced-at-0f508a01.txt', old_review / 'receipts/forced-head.log',
+     lambda t: '# Reviewer-supplied failure at 0f508a01b5d02fbf192ab08e4d8a5bf514b32a3b; not rerun by this session.\n'
+               '# Public finding: https://github.com/kebag-logic/milan-fpga/pull/974#issuecomment-7083175046\n' + t)
+keep('tests/reviewer-old-head-identity.txt', old_review / 'REPORT.md',
+     lambda t: '# Reviewer-supplied report identity accompanying forced-head.log\n' + '\n'.join(t.splitlines()[:7]) + '\n')
