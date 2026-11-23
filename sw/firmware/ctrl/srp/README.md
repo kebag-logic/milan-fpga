@@ -325,7 +325,10 @@ the reset is recorded whatever it declares, the destroyed one's declaration
 included. The record and that clear take 44 bytes of code at 8x8/1if (#957).
 With THE TRANSMIT's sliced build keeping what came due between its slices
 (#956, below), whose build is of interface 0 at compile time at one interface,
-the image has 128 bytes of its 34 RAMB36 of `rom` left (139,136 bytes).
+the image has 128 bytes of its 34 RAMB36 of `rom` left (139,136 bytes); with a
+waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed
+beside it (#950, #954) it holds 139,240 bytes, 24 under those 34 RAMB36, within
+its 58.5 entry.
 Tests: `srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` and
 `ListenerRegistrationAfterAResetIsNoticed` (each declaration, the link's edges
 apart, coalesced into one service and twice over, the other interface's record

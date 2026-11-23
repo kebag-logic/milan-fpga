@@ -701,6 +701,17 @@ The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one
 
 The two changes add 96 to 104 B of `rom` an image (126,432, 128,032, 139,208 and 140,784 B on the train's head), with every `ctrl_plat` and `sram` unchanged. The 8x8 one-interface image needs 40 B past the 139,264 B of `rom` that 58.0 holds, so its entry is 58.5 as debt owed to S14 by the owner's rule of 2026-11-15.
 
+**With those and a withdrawn Talker's hold-off inside its two periods and a Listener registration's notice** (#956, #957 stacked on #950, #954, merged with `dev-soft-core` `854bd723`), planned the same way (`plat_ledger.py`):
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+|---|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 126,456 / 56,736 | 45.0 | 18,048 | within 56 |
+| 1x1, two interfaces | 128,216 / 59,040 | 46.0 | 19,712 | within 56 |
+| 8x8, one interface (shipping) | 139,240 / 98,160 | 58.0 | 18,944 | within its entry's 58.5, 2,072 B of `rom` left; 24 B under the 139,264 B that 58.0 holds |
+| 8x8, two interfaces (largest) | 140,960 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 352 B of `rom` left |
+
+Each image is the sum of the two changes' own, within 8 B by alignment: #956's and #957's alone are 126,360, 128,112, 139,136 and 140,864 B, and #950's and #954's add 96 to 104 B to each. Every `ctrl_plat` and `sram` is unchanged. Together the 8x8 one-interface image needs 58.0 again; its entry stays 58.5, the raise #950's image needed alone; whether to restore 58.0 is the owner's to decide, not this merge's.
+
 Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
 One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
 The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
