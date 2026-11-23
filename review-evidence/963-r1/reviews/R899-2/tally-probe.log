@@ -1,0 +1,60 @@
+Note: Google Test filter = Core.MapEditsAreTheirDefinitionRowForRow:Core.MapEditWorkObservesEachOutputStreamOnce
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 795 vs 1000000
+the seeded edits include ADD 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 0
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 3023 vs 1000000
+the seeded edits include ADD 7
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 7
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 285 vs 1000000
+the seeded edits include ADD 8
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 8
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 1223 vs 1000000
+the seeded edits include REMOVE 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include REMOVE 0
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 2674 vs 1000000
+the seeded edits include REMOVE 7
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include REMOVE 7
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 117 vs 1000000
+the seeded edits include a REMOVE that keeps a row equal to one it removed
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include a REMOVE that keeps a row equal to one it removed
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 2773 vs 1000000
+the seeded edits include an output edit refused after its port is read
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include an output edit refused after its port is read
+<packet>/scratch/probe/ctrl/test/test_aecp.cpp:2990: Failure
+Expected: (seen[name]) >= (1000000u), actual: 86 vs 1000000
+the seeded edits include an output edit refused at an illegal mapping of a stream it has not read
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include an output edit refused at an illegal mapping of a stream it has not read
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (64 ms)
+[ RUN      ] Core.MapEditWorkObservesEachOutputStreamOnce
+[       OK ] Core.MapEditWorkObservesEachOutputStreamOnce (0 ms)
+[----------] 2 tests from Core (64 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (64 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+
+ 1 FAILED TEST
+== AECP core: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)

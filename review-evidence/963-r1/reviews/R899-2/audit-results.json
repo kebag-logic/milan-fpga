@@ -1,0 +1,230 @@
+{
+  "evidence_commit": "7bd1b85460690e53a860c53d92c44816667e8be2",
+  "published_author_hashes_verified": 1052,
+  "evidence_commit_has_signature_header": false,
+  "live_shard_invocations": [
+    88,
+    827,
+    391,
+    542
+  ],
+  "live_invocation_kinds": [
+    {
+      "suite": 88
+    },
+    {
+      "control": 827
+    },
+    {
+      "aecp": 391
+    },
+    {
+      "srp-if2": 359,
+      "srp-if1": 167,
+      "srp-if1-endstation_ax7101_8x8": 15,
+      "lwsrp": 1
+    }
+  ],
+  "campaign": {
+    "caught": 390,
+    "unique": 390,
+    "partitions": [
+      {
+        "partition": 0,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 1,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 2,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 3,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 4,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 5,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 6,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 7,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 8,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 9,
+        "caught": 20,
+        "rc": 0
+      },
+      {
+        "partition": 10,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 11,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 12,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 13,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 14,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 15,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 16,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 17,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 18,
+        "caught": 19,
+        "rc": 0
+      },
+      {
+        "partition": 19,
+        "caught": 19,
+        "rc": 0
+      }
+    ]
+  },
+  "aecp_normal_arms": 18,
+  "focused_caught": [
+    "map-value-cluster-channel-ignored",
+    "map-add-stops-early",
+    "map-illegal-ends-early",
+    "map-illegal-unflagged",
+    "map-port-rows-unread",
+    "map-owners-unread",
+    "map-checked-before-its-read",
+    "map-read-before-legal",
+    "map-stream-observed-every-mapping",
+    "map-repeat-counted",
+    "map-remove-every-copy",
+    "map-remove-reach-a-row-late",
+    "map-remove-reach-a-row-short",
+    "map-remove-rows-past-the-reach-dropped",
+    "map-remove-kept-row-unmoved",
+    "map-row-words-cluster-channel-dropped",
+    "map-copy-cluster-channel-dropped"
+  ],
+  "docs_steps": [
+    "docs-gates-0/gate_1\trc=0\tBuild the validated HDL reference",
+    "docs-gates-0/gate_7\trc=0\tLink health, wording, dead-reference and local-info gate",
+    "docs-gates-0/gate_8\trc=0\tAdded-line em-dash gate",
+    "docs-gates-0/gate_9\trc=0\tConcise audience documentation gate",
+    "docs-gates-0/gate_10\trc=0\tAudience diagram no-drift gate",
+    "docs-gates-0/gate_11\trc=0\tProduct solution source-fact gate",
+    "docs-gates-0/gate_12\trc=0\tVerified submodule documentation gate",
+    "docs-gates-0/gate_13\trc=0\tHDL timing diagram no-drift gate",
+    "docs-gates-0/gate_14\trc=0\tPublished diagram PNG gate",
+    "docs-gates-0/gate_15\trc=0\tMilan feature-status consistency gate",
+    "docs-gates-0/gate_16\trc=0\tTraceability matrix no-drift gate",
+    "docs-gates-0/gate_18\trc=0\tImported gPTP documentation gate",
+    "docs-gates-0/gate_19\trc=0\tCode-quality measurement self-tests",
+    "docs-gates-0/gate_21\trc=0\tBare-metal scope gate",
+    "docs-gates-0/gate_26\trc=0\tNVM record-space gate",
+    "docs-gates-0/gate_27\trc=0\tCapture measurement census and clock gate",
+    "docs-gates-0/gate_28\trc=0\tSaved-state writer gate",
+    "docs-gates-0/gate_29\trc=0\tSoC source-list gate (Vivado would fail 40 min in without this)",
+    "docs-gates-0/gate_30\trc=0\tRTL source-list drift gate",
+    "docs-gates-0/gate_31\trc=0\tBoundary-unit naming ratchet",
+    "docs-gates-0/gate_32\trc=0\tPort contract gate",
+    "docs-gates-0/gate_33\trc=0\tFail-fast ratchet",
+    "docs-gates-0/gate_34\trc=0\tTODO ownership gate",
+    "docs-gates-0/gate_35\trc=0\tTest-evidence ratchet",
+    "docs-gates-0/gate_36\trc=0\tMechanical hygiene ratchet",
+    "docs-gates-0/gate_37\trc=0\tSystemVerilog idiom gate",
+    "docs-gates-0/gate_38\trc=0\tC and C++ idiom gate",
+    "docs-gates-0/gate_39\trc=0\tPython idiom gate",
+    "docs-gates-0/gate_40\trc=0\tShell idiom gate",
+    "docs-gates-0/gate_43\trc=0\tDoc cited-path gate",
+    "docs-gates-0/gate_44\trc=0\tArchive integrity gate",
+    "docs-gates-0/gate_45\trc=0\tPer-page contents gate",
+    "docs-gates-0/gate_46\trc=0\tDocumentation inventory freshness gate",
+    "docs-gates-0/gate_47\trc=0\tAEM store generator self-test",
+    "docs-gates-0/gate_48\trc=0\tSweep/build shape gate",
+    "docs-gates-0/gate_49\trc=0\tDeploy shape gate",
+    "docs-gates-0/gate_50\trc=0\tEntity shape gate",
+    "docs-gates-0/gate_51\trc=0\tRegister reference freshness gate",
+    "docs-gates-0/gate_52\trc=0\tCI scheduling and evidence controls",
+    "wire-accountability/ci_step_4\trc=0\tAdvertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "docs-check-no-git/ci_step_3\trc=0\tStrip git metadata, then run the docs gate",
+    "docs-gates-2/gate_41\trc=0\tCI event and SHA contract gate",
+    "docs-gates-2/gate_42\trc=0\tLocal act runner contract gate"
+  ],
+  "coverage_selected": [
+    "sw/firmware/ctrl/aecp/aecp_maps.c                352/352     423/424     lines 100.00 %  branches 100.00 %",
+    "firmware coverage: PASS (40 files)"
+  ],
+  "cut_units_rc124": 3,
+  "old_tally_recomputed": {
+    "control": 826,
+    "aecp": 389,
+    "srp": 541,
+    "plants": 1756,
+    "normal_suite_arms": 88,
+    "pin_controls": 2
+  },
+  "round1_excerpt_headers": {
+    "1": [
+      "# gate.log: 219,686 bytes, sha256 6a4aba7c839e7e065455869e756cb238c46c32e5e16fa77cd3fe7c71b1533949; its first and last 400 of 1,822 lines",
+      "mutants: 826 of 826 caught",
+      "test_ctrl_firmware: PASS"
+    ],
+    "2": [
+      "# gate.log: 352,370 bytes, sha256 122c7b6fcd6492118bc889209be20f94657b5f34421aafa7b5b7a0f4b16bee30; its first and last 400 of 1,897 lines",
+      "[ok] configuration-past-the-count-bad-arguments: Core.SetConfigurationOutOfRangeIsNoSuchDescriptor",
+      "test_ctrl_firmware: PASS"
+    ],
+    "3": [
+      "# gate.log: 231,927 bytes, sha256 e338d9332fbce4626c30b1abd12cb4759e21ed83e5c46b1fdf1bb965aaf0fec7; its first and last 400 of 1,628 lines",
+      "[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)",
+      "test_ctrl_firmware: PASS"
+    ]
+  },
+  "limit": "Round-1 large logs are published excerpts. Their embedded raw hashes bind the new tally to the old log identities; hashes do not recover omitted lines. Live dispatch independently supplies category counts. Round-2 campaign logs are complete and recounted by name."
+}
