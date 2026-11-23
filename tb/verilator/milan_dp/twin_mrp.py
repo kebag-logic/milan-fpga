@@ -32,9 +32,10 @@ What the grade reads, per attribute (its type and FirstValue):
     Link Up, and changed for a received Domain).
 
 A frame without a LeaveAll is a tx! only for the attributes it carries, so a value one leaves out, full or
-not, is graded at its next message. Re-declare! and Flush! are a Bridge's port-role events (10.7.5.2, 10.7.5.3) and do not arise at an end station. The
-Registrar reaches a message only through IN against MT or LV (10.7.6.3, 10.7.6.5; note 8), so Milan's cell
-changes no message an Applicant may send; it is applied as written all the same, to MSRP's Registrar only.
+not, is graded at its next message. Re-declare! and Flush! are a Bridge's port-role events (10.7.5.2,
+10.7.5.3) and do not arise at an end station. The Registrar reaches a message only through IN against MT or
+LV (10.7.6.3, 10.7.6.5; note 8), so Milan's cell changes no message an Applicant may send; it is applied as
+written all the same, to MSRP's Registrar only.
 """
 from __future__ import annotations
 
@@ -410,6 +411,7 @@ def selftest() -> list[str]:
     joined = [Seen(0, "JoinMt"), Seen(100, "JoinMt")]
 
     def check(name: str, ok: bool) -> None:
+        """Record `name` as failed unless `ok`."""
         if not ok:
             failed.append(name)
 
