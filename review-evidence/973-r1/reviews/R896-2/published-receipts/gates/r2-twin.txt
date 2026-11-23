@@ -1,0 +1,40 @@
+[unit milan-973-a822-r2-twin cpus 40-47 start 21:54:19]
+HEAD 5759780f dirty 0 start 21:54:19
+== make twin 21:54:19
+twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 88, 'MVRP': 24}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 53, 'MAAP': 8, 'MSRP': 96, 'MVRP': 92}}
+== twin rc=0 22:07:36
+== make twin-plants 22:07:36
+== twin-plants rc=0 22:22:26
+== make twin-maps 22:22:26
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+PASS [MAPS-STORE] the removal reached the render store
+PASS [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+PASS [MAPS-EDIT] an edited map reached the render store
+PASS [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+== twin-maps rc=0 22:22:34
+== make twin-maps-plants 22:22:34
+  echo "FAIL the no-edit plant passed"; exit 1; fi
+set -e; for w in "FAIL [MAPS-STORE] the removal reached the render store" "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" "FAIL [MAPS-EDIT] an edited map reached the render store"; do \
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+  echo "caught: $w"; done
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store
+== twin-maps-plants rc=0 22:22:42
+END rc=0 22:22:42
+[unit end 22:22:42 rc 0]

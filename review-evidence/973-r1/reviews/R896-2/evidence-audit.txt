@@ -1,0 +1,11 @@
+PASS 299 published receipt SHA-256 values; zero mismatches
+1x1: 88 probe pairs; zero verdict/budget misses; max absolute rounded delta 0.217 ms
+8x8-1if: 86 probe pairs; zero verdict/budget misses; max absolute rounded delta 0.149 ms
+PASS identical base/head grader receipt: flip_grade.py_--check_--point_1x1_1if.txt
+PASS identical base/head grader receipt: flip_grade.py_--check_--point_8x8_1if.txt
+PASS identical base/head grader receipt: load_grade.py_--check.txt
+PASS identical base/head grader receipt: shape_costs.py_--check.txt
+PASS 1x1-if1: ROM 126432 -> 126488; SRAM 56736; RAMB36 45.0 <= 56
+PASS 1x1-if2: ROM 128032 -> 128104; SRAM 59040; RAMB36 46.0 <= 56
+PASS 8x8-if1: ROM 139208 -> 139256; SRAM 98160; RAMB36 58.0 <= 58.0
+PASS 8x8-if2: ROM 140784 -> 140856; SRAM 115504; RAMB36 63.0 <= 63.0

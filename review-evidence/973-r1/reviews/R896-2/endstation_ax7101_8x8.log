@@ -1,0 +1,76 @@
+[==========] Running 8 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass
+<packet>/scratch/tests/probe_stale_mark.cpp:96: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll took a level no LINK had carried
+<packet>/scratch/tests/probe_stale_mark.cpp:97: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll took a level no LINK had carried
+<packet>/scratch/tests/probe_stale_mark.cpp:98: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll reset the interface on a level no LINK had carried
+<packet>/scratch/tests/probe_stale_mark.cpp:238: Failure
+Expected equality of these values:
+  up_at(Phase::AfterTheEvents)
+    Which is: 2
+  0u
+    Which is: 0
+the first dispatched UP must keep startup participants
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: the first dispatched UP must keep startup participants
+<packet>/scratch/tests/probe_stale_mark.cpp:239: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x557b51910e50
+  startup
+    Which is: 0x557b51910e10
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass:     Which is: 0x557b51910e10
+[  FAILED  ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass (0 ms)
+[----------] 6 tests from SrpLinkPass (1 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 7 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 8   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 8 checks, exit 1)

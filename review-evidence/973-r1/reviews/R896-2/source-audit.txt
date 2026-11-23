@@ -1,0 +1,15 @@
+git diff --check 9a71daa9..HEAD
+exit 0
+git diff --name-only 9a71daa9..HEAD
+CHANGELOG.md
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/srp/srp_mbx.c
+sw/firmware/ctrl/srp/srp_mbx.h
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/srp_link_mutants.py
+sw/firmware/ctrl/test/srp_link_pass.cpp
+sw/firmware/ctrl/test/srp_mutants.py
+exit 0
+git diff --name-only dd163e41..HEAD -- hdl sw/mailbox sw/firmware/ctrl/loop tb/verilator/ctrl_service_budget sw/firmware/gtest/coverage.ratchet
+exit 0
+Added source comments inspected: no new lane labels/names, review identities/rounds or issue-comment IDs.
