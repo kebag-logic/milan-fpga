@@ -136,9 +136,10 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
              shape_costs.Shape(2, 9, 9): TWO}
 
 
-#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to THE DRAIN's charge of it, the last
-#: charge before it (srp_mbx.c rx_charge: the unit and the stated cost of each Talker value it can carry, #977), and
-#: to the retained item's stated cost, the unit, where no charge precedes it.
+#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to THE DRAIN's charge of it (#977, its
+#: ruling of 2026-11-23, item 4): the retained item's stated cost, the unit, and for a frame of the group's own the
+#: registration's stated cost (ctrl_loop.h, CTRL_LOOP_SRP_REG_US) for each Talker value it can register, counted here
+#: from its bytes as srp_mbx.c's rx_charge counts them (talker_values), so the firmware's count is held, not read.
 RECORD = 'record'
 #: An aecp item that committed a notice longer than AECP_FAN_BYTES, held to its own stated cost.
 LONG = 'aecp_long'
@@ -290,20 +291,72 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
-def charges(log: grade.Log) -> list[tuple[int, int]]:
-    """Each of THE DRAIN's charges of SRP's next record, sorted: (CPU cycle it started, microseconds it returned)."""
-    return sorted((int(rest[1]), int(rest[3], 16)) for kind, *rest in log.traced
-                  if kind == 'SPAN' and len(rest) >= 5 and rest[4] == poll_items.CHARGE)
+def talker_values(frame: bytes, sinks: int) -> int:
+    """The Talker values an SRP record can register, as srp_mbx.c's rx_charge bounds them (#977): an MSRP record's
+    Talker Messages' vectors, at most `sinks` a vector, every other Message skipped by its AttributeListLength, none
+    past the PDU's EndMark, and past eight Messages the rest at `sinks` for each 28 octets."""
+    if len(frame) <= 15 or frame[12:14] != b'\x22\xea':
+        return 0
+    at, values = 15, 0
+    for messages in range(1 << 16):
+        if at + 4 > len(frame):
+            break
+        if messages == 8:
+            return values + sinks * ((len(frame) - at) // 28)
+        kind, alen, length = frame[at], frame[at + 1], int.from_bytes(frame[at + 2:at + 4], 'big')
+        if kind == 0 and alen == 0:
+            break
+        at += 4
+        end = len(frame) if length > len(frame) - at else at + length
+        while kind in (1, 2) and at + 2 <= end:
+            count = int.from_bytes(frame[at:at + 2], 'big') & 0x1FFF
+            if count == 0:
+                break
+            values += min(count, sinks)
+            at += 2 + alen + (count + 2) // 3
+        at = end
+    return values
 
 
-def charged(of: list[tuple[int, int]], start: int, cpu_hz: int, unit: int) -> int:
-    """The stated cost in CPU cycles of the SRP record whose apply starts at start: its charge, the last before it,
-    or the unit where none is."""
-    k = bisect_left(of, (start, -1)) - 1
-    return of[k][1] * cpu_hz // 1_000_000 if k >= 0 else unit
+def registration_us(shape: shape_costs.Shape) -> int:
+    """CTRL_LOOP_SRP_REG_US at a shape (ctrl_loop.h, THE DRAIN's registration cost after THE SHAPES), 0 where its
+    chain's #else states it."""
+    text = (scenario.ROOT / shape_costs.HEADER).read_text()
+    chain = text[text.index("// THE DRAIN's registration cost"):]
+    chain = chain[:chain.index('#endif')]
+    pattern = r'#(?:el)?if CTRL_LOOP_SHAPE\((\d+)u, (\d+)u, (\d+)u\)\n#define CTRL_LOOP_SRP_REG_US (\d+)u'
+    for *head, us in re.findall(pattern, chain):
+        if shape_costs.Shape(*map(int, head)) == shape:
+            return int(us)
+    return int(re.search(r'#else\n#define CTRL_LOOP_SRP_REG_US (\d+)u', chain)[1])
 
 
-def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
+def own_frames(steps: list[str]) -> dict[str, bytes]:
+    """The group's tagged frames, by tag: a step `frame <interface> <hex> <tag>` (scenario.tagged)."""
+    return {words[3]: bytes.fromhex(words[2]) for words in (step.split() for step in steps)
+            if len(words) == 4 and words[0] == 'frame'}
+
+
+def record_limits(log: grade.Log, traced: dict, interfaces: int | shape_costs.Shape, unit: int,
+                  steps: list[str]) -> list[tuple[int, int]]:
+    """Each SRP record handler's (CPU cycle it started, the record's stated cost in CPU cycles): the k-th handler's
+    record is SRP's k-th commit, and a frame of the group's own is charged its Talker values (talker_values)."""
+    shape = shape_costs.shape(interfaces, scenario.ROOT)
+    reg = registration_us(shape) * log.cpu_hz // 1_000_000
+    frames = own_frames(steps)
+    tags = [tag for _, ch, _, tag, _ in log.rxc if ch == scenario.CH['srp']]
+    return [(start, unit + reg * talker_values(frames.get(tags[k], b''), shape.sinks) if k < len(tags) else unit)
+            for k, (start, _, _) in enumerate(traced.get(poll_items.RECEIVE, []))]
+
+
+def charged(limits: list[tuple[int, int]], start: int, unit: int) -> int:
+    """The stated cost of the SRP record whose apply starts at start: its handler's, the last that started before
+    it, or the unit."""
+    k = bisect_left(limits, (start, -1)) - 1
+    return limits[k][1] if k >= 0 else unit
+
+
+def held(log: grade.Log, interfaces: int | shape_costs.Shape, steps: list[str] = ()) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
     one over its cost, and each LONG item."""
     limits = {kind: us * log.cpu_hz // 1_000_000 for kind, us in stated_us(interfaces).items()}
@@ -330,13 +383,13 @@ def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     over += beyond
     # each SRP record's own apply: an apply_receive call in no pass's polls, held to its charge (#977)
     polls = [(start, end) for start, end, _ in every]
-    of = charges(log)
+    of = record_limits(log, traced, interfaces, limits[RECORD], list(steps))
     for s, cycles, s_sys in traced.get(ITEMS['retained'][0], []):
         k = bisect_left(polls, (s + 1, -1)) - 1
         if k >= 0 and polls[k][0] <= s < polls[k][1]:
             continue
         heaviest[RECORD] = max(heaviest[RECORD], cycles)
-        limit = charged(of, s, log.cpu_hz, limits[RECORD])
+        limit = charged(of, s, limits[RECORD])
         if cycles > limit:
             over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles, limit=limit))
     # each LONG item, (the bus cycle its pass's polls began, CPU cycles): a long notice's polls, reported

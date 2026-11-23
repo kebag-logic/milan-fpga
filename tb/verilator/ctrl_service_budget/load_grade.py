@@ -323,7 +323,11 @@ GM_INTERVALS_MS = (1000, 1000, 3000)
 #: at; the two-interface points' registrations are not measured (#977's scope), so they count none.
 JOIN_MIN_MS = 180
 TX_PER_JOIN = 3
-REGISTRATION_US = {'1x1/1if': 160, '8x8/1if': 175}
+#: Measured at #977's round 2 head over srp-register and srp-register-burst: at 8x8/1if a record of the burst replacing
+#: every input's Talker, 143,047 CPU cycles, 105,547 past the 37,500-cycle unit, and THE SETTLE after it, 46,784, over
+#: nine values, 16,926 cycles; at 1x1/1if 46,654 cycles, 18,154 past the unit, and its settle, 10,108, over two values,
+#: 14,131 cycles.
+REGISTRATION_US = {'1x1/1if': 150, '8x8/1if': 180}
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
