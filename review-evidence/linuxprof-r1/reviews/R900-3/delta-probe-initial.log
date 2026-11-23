@@ -1,0 +1,11 @@
+THE SHAPES: 39 byte-identical lines; sha256 f1bbae922af5c477519369c00cc87e4650db3db3fc014646dcad6933347a9d89
+854bd7236792ce1adbd10c43b13a6a5002ad3bb6 READS [Shape(interfaces=1, sources=2, sinks=2), Shape(interfaces=1, sources=9, sinks=9), Shape(interfaces=2, sources=2, sinks=2), Shape(interfaces=2, sources=9, sinks=9)] at(1) {'CTRL_LOOP_SLICE_US': 950, 'CTRL_LOOP_BUILD_PASS_US': 1010, 'CTRL_LOOP_BUILD_ONE_PASS_US': 735, 'CTRL_LOOP_SRP_UNIT_US': 285, 'CTRL_LOOP_RETRY_COLD_US': 85, 'CTRL_LOOP_RETRY_ATTEMPT_US': 34, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 35}
+66b4def34dcbc0d371ce4eb339d3d0226875befa EXPECTED REFUSAL ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+58f7673b8c57a80230e716bc1774ff9cc2f71ddc READS [Shape(interfaces=1, sources=2, sinks=2), Shape(interfaces=1, sources=9, sinks=9), Shape(interfaces=2, sources=2, sinks=2), Shape(interfaces=2, sources=9, sinks=9)] at(1) {'CTRL_LOOP_SLICE_US': 950, 'CTRL_LOOP_BUILD_PASS_US': 1010, 'CTRL_LOOP_BUILD_ONE_PASS_US': 735, 'CTRL_LOOP_SRP_UNIT_US': 285, 'CTRL_LOOP_RETRY_COLD_US': 85, 'CTRL_LOOP_RETRY_ATTEMPT_US': 34, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 35}
+Unmutated gate reader: [(1, 2, 2), (1, 9, 9), (2, 2, 2), (2, 9, 9)]
+m1 COMPLETE gate 41 KILLED: gate 41: shape_costs.py does not read THE SHAPES: ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+Traceback (most recent call last):
+  File "<PACKET>/delta_probe.py", line 89, in <module>
+    assert b'THE SHAPES:' in run.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

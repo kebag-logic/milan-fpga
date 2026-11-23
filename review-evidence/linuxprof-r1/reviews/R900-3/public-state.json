@@ -1,0 +1,97 @@
+{
+  "observed_date": "2026-11-23",
+  "pr": {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/986",
+    "head": "58f7673b8c57a80230e716bc1774ff9cc2f71ddc",
+    "base": "dev-soft-core",
+    "base_sha": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "published_status": "## Status\n\nREADY FOR REVIEW, local evidence only.\n\n- Branch: `pf-linuxprof-1` -> `dev-soft-core`.\n- Three commits on `854bd7236792ce1adbd10c43b13a6a5002ad3bb6`:\n  - `677d605f37c3a80654df1dd2cde053b57242845b` (round 1);\n  - `66b4def34dcbc0d371ce4eb339d3d0226875befa` (round 2, answering R900-1);\n  - `58f7673b8c57a80230e716bc1774ff9cc2f71ddc` (round 3, answering R902-1).\n\nPublished head: `58f7673b8c57a80230e716bc1774ff9cc2f71ddc`. The evidence below is local source-head evidence; hosted acceptance is tracked separately.\n\nRound 3, at `58f7673b`:\n\n- The FPGA rows of THE SHAPES are byte-identical to the base, and the host shape is stated outside them.\n- The service-budget harness reads the table as at the base:\n  - `shape_costs.py --check` passes;\n  - `shape_costs.py --selftest` refuses 25 of 25 controls;\n  - `load_grade.py --check` passes;\n  - `flip_grade.py --check --point 1x1/1if` passes;\n  - each of those outputs is identical to the base's.\n- `flip_grade.py --check` over all points produces output byte-identical to the base's.\n- Gates 32, 41, 42 and `test_bad_configs_rejected` pass.\n- Docs and quality gates: 25 of 25 pass.\n- FPGA artifact identity: 245 of 245 byte-identical to the base.\n- The board repository's host build compiles to byte-identical objects and binary at `66b4def3` and `58f7673b`.\n\nEarlier rounds:\n\n- Round 1, at `677d605f`: the builder suite ran 114 of 115 gates, each once, in four subsets. Gate 1b did not complete inside the ten-minute command bound (see limitations).\n- The full suite has not been re-run since.\n\n"
+  },
+  "workflow_runs": [
+    {
+      "id": 45181857430,
+      "name": "rtl-full",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 2336,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857430/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857430/logs",
+      "workflow_id": 320750503
+    },
+    {
+      "id": 45181857565,
+      "name": "elaborate",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 1755,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857565/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857565/logs",
+      "workflow_id": 339283801
+    },
+    {
+      "id": 45181857628,
+      "name": "rtl-fast",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 1879,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857628/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857628/logs",
+      "workflow_id": 339150340
+    },
+    {
+      "id": 45181857427,
+      "name": "docs",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 2130,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857427/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45181857427/logs",
+      "workflow_id": 320168027
+    }
+  ],
+  "submitted_reviews": [],
+  "inline_review_threads": [],
+  "public_scope_ruling": "https://github.com/kebag-logic/ti-sitara-am65x-bsp/issues/29#issuecomment-7096504049",
+  "comments_examined": [
+    {
+      "id": 7099370914,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7099370914",
+      "opening": "[A10] INDEPENDENT REVIEW STARTED: R900-1"
+    },
+    {
+      "id": 7099822461,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7099822461",
+      "opening": "[R900] NEGATIVE - exact head 677d605f37c3a80654df1dd2cde053b57242845b"
+    },
+    {
+      "id": 7100274881,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7100274881",
+      "opening": "[A10] INDEPENDENT REVIEW STARTED: R900-2"
+    },
+    {
+      "id": 7100511968,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7100511968",
+      "opening": "[R900] POSITIVE - exact head 66b4def34dcbc0d371ce4eb339d3d0226875befa"
+    },
+    {
+      "id": 7100522165,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7100522165",
+      "opening": "[A10] INDEPENDENT REVIEW STARTED: R902-1"
+    },
+    {
+      "id": 7101347692,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7101347692",
+      "opening": "[R902] NEGATIVE - exact head 66b4def34dcbc0d371ce4eb339d3d0226875befa"
+    },
+    {
+      "id": 7102280992,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7102280992",
+      "opening": "[A10] INDEPENDENT REVIEW STARTED: R902-3"
+    },
+    {
+      "id": 7102294126,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/986#issuecomment-7102294126",
+      "opening": "[A10] INDEPENDENT REVIEW STARTED: R900-3"
+    }
+  ]
+}

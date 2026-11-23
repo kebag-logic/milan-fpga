@@ -1,0 +1,23 @@
+shape_costs_check published base/head stdout IDENTICAL 8 lines 802b685df64e78a1bf02b5427df47c6a1fdb121bc38f9e2c5ec48097bdaa6346
+ independently repeated head stdout IDENTICAL, rc 0
+shape_costs_selftest published base/head stdout IDENTICAL 1 lines 694e4c140b5223abef4e326f0702e6cefa52aef4645b3ab265569157c48f9a3e
+ independently repeated head stdout IDENTICAL, rc 0
+load_grade_check published base/head stdout IDENTICAL 9 lines 92b4cc02c193bc5bc2448266103e79f172df01f24a7a425f9e6951b59ab5e6e9
+ independently repeated head stdout IDENTICAL, rc 0
+flip_grade_check_1x1 published base/head stdout IDENTICAL 24 lines 983985379645607ff543a7f267fd1b672a93ddccfae7de32225a972fc8cde53c
+ independently repeated head stdout IDENTICAL, rc 0
+flip_grade_check published base/head stdout IDENTICAL 54 lines e498b47996de542693e913011d78fae4a0d8a3e446807229f53bd9f6f004115d
+ independently repeated head stdout IDENTICAL, rc 1
+run_selftest published base/head stdout IDENTICAL 1943 lines 8c1fef48dde57c4e09188d58271d3d93abd2b7bef65ea0a5d5240c42196fa1d0
+ timeout at 580 seconds at both revisions; NO completed self-test verdict
+FPGA manifests: 245/245 entries IDENTICAL at source base, prior head and exact head
+Full-tree published receipt: files base: 240  head: 240
+nonzero rcs base: 0  head: 0
+IDENTITY: all 240 files byte-identical
+rc=0
+Published compile receipt: 12 preprocessor points SAME, 6 object pairs byte-identical; force-included interface count recorded
+Board build receipt: 35 objects and binary identical; public board revision afc350641dc2d93cee39bb4c62258b6d55f00ccb
+fw/ctrl_loop.o: 204afd952f53cfd9a040ddb521d99b2398864ce59df6c95e22c07f80738ef10e vs 204afd952f53cfd9a040ddb521d99b2398864ce59df6c95e22c07f80738ef10e
+control program binary: 1c9240b21ce566a743c010bc33144ea520d292e67f376fdee3486d923270f00a vs 1c9240b21ce566a743c010bc33144ea520d292e67f376fdee3486d923270f00a
+Evidence class: author source receipts; no manager source-bank or candidate execution inferred
+RESULT: PASS

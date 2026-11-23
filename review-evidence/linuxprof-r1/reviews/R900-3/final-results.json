@@ -1,0 +1,22 @@
+{
+  "head": "58f7673b8c57a80230e716bc1774ff9cc2f71ddc",
+  "results": {
+    "focused-gates": 0,
+    "delta-probe": 0,
+    "shape-check": 0,
+    "shape-selftest": 0,
+    "load-check": 0,
+    "flip-1x1": 0,
+    "flip-all": 1,
+    "docs-check": 0,
+    "evidence-compare": 0,
+    "prior-reader": 0,
+    "object-probe": 0,
+    "integrity": 0
+  },
+  "notes": [
+    "delta-probe initial setup failed due to omitted mailbox include; corrected probe passed",
+    "flip-all rc 1 is byte-identical to published base, including documented 8x8/2if FAIL",
+    "run.py --self-test not repeated; published base/head timeouts are not passes"
+  ]
+}
