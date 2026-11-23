@@ -505,6 +505,11 @@ bool mbx_rx_waiting(unsigned ch, uint16_t mark)
     return (uint16_t)(mark - rx_tail[ch] - 1u) < 0x7fffu;
 }
 
+uint16_t mbx_rx_next_len(unsigned ch)
+{
+	return (uint16_t)mbx_field(rx_word(ch, rx_tail[ch]), MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH);
+}
+
 // The payload's words in ring order from ring index at, each whole word but a
 // short last one; a frame that starts on a word gives each whole word in one
 // load. The two loops stay apart, or the compiler takes the byte form for

@@ -200,8 +200,13 @@
 // holds none, each its due, then what the pass has left, one a channel in turn,
 // under the same limit. THE DRAIN's channel (drain_ch, SRP's) is tier 2: once
 // tier 1 holds no record, a slice ending CTRL_LOOP_SLICE_US after the pass
-// started takes its records, each started only while the slice holds its stated
-// cost, CTRL_LOOP_SRP_UNIT_US, and a record follows only the events posted
+// started takes its records, each started only while the slice holds its charge,
+// its stated cost, CTRL_LOOP_SRP_UNIT_US, and for a record that can register
+// Talkers their stated cost (drain_charge; THE SHAPES), in ring order, so a record
+// that waits for room holds the records behind it and none is dropped; a record
+// alone in its slice, the first of a pass whose THE SETTLE did nothing and that took
+// no tier-1 record and dispatched no centisecond, starts whatever its charge while
+// the slice holds the unit (#977, its ruling of 2026-11-23, item 4); and a record follows only the events posted
 // before it (rx_order, read before the pass's events): an event posted during
 // every pass holds it back no longer. A pass given whole to a build or a round
 // is the next slice: it follows an ordinary pass that left tier 1 holding no
@@ -216,6 +221,15 @@
 // 125 ms (#665), at 1x1/1if AECP_QUEUED_MS's 130 ms (aecp_mbx.h; the queued
 // rule's figure for its row at the slice rule's 950 us, the owner's decision
 // of 2026-11-20 on #665, ruling item 4, under the owner's 140 ms).
+//
+// THE SETTLE (#977, its ruling of 2026-11-23, item 3). One client's deferred work
+// of a record THE DRAIN took: ACMP's completion of the sinks a record's Talker
+// indications changed (ctrl_app_srp.c), which a record's polls owe it where
+// CTRL_LOOP_SETTLE_ALONE is set, so the record's pass carries the record alone. The
+// loop calls the client as the next ordinary pass starts, before its events, so it
+// runs after everything the record's pass took and before anything the next takes,
+// as the polls did; it reports whether it did work, and a pass whose THE SETTLE did
+// work starts no record alone (THE TIERS).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -326,6 +340,25 @@ extern "C" {
 // Listener's change walked no registrar, #930); and at 1x1/1if 285 us, the load
 // gate's record.srp there since AECP's REBOOT merged on the tiers (#871), over
 // that group's 23,503 cycles (#930; 27,170 before).
+// THE DRAIN's charge of a record (#977, its ruling of 2026-11-23, item 4): the unit, plus
+// CTRL_LOOP_SRP_REG_US, a Talker registration's stated cost, for each Talker value the record can
+// carry that can register, a bound read from its length before it is parsed (srp_mbx.c, rx_charge):
+// lwSRP's receive filter takes a Talker value only for a bound sink's StreamID, a vector's values
+// are distinct StreamIDs (IEEE 802.1Q-2018 35.2.2.8.4; lwSRP refuses an increment that overflows),
+// so a vector registers at most CTRL_SRP_SINKS of them, and a vector of a Talker value takes 28
+// octets at least (its header, a Talker Advertise's FirstValue and an event octet), after the
+// Ethernet header, the ProtocolVersion and a Message's header, 19 octets. At 1x1/1if and 8x8/1if
+// the registration cost is a Talker value's share of its record's apply past the unit, the dearest
+// over the CPU budget harness's registering groups (srp-register, srp-register-burst), plus 5 %,
+// rounded up to 5 us; at the two-interface shapes, whose registering records #977 does not
+// measure, it is 0 and the drain charges the unit, as before. And the registration's two
+// follow-ups each in a slice of its own where the record's slice cannot hold them
+// (CTRL_LOOP_SETTLE_ALONE, CTRL_LOOP_DECLARE_ALONE; ruling item 3): at both one-interface shapes,
+// ACMP's completion of the sinks a record's indications changed runs in THE SETTLE, the next
+// ordinary pass's first work, not in the record's polls (ctrl_app_srp.c); at 8x8/1if a build
+// whose declarations re-declared a Listener or joined a VLAN also sends its MRPDU in the next pass
+// given whole, SRP's records waiting for it (srp_mbx.c, transmit). At 1x1/1if the declarations
+// stay in the build's slice, which holds them with the build (the srp-register-burst group).
 // THE RETRY's costs there are the line over its rounds measured on that tree,
 // the dearest at each count of refused attempts with notices charged at
 // AECP_NOTICE_US, that holds a round of every port refused (AECP_ROUND_PORTS)
@@ -395,6 +428,21 @@ extern "C" {
 #define CTRL_LOOP_TX_MS 105u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#endif
+// THE DRAIN's registration cost, in microseconds, and the registration's follow-ups each in a slice of its own, by
+// shape (THE SHAPES, the drain's charge): the two one-interface shapes', and at every other shape none.
+#if CTRL_LOOP_SHAPE(1u, 2u, 2u)
+#define CTRL_LOOP_SRP_REG_US 100u
+#define CTRL_LOOP_SETTLE_ALONE 1u
+#define CTRL_LOOP_DECLARE_ALONE 0u
+#elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
+#define CTRL_LOOP_SRP_REG_US 125u
+#define CTRL_LOOP_SETTLE_ALONE 1u
+#define CTRL_LOOP_DECLARE_ALONE 1u
+#else
+#define CTRL_LOOP_SRP_REG_US 0u
+#define CTRL_LOOP_SETTLE_ALONE 0u
+#define CTRL_LOOP_DECLARE_ALONE 0u
 #endif
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
@@ -529,6 +577,11 @@ typedef bool (*ctrl_retry_aged_fn)(void *ctx);
 typedef void (*ctrl_transmit_fn)(void *ctx, unsigned most);
 // THE TRANSMIT's due: true when the client owes a build and no frame ahead of it.
 typedef bool (*ctrl_transmit_aged_fn)(void *ctx);
+// THE DRAIN's charge of the record at the head of its channel, in microseconds (THE TIERS), called only while one
+// waits and its module is ready for it.
+typedef unsigned (*ctrl_charge_fn)(void *ctx);
+// THE SETTLE: true when it did work.
+typedef bool (*ctrl_settle_fn)(void *ctx);
 
 struct ctrl_loop_rx {
 	bool (*ready)(void *ctx);
@@ -597,6 +650,10 @@ struct ctrl_loop {
 	bool tier1_done;                // the last ordinary pass left tier 1 holding no record it would take (THE TIERS)
 	bool drained;                   // and THE DRAIN's channel holding none after its slice
 	uint32_t rx_left;               // the channels whose take this pass ended on a limit, records left (bit ch)
+	ctrl_charge_fn drain_charge;    // THE DRAIN's charge of its next record, NULL to charge the unit (THE TIERS)
+	ctrl_settle_fn settle;          // THE SETTLE's client, or NULL
+	void *settle_ctx;
+	unsigned drain_taken;           // the records THE DRAIN's channel took this pass (THE SETTLE)
 };
 
 void ctrl_loop_init(struct ctrl_loop *l);
@@ -616,6 +673,8 @@ bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_
 // Bind THE TRANSMIT's client and its age. False when either function is
 // missing or a client is already bound.
 bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_transmit_aged_fn aged, void *ctx);
+// Bind THE SETTLE's client. False when it is missing or a client is already bound.
+bool ctrl_loop_set_settle(struct ctrl_loop *l, ctrl_settle_fn fn, void *ctx);
 
 // Bring the mailbox up in the contract's order: check the contract, write the
 // filter's entity_id and each interface's own unicast MAC (own_mac[i], 48

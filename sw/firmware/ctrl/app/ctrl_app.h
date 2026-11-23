@@ -100,6 +100,9 @@ struct ctrl_app {
 	// interface's record (srp_interface.noticed), and the AECP bridge notifies each and clears it (ctrl_app_aecp.c).
 	uint32_t srp_noticed;
 	bool adp_held;                          // ctrl_app_open_held(): ADP waits for ctrl_app_release_adp()
+	// ACMP's completion of the sinks SRP's Talker registrations changed, owed by a pass whose drain took a record to
+	// the next ordinary pass's THE SETTLE (ctrl_loop.h; CTRL_LOOP_SETTLE_ALONE, ctrl_app_srp.c, #977).
+	bool srp_settle_owed;
 };
 
 struct ctrl_app_config {

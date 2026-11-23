@@ -449,6 +449,25 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
     }
     EXPECT_TRUE(domain); EXPECT_TRUE(talker); EXPECT_TRUE(vlan);
 }
+// THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
+// registration's stated cost for each Talker value its length can carry that can register, CTRL_SRP_SINKS a vector
+// of 28 octets at least past the 19 of the Ethernet header, the ProtocolVersion and a Message's header, read with
+// the record left in the ring.
+TEST_F(Srp, TheDrainChargesARecordTheTalkersItsLengthCanCarry) {
+    settle();
+    ASSERT_TRUE(loop.drain_charge != nullptr);
+    const unsigned talkers = CTRL_LOOP_SRP_REG_US * CTRL_SRP_SINKS;
+    for (const auto &[len, vectors] : {std::pair{74u, 1u}, std::pair{75u, 2u}, std::pair{1514u, 53u}}) {
+        std::vector<uint8_t> record(len); wire_put_be(record.data(),0x0180c200000eull,6);
+        wire_put_be(record.data()+6,0x020304059900ull,6); wire_put_be(record.data()+12,0x22ea,2);
+        ASSERT_TRUE(mbx_model_rx(&model,record.data(),record.size(),0));
+        EXPECT_EQ(loop.drain_charge(&adapter),CTRL_LOOP_SRP_UNIT_US+talkers*vectors) << "a record of " << len << " octets";
+        EXPECT_EQ(loop.drain_charge(&adapter),CTRL_LOOP_SRP_UNIT_US+talkers*vectors) << "the record left in the ring";
+        settle();
+    }
+    srp_mbx_destroy(&adapter);
+    EXPECT_TRUE(loop.drain_charge == nullptr) << "destroy unbinds the charge";
+}
 TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     mbx_model_tx_pause(&model,true);
     std::vector<uint8_t> filler(60); wire_put_be(filler.data(),0x0180c200000eull,6);

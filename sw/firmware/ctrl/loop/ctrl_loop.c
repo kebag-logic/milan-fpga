@@ -86,6 +86,16 @@ bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_
 	return true;
 }
 
+bool ctrl_loop_set_settle(struct ctrl_loop *l, ctrl_settle_fn fn, void *ctx)
+{
+	if (l->settle != NULL || fn == NULL) {
+		return false;
+	}
+	l->settle = fn;
+	l->settle_ctx = ctx;
+	return true;
+}
+
 bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_transmit_aged_fn aged, void *ctx)
 {
 	if (l->transmit != NULL || fn == NULL || aged == NULL) {
@@ -166,17 +176,35 @@ static unsigned service_events(struct ctrl_loop *l)
 // passed `stop`: tier 1's first channel to CTRL_LOOP_DRAIN_RECORDS while the pass has spent at most CTRL_LOOP_DRAIN_US,
 // THE DRAIN's channel while its slice holds a record (THE TIERS); with no clock bound, the cap. Its bit of rx_left says
 // whether the take ended on a limit, records left, or on an empty ring or a module not ready, none it would take.
-static unsigned service_rx(struct ctrl_loop *l, unsigned ch, unsigned most, uint32_t stop)
+// THE DRAIN's `stop` leaves the unit: a record past the unit's charge (drain_charge) waits for a slice that holds it,
+// unless it is alone, the first record of a slice `alone` admits (#977).
+static unsigned service_rx(struct ctrl_loop *l, unsigned ch, unsigned most, uint32_t stop, bool alone)
 {
 	unsigned n = 0;
+	const bool charged = ch + 1u == l->drain_ch && l->drain_charge != NULL;
 	l->rx_left |= 1u << ch;
 	for (unsigned k = 0; k < most; ++k) {
-		if (k >= l->rx_cap && (l->clock == NULL || l->rx_held || (int32_t)(stop - l->clock(l->clock_ctx)) < 0)) {
-			break;
+		uint32_t now = 0u;
+		if (k >= l->rx_cap) {
+			if (l->clock == NULL || l->rx_held) {
+				break;
+			}
+			now = l->clock(l->clock_ctx);
+			if ((int32_t)(stop - now) < 0) {
+				break;
+			}
 		}
 		if (l->rx[ch].ready != NULL && !l->rx[ch].ready(l->rx[ch].ctx)) {
 			l->rx_left &= ~(1u << ch);
 			break;
+		}
+		// every record's charge is read, and the record waits, its bit kept, while the slice holds less than it at the
+		// clock's read above and it is not alone in it
+		if (charged && k >= l->rx_cap) {
+			const unsigned charge = l->drain_charge(l->rx[ch].ctx);
+			if (!(alone && n == 0u) && (int32_t)(stop + CTRL_LOOP_SRP_UNIT_US - charge - now) < 0) {
+				break;
+			}
 		}
 		enum mbx_status st = mbx_rx_take(ch, &l->frame);
 		if (st == MBX_STATUS_EMPTY) {
@@ -285,14 +313,18 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 			return 1u;
 		}
 	}
+	// THE SETTLE: the record a pass before took, its deferred work first (#977)
+	const bool settled = l->settle != NULL && l->settle(l->settle_ctx);
 	const uint32_t ticks = l->stats.ticks;
+	const uint32_t taken = l->stats.rx_records;
 	unsigned work = service_events(l);
 	l->backlog = false;
 	// THE TIERS, tier 1: its first channel's records (AECP's), past CTRL_LOOP_RX_PER_PASS to CTRL_LOOP_DRAIN_RECORDS
 	// while the pass has spent at most CTRL_LOOP_DRAIN_US
 	const uint32_t start = deadline - CTRL_LOOP_SHARE_US;
 	l->rx_left = 0u;
-	work += l->first_ch != 0u ? service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US) : 0u;
+	work += l->first_ch != 0u ? service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US,
+					      false) : 0u;
 	// Then, once the first channel's take left no record it would take, every other tier-1 channel's: each its due, then
 	// what the pass has left, a record of each channel in turn: passes given whole may stand between two, and a pass that
 	// takes few records would leave them waiting on the next. Each pass starts one channel on, so the channel the pass's
@@ -301,7 +333,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		sweep = 0u;
 		for (unsigned k = 0, ch = l->rx_from; k < MBX_N_CH; ++k, ch = ch + 1u < MBX_N_CH ? ch + 1u : 0u) {
 			if (l->rx[ch].fn != NULL && ch + 1u != l->drain_ch && ch + 1u != l->first_ch) {
-				sweep += service_rx(l, ch, most, start + CTRL_LOOP_DRAIN_US);
+				sweep += service_rx(l, ch, most, start + CTRL_LOOP_DRAIN_US, false);
 			}
 		}
 		work += sweep;
@@ -316,10 +348,14 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	// no clock bound, its cap. What each tier left decides the pass given whole that may follow: a record posted after
 	// its channel's take found the ring empty waits for that one slice
 	l->tier1_done = l->rx_left == 0u;
+	l->drain_taken = 0u;
 	if (l->drain_ch != 0u && l->tier1_done) {
 		l->rx_cap = l->clock != NULL ? 0u : l->rx_cap;
-		work += service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,
-				   start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US);
+		// a record is alone in a slice no settle, tier-1 record or centisecond came before (#977)
+		const bool alone = !settled && l->stats.rx_records == taken && l->stats.ticks == ticks;
+		l->drain_taken = service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,
+					    start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US, alone);
+		work += l->drain_taken;
 	}
 	l->drained = l->tier1_done && l->rx_left == 0u;
 	bool owed = l->ticks_owed != 0u;

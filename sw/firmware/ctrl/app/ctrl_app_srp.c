@@ -47,6 +47,49 @@ static void request(void *ctx, unsigned sink, const struct acmp_stream *stream)
     app->acmp_owner->srp(app->acmp_owner->ctx,sink,stream);
 }
 
+// ACMP's completion of SRP's registrations at a binding delivered (srp_requests), from the kind it holds now: a kind
+// registered the sink awaits or a changed kind, then a loss the binding latched (srp_mbx.c, capture).
+static void complete(struct ctrl_app *app, unsigned sink, struct srp_sink *s)
+{
+    uint8_t registered = s->feedback_kind;
+    enum acmp_sink_state state = app->acmp.acmp.sinks[sink].state;
+    if (registered && state == ACMP_SETTLED_NO_RSV) {
+        acmp_tk_registered(&app->acmp.acmp,sink,registered == 1u);
+    } else if (registered &&
+               app->acmp.acmp.sinks[sink].tk_failed != (registered == 1u)) {
+        // Accepted intent is settled; every settled exit requests stop.
+        // Thus a registered sink outside NO_RSV is already RSV_OK.
+        acmp_tk_kind_changed(&app->acmp.acmp,sink,registered == 1u);
+    }
+    if (s->withdrawn) {
+        // The retained kind has been delivered above, before its loss.
+        s->withdrawn = false;
+        acmp_tk_unregistered(&app->acmp.acmp,sink);
+    }
+}
+
+// THE SETTLE's client (ctrl_loop.h): the completion a record's pass owed, as the next ordinary pass starts, at every
+// binding delivered and from its latest kind; true when one was owed. Only an ordinary pass's polls owe it, after
+// this delivery's bindings, and none runs between them and this call, so it completes what that delivery would have.
+static bool settle(void *ctx)
+{
+    struct ctrl_app *app = ctx;
+    if (!app->srp_settle_owed) {
+        return false;
+    }
+    app->srp_settle_owed = false;
+    if (app->srp->loop != &app->loop) {
+        return true;
+    }
+    for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
+        const struct ctrl_app_srp_request *r = &app->srp_requests[sink];
+        if (!r->parked && !r->pending && r->bound) {
+            complete(app,sink,&app->srp->ifs[app->acmp.acmp.cfg.sink_interface[sink]].sinks[sink]);
+        }
+    }
+    return true;
+}
+
 static bool deliver(void *ctx)
 {
     struct ctrl_app *app = ctx;
@@ -79,6 +122,12 @@ static bool deliver(void *ctx)
         (void)srp_mbx_gate(app->srp,interface,app->maap.published_gate[interface],app->maap.ifs[interface].core.base);
     }
     bool pending = noticed;
+    // A pass whose drain took a record carries the record alone where CTRL_LOOP_SETTLE_ALONE is set: ACMP's completion
+    // is owed to THE SETTLE, the next ordinary pass's first work, and the loop passes on to it (#977, its ruling of
+    // 2026-11-23, item 3)
+    const bool settles = CTRL_LOOP_SETTLE_ALONE && app->loop.drain_taken != 0u;
+    app->srp_settle_owed = app->srp_settle_owed || settles;
+    pending = pending || settles;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
         unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
@@ -105,22 +154,8 @@ static bool deliver(void *ctx)
         }
         // SRP retained this event prefix before returning from its poll. Never
         // feed an old binding's registration to a replacement awaiting delivery.
-        if (!r->pending && r->bound) {
-            uint8_t registered = s->feedback_kind;
-            enum acmp_sink_state state = app->acmp.acmp.sinks[sink].state;
-            if (registered && state == ACMP_SETTLED_NO_RSV) {
-                acmp_tk_registered(&app->acmp.acmp,sink,registered == 1u);
-            } else if (registered &&
-                       app->acmp.acmp.sinks[sink].tk_failed != (registered == 1u)) {
-                // Accepted intent is settled; every settled exit requests stop.
-                // Thus a registered sink outside NO_RSV is already RSV_OK.
-                acmp_tk_kind_changed(&app->acmp.acmp,sink,registered == 1u);
-            }
-            if (s->withdrawn) {
-                // The retained kind has been delivered above, before its loss.
-                s->withdrawn = false;
-                acmp_tk_unregistered(&app->acmp.acmp,sink);
-            }
+        if (!r->pending && r->bound && !settles) {
+            complete(app,sink,s);
         }
         pending = r->pending || pending;
     }
@@ -150,6 +185,9 @@ bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp)
         app->acmp_delivery = (struct acmp_env){app,locked,source,request,persist,changed};
         app->acmp.acmp.env = &app->acmp_delivery;
         (void)ctrl_loop_add_poll(&app->loop,deliver,app);
+        // bound at every shape; only where CTRL_LOOP_SETTLE_ALONE is set does a delivery owe it work
+        app->srp_settle_owed = false;
+        (void)ctrl_loop_set_settle(&app->loop,settle,app);
     }
     mbx_irq_enable(mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH) |
                    mbx_place(1u,MBX_IRQ_ENABLE_EVT_LSB,MBX_IRQ_ENABLE_EVT_WIDTH));

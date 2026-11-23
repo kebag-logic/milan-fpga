@@ -251,6 +251,8 @@ static void release_held(struct srp_mbx *m, struct srp_held *h)
     *h = m->held[--m->held_count];
 }
 
+_Static_assert(CTRL_SRP_SINKS <= 32u, "an interface's touched sinks hold a bit for each sink");
+
 // Indications copy registration changes only. The filter below closes the
 // preceding complete wire event, after both halves of an atomic replacement.
 static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv *v,
@@ -259,7 +261,11 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
     i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         struct srp_sink *s = &i->sinks[k];
-        if (s->bound && same(s->stream_id.bytes,v->stream_id.bytes,8)) {
+        // the last byte first, as sources_of: one talker's StreamIDs differ in their unique ID (#977)
+        if (s->bound && s->stream_id.bytes[7] == v->stream_id.bytes[7] &&
+            same(s->stream_id.bytes,v->stream_id.bytes,8)) {
+            // what listener_kind reads of this sink changed: the receive filter takes it again (#977)
+            i->touched |= 1u << k;
             s->registered_kinds &= (uint8_t)~kind;
             // every binding of the StreamID holds its latest registration, whatever its destination and VID, so a
             // binding made later can take it from any of them (#925, srp_mbx_bind)
@@ -437,9 +443,15 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     // Only a Talker's indication changes what listener_kind reads, and it marks the interface stale (talker_changed),
     // which only the walk clears. apply_receive's snapshot leaves every sink at listener_kind with its capture made, so
     // while the interface is not stale the previous event changed no sink and this pass would change nothing: it runs
-    // from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3).
-    const unsigned sinks = i->stale ? CTRL_SRP_SINKS : 0u;
-    for (unsigned k = 0; k < sinks; ++k) {
+    // from the first Talker indication of the receive (#665's ruling of 2026-11-20, item 3), for the sinks an
+    // indication touched since it last ran (talker_changed): listener_kind reads nothing else a receive changes, and
+    // capture of a sink whose declaration did not change repeats what it did, so it leaves every other sink (#977).
+    const uint32_t touched = i->touched;
+    i->touched = 0u;
+    for (unsigned k = 0; (touched >> k) != 0u; ++k) {
+        if ((touched >> k & 1u) == 0u) {
+            continue;
+        }
         struct srp_sink *s = &i->sinks[k];
         uint8_t previous = s->desired;
         s->desired = listener_kind(s);
@@ -458,7 +470,9 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
         return sources_of(i,value) != 0u;
     } else {
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {
+            const uint8_t *id = value;
+            if (i->sinks[n].bound && i->sinks[n].stream_id.bytes[7] == id[7] &&
+                same(i->sinks[n].stream_id.bytes,id,8)) {
                 return true;
             }
         }
@@ -649,6 +663,7 @@ void srp_mbx_destroy(struct srp_mbx *m)
             l->transmit_aged = NULL;
             l->transmit_ctx = NULL;
         }
+        l->drain_charge = NULL;
         m->loop = NULL;
     }
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
@@ -823,10 +838,30 @@ bool srp_mbx_gate(struct srp_mbx *m, unsigned interface, uint32_t valid, uint64_
 }
 
 // Older output, and the events posted before the record: THE DRAIN's order (ctrl_loop.h) keeps the ring's
-// position against the events a pass took, so an event posted after a record holds it back no more.
+// position against the events a pass took, so an event posted after a record holds it back no more. And a build whose
+// declarations were made in a slice of their own (transmit, CTRL_LOOP_DECLARE_ALONE): no record comes between them and
+// their MRPDU, as none comes between them in one pass given whole (#977).
 static bool rx_order_ready(struct srp_mbx *m)
 {
-    return m->owed_len == 0 && m->loop->ticks_owed == 0;
+    return m->owed_len == 0 && m->loop->ticks_owed == 0 && !m->declared_alone;
+}
+
+// THE DRAIN's charge of the record at the head of SRP's ring (ctrl_loop.h, THE TIERS; #977, its ruling of 2026-11-23,
+// item 4): the unit, and a Talker registration's stated cost for each Talker value it can carry that can register, a
+// bound read from its length before it is parsed and never under that count. The receive filter takes a Talker value
+// only for a bound sink's StreamID (interested_msrp) and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018
+// 35.2.2.8.4, an overflowing increment refused), so a vector registers at most CTRL_SRP_SINKS; a vector that holds a
+// Talker value takes SRP_TALKER_VECTOR_MIN octets at least, after SRP_RECORD_HEAD: a record of len octets holds
+// (len - SRP_RECORD_HEAD) / SRP_TALKER_VECTOR_MIN such vectors at most. A shape whose registration cost is 0 charges
+// the unit.
+#define SRP_RECORD_HEAD (14u + 1u + 4u) // the Ethernet header, the ProtocolVersion, one Message's header (10.8.1.2)
+#define SRP_TALKER_VECTOR_MIN (2u + 25u + 1u) // a VectorHeader, a Talker Advertise's FirstValue, one ThreeEvents
+static unsigned rx_charge(void *ctx)
+{
+    (void)ctx;
+    const unsigned len = mbx_rx_next_len(MBX_CH_SRP);
+    const unsigned vectors = len > SRP_RECORD_HEAD ? (len - SRP_RECORD_HEAD) / SRP_TALKER_VECTOR_MIN : 0u;
+    return CTRL_LOOP_SRP_UNIT_US + CTRL_LOOP_SRP_REG_US * CTRL_SRP_SINKS * vectors;
 }
 
 static bool rx_ready(void *ctx)
@@ -1006,7 +1041,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
         const struct msrp_talker_adv *v = status->attr_val;
         for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
             struct srp_sink *sink = &i->sinks[n];
-            if (sink->bound && same(sink->stream_id.bytes,v->stream_id.bytes,8)) {
+            if (sink->bound && sink->stream_id.bytes[7] == v->stream_id.bytes[7] &&
+                same(sink->stream_id.bytes,v->stream_id.bytes,8)) {
                 // the StreamID's, whatever their destination and VID: a final unbinding with both holds the latest
                 // (#925, srp_mbx_bind)
                 sink->stream_kinds |= status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u;
@@ -1046,6 +1082,7 @@ static void snapshot(struct srp_interface *i)
         return;
     }
     i->stale = false;
+    i->touched = 0u; // the walk below takes every sink again
     ++i->owner->walks;
     memset(i->registered,0,sizeof(i->registered));
     memset(i->listener_present,0,sizeof(i->listener_present));
@@ -1107,6 +1144,7 @@ static bool prepare_declarations(struct srp_interface *i)
                 ++m->refused; owed = true;
                 continue;
             }
+            ++m->declarations;
             s->vlan_requested = true;
             s->vlan_sent = i->vlan_sent && s->vid == i->domain.vid;
             for (unsigned other = 0; other < CTRL_SRP_SINKS; ++other) {
@@ -1144,6 +1182,7 @@ static bool prepare_declarations(struct srp_interface *i)
         int result = desired == s->declared ? 0 : desired ? msrp_declare_listener(i->msrp,0,&s->stream_id,desired) :
                                msrp_withdraw_listener(i->msrp,0,&s->stream_id);
         if (result == 0) {
+            m->declarations += desired != s->declared;
             for (unsigned other = k; other < CTRL_SRP_SINKS; ++other) {
                 struct srp_sink *r = &i->sinks[other];
                 if (r->bound && memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
@@ -1190,6 +1229,9 @@ static void reset_interface(struct srp_interface *i)
     m->join_left[2u * i->index] = 0u;
     m->join_left[2u * i->index + 1u] = 0u;
     m->tx_due &= (uint8_t)~(1u << i->index);
+    // a build owed after declarations of their own ends with the participants that made them: the new ones declare
+    // again, and records are taken again (#977, transmit)
+    m->declared_alone = false;
     // a build resuming at one of its participants ends with them: the new ones build whole (THE TIERS)
     m->tx_resume = (m->tx_resume - 1u) / 2u == i->index ? 0u : m->tx_resume;
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
@@ -1413,9 +1455,20 @@ static void transmit(void *ctx, unsigned most)
     }
     const unsigned resume = m->tx_resume;
     const unsigned first = resume != 0u ? (resume - 1u) / 2u : (m->tx_due & 1u) != 0u ? 0u : 1u;
+    const bool declared_alone = m->declared_alone;
+    m->declared_alone = false;
+    m->declarations = 0u;
     for (unsigned k = resume != 0u ? MBX_N_IF : 0u; k <= MBX_N_IF; ++k) {
         const unsigned n = k < MBX_N_IF ? k : first;
         struct srp_interface *i = &m->ifs[n];
+        // Where the slice holds a build and no more (CTRL_LOOP_DECLARE_ALONE), declarations that re-declared a Listener
+        // or joined a VLAN took this slice: the MRPDU is built in the next pass given whole, the interface still due,
+        // and no record is taken between (rx_order_ready). Once a call: the next builds whatever it declares (#977, its
+        // ruling of 2026-11-23, item 3).
+        if (k == MBX_N_IF && CTRL_LOOP_DECLARE_ALONE && !declared_alone && m->declarations != 0u) {
+            m->declared_alone = true;
+            break;
+        }
         if (k == MBX_N_IF) {
             m->tx_resume = 0u;
             unsigned built = 0u;
@@ -1475,6 +1528,7 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
         (void)ctrl_loop_set_transmit(loop,transmit,transmit_aged,m);
         ctrl_loop_set_rx_ready(loop,MBX_CH_SRP,rx_ready);
         loop->drain_ch = MBX_CH_SRP + 1u;
+        loop->drain_charge = rx_charge;
     }
     m->busy = false;
     return ok;

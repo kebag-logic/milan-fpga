@@ -187,6 +187,10 @@ uint16_t mbx_rx_mark(unsigned ch);
 bool mbx_rx_before(unsigned ch, uint16_t mark);
 // A record not yet taken stands before mark.
 bool mbx_rx_waiting(unsigned ch, uint16_t mark);
+// The frame length channel ch's next RX record's header word states, the record left in the ring (#977: THE DRAIN's
+// charge, ctrl_loop.h). Read only while a record waits (mbx_rx_waiting). A header that is no record may state more
+// than MBX_FRAME_BYTES_MAX, which only charges more: mbx_rx_take refuses it.
+uint16_t mbx_rx_next_len(unsigned ch);
 
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the

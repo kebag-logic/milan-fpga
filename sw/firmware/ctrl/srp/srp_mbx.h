@@ -71,6 +71,9 @@ struct srp_interface {
     // Registrar change owes none, each such change of what the walk copies
     // coming with an indication (#930).
     bool stale;
+    // The sinks, bit k sink k, whose registered kinds a Talker's indication changed since the receive filter last
+    // took them (srp_mbx.c, talker_changed and interested_msrp; #977).
+    uint32_t touched;
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665). It is set where one may arise: an attribute's change
     // into a state mrp_reclaim frees, or one a receive created and left in the
@@ -176,6 +179,10 @@ struct srp_mbx {
     uint16_t held_cs[CTRL_SRP_SOURCES];
     // The StreamIDs held, the first held_count of held (#925, srp_held).
     uint8_t held_count;
+    // THE TRANSMIT's declarations a call made that re-declared a Listener or joined a VLAN, and whether the last call
+    // ended on them, its build owed to the next (srp_mbx.c, transmit; CTRL_LOOP_DECLARE_ALONE, #977).
+    uint8_t declarations;
+    bool declared_alone;
     // The two frame buffers last, so every other field sits within a load's
     // reach of the adapter's address (#665: the retry's code fits the ledger).
     // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
