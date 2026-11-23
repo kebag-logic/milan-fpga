@@ -73,8 +73,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/doc/integrator.md#L327-L329)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
 Such a change is a Talker's indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
@@ -591,7 +591,7 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is public `main` at `08ee86e8`.
+The lwSRP pin is public `main` at `d1bb4f4e`, which merges PR #21: an Applicant takes one event at its own LeaveAll (lwSRP #20).
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.
