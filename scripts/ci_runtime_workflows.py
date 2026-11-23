@@ -122,6 +122,19 @@ def instrument(path: str, job_id: str, job: dict) -> None:
     ])
 
 
+def literal_json(value: object) -> str:
+    """JSON text that the runner's expression evaluation delivers unchanged.
+
+    The runner evaluates every ``${{ }}`` in an env value, YAML quotes included. The watcher has no
+    matrix, so the expressions in a skipped matrix's raw name would become empty strings there.
+    JSON's own escape for ``$`` keeps that text away from the evaluator and decodes back to the
+    exact raw name, so the consumer reads it with a plain ``json.loads``."""
+    text = json.dumps(value, separators=(",", ":")).replace("${{", "\\u0024{{")
+    if "${{" in text or json.loads(text) != value:
+        raise ValueError("watcher JSON does not survive expression evaluation unchanged")
+    return text
+
+
 def watcher(labels: list[str], skipped: dict) -> dict:
     """Only this guarded job requests write permission; fork events cannot enter it."""
     return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
@@ -131,8 +144,8 @@ def watcher(labels: list[str], skipped: dict) -> dict:
             "steps": [{"uses": "actions/checkout@v4"},
                       {"name": "Observe the first failed job", "id": "ci_observe",
                        "env": {"GH_TOKEN": "${{ github.token }}",
-                               "EXPECTED_JOBS": json.dumps(labels, separators=(",", ":")),
-                               "SKIPPED_MATRICES": json.dumps(skipped, separators=(",", ":"))},
+                               "EXPECTED_JOBS": literal_json(labels),
+                               "SKIPPED_MATRICES": literal_json(skipped)},
                        "run": "python3 scripts/ci_fail_fast.py watch\n"},
                       {"name": "Cancel this run and sibling workflows",
                        "if": "${{ failure() && steps.ci_observe.outputs.observer_error != 'true' }}",
@@ -188,6 +201,8 @@ def generate(name: str, source: dict) -> dict:
     source["jobs"]["ci-manifest"] = collector(name, list(source["jobs"]))
     _, labels = expand_workflow(path, yaml.safe_dump(source))
     skipped = skipped_matrices(source)
+    if set(skipped) & set(labels.values()):
+        raise ValueError(path + ": an unexpanded matrix name equals an expanded job name")
     source["jobs"]["ci-fail-fast"] = watcher(list(labels.values()), skipped)
     for job_id, job in source["jobs"].items():
         if job_id != "ci-manifest":

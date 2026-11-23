@@ -3,18 +3,20 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Prove first-failure selection, successful completion and fork write refusal."""
 
+from contextlib import redirect_stdout
 import copy
 import io
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
 from ci_fail_fast import API, cancel, observe, same_repository, watch, tail_failed, retry_delay
 from ci_gate_workflows import ROOT, generate, load_template
-from ci_workflow_plan import expand_workflow
+from ci_workflow_plan import expand_workflow, skipped_matrices
 import yaml
 
 
@@ -99,6 +101,102 @@ def graph_controls() -> None:
         print(name + ": generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS")
 
 
+#: One workflow expression wherever it appears in a value: the runner does not honour YAML quoting.
+EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.S)
+
+
+def evaluate_without_matrix(text: str) -> str:
+    """Evaluate an env value as the runner does in a job that has no matrix.
+
+    A ``matrix`` property is absent there and evaluates to an empty string. Any other expression is
+    refused: the watcher's job lists are generated as literals, so one there is itself a defect."""
+    def value(match: re.Match) -> str:
+        """An absent matrix property is empty; nothing else is evaluable in a literal."""
+        expression = match.group(1).strip()
+        if re.fullmatch(r"matrix\.[A-Za-z_][A-Za-z0-9_-]*", expression):
+            return ""
+        raise AssertionError("expression in a literal watcher value: " + expression)
+    return EXPRESSION.sub(value, text)
+
+
+class ReadsAPI:
+    """Serve one job list per read; the last list repeats if the watcher reads again."""
+
+    def __init__(self, reads: list[list[dict]]) -> None:
+        self.reads = reads
+        self.calls = 0
+
+    def pages(self, path: str, field: str) -> list[dict]:
+        """Every read is the current attempt's job list for the run under observation."""
+        assert path.startswith("runs/1/jobs") and field == "jobs"
+        self.calls += 1
+        return copy.deepcopy(self.reads[min(self.calls, len(self.reads)) - 1])
+
+
+def watcher_runtime_control(workflow: dict) -> None:
+    """Watch a raw skipped matrix with the job lists the runner actually delivers to the watcher.
+
+    The first read has every matrix skipped unexpanded and one job still running; the second has that
+    job failed. The watcher must wait through the first, report the second and leave cancellation
+    authority intact. Each failure names what the watcher did, so a plant can show which one fired."""
+    watcher = workflow["jobs"]["ci-fail-fast"]
+    if "strategy" in watcher:
+        raise AssertionError("the watcher gained a matrix; evaluate_without_matrix no longer models it")
+    observer = next(step for step in watcher["steps"] if step.get("id") == "ci_observe")
+    expected = set(json.loads(evaluate_without_matrix(observer["env"]["EXPECTED_JOBS"])))
+    skipped = json.loads(evaluate_without_matrix(observer["env"]["SKIPPED_MATRICES"]))
+    declared = skipped_matrices(workflow)
+    covered = {label for rows in declared.values() for label in rows}
+    waiting = sorted(expected - covered)
+    raw = [{"name": name, "status": "completed", "conclusion": "skipped", "steps": []} for name in declared]
+    first = raw + [{"name": label, "status": "in_progress", "conclusion": None} if index == 0 else
+                   {"name": label, "status": "completed", "conclusion": "success"}
+                   for index, label in enumerate(waiting)]
+    second = copy.deepcopy(first)
+    second[len(raw)].update(status="completed", conclusion="failure")
+    with tempfile.TemporaryDirectory(prefix="watcher-runtime-control-") as directory:
+        output = Path(directory) / "output"
+        api = ReadsAPI([first, second])
+        with patch("ci_fail_fast.time.sleep") as sleep, patch.dict(os.environ, {"GITHUB_OUTPUT": str(output)}), \
+                redirect_stdout(io.StringIO()) as printed:
+            rc = watch(api, 1, expected, skipped)
+        if output.exists() and "observer_error=true" in output.read_text():
+            raise AssertionError(f"watcher stopped observing: observer_error after {api.calls} read(s), rc={rc}")
+        if (rc, api.calls, sleep.call_count) != (1, 2, 1):
+            raise AssertionError(f"watcher missed the later failure: rc={rc}, reads={api.calls}")
+    reported = json.loads(printed.getvalue())
+    assert reported == {"first_failure": waiting[0], "conclusion": "failure"}
+    if skipped != declared:
+        raise AssertionError("delivered skipped-matrix names differ from the raw names: " + str(sorted(skipped)))
+    assert not set(skipped) & expected
+    complete = raw + [{"name": label, "status": "completed", "conclusion": "success"} for label in waiting]
+    assert observe(complete, expected, skipped) == (True, None)
+    assert observe(first, expected, skipped) == (False, None)
+    cancellation_control()
+
+
+def watcher_runtime_controls() -> None:
+    """Run the control on each committed workflow, then on the round-one form of its skipped matrices."""
+    for name in ("docs", "elaborate", "rtl", "rtl-fast"):
+        path = ROOT / ".github" / "workflows" / (name + ".yml")
+        workflow = yaml.safe_load(path.read_text())
+        watcher_runtime_control(workflow)
+        observer = next(step for step in workflow["jobs"]["ci-fail-fast"]["steps"] if step.get("id") == "ci_observe")
+        unescaped = json.dumps(skipped_matrices(workflow), separators=(",", ":"))
+        if "${{" not in unescaped:
+            assert observer["env"]["SKIPPED_MATRICES"] == unescaped == "{}"
+            print(name + ": watcher runtime control PASS; no matrix, no plant applies")
+            continue
+        observer["env"]["SKIPPED_MATRICES"] = unescaped
+        try:
+            watcher_runtime_control(workflow)
+        except AssertionError as caught:
+            assert str(caught).startswith("watcher stopped observing"), caught
+            print(name + ": watcher runtime control PASS; plant of the unescaped raw names caught: " + str(caught))
+        else:
+            raise AssertionError(name + ": unescaped raw matrix names were not caught")
+
+
 class FixtureAPI:
     """Record every requested write, without network or credentials."""
 
@@ -136,6 +234,13 @@ def main() -> int:
     """Exercise both production decision functions with adverse contexts."""
     observer_controls()
     graph_controls()
+    watcher_runtime_controls()
+    try:
+        observe([], {"same"}, {"same": ["same 0"]})
+    except ValueError as caught:
+        assert str(caught) == "an unexpanded matrix name equals an expanded job name"
+    else:
+        raise AssertionError("an unexpanded name equal to an expanded name was accepted")
     repo = "fixture/project"
     event = {"repository": {"full_name": repo},
              "pull_request": {"head": {"repo": {"full_name": repo}}}}

@@ -1728,8 +1728,9 @@ jobs:
           EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-boundary
             shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard 2/3","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","split-cdc","verilator-lint","yosys-elaboration","Prepare
             pinned Yosys"]'
-          SKIPPED_MATRICES: '{"firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}":["firmware-boundary
-            shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard 2/3"]}'
+          SKIPPED_MATRICES: '{"firmware-boundary shard \u0024{{ matrix.shard }}/\u0024{{ matrix.total
+            }}":["firmware-boundary shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard
+            2/3"]}'
         run: |
           python3 scripts/ci_fail_fast.py watch
       - name: Cancel this run and sibling workflows
