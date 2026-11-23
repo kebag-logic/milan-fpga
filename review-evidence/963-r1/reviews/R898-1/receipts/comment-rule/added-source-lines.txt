@@ -1,0 +1,133 @@
++#define MAP_IDLE_WORDS MAP_MOST((MAP_FIRSTS + 31u) / 32u, 1u)
++// The check a legal mapping of an output port reads its port for, after every
++// other of its own: its stream must not be running, observed briefly as a
++// running check (#943). Each stream is observed once an edit, at the first of
++// its mappings to reach the check (#963): one found running or unanswered
++// refuses the edit at that mapping, as before, and its table with it, so a
++// later mapping of a stream the table holds is only ever checked after the
++// stream was found idle in the same record, which nothing else runs beside. So
++// an edit observes each stream it maps once, not each mapping: a REMOVE or ADD
++// of 63 of 8x8/1if's output map made 63 observations, most of its pass, which
++// was over THE SHARE (Milan v1.2 5.4.2.27, 5.4.2.28: the condition is the
++// Stream Output's). The observation is aecp_stream_read's, which zeroes all
++// but brief, so it is zeroed once (#963: the record zeroed it twice, at every
++// mapping, an input port's too). A mapping that reaches the check has its key
++// in the domain (place), so its stream is below MAP_FIRSTS, and the word is
++// reduced to the table's so no index leaves it. The per-edit table is kept
++// separately from the map's slots, and the input mode is already known. This
++// keeps the edit's bookkeeping small without moving any budget (#963).
++static bool idle(struct aecp *a, uint32_t *observed, bool input, const struct aecp_mapping *r)
++{
++	if (input) {
++		return true;
++	}
++	uint32_t *word = &observed[r->stream / 32u % MAP_IDLE_WORDS];
++	const uint32_t bit = 1u << (r->stream % 32u);
++	if ((*word & bit) != 0u) {
++		return true;
++	}
++	*word |= bit;
++	struct aecp_stream_info info;
++	info.brief = true;
++	return aecp_stream_read(a, 6u, r->stream, &info) && !info.running;
++}
++
++	// the slots place() forms, MAP_DOMAIN of them, and the zero-initialized
++	// observation table (#963), here, and each mapping's link, marks and
++	// occurrences at its turn in the table, which no read reaches past.
++	uint32_t observed[MAP_IDLE_WORDS] = {0};
++	// Each mapping's checks stay in command order; idle reuses only a stream's
++	// successful observation from this edit (#963).
++		if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||
++restored maps' commit at AECP's open. And the output port's running check, which observes each stream an edit maps
++once, at the first of its mappings to reach the check (#963)."""
++STREAMS = 'Core.MapEditWorkObservesEachOutputStreamOnce'
++    # an edit's reads are its streams' (#963), which a map's pass left out leaves as they are in the first edit it
++    # breaks, so each is caught by that edit's map
++     (EDIT, "the edit's map is its definition's, row for row")),
++     (EDIT, "the edit's map is its definition's, row for row"),
++     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||',
++     'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, observed, e.input, &e.rows[n].r) ||',
++     (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
++    # #963: the running check observes each stream an edit maps once, at its first mapping to reach the check, from
++    # a zero-initialized table of streams; the stale-cache plant supplies a previous edit's set bits rather than
++    # reading indeterminate storage. One found running or unanswered refuses the edit at that mapping
++    ('map-stream-observed-every-mapping', 'aecp_maps.c',
++     '\t*word |= bit;\n',
++     '',
++     (STREAMS, 'an edit observes each stream it maps once, in its order'),
++     (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
++    ('map-stream-idle-uncleared', 'aecp_maps.c',
++     'uint32_t observed[MAP_IDLE_WORDS] = {0};',
++     'uint32_t observed[MAP_IDLE_WORDS] = {UINT32_MAX};',
++     (STREAMS, 'an edit observes each stream it maps once, in its order')),
++    ('map-stream-idle-one-bit', 'aecp_maps.c',
++     'const uint32_t bit = 1u << (r->stream % 32u);',
++     'const uint32_t bit = 1u;',
++     (STREAMS, 'a stream found running refuses the edit at its first mapping')),
++    ('map-stream-running-accepted', 'aecp_maps.c',
++     'return aecp_stream_read(a, 6u, r->stream, &info) && !info.running;',
++     'return aecp_stream_read(a, 6u, r->stream, &info);',
++     (STREAMS, 'a stream found running refuses the edit at its first mapping')),
++     '\tsize_t additions = 0;\n',
++     '\t\t(void)a->ports->edit(a->ports->ctx, !adding, type, index, in + 8, NULL, count);\n\t}\n'
++     '\tsize_t additions = 0;\n',
++    ('map-idle-reads-whole', 'aecp_maps.c', '\tinfo.brief = true;\n', '\tinfo.brief = false;\n',
++// output port when the port reports its stream running, read for the edit's first mapping of that stream to reach the
++// check (#963), or when another output port's map holds its stream channel; an ADD's when an earlier mapping or a row
++// of its port's map holds its key with another value; a REMOVE's when its port's map does not hold it. An ADD past the
++// map's room is NO_RESOURCES. Then each mapping in turn adds itself where its map does not hold it, or removes the
++// first row equal to it. Seeded edits of repeated and conflicting mappings against maps that hold repeated rows, rows
++// that conflict and keys spread over the command's table: each edit's status, its port's map row for row, its
++// CHANGE_MAP notice and the port's reads are the definition's.
++        std::vector<uint16_t> observed; // the streams the edit has read its port for (#963)
++                if(std::find(observed.begin(),observed.end(),r.stream)==observed.end()){
++                    observed.push_back(r.stream);
++                    ++o.reads;
++                }
++    // The fixture's legal mappings: stream 0 or 1, its channel, the port's cluster and its first channel. Stream 1 of
++    // each direction takes stream 0's format, so an edit's mappings span two streams and its reads are its streams'
++    // (#963).
++    for(unsigned type:{5u,6u})put(desc(type,1).value+74,get(desc(type).value+74,8),8);
++    auto legal=[&]{return aecp_mapping{uint16_t(next()%2),uint16_t(next()%4),uint16_t(next()%4),0};};
++            if(pick<12||(pick<15&&r.cluster_channel==0&&r.stream<2&&r.channel<4&&r.cluster<4))lawful.push_back(r);
++        EXPECT_EQ(reads,want.reads)<<"the edit reads its port once for each output stream its definition reaches";
++// #963: an edit of an output port's map observes each stream it maps once, at the first of its mappings to reach the
++// running check (aecp_maps.c, idle), and a stream found running, or whose observation goes unanswered, refuses the
++// edit at that mapping, as one observation a mapping did (#943). So an ADD and then a REMOVE of 63 mappings, the most
++// a legal-length command holds (IEEE 1722.1-2021 9.2.2.6), each one of three rows of two streams repeated, read the
++// port twice, a brief observation of each stream in its order, and change the map as their definition does (Milan
++// v1.2 5.4.2.27, 5.4.2.28). A stream found idle in one edit is observed again in the next. The stale-cache plant
++// supplies a previous edit's set bits, so a stream the edit did not clear is never observed there.
++TEST_F(Core, MapEditWorkObservesEachOutputStreamOnce)
++{
++    put(desc(6,1).value+74,get(desc(6).value+74,8),8); // STREAM_OUTPUT 1 an audio stream, as 0 is
++    std::vector<uint16_t> observed,running,silent;
++    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t type,uint16_t index,aecp_stream_info *v){
++        EXPECT_EQ(type,6u)<<"an output port's running check observes its STREAM_OUTPUT";
++        EXPECT_TRUE(v->brief)<<"a running check's observation is brief";
++        observed.push_back(index);*v={};v->brief=true;
++        v->running=std::find(running.begin(),running.end(),index)!=running.end();
++        return std::find(silent.begin(),silent.end(),index)==silent.end();});
++    const aecp_mapping zero{0,0,0,0},one{1,0,1,0},two{0,1,2,0};
++    std::vector<aecp_mapping> edit;
++    for(unsigned k=0;k<63;++k)edit.push_back(k%3==0?zero:k%3==1?one:two);
++    using Streams=std::vector<uint16_t>;
++    observed.clear();edit_map(44,15,edit,0);
++    EXPECT_EQ(observed,(Streams{0,1}))<<"an edit observes each stream it maps once, in its order";
++    EXPECT_TRUE(same_rows(maps[1],{zero,one,two}))<<"the ADD adds each distinct mapping once";
++    observed.clear();edit_map(45,15,edit,0);
++    EXPECT_EQ(observed,(Streams{0,1}))<<"an edit observes each stream it maps once, in its order";
++    EXPECT_EQ(maps[1].count,0u)<<"the REMOVE removes each row it holds";
++    running={1};observed.clear();edit_map(44,15,edit,7);
++    EXPECT_EQ(observed,(Streams{0,1}))<<"a stream found running is observed at its first mapping, and the edit ends";
++    EXPECT_EQ(maps[1].count,0u)<<"a stream found running refuses the edit at its first mapping";
++    running.clear();silent={1};observed.clear();edit_map(44,15,edit,7);
++    EXPECT_EQ(observed,(Streams{0,1}))<<"an unanswered stream is observed at its first mapping, and the edit ends";
++    EXPECT_EQ(maps[1].count,0u)<<"an unanswered observation refuses the edit at its first mapping";
++    silent.clear();observed.clear();edit_map(44,15,{zero},0);
++    running={0};observed.clear();edit_map(44,15,{two},7);
++    EXPECT_EQ(observed,(Streams{0}))<<"a stream found idle in one edit is observed again in the next";
++    EXPECT_TRUE(same_rows(maps[1],{zero}))<<"a stream found running in the next edit refuses it";
++}
++

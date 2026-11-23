@@ -1,0 +1,17 @@
+== sections (name kind addr size), base -> head
+.bss                     ('NOBITS', 268435904, 88288) -> ('NOBITS', 268435904, 88288)
+.data                    ('PROGBITS', 268435456, 448) -> ('PROGBITS', 268435456, 448)
+.riscv.attributes        ('RISCV_ATTRIBUTES', 0, 42) -> ('RISCV_ATTRIBUTES', 0, 42)
+.rodata                  ('PROGBITS', 104840, 24734) -> ('PROGBITS', 104840, 24734)
+.shstrtab                ('STRTAB', 0, 77) -> ('STRTAB', 0, 77)
+.stack                   ('NOBITS', 268524192, 8192) -> ('NOBITS', 268524192, 8192)
+.strtab                  ('STRTAB', 0, 7033) -> ('STRTAB', 0, 7033)
+.symtab                  ('SYMTAB', 0, 19024) -> ('SYMTAB', 0, 19024)
+.text                    ('PROGBITS', 0, 104840) -> ('PROGBITS', 0, 104840)
+NULL                     ('00000000', 0, 0) -> ('00000000', 0, 0)
+== symbols differing in presence, address or size: 0
+== aecp_map_command: base (49644, 2204) head (49644, 2204)
+== loaded section .data: 448 B, 0 bytes differ, 0 outside aecp_map_command
+== loaded section .rodata: 24734 B, 0 bytes differ, 0 outside aecp_map_command
+== loaded section .text: 104840 B, 1062 bytes differ, 0 outside aecp_map_command
+RESULT: IDENTICAL-OUTSIDE (sections same: True, symbols moved: 0, bytes differing outside: 0, bytes differing in total: 1062)
