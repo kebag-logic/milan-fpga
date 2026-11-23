@@ -1,0 +1,54 @@
+control: rc=0, failed checks=0
+
+bubbles: rc=1, failed checks=1
+  [FAIL] [FO4] the 2-channel input counts UNSUPPORTED_FORMAT: input 5 got=2 exp=1
+plant3: rc=1, failed checks=31
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0 got=93 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 0 got=33 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 0 got=0 exp=1
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 got=80 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 1 got=29 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 1 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 got=34 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 got=75 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 2 got=29 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 2 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 got=29 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 got=61 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 3 got=22 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 3 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 got=15 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 got=60 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 4 got=22 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 4 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 got=14 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 got=53 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 5 got=15 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 5 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 got=7 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 got=53 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 6 got=15 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 6 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 got=7 exp=47
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 got=53 exp=150
+  [FAIL] [FO15] the input's DEPKT tally counts each PDU delivered to it: input 7 got=15 exp=46
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 7 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 got=7 exp=47
+plant6: rc=1, failed checks=17
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1 got=148 exp=150
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 1 got=102 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2 got=148 exp=150
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 2 got=102 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 3 got=127 exp=150
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 3 got=81 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 4 got=127 exp=150
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 4 got=81 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 5 got=109 exp=150
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 5 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 5 got=63 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 6 got=109 exp=150
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 6 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 6 got=63 exp=104
+  [FAIL] [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 7 got=109 exp=150
+  [FAIL] [FO15] more drops than a pending DEPKT tally holds (63): the case is live: input 7 got=0 exp=1
+  [FAIL] [FO15] each input counts the same drops (one frame, one drop for each input that accepted it): input 7 got=63 exp=104

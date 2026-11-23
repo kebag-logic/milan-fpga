@@ -1,0 +1,16 @@
+Read-only PR #959 body excerpt observed during R878-3.
+https://github.com/kebag-logic/milan-fpga/pull/959
+
+- **[Linked Issue / roles](#linked-issue--roles)**: task and reviewers.
+the correction is committed locally on `pf-948-1` for the manager to push.
+Internal cleared-context reviewer: `[R877]`
+External reviewer: `[R878]`
+by a fixed three-cycle shift register, each stage carrying its beat's valid. Every legal frame from the Ethernet
+| F2 and residues | TESTING names FO12's actual lengths 81, 66, 99, 60, 93, 70, 63 (every remainder 1-7). Latency starts at the tap's eighth beat. FO12's comment points to FO14's short frames; the header/README paragraphs are reflowed. Reviewer names and shift-register wording are corrected here. |
+| 8x8/1if | ExtraPostPlacementOpt | +0.272 / +0.044 | +1.526 / +0.013 | 44,103 | 51,272 | 15,691 | 94 | 13 | -1,058 / +57 / -15 |
+- **8x8/1if: ExtraPostPlacementOpt**, Slow WNS/WHS +0.272/+0.044 ns; Fast +1.526/+0.013 ns. Both temperatures meet #818's floor. Against the train's archived ExtraPostPlacementOpt record (`8c5e2b4f`): LUTs +1,118, slices -7, FFs +279, BRAM -0.5 tile, DSPs +2.
+- 8x8 ExtraPostPlacementOpt meets #818 but misses the stricter both-+0.030 rule (minimum hold +0.013 ns). Its original signoff rc=1 is retained.
+Fast-corner hold +0.017 and +0.024 ns on the unchanged media-clock-restart path. Both met #818's hold floor,
+but missed the stricter both-+0.030 rule, as their retained signoff rc=1 records. Those are prior-head results.
+manager pushes it. The evidence packet records the exact input identities and route recipes.
+- The fixed three-cycle store lag is a contract with parser/monitor registering. A future violation could leave a

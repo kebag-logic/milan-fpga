@@ -1,0 +1,334 @@
+
+ARTIFACT author-r3/receipts/rtl/avtp_rxmon-suite-64117b77.log.gz
+KL_avtp_rx_monitor: 97 checks, 0 failures
+[R3] P3: RENDER-lowest-wins + render switch
+  [ ok ] lowest-indexed RENDER wins (sel=0)             = 0
+  [ ok ] wire_chans follows the RENDER stream           = 2
+NxN RX stack: 218 checks, 0 failures
+RESULT: PASS
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_TB=8 -Wall -Wextra   -x c++-header Vavtp_rxmon_lockstep_wrap__pch.h -o Vavtp_rxmon_lockstep_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_TB=8 -Wall -Wextra   -x c++-header Vavtp_rxmon_lockstep_wrap__pch.h -o Vavtp_rxmon_lockstep_wrap__pch.h.slow.gch
+== avtp_rxmon lockstep N=1: checks: 116   failures: 0 ==
+RESULT: PASS
+== avtp_rxmon lockstep N=8: checks: 119   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated context engine still passes the lockstep harness
+[PASS] mutant caught: lost increment: a pulse that lands on a queued dispatch drops out of the queue count - breaks "[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU"
+[PASS] mutant caught: torn read: the mirror takes a write's high half one cycle after its low half - breaks "[H2] GET_COUNTERS read identical to the reference in every cycle of the update window"
+[PASS] mutant caught: wrong stream index: the GET_COUNTERS read ignores the sink - breaks "[GC] every sink answers its own row and column (seeded signatures)"
+[PASS] mutant caught: missed reset: the bundle queue's count survives a reset - breaks "[H4] no bundle queued before a reset is served after it"
+[PASS] mutant caught (planted in the engine and the reference): silence: the watchdog's unlock is never marked an interruption (#762) - breaks "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): gap: a sequence gap of two lost PDUs no longer interrupts (#762) - breaks "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once"
+[PASS] mutant caught (planted in the engine and the reference): unbind: an unbind's unlock is counted as an interruption (#762) - breaks "[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): consume race: an unbind erases a silence already expired, before its walk counts it (#762) - breaks "boundary (an unbind, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped: a stopped input's silence is marked an interruption (#762) - breaks "[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): stop at the walk: the stopped state is read when the walk counts, not at the expiry (#762) - breaks "boundary (a STOP, idle): after the expiry the silence counts once, on or before it never"
+[PASS] mutant caught (planted in the engine and the reference): stopped gap: a stopped input's sequence gap is counted an interruption (#762) - breaks "[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED"
+[PASS] mutant caught (planted in the engine and the reference): sticky stop: a STOP disarms the gap until the next bind, START never re-arms it (#762) - breaks "[SI] after START a sequence gap counts STREAM_INTERRUPTED again"
+[PASS] mutant caught (planted in the engine and the reference): gap stop late: a gap's stopped state is read one cycle after its verdict (#762) - breaks "gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped"
+14 checks: 14 PASS, 0 FAIL
+[PASS] the unmutated context engine still passes the N=4 harness
+[PASS] mutant caught: family compare: the channel count is not compared (the reading #765 replaces) - breaks "[UF2a] a 2-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: low byte: only channels_per_frame[7:0] is compared - breaks "[UF3a] a 264-channel PDU against 8 channels has no accept verdict"
+[PASS] mutant caught: inverted: a matching channel count is rejected - breaks "[UF1a] a matching 8-channel PDU is accepted"
+    it broke 144 check(s): MEDIA_LOCKED 1 (event counter: immediate); locked level; FRAMES_RX 1 after the interval closes; last_ts captured; wire_chans follows the wire; SEQ_NUM_MISMATCH 1 (interval commit); STREAM_INTERRUPTED 1 (event, pre-tick); SEQ_NUM_MISMATCH 2 (second interval); TIMESTAMP_UNCERTAIN 1; UNSUPPORTED_FORMAT 1 for a 2-reject interval; no mismatch across bad-format PDUs; MEDIA_UNLOCKED 1; [G6-762] the silence counts STREAM_INTERRUPTED once; relock: MEDIA_LOCKED 2; [G6-762] the resume's sequence jump counts nothing more; unbind does NOT reset; LATE counted; EARLY counted; MEDIA_RESET counted; MEDIA_RESET counts the return toggle too; render payload 64 bytes; render tlast; render payload byte-exact; render selector = stream 0; accept idx = 0; s0 events landed (FRX +2 frames, coalesced); s1 LCTX FRX = 2 (2 PDUs, coalesced law); s1 LCTX MEDIA_LOCKED = 1; s1 LCTX TU = 1; s1 LCTX DEPKT pdus = 2 (NULL discards post-depkt); s1 w8 wire_chans = 8; NULL route: s1 LCTX FRX advanced; retired bit emitted no s1 render PDU; render tap PDU was s0; s1 DEPKT pdus accumulated (2 initial + 1 NULL + 1 retired); render tap follows s1; wire_chans follows the RENDER stream; new sid counts; [M13a] TV follows the [E1] frame; [M13c] tv=0 PDU -> TNV=1 (per-frame: immediate); [M13d] TV holds; [M13e] TV+TNV = accepted frames (3); [M13e2] FRAMES_RX equals the tallies (coalesced law); [IV0] settle-drain committed (FRX = 9 frames, coalesced); [IV1b] FRAMES_RX += the burst's 6 frames (coalesced); [IV2a] SI = 3 immediately (Table 5.6: 'each time'); [IV2c] SM +1 for 3 gaps in one interval; [IV2d] SI still 3 (no interval inflation); [IV3] TU +1 for 4 tu frames; [IV4a] UF +1 for 5 rejects; [IV5] TU +2 across two intervals; [IV6b] MEDIA_RESET +1 for 2 toggles in one interval; [IV6c] 6 HELD-mr frames tick nothing; [IV8b] LATE +1 for a 5-PDU burst; [IV8d] LATE +2 across two intervals; [IV8e] EARLY +1 for a 4-PDU burst; [IV8f] LATE untouched by EARLY PDUs; [IV8g] on-time PDUs move neither; [IV9b] MEDIA_LOCKED is immediate (per-event); [IV9c] synchronized => ML = MU+1; [IV9d] MEDIA_UNLOCKED is immediate (per-event); [IV9b] MEDIA_LOCKED is immediate (per-event); [IV9c] synchronized => ML = MU+1; [IV9d] MEDIA_UNLOCKED is immediate (per-event); [IV9b] MEDIA_LOCKED is immediate (per-event); [IV9c] synchronized => ML = MU+1; [IV9d] MEDIA_UNLOCKED is immediate (per-event); [IV7] no accept verdict missed across 40 drain phases; [DV1] s1's lock pulses bit 1 exactly once; [DV1b] s2's lock pulses bit 2 exactly once; [DV2] healthy traffic marks both descriptors including commits; [DV3] a tv=0 PDU pulses s2's bit at the accept; [DV4] TV update pulses before anomaly commit; [DV4b] the TU interval commit adds a pulse; [DV5] s0's lock event pulses bit 0; [DV5b] healthy s0 traffic and frame commit pulse; [UF1a] a matching 8-channel PDU is accepted; [UF1b] ...and its payload is emitted; [UF1c] ...and counts no UNSUPPORTED_FORMAT; [UF1d] ...and counts in FRAMES_RX; [UF2a] a 2-channel PDU against 8 channels has no accept verdict; [UF2b] ...and is discarded (no payload emitted); [UF2d] ...and not in FRAMES_RX; [UF2e] ...and leaves wire_chans at 8; [UF2f] the next matching PDU is accepted; [UF3a] a 264-channel PDU against 8 channels has no accept verdict; [UF3b] ...and is discarded; [UF4a] with a 2-channel current format, a 2-channel PDU is accepted; [UF4b] ...and emitted; [UF4c] ...and an 8-channel PDU is not; [UF4d] ...and is discarded; [UF4g] wire_chans follows the accepted PDU; [UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict; [UF5b] ...and is discarded; [UF5c] ...and counts UNSUPPORTED_FORMAT; [UF5d] stream 0 at a 2-channel fmt0_i accepts a 2-channel PDU; [SQ0] precondition: stream 3 is locked; [SQ1a] a 2-channel PDU mid-stream has no accept verdict; [SQ1b] ...and presents nothing (no payload emitted); [SQ1d] ...and it writes no timestamp word (LAST_TSD); [SQ1e] ...and wire_chans stays 8; [SQ2a] the next in-order PDUs are accepted; [SQ2b] UNSUPPORTED_FORMAT +1; [SQ2e] TIMESTAMP_UNCERTAIN unchanged; [SQ2f] LATE_TIMESTAMP unchanged; [SQ2j] FRAMES_RX counts the six accepted PDUs only; [SQ3a] the PDUs after the gap are accepted; [SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1; [SQ3e] ...and EARLY_TIMESTAMP unchanged; [SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged; [SQ4a] an off-format PDU first in an era has no accept verdict; [SQ4b] ...and presents nothing (no payload emitted); [SQ4c] ...and leaves the stream unlocked; [SQ4d] ...and counts no MEDIA_LOCKED; [SQ4e] the first in-order PDU after it is accepted; [SQ4i] ...UNSUPPORTED_FORMAT +1; [SQ4j] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged; [SQ4l] ...FRAMES_RX counts the accepted PDUs only; [SQ5-0] precondition: one PDU of the settle window is left; [SQ5a] an off-format PDU in the settle window has no accept verdict; [SQ5b] ...and presents nothing (no payload emitted); [SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: the off-format PDU did not restart the window; [SQ5e] every in-order and gap PDU is accepted; [SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing; [SQ5h] ...UNSUPPORTED_FORMAT +1; [SQ5i] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged; [SQ5k] ...FRAMES_RX counts the accepted PDUs only; [SQ6a] an off-format PDU before the mr seed has no accept verdict; [SQ6b] ...and presents nothing (no payload emitted); [SQ6c] ...and leaves the mr seed and reference clear; [SQ6d] the era's first accepted PDU, mr = 1, is accepted; [SQ6h] ...UNSUPPORTED_FORMAT +1; [SQ6i] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged; [SQ6k] ...FRAMES_RX counts the accepted PDUs only; [SQ7-0] precondition: the mr seed is set, its reference 0; [SQ7a] an off-format PDU after the mr seed has no accept verdict; [SQ7b] ...and presents nothing (no payload emitted); [SQ7c] ...and leaves the mr seed set, its reference 0; [SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject; [SQ7e] MEDIA_RESET +1 in all: a held mr counts nothing more; [SQ7f] every in-order PDU is accepted; [SQ7h] ...UNSUPPORTED_FORMAT +1; [SQ7i] ...TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged; [SQ7k] ...FRAMES_RX counts the accepted PDUs only
+[PASS] mutant caught: fixed count: the compare reads a constant, not the current format - breaks "[UF4a] with a 2-channel current format, a 2-channel PDU is accepted"
+    it broke 8 check(s): render tap follows s1; wire_chans follows the RENDER stream; [UF4a] with a 2-channel current format, a 2-channel PDU is accepted; [UF4b] ...and emitted; [UF4f] FRAMES_RX +1 for the accepted PDU; [UF4g] wire_chans follows the accepted PDU; [UF5d] stream 0 at a 2-channel fmt0_i accepts a 2-channel PDU; [UF5e] ...and counts no UNSUPPORTED_FORMAT
+[PASS] mutant caught: stream 0: the channel word of fmt0_i is not loaded - breaks "[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict"
+[PASS] mutant caught: no advance: a discarded PDU leaves prev_seq (the defect #775 fixes) - breaks "[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"
+[PASS] mutant caught: whole state: a discarded PDU writes an accepted PDU's MON_STATE - breaks "[SQ2d] MEDIA_RESET unchanged"
+[PASS] mutant caught: accepted walk: a discarded PDU also writes the timestamp words - breaks "[SQ1d] ...and it writes no timestamp word (LAST_TSD)"
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): lock set: a discarded PDU sets media_locked - breaks "[SQ4f] MEDIA_LOCKED +1 at the first accepted PDU"
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): settle step: a discarded PDU steps the settle count - breaks "[SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH"
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed set: a discarded PDU sets the mr seed - breaks "[SQ6e] ...and counts no MEDIA_RESET: it seeds the reference"
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed clear: a discarded PDU clears the mr seed - breaks "[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject"
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+13 checks: 13 PASS, 0 FAIL
+CTXFMT N=8: 96 checks, 0 failures
+RESULT: PASS
+[PASS] the unmutated context engine still passes the N=8 format contract
+[PASS] mutant caught: bind walk provisions every stream: streams above 0 take fmt0_i's words at the bind - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: stream 0's alias: a stream above 0 is judged against fmt0_i's channel count - breaks "[CF3] a PDU of the input's own channel count is accepted"
+[PASS] mutant caught: another context: the window's write lands in the neighbouring stream's words - breaks "[CF2] the first in-format PDU is accepted"
+[PASS] mutant caught: an unbind's walk writes over the format: the unlock's MON_STATE write lands in FMT_HI - breaks "[CF5] the rebound input's first PDU is accepted"
+5 checks: 5 PASS, 0 FAIL
+FANOUT N=8: 1253 checks, 0 failures
+RESULT: PASS
+[PASS] the unmutated stack still passes the N=8 fan-out contract
+[PASS] mutant caught: the read side takes a frame before its verdicts are known - breaks "[FO6] payloads equal the sent ones, byte for byte, in order"
+[PASS] mutant caught: the verdict queue holds two entries, not the four a full ring and a lost PDU need - breaks "[FO9] only the three full PDUs reach the depacketizer's output"
+[PASS] mutant caught: a frame the full store dropped counts in no input's DEPKT drops - breaks "[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops"
+24 checks: 24 PASS, 0 FAIL
+DEPKT: 375 checks, 0 failures
+RESULT: PASS
+DEPKT: 375 checks, 0 failures
+RESULT: PASS
+[PASS] the unmutated depacketizer still passes its frame-boundary contract
+[PASS] mutant caught: a tail left in the hold: the frame's last word is popped with the beat before it, so the pass ends and the read side resynchronises without the final beat (the #948 frame-boundary defect) - breaks "[DT1] a 65-octet payload: 9 beats, tlast on the last"
+[PASS] mutant caught: a tail left in the hold behind a C-VLAN tag is sized for an untagged frame - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: the length check reads a tagged frame's data_len where an untagged frame carries it - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: the store's write side takes the tap as it comes, so a frame of ten beats or fewer ends before its enqueue pulse (the #948 short-frame defect) - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: a pulse is taken only while its frame is still on the tap, so one after a nine- or ten-beat frame's tlast is lost - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+[PASS] mutant caught: the verdict at the stored eighth beat misses a pulse that lands in that same cycle - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+[PASS] mutant caught: the write side runs two cycles behind the tap, one short of the enqueue pulse's latency - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+12 checks: 12 PASS, 0 FAIL
+LAST LINES
+    it broke 920 check(s); first: [DT4] 27 octets, 9 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+[PASS] mutant caught: the verdict at the stored eighth beat misses a pulse that lands in that same cycle - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+    it broke 4262 check(s); first: [DT4] 1 octets, 8 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+[PASS] mutant caught: the write side runs two cycles behind the tap, one short of the enqueue pulse's latency - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+    it broke 4262 check(s); first: [DT4] 1 octets, 8 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+
+12 checks: 12 PASS, 0 FAIL
+make: Leaving directory '<scratch>/r2/c2-final/tb/verilator/avtp_rxmon'
+
+ARTIFACT author-r3/receipts/sweep/milan_dp-64117b77-excerpt.txt.gz
+# milan_dp at 64117b77: rc=0, 14,154 checks, 0 in-suite failures, render_mutants inside the wall clock
+milan_dp rc=0 seconds=5652
+checks: 14154   in-suite failures: 0
+tally rc=0
+448:212 checks: 212 PASS, 0 FAIL
+881:212 checks: 212 PASS, 0 FAIL
+889:RESULT: PASS
+895:RESULT: PASS
+901:RESULT: PASS
+907:RESULT: PASS
+10508:checks: 535   failures: 0
+10509:RESULT: PASS
+11128:checks: 458   failures: 0
+11129:RESULT: PASS
+11239:checks: 61   failures: 0
+11240:RESULT: PASS
+11335:checks: 50   failures: 0
+11336:RESULT: PASS
+11433:checks: 52   failures: 0
+11434:RESULT: PASS
+12333:checks: 711   failures: 0
+12334:RESULT: PASS
+14598:checks: 2098   failures: 0
+14599:RESULT: PASS
+16866:checks: 2100   failures: 0
+16867:RESULT: PASS
+21320:checks: 4073   failures: 0
+21321:RESULT: PASS
+23586:checks: 2098   failures: 0
+23587:RESULT: PASS
+23910:checks: 33   failures: 0
+23911:RESULT: PASS
+24448:RESULT: PASS
+24723:checks: 219   failures: 0
+24724:RESULT: PASS
+24892:checks: 137   failures: 0
+24893:RESULT: PASS
+24909:checks: 145   failures: 0
+25015:== bootsa: checks: 67   failures: 0 ==
+25016:RESULT: PASS
+25030:[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+25035:[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+25040:[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+25045:[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+25048:6 checks: 6 PASS, 0 FAIL
+LAST LINES
+24910:---- #839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----
+25015:== bootsa: checks: 67   failures: 0 ==
+25016:RESULT: PASS
+25030:[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+25035:[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+25040:[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+25045:[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+25048:6 checks: 6 PASS, 0 FAIL
+
+ARTIFACT author-r3/receipts/sweep/milan_dp_mclk-SUMMARY-64117b77.txt
+milan_dp_mclk rc=0 seconds=816
+checks: 173   in-suite failures: 0
+tally rc=0
+LAST LINES
+milan_dp_mclk rc=0 seconds=816
+checks: 173   in-suite failures: 0
+tally rc=0
+
+ARTIFACT author-r3/receipts/sweep/small-suites-SUMMARY-64117b77.txt
+aaf_audio_loop rc=0 seconds=6
+capture_coherence rc=0 seconds=2660
+follow_ring rc=0 seconds=1008
+mbx rc=0 seconds=228
+milan_dp_gm_steps rc=0 seconds=1869
+milan_dp_render rc=0 seconds=3033
+pp_shadow rc=0 seconds=2641
+tsn_fuzz rc=0 seconds=21
+checks: 548216   in-suite failures: 0
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+tally rc=0
+LAST LINES
+checks: 548216   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+tally rc=0
+
+ARTIFACT author-r3/receipts/twin/twin-gate-64117b77.log.gz
+HEAD 64117b77 start 16:03:50
+checksum 0xBCE6817E
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.fast.gch
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_MS_CYC=1000 -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.slow.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_MS_CYC=1000 -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+twin: 0 finding(s); counts {'all-fabric': {'ACMP': 7, 'ADP': 12, 'AECP': 53, 'MAAP': 8, 'MSRP': 88, 'MVRP': 24}, 'split': {'ACMP': 7, 'ADP': 13, 'AECP': 53, 'MAAP': 8, 'MSRP': 96, 'MVRP': 92}}
+== twin rc=0 16:17:31
+== twin-plants rc=0 16:23:27
+./obj_twin_sp/Vmilan_dp_twin_sp --maps > obj_twin_maps/maps.log; rc=$?; cat obj_twin_maps/maps.log; exit $rc
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+PASS [MAPS-STORE] the removal reached the render store
+PASS [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+PASS [MAPS-EDIT] an edited map reached the render store
+PASS [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+== twin-maps rc=0 16:23:32
+  echo "FAIL the no-edit plant passed"; exit 1; fi
+set -e; for w in "FAIL [MAPS-STORE] the removal reached the render store" "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" "FAIL [MAPS-EDIT] an edited map reached the render store"; do \
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+  echo "caught: $w"; done
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store
+== twin-maps-plants rc=0 16:23:37
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.slow.gch
+./obj_twin8_sp/Vmilan_dp_twin8_sp --fanout > obj_twin8/fanout.log; rc=$?; cat obj_twin8/fanout.log; exit $rc
+PASS [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-TWO] STREAM_INPUT 1 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-TWO] STREAM_INPUT 1 receives every PDU (4 of 4)
+PASS [FAN-TWO] STREAM_INPUT 2 counts and receives nothing
+PASS [FAN-TWO] the depacketizer emits one PDU per receiving input (8 of 8)
+PASS [FAN-THREE] STREAM_INPUT 0 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-THREE] STREAM_INPUT 1 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-THREE] STREAM_INPUT 1 receives every PDU (4 of 4)
+PASS [FAN-THREE] STREAM_INPUT 2 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-THREE] STREAM_INPUT 2 receives every PDU (4 of 4)
+PASS [FAN-THREE] the depacketizer emits one PDU per receiving input (12 of 12)
+PASS [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-UNBIND] STREAM_INPUT 2 counts every PDU in GET_COUNTERS (4 of 4)
+PASS [FAN-UNBIND] STREAM_INPUT 2 receives every PDU (4 of 4)
+PASS [FAN-UNBIND] STREAM_INPUT 1 counts and receives nothing
+PASS [FAN-UNBIND] the depacketizer emits one PDU per receiving input (8 of 8)
+== twin-fanout rc=0 16:24:26
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/mbx -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/host -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/port -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/loop -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/adp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/maap -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/acmp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/app -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/test -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/srp -I<scratch>/r2/c2-s-twin/third_party/tsn-c-stack/include -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm -I<scratch>/r2/c2-s-twin/sw/firmware/gtest -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/aecp -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl/plat -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw -I<scratch>/r2/c2-s-twin/tb/verilator/milan_dp/obj_twin8_fw/gen -DLWSRP_MILAN=1 -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src/include -I<scratch>/r2/c2-s-twin/third_party/lwSRP/src -I<scratch>/r2/c2-s-twin/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -x c++-header Vtb_split_top__pch.h -o Vtb_split_top__pch.h.slow.gch
+  echo "FAIL the one-entry plant passed"; exit 1; fi
+set -e; for w in "FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS" "FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input" "FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU" "FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS"; do \
+  grep -qF -- "$w" obj_twin8/one-entry.log || { echo "FAIL the one-entry plant escaped: $w"; exit 1; }; \
+  echo "caught: $w"; done
+caught: FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS
+caught: FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input
+caught: FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU
+caught: FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS
+== twin-fanout-plants rc=0 16:24:45
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I<ci-image>/usr/share/verilator/include -I<ci-image>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+  echo "FAIL the shared stop-gate plant passed"; exit 1; fi
+  echo "FAIL the one-index stop-gate plant passed"; exit 1; fi
+set -e; for w in "[FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)" "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"; do \
+  grep -qF -- "$w" obj_nxn8_plant_shared/run.log || { echo "FAIL the shared stop-gate plant escaped: $w"; exit 1; }; \
+  echo "caught (shared): $w"; done
+caught (shared): [FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)
+caught (shared): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+set -e; for w in "[FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)" "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"; do \
+  grep -qF -- "$w" obj_nxn8_plant_one-index/run.log || { echo "FAIL the one-index stop-gate plant escaped: $w"; exit 1; }; \
+  echo "caught (one-index): $w"; done
+caught (one-index): [FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)
+caught (one-index): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+== fan-stop-plants rc=0 16:26:54
+END rc=0 16:26:54
+LAST LINES
+caught (shared): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+set -e; for w in "[FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)" "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"; do \
+  grep -qF -- "$w" obj_nxn8_plant_one-index/run.log || { echo "FAIL the one-index stop-gate plant escaped: $w"; exit 1; }; \
+  echo "caught (one-index): $w"; done
+caught (one-index): [FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)
+caught (one-index): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+== fan-stop-plants rc=0 16:26:54
+END rc=0 16:26:54
+
+ARTIFACT author-r3/receipts/gates/gates-64117b77.txt
+head 64117b77cb9e5c421717835b5be032b5905c447d
+lint rc=0 LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog rc=0 xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+yosys KL_avtp_rx_monitor_ctx rc=0   [PASS] KL_avtp_rx_monitor_ctx cells=12097 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+yosys KL_aaf_rx_depacketizer rc=0   [PASS] KL_aaf_rx_depacketizer cells=54392 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+docs steps: 104 of 104 rc=0
+tsn_fuzz aaf rc=0 == AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps == campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+LAST LINES
+head 64117b77cb9e5c421717835b5be032b5905c447d
+lint rc=0 LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog rc=0 xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+yosys KL_avtp_rx_monitor_ctx rc=0   [PASS] KL_avtp_rx_monitor_ctx cells=12097 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+yosys KL_aaf_rx_depacketizer rc=0   [PASS] KL_aaf_rx_depacketizer cells=54392 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+docs steps: 104 of 104 rc=0
+tsn_fuzz aaf rc=0 == AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps == campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+
+ARTIFACT author-r3/receipts/rtl/dt5-plant/result.txt
+Head: 64117b77cb9e5c421717835b5be032b5905c447d
+control build rc=0
+control run rc=0
+plant build rc=0
+plant run rc=1
+  [FAIL] [DT5] cases whose every output frame is whole, in order, under its index got=0 exp=584
+DT5 planted data-delay defect: caught by name; control passes.
+LAST LINES
+control executable: 355616 bytes sha256 446d1a09181b6dd7ef2cc5d5eb7ed552677ee38948a1bdb4aed8a20730ed4136
+control run rc=0
+  [ ok ] [DT5] cases whose every output frame is whole, in order, under its index = 584
+plant build rc=0
+plant executable: 355616 bytes sha256 37ed1619fdabddaa741b6f4c63488091d427cdc64c3960bb4cf90ee3fb965220
+plant run rc=1
+  [FAIL] [DT5] cases whose every output frame is whole, in order, under its index got=0 exp=584
+DT5 planted data-delay defect: caught by name; control passes.

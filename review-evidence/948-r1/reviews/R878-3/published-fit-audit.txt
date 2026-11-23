@@ -1,0 +1,238 @@
+
+1x1 ExtraPostPlacementOpt
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 32-39 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r41x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r41x1/build_ExtraPostPlacementOpt
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.193 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.193 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+utilization.txt
+r41x1/build_ExtraPostPlacementOpt/gateware Slice LUTs=32768 LUT as Logic=31471 LUT as Memory=1297 Slice Registers=42805 Slice=13989 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=484 Logic LUTs=443 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=839 Logic LUTs=725 LUTRAMs=114 FFs=781 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=477 Logic LUTs=477 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+1x1 ExtraTimingOpt
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 32-39 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r41x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraTimingOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r41x1/build_ExtraTimingOpt
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.054 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.054 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+utilization.txt
+r41x1/build_ExtraTimingOpt/gateware Slice LUTs=32765 LUT as Logic=31468 LUT as Memory=1297 Slice Registers=42804 Slice=14297 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=485 Logic LUTs=444 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=843 Logic LUTs=729 LUTRAMs=114 FFs=781 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=483 Logic LUTs=483 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+1x1 AltSpreadLogic_high
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 32-39 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r41x1/configs/generated/endstation_ax7101_1x1_tdm8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r41x1/build_AltSpreadLogic_high
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.020 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.020 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.687 ns (0 failing), WHS +0.023 ns (0 failing)
+Fast_0C: WNS +1.687 ns (0 failing), WHS +0.023 ns (0 failing)
+issue floors NOT met
+ruling floors NOT met
+rc=1
+
+utilization.txt
+r41x1/build_AltSpreadLogic_high/gateware Slice LUTs=32778 LUT as Logic=31481 LUT as Memory=1297 Slice Registers=42804 Slice=14299 Block RAM Tile=79.5 RAMB36/FIFO=? RAMB18=35 DSPs=13
+    aaf_rx_depkt Total LUTs=485 Logic LUTs=444 LUTRAMs=4 FFs=305 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=843 Logic LUTs=729 LUTRAMs=114 FFs=781 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=483 Logic LUTs=483 LUTRAMs=0 FFs=707 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+8x8 ExtraPostPlacementOpt
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 8-15 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r48x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraPostPlacementOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r48x8/build_ExtraPostPlacementOpt
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.272 ns (0 failing), WHS +0.044 ns (0 failing)
+Slow_0C: WNS +0.272 ns (0 failing), WHS +0.044 ns (0 failing)
+Fast_85C: WNS +1.526 ns (0 failing), WHS +0.013 ns (0 failing)
+Fast_0C: WNS +1.526 ns (0 failing), WHS +0.013 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors NOT met
+rc=1
+
+utilization.txt
+r48x8/build_ExtraPostPlacementOpt/gateware Slice LUTs=44103 LUT as Logic=42901 LUT as Memory=1202 Slice Registers=51272 Slice=15691 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=435 Logic LUTs=380 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2285 Logic LUTs=2105 LUTRAMs=180 FFs=1791 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=510 Logic LUTs=510 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+8x8 ExtraTimingOpt
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 8-15 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r48x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive ExtraTimingOpt --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r48x8/build_ExtraTimingOpt
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.152 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.152 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+utilization.txt
+r48x8/build_ExtraTimingOpt/gateware Slice LUTs=44099 LUT as Logic=42897 LUT as Memory=1202 Slice Registers=51270 Slice=15708 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=440 Logic LUTs=385 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2291 Logic LUTs=2111 LUTRAMs=180 FFs=1791 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=508 Logic LUTs=508 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+8x8 AltSpreadLogic_high
+recipe.txt
+Candidate head: 64117b77cb9e5c421717835b5be032b5905c447d
+Device: xc7a100tfgg484-2
+Each build invoked through vivado-slot.sh.
+cpus 8-15 (inherited booking), threads 8
+python3 milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf --eth-port e2 --entity-gen-dir <scratch>/viv/clones/r48x8/configs/generated/endstation_ax7101_8x8 --synth-directive AreaOptimized_high --opt-directive ExploreArea --place-directive AltSpreadLogic_high --no-compile-software --vivado-max-threads 8 --build --output-dir <scratch>/viv/work/r48x8/build_AltSpreadLogic_high
+
+build.rc
+0
+
+identity.log
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+
+signoff.txt
+Slow_85C: WNS +0.102 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.102 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)
+issue floors (WNS >= +0.030, WHS >= 0) met at every corner
+ruling floors (WNS and WHS >= +0.030) met at every corner
+rc=0
+
+utilization.txt
+r48x8/build_AltSpreadLogic_high/gateware Slice LUTs=44072 LUT as Logic=42870 LUT as Memory=1202 Slice Registers=51269 Slice=15646 Block RAM Tile=94 RAMB36/FIFO=? RAMB18=32 DSPs=13
+    aaf_rx_depkt Total LUTs=440 Logic LUTs=385 LUTRAMs=18 FFs=298 RAMB36=1 RAMB18=0
+    avtp_rx_monitor Total LUTs=2291 Logic LUTs=2111 LUTRAMs=180 FFs=1791 RAMB36=0 RAMB18=1
+    avtp_rx_parser Total LUTs=508 Logic LUTs=508 LUTRAMs=0 FFs=666 RAMB36=0 RAMB18=0
+
+baseline-provenance.txt
+Round-2b baseline: archived same-directive utilization.txt at 64e55a59.
+Train baseline: archived round-1 utilization-train-gating-8c5e2b4f.txt, ExtraPostPlacementOpt.
+The original full train hierarchy report is no longer present; no new full-hierarchy delta is claimed.
+
+
+Source identity:
+Candidate: 64117b77cb9e5c421717835b5be032b5905c447d
+Tree: 0c58762aaf41530ba148e99969f04bfaa3404f17
+Resume audit: committed candidate and test/build clone inputs.
+Git index/status are supplemented below with direct blob-byte comparisons.
+
+r2/c2-final: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-dp: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-mclk: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-small: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-twin: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+viv/clones/r41x1: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+viv/clones/r48x8: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+
+Failing-first clone:
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv: bytes equal 64e55a59
+hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv: bytes equal 64e55a59
+tb/verilator/avtp_rxmon/sim_fanout.cpp: bytes equal tests-first commit 9f8f689c
+tb/verilator/avtp_rxmon/sim_depkt.cpp: bytes equal tests-first commit 9f8f689c
+
+Round-3 protected scope:
+No firmware, budget-bound, mailbox-contract or submodule-gitlink change.
+
+Large original logs, retained outside packet (hash and byte count):
+r3/final/avtp_rxmon-suite.log: 398870 bytes sha256 6a7915ebd90f7b70b717a069099b61fd343b94b95ef4460f38ab7e6510b7c4da
+r3/sweep/s-dp/milan_dp.log: 3168890 bytes sha256 39f8b7e117100a6c5fa4b50dc918a4b2ed54fb23beffdfdc41d16538a53e09df
+r3/twin/twin-gate.log: 978958 bytes sha256 e4c4347410ddfffcf286659f84e3dd6f9520646f02d5b9a49dad1fa9c4ae2af1

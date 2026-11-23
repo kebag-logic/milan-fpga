@@ -1,0 +1,31 @@
+Primary-source check, R878-3
+
+Sources inspected locally: Milan Specification v1.2, consolidated final approved
+2023-11-30; IEEE Std 1722.1-2021. Specification extracts remain under scratch
+and are not included for publication.
+
+Milan 5.3.8.10, printed page 36, and Table 5.6, pages 37-38:
+Each standard Stream Input counter is an unsigned 32-bit wrapping counter.
+This is not a requirement to saturate the public standard counter.
+
+IEEE 1722.1-2021 7.4.42.2, printed page 224, and 7.4.42.2.4,
+pages 226-228: counters_valid identifies which counter-block quadlets exist
+and are valid; STREAM_INPUT has its own defined counter fields and offsets.
+
+Cross-check at 64117b77cb9e5c421717835b5be032b5905c447d:
+hdl/milan/milan_datapath.sv:3933 and :3996-4020 use validity mask 0xFFF and
+map standard quadlets 0-11 to monitor columns. LCTX w11 is not mapped into
+GET_COUNTERS. sw/firmware/ctrl/aecp/aecp_face.c:231-255 forwards the standard
+block and validity mask. Both paths are unchanged in this delta.
+
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:60-65 identifies DEPKT as a vendor
+diagnostic. At :725-731 its two concatenated 16-bit sums wrap independently:
+delivery overflow cannot carry into the drop field. The new six-bit registers
+at :362-364 are internal pending accumulators. Defensive saturation at 63
+must not discard a reachable event; half-full urgency, not changed wrapping
+semantics, is the fix. FO15 and both independent planted runs test this cause.
+
+The issue's independently bound sinks remain governed by IEEE 1722.1-2021
+8.2 and the public fan-out ruling. This delta does not change format, STOP,
+clock-following, mailbox or firmware semantics. Earlier reviewed conclusions
+for untouched code are retained; this record is not a new full standards audit.
