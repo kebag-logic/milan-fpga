@@ -1,0 +1,34 @@
+PASS exact head/tree; only the two requested documentation files differ from 8267b8951616cfd570baf690835d4b0d38f14596
+PASS executable inputs, tests, budgets, layout and gitlinks unchanged from prior review
+Packet commit: f4e3a75bea92d8eb0bae6fbaafabce6fcafccd5a embedded signature: False
+HASH 6a037b3e2b849ee95192a2e18bfd42cb3b5cddf4106161585b24d8e8078be180 author-r5/receipts/INDEX.md
+HASH 6137f09489b1008404a13b4722b14578db65d92746a3e910f368445428b011a2 author-r5/receipts/check_doc_paths.log
+HASH 36684e98d2e65ab6041e16e320b7f6ea500e26c1aeaf7ea4a887774ed57e73f0 author-r5/receipts/check_doc_style.log
+HASH d12f0fdd82acb448124a769c13890350ff611173564ceddb6579e4e49875455a author-r5/receipts/check_em_dash-setup-refusal.log
+HASH 169d85fcf9e2fb7abf056d49cd9f4c9e9e7098ceef99693b7bdc565d19eeeed7 author-r5/receipts/check_em_dash.log
+HASH b5749788b55147c39ff408a761978ac5b6fb5c89d602678922bb9095de72192c author-r5/receipts/docs_check.log
+HASH 7043706474c4d50da6cebead7ec9653227baf92a8b327a9b2d5dbf44603a3687 author-r5/receipts/docs_inventory.log
+HASH 64418ef2577cc964a96d4d8119096221b20fbfe52bbb6d39beb353644a3c4c36 author-r5/receipts/documentation.diff
+HASH 3708790e62f9c85addd86aeaff600949f2122464a2bf949ad89ff37268a73a61 author-r5/receipts/evidence-reconciliation.md
+HASH 065ab6728efafe70921c6b58c377f3bd0d5f76ec6152a90205685bce1c0834e1 author-r5/receipts/issue-comment.txt
+HASH e26190841d30941b6e97deb758dbc1c4735718974840195f6bd11a9489829fed author-r5/receipts/ledger_tests.log
+HASH a256919485f3dc58b5ad58152b3241deaf4d94dfd79ae6c99964881b5619d3d0 author-r5/receipts/plat_ledger_regrade.log
+HASH 722bc791d774d1ef6635a7293bf156af19d0f2ffce5ce33f80d93603687f7431 author-r5/receipts/prior-memory/plat_ledger-631dc544.log
+HASH 3c80211dac76ca51d715596dc759555255560f22286e069d8cbb2910eb8ea998 author-r5/receipts/prior-memory/plat_ledger-a6323318.log
+HASH a59ab62ddf91d2266c70d5548fb2d93cb20282291d34c491cd91613248eeae86 author-r5/receipts/prior-memory/test_ctrl_memory-631dc544.log
+HASH 1a28581c187bbdee84d0ab53a09cfe0008c4c7b72d7c10e0e3d33cc0a67e16d2 author-r5/receipts/renderer-setup.log
+HASH 35c9fd2cd3adba147d03fd90d786971c9b3864243486955514c1d7e3c8736fba author-r5/receipts/run_ledger_tests.py
+HASH 05975cfa6f5cc6f306debc3ea507719163f965beffd7d62c062ba0df4be67299 author-r5/receipts/source-equivalence.txt
+PASS published SHA-256 values: 18 receipts; authenticity is not a signature claim
+PASS original receipt equals republished copy: plat_ledger-a6323318.log
+PASS original receipt equals republished copy: plat_ledger-631dc544.log
+PASS documented key, symbols and limit: 8x8-one-interface-gptp (('nvm_stage', 13594), ('image_allocation', 8), ('image_gptp', 1104)) 59.0
+PASS documented key, symbols and limit: 8x8-two-interfaces-gptp (('nvm_stage', 13594), ('image_allocation', 16), ('image_gptp', 2152)) 64.0
+PASS documented key, symbols and limit: platform-8x8-one-interface-gptp (('nvm_stage', 13594), ('ctrl_plat', 20160)) 62.0
+PASS documented key, symbols and limit: 8x8-two-interfaces (('nvm_stage', 13594), ('image_allocation', 16)) 60.5
+PASS documented key, symbols and limit: platform-8x8-two-interfaces (('nvm_stage', 13594), ('ctrl_plat', 21568)) 63.0
+PASS documented key, symbols and limit: platform-8x8-one-interface (('nvm_stage', 13594), ('ctrl_plat', 19008)) 58.5
+PASS plain image: 1x1-if1 (126632, 56800, 45.0, 18112) -> (126640, 56800, 45.0, 18112)
+PASS plain image: 8x8-if2 (140952, 115568, 63.0, 21568) -> (140960, 115568, 63.0, 21568)
+PASS since measured image head 631dc544: two docs plus only measured ROM figures in one ledger explanation string
+PASS all documentation-delta and receipt checks
