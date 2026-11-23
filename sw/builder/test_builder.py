@@ -30640,30 +30640,148 @@ def _check_host_headers(headers: dict[str, Path], blob: bytes) -> None:
         f"gate 41: aecp_entity.py's image is not the builder's ({crc} absent)"
 
 
-def _shape_figures(cc: str, shape_h: Path, host: bool, tmp: Path) -> dict[str, int] | str:
-    """THE SHAPES row ctrl_loop.h selects for `shape_h`, with or without
-    CTRL_HOST_PLATFORM: its figures, or the compiler's words when refused."""
+def _contract_at(n_if: int, tmp: Path) -> Path:
+    """The mailbox contract at `n_if` interfaces, written into `tmp` for a
+    probe to force-include ahead of the tree's (its include guard then keeps
+    the tree's out), as a two-interface arm's build does."""
+    text = (ROOT / "sw/firmware/ctrl/mbx/mbx_contract.h").read_text(encoding="utf-8")
+    assert text.count("#define MBX_N_IF 1u\n") == 1, "gate 41: mbx_contract.h does not state MBX_N_IF 1u once"
+    dest = tmp / f"mbx_contract_if{n_if}.h"
+    dest.write_text(text.replace("#define MBX_N_IF 1u\n", f"#define MBX_N_IF {n_if}u\n"), encoding="utf-8")
+    return dest
+
+
+def _shape_figures(cc: str, shape_h: Path, host: bool, tmp: Path, n_if: int = 1) -> dict[str, int] | str:
+    """THE SHAPES row ctrl_loop.h selects for `shape_h` at `n_if` interfaces,
+    with or without CTRL_HOST_PLATFORM: its figures and MBX_N_IF, or the
+    compiler's words when refused."""
     probe = tmp / "shape_probe.c"
+    names = ("MBX_N_IF", *SHAPE_FIGURES)
     probe.write_text('#include <stdio.h>\n#include "ctrl_loop.h"\nint main(void) {\n'
-                     + "".join(f'    printf("%u\\n", (unsigned){name});\n' for name in SHAPE_FIGURES)
+                     + "".join(f'    printf("%u\\n", (unsigned){name});\n' for name in names)
                      + "    return 0;\n}\n", encoding="utf-8")
     exe = tmp / "shape_probe"
     ctrl = ROOT / "sw/firmware/ctrl"
     built = subprocess.run([cc, "-std=c11", "-Werror", "-pedantic", *(["-DCTRL_HOST_PLATFORM"] if host else []),
-                            "-include", str(shape_h), f"-I{ctrl / 'loop'}", f"-I{ctrl / 'mbx'}", str(probe),
-                            "-o", str(exe)], capture_output=True, text=True, check=False)
+                            "-include", str(_contract_at(n_if, tmp)), "-include", str(shape_h),
+                            f"-I{ctrl / 'loop'}", f"-I{ctrl / 'mbx'}", str(probe), "-o", str(exe)],
+                           capture_output=True, text=True, check=False)
     if built.returncode:
         return built.stderr
     printed = subprocess.run([str(exe)], capture_output=True, text=True, check=True).stdout.split()
-    return dict(zip(SHAPE_FIGURES, map(int, printed)))
+    figures = dict(zip(names, map(int, printed)))
+    assert figures.pop("MBX_N_IF") == n_if, f"gate 41: the shape probe did not build at {n_if} interfaces"
+    return figures
 
 
-#: The tracked files that may name CTRL_HOST_PLATFORM: the row it selects, its
-#: documentation and this gate. A build input of this repository naming it
-#: would let an FPGA image take the host row.
+#: The tracked files that may name CTRL_HOST_PLATFORM: the guard that selects
+#: the host shape, the host shape's header, its documentation and this gate. A
+#: build input of this repository naming it would let an FPGA image take the
+#: host shape.
 HOST_MACRO_FILES = ("docs/ENDSTATION_BUILDER.md", "sw/builder/test_builder.py",
-                    "sw/firmware/ctrl/loop/ctrl_loop.h")
+                    "sw/firmware/ctrl/host/ctrl_loop_host.h", "sw/firmware/ctrl/loop/ctrl_loop.h")
 SHAPES_WORDS = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+#: THE SHAPES' text reader, which the service-budget harness's gates read the
+#: table through, and the header the host shape is stated in.
+SHAPES_READER = ROOT / "tb/verilator/ctrl_service_budget/shape_costs.py"
+LOOP_HEADER = ROOT / "sw/firmware/ctrl/loop/ctrl_loop.h"
+HOST_SHAPE_HEADER = ROOT / "sw/firmware/ctrl/host/ctrl_loop_host.h"
+#: The host profile's shape (interfaces, talker sources, listener sinks).
+HOST_SHAPE = (1, 1, 2)
+#: The guard in ctrl_loop.h that selects the host shape before THE SHAPES.
+HOST_SHAPE_GUARD = ('#if defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)\n'
+                    '#include "../host/ctrl_loop_host.h"\n#else\n')
+
+
+def _shapes_reader() -> types.ModuleType:
+    """shape_costs.py, loaded from its source without a bytecode cache."""
+    module = types.ModuleType("shape_costs")
+    module.__file__ = str(SHAPES_READER)
+    exec(compile(SHAPES_READER.read_text(encoding="utf-8"), str(SHAPES_READER), "exec"), module.__dict__)
+    return module
+
+
+def _shapes_as_read(reader: types.ModuleType, text: str) -> dict[tuple[int, int, int], dict[str, int]]:
+    """THE SHAPES as the tree's reader takes ctrl_loop.h's text
+    (shape_costs.listed): the table must read, list no host shape, and
+    every figure it reads must be defined in the text once per listed row and
+    nowhere else, so that a reader taking a figure's first definition takes
+    an FPGA row's. Returns the table by shape."""
+    try:
+        table = {tuple(s): row for s, row in reader.listed(text).items()}
+    except ValueError as refused:
+        raise AssertionError(f"gate 41: shape_costs.py does not read THE SHAPES: {refused}") from None
+    assert HOST_SHAPE not in table, f"gate 41: THE SHAPES list the host shape {HOST_SHAPE} as an FPGA row"
+    for name in reader.NAMES + reader.BOUNDS:
+        defined = len(re.findall(rf"^#define {name} ", text, re.M))
+        assert defined == len(table), \
+            f"gate 41: ctrl_loop.h defines {name} {defined} times, not once for each of its {len(table)} listed shapes"
+    return table
+
+
+def _check_shapes_text() -> dict[tuple[int, int, int], dict[str, int]]:
+    """ctrl_loop.h reads through shape_costs.py with the host shape outside
+    THE SHAPES; the two placements that would break that are refused: the
+    host row inside the #if chain (where shape_costs.listed raises), and its
+    figures stated in ctrl_loop.h beside the chain. Returns the table."""
+    reader = _shapes_reader()
+    text = LOOP_HEADER.read_text(encoding="utf-8")
+    table = _shapes_as_read(reader, text)
+    assert text.count(HOST_SHAPE_GUARD) == 1, "gate 41: ctrl_loop.h does not select the host shape by its guard"
+    host_rows = "".join(line + "\n" for line in HOST_SHAPE_HEADER.read_text(encoding="utf-8").splitlines()
+                        if line.startswith("#define CTRL_LOOP_") and not line.startswith("#define CTRL_LOOP_HOST_H"))
+    assert len(host_rows.splitlines()) == len(reader.NAMES + reader.BOUNDS), \
+        f"gate 41: ctrl_loop_host.h states {len(host_rows.splitlines())} figures, not THE SHAPES' row of names"
+    unlisted = f'#else\n#error "{SHAPES_WORDS}"\n'
+    assert text.count(unlisted) == 1, "gate 41: THE SHAPES do not end in their #error once"
+    plants = {
+        "the host row inside THE SHAPES' chain": (text.replace(
+            unlisted, "#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)\n" + host_rows + unlisted),
+            "shape_costs.py does not read THE SHAPES: ctrl_loop.h lists a shape not as three numbers"),
+        "the host row's figures stated in ctrl_loop.h beside THE SHAPES": (text.replace(
+            '#include "../host/ctrl_loop_host.h"\n', host_rows),
+            f"ctrl_loop.h defines {reader.NAMES[0]} {len(table) + 1} times"),
+    }
+    for name, (planted, reason) in plants.items():
+        assert planted != text, f"gate 41: the plant '{name}' did not apply"
+        _expect_red(name, lambda p=planted: _shapes_as_read(reader, p), reason, "gate 41")
+    return table
+
+
+def _check_fpga_rows(cc: str, table: dict, host: dict[str, int], tmp: Path) -> tuple[list[str], list[str]]:
+    """At one and at two interfaces, every FPGA config's row as the compiler
+    selects it is the row shape_costs.py reads for its shape, and is the same
+    with CTRL_HOST_PLATFORM defined; a shape THE SHAPES do not list is refused
+    with the macro as without it, unless it is the host shape, which the
+    macro gives the host figures (`host`) as it does the host profile.
+    Returns the points THE SHAPES refuse, and those of them at the host
+    shape."""
+    unlisted, at_host = [], []
+    for name, path in CONFIGS.items():
+        fpga_h = _host_generated(tmp, path)["srp_entity"]
+        streams = tuple(int(n) for n in re.findall(r"^#define CTRL_SRP_(?:SOURCES|SINKS) (\d+)u$",
+                                                    fpga_h.read_text(encoding="utf-8"), re.M))
+        for n_if in (1, 2):
+            plain = _shape_figures(cc, fpga_h, False, tmp, n_if)
+            marked = _shape_figures(cc, fpga_h, True, tmp, n_if)
+            if isinstance(plain, str):
+                assert SHAPES_WORDS in plain, f"gate 41: {name}'s shape probe failed for another cause: {plain}"
+                if (n_if, *streams) == HOST_SHAPE:
+                    assert marked == host, \
+                        f"gate 41: CTRL_HOST_PLATFORM gave {name} at the host shape {marked}, not the host figures"
+                    at_host.append(f"{name}/{n_if}if")
+                else:
+                    assert isinstance(marked, str) and SHAPES_WORDS in marked, \
+                        f"gate 41: CTRL_HOST_PLATFORM let {name} at {n_if} interfaces past THE SHAPES: {marked}"
+                unlisted.append(f"{name}/{n_if}if")
+                continue
+            assert plain == marked, \
+                f"gate 41: CTRL_HOST_PLATFORM moved {name}'s THE SHAPES row at {n_if} interfaces: {plain} -> {marked}"
+            shape = (n_if, plain["CTRL_LOOP_SOURCES"], plain["CTRL_LOOP_SINKS"])
+            row = {k: v for k, v in plain.items() if k not in ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS")}
+            assert table.get(shape) == row, \
+                f"gate 41: {name} at {shape} compiles {row}, but shape_costs.py reads {table.get(shape)}"
+    return unlisted, at_host
 
 
 def _host_macro_files() -> list[str]:
@@ -30674,33 +30792,35 @@ def _host_macro_files() -> list[str]:
     return sorted(listed.stdout.split())
 
 
-def _check_host_shape(cc: str, host_h: Path, tmp: Path) -> list[str]:
-    """ctrl_loop.h lists (1, 1, 2) for a CTRL_HOST_PLATFORM build alone: the
-    macro selects the host row, its absence leaves THE SHAPES' #error, under
-    the macro every FPGA config's listed row is the one it has without it,
-    an FPGA shape THE SHAPES does not list is refused without it as before,
-    and no build input of this tree names the macro. Returns the FPGA configs
-    THE SHAPES refuses (an all-fabric shape no split image is built at)."""
+def _check_host_shape(cc: str, host_h: Path, tmp: Path, table: dict) -> tuple[list[str], list[str]]:
+    """The host shape (1, 1, 2) for a CTRL_HOST_PLATFORM build alone, outside
+    THE SHAPES, whose rows shape_costs.py read as `table`
+    (_check_shapes_text): the macro selects the host figures, which are the
+    FPGA 1x1/1if row's as ctrl_loop_host.h states; without the macro, and at
+    two interfaces with it, the host shape is refused by THE SHAPES' #error;
+    every FPGA config's row is the same with and without the macro and is
+    the one shape_costs.py reads (_check_fpga_rows); and no build input of
+    this tree names the macro. Returns the FPGA points THE SHAPES refuse (an
+    all-fabric shape no split image is built at), and those of them at the
+    host shape."""
     refused = _shape_figures(cc, host_h, False, tmp)
     assert isinstance(refused, str) and SHAPES_WORDS in refused, \
         f"gate 41: (1, 1, 2) without CTRL_HOST_PLATFORM was not refused by THE SHAPES: {refused}"
+    two = _shape_figures(cc, host_h, True, tmp, 2)
+    assert isinstance(two, str) and SHAPES_WORDS in two, \
+        f"gate 41: the host shape's streams at two interfaces were not refused by THE SHAPES: {two}"
     host = _shape_figures(cc, host_h, True, tmp)
     assert isinstance(host, dict) and (host["CTRL_LOOP_SOURCES"], host["CTRL_LOOP_SINKS"]) == (1, 2), \
-        f"gate 41: the host row did not build at (1, 1, 2): {host}"
-    unlisted = []
-    for name, path in CONFIGS.items():
-        fpga_h = _host_generated(tmp, path)["srp_entity"]
-        plain = _shape_figures(cc, fpga_h, False, tmp)
-        if isinstance(plain, str):
-            assert SHAPES_WORDS in plain, f"gate 41: {name}'s shape probe failed for another cause: {plain}"
-            unlisted.append(name)
-        else:
-            marked = _shape_figures(cc, fpga_h, True, tmp)
-            assert plain == marked, f"gate 41: CTRL_HOST_PLATFORM moved {name}'s THE SHAPES row: {plain} -> {marked}"
+        f"gate 41: the host shape did not build at (1, 1, 2): {host}"
+    host_row = {k: v for k, v in host.items() if k not in ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS")}
+    assert host_row == table[(1, 2, 2)], \
+        f"gate 41: the host figures {host_row} are not the 1x1/1if row's {table[(1, 2, 2)]}, as ctrl_loop_host.h states"
+    unlisted, at_host = _check_fpga_rows(cc, table, host, tmp)
     named = set(_host_macro_files())
     assert named <= set(HOST_MACRO_FILES), \
-        f"gate 41: CTRL_HOST_PLATFORM is named outside its row, docs and gate: {sorted(named - set(HOST_MACRO_FILES))}"
-    return unlisted
+        f"gate 41: CTRL_HOST_PLATFORM is named outside its guard, header, docs and gate: " \
+        f"{sorted(named - set(HOST_MACRO_FILES))}"
+    return unlisted, at_host
 
 
 def _host_key_paths() -> set[str]:
@@ -30735,7 +30855,7 @@ def _check_host_key_map() -> int:
     missing, stale = _host_key_map_diff(doc, accepted)
     assert not missing and not stale, (f"gate 41: section 6 disagrees with the host loaders - no row: "
                                        f"{sorted(missing)}; naming no host key: {sorted(stale)}")
-    planted = doc.replace(HOST_SECTION_HEADING, HOST_SECTION_HEADING + "\n\n| 6z | `planted.key` | - | - |", 1)
+    planted = doc.replace(HOST_SECTION_HEADING, HOST_SECTION_HEADING + "\n\n| H0 | `planted.key` | - | - |", 1)
     assert _host_key_map_diff(planted, accepted)[1] == {"planted.key"}, "gate 41: a planted row was not refused"
     dropped = doc.replace("`audio_interface.channels`", "`(dropped)`")
     assert _host_key_map_diff(dropped, accepted)[0] == {"audio_interface.channels"}, \
@@ -30786,10 +30906,12 @@ def test_host_profile_feeds_the_generators() -> None:
     the overlay and the AEM image (the processor packer and its lint) carry
     the first user's inventory and the stated gPTP dataset, and adp_entity.py,
     aecp_entity.py and srp_entity.py each generate from it, agreeing with the
-    image; build() refuses it by name. ctrl_loop.h lists its (1, 1, 2) shape
-    for a CTRL_HOST_PLATFORM build alone, leaving every FPGA row as it was
-    and the shape refused without the macro. Section 6 of the builder page
-    documents every key the host loaders read."""
+    image; build() refuses it by name. ctrl_loop.h selects its (1, 1, 2)
+    shape for a CTRL_HOST_PLATFORM build alone, before and outside THE
+    SHAPES, whose FPGA rows shape_costs.py reads as before and the compiler
+    selects with or without the macro, and the shape is refused without the
+    macro. Section 6 of the builder page documents every key the host
+    loaders read."""
     cfg = eb.load_config(str(HOST_EXAMPLE))
     overlay = eb.emit_aem_overlay(cfg)
     blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
@@ -30798,25 +30920,32 @@ def test_host_profile_feeds_the_generators() -> None:
                 "descriptor-only host profile (#983)", "gate 41")
     keys = _check_host_key_map()
     tspec, current = _check_host_tspec()
+    table = _check_shapes_text()
     with tempfile.TemporaryDirectory(prefix="gate41.") as tmp:
         headers = _host_generated(Path(tmp))
         _check_host_headers(headers, blob)
         cc = shutil.which("cc") or shutil.which("gcc")
-        unlisted = None
+        unlisted = at_host = None
         if cc is None:
-            skip("gate 41", "no host C compiler: ctrl_loop.h's host shape row not compiled")
+            skip("gate 41", "no host C compiler: the host shape and THE SHAPES' rows not compiled")
         else:
-            unlisted = _check_host_shape(cc, headers["srp_entity"], Path(tmp))
+            unlisted, at_host = _check_host_shape(cc, headers["srp_entity"], Path(tmp), table)
     print(f"  [gate 41] {HOST_EXAMPLE.relative_to(ROOT)}: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, "
           f"STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the "
           f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented; a talker "
           f"advertising 2 and 8 channels at current 2 reserves {tspec} octets, the widest format's, "
           f"not the current {current}")
-    if unlisted is not None:
-        print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone and is refused without "
-              f"it; the macro moves none of the {len(CONFIGS) - len(unlisted)} listed FPGA rows; "
-              f"{', '.join(unlisted) or 'no config'} still refused without it; only "
-              f"{', '.join(HOST_MACRO_FILES)} name the macro")
+    print(f"  [gate 41] THE SHAPES: shape_costs.py reads {len(table)} FPGA rows "
+          f"{', '.join(str(s) for s in sorted(table))} and no host row; the host row inside the chain and its "
+          f"figures beside it in ctrl_loop.h are both refused")
+    if unlisted is not None and at_host is not None:
+        apart = [p for p in unlisted if p not in at_host]
+        print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone, at the 1x1/1if row's "
+              f"figures, and is refused without it and at two interfaces; at 1 and 2 interfaces the macro moves "
+              f"none of the {2 * len(CONFIGS) - len(unlisted)} FPGA points' rows, each the row shape_costs.py "
+              f"reads; {', '.join(apart) or 'no point'} refused with and without it; "
+              f"{', '.join(at_host) or 'no point'} at the host shape, refused without it and given the host "
+              f"figures with it; only {', '.join(HOST_MACRO_FILES)} name the macro")
 
 
 #: Gate 42's value for a deletion rather than an edit.

@@ -81,7 +81,7 @@ The processor contract update remains a separate reviewed delivery.
 - **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** -- The field-by-field contract: 75 rows numbered 0 to 45 (letter suffixes where a key sits beside its neighbour) covering the 116 keys `load_config` reads on the five FPGA configs (some rows carry a `{...}` group; rows 16c, 24, 25 and 26 are derived facts and rows 33a to 33c generator-owned ones, with no key), held in step with the loaders by `test_builder.py` gate 32. Each row names the key, the descriptor, argv, constant or register it generates, the clause that governs it, and which consumer reads it. Rows 14 (AEM half), 25 (above one AAF stream per direction) and 27 (the provisioning half) carry *planned* marks; the config validates rather than erroring, and the trailer says where the build plan's own marks live (items 5 and 8, as it names them) and that it carries none for row 14's descriptors.
 - **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** -- Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligation the shape triggers: two or more AAF inputs make a CRF Media Clock Output mandatory, now enforced as a validation error. Also the honest split -- the model half is done, the provisioning half rides with item 5, and the area cost at 100 MHz is a measurement this page declines to claim.
 - **[5. Relation to the bench suite and the traceability matrix](#5-relation-to-the-bench-suite-and-the-traceability-matrix)** -- Why the builder adds no normative behaviour of its own, and the two gates that hold it honest: today's config must reproduce the shipped ROM and `sweep.sh` argv byte-for-byte, and an unchanged model must keep an unchanged `entity_model_id`.
-- **[6. The descriptor-only host profile](#6-the-descriptor-only-host-profile)** -- `board.target: host` (#983): a board that runs the split control firmware on the mailbox model, its gPTP owner its own PHC. It feeds the same descriptor generators through the same checks, and `build()` refuses it. The section lists the keys that differ, the station MAC substitution a board owns, and the host-only `(1, 1, 2)` row of THE SHAPES.
+- **[6. The descriptor-only host profile](#6-the-descriptor-only-host-profile)** -- `board.target: host` (#983): a board that runs the split control firmware on the mailbox model, its gPTP owner its own PHC. It feeds the same descriptor generators through the same checks, and `build()` refuses it. The section lists the keys that differ, the station MAC substitution a board owns, and the host-only `(1, 1, 2)` shape, stated outside THE SHAPES.
 
 ## 1. Artifacts and flow
 
@@ -1028,7 +1028,7 @@ Line numbers are those of the cited file at the time of writing.
 | 5a | `board.constraints.{sys_clk_hz,milan_clk_hz,l2_bytes,gtx_tx_invert,floorplan,flashboot,uart_baudrate,eth_port}` | `--sys-clk-freq` (only off the board default), `--milan-clk-freq`, `--l2-bytes` (and the fragment's `L2=`), `--gtx-tx-invert`, `--floorplan`, `--with-spiflash --flashboot`, `--uart-baudrate`, `--eth-port` (`emit_board_opts` lines 3995 to 4003, `emit_soc_argv` lines 4092 to 4098). `milan_clk_hz` also reaches the gPTP microcode (`--clk-hz`, line 4917) and the `lwsrp_table.json` `module_params`. The Milan clock is fixed to `CPU_HZ` in [recipe.py](../tb/verilator/nvm_capture_cpu/recipe.py); divergent values refuse | - | SoC (`milan_soc.py` lines 3450 to 3485) |
 | 5b | `board.constraints.phy` | nothing: it is checked against the board table (`_load_board`, line 3286) and printed in the plan (line 4632); the SoC derives the PHY from `--board` | - | check, plan |
 | 5c | `board.constraints.num_queues` | nothing in the argv: it bounds `srp.class_queue` (`_srp_validate`, line 1700) and is published as the `lwsrp_table.json` `module_params` entry `milan_csr.NUM_QUEUES`, which gate 18c pins to `ethernet_packet_pkg::NUMBER_OF_QUEUES` (`test_builder.py` line 11421) | - | check |
-| 5d | `board.gptp_owner` | nothing on an FPGA target: it is REFUSED there (`_load_board`), because that target's gPTP owner is its fabric plane (row 29, #259) and an ignored key would build that owner under a config that names another. The host profile reads it (section 6, row 6b) | - | check |
+| 5d | `board.gptp_owner` | nothing on an FPGA target: it is REFUSED there (`_load_board`), because that target's gPTP owner is its fabric plane (row 29, #259) and an ignored key would build that owner under a config that names another. The host profile reads it (section 6, row H2) | - | check |
 | 6 | `platform.pp_mem_phys` | protocol-processor DRAM reservation; fixed extent is builder-owned (`emit_platform_shape`, line 2999) | - | PMEM |
 | 6a | `platform.mac_address` | the station MAC: the overlay `adp.mac_address` (`overlay_adp_block`, line 2314) that AVB_INTERFACE repeats; the `MILAN_STATION_MAC_*` constants; the gPTP microcode station identity (`--mac`, line 4915); row 3's default `entity_id`. A set U/L bit warns on stderr and still builds (`identity_warnings`, [#840](https://github.com/kebag-logic/milan-fpga/issues/840)) | 1722.1 7.2.8; 802-2014 8.2 | AEM (`gen_aemi_image.py` line 157); fw (into `MAC_ADDR_LO/HI`); SoC (`gptp_ucode.hex`, `p_GPTP_UCODE_HEX_P` line 838) |
 | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded); the default Base format of every stream (rows 18, 22); the SRP frame geometry (row 43); the AES3 serial clock (row 13). **And, on a TDM bus master, the FABRIC's frame rate** (#399): `emit_design_opts` (line 4375) emits `--audio-fs-hz` whenever the declaration is off the SoC's own default, `milan_soc.py` passes it as `p_AUDIO_IF_FS_HZ_P` (line 1008) and derives `AUDIO_IF_CLK_HZ_P` = `2 x SLOTS x slot bits x fs` from it, which is also the rate `_CRG` gives the master's MMCM output. At the 48000 default the flag and the parameter are withheld, so a config declaring the shipping rate keeps a byte-identical argv and top `.v`. On any other front-end the audio clock is fixed and `milan_soc.py` REFUSES the flag rather than accepting a rate it cannot elaborate; such a config carries an item-6 plan mark instead | 1722.1 7.2.3; Milan 5.3.3.3, 6.2 | SoC (`milan_soc.py` lines 98, 1008; `milan_datapath.sv` line 139); AEM (`aem_specs.py` line 233); check (must be a Milan 6.2 base rate); plan |
@@ -1230,15 +1230,15 @@ host loaders as gate 32 holds section 3 to the FPGA ones.
 
 | # | Key | On the host profile | Why |
 |---|---|---|---|
-| 6a | `board.target` | `host`, outside `BOARDS` (`HOST_TARGET`) | no pin, clock or PHY table applies |
-| 6b | `board.gptp_owner` | required; `host-phc` is the only value | the board's own PHC owns gPTP time |
-| 6c | `board.constraints.link_mbps` | required, `100` or `1000` | SRP's class A ceiling (Milan v1.2 5.6); an FPGA board takes its rate from `BOARDS` |
-| 6d | `board.constraints.num_queues` | optional, default `5`, as row 5c | it bounds `srp.class_queue` |
-| 6e | `audio_interface.kind` | `usb_audio` alone (`HOST_INTERFACES`); its cluster label is `USB` | the board's media program's interface; the FPGA front-ends are refused there, and `usb_audio` is refused on an FPGA target |
-| 6f | `audio_interface.channels` | required, 1 to 32 | a USB Audio Class 2 function's width is configured, not a bus width |
-| 6g | `gptp.port_number` | required, 1 to 65534 | the port the board's gPTP program announces from; an FPGA target's is generator-owned (row 33b) |
-| 6h | `gptp.{priority1,priority2,clock_class,clock_accuracy,offset_scaled_log_variance,log_sync_interval,log_announce_interval,log_pdelay_interval}` | each required | the dataset that program announces, which AVB_INTERFACE repeats (IEEE 1722.1-2021 7.2.8); no engine supplies a pin (rows 31 and 32) |
-| 6i | `control.placement` | must be `split` | the host program is that firmware; `all-fabric` names the protocol processor |
+| H1 | `board.target` | `host`, outside `BOARDS` (`HOST_TARGET`) | no pin, clock or PHY table applies |
+| H2 | `board.gptp_owner` | required; `host-phc` is the only value | the board's own PHC owns gPTP time |
+| H3 | `board.constraints.link_mbps` | required, `100` or `1000` | SRP's class A ceiling (Milan v1.2 5.6); an FPGA board takes its rate from `BOARDS` |
+| H4 | `board.constraints.num_queues` | optional, default `5`, as row 5c | it bounds `srp.class_queue` |
+| H5 | `audio_interface.kind` | `usb_audio` alone (`HOST_INTERFACES`); its cluster label is `USB` | the board's media program's interface; the FPGA front-ends are refused there, and `usb_audio` is refused on an FPGA target |
+| H6 | `audio_interface.channels` | required, 1 to 32 | a USB Audio Class 2 function's width is configured, not a bus width |
+| H7 | `gptp.port_number` | required, 1 to 65534 | the port the board's gPTP program announces from; an FPGA target's is generator-owned (row 33b) |
+| H8 | `gptp.{priority1,priority2,clock_class,clock_accuracy,offset_scaled_log_variance,log_sync_interval,log_announce_interval,log_pdelay_interval}` | each required | the dataset that program announces, which AVB_INTERFACE repeats (IEEE 1722.1-2021 7.2.8); no engine supplies a pin (rows 31 and 32) |
+| H9 | `control.placement` | must be `split` | the host program is that firmware; `all-fabric` names the protocol processor |
 
 The host profile refuses `board.features` (it has no fabric blocks), the FPGA
 `board.constraints` keys, a `soc:` section, `gptp.ingress_latency_ns` and
@@ -1269,13 +1269,22 @@ verifies the generated image against its CRC first, then substitutes its own
 MAC in those three fields. That step belongs to the board's integration, not
 to this repository.
 
-**The firmware shape.** THE SHAPES in
-[`ctrl_loop.h`](../sw/firmware/ctrl/loop/ctrl_loop.h) lists `(1, 1, 2)` for a
-build that defines `CTRL_HOST_PLATFORM`, and for no other. Its figures are
+**The firmware shape.** The host shape `(1, 1, 2)` is stated in
+[`host/ctrl_loop_host.h`](../sw/firmware/ctrl/host/ctrl_loop_host.h), not in
+THE SHAPES. [`ctrl_loop.h`](../sw/firmware/ctrl/loop/ctrl_loop.h) includes it
+in their place through a guard before them, for a build that defines
+`CTRL_HOST_PLATFORM` at that shape, and for no other. THE SHAPES themselves
+are the FPGA rows, unchanged, so `shape_costs.py` and the service-budget
+gates that read the table through it read it as before. The host figures are
 1x1/1if's, held as a stated host scheduling profile rather than a
-measurement; its comment says what that profile claims and what it does not.
-Without the macro the shape is refused as before, and the macro moves no FPGA
-row. Gate 41 compiles all three cases. Gate 42 plants the refusals: a `board`
+measurement; the header says what that profile claims and what it does not.
+Without the macro, or at two interfaces, the shape is refused as before. An
+FPGA config whose shape is `(1, 1, 2)` (the all-fabric `arty_current`) would
+take the host figures only under the macro, which no build input here
+defines. Gate 41 compiles these cases at one and two interfaces. It holds
+every FPGA row the compiler selects to the row `shape_costs.py` reads. It
+refuses the host row placed inside THE SHAPES' chain, and refuses the host
+figures stated in `ctrl_loop.h` beside the chain. Gate 42 plants the refusals: a `board`
 that is not a mapping (an empty list, an empty string, a list naming a
 target), refused by `load_config`'s `ConfigError` before the profile is
 chosen, as it was before the host profile existed; the three ways an FPGA

@@ -357,6 +357,14 @@ extern "C" {
 #endif
 #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
+// THE HOST PLATFORM's shape (#983) is selected here, before THE SHAPES, and
+// stated apart from them (host/ctrl_loop_host.h, which says what it claims):
+// the table below is the FPGA images' alone, as its readers take it
+// (shape_costs.py). Only a build that defines CTRL_HOST_PLATFORM, which no image
+// of this repository does, takes it, and only at the host profile's (1, 1, 2).
+#if defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
+#include "../host/ctrl_loop_host.h"
+#else
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
 #define CTRL_LOOP_SLICE_US 950u
 #define CTRL_LOOP_BUILD_PASS_US 1010u
@@ -393,36 +401,10 @@ extern "C" {
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #define CTRL_LOOP_QUEUED_MS 62u
 #define CTRL_LOOP_TX_MS 105u
-// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is
-// defined by a platform that runs this firmware as a host program on the
-// mailbox model (host/mbx_model.c) and by no image of this repository, so the
-// rows above and the #error below are unchanged for every image built here.
-// One interface, one talker source (an AAF STREAM_OUTPUT) and two listener
-// sinks (an AAF and a CRF STREAM_INPUT): the descriptor-only host profile's
-// shape (endstation_builder.py HOST_TARGET, configs/host).
-// Its figures are a STATED HOST SCHEDULING PROFILE, not a measurement of the
-// host. Each is 1x1/1if's, measured on the RV32 at 100 cycles a microsecond
-// with one talker source more (the CRF output) over the same two sinks: this
-// shape has one SRP Talker declaration fewer to build and one STREAM_OUTPUT
-// fewer to notify for. The host platform states that it serves the loop from
-// one thread, at a real-time priority below only its time owner's, on a CPU
-// that runs this code at least as fast as that RV32, and it holds these
-// figures as the loop's budgets on its microsecond clock. Two things are not
-// measured by any harness here and are not claimed: the costs that follow the
-// descriptor set rather than the streams, and the preemption of that thread,
-// on which the millisecond bounds (CTRL_LOOP_QUEUED_MS, CTRL_LOOP_TX_MS) rest.
-#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
-#define CTRL_LOOP_SLICE_US 950u
-#define CTRL_LOOP_BUILD_PASS_US 1010u
-#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
-#define CTRL_LOOP_SRP_UNIT_US 285u
-#define CTRL_LOOP_RETRY_COLD_US 85u
-#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
-#define CTRL_LOOP_QUEUED_MS 130u
-#define CTRL_LOOP_TX_MS 35u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
+#endif // the host platform's shape, or THE SHAPES
 // The passes given whole that may stand in a row: what a queue of notices needs
 // at its point's recipients, at no record's cost, since none stands in a row
 // beside a record of THE DRAIN's channel or a full pass's events.
