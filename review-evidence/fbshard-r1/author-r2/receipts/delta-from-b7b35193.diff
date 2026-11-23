@@ -1,0 +1,274 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 4be2e97a9..54c7c9b87 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -1728,8 +1728,9 @@ jobs:
+           EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-boundary
+             shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard 2/3","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","split-cdc","verilator-lint","yosys-elaboration","Prepare
+             pinned Yosys"]'
+-          SKIPPED_MATRICES: '{"firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}":["firmware-boundary
+-            shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard 2/3"]}'
++          SKIPPED_MATRICES: '{"firmware-boundary shard \u0024{{ matrix.shard }}/\u0024{{ matrix.total
++            }}":["firmware-boundary shard 0/3","firmware-boundary shard 1/3","firmware-boundary shard
++            2/3"]}'
+         run: |
+           python3 scripts/ci_fail_fast.py watch
+       - name: Cancel this run and sibling workflows
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index cad065b13..33acdf546 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -1588,14 +1588,14 @@ jobs:
+             shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator
+             shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator shard 18/19","verilator-suites","yosys-portability","Yosys
+             shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+-          SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
+-            0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator shard
+-            4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator shard
+-            8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator shard 11/19","Verilator shard
+-            12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator shard 15/19","Verilator
+-            shard 16/19","Verilator shard 17/19","Verilator shard 18/19"],"Yosys shard ${{ matrix.shard
+-            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
+-            3/4"]}'
++          SKIPPED_MATRICES: '{"Verilator shard \u0024{{ matrix.shard }}/\u0024{{ matrix.total }}":["Verilator
++            shard 0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator
++            shard 4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator
++            shard 8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator shard 11/19","Verilator
++            shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator shard 15/19","Verilator
++            shard 16/19","Verilator shard 17/19","Verilator shard 18/19"],"Yosys shard \u0024{{ matrix.shard
++            }}/\u0024{{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys
++            shard 3/4"]}'
+         run: |
+           python3 scripts/ci_fail_fast.py watch
+       - name: Cancel this run and sibling workflows
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 0a6e34b38..1ca634ad7 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -3479,6 +3479,13 @@ evidence stays incomplete and can never compare as a valid build.
+ The watcher and collector accept a skipped matrix's raw expression name only when the API
+ reports that job completed and skipped. Its expansion comes from the generated
+ matrix; expanded and unexpanded results cannot both cover the same leg.
++A raw name may never equal an expanded one, and the generator and the watcher both refuse that.
++The runner evaluates every expression in an env value, quoted or not, and the watcher has no matrix.
++So the generator writes the watcher's job lists with JSON's `\u0024` for each `$` that opens an expression.
++They then reach `json.loads` as the raw names, never as `firmware-boundary shard /` (#980).
++A fail-fast control evaluates the committed watcher env as a job with no matrix before watching.
++It skips each raw matrix, waits on a running job, then reports that job's failure with cancellation intact.
++Given the unescaped form, the same control finds the watcher stopped after one read.
+ The collector records each covered leg as skipped, never successful.
+ Controls retain the raw matrix names observed in run `38273578232`.
+ Each first-failure conclusion has a separate control: failure, cancelled,
+diff --git a/scripts/ci_fail_fast.py b/scripts/ci_fail_fast.py
+index 4c9f49124..b07ba1d88 100644
+--- a/scripts/ci_fail_fast.py
++++ b/scripts/ci_fail_fast.py
+@@ -116,6 +116,8 @@ def observe(jobs: list[dict], expected: set[str],
+             skipped: dict[str, list[str]] | None = None) -> tuple[bool, dict | None]:
+     """Do not confuse an empty startup response with successful completion."""
+     skipped = skipped or {}
++    if set(skipped) & expected:
++        raise ValueError("an unexpanded matrix name equals an expanded job name")
+     terminal_names = {"Fail fast across this head", "Cancel late CI failures"}
+     if {job["name"] for job in jobs} - expected - set(skipped) - terminal_names:
+         raise ValueError("API returned an unplanned job name")
+diff --git a/scripts/ci_fail_fast_selftest.py b/scripts/ci_fail_fast_selftest.py
+index a60130b13..987f93579 100644
+--- a/scripts/ci_fail_fast_selftest.py
++++ b/scripts/ci_fail_fast_selftest.py
+@@ -3,18 +3,20 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Prove first-failure selection, successful completion and fork write refusal."""
+ 
++from contextlib import redirect_stdout
+ import copy
+ import io
+ import json
+ import os
+ from pathlib import Path
++import re
+ import tempfile
+ from unittest.mock import patch
+ from urllib.error import HTTPError, URLError
+ 
+ from ci_fail_fast import API, cancel, observe, same_repository, watch, tail_failed, retry_delay
+ from ci_gate_workflows import ROOT, generate, load_template
+-from ci_workflow_plan import expand_workflow
++from ci_workflow_plan import expand_workflow, skipped_matrices
+ import yaml
+ 
+ 
+@@ -99,6 +101,102 @@ def graph_controls() -> None:
+         print(name + ": generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS")
+ 
+ 
++#: One workflow expression wherever it appears in a value: the runner does not honour YAML quoting.
++EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.S)
++
++
++def evaluate_without_matrix(text: str) -> str:
++    """Evaluate an env value as the runner does in a job that has no matrix.
++
++    A ``matrix`` property is absent there and evaluates to an empty string. Any other expression is
++    refused: the watcher's job lists are generated as literals, so one there is itself a defect."""
++    def value(match: re.Match) -> str:
++        """An absent matrix property is empty; nothing else is evaluable in a literal."""
++        expression = match.group(1).strip()
++        if re.fullmatch(r"matrix\.[A-Za-z_][A-Za-z0-9_-]*", expression):
++            return ""
++        raise AssertionError("expression in a literal watcher value: " + expression)
++    return EXPRESSION.sub(value, text)
++
++
++class ReadsAPI:
++    """Serve one job list per read; the last list repeats if the watcher reads again."""
++
++    def __init__(self, reads: list[list[dict]]) -> None:
++        self.reads = reads
++        self.calls = 0
++
++    def pages(self, path: str, field: str) -> list[dict]:
++        """Every read is the current attempt's job list for the run under observation."""
++        assert path.startswith("runs/1/jobs") and field == "jobs"
++        self.calls += 1
++        return copy.deepcopy(self.reads[min(self.calls, len(self.reads)) - 1])
++
++
++def watcher_runtime_control(workflow: dict) -> None:
++    """Watch a raw skipped matrix with the job lists the runner actually delivers to the watcher.
++
++    The first read has every matrix skipped unexpanded and one job still running; the second has that
++    job failed. The watcher must wait through the first, report the second and leave cancellation
++    authority intact. Each failure names what the watcher did, so a plant can show which one fired."""
++    watcher = workflow["jobs"]["ci-fail-fast"]
++    if "strategy" in watcher:
++        raise AssertionError("the watcher gained a matrix; evaluate_without_matrix no longer models it")
++    observer = next(step for step in watcher["steps"] if step.get("id") == "ci_observe")
++    expected = set(json.loads(evaluate_without_matrix(observer["env"]["EXPECTED_JOBS"])))
++    skipped = json.loads(evaluate_without_matrix(observer["env"]["SKIPPED_MATRICES"]))
++    declared = skipped_matrices(workflow)
++    covered = {label for rows in declared.values() for label in rows}
++    waiting = sorted(expected - covered)
++    raw = [{"name": name, "status": "completed", "conclusion": "skipped", "steps": []} for name in declared]
++    first = raw + [{"name": label, "status": "in_progress", "conclusion": None} if index == 0 else
++                   {"name": label, "status": "completed", "conclusion": "success"}
++                   for index, label in enumerate(waiting)]
++    second = copy.deepcopy(first)
++    second[len(raw)].update(status="completed", conclusion="failure")
++    with tempfile.TemporaryDirectory(prefix="watcher-runtime-control-") as directory:
++        output = Path(directory) / "output"
++        api = ReadsAPI([first, second])
++        with patch("ci_fail_fast.time.sleep") as sleep, patch.dict(os.environ, {"GITHUB_OUTPUT": str(output)}), \
++                redirect_stdout(io.StringIO()) as printed:
++            rc = watch(api, 1, expected, skipped)
++        if output.exists() and "observer_error=true" in output.read_text():
++            raise AssertionError(f"watcher stopped observing: observer_error after {api.calls} read(s), rc={rc}")
++        if (rc, api.calls, sleep.call_count) != (1, 2, 1):
++            raise AssertionError(f"watcher missed the later failure: rc={rc}, reads={api.calls}")
++    reported = json.loads(printed.getvalue())
++    assert reported == {"first_failure": waiting[0], "conclusion": "failure"}
++    if skipped != declared:
++        raise AssertionError("delivered skipped-matrix names differ from the raw names: " + str(sorted(skipped)))
++    assert not set(skipped) & expected
++    complete = raw + [{"name": label, "status": "completed", "conclusion": "success"} for label in waiting]
++    assert observe(complete, expected, skipped) == (True, None)
++    assert observe(first, expected, skipped) == (False, None)
++    cancellation_control()
++
++
++def watcher_runtime_controls() -> None:
++    """Run the control on each committed workflow, then on the round-one form of its skipped matrices."""
++    for name in ("docs", "elaborate", "rtl", "rtl-fast"):
++        path = ROOT / ".github" / "workflows" / (name + ".yml")
++        workflow = yaml.safe_load(path.read_text())
++        watcher_runtime_control(workflow)
++        observer = next(step for step in workflow["jobs"]["ci-fail-fast"]["steps"] if step.get("id") == "ci_observe")
++        unescaped = json.dumps(skipped_matrices(workflow), separators=(",", ":"))
++        if "${{" not in unescaped:
++            assert observer["env"]["SKIPPED_MATRICES"] == unescaped == "{}"
++            print(name + ": watcher runtime control PASS; no matrix, no plant applies")
++            continue
++        observer["env"]["SKIPPED_MATRICES"] = unescaped
++        try:
++            watcher_runtime_control(workflow)
++        except AssertionError as caught:
++            assert str(caught).startswith("watcher stopped observing"), caught
++            print(name + ": watcher runtime control PASS; plant of the unescaped raw names caught: " + str(caught))
++        else:
++            raise AssertionError(name + ": unescaped raw matrix names were not caught")
++
++
+ class FixtureAPI:
+     """Record every requested write, without network or credentials."""
+ 
+@@ -136,6 +234,13 @@ def main() -> int:
+     """Exercise both production decision functions with adverse contexts."""
+     observer_controls()
+     graph_controls()
++    watcher_runtime_controls()
++    try:
++        observe([], {"same"}, {"same": ["same 0"]})
++    except ValueError as caught:
++        assert str(caught) == "an unexpanded matrix name equals an expanded job name"
++    else:
++        raise AssertionError("an unexpanded name equal to an expanded name was accepted")
+     repo = "fixture/project"
+     event = {"repository": {"full_name": repo},
+              "pull_request": {"head": {"repo": {"full_name": repo}}}}
+diff --git a/scripts/ci_runtime_workflows.py b/scripts/ci_runtime_workflows.py
+index 21ecf0134..8a78f311d 100644
+--- a/scripts/ci_runtime_workflows.py
++++ b/scripts/ci_runtime_workflows.py
+@@ -122,6 +122,19 @@ def instrument(path: str, job_id: str, job: dict) -> None:
+     ])
+ 
+ 
++def literal_json(value: object) -> str:
++    """JSON text that the runner's expression evaluation delivers unchanged.
++
++    The runner evaluates every ``${{ }}`` in an env value, YAML quotes included. The watcher has no
++    matrix, so the expressions in a skipped matrix's raw name would become empty strings there.
++    JSON's own escape for ``$`` keeps that text away from the evaluator and decodes back to the
++    exact raw name, so the consumer reads it with a plain ``json.loads``."""
++    text = json.dumps(value, separators=(",", ":")).replace("${{", "\\u0024{{")
++    if "${{" in text or json.loads(text) != value:
++        raise ValueError("watcher JSON does not survive expression evaluation unchanged")
++    return text
++
++
+ def watcher(labels: list[str], skipped: dict) -> dict:
+     """Only this guarded job requests write permission; fork events cannot enter it."""
+     return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
+@@ -131,8 +144,8 @@ def watcher(labels: list[str], skipped: dict) -> dict:
+             "steps": [{"uses": "actions/checkout@v4"},
+                       {"name": "Observe the first failed job", "id": "ci_observe",
+                        "env": {"GH_TOKEN": "${{ github.token }}",
+-                               "EXPECTED_JOBS": json.dumps(labels, separators=(",", ":")),
+-                               "SKIPPED_MATRICES": json.dumps(skipped, separators=(",", ":"))},
++                               "EXPECTED_JOBS": literal_json(labels),
++                               "SKIPPED_MATRICES": literal_json(skipped)},
+                        "run": "python3 scripts/ci_fail_fast.py watch\n"},
+                       {"name": "Cancel this run and sibling workflows",
+                        "if": "${{ failure() && steps.ci_observe.outputs.observer_error != 'true' }}",
+@@ -188,6 +201,8 @@ def generate(name: str, source: dict) -> dict:
+     source["jobs"]["ci-manifest"] = collector(name, list(source["jobs"]))
+     _, labels = expand_workflow(path, yaml.safe_dump(source))
+     skipped = skipped_matrices(source)
++    if set(skipped) & set(labels.values()):
++        raise ValueError(path + ": an unexpanded matrix name equals an expanded job name")
+     source["jobs"]["ci-fail-fast"] = watcher(list(labels.values()), skipped)
+     for job_id, job in source["jobs"].items():
+         if job_id != "ci-manifest":
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index e33c27847..e13cdcfdb 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -168,7 +168,7 @@ The self-test's shard controls drop the first unit from the table and add it to
+ `--build-part` first proves, through the control gate's live dispatch, that its parts build every suite of the default build-only run once, and refuses a planted dropped and a planted duplicated suite.
+ Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
+ The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
+-The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
++The boundary and Verilator paths partition the builders. Each recorded compile is judged whole; the boundary aggregate judges the shard captures.
+ The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
+ Each must be a known builder, be listed in `PART_OF` with the builder it runs under, in `OUTSIDE` with the reason its compiles are none of the firmware's, or in `SUITES` with what it compiles only inside a suite; one that is no program (a Makefile, or a Python module with a `__main__` block, is one) may instead have compiled in the capture.
+ So a builder dropped from the known set refuses the gate by name, even where another builder still runs it.

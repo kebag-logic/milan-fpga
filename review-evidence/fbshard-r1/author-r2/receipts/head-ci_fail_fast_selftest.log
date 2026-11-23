@@ -1,0 +1,20 @@
+5392adf989349b68cfbb54d91fd0413c5b745521
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: TimeoutError
+Observer unavailable: URLError
+Watcher read refused: HTTP 400
+Watcher read refused: HTTP 401
+Watcher read refused: HTTP 404
+Observer controls: 403, 429, 502, timeout, transport, bounded retries and recovery PASS; 400, 401 and 404 fail the watcher
+docs: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+elaborate: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS
+docs: watcher runtime control PASS; no matrix, no plant applies
+elaborate: watcher runtime control PASS; no matrix, no plant applies
+rtl: watcher runtime control PASS; plant of the unescaped raw names caught: watcher stopped observing: observer_error after 1 read(s), rc=0
+rtl-fast: watcher runtime control PASS; plant of the unescaped raw names caught: watcher stopped observing: observer_error after 1 read(s), rc=0
+fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+rc=0

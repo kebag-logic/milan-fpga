@@ -1,0 +1,29 @@
+5392adf989349b68cfbb54d91fd0413c5b745521
+1. committed control against the round-1 committed workflows at b7b351935f65416c8632c21dd13e08fb2e9c1d9c
+   docs: passes (no skipped matrix)
+   elaborate: passes (no skipped matrix)
+   rtl: CAUGHT: watcher stopped observing: observer_error after 1 read(s), rc=0
+   rtl-fast: CAUGHT: watcher stopped observing: observer_error after 1 read(s), rc=0
+2. matrix expressions inside jobs with no matrix
+   HEAD docs EXPECTED_JOBS: 0 expression(s) []
+   HEAD docs SKIPPED_MATRICES: 0 expression(s) []
+   HEAD elaborate EXPECTED_JOBS: 0 expression(s) []
+   HEAD elaborate SKIPPED_MATRICES: 0 expression(s) []
+   HEAD rtl EXPECTED_JOBS: 0 expression(s) []
+   HEAD rtl SKIPPED_MATRICES: 0 expression(s) []
+   HEAD rtl-fast EXPECTED_JOBS: 0 expression(s) []
+   HEAD rtl-fast SKIPPED_MATRICES: 0 expression(s) []
+   round 1 docs EXPECTED_JOBS: 0 expression(s) []
+   round 1 docs SKIPPED_MATRICES: 0 expression(s) []
+   round 1 elaborate EXPECTED_JOBS: 0 expression(s) []
+   round 1 elaborate SKIPPED_MATRICES: 0 expression(s) []
+   round 1 rtl:ci-fail-fast: ['${{ matrix.shard }}', '${{ matrix.total }}']
+   round 1 rtl EXPECTED_JOBS: 0 expression(s) []
+   round 1 rtl SKIPPED_MATRICES: 4 expression(s) ['${{ matrix.shard }}', '${{ matrix.total }}']
+   round 1 rtl-fast:ci-fail-fast: ['${{ matrix.shard }}', '${{ matrix.total }}']
+   round 1 rtl-fast EXPECTED_JOBS: 0 expression(s) []
+   round 1 rtl-fast SKIPPED_MATRICES: 2 expression(s) ['${{ matrix.shard }}', '${{ matrix.total }}']
+3. generator plant: the shard matrix left unnamed, and a plain job named as its unexpanded id
+   control: the unnamed matrix alone generates (raw 'firmware-boundary-shards', expanded 'firmware-boundary-shards (0, 3)' ...)
+   REFUSED: .github/workflows/rtl-fast.yml: an unexpanded matrix name equals an expanded job name
+rc=0
