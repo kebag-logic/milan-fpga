@@ -1,0 +1,20 @@
+# reviewers' probes run at c113018d: R886-2's probe_kept_grade.py unchanged; R885-2's probe_kept_grade.py and probe_selftest_coverage.py adapted to the changed signatures (scripts/r885_*.py; the diffs are their only changes)
+PASS build-one one cycle over cost: ['srp-kept: a build-one pass at bus cycle 5000000: 73,501 CPU cycles over 
+PASS only one group graded: ['srp-kept and srp-bound are graded together on one image, this run graded srp-kep
+PASS named and linked OWED disposition: ["srp-kept: an SRP record's apply of 40000 CPU cycles, over its stated
+PASS valid idle-only over-share row: ([], [(0, 250000)])
+PASS complete-clean: expected rc=0, observed rc=0
+PASS complete-over-share: expected rc=1, observed rc=1
+PASS missing-json: expected rc=1, observed rc=1
+PASS empty-json: expected rc=1, observed rc=1
+PASS missing-share: expected rc=1, observed rc=1
+R886 valid-within rc 0 kept_grade: PASS (0 finding(s), 0 owed t
+R886 valid-over rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 absent-result rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 empty-result rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 missing-share rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 missing-mate rc 1 kept_grade: FAIL (5 finding(s), 0 owed t
+R886 stale-result rc 1 kept_grade: FAIL (2 finding(s), 0 owed t
+no-build-over-cost-finding: CAUGHT; 18/19 self-tests pass
+no-missing-json-finding: CAUGHT; 18/19 self-tests pass
+no-paired-group-requirement: CAUGHT; 18/19 self-tests pass

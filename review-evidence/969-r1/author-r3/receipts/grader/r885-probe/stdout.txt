@@ -1,0 +1,81 @@
+PASS repository selftest: records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found: ([], [])
+PASS repository selftest: records past the unit with kept <= bound are owed to #977, by name and link, and found nothing: (['srp.kept_advertise.if0: a record of 54,284 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)', 'srp.bound_advertise.if0: a record of 81,426 CPU cycles, 855 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)'], [])
+PASS repository selftest: a kept record one cycle dearer than the bound one breaks kept <= bound, its own probe's: (['srp.kept_advertise.if0: a record of 54,284 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)', 'srp.bound_advertise.if0: a record of 54,283 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)'], ["srp.kept_advertise.if0: kept <= bound broken, 54,284 CPU cycles against the bound record's 54,283"])
+PASS repository selftest: a probe with no record is a finding, the next probe's record not taken for it: ([], ['srp.kept_recount.if0: no SRP record follows its mark'])
+PASS repository selftest: a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977: (["srp-bound: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"], ['srp-kept: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE'])
+PASS repository selftest: an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start: [([], ["srp-kept: idle run 0's longest pass, 200,001 CPU cycles, over THE SHARE (an idle pass makes no registration, so it is not owed)"]), ([], ["srp-bound: idle run 0's longest pass, 200,001 CPU cycles, over THE SHARE (an idle pass makes no registration, so it is not owed)"])]
+PASS repository selftest: a build of one MRPDU one cycle over its stated cost is a finding in either group: [([], ['srp-kept: a build-one pass at bus cycle 9500000: 73,501 CPU cycles over its stated cost']), ([], ['srp-bound: a build-one pass at bus cycle 9500000: 73,501 CPU cycles over its stated cost'])]
+PASS repository selftest: an unfinished srp-kept log measures nothing: a finding: ([], ['srp-kept: its log measures nothing: srp-kept: the simulation did not complete: FAIL'])
+PASS repository selftest: a probe the point makes that is never marked is a finding: ([], ['srp.kept_failed.if0: never marked in the srp-kept log'])
+PASS repository selftest: a kept probe with no bound record of its own interface is a finding, never a skipped comparison: ([], ['srp.bound_advertise.if0: never marked in the srp-bound log', 'srp.bound_advertise.if1: marked in the srp-bound log, not a probe of srp-bound at 1 interface(s)', 'srp.kept_advertise.if0: no srp.bound_advertise.if0 record of its interface on the same image, so kept <= bound is unchecked', 'srp.kept_recount.if0: no srp.bound_advertise.if0 record of its interface on the same image, so kept <= bound is unchecked', 'srp.kept_failed.if0: no srp.bound_advertise.if0 record of its interface on the same image, so kept <= bound is unchecked'])
+PASS repository selftest: both groups graded together: their #977 lines are owed by name and link, and nothing stays: ([], [], ["srp-kept: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)", 'srp-bound: a walk item of 15,000 CPU cycles, over its stated 12,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)'])
+PASS repository selftest: one group graded alone is a finding: nothing is owed and every line stays a failure: (['srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone'], ["srp-kept: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500", 'srp-bound: a walk item of 15,000 CPU cycles, over its stated 12,000', '#977 (https://github.com/kebag-logic/milan-fpga/issues/977): srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone'])
+PASS repository selftest: both groups graded together with a condition broken in a log: the finding stays, nothing is owed: (['srp-kept: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE'], ["srp-kept: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500", 'srp-bound: a walk item of 15,000 CPU cycles, over its stated 12,000', '#977 (https://github.com/kebag-logic/milan-fpga/issues/977): srp-kept: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE'])
+PASS repository selftest: standalone: both logs complete and within: PASS: POINT -, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 1,000 CPU cycles, 15 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 1,000 against 27,142 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+kept_grade: PASS (0 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+
+PASS repository selftest: standalone: THE SHARE is read from the log, so a kept work pass over it fails beside a stale or empty result file: [(1, 'POINT -, 1 interface(s): shape (1, 2, 2)\nRECORD srp.kept_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.kept_recount.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.kept_failed.if0: the dearest 1,000 CPU cycles, 15 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.bound_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nKEPT <= BOUND srp.kept_advertise.if0: 27,142 against 27,142 CPU cycles\nKEPT <= BOUND srp.kept_recount.if0: 27,142 against 27,142 CPU cycles\nKEPT <= BOUND srp.kept_failed.if0: 1,000 against 27,142 CPU cycles\nSHARE srp-kept: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 1 work pass(es) and 0 idle run(s) in its log\nSHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log\nBUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)\nBUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)\nBUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)\nBUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)\nFINDING srp-kept: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE\nkept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))\n'), (1, 'POINT -, 1 interface(s): shape (1, 2, 2)\nRECORD srp.kept_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.kept_recount.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.kept_failed.if0: the dearest 1,000 CPU cycles, 15 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nRECORD srp.bound_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us\nKEPT <= BOUND srp.kept_advertise.if0: 27,142 against 27,142 CPU cycles\nKEPT <= BOUND srp.kept_recount.if0: 27,142 against 27,142 CPU cycles\nKEPT <= BOUND srp.kept_failed.if0: 1,000 against 27,142 CPU cycles\nSHARE srp-kept: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 1 work pass(es) and 0 idle run(s) in its log\nSHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log\nBUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)\nBUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)\nBUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)\nBUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)\nFINDING srp-kept: a work pass of 200,001 CPU cycles at bus cycle 9000000 over THE SHARE\nkept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))\n')]
+PASS repository selftest: standalone: an idle run over THE SHARE fails by name, never a crash: POINT -, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 1,000 CPU cycles, 15 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 1,000 against 27,142 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 1 idle run(s) over THE SHARE, of 0 work pass(es) and 1 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+FINDING srp-kept: idle run 0's longest pass, 200,001 CPU cycles, over THE SHARE (an idle pass makes no registration, so it is not owed)
+kept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+
+PASS repository selftest: standalone: a group with no log fails by name: 
+FINDING srp-bound: no srp-bound.log in the results: run.py --groups srp-kept,srp-bound first
+kept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+
+PASS repository selftest: standalone: an unfinished log fails by name beside a within-share result file: POINT -, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 1,000 CPU cycles, 15 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 27,142 CPU cycles, 285 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 27,142 against 27,142 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 1,000 against 27,142 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 0 work pass(es) and 0 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+FINDING srp-kept: its log measures nothing: srp-kept: the simulation did not complete: FAIL
+kept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+
+PASS repository selftest: standalone: a log that does not parse fails by name: 
+FINDING srp-kept: its log does not parse: unknown observation line: NOT-A-LINE 1
+kept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+
+PASS build-one one cycle over cost: ['srp-kept: a build-one pass at bus cycle 5000000: 73,501 CPU cycles over its stated cost']
+PASS only one group graded: ['srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone']
+PASS named and linked OWED disposition: ["srp-kept: an SRP record's apply of 40000 CPU cycles, over its stated 28500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)", 'srp-bound: a walk item of 15000 CPU cycles, over its stated 12000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)']
+PASS valid idle-only over-share row: ([], [(0, 250000)])
+PASS complete-clean: expected rc=0, observed rc=0
+PASS complete-over-share: expected rc=1, observed rc=1
+PASS missing-json: expected rc=1, observed rc=1
+PASS empty-json: expected rc=1, observed rc=1
+PASS missing-share: expected rc=1, observed rc=1

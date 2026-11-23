@@ -1,0 +1,24 @@
+# scripts/plant_kept_grade.py at c113018d: each held condition removed in memory, kept_grade's own --selftest on the planted module
+unplanted: 19/19 self-test checks pass
+log-refusal-removed: CAUGHT by 2 check(s): an unfinished srp-kept log measures nothing: a finding
+never-marked-unfound: CAUGHT by 2 check(s): a probe the point makes that is never marked is a finding
+foreign-probe-unfound: CAUGHT by 1 check(s): a kept probe with no bound record of its own interface is a finding, never a skipped comparison
+no-record-unfound: CAUGHT by 1 check(s): a probe with no record is a finding, the next probe's record not taken for it
+unit-never-owed: CAUGHT by 1 check(s): records past the unit with kept <= bound are owed to #977, by name and link, and found nothing
+mate-missing-skipped: CAUGHT by 1 check(s): a kept probe with no bound record of its own interface is a finding, never a skipped comparison
+kept-over-bound-unfound: CAUGHT by 1 check(s): a kept record one cycle dearer than the bound one breaks kept <= bound, its own probe's
+share-not-read-from-log: CAUGHT by 5 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+kept-share-unfound: CAUGHT by 3 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+bound-share-not-owed: CAUGHT by 1 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+idle-run-unfound: CAUGHT by 2 check(s): an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start
+idle-read-as-work: CAUGHT by 2 check(s): an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start
+build-over-cost-unfound: CAUGHT by 1 check(s): a build of one MRPDU one cycle over its stated cost is a finding in either group
+pair-not-required: CAUGHT by 1 check(s): one group graded alone is a finding: nothing is owed and every line stays a failure
+disposition-ignores-findings: CAUGHT by 1 check(s): both groups graded together with a condition broken in a log: the finding stays, nothing is owed
+owed-despite-findings: CAUGHT by 2 check(s): one group graded alone is a finding: nothing is owed and every line stays a failure
+absent-log-unfound: CAUGHT by 1 check(s): standalone: a group with no log fails by name
+share-owed-despite-findings: CAUGHT by 1 check(s): both groups graded together with a condition broken in a log: the finding stays, nothing is owed
+record-taken-by-the-next-mark: CAUGHT by 13 check(s): records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found
+unparsed-log-unfound: CAUGHT by 1 check(s): standalone: a log that does not parse fails by name
+plants: 20, caught 20, escaped 0
+rc=0

@@ -1,0 +1,38 @@
+# the hot section (_ctrl_hot_start .. _ctrl_hot_end), base dd163e41 against the final firmware (5dba2089; no firmware source changed since f02d44cd), every function by its place in the section (scripts/hot_census.py; static functions can share a name)
+# corrects the counted population of round 2's hot-section-f02d44cd.txt: its 152 'at a different offset or size' include reset_interface (resized at its own offset), so 151 functions after it moved
+## platform image (ctrl_plat_image.py against the base ledger run's split SoC), 1x1/1if: base, then the final firmware
+sha256 f5a6b98df27667ce6d7998327051e42a533139374faaabb00f0b13fe42e6ca74 159484 B; rom 126432 B, sram 56736 B, tiles 45.0
+sha256 902e5e39367947314243d8c0fa46bb1ea96bc68a33a4af97eee454b2c6f25a72 163624 B; rom 127376 B, sram 56736 B, tiles 45.5
+hot section: base 56696 B, 261 functions; head 56712 B, 261 functions
+changed in offset or size: 152
+resized: 1: reset_interface 536 -> 552 B at offset 26852 (moved +0 B)
+at another offset only (the same size): 151, moved by {16: 151}
+unchanged: 109
+after reset_interface in the section: 151 functions, 151 of them moved; before it: 109, 0 of them moved
+## platform image (ctrl_plat_image.py against the base ledger run's split SoC), 8x8/1if: base, then the final firmware
+sha256 0add4cbd25ffc66df02b4410cc6c125d791a9d618d978c9b8034d8c7655878d7 172164 B; rom 139208 B, sram 98160 B, tiles 58.0
+sha256 1e0e66163d6f4c0dfda4f40933c6810ee529b3de156cfb55b43600b98a09a568 176304 B; rom 140136 B, sram 98288 B, tiles 58.5
+hot section: base 56620 B, 261 functions; head 56636 B, 261 functions
+changed in offset or size: 152
+resized: 1: reset_interface 552 -> 568 B at offset 26828 (moved +0 B)
+at another offset only (the same size): 151, moved by {16: 151}
+unchanged: 109
+after reset_interface in the section: 151 functions, 151 of them moved; before it: 109, 0 of them moved
+## CPU budget image (run.py's build, the image the srp-kept and srp-bound runs measured), 1x1: base, then 5dba2089
+sha256 ffea0386823638ff22f5dfb8024e2558f7f65a2676ab8059d0f07035ea116c3c 149516 B
+sha256 5aac39263dab9609dfccf2dd8aa6bedb71b5f09c5ca99da9f7c46515180e9a16 149560 B
+hot section: base 56776 B, 266 functions; head 56792 B, 266 functions
+changed in offset or size: 155
+resized: 1: reset_interface 536 -> 552 B at offset 26880 (moved +0 B)
+at another offset only (the same size): 154, moved by {16: 154}
+unchanged: 111
+after reset_interface in the section: 154 functions, 154 of them moved; before it: 111, 0 of them moved
+## CPU budget image (run.py's build, the image the srp-kept and srp-bound runs measured), 8x8-1if: base, then 5dba2089
+sha256 c6ce195013b1539ac9e35cf49f91af32dcc41290ea1e2d7d0acc280eaee7290d 162196 B
+sha256 3d1bc5252da3b6b2df44e9bcb59cc5dab58708127da44421d6b587c451864e66 162240 B
+hot section: base 56700 B, 266 functions; head 56716 B, 266 functions
+changed in offset or size: 155
+resized: 1: reset_interface 552 -> 568 B at offset 26856 (moved +0 B)
+at another offset only (the same size): 154, moved by {16: 154}
+unchanged: 111
+after reset_interface in the section: 154 functions, 154 of them moved; before it: 111, 0 of them moved
