@@ -1,0 +1,112 @@
+[
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "case": "board=[]",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "case": "board=''",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "case": "board=['ax7101']",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "case": "board=[]",
+    "outcome": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "case": "board=''",
+    "outcome": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "case": "board=['ax7101']",
+    "outcome": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "case": "host example",
+    "image_bytes": 5784,
+    "image_sha256": "9a59e2741913d93e9ad71bba890ce65d75fc4101170e9427997a00aa15ee29dd",
+    "talker_max_frame_bytes": [
+      217
+    ],
+    "talker_formats": [
+      [
+        "0x0205022002006000"
+      ]
+    ]
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "case": "board endstation_pb2_bridge.yaml",
+    "image_bytes": 5784,
+    "image_sha256": "461aea466d30aaf10c2b54e4ea889aa39dda10ac46820d438102b0c4a9c19083",
+    "talker_max_frame_bytes": [
+      217
+    ],
+    "talker_formats": [
+      [
+        "0x0205022002006000"
+      ]
+    ]
+  },
+  {
+    "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+    "case": "board=[]",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+    "case": "board=''",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+    "case": "board=['ax7101']",
+    "outcome": "ConfigError",
+    "message": "board: missing required key 'target'"
+  },
+  {
+    "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+    "case": "host example",
+    "image_bytes": 5784,
+    "image_sha256": "9a59e2741913d93e9ad71bba890ce65d75fc4101170e9427997a00aa15ee29dd",
+    "talker_max_frame_bytes": [
+      217
+    ],
+    "talker_formats": [
+      [
+        "0x0205022002006000"
+      ]
+    ]
+  },
+  {
+    "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+    "case": "board endstation_pb2_bridge.yaml",
+    "image_bytes": 5784,
+    "image_sha256": "461aea466d30aaf10c2b54e4ea889aa39dda10ac46820d438102b0c4a9c19083",
+    "talker_max_frame_bytes": [
+      217
+    ],
+    "talker_formats": [
+      [
+        "0x0205022002006000"
+      ]
+    ]
+  }
+]
