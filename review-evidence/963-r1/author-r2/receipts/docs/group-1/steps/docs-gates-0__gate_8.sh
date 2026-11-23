@@ -1,0 +1,17 @@
+set -euo pipefail
+case "$EVENT_NAME" in
+  pull_request)
+    if [ -z "$PR_BASE_REF" ]; then
+      echo "the pull_request event names no base branch"; exit 2
+    fi
+    git fetch --quiet origin "$PR_BASE_REF"
+    base="$(git merge-base HEAD FETCH_HEAD || true)"
+    ;;
+  push) base="$PUSH_BEFORE_SHA" ;;
+  *) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;
+esac
+if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then
+  echo "the $EVENT_NAME event names no base commit"; exit 2
+fi
+git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"
+python3 scripts/check_em_dash.py --base "$base"

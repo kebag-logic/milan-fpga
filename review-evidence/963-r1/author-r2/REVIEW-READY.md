@@ -1,0 +1,27 @@
+[A819] REVIEW READY
+Commit: a18f0996f4b1b654a232dfe56fa64ee7ecaf697e (branch `pf-963-1`, local; one commit on the reviewed head `4cca9569`, test and plant table only. PR base `dev-soft-core`, now `854bd723`, which holds `dd163e41`, the merge base.) This supersedes the round-1 REVIEW READY's (issuecomment-7096625846) tally and verification claims; that comment is left as posted.
+
+Changed (from `4cca9569`; no firmware, RTL, `tb/` or doc file):
+- `sw/firmware/ctrl/test/test_aecp.cpp`, `Core.MapEditsAreTheirDefinitionRowForRow`. The definition's illegal mappings now also name an existing stream (0 or 1) at the channel one past its format's, refused before its port is read. The first 4,000 seeded edits are drawn exactly as before. A further 4,000 carry the new mapping. A new floor requires at least 20 output edits refused at such a mapping of a stream the edit has not read; there are 86.
+- `sw/firmware/ctrl/test/aecp_map_mutants.py`: new row `map-read-before-legal`, the running check moved before the legality check at `aecp_maps.c:534`, graded by the edit test's "the edit reads its port once for each output stream its definition reaches".
+
+Findings, each closed at its cause:
+- **R898-1 F1 / R899-1-F1 (MINOR, Tests and Docs): "1,846 plants caught".** The PR body now states each shard's own unit, counted from the lines the gate prints in each complete log (each log's sha256 matches the header of round 1's published excerpt). At `50d3f10e` the three campaigns caught 1,756 plants: 826 in shard 1 (its own line, `mutants: 826 of 826 caught`), 389 in shard 2 and 541 in shard 3 (359, 167 and 15 in its three campaigns). None escaped. Beside them, shard 3 refused 2 dependency-pin controls, which are not firmware plants. Shard 0's 88 are suite arms, not plants. So 1,846 = 1,756 plants + 88 suite arms + 2 pin controls, and R898's 1,758 is the 1,756 with the 2 pin controls. At `a18f0996` the AECP campaign has 390 plants and caught 390. The gate's own inventory now reads `1848 live invocations ...; shard sizes [88, 827, 391, 542]`.
+- **R899-1-F2 (MINOR, Tests and Docs): verification marked complete.** "Required local verification bar passes" is unchecked. The PR's Status now has a table of what ran and at which head. The full native Verilator sweep is NOT RUN, owed to the merge candidate (CONTRIBUTING 2.1 step 7). Shard 0 was not re-run at the final head as a gate command. Only its 18 AECP arms, the ones compiling `test_aecp.cpp`, ran at `a18f0996`. The source-head record names no candidate result.
+- **R898-1 R1 (RESIDUE, Docs).** "The port is called exactly as before." is now R898's exact sentence: "Each observation calls the port as before: a brief observation of the mapping's STREAM_OUTPUT."
+- **R898-1 S1 (SUGGESTION, Tests and Robustness).** Closed by the test and plant above. `map-read-before-legal` is caught at `a18f0996` on its words. Against the test as it was at `4cca9569`, it escapes (rc 1), which is the gap the review found.
+
+Validation, every unit in the foreground on a fresh clone of `a18f0996`:
+- Focused: both map-edit tests unplanted pass (app and work arms). `map-read-before-legal` and the 16 other rows the edit test grades are each caught on their own words. The new row against `4cca9569`'s test escapes.
+- AECP campaign, shard 2's whole table through its own entry point in 20 partitions (`aecp_mutants.py --shard i 20`): 390 of 390 rows run once each, 390 caught, 0 escaped. The gate command `--shard 2/4` itself was not run at this head.
+- Shard 0's AECP arms (`aecp_arms.all_arms`, reported by the gate's `ctrl_arms.report`): 18 of 18 ok, after the gate's shard-inventory self-check PASS.
+- Coverage ratchet: `--selftest` rc 0. `--check` as one unit was cut by the 570 s cap, so its two coverage-mode gate runs went separately, then its measurement path: `firmware coverage: PASS (40 files)`, `aecp_maps.c` 352/352 lines, 423/424 branches.
+- Docs workflow gate steps: 43 of 46 rc 0, each the workflow's own step body. The em-dash step reports 0 findings over 1 added line against `dd163e41`. `gate_24` was cut by the cap twice and did not complete. The builder legs `gate_25_0` and `gate_25_1` were not run. All three were rc 0 at `4cca9569`, and neither their step scripts nor `sw/builder/` names `sw/firmware/ctrl/test/`.
+- Unchanged since round 1 (no firmware, RTL or `tb/` file after `25d3dd7a`): the harness campaign, the strict differential, record classes, measured load and images at `25d3dd7a`; shards 1 and 3, the twin and the portable gates at `50d3f10e`.
+
+Acceptance criteria: unchanged from round 1 and met, on the same evidence; this round changes no firmware.
+
+Open risks/questions:
+- **Not run, owed to the merge candidate:** the full native Verilator sweep, with Yosys and the candidate banks (CONTRIBUTING 2.1 step 7).
+- **The port's reads change** (disclosed in round 1, unchanged): once a stream an edit maps, not once a mapping.
+- The PR body to carry these corrections is ready. The commit and the body reach the PR when `pf-963-1` is pushed.

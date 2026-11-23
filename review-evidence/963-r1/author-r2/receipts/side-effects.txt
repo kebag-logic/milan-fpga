@@ -1,0 +1,6 @@
+Side effects of this round's runs on their clean clones (git status --porcelain after the runs):
+- <scratch>/clones/r2-head: `?? dispatch-build/` (keys/keys-16x4.yaml, keys/keys-16x32.yaml), written at 12:08:39 by the
+  gate's own shard-inventory self-check (test_ctrl_firmware_shards.run_cases, :42, a path relative to the working
+  directory), which aecp_suite_arms.py runs first, as test_ctrl_firmware.py --shard does. No tracked file changed.
+- The docs groups' clones: see docs/group-*/steps/tree-after.txt.
+The lane checkout itself was only edited by the commit a18f0996; every run used a fresh --shared clone of a18f0996.
