@@ -492,9 +492,11 @@ def units(scope: Scope = Scope(SHARD_SCOPE_WITHOUT)) -> tuple[Unit, ...]:
     return tuple(found)
 
 
-def plan_findings(shards: tuple[tuple[str, ...], ...] = SHARDS, known: tuple[Unit, ...] | None = None) -> list[str]:
-    """The shards against the compile set, by name: a unit no shard builds, one two shards (or one, twice) build,
-    and a name in a shard that is no unit."""
+def plan_findings(shards: tuple[tuple[str, ...], ...] | None = None,
+                  known: tuple[Unit, ...] | None = None) -> list[str]:
+    """The shards (SHARDS) against the compile set, by name: a unit no shard builds, one two shards (or one, twice)
+    build, and a name in a shard that is no unit."""
+    shards = SHARDS if shards is None else shards
     names = [u.name for u in (units() if known is None else known)]
     where: dict[str, list[int]] = {}
     for at, shard in enumerate(shards):
