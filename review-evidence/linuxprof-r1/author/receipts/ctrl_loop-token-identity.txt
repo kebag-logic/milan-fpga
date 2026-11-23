@@ -1,0 +1,16 @@
+ctrl_loop.h at 854bd723 vs 677d605f, one TU including it after each tracked config's generated shape header,
+token output (-E -P) and macro set (-E -dM) sorted, base and head compared:
+(no shape header) -P: identical rc=0 260 lines
+(no shape header) -dM: identical rc=0 1469 lines
+endstation_arty_4x4.srp_entity.h -P: DIFFERENT rc=1 264 lines (refused by THE SHAPES in both)
+endstation_arty_4x4.srp_entity.h -dM: DIFFERENT rc=1 1476 lines (refused by THE SHAPES in both)
+endstation_arty_8ch.srp_entity.h -P: DIFFERENT rc=1 264 lines (refused by THE SHAPES in both)
+endstation_arty_8ch.srp_entity.h -dM: DIFFERENT rc=1 1476 lines (refused by THE SHAPES in both)
+endstation_arty_current.srp_entity.h -P: DIFFERENT rc=1 264 lines (refused by THE SHAPES in both)
+endstation_arty_current.srp_entity.h -dM: DIFFERENT rc=1 1476 lines (refused by THE SHAPES in both)
+endstation_ax7101_1x1_tdm8.srp_entity.h -P: identical rc=0 260 lines
+endstation_ax7101_1x1_tdm8.srp_entity.h -dM: identical rc=0 1480 lines
+endstation_ax7101_8x8.srp_entity.h -P: identical rc=0 260 lines
+endstation_ax7101_8x8.srp_entity.h -dM: identical rc=0 1480 lines
+The three Arty configs (all-fabric shapes no split image is built at) are refused by THE SHAPES at base and head;
+their token output is identical and their diagnostics differ only in the #error's line number (397 at base, 424 at head).

@@ -1,0 +1,58 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote /tmp/ctrl-fw-arms-5ohmf924/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /tmp/ctrl-fw-arms-5ohmf924/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote /tmp/ctrl-fw-arms-5ohmf924/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[ok] arm plat
+    == ctrl split platform CSR window and console (host bus): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+    == ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 52   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 52   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (52 tests, 0 failures, exit 0)
+[ok] arm platrv32
+    39 objects; runtime dependencies: ['__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    largest static frame: 2544 bytes (not a call-chain bound)
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm plattrace
+    endstation_arty_4x4: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_8ch: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_current: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_1x1_tdm8: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_8x8: 15 writes, equal to configure_fabric()'s 15
+    plant a write skipped: caught
+    plant two writes reordered: caught
+    plant a wrong word: caught
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    RESULT: PASS
+[ok] arm platmap
+    [PASS] PlatMap.M1AllThreeRowsGiveTheirAddresses: M1 the PHY's three rows give their addresses (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_REBOOT': 4026537984, 'CTRL_PLAT_PHY_MDIO_W': 4026540036, 'CTRL_PLAT_PHY_MDIO_R': 4026540040, 'CTRL_PLAT_LINK_STATUS': 4026540060})
+    [PASS] PlatMap.M2NoRowsGiveZero: M2 a SoC with no MDIO gives 0 for each, the poll arms nothing (exit 0, {'CTRL_PLAT_CSR_BASE': 2415919104, 'CTRL_MBX_BASE': 2147483648, 'CTRL_PLAT_UART_RXTX': 4026535936, 'CTRL_PLAT_UART_TXFULL': 4026535940, 'CTRL_PLAT_UART_RXEMPTY': 4026535944, 'CTRL_PLAT_UART_EV_PENDING': 4026535952, 'CTRL_PLAT_REBOOT': 4026537984, 'CTRL_PLAT_PHY_MDIO_W': 0, 'CTRL_PLAT_PHY_MDIO_R': 0, 'CTRL_PLAT_LINK_STATUS': 0})
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_r (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+    == ctrl split platform bus map: checks: 5   failures: 0 ==
+    RESULT: PASS
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 12   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (12 tests, 0 failures, exit 0)
+fw_arms plat_all plat_sinks: PASS (8 arm(s))

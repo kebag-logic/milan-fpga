@@ -1,0 +1,24 @@
+== rc=0 scripts/docs_check.py :: docs_check: 0 finding(s) across 223 md files + 1911 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files] 
+== rc=0 scripts/check_em_dash.py --base 854bd7236792ce1adbd10c43b13a6a5002ad3bb6 :: check_em_dash: 0 finding(s) over 80 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [854bd723..HEAD] 
+== rc=0 scripts/check_doc_style.py :: documentation style: OK (25 current documents) 
+== rc=0 scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1909 tracked first-party file(s)) 
+== rc=0 scripts/check_baremetal_only.py --selftest :: baremetal-only selftest: PASS (867 arm(s)) 
+== rc=0 scripts/check_py_idiom.py ::   global statement: 0 <= 0   over-long line: 0 <= 0 
+== rc=0 scripts/check_cpp_idiom.py ::   long function: 0 <= 0   build without warnings: 0 <= 0 
+== rc=0 scripts/check_sh_idiom.py ::   unquoted expansion: 3 <= 3   top-heavy long script: 0 <= 0 
+== rc=0 scripts/measure_fail_fast.py --check :: FAIL-FAST RATCHET: PASS (80 <= 84 modules without an elaboration contract, 3 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)   the ratchets can be lowered to 80, 3 and 0 
+== rc=0 scripts/measure_test_evidence.py --check :: TEST-EVIDENCE RATCHET: PASS (67 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))   the mutation ratchet can be lowered to 67 
+== rc=0 scripts/check_hygiene.py --check ::   gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0 HYGIENE RATCHET: PASS (3 population(s), 1516 file(s)) 
+== rc=0 scripts/measure_naming.py --check ::  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded) 
+== rc=0 scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1589 first-party file(s) read) 
+== rc=0 scripts/check_feature_status.py :: feature_status: 0 finding(s) 
+== rc=0 docs/traceability/gen_module_matrix.py --check :: traceability generator controls: 7/7 traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived) 
+== rc=0 scripts/check_doc_paths.py :: doc path gate: OK (1754 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file) 
+== rc=0 scripts/check_solution_docs.py :: solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups) 
+== rc=0 scripts/check_gptp_docs.py :: gPTP documentation: OK (8 current pages) 
+== rc=0 scripts/check_submodule_docs.py :: submodule documentation: OK (6 exact gitlinks) 
+== rc=0 scripts/check_entity_shape.py :: checks: 176   failures: 0 RESULT: PASS 
+== rc=0 scripts/check_wire_accountability.py :: checks: 42   findings: 0 RESULT: PASS 
+== rc=0 scripts/check_nvm_record_space.py ::  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYL
+== rc=0 scripts/check_nvm_klj3.py :: [endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1,
+== rc=0 scripts/check_sweep_shape.py ::   [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 29 precedes the milan_soc.py launch on line 119 sweep shape gate: OK 

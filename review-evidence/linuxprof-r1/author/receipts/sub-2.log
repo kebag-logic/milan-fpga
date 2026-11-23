@@ -1,0 +1,78 @@
+test_optional_blocks_reach_the_instance:
+  [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 7 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (18 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+test_optional_block_instance_gate_bites:
+  [gate 23f mutation] 8/8 broken links of the argv -> Instance chain rejected in 16 s: a dropped CLI handoff, two dropped constructor keywords, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, and both prune polarities inverted; gate 1e separately owns the profile-aware gPTP chain
+test_clock_plan_reaches_the_instance:
+  [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 7 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+test_clock_plan_instance_gate_bites:
+  [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 14 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+test_datapath_params_match_the_instance:
+  [gate 23m] 7 real milan_soc.py elaborations in 9 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+test_datapath_params_gate_bites:
+  [gate 23m mutation] 4/4 cuts rejected in 4 s, each naming its keyword: a binding dropped to 0, a value one short, a keyword the builder does not state, and the split placement's CTRL_SPLIT_P dropped
+test_image_identity_gate:
+    a bound bitstream the image holds: passes
+    the split ident names no placement: FINDING ident: the ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' does not name the split placement
+    the manifest records another VERSION: FINDING manifest: the manifest's VERSION 0x00040060 is not the image's milan_csr.sv 0x00030060
+    the manifest records another mailbox minor: FINDING manifest: the manifest's mailbox contract {'major': 2, 'minor': 5} is not the image's KL_mbx_pkg.sv (2, 4)
+    the split datapath built without CTRL_SPLIT_P: FINDING placement: a split image whose datapath has CTRL_SPLIT_P = 0 and mailbox ['KL_mbx', 'KL_mbx_cdc', 'KL_mbx_dma', 'KL_mbx_wb', 'ctrl_mbx', 'ctrl_mbx_dma']
+    a split image with DDR3 left in: FINDING ddr3: a split image carries DDR3: ddram pads, ddrphy, main_ram, sdram (decision D4 builds none)
+    an all-fabric image with the mailbox: FINDING placement: an all-fabric image carries a mailbox ['KL_mbx', 'KL_mbx_dma', 'KL_mbx_wb', 'ctrl_mbx', 'ctrl_mbx_dma'] or a split datapath (CTRL_SPLIT_P = 0)
+    the firmware relinked after the build: FINDING firmware: the control firmware /tmp/tmpzhfdjag0/relinked.elf has sha256 99f07390db2b369edfcb74dd874d728f94215bcf42664a69f6e7f808d8ec4a21, the manifest records 4112ac60b4b6b939f78cf44da41a88cae060a684abd1e9386354eb1bf1326580
+    the manifest forged to the relinked firmware: FINDING firmware: the rom banks hold 3017 words that are not the 3017 rom words of /tmp/tmpzhfdjag0/forged.elf
+    the manifest removed from a split image: FINDING placement: an all-fabric image carries a mailbox ['KL_mbx', 'KL_mbx_cdc', 'KL_mbx_dma', 'KL_mbx_wb', 'ctrl_mbx', 'ctrl_mbx_dma'] or a split datapath (CTRL_SPLIT_P = 1)
+    a bitstream the manifest does not bind: FINDING bitstream: the manifest binds no bitstream, the image has ['/tmp/tmpzhfdjag0/a-bitstream-the-manifest-does-not-bind/gateware/alinx_ax7101.bit']
+    a bitstream other than the one the manifest binds: FINDING bitstream: /tmp/tmpzhfdjag0/a-bitstream-other-than-the-one-the-manifest-binds/gateware/alinx_ax7101.bit binds {'bitstream_payload_sha256': 'a793a9f533acd38d2343f4e7c2397f68d784f9913290bd8a88554a737a95ad99', 'bitstream_fpga_part': '7a100tfgg484'}, the manifest records {'bitstream_payload_sha256': '7b3cc3c411cfc97f919bbd69de9f06f7f13c4ed21fc6a7b8fedc4d06fbe62679', 'bitstream_fpga_part': '7a100tfgg484'}
+    the manifest's placement renamed: FINDING manifest: the manifest is schema 1 at placement 'all-fabric'; only a split image has a manifest, schema 1
+    the manifest's ident changed: FINDING manifest: the manifest's ident 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal' is not the image's 'Milan TSN SoC - VexiiRiscv RV32 1-core baremetal split'
+  [gate 23p] the good split and all-fabric images and 1 bound-bitstream control pass the identity gate; 13 planted images each fail it by their kind (ddr3, ident, manifest, placement from the SoC; firmware, bitstream, placement and manifest from the image's files) in 19 s
+test_every_recipe_elaborates:
+  [gate 23g] 6/6 shipped recipes reach Instance("milan_datapath") in 6 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+test_recipe_smoke_gate_bites:
+  [gate 23g mutation] 2/2 recipes stripped of --entity-gen-dir refused to elaborate, which is #156 item 1 replayed on the recipes that shipped it
+test_recipe_skip_classifier_bites:
+  [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+test_build_sh_argv_follows_the_config:
+  [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 34 with build.sh unedited; the other 26 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+test_build_sh_grades_its_own_bindings:
+  [gate 23i-b] 4 build.sh recipes keep their own bindings with BUILD_CFG=endstation_ax7101_8x8.yaml exported
+test_build_sh_dry_run_leaves_the_tracked_tree:
+  [gate 23j] a dry run whose builder run would rewrite lwsrp_csr_defaults.svh exited 2 with no launch line, left the tracked bytes as it found them and left no configs/generated/gate23j_planted behind
+test_build_sh_refuses_a_preservation_it_cannot_complete:
+  [gate 23k] over lwsrp_csr_defaults.svh: a refused temporary directory, a copy that failed, one short and loud, one short and silent, the first as a real launch, a failed put-back, one short and reporting success, and an absent file each refused with no launch line, no provenance line, the bytes on disk untouched or named with the copy kept for them, and no include directory left behind; and over adp_shape_defaults.svh the bound config's own absent include refused the same way, with its artefact not rewritten
+test_toolchain_patches_are_applied:
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+test_tdm_master_binding_reaches_the_pins:
+  [gate 24] TDM master L1 binding: 2 parameters name-matched into milan_datapath, KL_tdm_capture_master instantiated on clk_tdm_i, 5 signals RTL-port -> SoC -> AX7101 J11 ball, collision-free, loose-requested
+test_tdm_master_binding_gate_bites:
+  [gate 24b] 7/7 binding mutations REJECTED (name mismatch, wrong clock, slave-instead-of-master, unbound pad, unrouted pin, default-on, strict request)
+test_front_end_routing_per_board:
+  [gate 24c] per-board front-end routing: tdm routed {'arty': True, 'ax7101': True}; 3 configs checked at BOTH tdm_bus_wired() states; the refusal runs before the platform is built; o_i2s_mclk_o binds only to i2s_pads[0] (pmoda:4 D13) or tdm_pads
+test_front_end_routing_gate_bites:
+  [gate 24d] 9/9 routing mutations REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, refusal deleted / mis-keyed / late / undefended, a routed header losing its pins, a kind added on one side only, and the argv itself selecting TDM for the Arty in BOTH tree states)
+test_i2s_pair_blend_binding:
+  [gate 24e] 8.3b blend: 6 bindings held; arty_4x4 supplies 5 pairs (I2S at slot 0), AX7101 stays solo
+test_i2s_pair_blend_gate_bites:
+  [gate 24e-b] 6/6 blend-binding mutations REJECTED
+test_firmware_version_derived_from_rtl:
+  [gate 24] firmware_version DERIVED from milan_csr VERSION 0x0002_0060 -> '2.96.0' all-fabric, '3.96.0' split: 5/5 configs derive it at their placement and declare none, it lands zero-padded at ENTITY+116 in all 5 ROMs (1722.1 7.2.1 Table 7-2), no entity_model_id moves with it or with the placement (6.2.2.8 exclusion; arty_current still pinned 0x001BC50AC1000006), firmware_rev 7 -> 2.96.7 with the same id, 4/4 bad declarations refused
+test_d8_role_pools:
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough): 8 routed channels, 123 writable names; 2/2 planted controls turned it red: 16 routed channels; no routed channel
+  [gate 24a] the over-wide (72) D8 loopback pool (747 writable names) is REFUSED at generation by the saved-state NAME capacity, naming both figures, before any write; its own overlay's ROM exceeds the 16-bit AEM store address space (D6 is the owner), and behind a planted capacity it is marked rather than emitted and --write-rtl REFUSES it; 2/2 planted controls turned their check red: capacity 747; the shipped 8x8 overlay
+  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+test_d8_role_pools_reject:
+  [gate 24b] 8/8 contradictory pool configs REFUSED with ConfigError
+test_prune_guard_hop_gate_bites:
+  [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations refused, inert else arm present at the followed site
+test_d10_cluster_names:
+  [gate 24c] every cluster named for its ROLE; renaming leaves entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a pool width moves it; pre-D8 hashes stay explicitly pinned to their current model
+test_d10_cluster_namer_paths:
+  [gate 24d] empty-rx loopback names by offset (and by source when a receive space exists), an unknown role is refused by name, every primary role in PRIMARY_ROLE_ORDER has a namer, and 97 cluster names across 2 configs match the tracked golden name for name
+test_d10_names_reach_the_rom:
+  [gate 24d] role names reach the descriptor bytes; the tracked shape include matches its OWNER (endstation_ax7101_1x1_tdm8) byte for byte (aem_golden.h comparand DELETED with the aecp suite)
+
+SUBSET: 29 of 115 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

@@ -1,0 +1,175 @@
+test_soc_option_refusals:
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+  killed: the split CPU without its caches or RV32M
+  killed: the all-fabric CPU with the caches and RV32M
+  killed: the split CPU without its data cache
+  killed: a larger cache
+  killed: a third way
+  killed: one way
+  killed: a smaller cache
+  killed: the 4 KiB direct-mapped cache it replaces
+  killed: a larger data cache
+  killed: a second data way
+  killed: a smaller data cache
+  killed: the split CPU without RV32M
+  killed: a multiply without the divide
+  killed: a radix-4 divider
+  killed: the caches without RV32M
+  killed: the cacheless arm without RV32M
+Split placement CPU: RV32M, the 16 KiB two-way instruction cache and the 8 KiB direct-mapped data cache on the split CPU only, 16 killed controls
+  killed: the flash window left cached
+  killed: the flash window left executable
+  killed: every region uncached
+Split placement CPU: the flash window uncached and not executable, 3 killed controls
+  killed: the split CPU on the Milan clock
+  killed: a split CPU on the Milan clock accepted
+  killed: the split CPU left to the all-fabric rule
+  killed: the split CPU with a clock of its own
+  killed: the all-fabric CPU moved to sys
+  killed: the CPU's clock taken from the Milan clock
+Split placement CPU: on sys at the sys clock with no clock of its own, the all-fabric CPU on the Milan clock, a split CPU on the Milan clock refused, 6 killed controls
+RESULT: PASS
+test_commercial_timing_grade:
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+board variants selftest: OK (6 mutation controls)
+  [timing grade] the guide's board variant table agrees with build.sh and the flash map; 6 mutations caught
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] the XC7A200T die reaches the platform and timing grade; two other parts refused; its layout and AEM constant move to 0xA00000 while the AX7101 keeps 0x400000; both name the N25Q128A13 (0x20BA18)
+  [timing grade] layout_from_soch.py rebuilds each die's exported layout from its soc.h: budget and AEM at 0x400000 (AX7101) and 0xA00000 (XC7A200T), the N25Q128A13 (0x20BA18); the 200T's 9,730,652-B payload passes the deploy validation
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+test_baremetal_clock_contract:
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract:
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_rom_clock_skip_reaches_the_ledger:
+  [clock contract] SKIP: tmpifs7uv1_: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+test_extra_sweep_clocks:
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs:
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_sim_clock:
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+test_extra_sweep_invocation:
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+test_builder_clock_source:
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+test_declaration_contracts:
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals
+[495 MAC] 9 named shape rules, 30 spellings refused
+[595 uint] OUI and capabilities strings preserve values; all non-strings refuse
+[495 hex] 10 hex fields: 8 named shape rules and the width refused
+[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_clock_crossing_constraints:
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+[constraints] /tmp/constraint-log-6hpp0e9c/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/digilent_arty.bit as /tmp/constraint-log-6hpp0e9c/digilent_arty.bit.rejected
+[constraints] quarantined /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit as /tmp/constraint-log-6hpp0e9c/alinx_ax7101.bit.rejected
+[constraints] /tmp/constraint-log-6hpp0e9c/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e1 split: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e2 split: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e1 all-fabric: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2 all-fabric: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_gptp_product_default_and_legacy_option:
+  [gate 1c] fabric ownership is the only product configuration
+test_gptp_launch_observer_seam:
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+test_gptp_launch_shape_follows_the_phy:
+  [gate 1g mutation] 6/6 cuts rejected
+test_gptp_datapath_carries_the_launch_shape:
+  [gate 1h mutation] 43/43 cuts rejected, 9/9 equal spellings accepted
+test_reboot_egress_statement:
+  [gate 1f] MilanMAC states its transmit side from the depths its FIFOs are built with (11,656 octets at 1,000 Mb/s on the AX7101), and flips its reset-less frame-end toggle in eth_tx on phy.sink's last octet; the no-MAC stub ties the toggle off
+test_reboot_egress_statement_gate_bites:
+  [gate 1f mutation] 9/9 cuts rejected, each naming its fact
+test_qspi_owner_transition_completed_write_prefixes:
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O; on flash-pair, flash and flash-images a JTAG die other than the bitstream's, an unreadable die, a flash JEDEC ID other than the layout's, an unreadable ID and a layout naming no flash device, two disagreeing JEDEC IDs and a two-device chain (two dies, or one die twice) all refuse before a dump or write (#911); build.sh flash ax7a200t flashes a 200T set on its own map (AEM at 0xA00000, a 9,730,652-B payload at 0) on a 200T die and refuses it on the AX7101's
+test_gptp_plane_reaches_the_instance:
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+test_control_placement_key:
+  [gate 23n] 5 configs, 2 shipping the split, each split variant differing from its all-fabric one in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused; the flip reverted at 8x8 refused
+test_placement_recipe:
+  [gate 23o] 5 configs: each placement recipe loads to the config stating it, writes the stated argv and changes no tracked file; the two placements' 9 shape artifacts byte for byte equal but for the firmware_version in 2; --write-rtl, --write-fragment and an unknown placement refused by name; 2 planted recipes and 3 planted artifacts refused
+test_gptp_plane_instance_gate_bites:
+  [gate 1e mutation] 6/6 owner-carrier cuts rejected
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (28 flags, --eth-port e1 == the config)
+test_current_shape_matches_gen_aem_store:
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+test_capability_marks:
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+
+SUBSET: 29 of 115 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
