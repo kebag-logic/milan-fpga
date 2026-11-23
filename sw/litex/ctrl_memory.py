@@ -291,8 +291,8 @@ LEDGERED: dict[str, Ledgered] = {
                                   "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, the size "
                                   "fixture with lwSRP's one-interface options at 8x8 (#977, its ruling of "
                                   "2026-11-23: the attribute lookup's buckets, no MAP work at one port, the lean "
-                                  "validation pass and the merged Message build) and the drain's charge, 132,384 B "
-                                  "of rom, 1,312 B past the 131,072 B 56.0 holds, by the owner's rule of 2026-11-15 "
+                                  "validation pass and the merged Message build) and the drain's charge, 132,816 B "
+                                  "of rom, 1,744 B past the 131,072 B 56.0 holds, by the owner's rule of 2026-11-15 "
                                   "(#923's ruling of 2026-11-16): ROM debt of half a tile owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_568)), 63.5,
@@ -336,7 +336,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
                                             "S14; and 63.5 with the SRP drain's charge, THE SETTLE and the "
                                             "registration's declarations in a slice of their own (#977, its ruling "
-                                            "of 2026-11-23), 141,664 B of rom, 352 B past the 141,312 B 63.0 holds "
+                                            "of 2026-11-23), 142,120 B of rom, 808 B past the 141,312 B 63.0 holds "
                                             "beside its 115,504 B of sram, ctrl_plat unchanged, by the same rule: "
                                             "debt of 7.5 RAMB36 owed to S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
@@ -363,8 +363,8 @@ LEDGERED: dict[str, Ledgered] = {
                                            "one-interface options (#977: the lookup buckets, no MAP work at one "
                                            "port, the lean validation pass, the merged Message build) and the SRP "
                                            "drain's charge, THE SETTLE and the registration's declarations in a "
-                                           "slice of their own (#977's ruling of 2026-11-23), 141,512 B of rom, "
-                                           "2,248 B past the 139,264 B 58.0 holds, ctrl_plat 64 B more at its "
+                                           "slice of their own (#977's ruling of 2026-11-23), 141,992 B of rom, "
+                                           "2,728 B past the 139,264 B 58.0 holds, ctrl_plat 64 B more at its "
                                            "measured 19,008 B, by the same rule: ROM debt of 3.0 RAMB36 owed to "
                                            "S14"),
 }
