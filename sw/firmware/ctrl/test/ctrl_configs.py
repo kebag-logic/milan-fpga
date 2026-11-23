@@ -139,6 +139,24 @@ BUILDERS = (
 )
 #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
 NEEDS = {"verilator": "Verilator"}
+#: THE SHARDS (#980). The hosted firmware-boundary job's compile set, cut into units (units()): each run of each
+#: known builder it runs, and of a builder named here, its run cut into parts, each the run's own command with the
+#: part's argument (the control gate's --build-only by --build-part, whose own proof holds its parts to its whole).
+PARTS = {"sw/firmware/ctrl/test/test_ctrl_firmware.py": ("--build-part", 2)}
+#: The scope the shards cut: the hosted firmware-boundary job's (--without verilator).
+SHARD_SCOPE_WITHOUT = frozenset({"verilator"})
+#: Each shard's units, by name: every unit in exactly one shard (plan_findings). A shard builds its units under a
+#: capture of its own (ctrl_boundary.py --shard K/N) and judges nothing; the judging run takes every shard's
+#: capture (--capture, --shards N), requires each unit's run in exactly one, and judges them as one. Balanced on
+#: the units' times at 854bd723, four jobs each on a shared host (#980): the control gate's parts 343 s and 395 s,
+#: the coverage gate's 383 s, the store's 97 s, the F5 runs' 34 s each, the RV32 self-test's 9 s.
+SHARDS = (
+    ("sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+     "sw/firmware/gtest/fw_rv32_selftest.py"),
+    ("sw/firmware/ctrl/test/test_ctrl_firmware.py part 1/2", "sw/litex/test_ctrl_memory.py"),
+    ("sw/firmware/gtest/fw_coverage.py", "tb/verilator/milan_dp/stream_counter_f5.py run 1/2",
+     "tb/verilator/milan_dp/stream_counter_f5.py run 2/2"),
+)
 #: The programs found by text that run, in the builds, only under another builder (as its module, or a program
 #: it runs): left out where that one is, and otherwise held as any builder found by text is.
 PART_OF = {
@@ -436,6 +454,78 @@ class Scope:
         """Whether a control that needs this ("" for nothing) is the run's: its plant needs a builder the run
         holds."""
         return needs == self.only if self.only else needs not in self.without
+
+
+@dataclass(frozen=True)
+class Unit:
+    """One unit of the sharded compile set: its name, its builder, and its command's words (Builder.runs)."""
+
+    name: str
+    builder: Builder
+    words: tuple[str, ...]
+
+    def runs(self, argv: list[str]) -> bool:
+        """Whether a command a capture ran is this unit's: its words, {python} and {work} standing for any."""
+        if len(argv) != len(self.words):
+            return False
+        for word, arg in zip(self.words, argv, strict=True):
+            literal = re.escape(word).replace(re.escape("{python}"), ".+").replace(re.escape("{work}"), ".+")
+            if not re.fullmatch(literal, arg):
+                return False
+        return True
+
+
+def units(scope: Scope = Scope(SHARD_SCOPE_WITHOUT)) -> tuple[Unit, ...]:
+    """The compile set the shards cut (THE SHARDS), in BUILDERS' order: each run of each known builder with runs
+    the scope holds, a run of two or more named `run R/N`, a run cut into parts named `part K/N`."""
+    out = {b.path for b in scope.left_out()}
+    found = []
+    for b in BUILDERS:
+        if b.path in out:
+            continue
+        flag, count = PARTS.get(b.path, ("", 1))
+        for at, words in enumerate(b.runs):
+            run = f" run {at + 1}/{len(b.runs)}" if len(b.runs) > 1 else ""
+            for part in range(count):
+                cut = (flag, f"{part}/{count}") if count > 1 else ()
+                found.append(Unit(b.path + run + (f" part {part}/{count}" if count > 1 else ""), b, (*words, *cut)))
+    return tuple(found)
+
+
+def plan_findings(shards: tuple[tuple[str, ...], ...] = SHARDS, known: tuple[Unit, ...] | None = None) -> list[str]:
+    """The shards against the compile set, by name: a unit no shard builds, one two shards (or one, twice) build,
+    and a name in a shard that is no unit."""
+    names = [u.name for u in (units() if known is None else known)]
+    where: dict[str, list[int]] = {}
+    for at, shard in enumerate(shards):
+        for name in shard:
+            where.setdefault(name, []).append(at)
+    found = [f"no shard builds {name}, a unit of the compile set (ctrl_configs.SHARDS)" for name in names
+             if name not in where]
+    found += [f"{name} is built by shards {', '.join(map(str, at))} (ctrl_configs.SHARDS), not by exactly one"
+              for name, at in where.items() if name in names and len(at) > 1]
+    found += [f"shard {', '.join(map(str, at))} builds {name}, which is no unit of the compile set "
+              "(ctrl_configs.SHARDS)" for name, at in where.items() if name not in names]
+    return found
+
+
+def union_findings(commands: tuple[dict, ...], known: tuple[Unit, ...] | None = None) -> list[str]:
+    """The shards' captures' commands against the compile set, by name: a unit no capture holds a run of, one
+    more than one run holds, and a command that is no unit's run."""
+    known = units() if known is None else known
+    ran = {u.name: 0 for u in known}
+    found = []
+    for cmd in commands:
+        mine = [u.name for u in known if u.runs(cmd["argv"])]
+        if not mine:
+            found.append(f"a shard's capture holds a run of no unit of the compile set: {' '.join(cmd['argv'])[:200]}")
+        for name in mine:
+            ran[name] += 1
+    found += [f"no shard's capture holds a run of {name}, a unit of the compile set" for name, n in ran.items()
+              if n == 0]
+    found += [f"the shards' captures hold {n} runs of {name}, a unit of the compile set, not one" for name, n in
+              ran.items() if n > 1]
+    return found
 
 
 def held(capture: Capture, scope: Scope, planted: dict[Path, str] | None = None,

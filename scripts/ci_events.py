@@ -514,6 +514,7 @@ JOB_KEY_EXTRAS = {
     (RTL_FAST, "changes"): ("outputs",),
     (RTL_FULL, "verilator-shards"): ("strategy",),
     (RTL_FULL, "yosys-shards"): ("strategy",),
+    (RTL_FAST, "firmware-boundary-shards"): ("strategy",),
 }
 STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
              "continue-on-error")
@@ -619,6 +620,7 @@ INHERITED_STEP_ENV = {
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+                             "FIRMWARE_BOUNDARY_SHARDS_RESULT",
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
                              "FIRMWARE_SRP_MUTANTS_RESULT",
@@ -1349,8 +1351,10 @@ FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
                         "Run the control mutation campaign", "Run the AECP mutation campaign",
                         "Run both SRP mutation campaigns and pin controls")
 #: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
-#: run by its builds (ctrl_configs.BUILDERS), not its suites.
+#: run by its builds (ctrl_configs.BUILDERS), not its suites; since #980 over the captures its shards make.
 FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
+#: #980: the fast matrix whose shards build the boundary's compile set (ctrl_configs.SHARDS) under captures.
+FIRMWARE_BOUNDARY_SHARDS_JOB = "firmware-boundary-shards"
 #: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
 FIRMWARE_VERILATOR_JOB = "firmware-verilator"
 #: #665 F-INT: the fast job that runs the mailbox publication census in every
@@ -2578,6 +2582,40 @@ RTL_STEP_LISTS = {
     # that need Verilator, each run by its builds and not its suites under the gate's own capture (the gate
     # reads them from its own known set, ctrl_configs.BUILDERS), its controls and the stack's own gate; the job
     # has no Verilator, so the builders needing it are named and left out.
+    # #980: the builds are cut into shards (ctrl_configs.SHARDS), each building its units of the compile set under a
+    # capture of its own and judging nothing; only the capture's records, manifest and kept texts are uploaded.
+    (RTL_FAST, FIRMWARE_BOUNDARY_SHARDS_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+         )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Build this shard of the firmware builders' compiles under its capture",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator '
+             '--shard ${{ matrix.shard }}/${{ matrix.total }} --capture-out "$RUNNER_TEMP/boundary-capture"',
+         )},
+        {"name": "Upload this shard's capture", "uses": "actions/upload-artifact@v4",
+         "with": {"name": "boundary-capture-${{ matrix.shard }}-${{ github.sha }}",
+                  "path": "${{ runner.temp }}/boundary-capture/records.jsonl\n"
+                          "${{ runner.temp }}/boundary-capture/manifest.jsonl\n"
+                          "${{ runner.temp }}/boundary-capture/text\n",
+                  "if-no-files-found": "error",
+                  "retention-days": 3}},
+    ),
+    # It judges every shard's capture as one, requiring each unit's run in exactly one (--shards), with the
+    # controls and the stack's own gate; the job runs only when every shard succeeded.
     (RTL_FAST, FIRMWARE_BOUNDARY_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
@@ -2595,9 +2633,17 @@ RTL_STEP_LISTS = {
          "with": RV32_CACHE_WITH},
         {"name": "Install and verify the pinned RV32 SDK",
          "run": RV32_INSTALL},
+        {"name": "Download the boundary shards' captures", "uses": "actions/download-artifact@v4",
+         "with": {"pattern": "boundary-capture-*-${{ github.sha }}",
+                  "path": "${{ runner.temp }}/boundary-captures"}},
         {"name": "Hold the TSN stack boundary over the firmware builders' compiles",
          "run": (
-             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator',
+             'set -euo pipefail',
+             'given=()',
+             'for capture in "$RUNNER_TEMP"/boundary-captures/boundary-capture-*; do given+=(--capture "$capture"); '
+             'done',
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --shards 3 '
+             '"${given[@]}"',
          )},
     ),
     # #697: the same boundary over the compiles only the builders that need Verilator make, each run by its own
@@ -8140,6 +8186,9 @@ RV32_REQUIRED_STEPS = {
         ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"),
     ),
     **{jid: (("test_ctrl_firmware.py", step),) for jid, step in zip(FIRMWARE_JOBS[1:], FIRMWARE_PHASE_STEPS[1:])},
+    FIRMWARE_BOUNDARY_SHARDS_JOB: (
+        ("ctrl_boundary.py", "Build this shard of the firmware builders' compiles under its capture"),
+    ),
     FIRMWARE_BOUNDARY_JOB: (
         ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
     ),
@@ -8153,7 +8202,8 @@ def _rv32_sdk_arms() -> list[Arm]:
                              (ELABORATE, "elaborate", 21),
                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
                                for job in FIRMWARE_JOBS),
-                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
+                             (RTL_FAST, FIRMWARE_BOUNDARY_SHARDS_JOB, 7),
+                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 7)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),

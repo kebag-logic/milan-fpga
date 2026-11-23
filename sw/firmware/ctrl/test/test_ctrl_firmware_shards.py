@@ -28,7 +28,7 @@ def argument(value: object) -> object:
 
 
 def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
-              extra_suite: bool = False) -> list[str]:
+              extra_suite: bool = False, build_part: tuple[int, int] | None = None) -> list[str]:
     """Discover dispatch through the real driver, intercepting expensive entry points.
 
     Composite arm builders still enumerate their live shapes and suites.
@@ -36,8 +36,8 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
     This checks scheduling; the unchanged real arms judge firmware behavior.
     """
     calls = []
-    args = SimpleNamespace(shard=shard, self_test=True, jobs=4, slice=(1, 1),
-                           mutation_shard=None, require_rv32=True,
+    args = SimpleNamespace(shard=shard, self_test=build_part is None, jobs=4, slice=(1, 1),
+                           mutation_shard=None, require_rv32=True, build_part=build_part,
                            lwsrp=module.CTRL.parents[2] / "third_party/lwSRP")
     tree = Tree(module.CTRL, Path("dispatch-build"), Path("dispatch-reuse"),
                 module.fw_gtest.Build(jobs=4))
@@ -94,6 +94,9 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
                 if callable(value) and (name.startswith("arm_") or name in ("core_arm", "image_arm")):
                     context.enter_context(patch.object(owner, name, arm(owner.__name__ + "." + name)))
         context.enter_context(patch.object(module.ctrl_arms, "report", return_value=False))
+        # a key geometry's configuration, named as the real one names it, and written nowhere
+        context.enter_context(patch.object(module.aecp_arms, "key_geometry",
+                                           lambda out, name, widths: out / f"keys-{name}.yaml"))
         context.enter_context(patch.object(module.ctrl_mutants, "campaign", control_campaign))
         context.enter_context(patch.object(module.aecp_mutants, "campaign", aecp_campaign))
         context.enter_context(patch.object(module.srp_mutants, "campaign", srp_campaign))
@@ -158,6 +161,31 @@ def run_cases(module: ModuleType = driver) -> list[list[str]]:
           f"shard sizes {[len(shard) for shard in shards]}")
     refusal_cases(module)
     return shards
+
+
+def build_part_cases(module: ModuleType, count: int) -> list[list[str]]:
+    """--build-part's COUNT parts (#980): every suite the default build-only run builds, in exactly one part; a
+    part that loses a suite, and one that builds another part's too, refused naming the suite."""
+    expected = inventory(module, build_part=(0, 1))
+    parts = [inventory(module, build_part=(index, count)) for index in range(count)]
+    found = differences(expected, parts)
+    assert expected and len(expected) == len(set(expected)), "default build inventory has duplicate identities"
+    assert not any(found.values()), f"build parts differ from the default build: {found}"
+    original = module.suite_arms
+    for label, kind, planted in (
+            ("dropped", "missing", lambda arms, at: [lambda: []] + arms[1:] if at == 0 else arms),
+            ("duplicated", "duplicate_or_unexpected",
+             lambda arms, at: [*arms, *[arms[0]] * count] if at == count - 1 else arms)):
+        def suite_arms(args: object, tree: Tree, plant: Callable = planted) -> list:
+            """The live suites, with one planted defect in one part's selection."""
+            return plant(original(args, tree), args.build_part[0])
+        with patch.object(module, "suite_arms", suite_arms):
+            bad = differences(expected, [inventory(module, build_part=(index, count)) for index in range(count)])
+        assert bad[kind], f"escaped a planted {label} suite"
+        print(f"PASS: build parts refuse a {label} suite: {bad[kind][0][:160]}")
+    print(f"PASS: {len(expected)} live build-only suite invocations in exactly one of {count} parts; "
+          f"part sizes {[len(part) for part in parts]}")
+    return parts
 
 
 def main() -> int:

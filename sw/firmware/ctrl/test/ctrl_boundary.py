@@ -61,12 +61,11 @@ WHERE A FILE LIVES (Places), by its resolved path, in a checkout root judged
   host's libraries).
 
 THE CAPTURE. Without --capture the gate makes it, as the hosted
-firmware-boundary and firmware-verilator jobs do, by running every known
-builder the run judges (ctrl_configs.BUILDERS) under it, each by its builds
-and not its suites: the suite builders by their --build-only, which builds
-every binary and image the suites build and runs and plants nothing. A
-capture given (--capture, made by ctrl_capture.py around any command) is
-judged instead. Either way the stack's own gate and the image builders run
+firmware-verilator job does, by running every known builder the run judges
+(ctrl_configs.BUILDERS) under it, each by its builds and not its suites: the
+suite builders by their --build-only, which builds every binary and image the
+suites build and runs and plants nothing. A capture given (--capture, made by
+ctrl_capture.py around any command) is judged instead. Either way the stack's own gate and the image builders run
 under it here (ctrl_runs.py). --without verilator leaves out the builders
 that need Verilator, as the hosted firmware-boundary job does, and --only
 verilator judges them alone, as the hosted firmware-verilator job does; each
@@ -86,6 +85,18 @@ proof run under the hook from them. Every target of a Makefile builder
 whose recipe builds against the stack must have the pin check as a
 prerequisite, read from make's own dry run.
 
+THE SHARDS (ctrl_configs, #980). --shard K/N builds shard K's units of the
+--without verilator run's compile set (ctrl_configs.SHARDS: each builder run,
+the control gate's cut into its --build-part parts) under the capture
+--capture-out names, and judges nothing, as the hosted firmware-boundary-shards
+jobs do. Given the N shards' captures (--capture each, --shards N), as the
+hosted firmware-boundary job is, the gate requires each unit's run in exactly
+one of them, refusing by name a unit no capture holds a run of, one two hold,
+and a run that is no unit's, and judges them as one capture: the judgement,
+the controls and the self-test are the unsharded run's, once. Every run holds
+the shards' table to the compile set: a unit no shard builds, or two build, is
+named.
+
 --selftest first judges an unplanted copy of the firmware and the stack, the
 base every control shares, which must pass; then plants defects in copies,
 each refused by name, and controls each of which must pass (ctrl_plants.py).
@@ -97,6 +108,9 @@ capture beside it for what a capture must hold. Then the pin controls
 own population (figures): its defects and passing controls in the firmware
 builders' run, its defects in the Verilator builders' run and its pin
 controls; a copy of the page with each figure one more is refused by name.
+Then the shard controls: the shards' table with a unit dropped, and with it in
+two shards, and, given the shards' captures, those captures with that unit's
+run dropped and with it twice, each refused naming the unit.
 --require-rv32 refuses, rather than skips, the RV32 arm when no RV32 compiler
 is found.
 
@@ -105,10 +119,14 @@ Usage:
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
     python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture DIR --without verilator
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --shard K/N --capture-out DIR
+    python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --shards N \
+        --capture DIR0 ... --capture DIRn
 
 Exit 0 = both sides hold; 1 = a finding or a control that misbehaved; 2 =
-refused (no compiler, cmake or clang, the stack's gate could not run, or the
-capture is missing, empty or incomplete).
+refused (no compiler, cmake or clang, the stack's gate could not run, the
+capture is missing, empty or incomplete, or the shards' captures or table are
+not the compile set).
 """
 
 from __future__ import annotations
@@ -129,10 +147,11 @@ import ctrl_capture  # noqa: E402
 import fw_rv32  # noqa: E402
 from ctrl_build import CTRL, NVM_DIR, ROOT, STACK, STACK_INCLUDE, STACK_PARTS, Refusal, stack_pin  # noqa: E402
 from ctrl_capture import Capture, CaptureError, Deps, Invocation  # noqa: E402
-from ctrl_configs import BUILDERS, COMPILED, NEEDS, Scope, command, failed, held, makefiles, once  # noqa: E402
+from ctrl_configs import (BUILDERS, COMPILED, NEEDS, SHARD_SCOPE_WITHOUT, SHARDS, Scope, command, failed,  # noqa: E402
+                          held, makefiles, once, plan_findings, union_findings, units)
 from ctrl_pin import makefile_findings, named_compilers, pin_controls, proof_census  # noqa: E402
 from ctrl_plants import BASE, PLANTS, Plant  # noqa: E402
-from ctrl_runs import captures, control_capture, owned, stack_gate  # noqa: E402
+from ctrl_runs import captures, control_capture, owned, stack_gate, standalone  # noqa: E402
 
 #: Where the stack lives in a checkout root.
 STACK_REL = STACK.relative_to(ROOT).as_posix()
@@ -461,9 +480,57 @@ def summary(capture: Capture, scope: Scope, ran: list[str]) -> None:
     print("\n".join(ran), flush=True)
 
 
-def main(argv: list[str] | None = None) -> int:
-    """Hold both sides and every Makefile builder's pin prerequisites, with the stack's own gate beside them; with
-    --selftest, the controls first."""
+# ---- the shards (ctrl_configs, THE SHARDS) -------------------------------------------------------
+
+
+def shard_of(text: str) -> tuple[int, int]:
+    """INDEX/COUNT, 0 <= INDEX < COUNT: one shard of the compile set."""
+    index, _, count = text.partition("/")
+    if not (index.isdigit() and count.isdigit() and 0 <= int(index) < int(count)):
+        raise argparse.ArgumentTypeError(f"{text!r} is not INDEX/COUNT with 0 <= INDEX < COUNT")
+    return int(index), int(count)
+
+
+def shard_controls(commands: tuple[dict, ...] | None) -> tuple[int, int]:
+    """The shards' table with its first unit dropped, and with it in a second shard too, each refused naming that
+    unit; given the shards' captures' commands, those with the first unit's run dropped, and with it twice, each
+    refused naming it. The misbehaving count and the controls run."""
+    first = units()[0].name
+    tables = (("dropped from the shards' table", tuple(tuple(n for n in shard if n != first) for shard in SHARDS)),
+              ("in a second shard of the table", (*SHARDS[:-1], (*SHARDS[-1], first)) if first not in SHARDS[-1]
+               else ((*SHARDS[0], first), *SHARDS[1:])))
+    cases = [(f"the unit {first} {label}", plan_findings(table)) for label, table in tables]
+    if commands is not None:
+        mine = [cmd for cmd in commands if units()[0].runs(cmd["argv"])]
+        rest = tuple(cmd for cmd in commands if cmd not in mine)
+        cases += [(f"the shards' captures with the run of {first} dropped", union_findings(rest)),
+                  (f"the shards' captures with the run of {first} twice", union_findings((*commands, *mine)))]
+    bad = 0
+    for what, found in cases:
+        named = [f for f in found if first in f]
+        ok = len(named) == 1 and len(found) == 1
+        print(f"[{'ok' if ok else 'ESCAPED'}] shard control, {what}: {named[0] if named else 'no finding'}",
+              flush=True)
+        bad += not ok
+    return bad, len(cases)
+
+
+def build_shard(shard: tuple[int, int], out: Path, scope: Scope) -> int:
+    """One shard's units of the compile set, built under the capture at `out`, judged nothing (the judging run
+    takes every shard's capture): 0 when each builder run exited 0."""
+    print(f"tsn-c-stack at {stack_pin()}", flush=True)
+    mine = tuple(u for u in units() if u.name in SHARDS[shard[0]])
+    print(f"shard {shard[0]}/{shard[1]}: {len(mine)} of the compile set's {len(units())} units, under the capture "
+          f"at {out}: {'; '.join(u.name for u in mine)}", flush=True)
+    with tempfile.TemporaryDirectory(prefix="ctrl-boundary-shard-") as tmp:
+        standalone(out.resolve(), Path(tmp) / "builders", scope, None, mine)
+    print(f"ctrl_boundary: shard {shard[0]}/{shard[1]} BUILT; the run given every shard's capture (--shards "
+          f"{shard[1]}) judges it")
+    return 0
+
+
+def arguments(argv: list[str] | None) -> argparse.Namespace:
+    """The run's arguments, each combination the gate cannot run refused."""
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--selftest", action="store_true", help="also plant every control and require its verdict")
     ap.add_argument("--require-rv32", action="store_true", help="refuse, not skip, without an RV32 compiler")
@@ -475,9 +542,34 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only", choices=sorted(NEEDS), default="",
                     help="judge only the builders that need this, and the controls that need them (each other one "
                          "is named)")
+    ap.add_argument("--shard", type=shard_of, metavar="INDEX/COUNT",
+                    help="build only this shard's units of the compile set (ctrl_configs.SHARDS) under the capture "
+                         "--capture-out names, and judge nothing: the run given every shard's capture judges them")
+    ap.add_argument("--capture-out", type=Path, help="with --shard: the capture the shard's builds are recorded in")
+    ap.add_argument("--shards", type=int, metavar="COUNT",
+                    help="with --capture: the captures are the COUNT shards' (--shard), which must hold every unit "
+                         "of the compile set's run exactly once")
     args = ap.parse_args(argv)
     if args.only in args.without:
         ap.error("--only and --without name the same builders")
+    if (args.shard or args.shards) and (args.only or frozenset(args.without) != SHARD_SCOPE_WITHOUT):
+        ap.error("the shards cut the --without verilator run's compile set (ctrl_configs.SHARDS)")
+    if args.shard and (args.capture_out is None or args.selftest or args.capture or args.shards):
+        ap.error("--shard needs --capture-out and excludes --selftest, --capture and --shards: it judges nothing")
+    if args.capture_out is not None and not args.shard:
+        ap.error("--capture-out is --shard's")
+    if args.shards is not None and not args.capture:
+        ap.error("--shards needs the shards' captures (--capture)")
+    count = (args.shard or (None, args.shards))[1]
+    if count is not None and count != len(SHARDS):
+        ap.error(f"the compile set has {len(SHARDS)} shards (ctrl_configs.SHARDS), not {count}")
+    return args
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Hold both sides and every Makefile builder's pin prerequisites, with the stack's own gate beside them; with
+    --selftest, the controls first."""
+    args = arguments(argv)
     scope = Scope(frozenset(args.without), args.only)
     rv32 = fw_rv32.compiler()
     if rv32 is None and args.require_rv32:
@@ -485,6 +577,16 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if rv32 is None:
         print("  SKIPPED: the RV32 arm, no RV32 compiler; --require-rv32 refuses instead")
+    plan = plan_findings()
+    if plan and (args.shard or args.shards):
+        print(f"REFUSED: {'; '.join(plan)}")
+        return 2
+    if args.shard:
+        try:
+            return build_shard(args.shard, args.capture_out, scope)
+        except (Refusal, CaptureError) as exc:
+            print(f"REFUSED: {exc}")
+            return 2
     try:
         with tempfile.TemporaryDirectory(prefix="ctrl-boundary-") as tmp, ThreadPoolExecutor(1) as beside:
             work = Path(tmp)
@@ -492,6 +594,10 @@ def main(argv: list[str] | None = None) -> int:
             mine = work / "capture"
             build = beside.submit(stack_gate, False, work / "stack-gate-build", mine)
             given = captures(args.capture, work, scope)
+            shards = tuple(cmd for capture in given for cmd in capture.commands) if args.shards else None
+            union = union_findings(shards) if shards is not None else []
+            if union:
+                raise Refusal("the shards' captures are not the compile set: " + "; ".join(union))
             ran = owned(mine, work / "images")
             said, refused = build.result()
             # the stack's own self-test runs beside the controls; its build is the one the capture holds
@@ -501,10 +607,12 @@ def main(argv: list[str] | None = None) -> int:
             capture = sum(given[1:], given[0]) + ctrl_capture.load(mine) + Capture((), (), (), tuple(named))
             held(capture, scope)
             summary(capture, scope, ran)
-            bad = pins = planted_count = figure_count = 0
+            bad = pins = planted_count = figure_count = shard_count = 0
             stated = []
             if args.selftest:
-                bad, planted_count = controls(work / "controls", capture, scope)
+                bad, shard_count = shard_controls(shards)
+                misbehaved, planted_count = controls(work / "controls", capture, scope)
+                bad += misbehaved
                 (work / "pins").mkdir()
                 misbehaved, pins = pin_controls(work / "pins", makefiles())
                 bad += misbehaved
@@ -514,7 +622,7 @@ def main(argv: list[str] | None = None) -> int:
                 bad += misbehaved
             findings = judge(capture, (ROOT,), scope)
             counts = counted(capture, Places((ROOT.resolve(),), targets(capture, (ROOT,))))
-            findings += makefile_findings(makefiles(), work / "makefiles") + proof_census() + stated
+            findings += makefile_findings(makefiles(), work / "makefiles") + proof_census() + stated + plan
             if own is not None:
                 said, tested = own.result()
                 refused += tested
@@ -525,13 +633,15 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     for finding in findings:
         print(f"  [FAIL] {finding}")
-    tested = (f", {planted_count} boundary, {pins} pin and {figure_count} figure controls, {bad} misbehaved"
-              if args.selftest else "")
+    tested = (f", {planted_count} boundary, {pins} pin, {figure_count} figure and {shard_count} shard controls, "
+              f"{bad} misbehaved" if args.selftest else "")
+    judged_shards = f", the {args.shards} shards' captures holding each of the {len(units())} units once" \
+        if args.shards else ""
     print(f"ctrl_boundary: {sum(counts.values())} compiled sources of {len(capture.invocations)} recorded invocations "
           f"({counts[FIRMWARE]} the firmware's, {counts['stack']} the stack's, {counts['rest']} test equipment's "
           f"and builders' own), each judged by what its dependency output lists, host{' and RV32' if rv32 else ''}, "
-          f"every Makefile builder's pin prerequisites and the pin proof's census; {len(findings)} finding(s)"
-          f"{tested}")
+          f"every Makefile builder's pin prerequisites and the pin proof's census{judged_shards}; "
+          f"{len(findings)} finding(s){tested}")
     print(f"ctrl_boundary: {'FAIL' if findings or bad else 'PASS'}")
     return 1 if findings or bad else 0
 
