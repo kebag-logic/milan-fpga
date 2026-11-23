@@ -150,7 +150,9 @@ The platform's poll table is full besides (eight of eight), so the adapter could
 **In the platform image.** `ctrl_plat_image.py --with-gptp` builds `plat/ctrl_plat.c` with `CTRL_PLAT_GPTP`: one port an interface, each the EUI-64 of its interface's MAC (IEEE 802.1AS-2020 8.5.2.2), bound after the saved-state store's centisecond and before the mailbox opens.
 Its PHC is the PTP block: the rate is `PTP_ADJ`'s signed addend, a step is `PTP_OFFSET`'s delta at `PTP_CMD`'s adjtime strobe, and the PHC's rate is read from `PTP_INCR`'s reset value, the true clock period, without a divide (`ctrl_plat_csr.c`).
 The datapath has one PTP block, interface 0's; a port on another interface steers none until the second MAC.
-This is the image an SoC built `--sw-gptp` carries; an image without the flag is byte for byte the one before.
+This is the image an SoC built `--sw-gptp` carries. An image without the flag excludes the firmware gPTP owner.
+The shared hot-list relearn changes code layout in both image variants.
+Measured by `plat_ledger.py` before the relearn at `a6323318` and after it at `631dc544`, the plain 1x1/1if platform image's `rom` grows from 126,632 to 126,640 B and the plain 8x8/2if image's from 140,952 to 140,960 B; their `sram` and RAMB36 allocations are unchanged ([platform memory](SPLIT_CONTROL_MEMORY.md#5-fit)).
 
 ## Memory
 

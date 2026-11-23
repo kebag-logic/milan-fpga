@@ -138,8 +138,8 @@ The other three are 8x8 images with gPTP in firmware, ledgered by [#884's ruling
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
 | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
 | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 19,008 B | 58.5 |
-| `8x8-one-interface-gptp` | the size fixture's, one interface, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 8 B, `image_gptp` of 1,096 B | 59.0 |
-| `8x8-two-interfaces-gptp` | the size fixture's, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 16 B, `image_gptp` of 2,136 B | 64.0 |
+| `8x8-one-interface-gptp` | the size fixture's, one interface, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 8 B, `image_gptp` of 1,104 B | 59.0 |
+| `8x8-two-interfaces-gptp` | the size fixture's, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 16 B, `image_gptp` of 2,152 B | 64.0 |
 | `platform-8x8-one-interface-gptp` | the target platform's, one interface, built `--with-gptp` (the image of an SoC built `--sw-gptp`) | `nvm_stage` of 13,594 B, `ctrl_plat` of 20,160 B | 62.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
