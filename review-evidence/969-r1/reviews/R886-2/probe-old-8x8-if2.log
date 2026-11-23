@@ -1,0 +1,451 @@
+Note: Google Test filter = SrpEarlyTalker.*:SrpStaleCountProbe.*
+[==========] Running 26 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 23 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (3 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (2 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+[       OK ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (6 ms)
+[ RUN      ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput
+[       OK ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput (1 ms)
+[ RUN      ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[       OK ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (3 ms)
+[ RUN      ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+[       OK ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (1 ms)
+[ RUN      ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+[       OK ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed
+[       OK ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[       OK ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt
+[       OK ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration
+[       OK ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing
+[       OK ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing (7 ms)
+[ RUN      ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+[       OK ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+[ RUN      ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar
+[       OK ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar (2 ms)
+[ RUN      ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one vector of every input is kept whole: input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one vector of every input is kept whole: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one vector of every input is kept whole: input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one vector of every input is kept whole: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one vector of every input is kept whole: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one vector of every input is kept whole: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset, one vector of every input is kept whole: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one vector of every input is kept whole: in THE TRANSMIT's next MRPDU, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one receive of every input is kept whole: input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one receive of every input is kept whole: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one receive of every input is kept whole: input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one receive of every input is kept whole: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset, one receive of every input is kept whole: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one receive of every input is kept whole: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset, one receive of every input is kept whole: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted: after a reset, one receive of every input is kept whole: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted (4 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a kept one freed below the bound: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a kept one freed below the bound: one receive of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one vector of every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a kept one freed below the bound: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a kept one freed below the bound: one receive of every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a kept one freed below the bound: one receive of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore: a kept one freed below the bound: one receive of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore (11 ms)
+[ RUN      ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+a Leave kept for a StreamID never registered, freed: every input is kept: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+a Leave kept for a StreamID never registered, freed: every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed: a Leave kept for a StreamID never registered, freed: every input is kept: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce (2 ms)
+[ RUN      ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput
+[       OK ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput (3 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput
+[       OK ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput (2 ms)
+[----------] 23 tests from SrpEarlyTalker (66 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: ACMP is told, input 8
+<checkout>/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (3 ms)
+[----------] 3 tests from SrpStaleCountProbe (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (74 ms total)
+[  PASSED  ] 19 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 26   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 26 checks, exit 1)

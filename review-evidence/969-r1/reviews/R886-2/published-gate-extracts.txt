@@ -1,0 +1,340 @@
+FILE firmware/early-plants-by-shape-ecd5bf41.txt
+FILE firmware/firmware-gate-5dba2089-shard0.log
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    plant a write skipped: caught
+    plant two writes reordered: caught
+    plant a wrong word: caught
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    == ctrl split platform bus map: checks: 5   failures: 0 ==
+    == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 14   failures: 0 ==
+    verdict: PASS (14 tests, 0 failures, exit 0)
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 14   failures: 0 ==
+    verdict: PASS (14 tests, 0 failures, exit 0)
+EARLY PLANT COUNTS {'endstation_ax7101_1x1_tdm8, 2 interfaces': 16, 'endstation_ax7101_1x1_tdm8, 1 interface': 16, 'endstation_ax7101_8x8, 1 interface': 16}
+[ok] feedback-early-talker-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-reset-counted [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+[ok] feedback-early-latest-unheld [endstation_ax7101_1x1_tdm8, 2 interfaces]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+[ok] feedback-early-talker-ignored [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-reset-counted [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+[ok] feedback-early-latest-unheld [endstation_ax7101_1x1_tdm8, 1 interface]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+[ok] feedback-early-talker-ignored [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput / an Advertise registered before its binding
+[ok] feedback-early-rebind-ignored [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit / a rebind to a stream declared all along
+[ok] feedback-early-bound-first-sink-only [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput / a binding made before its registration
+[ok] feedback-early-unbounded [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / a registration past the bound takes no block
+[ok] feedback-early-any-kind-kept [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / the other kind of a kept StreamID, past the bound
+[ok] feedback-early-count-forgets [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-reset-counted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+[ok] feedback-early-latest-unheld [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+FILE firmware/firmware-gate-ecd5bf41-shard3.log.gz
+FILE firmware/firmware-gate-f02d44cd-shard1.log.gz
+    first: [FAIL] Portable.CompilerExtensionsOnlyInThePlatformHeader: srp/srp_mbx.c:90 a compiler extension outside plat/ctrl_cc.h
+mutants: 827 of 827 caught
+FILE firmware/firmware-gate-f02d44cd-shard2.log.gz
+FILE firmware/fw_coverage-check-2bfa95b4.log
+  verdict: PASS (2 tests, 0 failures, exit 0)
+sw/firmware/ctrl/srp/srp_mbx.c                   861/861     779/782     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+FILE firmware/fw_coverage-check-ecd5bf41.log
+  verdict: PASS (2 tests, 0 failures, exit 0)
+sw/firmware/ctrl/srp/srp_mbx.c                   861/861     779/782     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+FILE firmware/fw_coverage-check-f02d44cd.log
+  verdict: PASS (2 tests, 0 failures, exit 0)
+sw/firmware/ctrl/srp/srp_mbx.c                   861/861     779/782     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+FILE ledger/fixture-stand-in-8x8-1if.txt
+FILE ledger/plat_ledger-and-memory-test-f02d44cd.log
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/gates/g14/ledger-build/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image --libc <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <checkout>/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/soc
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/soc/csr.csv --csr-h <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/stand-ins/soc/software/include/generated/csr.h --out <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/flash-map
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/image --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/flash-map --libc <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --num-streams 1 --audio-interface tdm8 --audio-interface-master --audio-interface-render 8 --talker-wire-chans 8 --loopback-lane --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <checkout>/configs/generated/endstation_ax7101_1x1_tdm8 --ctrl-mailbox --ctrl-firmware <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv --csr-h <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/software/include/generated/csr.h --out <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/flash-map-again
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_plat_image.py --config <checkout>/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/flash-map --output <scratch>/gates/g14/ledger-build/1x1-if1 --libc <scratch>/gates/g14/ledger-build/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_plat_image.py --config <checkout>/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 2 --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_1x1_tdm8/split-soc/flash-map --output <scratch>/gates/g14/ledger-build/1x1-if2 --libc <scratch>/gates/g14/ledger-build/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/image --libc <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <checkout>/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/soc
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/soc/csr.csv --csr-h <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/stand-ins/soc/software/include/generated/csr.h --out <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/flash-map
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_8x8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/image --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/flash-map --libc <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/runtime/libcompiler_rt.a
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/litex/milan_soc.py --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --entity-gen-dir <checkout>/configs/generated/endstation_ax7101_8x8 --ctrl-mailbox --ctrl-firmware <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/image/ctrl_app.elf --no-compile-software --output-dir <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/soc
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl_nvm/plat/gen_flash_port.py --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --csr-h <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/soc/software/include/generated/csr.h --out <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/flash-map-again
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_plat_image.py --config <checkout>/configs/endstation_ax7101_8x8.yaml --interfaces 1 --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/flash-map --output <scratch>/gates/g14/ledger-build/8x8-if1 --libc <scratch>/gates/g14/ledger-build/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/runtime/libcompiler_rt.a --ledgered-point platform-8x8-one-interface
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_plat_image.py --config <checkout>/configs/endstation_ax7101_8x8.yaml --interfaces 2 --csr-csv <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv --flash-map <scratch>/gates/g14/ledger-build/endstation_ax7101_8x8/split-soc/flash-map --output <scratch>/gates/g14/ledger-build/8x8-if2 --libc <scratch>/gates/g14/ledger-build/runtime/libc.a --compiler-runtime <scratch>/gates/g14/ledger-build/runtime/libcompiler_rt.a --ledgered-point platform-8x8-two-interfaces
+POINT 1x1-if1: rom 127,376 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+POINT 1x1-if2: rom 128,984 B, sram 59,104 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19776 B: PASS
+POINT 8x8-if1: rom 140,136 B, sram 98,288 B, 58.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19072 B: PASS
+POINT 8x8-if2: rom 141,720 B, sram 115,760 B, 63.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21824 B: PASS
+plat_ledger: PASS (0 finding(s))
+  [ok  ] the ledger holds the ruled points, the size fixture's and the target platform's 8x8 images with two interfaces at 60.5 and 63.5 and the platform's 8x8 image with one at 58.5 ({'8x8-two-interfaces': ((('nvm_stage', 13594), ('image_allocation', 16)), 60.5), 'platform-8x8-two-interfaces': ((('nvm_stage', 13594), ('ctrl_plat', 21824)), 63.5), 'platform-8x8-one-interface': ((('nvm_stage', 13594), ('ctrl_plat', 19072)), 58.5)})
+  [ok  ] the platform-8x8-two-interfaces override plans its own point's image: 63.5 RAMB36, against the 56-RAMB36 budget and its ledgered 63.5 ((63.5, 56, 'platform-8x8-two-interfaces', 63.5))
+  [ok  ] the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 58.5))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-t2l3lkqd/image-0-0-194496-268435456-None-None-13594-243-None-19072-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 202752, "banks": [131072, 65536, 4096, 2048], "RAMB36": 49, "RAMB18": 1}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+  [ok  ] the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (Plan(rom_bytes=36644, ram_bytes=202752, rom_banks=(32768, 4096), ram_banks=(131072, 65536, 4096, 2048), budget=58.5, ledgered='platform-8x8-one-interface'))
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image half a tile past (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image with a ctrl_plat of another size (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-t2l3lkqd/image-0-0-214976-268435456-None-None-13594-243-None-21824-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 223232, "banks": [131072, 65536, 16384, 8192, 2048], "RAMB36": 54, "RAMB18": 1}, "tiles": 63.5, "budget_tiles": 56, "ledgered": "platform-8x8-two-interfaces", "ledgered_tiles": 63.5}
+  [ok  ] the SoC build plans the platform-8x8-two-interfaces point's image at its own entry, 63.5 RAMB36 ((63.5, 'platform-8x8-two-interfaces'))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-t2l3lkqd/image-0-0-194496-268435456-None-None-13594-243-None-19072-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 202752, "banks": [131072, 65536, 4096, 2048], "RAMB36": 49, "RAMB18": 1}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+  [ok  ] the SoC build plans the platform-8x8-one-interface point's image at its own entry, 58.5 RAMB36 ((58.5, 'platform-8x8-one-interface'))
+  [ok  ] the platform-8x8-two-interfaces point's image, 63.5 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 63.5 RAMB36 (rom 36644 bytes in 36864, sram 223232 bytes in 223232) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image, 58.5 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image with a ctrl_plat of another size, planned without an override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-two-interfaces override on its own image at 64.0 RAMB36, half a tile past its 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 64 RAMB36 (rom 36644 bytes in 36864, sram 225280 bytes in 225280) exceeds the 63.5-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 one-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 two-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19776})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 8x8 one-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19072})
+  [ok  ] the platform-8x8-two-interfaces override on an image with the point's ctrl_plat and the 1x1 stage at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 21824})
+  [ok  ] the platform-8x8-two-interfaces override on an 8x8 image with no ctrl_plat at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-two-interfaces override on the size fixture's 8x8 two-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on its own image at 59.0 RAMB36, half a tile past its 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 one-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 two-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19776})
+  [ok  ] the platform-8x8-one-interface override on the platform's 8x8 two-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21824})
+  [ok  ] the platform-8x8-one-interface override on an image with the point's ctrl_plat and the 1x1 stage at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19072})
+  [ok  ] the platform-8x8-one-interface override on an 8x8 image with no ctrl_plat at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on the size fixture's 8x8 one-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-two-interfaces point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 64 RAMB36 (rom 36644 bytes in 36864, sram 225280 bytes in 225280) exceeds the 63.5-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-one-interface point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] MUTANT 'the SoC build plans no image at its entry' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'an image's entry found by its staging buffer alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': None})
+  [ok  ] MUTANT 'an image's entry found by its symbols' names alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19072})
+  [ok  ] PLANTED ledger 'the platform's entry at 64.0 RAMB36' is caught: the platform-8x8-two-interfaces override plans its own point's image: 63.5 RAMB36, against the 56-RAMB36 budget and its ledgered 63.5 ((63.5, 56, 'platform-8x8-two-interfaces', 64.0))
+  [ok  ] PLANTED ledger 'the size fixture's entry at the platform's 63.5' is caught: the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 63.5))
+  [ok  ] PLANTED ledger 'the product entry at 59.0 RAMB36' is caught: the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 59.0))
+  [ok  ] --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 0, {'w': (56.0, None), 'p': (63.5, 'platform-8x8-two-interfaces')})
+  [ok  ] MUTANT 'the mapper's override ignored' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's override on every image' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+RESULT: PASS
+FILE ledger/test_ctrl_memory-dcd02916.log
+  [ok  ] the ledger holds the ruled points, the size fixture's and the target platform's 8x8 images with two interfaces at 60.5 and 63.5 and the platform's 8x8 image with one at 58.5 ({'8x8-two-interfaces': ((('nvm_stage', 13594), ('image_allocation', 16)), 60.5), 'platform-8x8-two-interfaces': ((('nvm_stage', 13594), ('ctrl_plat', 21824)), 63.5), 'platform-8x8-one-interface': ((('nvm_stage', 13594), ('ctrl_plat', 19072)), 58.5)})
+  [ok  ] the platform-8x8-two-interfaces override plans its own point's image: 63.5 RAMB36, against the 56-RAMB36 budget and its ledgered 63.5 ((63.5, 56, 'platform-8x8-two-interfaces', 63.5))
+  [ok  ] the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 58.5))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-d7ycgs5u/image-0-0-194496-268435456-None-None-13594-243-None-19072-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 202752, "banks": [131072, 65536, 4096, 2048], "RAMB36": 49, "RAMB18": 1}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+  [ok  ] the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (Plan(rom_bytes=36644, ram_bytes=202752, rom_banks=(32768, 4096), ram_banks=(131072, 65536, 4096, 2048), budget=58.5, ledgered='platform-8x8-one-interface'))
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image half a tile past (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the product SoC build refuses the platform-8x8-one-interface point's image with a ctrl_plat of another size (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-d7ycgs5u/image-0-0-214976-268435456-None-None-13594-243-None-21824-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 223232, "banks": [131072, 65536, 16384, 8192, 2048], "RAMB36": 54, "RAMB18": 1}, "tiles": 63.5, "budget_tiles": 56, "ledgered": "platform-8x8-two-interfaces", "ledgered_tiles": 63.5}
+  [ok  ] the SoC build plans the platform-8x8-two-interfaces point's image at its own entry, 63.5 RAMB36 ((63.5, 'platform-8x8-two-interfaces'))
+[milan] --ctrl-firmware <scratch>/tmp/ctrl-memory-d7ycgs5u/image-0-0-194496-268435456-None-None-13594-243-None-19072-33576.elf: {"rom": {"bytes": 36644, "banks": [32768, 4096], "RAMB36": 9, "RAMB18": 0}, "sram": {"bytes": 202752, "banks": [131072, 65536, 4096, 2048], "RAMB36": 49, "RAMB18": 1}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}
+  [ok  ] the SoC build plans the platform-8x8-one-interface point's image at its own entry, 58.5 RAMB36 ((58.5, 'platform-8x8-one-interface'))
+  [ok  ] the platform-8x8-two-interfaces point's image, 63.5 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 63.5 RAMB36 (rom 36644 bytes in 36864, sram 223232 bytes in 223232) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image, 58.5 RAMB36, planned without its override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-one-interface point's image with a ctrl_plat of another size, planned without an override: refused by 'allocation over budget' rule 'budget' (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] the platform-8x8-two-interfaces override on its own image at 64.0 RAMB36, half a tile past its 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 64 RAMB36 (rom 36644 bytes in 36864, sram 225280 bytes in 225280) exceeds the 63.5-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 one-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 1x1 two-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19776})
+  [ok  ] the platform-8x8-two-interfaces override on the platform's 8x8 one-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19072})
+  [ok  ] the platform-8x8-two-interfaces override on an image with the point's ctrl_plat and the 1x1 stage at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 21824})
+  [ok  ] the platform-8x8-two-interfaces override on an 8x8 image with no ctrl_plat at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-two-interfaces override on the size fixture's 8x8 two-interface image at 63.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on its own image at 59.0 RAMB36, half a tile past its 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 one-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 18048})
+  [ok  ] the platform-8x8-one-interface override on the platform's 1x1 two-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19776})
+  [ok  ] the platform-8x8-one-interface override on the platform's 8x8 two-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 21824})
+  [ok  ] the platform-8x8-one-interface override on an image with the point's ctrl_plat and the 1x1 stage at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 3454, 'ctrl_plat': 19072})
+  [ok  ] the platform-8x8-one-interface override on an 8x8 image with no ctrl_plat at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the platform-8x8-one-interface override on the size fixture's 8x8 one-interface image at 58.5: refused by 'allocation over budget' rule 'budget' (allocation over budget: the override 'platform-8x8-one-interface' is for the target platform's 8x8, one interface image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 19072}; this image carries {'nvm_stage': 13594, 'ctrl_plat': None})
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-two-interfaces point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 64 RAMB36 (rom 36644 bytes in 36864, sram 225280 bytes in 225280) exceeds the 63.5-RAMB36 budget ledgered for target platform's 8x8, two interfaces)
+  [ok  ] the SoC build's add_ctrl_memory given the platform-8x8-one-interface point's image half a tile past its entry: refused by 'allocation over budget' rule 'budget' (allocation over budget: 59 RAMB36 (rom 36644 bytes in 36864, sram 204800 bytes in 204800) exceeds the 58.5-RAMB36 budget ledgered for target platform's 8x8, one interface)
+  [ok  ] MUTANT 'the SoC build plans no image at its entry' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: 58.5 RAMB36 (rom 36644 bytes in 36864, sram 202752 bytes in 202752) exceeds the 56-RAMB36 budget)
+  [ok  ] MUTANT 'an image's entry found by its staging buffer alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'image_allocation': 16}; this image carries {'nvm_stage': 13594, 'image_allocation': None})
+  [ok  ] MUTANT 'an image's entry found by its symbols' names alone' (own entry) is caught by the checks arm: the product SoC build plans the platform-8x8-one-interface point's image at its 58.5 RAMB36 by its symbols (allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13594, 'ctrl_plat': 21824}; this image carries {'nvm_stage': 13594, 'ctrl_plat': 19072})
+  [ok  ] PLANTED ledger 'the platform's entry at 64.0 RAMB36' is caught: the platform-8x8-two-interfaces override plans its own point's image: 63.5 RAMB36, against the 56-RAMB36 budget and its ledgered 63.5 ((63.5, 56, 'platform-8x8-two-interfaces', 64.0))
+  [ok  ] PLANTED ledger 'the size fixture's entry at the platform's 63.5' is caught: the 8x8-two-interfaces override plans its own point's image: 60.5 RAMB36, against the 56-RAMB36 budget and its ledgered 60.5 ((60.5, 56, '8x8-two-interfaces', 63.5))
+  [ok  ] PLANTED ledger 'the product entry at 59.0 RAMB36' is caught: the platform-8x8-one-interface override plans its own point's image: 58.5 RAMB36, against the 56-RAMB36 budget and its ledgered 58.5 ((58.5, 56, 'platform-8x8-one-interface', 59.0))
+  [ok  ] --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 0, {'w': (56.0, None), 'p': (63.5, 'platform-8x8-two-interfaces')})
+  [ok  ] MUTANT 'the mapper's override ignored' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+  [ok  ] MUTANT 'the mapper's override on every image' (ooc override) is caught by the mapper's facts: --ledgered p=platform-8x8-two-interfaces maps that image at 63.5 RAMB36 and the other at 56.0 with no override (exit 2, {})
+RESULT: PASS
+FILE twin/twin-summary-f02d44cd.txt
+# make twin, twin-plants, twin-maps, twin-maps-plants in tb/verilator/milan_dp on a clean clone at f02d44cd (the final firmware): exit 0; the verdict, findings, plants and maps lines (the whole log beside, gzipped)
+PASS [MAPS-BOOT] the render store holds the boot map, eight identity mappings
+PASS [MAPS-BOOT] GET_AUDIO_MAP and the render store agree at boot
+PASS [MAPS-REFUSED] with the mappings in place, a narrowing SET_STREAM_FORMAT answers BAD_ARGUMENTS
+PASS [MAPS-REMOVE] REMOVE_AUDIO_MAPPINGS of all eight answers SUCCESS
+PASS [MAPS-STORE] the removal reached the render store
+PASS [MAPS-STORE] GET_AUDIO_MAP and the render store agree after the removal
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 1 channel answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 2 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+PASS [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 6 channels answers SUCCESS
+PASS [MAPS-FORMAT] 7 channels, a format the input does not support, is refused
+PASS [MAPS-FORMAT] the declared 8 channels answer SUCCESS
+PASS [MAPS-ADD] ADD_AUDIO_MAPPINGS of an edited map answers SUCCESS
+PASS [MAPS-EDIT] an edited map reached the render store
+PASS [MAPS-EDIT] GET_AUDIO_MAP and the render store agree after the addition
+PASS [MAPS-REFUSED] with a mapping of channel 2 in place, a SET_STREAM_FORMAT to 2 channels answers BAD_ARGUMENTS
+PASS [MAPS-SAVED] the edited map's save is durable
+PASS [MAPS-SAVED] the platform boots again from the saved state (stage 6)
+PASS [MAPS-SAVED] the saved map, restored at boot, reached the render store
+PASS [MAPS-SAVED] GET_AUDIO_MAP and the render store agree after the restore
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store
+FILE docs/docs-workflow-e816c74d.txt
+# the docs workflow's 103 commands (the flip lane's table, the em-dash base dd163e41), quick.sh on a clean clone at e816c74d (the final head); one line per command, its rc and last line; the 4 CI-environment rows (act install dir, GITHUB_EVENT_PATH x3) refuse on any local replay, as on the base's
+00-check_wire_accountability-selftest rc=0  RESULT: PASS
+01-docs_check                rc=0  docs_check: 0 finding(s) across 223 md files + 1913 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+02-check_feature_status      rc=0  feature_status: 0 finding(s)
+03-gen_hdl_reference-selftest rc=0  HDL reference self-test: 44/44 arms passed
+04-check_em_dash-basedd163e41 rc=0  check_em_dash: 0 finding(s) over 116 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [dd163e41..HEAD]
+05-check_doc_style           rc=0  documentation style: OK (25 current documents)
+06-check_doc_style-selftest  rc=0  documentation style selftest: OK
+07-check_gptp_docs           rc=0  gPTP documentation: OK (8 current pages)
+08-check_gptp_docs-selftest  rc=0  gPTP documentation selftest: OK (30 controls)
+09-DOC_MAP_gen-check         rc=0  documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+10-DOC_MAP_gen-selftest      rc=0  documentation map selftest: OK (valid wrong-raster control)
+11-timesync_chain_gen-check  rc=0  time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+12-timesync_chain_gen-selftest rc=0  time-sync diagram selftest: OK (source, status, XML, raster)
+13-check_solution_docs       rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+14-check_solution_docs-selftest rc=0  solution documentation selftest: OK (47 mutation controls)
+15-submodule_boundaries_gen-check rc=0  submodule diagram: OK (6 exact gitlinks, decoded PNG)
+16-submodule_boundaries_gen-selftest rc=0  submodule diagram selftest: OK (valid wrong-raster control)
+17-check_submodule_docs      rc=0  submodule documentation: OK (6 exact gitlinks)
+18-check_submodule_docs-selftest rc=0  submodule documentation selftest: OK (table and diagram controls)
+19-gen_wavedrom-selftest     rc=0  gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+20-gen_wavedrom-docsdiagramswdaxisba rc=0  WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+21-gen_wavedrom-docsdiagramswdcdchan rc=0  WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+22-gen_wavedrom-docsdiagramswdgptppd rc=0  WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+23-check_diagram_pngs        rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+24-check_diagram_pngs-selftest rc=0  diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+25-check_feature_status-selftest rc=0  feature_status: 0 finding(s)
+26-gen_module_matrix-check   rc=0  traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+27-check_gptp_docs-withsubmodule rc=0  gPTP documentation: OK (8 current pages, donor checkout verified)
+28-measure_control_flow-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+29-measure_cohesion-selftest rc=0  18 checks: 18 PASS, 0 FAIL
+30-check_baremetal_only-check rc=0  baremetal-only: OK (0 findings across 1911 tracked first-party file(s))
+31-check_baremetal_only-selftest rc=0  baremetal-only selftest: PASS (867 arm(s))
+32-ci_rv32_sdk_selftest      rc=0  OK
+33-test_firmware_compiler-selftest rc=0  compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+34-check_nvm_record_space    rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+35-check_nvm_record_space-selftest rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+36-check_nvm_format_32x32    rc=0  docs/design/SAVED_STATE_FORMAT_32X32.md: 0 finding(s)
+37-check_nvm_format_32x32-selftest rc=0  self-test: PASS
+38-check_nvm_klj3            rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128
+39-check_nvm_klj3-selftest   rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+40-check_nvm_capture         rc=0  PASS: capture census, clocks, both timing arms and receipt agree
+41-test_nvm_firmware-selftest rc=0  saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+42-check_soc_sources         rc=0  SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+43-check_soc_sources-selftest rc=0  25 checks: 25 PASS, 0 FAIL
+44-iob_pack_selftest         rc=0  iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+45-check_rtl_source_lists    rc=0  RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorde
+46-check_rtl_source_lists-selftest rc=0  50 checks: 50 PASS, 0 FAIL
+47-measure_naming-check      rc=0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+48-measure_naming-selftest   rc=0  66 checks: 66 PASS, 0 FAIL
+49-check_port_contracts      rc=0    review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hi
+50-check_port_contracts-selftest rc=0  82 checks: 82 PASS, 0 FAIL
+51-measure_fail_fast-check   rc=0    the ratchets can be lowered to 80, 3 and 0
+52-measure_fail_fast-selftest rc=0  106 checks: 106 PASS, 0 FAIL
+53-check_todo_ownership      rc=0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1591 first-party fil
+54-check_todo_ownership-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+55-measure_test_evidence-check rc=0    the mutation ratchet can be lowered to 67
+56-measure_test_evidence-selftest rc=0  105 checks: 105 PASS, 0 FAIL
+57-check_hygiene-check       rc=0  HYGIENE RATCHET: PASS (3 population(s), 1518 file(s))
+58-check_hygiene-selftest    rc=0  35 checks: 35 PASS, 0 FAIL
+59-check_sv_idiom            rc=0  SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always
+60-check_sv_idiom-selftest   rc=0  55 checks: 55 PASS, 0 FAIL
+61-check_cpp_idiom           rc=0    build without warnings: 0 <= 0
+62-check_cpp_idiom-selftest  rc=0  83 checks: 83 PASS, 0 FAIL
+63-check_py_idiom            rc=0    over-long line: 0 <= 0
+64-check_py_idiom-selftest   rc=0  54 checks: 54 PASS, 0 FAIL
+65-check_sh_idiom            rc=0    top-heavy long script: 0 <= 0
+66-check_sh_idiom-selftest   rc=0  48 checks: 48 PASS, 0 FAIL
+67-check_doc_paths           rc=0  doc path gate: OK (1753 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+68-check_archive             rc=0  archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+69-check_archive-selftest    rc=0  archive selftest: OK (24 controls)
+70-gen_toc-selftest          rc=0  TOC selftest: PASS (1501/1501 arm(s))
+71-gen_toc-verifyanchors     rc=0  anchor check: 755 existing cross-page fragment links reproduced
+72-gen_toc-check             rc=0  TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+73-docs_inventory-check      rc=0  documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+74-docs_inventory-selftest   rc=0  documentation inventory selftest: OK (60 controls)
+75-gen_aem_store-selftest    rc=0  gen_aem_store self-test: PASS
+76-check_sweep_shape-selftest rc=0    [self-test] OK: 1 drift(s) reported
+77-check_deploy_shape-selftest rc=0    [selftest] OK: 1 drift(s) reported
+78-check_entity_shape-selftest rc=0  RESULT: PASS
+79-gen_register_reference-check rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+80-gen_register_reference-selftest rc=0  register reference selftest: OK (61/61 controls)
+81-memory_map_gen-check      rc=0  memory map diagram: fresh
+82-ci_gate_workflows-check   rc=0  HEAD e816c74d START 21:20:10
+83-ci_gate_workflows_selftest rc=0  gate workflow and union controls: PASS
+84-ci_case_receipts_selftest rc=0  case receipt self-test: 34 driver cases, union and comparison controls pass
+85-ci_make_cases_selftest    rc=0  make case runner: all controls pass
+86-ci_maap_cases_selftest    rc=0  MAAP scheduling controls: 66 cases retain their source and checks
+87-ci_capture_cases_selftest rc=0  capture observations: full/sharded values match; failed unit remains failed
+88-ci_suite_pieces_selftest  rc=0  suite pieces: 65 parents, 82 scheduled units, all controls PASS
+89-ci_suite_collect_selftest rc=0  physical suite collection: all controls PASS
+90-ci_fail_fast_selftest     rc=0  fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+91-ci_runtime_evidence_selftest rc=0  runtime manifest collectors: all controls PASS
+92-ci_install_cache_selftest rc=0  constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+93-generate_ci_evidence_pins-check rc=0  HEAD e816c74d START 21:20:43
+94-ci_workflow_plan_selftest rc=0  workflow planner: all controls pass
+95-ci_manifest_selftest      rc=0  manifest comparison controls: PASS
+96-ci_events-check           rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+97-ci_events-selftest        rc=0  selftest: PASS (2287 contract items, 5723 arms)
+98-act_ci-selftest           rc=0  selftest: PASS
+99-_I-installdiractcipysel   rc=2  /usr/bin/python3: can't open file '/act_ci.py': [Errno 2] No such file or directory
+100-ci_fail_fast-watch       rc=1  KeyError: 'GITHUB_EVENT_PATH'
+101-ci_fail_fast-cancel      rc=1  KeyError: 'GITHUB_EVENT_PATH'
+102-ci_fail_fast-tail        rc=1  KeyError: 'GITHUB_EVENT_PATH'
+FILE routes/route-1x1-1if-ExtraPostPlacementOpt-f02d44cd.txt
+## signoff (#818 floor: WNS >= +0.030 ns, WHS >= 0 ns at every signoff corner)
+Slow_85C: WNS +0.128 ns (0 failing), WHS +0.061 ns (0 failing)
+Slow_0C: WNS +0.128 ns (0 failing), WHS +0.061 ns (0 failing)
+Fast_85C: WNS +1.641 ns (0 failing), WHS +0.032 ns (0 failing)
+Fast_0C: WNS +1.641 ns (0 failing), WHS +0.032 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.128 ns, WHS +0.032 ns
+## image identity
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+[milan] --ctrl-firmware gate/clones/r2-1x1/sw/builder/out/endstation_ax7101_1x1_tdm8/ctrl_app.elf: {"rom": {"bytes": 127376, "banks": [65536, 32768, 16384, 8192, 4096, 2048], "RAMB36": 31, "RAMB18": 1}, "sram": {"bytes": 56736, "banks": [32768, 16384, 8192], "RAMB36": 14, "RAMB18": 0}, "tiles": 45.5, "budget_tiles": 56}
+FILE routes/route-8x8-1if-ExtraPostPlacementOpt-f02d44cd.txt
+## signoff (#818 floor: WNS >= +0.030 ns, WHS >= 0 ns at every signoff corner)
+Slow_85C: WNS +0.096 ns (0 failing), WHS +0.102 ns (0 failing)
+Slow_0C: WNS +0.096 ns (0 failing), WHS +0.102 ns (0 failing)
+Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)
+#818 floor (WNS >= +0.030, WHS >= 0) met at every corner
+worst corner WNS +0.096 ns, WHS +0.036 ns
+## image identity
+image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+[milan] --ctrl-firmware gate/clones/r2-8x8/sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf: {"rom": {"bytes": 140136, "banks": [131072, 8192, 2048], "RAMB36": 34, "RAMB18": 1}, "sram": {"bytes": 98288, "banks": [65536, 32768], "RAMB36": 24, "RAMB18": 0}, "tiles": 58.5, "budget_tiles": 56, "ledgered": "platform-8x8-one-interface", "ledgered_tiles": 58.5}

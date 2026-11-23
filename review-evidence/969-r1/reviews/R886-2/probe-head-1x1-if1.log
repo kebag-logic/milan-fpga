@@ -1,0 +1,67 @@
+Note: Google Test filter = SrpEarlyTalker.*:SrpStaleCountProbe.*
+[==========] Running 26 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 23 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (2 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput
+[       OK ] SrpEarlyTalker.ARegistrationMadeBeforeItsBindingIsDeclaredWithinOneTransmitOnEveryInput (4 ms)
+[ RUN      ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput
+[       OK ] SrpEarlyTalker.ABindingMadeBeforeItsRegistrationIsDeclaredWithinAJoinTimeOnEveryInput (0 ms)
+[ RUN      ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit
+[       OK ] SrpEarlyTalker.ARebindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit (3 ms)
+[ RUN      ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+[       OK ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (0 ms)
+[ RUN      ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding
+[       OK ] SrpEarlyTalker.AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBinding (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed
+[       OK ] SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound
+[       OK ] SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound (0 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt
+[       OK ] SrpEarlyTalker.AnUnbindingAtTheBoundIsCountedPastIt (3 ms)
+[ RUN      ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration
+[       OK ] SrpEarlyTalker.AFullHeldTableHoldsNoKeptRegistration (0 ms)
+[ RUN      ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing
+[       OK ] SrpEarlyTalker.ARegistrationThatEndedBeforeTheBindingDeclaresNothing (5 ms)
+[ RUN      ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs
+[       OK ] SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs (0 ms)
+[ RUN      ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar
+[       OK ] SrpEarlyTalker.OneReceiveOfEveryInputIsKeptWholeIntoAFreshRegistrar (2 ms)
+[ RUN      ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[       OK ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted (1 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[       OK ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore (10 ms)
+[ RUN      ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[       OK ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed (0 ms)
+[ RUN      ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce
+[       OK ] SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce (0 ms)
+[ RUN      ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput
+[       OK ] SrpEarlyTalker.AFloodOfUnboundTalkersStarvesNoBoundInput (4 ms)
+[ RUN      ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput
+[       OK ] SrpEarlyTalker.AnUnbindingThenABindingDeclaresAtOnceOnEveryInput (0 ms)
+[----------] 23 tests from SrpEarlyTalker (44 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (1 ms)
+[----------] 3 tests from SrpStaleCountProbe (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (47 ms total)
+[  PASSED  ] 26 tests.
+== ctrl SRP mailbox: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)

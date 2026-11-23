@@ -1,0 +1,5 @@
+[ok] feedback-early-reset-counted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive

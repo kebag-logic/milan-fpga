@@ -1,0 +1,210 @@
+FILE firmware/firmware-gate-5dba2089-shard0.log
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_w (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_phy_mdio_r (exit 2)
+    [PASS] PlatMap.M3SomeRowsAreRefused: M3 some but not all of the PHY's rows are refused, naming milan_mac_link_status (exit 2)
+    == ctrl split platform bus map: checks: 5   failures: 0 ==
+    RESULT: PASS
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 14   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (14 tests, 0 failures, exit 0)
+[ok] arm platsinks
+    == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 14   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (14 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+FILE firmware/firmware-gate-f02d44cd-shard1.log.gz
+[ok] mutant pub-maap-gate-after-the-report (maap): 5 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 827 of 827 caught
+test_ctrl_firmware: PASS
+FILE firmware/firmware-gate-f02d44cd-shard2.log.gz
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] configuration-unpaced: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] configuration-paced-when-refused: Mailbox.AnAcceptedConfigurationHoldsTheNextRecordForThePace
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/ctrl-fw-jwqptudk/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] configuration-past-the-count-bad-arguments: Core.SetConfigurationOutOfRangeIsNoSuchDescriptor
+test_ctrl_firmware: PASS
+FILE firmware/firmware-gate-ecd5bf41-shard3.log.gz
+[ok] feedback-early-count-forgets [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.RegistrationsKeptBeforeABindingAreBoundedByTheInputs / counted again, they are still kept
+[ok] feedback-early-count-adds [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-left-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / a kept registration that left is counted until its block is freed
+[ok] feedback-early-freed-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-unbinding-uncounted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AnUnboundRegistrationIsKeptAndCountedAgainstTheBound / an unbound registration is kept and counted
+[ok] feedback-early-reset-counted [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted / after a reset, one vector of every input is kept whole
+[ok] feedback-early-end-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore / a kept one freed below the bound: one vector of every input is kept
+[ok] feedback-early-unregistered-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed / a Leave kept for a StreamID never registered
+[ok] feedback-early-left-seen-unowed [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed / once its block is freed, another is kept
+[ok] feedback-early-refresh-counted-again [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce / a kept registration refreshed in one receive
+[ok] feedback-early-latest-unheld [endstation_ax7101_8x8, 1 interface]: SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt / the latest of two kinds registered before the binding
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+FILE twin/twin-plants-maps-f02d44cd.log.gz
+g++  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTWIN_IN0_FMT=0x0205022002006000ULL -I<checkout>/sw/firmware/ctrl/mbx -I<checkout>/sw/firmware/ctrl/host -I<checkout>/sw/firmware/ctrl/port -I<checkout>/sw/firmware/ctrl/loop -I<checkout>/sw/firmware/ctrl/adp -I<checkout>/sw/firmware/ctrl/maap -I<checkout>/sw/firmware/ctrl/acmp -I<checkout>/sw/firmware/ctrl/app -I<checkout>/sw/firmware/ctrl/test -I<checkout>/sw/firmware/ctrl/srp -I<checkout>/third_party/tsn-c-stack/include -I<checkout>/sw/firmware/ctrl_nvm -I<checkout>/sw/firmware/gtest -I<checkout>/sw/firmware/ctrl/aecp -I<checkout>/sw/firmware/ctrl/plat -I<checkout>/tb/verilator/milan_dp/obj_twin_fw -I<checkout>/tb/verilator/milan_dp/obj_twin_fw/gen -DLWSRP_MILAN=1 -I<checkout>/third_party/lwSRP/src/include -I<checkout>/third_party/lwSRP/src -I<checkout>/sw/firmware/ctrl_nvm/host -DTWIN_FW_MAAP_PREFERRED=0x91e0f0000100ULL -Wall -Wextra   -Os  -c -o twin_split.o ../twin_split.cpp
+g++    twin_split.o verilated.o verilated_dpi.o verilated_threads.o Vtb_split_top__ALL.a   -Wl,--wrap=mrp_transmit,--wrap=mrp_rx,--wrap=mrp_port_configure,--wrap=shlan_timer_arm,--wrap=shlan_timer_tick,--wrap=srp_mbx_init <checkout>/tb/verilator/milan_dp/obj_twin_fw/libtwinfw.a  -pthread -lpthread -latomic   -o Vmilan_dp_twin_sp
+make[1]: Leaving directory '<checkout>/tb/verilator/milan_dp/obj_twin_sp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 4.057 s (elab=0.000, cvt=0.000, bld=4.047); cpu 0.003 s on 32 threads; allocated 16.637 MB
+if ./obj_twin_sp/Vmilan_dp_twin_sp --maps --plant no-edit > obj_twin_maps/no-edit.log; then \
+  echo "FAIL the no-edit plant passed"; exit 1; fi
+set -e; for w in "FAIL [MAPS-STORE] the removal reached the render store" "FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS" "FAIL [MAPS-EDIT] an edited map reached the render store"; do \
+  grep -qF -- "$w" obj_twin_maps/no-edit.log || { echo "FAIL the no-edit plant escaped: $w"; exit 1; }; \
+  echo "caught: $w"; done
+caught: FAIL [MAPS-STORE] the removal reached the render store
+caught: FAIL [MAPS-FORMAT] once the mappings are removed, a narrowing SET_STREAM_FORMAT to 4 channels answers SUCCESS
+caught: FAIL [MAPS-EDIT] an edited map reached the render store
+FILE budget/harness-selftest-run.py_--self-test-5dba2089.log.gz
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-ageless caught: 1 save(s) not durable within their stated worst case (save-starved), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 0 save(s) not durable within their stated worst case (none), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-held), 0 refusal(s)
+CONTROL store-step-ageless ESCAPED: 1 save(s) not durable within their stated worst case (save-starved), 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 1 refusal(s)
+CONTROL store-step-aged-heavier caught: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 0 aged window(s) with a row over its budget or an aged step over its stated cost (none), 0 with a pass over the share, 0 refusal(s)
+CONTROL store-step-aged-heavier ESCAPED: 1 aged window(s) with a row over its budget or an aged step over its stated cost (backlog-adp@verify-aged2-3), 1 with a pass over the share, 0 refusal(s)
+MUTANT caught: clock: a reused build is not checked: the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain (on the Milan clock: reached; on sys at half the bus clock: reached; with no domain recorded: reached)
+self-test: 0 failures
+FILE probe-head-1x1-if1.log
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (1 ms)
+[----------] 3 tests from SrpStaleCountProbe (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (47 ms total)
+[  PASSED  ] 26 tests.
+== ctrl SRP mailbox: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)
+FILE probe-old-1x1-if1.log
+[  PASSED  ] 19 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 26   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 26 checks, exit 1)
+FILE probe-head-1x1-if2.log
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (4 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+[----------] 3 tests from SrpStaleCountProbe (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (85 ms total)
+[  PASSED  ] 26 tests.
+== ctrl SRP mailbox: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)
+FILE probe-old-1x1-if2.log
+[  PASSED  ] 19 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 26   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 26 checks, exit 1)
+FILE probe-head-8x8-if1.log
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+[----------] 3 tests from SrpStaleCountProbe (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (62 ms total)
+[  PASSED  ] 26 tests.
+== ctrl SRP mailbox: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)
+FILE probe-old-8x8-if1.log
+[  PASSED  ] 19 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 26   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 26 checks, exit 1)
+FILE probe-head-8x8-if2.log
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (1 ms)
+[----------] 3 tests from SrpStaleCountProbe (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 2 test suites ran. (55 ms total)
+[  PASSED  ] 26 tests.
+== ctrl SRP mailbox: checks: 26   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (26 tests, 0 failures, exit 0)
+FILE probe-old-8x8-if2.log
+[  PASSED  ] 19 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.AResetLeavesNoKeptRegistrationCounted
+[  FAILED  ] SrpEarlyTalker.AKeptRegistrationWhoseBlockIsFreedIsCountedNoMore
+[  FAILED  ] SrpEarlyTalker.AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+
+ 7 FAILED TESTS
+== ctrl SRP mailbox: checks: 26   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 26 checks, exit 1)
