@@ -1,0 +1,8 @@
+{
+  "head": "55852269db3554900d2b71e6f9a7b153cff69e14",
+  "validate": {"command": "python3 scripts/validate.py --work <packet>/scratch/validate --jobs 2 --graphs", "observed_rc": 0},
+  "baremetal": {"command": "python3 scripts/baremetal.py --work <packet>/scratch/baremetal --jobs 2", "observed_rc": 0},
+  "probe": {"command": "python3 <packet>/probe.py <checkout> <packet>", "observed_rc": 0},
+  "old_full_suite": {"configure": "Debug", "build_jobs": 8, "ctest_jobs": 8, "observed_rc": 0},
+  "environment": {"GoogleTest": "1.14.0", "Clang_tools": "18.1.3", "Mermaid_CLI": "11.16.0"}
+}

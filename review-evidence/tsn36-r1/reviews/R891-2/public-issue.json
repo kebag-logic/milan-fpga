@@ -1,0 +1,25 @@
+{
+  "id": 6540569769,
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/970",
+  "title": "ADP: the first ENTITY_AVAILABLE after link-up takes 5.8-6.8 s, past the declared 6.0 s discovery time",
+  "issue_number": 970,
+  "body": "**Found by** the flip re-check and the full in-house qualification on the merged image (dev-soft-core 59b09884, 8x8/1if). It is a DUT failure; no failure is acceptable for the lab.\n\n**Observed:** after a link-up, the DUT's first ENTITY_AVAILABLE comes **5.76 to 6.82 s** after its first frame. The controller's discovery wait is the entity's declared discovery time, 6.0 s, so several scenarios fail \"the DUT was not discovered within 6.0 s\".\n- In the re-check's runs (3 of 5), each slow case had a grandmaster change about 4 to 5 s after link-up.\n- In pass A of the full qualification, 5 scenarios failed on it; pass B has more instances so far.\n\n**Expected:** ADP advertises the entity as soon as its interface is up (IEEE 1722.1-2021 6.2.4 Advertising Entity State Machine and 6.2.5 Advertising Interface State Machine: the interface advertises on a link-state change to up, and separately on a grandmaster update; the variables linkIsUp and advertisedGrandmasterID drive those transitions). Milan v1.2's ADP rules and the gPTP grandmaster change (4.2.x) must not hold back the first ENTITY_AVAILABLE past the declared discovery time. A grandmaster change is announced by a new ENTITY_AVAILABLE; it is not a reason to wait.\n\n**Where to look:** the split firmware's ADP start after LINK (`sw/firmware/ctrl/`), and whether the first advertise waits for asCapable, the grandmaster, or a settle timer; the link-up debounce in the platform.\n\n**Acceptance:**\n- the first ENTITY_AVAILABLE within the entity's **declared discovery time** of link-up, with Milan's prescribed draws (0 to 4 s at DOWN to LINK_UP, 0 to 2 s at start-up; Milan v1.2 5.6.3.5.2 and 5.6.3.5.3, uniform per IEEE 1722.1-2021 6.2.4.2.2), at 1x1/1if and 8x8/1if, with and without a grandmaster change during the first 6 s (corrected 2026-11-22 by the ruling in this issue; the earlier \"within 1 s\" was an error);\n- the declared 6.0 s derived and stated in FR_NFR (draw + link publication + loop passes + PHY link time);\n- the grandmaster change still announced (a new ENTITY_AVAILABLE with the new gptp_grandmaster_id);\n- a host test of both orders with a planted defect;\n- the bench re-run of the affected scenarios.\n\nRelates to #665.\n\n",
+  "state": "open",
+  "user": {
+    "login": "Mister-M-alt",
+    "name": "Mister-M-alt",
+    "email": null,
+    "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+    "id": 161579364
+  },
+  "assignees": null,
+  "labels": null,
+  "milestone": null,
+  "state_reason": null,
+  "comments": 3,
+  "created_at": "2026-11-22T09:02:27Z",
+  "updated_at": "2026-11-22T14:46:18Z",
+  "closed_at": null,
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/970",
+  "display_title": "ADP: the first ENTITY_AVAILABLE after link-up takes 5.8-6.8 s, past the declared 6.0 s discovery time"
+}
