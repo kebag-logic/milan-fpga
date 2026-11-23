@@ -1,0 +1,15 @@
+$ fw_preproc_all.sh <base> <head> <W>
+SAME if=1 shape=none sources=30 preprocessed-clean=21 ctrl_loop.o=identical shapes-error=0
+SAME if=1 shape=endstation_arty_4x4 sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=1 shape=endstation_arty_8ch sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=1 shape=endstation_arty_current sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=1 shape=endstation_ax7101_1x1_tdm8 sources=30 preprocessed-clean=23 ctrl_loop.o=identical shapes-error=0
+SAME if=1 shape=endstation_ax7101_8x8 sources=30 preprocessed-clean=23 ctrl_loop.o=identical shapes-error=0
+SAME if=2 shape=none sources=30 preprocessed-clean=21 ctrl_loop.o=identical shapes-error=0
+SAME if=2 shape=endstation_arty_4x4 sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=2 shape=endstation_arty_8ch sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=2 shape=endstation_arty_current sources=30 preprocessed-clean=15 ctrl_loop.o=none shapes-error=12
+SAME if=2 shape=endstation_ax7101_1x1_tdm8 sources=30 preprocessed-clean=23 ctrl_loop.o=identical shapes-error=0
+SAME if=2 shape=endstation_ax7101_8x8 sources=30 preprocessed-clean=23 ctrl_loop.o=identical shapes-error=0
+points=12 same=12 file-pairs=360 ctrl_loop.o-identical=6
+rc=0

@@ -1,0 +1,34 @@
+HEAD 58f7673b8c57a80230e716bc1774ff9cc2f71ddc tree 6dbb2ebaa80cf656a39b93c10c46e98fa6b92d2a
+worktree+index clean: yes
+untracked/ignored entries: 0
+THE SHAPES chain (39 lines from '#if CTRL_LOOP_SHAPE(1u, 2u, 2u)' to its #endif):
+  854bd723 f1bbae922af5c477519369c00cc87e4650db3db3fc014646dcad6933347a9d89 lines=39
+  58f7673b f1bbae922af5c477519369c00cc87e4650db3db3fc014646dcad6933347a9d89 lines=39
+ctrl_loop.h base..head numstat: 9	0	sw/firmware/ctrl/loop/ctrl_loop.h
+tb/ base..head changed files: 0
+r2..head raw diff:
+  :100644 100644 f67edecda6 3775a712f1 M	docs/ENDSTATION_BUILDER.md
+  :100644 100644 70bd25870f fa0e031e5d M	sw/builder/test_builder.py
+  :000000 100644 0000000000 facf137f29 A	sw/firmware/ctrl/host/ctrl_loop_host.h
+  :100644 100644 08645b5034 40664a90d3 M	sw/firmware/ctrl/loop/ctrl_loop.h
+tracked blobs of the delta equal HEAD blobs:
+  docs/ENDSTATION_BUILDER.md ok 644
+  sw/builder/test_builder.py ok 644
+  sw/firmware/ctrl/host/ctrl_loop_host.h ok 644
+  sw/firmware/ctrl/loop/ctrl_loop.h ok 644
+gitlinks at HEAD:
+  160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+  160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+  160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+  160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+  160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+  160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+submodule status:
+  -efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+   1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+   801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+   08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+   715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c)
+   48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+CTRL_HOST_PLATFORM named in tracked files: docs/ENDSTATION_BUILDER.md sw/builder/test_builder.py sw/firmware/ctrl/host/ctrl_loop_host.h sw/firmware/ctrl/loop/ctrl_loop.h 
+evidence commit ad3798bc: author-r3 + all 237 MANIFEST.json entries' published_sha256 verified, 0 bad; R902-1 MANIFEST.sha256 verified OK

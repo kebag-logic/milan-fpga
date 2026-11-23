@@ -1,0 +1,14 @@
+$ (tree r2) python3 -B tb/verilator/ctrl_service_budget/shape_costs.py --check
+Traceback (most recent call last):
+  File "<TREE>/tb/verilator/ctrl_service_budget/shape_costs.py", line 677, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<TREE>/tb/verilator/ctrl_service_budget/shape_costs.py", line 667, in main
+    print('\n'.join(report(ROOT)))
+                    ~~~~~~^^^^^^
+  File "<TREE>/tb/verilator/ctrl_service_budget/shape_costs.py", line 422, in report
+    table = listed(text_of(root))
+  File "<TREE>/tb/verilator/ctrl_service_budget/shape_costs.py", line 123, in listed
+    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')
+ValueError: ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+rc=1 seconds=1

@@ -1,0 +1,12 @@
+# direct inclusion of host/ctrl_loop_host.h (cc -std=c11 -E -x c)
+== no macro, no CTRL_LOOP_SHAPE:
+#error "ctrl_loop_host.h: the host platform's shape is for a CTRL_HOST_PLATFORM build, through ctrl_loop.h"
+#error "ctrl_loop_host.h: the host platform's shape is for a CTRL_HOST_PLATFORM build, through ctrl_loop.h"
+== -DCTRL_HOST_PLATFORM, no CTRL_LOOP_SHAPE:
+#error "ctrl_loop_host.h: the host platform's shape is for a CTRL_HOST_PLATFORM build, through ctrl_loop.h"
+#error "ctrl_loop_host.h: the host platform's shape is for a CTRL_HOST_PLATFORM build, through ctrl_loop.h"
+== -DCTRL_HOST_PLATFORM, a shape macro at (1, 2, 2):
+#error "ctrl_loop_host.h: the host platform's shape is (1, 1, 2) alone"
+#error "ctrl_loop_host.h: the host platform's shape is (1, 1, 2) alone"
+== -DCTRL_HOST_PLATFORM, a shape macro at (1, 1, 2): rc
+rc=0

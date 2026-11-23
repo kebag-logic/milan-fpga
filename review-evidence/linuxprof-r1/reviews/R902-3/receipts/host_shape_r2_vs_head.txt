@@ -1,0 +1,11 @@
+$ host_shape_r2_vs_head.sh <r2> <head> <W>
+#define CTRL_SRP_SOURCES 1u
+#define CTRL_SRP_SINKS 2u
+r2: macros=1483 diagnostics=0 without-macro-refused=2
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u #define CTRL_LOOP_BUILD_PASS_US 1010u #define CTRL_LOOP_QUEUED_MS 130u #define CTRL_LOOP_RETRY_ATTEMPT_US 34u #define CTRL_LOOP_RETRY_COLD_US 85u #define CTRL_LOOP_SLICE_US 950u #define CTRL_LOOP_SRP_UNIT_US 285u #define CTRL_LOOP_TX_MS 35u #define MBX_N_IF 1u 
+head: macros=1483 diagnostics=0 without-macro-refused=2
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u #define CTRL_LOOP_BUILD_PASS_US 1010u #define CTRL_LOOP_QUEUED_MS 130u #define CTRL_LOOP_RETRY_ATTEMPT_US 34u #define CTRL_LOOP_RETRY_COLD_US 85u #define CTRL_LOOP_SLICE_US 950u #define CTRL_LOOP_SRP_UNIT_US 285u #define CTRL_LOOP_TX_MS 35u #define MBX_N_IF 1u 
+macros r2==head
+ctrl_loop.i r2==head
+ctrl_loop.o r2==head
+rc=0

@@ -1,0 +1,16 @@
+58f7673b8c57a80230e716bc1774ff9cc2f71ddc
+$ python3 -B sw/builder/test_builder.py --gates test_host_profile_feeds_the_generators
+test_host_profile_feeds_the_generators:
+Traceback (most recent call last):
+  File "<TREE>/sw/builder/test_builder.py", line 31202, in <module>
+    fn()
+    ~~^^
+  File "<TREE>/sw/builder/test_builder.py", line 30923, in test_host_profile_feeds_the_generators
+    table = _check_shapes_text()
+  File "<TREE>/sw/builder/test_builder.py", line 30729, in _check_shapes_text
+    table = _shapes_as_read(reader, text)
+  File "<TREE>/sw/builder/test_builder.py", line 30714, in _shapes_as_read
+    assert HOST_SHAPE not in table, f"gate 41: THE SHAPES list the host shape {HOST_SHAPE} as an FPGA row"
+           ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 41: THE SHAPES list the host shape (1, 1, 2) as an FPGA row
+rc=1 seconds=2

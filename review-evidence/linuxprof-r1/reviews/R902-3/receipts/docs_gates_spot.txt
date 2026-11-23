@@ -1,0 +1,15 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 223 md files + 1912 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1910 tracked first-party file(s))
+rc=0
+$ python3 -B scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (1754 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc=0
