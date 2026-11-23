@@ -1560,7 +1560,8 @@ TEST_F(Loop, L23bTheDrainChargesARecordAndSettlesFirst) {
     drain(&loop_);
     refill();
     probe.charge_us = 2u * CTRL_LOOP_SLICE_US;   // past any slice
-    unsigned settles = probe.settles, events = probe.events;
+    unsigned settles = probe.settles;
+    unsigned events = probe.events;
     mbx_timer_arm(0u, 0x977u, mbx_now_ms());   // an event the pass takes, after its settle
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.rx, rx + 1u) << "L23b a record past any slice starts alone, and holds the next";

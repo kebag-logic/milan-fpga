@@ -482,7 +482,9 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
         for (auto &p:parts) out.insert(out.end(),p.begin(),p.end());
         return out;
     };
-    const unsigned u=CTRL_LOOP_SRP_UNIT_US, r=CTRL_LOOP_SRP_REG_US, s=CTRL_SRP_SINKS;
+    const unsigned u=CTRL_LOOP_SRP_UNIT_US;
+    const unsigned r=CTRL_LOOP_SRP_REG_US;
+    const unsigned s=CTRL_SRP_SINKS;
     const std::vector<uint8_t> end={0,0};
     std::vector<uint8_t> listeners;
     for (unsigned k=0;k<9u;++k) {
@@ -524,12 +526,15 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
 // its sink with no change of its declaration, which the filter's pass over the touched sinks leaves as it was.
 TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
     settle();
-    const msrp_stream_id a{{2,1,2,3,4,5,6,7}}, b{{3,1,2,3,4,5,6,7}};
-    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9}, other[]={0x91,0xe0,0xf0,0,0,10};
+    const msrp_stream_id a{{2,1,2,3,4,5,6,7}};
+    const msrp_stream_id b{{3,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    const uint8_t other[]={0x91,0xe0,0xf0,0,0,10};
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&a,da,2));
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&b,da,2));
     // one Message of two vectors: b's Talker at another destination, then a's
-    const auto vb=talker_value(b,other,2), va=talker_value(a,da,2);
+    const auto vb=talker_value(b,other,2);
+    const auto va=talker_value(a,da,2);
     std::vector<uint8_t> f(14); wire_put_be(f.data(),0x0180c200000eull,6);
     wire_put_be(f.data()+6,0x020304010203ull,6); wire_put_be(f.data()+12,0x22ea,2);
     f.insert(f.end(),{0,1,25,0,2*(2+25+1)+2});
@@ -567,7 +572,8 @@ TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
 #define SRP_TEST_MERGE 0
 #endif
 TEST_F(Srp, TheShapeHeaderSetsLwsrpsEndStationOptions) {
-    const bool one=MBX_N_IF==1u, eight=CTRL_SRP_SINKS==9u;
+    const bool one=MBX_N_IF==1u;
+    const bool eight=CTRL_SRP_SINKS==9u;
     EXPECT_EQ(SRP_TEST_ONE_PORT,one ? 1 : 0) << "no MAP work at one port at a one-interface shape";
     EXPECT_EQ(SRP_TEST_LEAN,one ? 1 : 0) << "the lean validation pass at a one-interface shape";
     EXPECT_EQ(SRP_TEST_BUCKETS,one ? 16u : 0u) << "the lookup buckets at a one-interface shape";
