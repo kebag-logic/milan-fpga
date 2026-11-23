@@ -6,6 +6,13 @@ The AX7101 configs ship the split since the flip (#665); the all-fabric build st
 The [split contract](ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
 Split static control contexts use the same generated entity shape.
 
+Arty split image work remains blocked on #878.
+Its 1x1 media shape has one source and two sinks.
+The CRF sink accounts for the second sink.
+The split scheduler requires measured costs for that exact shape.
+Its existing 1x1 cost point has two sources instead.
+No image is qualified by a successful builder export alone.
+
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
 entity model, lwSRP tables and the protocol-processor memory reservation

@@ -344,6 +344,23 @@ media-grid observation point rather than part of the TDM bus, so
 `o_media_lrclk_o` remains internal on the Arty while the master still
 elaborates and drives the complete five-signal header.
 
+The Arty split port (#878) is separate from that recipe.
+Its requested datapath clock is 50 MHz.
+Its CPU shares the 83.333 MHz system clock.
+The first firmware build refuses its unmeasured scheduler shape.
+That shape has one source, two sinks, and one interface.
+The existing AX7101 1x1 point has two sources instead.
+Each scheduler shape requires its own measured service costs.
+No routed image or flash layout is qualified yet.
+Earlier Arty bench evidence applies only to its recorded images.
+
+The DP83848 supports 10 and 100 Mb/s.
+Milan v1.2 Section 4.2.1 incorporates IEEE 802.1BA requirements.
+IEEE 802.1BA-2011 Table 6-1 excludes 10 Mb/s and half duplex.
+The requested image must advertise only 100BASE-TX full duplex.
+The current split initializer leaves 10/100 PHY advertisements unchanged.
+Therefore that policy still needs implementation and verification.
+
 ### Adding a configuration
 
 1. Write its `configs/endstation_<shape>.yaml`, bind the name to it in
