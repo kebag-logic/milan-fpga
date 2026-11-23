@@ -510,6 +510,12 @@ uint16_t mbx_rx_next_len(unsigned ch)
 	return (uint16_t)mbx_field(rx_word(ch, rx_tail[ch]), MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH);
 }
 
+uint8_t mbx_rx_next_byte(unsigned ch, unsigned at)
+{
+	// byte k of a frame is ring word k / 4 past the header, lane k % 4 (mbx_wire.h)
+	return (uint8_t)(rx_word(ch, (uint32_t)rx_tail[ch] + MBX_RX_HDR_WORDS + at / 4u) >> (8u * (at % 4u)));
+}
+
 // The payload's words in ring order from ring index at, each whole word but a
 // short last one; a frame that starts on a word gives each whole word in one
 // load. The two loops stay apart, or the compiler takes the byte form for

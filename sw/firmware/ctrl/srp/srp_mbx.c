@@ -848,20 +848,55 @@ static bool rx_order_ready(struct srp_mbx *m)
 
 // THE DRAIN's charge of the record at the head of SRP's ring (ctrl_loop.h, THE TIERS; #977, its ruling of 2026-11-23,
 // item 4): the unit, and a Talker registration's stated cost for each Talker value it can carry that can register, a
-// bound read from its length before it is parsed and never under that count. The receive filter takes a Talker value
-// only for a bound sink's StreamID (interested_msrp) and a vector's values are distinct StreamIDs (IEEE 802.1Q-2018
-// 35.2.2.8.4, an overflowing increment refused), so a vector registers at most CTRL_SRP_SINKS; a vector that holds a
-// Talker value takes SRP_TALKER_VECTOR_MIN octets at least, after SRP_RECORD_HEAD: a record of len octets holds
-// (len - SRP_RECORD_HEAD) / SRP_TALKER_VECTOR_MIN such vectors at most. A shape whose registration cost is 0 charges
-// the unit.
-#define SRP_RECORD_HEAD (14u + 1u + 4u) // the Ethernet header, the ProtocolVersion, one Message's header (10.8.1.2)
+// bound read from the record before lwSRP parses it and never under that count. Only an MSRP record carries a Talker.
+// Its Messages are read by their headers (IEEE 802.1Q-2018 10.8.1.2, 35.2.2.4: AttributeType, AttributeLength and
+// AttributeListLength, which bounds each, as lwSRP's parser takes it), each Talker Message's vectors by their
+// VectorHeader's NumberOfValues, and every other Message is skipped by its length. The receive filter takes a Talker
+// value only for a bound sink's StreamID (interested_msrp) and a vector's values are distinct StreamIDs (35.2.2.8.4, an
+// overflowing increment refused), so a vector registers at most CTRL_SRP_SINKS of them. A PDU lwSRP refuses registers
+// none. Past SRP_CHARGE_MESSAGES Messages the rest of the record is charged by its length: a vector that holds a
+// Talker value takes SRP_TALKER_VECTOR_MIN octets at least, so the read is bounded and the count is never under. A shape
+// whose registration cost is 0 charges the unit.
+#define SRP_RECORD_HEAD (14u + 1u) // the Ethernet header and the ProtocolVersion: the first Message's offset
 #define SRP_TALKER_VECTOR_MIN (2u + 25u + 1u) // a VectorHeader, a Talker Advertise's FirstValue, one ThreeEvents
+#define SRP_CHARGE_MESSAGES 8u // a Message a type and some repeated before the rest is charged by its length
+static CTRL_CC_INLINE unsigned peek16(unsigned at)
+{
+    return (unsigned)mbx_rx_next_byte(MBX_CH_SRP,at) << 8 | mbx_rx_next_byte(MBX_CH_SRP,at + 1u);
+}
+
 static unsigned rx_charge(void *ctx)
 {
     (void)ctx;
     const unsigned len = mbx_rx_next_len(MBX_CH_SRP);
-    const unsigned vectors = len > SRP_RECORD_HEAD ? (len - SRP_RECORD_HEAD) / SRP_TALKER_VECTOR_MIN : 0u;
-    return CTRL_LOOP_SRP_UNIT_US + CTRL_LOOP_SRP_REG_US * CTRL_SRP_SINKS * vectors;
+    unsigned values = 0u;
+    if (len > SRP_RECORD_HEAD && peek16(12u) == MRP_ETHERTYPE_MSRP) {
+        unsigned at = SRP_RECORD_HEAD;
+        for (unsigned messages = 0u; at + 4u <= len; ++messages) {
+            if (messages == SRP_CHARGE_MESSAGES) {
+                values += CTRL_SRP_SINKS * ((len - at) / SRP_TALKER_VECTOR_MIN);
+                break;
+            }
+            const unsigned type = mbx_rx_next_byte(MBX_CH_SRP,at);
+            const unsigned alen = mbx_rx_next_byte(MBX_CH_SRP,at + 1u);
+            if ((type | alen) == 0u) {
+                break; // the PDU's EndMark: lwSRP parses nothing past it (10.8.1.2)
+            }
+            const unsigned list = peek16(at + 2u);
+            at += 4u;
+            const unsigned end = list > len - at ? len : at + list;
+            while ((type == MSRP_ATTR_TYPE_TALKER_ADV || type == MSRP_ATTR_TYPE_TALKER_FAILED) && at + 2u <= end) {
+                const unsigned count = mrp_vh_nv((uint16_t)peek16(at));
+                if (count == 0u) {
+                    break;
+                }
+                values += count < CTRL_SRP_SINKS ? count : CTRL_SRP_SINKS;
+                at += 2u + alen + (count + 2u) / 3u;
+            }
+            at = end;
+        }
+    }
+    return CTRL_LOOP_SRP_UNIT_US + CTRL_LOOP_SRP_REG_US * values;
 }
 
 static bool rx_ready(void *ctx)

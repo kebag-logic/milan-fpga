@@ -450,19 +450,63 @@ TEST_F(Srp, DomainUsesPeerPriorityAndVlan) {
     EXPECT_TRUE(domain); EXPECT_TRUE(talker); EXPECT_TRUE(vlan);
 }
 // THE DRAIN's charge of the record at the head of SRP's ring (#977, its ruling of 2026-11-23, item 4): the unit, and a
-// registration's stated cost for each Talker value its length can carry that can register, CTRL_SRP_SINKS a vector
-// of 28 octets at least past the 19 of the Ethernet header, the ProtocolVersion and a Message's header, read with
-// the record left in the ring.
-TEST_F(Srp, TheDrainChargesARecordTheTalkersItsLengthCanCarry) {
+// registration's stated cost for each Talker value its Talker Messages' vectors carry, at most CTRL_SRP_SINKS a vector,
+// read with the record left in the ring: nothing for an MVRP record, a Listener's or one past the PDU's EndMark, a
+// Message's AttributeListLength bounding it, and past eight Messages the rest by its length.
+TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
     settle();
     ASSERT_TRUE(loop.drain_charge != nullptr);
-    const unsigned talkers = CTRL_LOOP_SRP_REG_US * CTRL_SRP_SINKS;
-    for (const auto &[len, vectors] : {std::pair{74u, 1u}, std::pair{75u, 2u}, std::pair{1514u, 53u}}) {
-        std::vector<uint8_t> record(len); wire_put_be(record.data(),0x0180c200000eull,6);
-        wire_put_be(record.data()+6,0x020304059900ull,6); wire_put_be(record.data()+12,0x22ea,2);
-        ASSERT_TRUE(mbx_model_rx(&model,record.data(),record.size(),0));
-        EXPECT_EQ(loop.drain_charge(&adapter),CTRL_LOOP_SRP_UNIT_US+talkers*vectors) << "a record of " << len << " octets";
-        EXPECT_EQ(loop.drain_charge(&adapter),CTRL_LOOP_SRP_UNIT_US+talkers*vectors) << "the record left in the ring";
+    const auto record=[](uint16_t ethertype,const std::vector<uint8_t> &messages) {
+        std::vector<uint8_t> f(14); wire_put_be(f.data(),ethertype==0x22ea ? 0x0180c200000eull : 0x0180c2000021ull,6);
+        wire_put_be(f.data()+6,0x020304059900ull,6); wire_put_be(f.data()+12,ethertype,2);
+        f.push_back(0); f.insert(f.end(),messages.begin(),messages.end());
+        if (f.size()<60u) f.resize(60u);
+        return f;
+    };
+    // a Message of `type` with one vector a count, each value its FirstValue of `alen` octets, the Message's EndMark in
+    // its AttributeListLength unless `list` states another
+    const auto message=[](uint8_t type,uint8_t alen,const std::vector<unsigned> &counts,int list=-1) {
+        std::vector<uint8_t> v;
+        for (unsigned n:counts) {
+            v.push_back(uint8_t(n>>8)); v.push_back(uint8_t(n)); v.insert(v.end(),alen,0x11);
+            v.insert(v.end(),(n+2u)/3u,0);
+        }
+        v.push_back(0); v.push_back(0);
+        const unsigned length=list<0 ? unsigned(v.size()) : unsigned(list);
+        std::vector<uint8_t> m={type,alen,uint8_t(length>>8),uint8_t(length)};
+        m.insert(m.end(),v.begin(),v.end());
+        return m;
+    };
+    const auto cat=[](std::vector<std::vector<uint8_t>> parts) {
+        std::vector<uint8_t> out;
+        for (auto &p:parts) out.insert(out.end(),p.begin(),p.end());
+        return out;
+    };
+    const unsigned u=CTRL_LOOP_SRP_UNIT_US, r=CTRL_LOOP_SRP_REG_US, s=CTRL_SRP_SINKS;
+    const std::vector<uint8_t> end={0,0};
+    std::vector<uint8_t> listeners;
+    for (unsigned k=0;k<9u;++k) {
+        const auto m=message(3,8,{1});
+        listeners.insert(listeners.end(),m.begin(),m.end());
+    }
+    const auto past=cat({listeners,message(1,25,{1})});
+    // the ninth Message's offset: the ProtocolVersion's and eight Listener Messages of 17 octets each
+    const unsigned rest=(unsigned(record(0x22ea,past).size())-(15u+8u*17u))/(2u+25u+1u);
+    const struct { const char *what; std::vector<uint8_t> f; unsigned charge; } cases[]={
+        {"an MVRP record",record(0x88f5,message(1,2,{1})),u},
+        {"a Listener's",record(0x22ea,cat({message(3,8,{1}),end})),u},
+        {"a Talker Advertise's two values",record(0x22ea,cat({message(1,25,{2}),end})),u+r*(2u<s?2u:s)},
+        {"a Talker Failed's values past the sinks",record(0x22ea,cat({message(2,34,{s+3u}),end})),u+r*s},
+        {"both kinds' one each",record(0x22ea,cat({message(1,25,{1}),message(2,34,{1}),end})),u+2u*r},
+        {"a Talker past the EndMark",record(0x22ea,cat({end,message(1,25,{1})})),u},
+        {"a Message whose length passes the record",record(0x22ea,message(1,25,{1},2000)),u+r},
+        {"past eight Messages, by its length",record(0x22ea,past),u+r*s*rest},
+    };
+    for (const auto &c:cases) {
+        mbx_model_advance_ms(&model,100); settle();   // the channel's bucket refilled
+        ASSERT_TRUE(mbx_model_rx(&model,c.f.data(),c.f.size(),0)) << c.what;
+        EXPECT_EQ(loop.drain_charge(&adapter),c.charge) << c.what;
+        EXPECT_EQ(loop.drain_charge(&adapter),c.charge) << c.what << ", the record left in the ring";
         settle();
     }
     srp_mbx_destroy(&adapter);

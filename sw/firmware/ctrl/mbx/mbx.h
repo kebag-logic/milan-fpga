@@ -191,6 +191,9 @@ bool mbx_rx_waiting(unsigned ch, uint16_t mark);
 // charge, ctrl_loop.h). Read only while a record waits (mbx_rx_waiting). A header that is no record may state more
 // than MBX_FRAME_BYTES_MAX, which only charges more: mbx_rx_take refuses it.
 uint16_t mbx_rx_next_len(unsigned ch);
+// The byte at offset `at` of the frame of channel ch's next RX record, the record left in the ring (#977). Read only
+// while a record waits and for `at` under its length.
+uint8_t mbx_rx_next_byte(unsigned ch, unsigned at);
 
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the
