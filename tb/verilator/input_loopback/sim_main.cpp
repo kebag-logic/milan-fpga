@@ -17,7 +17,7 @@ using Frame = std::array<uint32_t, 8>;
 uint32_t sample(int s, int c, int f) {
     return 0x800000u | (unsigned(s) << 20) | (unsigned(c) << 17) | unsigned(f);
 }
-uint32_t stamp(int f) { return uint32_t(0xFFFF0000ull + uint64_t(f)*62500/3); }
+uint32_t stamp(int f) { return uint32_t(0xFFF00000ull + uint64_t(f)*62500/3); }
 struct Beat { uint64_t data; uint8_t keep; bool last; };
 class Bench {
     milan::tb::Model<Vloopback_wrap> model;
@@ -150,6 +150,7 @@ public:
         for(int c=0;c<8;++c)output(c,c);
         until(80);
         check(d->pdus_o>0,"REAL_RX_ACCEPTANCE");
+        check(stamp(40)>stamp(60),"TIMESTAMP_WRAP_DURING_LIVE_AUDIO");
         // Visit every destination, including destination 62 and invalid 63.
         for(int base=0;base<CHANNELS;base+=8) {
             for(int c=0;c<8;++c)output(c,base+c);
