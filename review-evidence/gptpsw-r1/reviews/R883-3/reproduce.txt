@@ -1,0 +1,5 @@
+Use a detached clone at 8267b8951616cfd570baf690835d4b0d38f14596 with the required submodules initialized.
+Make the public evidence commit 98bc6f22bc3c42bd78c1585b6e3bdca2018d25f1 available with a read-only fetch.
+Run python3 -B run_focused.py CHECKOUT, run_plants.py CHECKOUT, check_guards.py CHECKOUT, audit_evidence.py CHECKOUT, and verify_integrity.py CHECKOUT.
+The first two drivers require system C/C++ compilers and GoogleTest/GoogleMock. Generated artifacts stay under packet/scratch.
+Capture each foreground command stdout/stderr to its corresponding receipt. These are focused checks, not full banks.

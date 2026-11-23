@@ -1,0 +1,41 @@
+Final head: 8267b8951616cfd570baf690835d4b0d38f14596
+Clean tree: True
+
+PASS contract 2.5 unchanged this round
+git diff --quiet 8167b70d 8267b8951616cfd570baf690835d4b0d38f14596 -- sw/mailbox/mailbox.yaml docs/reference/MAILBOX_CONTRACT.md sw/firmware/ctrl/mbx/mbx_contract.h
+
+PASS RTL, pins and simulation benches unchanged since routes and portability
+git diff --quiet a6323318 8267b8951616cfd570baf690835d4b0d38f14596 -- hdl protocol-processor gptp-processor third_party tb
+
+PASS C/C++ runtime and tests unchanged since the defect fixes
+git diff --quiet 4e934621 8267b8951616cfd570baf690835d4b0d38f14596 -- sw/firmware/ctrl/gptp sw/firmware/ctrl/host sw/firmware/ctrl/loop sw/firmware/ctrl/mbx sw/firmware/ctrl/test/test_gptp.cpp sw/firmware/ctrl/test/gptp_mutants.py
+
+PASS firmware and builder sources unchanged since post-relearn gates
+git diff --quiet 631dc544 8267b8951616cfd570baf690835d4b0d38f14596 -- sw/firmware sw/builder tb hdl sw/mailbox
+
+PASS approved CPU limits unchanged this round
+git diff --quiet 8167b70d 8267b8951616cfd570baf690835d4b0d38f14596 -- tb/verilator/ctrl_service_budget sw/firmware/ctrl/loop/ctrl_loop.h
+
+Complete delta after the measured 631dc544 head:
+ docs/design/GPTP_SOFTWARE.md        | 28 ++++++++++++++++++----------
+ docs/design/SPLIT_CONTROL_MEMORY.md | 10 +++++-----
+ sw/litex/ctrl_memory.py             |  4 ++--
+ 3 files changed, 25 insertions(+), 17 deletions(-)
+
+Only design-page text and ctrl_memory.py explanation text changed; the size keys and tile limits are unchanged.
+
+Exact delta after the 73-gate run:
+diff --git a/docs/design/GPTP_SOFTWARE.md b/docs/design/GPTP_SOFTWARE.md
+index 7ac1ad2d59..2a0b707eb9 100644
+--- a/docs/design/GPTP_SOFTWARE.md
++++ b/docs/design/GPTP_SOFTWARE.md
+@@ -205,7 +205,8 @@ Measured at `631dc544`, the split hot list relearned with the gPTP ports in its
+ | A work pass of any group | THE SHARE, 2.0 ms | `share.py` | none over | none over |
+ 
+ The images are built `--with-gptp` and planned at their ledgered points; the CPU is the split's, at 100 MHz.
+-gPTP takes 0.27 % of it after link-up at 8x8/2if, 0.21 % at 8x8/1if; the dearest pass with gPTP work is 0.34 ms, at link-up.
++gPTP takes 0.27 % of it after link-up at 8x8/2if, 0.21 % at 8x8/1if.
++Its largest contribution to one work pass is 0.374 ms, in `backlog-owed` at 8x8/2if.
+ The `gptp` family stays out of THE SHARE, which remains the approved T_svc over ten passes.
+ 
+ A row's defined load covers the channels its image opened, read from the image's `FILTER_EN` write.

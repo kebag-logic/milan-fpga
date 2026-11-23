@@ -1,0 +1,21 @@
+Published SHA-256 manifest: all 367 author-r4 files match
+Evidence commit has embedded signature: False
+Unchanged contract from 8167b70d to 8267b8951616cfd570baf690835d4b0d38f14596
+Unchanged RTL and benches from a6323318 to 8267b8951616cfd570baf690835d4b0d38f14596
+Unchanged core and adapters from 4e934621 to 8267b8951616cfd570baf690835d4b0d38f14596
+Unchanged firmware and builder from 631dc544 to 8267b8951616cfd570baf690835d4b0d38f14596
+Unchanged CPU limits and ledger from 8167b70d to 8267b8951616cfd570baf690835d4b0d38f14596
+Hot order: 288 traced entries minus exactly two documented exclusions equals 286 committed entries; gPTP entries 15
+Three trace hash identifiers agree. Raw PC traces and link maps are omitted; no independent raw-trace regeneration claimed.
+8x8-1if turnaround 0.30882 record 6.11505 composed 1.67518 gPTP maximum cycles 28640
+8x8 turnaround 0.29195 record 7.75006 composed 1.65729 gPTP maximum cycles 37430
+Builder gates: 113 all pass verdict: True
+Builder NOT RUN: test_baremetal_profile_contract gate 1b the MAKEFLAGS += -e mutation
+Builder NOT RUN: test_resource_calibration gate 11 real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+DOC: | `8x8-one-interface-gptp` | the size fixture's, one interface, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 8 B, `image_gptp` of 1,096 B | 59.0 |
+CODE: 8x8-one-interface-gptp Ledgered(point='8x8, one interface, gPTP in firmware', symbols=(('nvm_stage', 13594), ('image_allocation', 8), ('image_gptp', 1104)), tiles=59.0, owed="#884's ruling of 2026-11-21, item 4: the gPTP ports' 3.0 RAMB36 (about 12 KB of rom, 1 KB of sram) over the 56.0 this image plans without them, accepted as debt owed to the cold-code-to-flash work (S14) or a second hart's own memory; fit and timing gate")
+DOC: | `8x8-two-interfaces-gptp` | the size fixture's, built `--with-gptp` | `nvm_stage` of 13,594 B, `image_allocation` of 16 B, `image_gptp` of 2,136 B | 64.0 |
+CODE: 8x8-two-interfaces-gptp Ledgered(point='8x8, two interfaces, gPTP in firmware', symbols=(('nvm_stage', 13594), ('image_allocation', 16), ('image_gptp', 2152)), tiles=64.0, owed="#884's ruling of 2026-11-21, item 4: the two gPTP ports' 3.5 RAMB36 over the 60.5 of the size fixture's 8x8 two-interface entry, accepted as debt owed to the cold-code-to-flash work (S14) or a second hart's own memory; fit and timing gate")
+Exact-head egress checker on published gptp 1if JSON: PASS
+Exact-head egress checker on published plain 1if JSON: PASS
+Source/executable evidence audit complete; this is not execution of the author banks.

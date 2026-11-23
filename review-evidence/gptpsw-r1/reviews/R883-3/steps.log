@@ -1,0 +1,592 @@
+['$REVIEWS/gptpsw-r883-3-packet/scratch/steps']
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+[==========] Running 212 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from GptpCodec
+[ RUN      ] GptpCodec.TimestampIsSecondsThenNanoseconds
+[       OK ] GptpCodec.TimestampIsSecondsThenNanoseconds (0 ms)
+[ RUN      ] GptpCodec.RateEnvelopeIsTheTxretOne
+[       OK ] GptpCodec.RateEnvelopeIsTheTxretOne (0 ms)
+[----------] 2 tests from GptpCodec (0 ms total)
+
+[----------] 45 tests from Scripted
+[ RUN      ] Scripted.LinkUpSendsOnePdelayReqAtOnce
+[       OK ] Scripted.LinkUpSendsOnePdelayReqAtOnce (0 ms)
+[ RUN      ] Scripted.PdelayReqEverySecond
+[       OK ] Scripted.PdelayReqEverySecond (0 ms)
+[ RUN      ] Scripted.ResponderAnswersWithBothTimestamps
+[       OK ] Scripted.ResponderAnswersWithBothTimestamps (0 ms)
+[ RUN      ] Scripted.ResponderTakesAStampThatComesAfterItsFrame
+[       OK ] Scripted.ResponderTakesAStampThatComesAfterItsFrame (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate
+[       OK ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodInARow
+[       OK ] Scripted.AsCapableNeedsTwoGoodInARow (0 ms)
+[ RUN      ] Scripted.RateRatioAndDelayWithAFastNeighbor
+[       OK ] Scripted.RateRatioAndDelayWithAFastNeighbor (0 ms)
+[ RUN      ] Scripted.DelayOverThresholdIsNotAsCapable
+[       OK ] Scripted.DelayOverThresholdIsNotAsCapable (0 ms)
+[ RUN      ] Scripted.FifthLostResponseClearsAsCapable
+[       OK ] Scripted.FifthLostResponseClearsAsCapable (0 ms)
+[ RUN      ] Scripted.LateResponseIsLost
+[       OK ] Scripted.LateResponseIsLost (0 ms)
+[ RUN      ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes
+[       OK ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes (0 ms)
+[ RUN      ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases
+[       OK ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases (0 ms)
+[ RUN      ] Scripted.ARequestAnsweredByOneClockEndsTheRun
+[       OK ] Scripted.ARequestAnsweredByOneClockEndsTheRun (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease (0 ms)
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+[       OK ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes
+[       OK ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes (0 ms)
+[ RUN      ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange
+[       OK ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease (0 ms)
+[ RUN      ] Scripted.AResponderThatStepsItsClockReachesNoRate
+[       OK ] Scripted.AResponderThatStepsItsClockReachesNoRate (0 ms)
+[ RUN      ] Scripted.TheCeaseEndsAfterFiveMinutes
+[       OK ] Scripted.TheCeaseEndsAfterFiveMinutes (6 ms)
+[ RUN      ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement
+[       OK ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement (0 ms)
+[ RUN      ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate
+[       OK ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate (0 ms)
+[ RUN      ] Scripted.AnOwnStepCompletesNoResponseOwed
+[       OK ] Scripted.AnOwnStepCompletesNoResponseOwed (0 ms)
+[ RUN      ] Scripted.OwnResponseIsIgnored
+[       OK ] Scripted.OwnResponseIsIgnored (0 ms)
+[ RUN      ] Scripted.LinkDownClearsAsCapableAtOnce
+[       OK ] Scripted.LinkDownClearsAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.NoAnnounceOrSyncBeforeAsCapable
+[       OK ] Scripted.NoAnnounceOrSyncBeforeAsCapable (0 ms)
+[ RUN      ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce
+[       OK ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce (0 ms)
+[ RUN      ] Scripted.SyncIntervalHoldsTheTickGrain
+[       OK ] Scripted.SyncIntervalHoldsTheTickGrain (0 ms)
+[ RUN      ] Scripted.BetterAnnounceMakesASlave
+[       OK ] Scripted.BetterAnnounceMakesASlave (0 ms)
+[ RUN      ] Scripted.WorseAnnounceKeepsTheGrandmaster
+[       OK ] Scripted.WorseAnnounceKeepsTheGrandmaster (0 ms)
+[ RUN      ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded
+[       OK ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded (0 ms)
+[ RUN      ] Scripted.AnnounceReceiptTimeoutAgesTheMaster
+[       OK ] Scripted.AnnounceReceiptTimeoutAgesTheMaster (0 ms)
+[ RUN      ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster
+[       OK ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge
+[       OK ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster
+[       OK ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict
+[       OK ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict (0 ms)
+[ RUN      ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair
+[       OK ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair (0 ms)
+[ RUN      ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair
+[       OK ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair (0 ms)
+[ RUN      ] Scripted.FollowUpWithAFurtherTlvStillPairs
+[       OK ] Scripted.FollowUpWithAFurtherTlvStillPairs (0 ms)
+[ RUN      ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict
+[       OK ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict (0 ms)
+[ RUN      ] Scripted.SyncFromAnotherPortIsIgnored
+[       OK ] Scripted.SyncFromAnotherPortIsIgnored (0 ms)
+[ RUN      ] Scripted.FirstPairStepsAtTheLinkUpThreshold
+[       OK ] Scripted.FirstPairStepsAtTheLinkUpThreshold (0 ms)
+[ RUN      ] Scripted.LockedThresholdSlewsUnder100us
+[       OK ] Scripted.LockedThresholdSlewsUnder100us (0 ms)
+[ RUN      ] Scripted.FollowUpBeforeItsSyncStampStillPairs
+[       OK ] Scripted.FollowUpBeforeItsSyncStampStillPairs (0 ms)
+[ RUN      ] Scripted.TrimNeverLeavesTheEnvelope
+[       OK ] Scripted.TrimNeverLeavesTheEnvelope (0 ms)
+[----------] 45 tests from Scripted (8 ms total)
+
+[----------] 21 tests from Net
+[ RUN      ] Net.ProbeAForwardStepOf300usAt10msTurnaround
+[       OK ] Net.ProbeAForwardStepOf300usAt10msTurnaround (0 ms)
+[ RUN      ] Net.ProbeAForwardStepOf400usAt10msTurnaround
+[       OK ] Net.ProbeAForwardStepOf400usAt10msTurnaround (0 ms)
+[ RUN      ] Net.ProbeABackwardStepOf400usAt10msTurnaround
+[       OK ] Net.ProbeABackwardStepOf400usAt10msTurnaround (7 ms)
+[ RUN      ] Net.ProbeABackwardStepOf475usAt5msTurnaround
+[       OK ] Net.ProbeABackwardStepOf475usAt5msTurnaround (0 ms)
+[ RUN      ] Net.ProbeAForwardStepOf150usAt10msTurnaround
+[       OK ] Net.ProbeAForwardStepOf150usAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (5 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround (5 ms)
+[ RUN      ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround
+[       OK ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround (0 ms)
+[ RUN      ] Net.SlaveLocksToTheGrandmaster
+[ NET ] port 0 role 3 ann_rx 1 ann_bad 0 sync_rx 0 used 0 pd_done 21 lost 0 asCap 1 rx 66 bad 0
+[ NET ] port 1 role 2 ann_rx 19 ann_bad 0 sync_rx 146 used 146 pd_done 21 lost 0 asCap 1 rx 376 bad 0
+[ NET ] slave lock (100 ns band) at 3.13 s, last 5 s worst |offset| 1.0 ns, steps 1
+[       OK ] Net.SlaveLocksToTheGrandmaster (0 ms)
+[ RUN      ] Net.LockTimeHoldsTheFabricBench
+[ NET ] fabric-bench lock: pair 24 offset 12 ns, first pair under 150 ns: 16, addend 33534 (ideal 33554)
+[ NET ] tracking with +/-10 ns stamps, pairs 41..76: worst |offset| 24 ns
+[       OK ] Net.LockTimeHoldsTheFabricBench (0 ms)
+[ RUN      ] Net.GrandmasterWinsByPriorityAndThePeerFollows
+[       OK ] Net.GrandmasterWinsByPriorityAndThePeerFollows (0 ms)
+[ RUN      ] Net.BothSeeTheLinkDelay
+[       OK ] Net.BothSeeTheLinkDelay (0 ms)
+[ RUN      ] Net.GrandmasterFailoverThroughSyncLapse
+[       OK ] Net.GrandmasterFailoverThroughSyncLapse (0 ms)
+[----------] 21 tests from Net (26 ms total)
+
+[----------] 144 tests from MidSweep
+[ RUN      ] MidSweep.M600us_1ms
+SWEEP off_us=-600 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M600us_1ms (3 ms)
+[ RUN      ] MidSweep.M575us_1ms
+SWEEP off_us=-575 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M575us_1ms (0 ms)
+[ RUN      ] MidSweep.M550us_1ms
+SWEEP off_us=-550 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M550us_1ms (3 ms)
+[ RUN      ] MidSweep.M525us_1ms
+SWEEP off_us=-525 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M525us_1ms (0 ms)
+[ RUN      ] MidSweep.M500us_1ms
+SWEEP off_us=-500 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M500us_1ms (0 ms)
+[ RUN      ] MidSweep.M475us_1ms
+SWEEP off_us=-475 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M475us_1ms (3 ms)
+[ RUN      ] MidSweep.M450us_1ms
+SWEEP off_us=-450 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M450us_1ms (0 ms)
+[ RUN      ] MidSweep.M425us_1ms
+SWEEP off_us=-425 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M425us_1ms (0 ms)
+[ RUN      ] MidSweep.M400us_1ms
+SWEEP off_us=-400 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M400us_1ms (0 ms)
+[ RUN      ] MidSweep.M375us_1ms
+SWEEP off_us=-375 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M375us_1ms (0 ms)
+[ RUN      ] MidSweep.M350us_1ms
+SWEEP off_us=-350 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M350us_1ms (1 ms)
+[ RUN      ] MidSweep.M325us_1ms
+SWEEP off_us=-325 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M325us_1ms (0 ms)
+[ RUN      ] MidSweep.M300us_1ms
+SWEEP off_us=-300 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M300us_1ms (2 ms)
+[ RUN      ] MidSweep.M275us_1ms
+SWEEP off_us=-275 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M275us_1ms (0 ms)
+[ RUN      ] MidSweep.M250us_1ms
+SWEEP off_us=-250 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M250us_1ms (0 ms)
+[ RUN      ] MidSweep.M225us_1ms
+SWEEP off_us=-225 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M225us_1ms (0 ms)
+[ RUN      ] MidSweep.M200us_1ms
+SWEEP off_us=-200 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M200us_1ms (0 ms)
+[ RUN      ] MidSweep.M175us_1ms
+SWEEP off_us=-175 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M175us_1ms (0 ms)
+[ RUN      ] MidSweep.M150us_1ms
+SWEEP off_us=-150 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M150us_1ms (0 ms)
+[ RUN      ] MidSweep.M125us_1ms
+SWEEP off_us=-125 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M125us_1ms (0 ms)
+[ RUN      ] MidSweep.M100us_1ms
+SWEEP off_us=-100 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M100us_1ms (0 ms)
+[ RUN      ] MidSweep.M75us_1ms
+SWEEP off_us=-75 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M75us_1ms (0 ms)
+[ RUN      ] MidSweep.M50us_1ms
+SWEEP off_us=-50 turn_ms=1 steps=0 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M50us_1ms (0 ms)
+[ RUN      ] MidSweep.M25us_1ms
+SWEEP off_us=-25 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M25us_1ms (0 ms)
+[ RUN      ] MidSweep.P25us_1ms
+SWEEP off_us=+25 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P25us_1ms (0 ms)
+[ RUN      ] MidSweep.P50us_1ms
+SWEEP off_us=+50 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P50us_1ms (0 ms)
+[ RUN      ] MidSweep.P75us_1ms
+SWEEP off_us=+75 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P75us_1ms (0 ms)
+[ RUN      ] MidSweep.P100us_1ms
+SWEEP off_us=+100 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P100us_1ms (0 ms)
+[ RUN      ] MidSweep.P125us_1ms
+SWEEP off_us=+125 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P125us_1ms (0 ms)
+[ RUN      ] MidSweep.P150us_1ms
+SWEEP off_us=+150 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P150us_1ms (0 ms)
+[ RUN      ] MidSweep.P175us_1ms
+SWEEP off_us=+175 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P175us_1ms (0 ms)
+[ RUN      ] MidSweep.P200us_1ms
+SWEEP off_us=+200 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P200us_1ms (0 ms)
+[ RUN      ] MidSweep.P225us_1ms
+SWEEP off_us=+225 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P225us_1ms (0 ms)
+[ RUN      ] MidSweep.P250us_1ms
+SWEEP off_us=+250 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P250us_1ms (0 ms)
+[ RUN      ] MidSweep.P275us_1ms
+SWEEP off_us=+275 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P275us_1ms (0 ms)
+[ RUN      ] MidSweep.P300us_1ms
+SWEEP off_us=+300 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P300us_1ms (0 ms)
+[ RUN      ] MidSweep.P325us_1ms
+SWEEP off_us=+325 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P325us_1ms (0 ms)
+[ RUN      ] MidSweep.P350us_1ms
+SWEEP off_us=+350 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P350us_1ms (0 ms)
+[ RUN      ] MidSweep.P375us_1ms
+SWEEP off_us=+375 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P375us_1ms (0 ms)
+[ RUN      ] MidSweep.P400us_1ms
+SWEEP off_us=+400 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P400us_1ms (0 ms)
+[ RUN      ] MidSweep.P425us_1ms
+SWEEP off_us=+425 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P425us_1ms (0 ms)
+[ RUN      ] MidSweep.P450us_1ms
+SWEEP off_us=+450 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P450us_1ms (0 ms)
+[ RUN      ] MidSweep.P475us_1ms
+SWEEP off_us=+475 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P475us_1ms (0 ms)
+[ RUN      ] MidSweep.P500us_1ms
+SWEEP off_us=+500 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P500us_1ms (0 ms)
+[ RUN      ] MidSweep.P525us_1ms
+SWEEP off_us=+525 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P525us_1ms (0 ms)
+[ RUN      ] MidSweep.P550us_1ms
+SWEEP off_us=+550 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P550us_1ms (0 ms)
+[ RUN      ] MidSweep.P575us_1ms
+SWEEP off_us=+575 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P575us_1ms (0 ms)
+[ RUN      ] MidSweep.P600us_1ms
+SWEEP off_us=+600 turn_ms=1 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P600us_1ms (0 ms)
+[ RUN      ] MidSweep.M600us_5ms
+SWEEP off_us=-600 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M600us_5ms (0 ms)
+[ RUN      ] MidSweep.M575us_5ms
+SWEEP off_us=-575 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M575us_5ms (0 ms)
+[ RUN      ] MidSweep.M550us_5ms
+SWEEP off_us=-550 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M550us_5ms (0 ms)
+[ RUN      ] MidSweep.M525us_5ms
+SWEEP off_us=-525 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M525us_5ms (0 ms)
+[ RUN      ] MidSweep.M500us_5ms
+SWEEP off_us=-500 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M500us_5ms (0 ms)
+[ RUN      ] MidSweep.M475us_5ms
+SWEEP off_us=-475 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M475us_5ms (0 ms)
+[ RUN      ] MidSweep.M450us_5ms
+SWEEP off_us=-450 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M450us_5ms (0 ms)
+[ RUN      ] MidSweep.M425us_5ms
+SWEEP off_us=-425 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M425us_5ms (0 ms)
+[ RUN      ] MidSweep.M400us_5ms
+SWEEP off_us=-400 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M400us_5ms (0 ms)
+[ RUN      ] MidSweep.M375us_5ms
+SWEEP off_us=-375 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M375us_5ms (0 ms)
+[ RUN      ] MidSweep.M350us_5ms
+SWEEP off_us=-350 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M350us_5ms (0 ms)
+[ RUN      ] MidSweep.M325us_5ms
+SWEEP off_us=-325 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M325us_5ms (0 ms)
+[ RUN      ] MidSweep.M300us_5ms
+SWEEP off_us=-300 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M300us_5ms (0 ms)
+[ RUN      ] MidSweep.M275us_5ms
+SWEEP off_us=-275 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M275us_5ms (0 ms)
+[ RUN      ] MidSweep.M250us_5ms
+SWEEP off_us=-250 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M250us_5ms (0 ms)
+[ RUN      ] MidSweep.M225us_5ms
+SWEEP off_us=-225 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M225us_5ms (0 ms)
+[ RUN      ] MidSweep.M200us_5ms
+SWEEP off_us=-200 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M200us_5ms (0 ms)
+[ RUN      ] MidSweep.M175us_5ms
+SWEEP off_us=-175 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M175us_5ms (0 ms)
+[ RUN      ] MidSweep.M150us_5ms
+SWEEP off_us=-150 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M150us_5ms (0 ms)
+[ RUN      ] MidSweep.M125us_5ms
+SWEEP off_us=-125 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M125us_5ms (0 ms)
+[ RUN      ] MidSweep.M100us_5ms
+SWEEP off_us=-100 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M100us_5ms (0 ms)
+[ RUN      ] MidSweep.M75us_5ms
+SWEEP off_us=-75 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M75us_5ms (0 ms)
+[ RUN      ] MidSweep.M50us_5ms
+SWEEP off_us=-50 turn_ms=5 steps=0 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M50us_5ms (0 ms)
+[ RUN      ] MidSweep.M25us_5ms
+SWEEP off_us=-25 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M25us_5ms (0 ms)
+[ RUN      ] MidSweep.P25us_5ms
+SWEEP off_us=+25 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P25us_5ms (0 ms)
+[ RUN      ] MidSweep.P50us_5ms
+SWEEP off_us=+50 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P50us_5ms (0 ms)
+[ RUN      ] MidSweep.P75us_5ms
+SWEEP off_us=+75 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P75us_5ms (0 ms)
+[ RUN      ] MidSweep.P100us_5ms
+SWEEP off_us=+100 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P100us_5ms (0 ms)
+[ RUN      ] MidSweep.P125us_5ms
+SWEEP off_us=+125 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P125us_5ms (0 ms)
+[ RUN      ] MidSweep.P150us_5ms
+SWEEP off_us=+150 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P150us_5ms (0 ms)
+[ RUN      ] MidSweep.P175us_5ms
+SWEEP off_us=+175 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P175us_5ms (0 ms)
+[ RUN      ] MidSweep.P200us_5ms
+SWEEP off_us=+200 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P200us_5ms (0 ms)
+[ RUN      ] MidSweep.P225us_5ms
+SWEEP off_us=+225 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P225us_5ms (0 ms)
+[ RUN      ] MidSweep.P250us_5ms
+SWEEP off_us=+250 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P250us_5ms (0 ms)
+[ RUN      ] MidSweep.P275us_5ms
+SWEEP off_us=+275 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P275us_5ms (0 ms)
+[ RUN      ] MidSweep.P300us_5ms
+SWEEP off_us=+300 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P300us_5ms (0 ms)
+[ RUN      ] MidSweep.P325us_5ms
+SWEEP off_us=+325 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P325us_5ms (0 ms)
+[ RUN      ] MidSweep.P350us_5ms
+SWEEP off_us=+350 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P350us_5ms (0 ms)
+[ RUN      ] MidSweep.P375us_5ms
+SWEEP off_us=+375 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P375us_5ms (0 ms)
+[ RUN      ] MidSweep.P400us_5ms
+SWEEP off_us=+400 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P400us_5ms (0 ms)
+[ RUN      ] MidSweep.P425us_5ms
+SWEEP off_us=+425 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P425us_5ms (0 ms)
+[ RUN      ] MidSweep.P450us_5ms
+SWEEP off_us=+450 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P450us_5ms (0 ms)
+[ RUN      ] MidSweep.P475us_5ms
+SWEEP off_us=+475 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P475us_5ms (0 ms)
+[ RUN      ] MidSweep.P500us_5ms
+SWEEP off_us=+500 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P500us_5ms (0 ms)
+[ RUN      ] MidSweep.P525us_5ms
+SWEEP off_us=+525 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P525us_5ms (0 ms)
+[ RUN      ] MidSweep.P550us_5ms
+SWEEP off_us=+550 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P550us_5ms (0 ms)
+[ RUN      ] MidSweep.P575us_5ms
+SWEEP off_us=+575 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P575us_5ms (0 ms)
+[ RUN      ] MidSweep.P600us_5ms
+SWEEP off_us=+600 turn_ms=5 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P600us_5ms (0 ms)
+[ RUN      ] MidSweep.M600us_10ms
+SWEEP off_us=-600 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M600us_10ms (0 ms)
+[ RUN      ] MidSweep.M575us_10ms
+SWEEP off_us=-575 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M575us_10ms (0 ms)
+[ RUN      ] MidSweep.M550us_10ms
+SWEEP off_us=-550 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M550us_10ms (0 ms)
+[ RUN      ] MidSweep.M525us_10ms
+SWEEP off_us=-525 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M525us_10ms (0 ms)
+[ RUN      ] MidSweep.M500us_10ms
+SWEEP off_us=-500 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M500us_10ms (0 ms)
+[ RUN      ] MidSweep.M475us_10ms
+SWEEP off_us=-475 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M475us_10ms (0 ms)
+[ RUN      ] MidSweep.M450us_10ms
+SWEEP off_us=-450 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M450us_10ms (0 ms)
+[ RUN      ] MidSweep.M425us_10ms
+SWEEP off_us=-425 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M425us_10ms (0 ms)
+[ RUN      ] MidSweep.M400us_10ms
+SWEEP off_us=-400 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M400us_10ms (0 ms)
+[ RUN      ] MidSweep.M375us_10ms
+SWEEP off_us=-375 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M375us_10ms (0 ms)
+[ RUN      ] MidSweep.M350us_10ms
+SWEEP off_us=-350 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M350us_10ms (0 ms)
+[ RUN      ] MidSweep.M325us_10ms
+SWEEP off_us=-325 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M325us_10ms (0 ms)
+[ RUN      ] MidSweep.M300us_10ms
+SWEEP off_us=-300 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M300us_10ms (0 ms)
+[ RUN      ] MidSweep.M275us_10ms
+SWEEP off_us=-275 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M275us_10ms (0 ms)
+[ RUN      ] MidSweep.M250us_10ms
+SWEEP off_us=-250 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M250us_10ms (0 ms)
+[ RUN      ] MidSweep.M225us_10ms
+SWEEP off_us=-225 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M225us_10ms (0 ms)
+[ RUN      ] MidSweep.M200us_10ms
+SWEEP off_us=-200 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M200us_10ms (0 ms)
+[ RUN      ] MidSweep.M175us_10ms
+SWEEP off_us=-175 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M175us_10ms (0 ms)
+[ RUN      ] MidSweep.M150us_10ms
+SWEEP off_us=-150 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M150us_10ms (0 ms)
+[ RUN      ] MidSweep.M125us_10ms
+SWEEP off_us=-125 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M125us_10ms (0 ms)
+[ RUN      ] MidSweep.M100us_10ms
+SWEEP off_us=-100 turn_ms=10 steps=0 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M100us_10ms (0 ms)
+[ RUN      ] MidSweep.M75us_10ms
+SWEEP off_us=-75 turn_ms=10 steps=0 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M75us_10ms (0 ms)
+[ RUN      ] MidSweep.M50us_10ms
+SWEEP off_us=-50 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M50us_10ms (0 ms)
+[ RUN      ] MidSweep.M25us_10ms
+SWEEP off_us=-25 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.M25us_10ms (0 ms)
+[ RUN      ] MidSweep.P25us_10ms
+SWEEP off_us=+25 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P25us_10ms (0 ms)
+[ RUN      ] MidSweep.P50us_10ms
+SWEEP off_us=+50 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P50us_10ms (0 ms)
+[ RUN      ] MidSweep.P75us_10ms
+SWEEP off_us=+75 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P75us_10ms (0 ms)
+[ RUN      ] MidSweep.P100us_10ms
+SWEEP off_us=+100 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P100us_10ms (0 ms)
+[ RUN      ] MidSweep.P125us_10ms
+SWEEP off_us=+125 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P125us_10ms (0 ms)
+[ RUN      ] MidSweep.P150us_10ms
+SWEEP off_us=+150 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P150us_10ms (0 ms)
+[ RUN      ] MidSweep.P175us_10ms
+SWEEP off_us=+175 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P175us_10ms (0 ms)
+[ RUN      ] MidSweep.P200us_10ms
+SWEEP off_us=+200 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P200us_10ms (0 ms)
+[ RUN      ] MidSweep.P225us_10ms
+SWEEP off_us=+225 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P225us_10ms (0 ms)
+[ RUN      ] MidSweep.P250us_10ms
+SWEEP off_us=+250 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P250us_10ms (0 ms)
+[ RUN      ] MidSweep.P275us_10ms
+SWEEP off_us=+275 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P275us_10ms (0 ms)
+[ RUN      ] MidSweep.P300us_10ms
+SWEEP off_us=+300 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P300us_10ms (0 ms)
+[ RUN      ] MidSweep.P325us_10ms
+SWEEP off_us=+325 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P325us_10ms (0 ms)
+[ RUN      ] MidSweep.P350us_10ms
+SWEEP off_us=+350 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P350us_10ms (0 ms)
+[ RUN      ] MidSweep.P375us_10ms
+SWEEP off_us=+375 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P375us_10ms (0 ms)
+[ RUN      ] MidSweep.P400us_10ms
+SWEEP off_us=+400 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P400us_10ms (0 ms)
+[ RUN      ] MidSweep.P425us_10ms
+SWEEP off_us=+425 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P425us_10ms (0 ms)
+[ RUN      ] MidSweep.P450us_10ms
+SWEEP off_us=+450 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P450us_10ms (0 ms)
+[ RUN      ] MidSweep.P475us_10ms
+SWEEP off_us=+475 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P475us_10ms (0 ms)
+[ RUN      ] MidSweep.P500us_10ms
+SWEEP off_us=+500 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P500us_10ms (0 ms)
+[ RUN      ] MidSweep.P525us_10ms
+SWEEP off_us=+525 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P525us_10ms (0 ms)
+[ RUN      ] MidSweep.P550us_10ms
+SWEEP off_us=+550 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P550us_10ms (0 ms)
+[ RUN      ] MidSweep.P575us_10ms
+SWEEP off_us=+575 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P575us_10ms (0 ms)
+[ RUN      ] MidSweep.P600us_10ms
+SWEEP off_us=+600 turn_ms=10 steps=1 A_asCapable_down_ms=0 B_asCapable_down_ms=0 B_sync_ok_lost_ms=130 A_delay_max_ns=300
+[       OK ] MidSweep.P600us_10ms (0 ms)
+[----------] 144 tests from MidSweep (87 ms total)
+
+[----------] Global test environment tear-down
+[==========] 212 tests from 4 test suites ran. (123 ms total)
+[  PASSED  ] 212 tests.

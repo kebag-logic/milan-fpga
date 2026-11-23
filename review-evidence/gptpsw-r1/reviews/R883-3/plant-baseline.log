@@ -1,0 +1,296 @@
+[==========] Running 63 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from GptpCodec
+[ RUN      ] GptpCodec.TimestampIsSecondsThenNanoseconds
+[       OK ] GptpCodec.TimestampIsSecondsThenNanoseconds (0 ms)
+[ RUN      ] GptpCodec.RateEnvelopeIsTheTxretOne
+[       OK ] GptpCodec.RateEnvelopeIsTheTxretOne (0 ms)
+[----------] 2 tests from GptpCodec (0 ms total)
+
+[----------] 45 tests from Scripted
+[ RUN      ] Scripted.LinkUpSendsOnePdelayReqAtOnce
+[       OK ] Scripted.LinkUpSendsOnePdelayReqAtOnce (0 ms)
+[ RUN      ] Scripted.PdelayReqEverySecond
+[       OK ] Scripted.PdelayReqEverySecond (0 ms)
+[ RUN      ] Scripted.ResponderAnswersWithBothTimestamps
+[       OK ] Scripted.ResponderAnswersWithBothTimestamps (0 ms)
+[ RUN      ] Scripted.ResponderTakesAStampThatComesAfterItsFrame
+[       OK ] Scripted.ResponderTakesAStampThatComesAfterItsFrame (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate
+[       OK ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodInARow
+[       OK ] Scripted.AsCapableNeedsTwoGoodInARow (0 ms)
+[ RUN      ] Scripted.RateRatioAndDelayWithAFastNeighbor
+[       OK ] Scripted.RateRatioAndDelayWithAFastNeighbor (0 ms)
+[ RUN      ] Scripted.DelayOverThresholdIsNotAsCapable
+[       OK ] Scripted.DelayOverThresholdIsNotAsCapable (0 ms)
+[ RUN      ] Scripted.FifthLostResponseClearsAsCapable
+[       OK ] Scripted.FifthLostResponseClearsAsCapable (0 ms)
+[ RUN      ] Scripted.LateResponseIsLost
+[       OK ] Scripted.LateResponseIsLost (0 ms)
+[ RUN      ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes
+[       OK ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes (0 ms)
+[ RUN      ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases
+[       OK ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases (0 ms)
+[ RUN      ] Scripted.ARequestAnsweredByOneClockEndsTheRun
+[       OK ] Scripted.ARequestAnsweredByOneClockEndsTheRun (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease (0 ms)
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+[       OK ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes
+[       OK ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes (0 ms)
+[ RUN      ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange
+[       OK ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease (0 ms)
+[ RUN      ] Scripted.AResponderThatStepsItsClockReachesNoRate
+[       OK ] Scripted.AResponderThatStepsItsClockReachesNoRate (0 ms)
+[ RUN      ] Scripted.TheCeaseEndsAfterFiveMinutes
+[       OK ] Scripted.TheCeaseEndsAfterFiveMinutes (0 ms)
+[ RUN      ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement
+[       OK ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement (0 ms)
+[ RUN      ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate
+[       OK ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate (0 ms)
+[ RUN      ] Scripted.AnOwnStepCompletesNoResponseOwed
+[       OK ] Scripted.AnOwnStepCompletesNoResponseOwed (0 ms)
+[ RUN      ] Scripted.OwnResponseIsIgnored
+[       OK ] Scripted.OwnResponseIsIgnored (0 ms)
+[ RUN      ] Scripted.LinkDownClearsAsCapableAtOnce
+[       OK ] Scripted.LinkDownClearsAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.NoAnnounceOrSyncBeforeAsCapable
+[       OK ] Scripted.NoAnnounceOrSyncBeforeAsCapable (0 ms)
+[ RUN      ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce
+[       OK ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce (0 ms)
+[ RUN      ] Scripted.SyncIntervalHoldsTheTickGrain
+[       OK ] Scripted.SyncIntervalHoldsTheTickGrain (0 ms)
+[ RUN      ] Scripted.BetterAnnounceMakesASlave
+[       OK ] Scripted.BetterAnnounceMakesASlave (0 ms)
+[ RUN      ] Scripted.WorseAnnounceKeepsTheGrandmaster
+[       OK ] Scripted.WorseAnnounceKeepsTheGrandmaster (0 ms)
+[ RUN      ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded
+[       OK ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded (0 ms)
+[ RUN      ] Scripted.AnnounceReceiptTimeoutAgesTheMaster
+[       OK ] Scripted.AnnounceReceiptTimeoutAgesTheMaster (0 ms)
+[ RUN      ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster
+[       OK ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge
+[       OK ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster
+[       OK ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict
+[       OK ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict (0 ms)
+[ RUN      ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair
+[       OK ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair (0 ms)
+[ RUN      ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair
+[       OK ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair (0 ms)
+[ RUN      ] Scripted.FollowUpWithAFurtherTlvStillPairs
+[       OK ] Scripted.FollowUpWithAFurtherTlvStillPairs (0 ms)
+[ RUN      ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict
+[       OK ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict (0 ms)
+[ RUN      ] Scripted.SyncFromAnotherPortIsIgnored
+[       OK ] Scripted.SyncFromAnotherPortIsIgnored (0 ms)
+[ RUN      ] Scripted.FirstPairStepsAtTheLinkUpThreshold
+[       OK ] Scripted.FirstPairStepsAtTheLinkUpThreshold (0 ms)
+[ RUN      ] Scripted.LockedThresholdSlewsUnder100us
+[       OK ] Scripted.LockedThresholdSlewsUnder100us (0 ms)
+[ RUN      ] Scripted.FollowUpBeforeItsSyncStampStillPairs
+[       OK ] Scripted.FollowUpBeforeItsSyncStampStillPairs (0 ms)
+[ RUN      ] Scripted.TrimNeverLeavesTheEnvelope
+[       OK ] Scripted.TrimNeverLeavesTheEnvelope (0 ms)
+[----------] 45 tests from Scripted (1 ms total)
+
+[----------] 16 tests from Net
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (5 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround
+[       OK ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround (0 ms)
+[ RUN      ] Net.SlaveLocksToTheGrandmaster
+[ NET ] port 0 role 3 ann_rx 1 ann_bad 0 sync_rx 0 used 0 pd_done 21 lost 0 asCap 1 rx 66 bad 0
+[ NET ] port 1 role 2 ann_rx 19 ann_bad 0 sync_rx 146 used 146 pd_done 21 lost 0 asCap 1 rx 376 bad 0
+[ NET ] slave lock (100 ns band) at 3.13 s, last 5 s worst |offset| 1.0 ns, steps 1
+[       OK ] Net.SlaveLocksToTheGrandmaster (0 ms)
+[ RUN      ] Net.LockTimeHoldsTheFabricBench
+[ NET ] fabric-bench lock: pair 24 offset 12 ns, first pair under 150 ns: 16, addend 33534 (ideal 33554)
+[ NET ] tracking with +/-10 ns stamps, pairs 41..76: worst |offset| 24 ns
+[       OK ] Net.LockTimeHoldsTheFabricBench (0 ms)
+[ RUN      ] Net.GrandmasterWinsByPriorityAndThePeerFollows
+[       OK ] Net.GrandmasterWinsByPriorityAndThePeerFollows (0 ms)
+[ RUN      ] Net.BothSeeTheLinkDelay
+[       OK ] Net.BothSeeTheLinkDelay (0 ms)
+[ RUN      ] Net.GrandmasterFailoverThroughSyncLapse
+[       OK ] Net.GrandmasterFailoverThroughSyncLapse (0 ms)
+[----------] 16 tests from Net (12 ms total)
+
+[----------] Global test environment tear-down
+[==========] 63 tests from 3 test suites ran. (13 ms total)
+[  PASSED  ] 63 tests.
+== ctrl gPTP end station port (host): checks: 63   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (63 tests, 0 failures, exit 0)
+[==========] Running 63 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from GptpCodec
+[ RUN      ] GptpCodec.TimestampIsSecondsThenNanoseconds
+[       OK ] GptpCodec.TimestampIsSecondsThenNanoseconds (0 ms)
+[ RUN      ] GptpCodec.RateEnvelopeIsTheTxretOne
+[       OK ] GptpCodec.RateEnvelopeIsTheTxretOne (0 ms)
+[----------] 2 tests from GptpCodec (0 ms total)
+
+[----------] 45 tests from Scripted
+[ RUN      ] Scripted.LinkUpSendsOnePdelayReqAtOnce
+[       OK ] Scripted.LinkUpSendsOnePdelayReqAtOnce (0 ms)
+[ RUN      ] Scripted.PdelayReqEverySecond
+[       OK ] Scripted.PdelayReqEverySecond (0 ms)
+[ RUN      ] Scripted.ResponderAnswersWithBothTimestamps
+[       OK ] Scripted.ResponderAnswersWithBothTimestamps (0 ms)
+[ RUN      ] Scripted.ResponderTakesAStampThatComesAfterItsFrame
+[       OK ] Scripted.ResponderTakesAStampThatComesAfterItsFrame (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate
+[       OK ] Scripted.AsCapableNeedsTwoGoodExchangesAndARate (0 ms)
+[ RUN      ] Scripted.AsCapableNeedsTwoGoodInARow
+[       OK ] Scripted.AsCapableNeedsTwoGoodInARow (0 ms)
+[ RUN      ] Scripted.RateRatioAndDelayWithAFastNeighbor
+[       OK ] Scripted.RateRatioAndDelayWithAFastNeighbor (0 ms)
+[ RUN      ] Scripted.DelayOverThresholdIsNotAsCapable
+[       OK ] Scripted.DelayOverThresholdIsNotAsCapable (0 ms)
+[ RUN      ] Scripted.FifthLostResponseClearsAsCapable
+[       OK ] Scripted.FifthLostResponseClearsAsCapable (0 ms)
+[ RUN      ] Scripted.LateResponseIsLost
+[       OK ] Scripted.LateResponseIsLost (0 ms)
+[ RUN      ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes
+[       OK ] Scripted.MultipleRespondersCeaseAndALinkToggleResumes (0 ms)
+[ RUN      ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases
+[       OK ] Scripted.ASecondResponderAfterTheFirstsFollowUpStillCeases (0 ms)
+[ RUN      ] Scripted.ARequestAnsweredByOneClockEndsTheRun
+[       OK ] Scripted.ARequestAnsweredByOneClockEndsTheRun (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease (0 ms)
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+[       OK ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes
+[       OK ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes (0 ms)
+[ RUN      ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange
+[       OK ] Scripted.ALateSecondResponderClearsTheAsCapableOfACompletedExchange (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease (0 ms)
+[ RUN      ] Scripted.AResponderThatStepsItsClockReachesNoRate
+[       OK ] Scripted.AResponderThatStepsItsClockReachesNoRate (0 ms)
+[ RUN      ] Scripted.TheCeaseEndsAfterFiveMinutes
+[       OK ] Scripted.TheCeaseEndsAfterFiveMinutes (0 ms)
+[ RUN      ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement
+[       OK ] Scripted.ATurnaroundLongerThanTheRoundTripIsNoMeasurement (0 ms)
+[ RUN      ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate
+[       OK ] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate (0 ms)
+[ RUN      ] Scripted.AnOwnStepCompletesNoResponseOwed
+[       OK ] Scripted.AnOwnStepCompletesNoResponseOwed (0 ms)
+[ RUN      ] Scripted.OwnResponseIsIgnored
+[       OK ] Scripted.OwnResponseIsIgnored (0 ms)
+[ RUN      ] Scripted.LinkDownClearsAsCapableAtOnce
+[       OK ] Scripted.LinkDownClearsAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.NoAnnounceOrSyncBeforeAsCapable
+[       OK ] Scripted.NoAnnounceOrSyncBeforeAsCapable (0 ms)
+[ RUN      ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce
+[       OK ] Scripted.BecomesGrandmasterAndSendsSyncFollowUpAnnounce (0 ms)
+[ RUN      ] Scripted.SyncIntervalHoldsTheTickGrain
+[       OK ] Scripted.SyncIntervalHoldsTheTickGrain (0 ms)
+[ RUN      ] Scripted.BetterAnnounceMakesASlave
+[       OK ] Scripted.BetterAnnounceMakesASlave (0 ms)
+[ RUN      ] Scripted.WorseAnnounceKeepsTheGrandmaster
+[       OK ] Scripted.WorseAnnounceKeepsTheGrandmaster (0 ms)
+[ RUN      ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded
+[       OK ] Scripted.LoopedPathAndStepsRemoved255AreDiscarded (0 ms)
+[ RUN      ] Scripted.AnnounceReceiptTimeoutAgesTheMaster
+[       OK ] Scripted.AnnounceReceiptTimeoutAgesTheMaster (0 ms)
+[ RUN      ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster
+[       OK ] Scripted.SyncReceiptTimeoutAgesTheGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge
+[       OK ] Scripted.SyncWithoutItsFollowUpLetsTheGrandmasterAge (0 ms)
+[ RUN      ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster
+[       OK ] Scripted.SyncWithoutItsFollowUpClearsTheVerdictOfAPortThatIsNeverGrandmaster (0 ms)
+[ RUN      ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict
+[       OK ] Scripted.SyncAndAnnounceWithoutFollowUpNeverHoldTheVerdict (0 ms)
+[ RUN      ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair
+[       OK ] Scripted.FollowUpWithoutItsInformationTlvIsNoPair (0 ms)
+[ RUN      ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair
+[       OK ] Scripted.AFollowUpPastItsReceiptTimeoutIsNoPair (0 ms)
+[ RUN      ] Scripted.FollowUpWithAFurtherTlvStillPairs
+[       OK ] Scripted.FollowUpWithAFurtherTlvStillPairs (0 ms)
+[ RUN      ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict
+[       OK ] Scripted.NotGrandmasterCapableOnlyClearsTheVerdict (0 ms)
+[ RUN      ] Scripted.SyncFromAnotherPortIsIgnored
+[       OK ] Scripted.SyncFromAnotherPortIsIgnored (0 ms)
+[ RUN      ] Scripted.FirstPairStepsAtTheLinkUpThreshold
+[       OK ] Scripted.FirstPairStepsAtTheLinkUpThreshold (0 ms)
+[ RUN      ] Scripted.LockedThresholdSlewsUnder100us
+[       OK ] Scripted.LockedThresholdSlewsUnder100us (0 ms)
+[ RUN      ] Scripted.FollowUpBeforeItsSyncStampStillPairs
+[       OK ] Scripted.FollowUpBeforeItsSyncStampStillPairs (0 ms)
+[ RUN      ] Scripted.TrimNeverLeavesTheEnvelope
+[       OK ] Scripted.TrimNeverLeavesTheEnvelope (0 ms)
+[----------] 45 tests from Scripted (4 ms total)
+
+[----------] 16 tests from Net
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround
+[       OK ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround (0 ms)
+[ RUN      ] Net.SlaveLocksToTheGrandmaster
+[ NET ] port 0 role 3 ann_rx 1 ann_bad 0 sync_rx 0 used 0 pd_done 21 lost 0 asCap 1 rx 66 bad 0
+[ NET ] port 1 role 2 ann_rx 19 ann_bad 0 sync_rx 146 used 146 pd_done 21 lost 0 asCap 1 rx 376 bad 0
+[ NET ] slave lock (100 ns band) at 3.13 s, last 5 s worst |offset| 1.0 ns, steps 1
+[       OK ] Net.SlaveLocksToTheGrandmaster (0 ms)
+[ RUN      ] Net.LockTimeHoldsTheFabricBench
+[ NET ] fabric-bench lock: pair 24 offset 12 ns, first pair under 150 ns: 16, addend 33534 (ideal 33554)
+[ NET ] tracking with +/-10 ns stamps, pairs 41..76: worst |offset| 24 ns
+[       OK ] Net.LockTimeHoldsTheFabricBench (0 ms)
+[ RUN      ] Net.GrandmasterWinsByPriorityAndThePeerFollows
+[       OK ] Net.GrandmasterWinsByPriorityAndThePeerFollows (0 ms)
+[ RUN      ] Net.BothSeeTheLinkDelay
+[       OK ] Net.BothSeeTheLinkDelay (0 ms)
+[ RUN      ] Net.GrandmasterFailoverThroughSyncLapse
+[       OK ] Net.GrandmasterFailoverThroughSyncLapse (0 ms)
+[----------] 16 tests from Net (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 63 tests from 3 test suites ran. (12 ms total)
+[  PASSED  ] 63 tests.
+== ctrl gPTP end station port (host): checks: 63   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (63 tests, 0 failures, exit 0)

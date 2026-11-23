@@ -1,0 +1,21 @@
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Scripted.MultipleResponses*
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Scripted
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpCannotKeepAsCapable
+[MULTI] exchange 1: multi=1 run=1 ceased=0 asCapable=0 lost=0
+[MULTI] exchange 2: multi=1 run=2 ceased=0 asCapable=0 lost=1
+[MULTI] exchange 3: multi=1 run=3 ceased=1 asCapable=0 lost=2
+[MULTI] 10 seconds after cease: ceased=1 asCapable=0 lost=3
+[       OK ] Scripted.MultipleResponsesWithoutFollowUpCannotKeepAsCapable (7 ms)
+[ RUN      ] Scripted.MultipleResponsesWithFollowUpClearAsCapableControl
+[MULTI CONTROL] completed multi-response exchange asCapable=0
+[       OK ] Scripted.MultipleResponsesWithFollowUpClearAsCapableControl (0 ms)
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+[       OK ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce (0 ms)
+[----------] 3 tests from Scripted (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 3 tests.

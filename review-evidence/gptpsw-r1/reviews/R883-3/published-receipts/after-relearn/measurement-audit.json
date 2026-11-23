@@ -1,0 +1,202 @@
+{
+  "8x8-1if": {
+    "measurement_head": "631dc544ce4ac0221f2a9cc7363838e3a22961f3",
+    "final_source_equivalent": "8267b8951616cfd570baf690835d4b0d38f14596",
+    "admitted_burst": 7,
+    "turnaround_max_ms": 0.30882,
+    "gptp_record_max_ms": 6.11505,
+    "composed_maximum": {
+      "cycles": 167518,
+      "ms": 1.67518,
+      "group": "backlog-owed",
+      "windows": 4,
+      "rows": 4,
+      "not_run": [],
+      "partial": false,
+      "lower_bound": false,
+      "unreleased": [],
+      "released": {
+        "cycles": 167518,
+        "ms": 1.67518,
+        "group": "backlog-owed"
+      }
+    },
+    "share_misses": [],
+    "refusals": [],
+    "known_held_budget_misses": [
+      "backlog.owed.if0: 63.495 ms over its budget 20 ms",
+      "backlog.owed_behind0.if0: 63.716 ms over its budget 20 ms",
+      "backlog.owed_behind1.if0: 63.936 ms over its budget 20 ms",
+      "backlog.owed_behind2.if0: 64.217 ms over its budget 20 ms",
+      "backlog.owed_behind3.if0: 64.426 ms over its budget 20 ms",
+      "backlog-owed.service.acmp.last.if0: 62.453 ms over its budget 20 ms",
+      "backlog-owed.service.aecp.last.if0: 62.123 ms over its budget 20 ms"
+    ],
+    "gptp_max_cycles_one_pass": 28640,
+    "gptp_max_pass_group": "backlog-adp-refill",
+    "work_pass_module_totals": {
+      "backlog-adp-refill": {
+        "passes": 1012,
+        "gptp": 247807,
+        "gptp_mbx": 106320
+      },
+      "backlog-adp": {
+        "passes": 989,
+        "gptp": 245566,
+        "gptp_mbx": 104729
+      },
+      "backlog-owed": {
+        "passes": 986,
+        "gptp": 237926,
+        "gptp_mbx": 104430
+      },
+      "backlog": {
+        "passes": 951,
+        "gptp": 195373,
+        "gptp_mbx": 100566
+      },
+      "gptp-master": {
+        "passes": 595,
+        "gptp": 212149,
+        "gptp_mbx": 70734
+      },
+      "gptp-slave": {
+        "passes": 606,
+        "gptp": 246748,
+        "gptp_mbx": 89325
+      }
+    },
+    "raw_logs": [
+      {
+        "file": "backlog-adp-refill.log",
+        "bytes": 14494678,
+        "sha256": "9c7845a0801352c2352d3fb307fc650250b96b0d12625ea501137e14f48371ad"
+      },
+      {
+        "file": "backlog-adp.log",
+        "bytes": 14331841,
+        "sha256": "60243bd07ea1b83debad6a179e2c69e7b4583b918b31f9e04631f409f14cdd05"
+      },
+      {
+        "file": "backlog-owed.log",
+        "bytes": 14615209,
+        "sha256": "0491a03d7f8e650f23b4fc199d5a5f750abdc57cb76606e7a9e4fc32d7cc9235"
+      },
+      {
+        "file": "backlog.log",
+        "bytes": 14031289,
+        "sha256": "e3f378f33301a328d3aa8eebb5bda51b5615fd02fe2d65f06b84643881e84a0c"
+      },
+      {
+        "file": "gptp-master.log",
+        "bytes": 8653528,
+        "sha256": "612e0ea5d88f137c91363c60e6756c98a391b6f27f4d2111453d643c2ff4737d"
+      },
+      {
+        "file": "gptp-slave.log",
+        "bytes": 8648869,
+        "sha256": "40cf63da48d3dcb11607a1567d1f950851e19dad16919d16f6ea9819edd7f29a"
+      }
+    ]
+  },
+  "8x8": {
+    "measurement_head": "631dc544ce4ac0221f2a9cc7363838e3a22961f3",
+    "final_source_equivalent": "8267b8951616cfd570baf690835d4b0d38f14596",
+    "admitted_burst": 14,
+    "turnaround_max_ms": 0.29195,
+    "gptp_record_max_ms": 7.75006,
+    "composed_maximum": {
+      "cycles": 165729,
+      "ms": 1.65729,
+      "group": "backlog-owed",
+      "windows": 4,
+      "rows": 4,
+      "not_run": [],
+      "partial": false,
+      "lower_bound": false,
+      "unreleased": [],
+      "released": {
+        "cycles": 165729,
+        "ms": 1.65729,
+        "group": "backlog-owed"
+      }
+    },
+    "share_misses": [],
+    "refusals": [],
+    "known_held_budget_misses": [
+      "backlog.owed.if0: 63.910 ms over its budget 20 ms",
+      "backlog.owed_behind0.if0: 64.173 ms over its budget 20 ms",
+      "backlog.owed_behind1.if0: 64.434 ms over its budget 20 ms",
+      "backlog.owed_behind2.if0: 64.696 ms over its budget 20 ms",
+      "backlog.owed_behind3.if0: 64.957 ms over its budget 20 ms",
+      "backlog-owed.service.acmp.last.if0: 62.587 ms over its budget 20 ms",
+      "backlog-owed.service.aecp.last.if1: 61.819 ms over its budget 20 ms"
+    ],
+    "gptp_max_cycles_one_pass": 37430,
+    "gptp_max_pass_group": "backlog-owed",
+    "work_pass_module_totals": {
+      "backlog-adp-refill": {
+        "passes": 1023,
+        "gptp": 324278,
+        "gptp_mbx": 187404
+      },
+      "backlog-adp": {
+        "passes": 1005,
+        "gptp": 322366,
+        "gptp_mbx": 185993
+      },
+      "backlog-owed": {
+        "passes": 1002,
+        "gptp": 297317,
+        "gptp_mbx": 185886
+      },
+      "backlog": {
+        "passes": 966,
+        "gptp": 264453,
+        "gptp_mbx": 179595
+      },
+      "gptp-master": {
+        "passes": 605,
+        "gptp": 225002,
+        "gptp_mbx": 120247
+      },
+      "gptp-slave": {
+        "passes": 616,
+        "gptp": 270123,
+        "gptp_mbx": 152838
+      }
+    },
+    "raw_logs": [
+      {
+        "file": "backlog-adp-refill.log",
+        "bytes": 11758410,
+        "sha256": "867e7402ad07e545f6b741c6e437bc21fee4b6b1bc412d624b99d6b501dc4e75"
+      },
+      {
+        "file": "backlog-adp.log",
+        "bytes": 11639572,
+        "sha256": "1708088b7d4b5718abfe246ab1fc2e64c23f1d5a8e98b24731e41c6a15256775"
+      },
+      {
+        "file": "backlog-owed.log",
+        "bytes": 11862200,
+        "sha256": "82bb83868cea33da9016fd64d2d949a8884dd7110a03555573c97ef95bebe435"
+      },
+      {
+        "file": "backlog.log",
+        "bytes": 11388945,
+        "sha256": "2b0c0d9616ea665c8898b198538550ae78685b00a2e60e6a34fe43ecf4aad57b"
+      },
+      {
+        "file": "gptp-master.log",
+        "bytes": 7011233,
+        "sha256": "d758d1d133b79cc1f1e477dbee40e92f9915d7b48a055fc3626dde1f35593a3f"
+      },
+      {
+        "file": "gptp-slave.log",
+        "bytes": 7006888,
+        "sha256": "26a7d1db116a70d1401108eee727673bcfc31c5ce71174cbc6de31d5dbebb2ed"
+      }
+    ]
+  }
+}

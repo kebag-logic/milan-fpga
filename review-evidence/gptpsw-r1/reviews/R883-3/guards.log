@@ -1,0 +1,10 @@
+PHC census control: PASS
+additional gptp_adj_w: CAUGHT: PHC: gptp_adj_w must have exactly 4 live references, found 5
+additional gptp_step_we_w: CAUGHT: PHC: gptp_step_we_w must have exactly 5 live references, found 6
+additional gptp_step_w: CAUGHT: PHC: gptp_step_w must have exactly 4 live references, found 5
+additional phc_load_ts_w: CAUGHT: PHC: phc_load_ts_w must have exactly 5 live references, found 6
+software owner control: PASS
+software owner branch plant: CAUGHT: gate 1c: the software owner is set outside the --sw-gptp branch
+second software owner plant: CAUGHT: gate 1c: the software owner is set in more than one place, or nowhere
+opt-in removed plant: CAUGHT: gate 1c: --sw-gptp is not an opt-in flag that defaults off
+Bounded predicate checks only; no full builder execution claimed.
