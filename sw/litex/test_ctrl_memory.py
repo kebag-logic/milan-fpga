@@ -15,7 +15,8 @@ block RAM the SoC builds from them. This file grades nine things:
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
      (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one) plans its 60.5, 63.0 or 58.5 by name, and through
+     interfaces and the platform's 8x8 image with one, and the size fixture's with one) plans its 61.5, 64.5, 59.5
+     or 57.5 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
@@ -223,12 +224,13 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with six tiles of .text more and of .bss less, still 56 RAMB36,
-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 64.5, half a tile past
-    the platform's 64.0 (#584; five tiles reached 63.5, past which .bss would run out of sram)."""
+    """A ledger case written: the good image with seven tiles of .text more and of .bss less, still 56 RAMB36,
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 65.0, half a tile past
+    the platform's 64.5 (the post-flip composition train; six tiles reached 64.5 with #584, five 63.5, past which
+    .bss would run out of sram)."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 12 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 12) * GRANULE))
+                                  text=GOOD.text + 14 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 14) * GRANULE))
 
 
 def soc_plan(path: Path) -> object:
@@ -339,7 +341,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's 8x8 images at "
-                                          f"57.0 and 61.5 and the platform's at 59.0 and 64.0, with one and two "
+                                          f"57.5 and 61.5 and the platform's at 59.5 and 64.5, with one and two "
                                           f"interfaces ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)

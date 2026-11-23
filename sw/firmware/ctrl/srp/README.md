@@ -352,7 +352,9 @@ With THE TRANSMIT's sliced build keeping what came due between its slices
 the image has 128 bytes of its 34 RAMB36 of `rom` left (139,136 bytes); with a
 waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed
 beside it (#950, #954) it holds 139,240 bytes, 24 under those 34 RAMB36, within
-its 58.5 entry.
+its 58.5 entry. On the post-flip composition train, with each 8x8
+STREAM_PORT_INPUT's AUDIO_CLUSTER (#584) and the kept Talkers (#969) beside them,
+it holds 141,616 bytes and its entry is 59.5 (SPLIT_CONTROL_MEMORY.md section 5).
 Tests: `srp_talker.cpp`'s `ListenerRegistrationChangeIsNoticed` and
 `ListenerRegistrationAfterAResetIsNoticed` (each declaration, the link's edges
 apart, coalesced into one service and twice over, the other interface's record
