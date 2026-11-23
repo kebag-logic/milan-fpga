@@ -1,0 +1,12 @@
+ .github/ci-templates/rtl-fast.yml                  |  75 ++++++++++-
+ .github/workflows/rtl-fast.yml                     | 145 +++++++++++++++++++-
+ docs/testing/CI_WORKFLOWS.md                       |  42 ++++--
+ scripts/ci_events.py                               |  56 +++++++-
+ sw/firmware/ctrl/README.md                         |  15 ++-
+ sw/firmware/ctrl/test/aecp_arms.py                 |  42 ++++--
+ sw/firmware/ctrl/test/ctrl_boundary.py             | 150 ++++++++++++++++++---
+ sw/firmware/ctrl/test/ctrl_configs.py              |  92 +++++++++++++
+ sw/firmware/ctrl/test/ctrl_runs.py                 |  28 ++--
+ sw/firmware/ctrl/test/test_ctrl_firmware.py        |  81 +++++++----
+ sw/firmware/ctrl/test/test_ctrl_firmware_shards.py |  34 ++++-
+ 11 files changed, 662 insertions(+), 98 deletions(-)

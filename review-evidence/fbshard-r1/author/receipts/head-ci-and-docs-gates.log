@@ -1,0 +1,55 @@
+b7b351935f65416c8632c21dd13e08fb2e9c1d9c
+== rc=0 python3 scripts/ci_gate_workflows.py --check
+== rc=0 python3 scripts/ci_events.py --check
+ci_events: OK (2369 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+== rc=0 python3 scripts/ci_gate_workflows_selftest.py
+gate workflow and union controls: PASS
+== rc=0 python3 scripts/ci_case_receipts_selftest.py
+case receipt self-test: 34 driver cases, union and comparison controls pass
+== rc=0 python3 scripts/ci_make_cases_selftest.py
+make case runner: all controls pass
+== rc=0 python3 scripts/ci_maap_cases_selftest.py
+MAAP scheduling controls: 66 cases retain their source and checks
+== rc=0 python3 scripts/ci_capture_cases_selftest.py
+capture observations: full/sharded values match; failed unit remains failed
+== rc=0 python3 scripts/ci_suite_pieces_selftest.py
+suite pieces: 65 parents, 82 scheduled units, all controls PASS
+== rc=0 python3 scripts/ci_suite_collect_selftest.py
+physical suite collection: all controls PASS
+== rc=0 python3 scripts/ci_fail_fast_selftest.py
+fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+== rc=0 python3 scripts/ci_runtime_evidence_selftest.py
+runtime manifest collectors: all controls PASS
+== rc=0 python3 scripts/ci_install_cache_selftest.py
+constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+== rc=0 python3 scripts/generate_ci_evidence_pins.py --check
+== rc=0 python3 scripts/ci_workflow_plan_selftest.py
+workflow planner: all controls pass
+== rc=0 python3 scripts/ci_manifest_selftest.py
+manifest comparison controls: PASS
+== rc=0 python3 scripts/check_wire_accountability.py --self-test
+RESULT: PASS
+== rc=0 python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 223 md files + 1910 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== rc=0 python3 scripts/check_doc_paths.py
+doc path gate: OK (1753 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+== rc=0 python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+== rc=0 python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+== rc=0 /tmp/a827/mdvenv/bin/python scripts/check_em_dash.py --base 854bd7236
+check_em_dash: 0 finding(s) over 43 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [854bd723..HEAD]
+== rc=0 python3 scripts/check_hygiene.py --check
+HYGIENE RATCHET: PASS (3 population(s), 1515 file(s))
+== rc=0 python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1588 first-party file(s) read)
+== rc=0 python3 scripts/check_sh_idiom.py
+  top-heavy long script: 0 <= 0
+== rc=0 python3 scripts/check_py_idiom.py
+  over-long line: 0 <= 0
+== rc=0 python3 scripts/check_py_idiom.py --selftest
+54 checks: 54 PASS, 0 FAIL
+== rc=0 python3 scripts/docs_inventory.py --check
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+== rc=0 python3 scripts/act_ci.py --selftest
+selftest: PASS

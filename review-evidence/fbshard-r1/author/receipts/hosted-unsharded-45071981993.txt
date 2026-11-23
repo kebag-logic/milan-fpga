@@ -1,0 +1,20 @@
+Hosted unsharded firmware-boundary: run 45071981993, job 137367061779, head e816c74da53a5822f2ddc1661e5ffae297f1b3aa (2026-11-22)
+Job 22:06:55Z -> 22:29:27Z (1352 s); step 'Hold the TSN stack boundary...' 22:08:05Z -> 22:29:18Z (1273 s)
+2026-11-22T22:08:06.0937515Z tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:08:16.0121587Z     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+2026-11-22T22:18:18.7502600Z     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (603 s)
+2026-11-22T22:19:44.8554811Z     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (86 s)
+2026-11-22T22:24:54.2553652Z     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (309 s)
+2026-11-22T22:24:54.6257208Z     sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+2026-11-22T22:25:22.9073627Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+2026-11-22T22:25:51.2769908Z     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+2026-11-22T22:27:12.4671831Z [ok] boundary control the reset entry includes a private stack header in the fifth capture: firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers 
+2026-11-22T22:27:22.3496223Z [ok] boundary control the capture is missing: REFUSED: no capture at /tmp/ctrl-boundary-__sf4cil/controls/89/run/no-capture: it holds no manifest
+2026-11-22T22:27:45.7139415Z [ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:27:51.2235899Z [ok] tsn-c-stack pin control, the inherited environment, GIT_INDEX_FILE, an index whose gitlink is the revision the clone is checked out at: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e
+2026-11-22T22:27:53.2869576Z [ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:27:56.7646683Z [ok] tsn-c-stack pin control, the F5 gap check, another revision checked out: exit 2: REFUSED: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:27:56.8743590Z [ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:27:57.7901603Z [ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+2026-11-22T22:29:18.6427124Z ctrl_boundary: 3848 compiled sources of 4127 recorded invocations (2342 the firmware's, 413 the stack's, 1093 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile build
+2026-11-22T22:29:18.6429615Z ctrl_boundary: PASS

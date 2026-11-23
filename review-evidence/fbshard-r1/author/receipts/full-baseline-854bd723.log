@@ -1,0 +1,14 @@
+     0.2 tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+     0.2 no capture given: running every known builder the run judges under one
+     9.5     sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+   724.0     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (714 s)
+   819.6     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (96 s)
+  1197.8     sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (378 s)
+  1197.9     sw/litex/test_ctrl_memory.py --build-only: exit 1 (0 s)
+  1197.9 REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: Traceback (most recent call last):
+  1197.9   File "$LANES/ci-fbshard/sw/litex/test_ctrl_memory.py", line 80, in <module>
+  1197.9     from migen import ClockDomain, Module, run_simulation
+  1197.9 ModuleNotFoundError: No module named 'migen'
+  1197.9 Command exited with non-zero status 2
+  1197.9 WALL 1197.94 s
+  1197.9 RC 2
