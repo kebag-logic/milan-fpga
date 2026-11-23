@@ -10,14 +10,15 @@ size fixture's 8x8 images plan 57.0 with one interface, its own point since then
 the platform's 64.0 with two and 59.0 with one, each half a tile past its entry refused; before it: at 8x8 with two
 interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
 #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
-#665) and the target platform's at 63.0 (60.5, the
+#665) and the target platform's at 63.5 (60.5, the
 owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
 poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, 62.5 with the
-StreamIDs held with their latest Talker kind, #925, and 63.0 with each AAF Stream Input's format written into its
-receive-monitor context, #946), and the
+StreamIDs held with their latest Talker kind, #925, 63.0 with each AAF Stream Input's format written into its
+receive-monitor context, #946, and 63.5 with the Talkers SRP keeps for StreamIDs no binding holds, #969), and the
 target platform's 8x8 image with one interface, a product image, at 58.5 (56.5 with the PHY poll, 57.0 on the composed
 train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with a
-waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954); each is refused
+waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954, and 58.5 with the
+Talkers SRP keeps, #969); each is refused
 half a tile past. A measurement names its point, and the product SoC build plans an image at the point whose symbols it
 carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps it for the composed train). A `Case` here is what
 the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
@@ -48,7 +49,7 @@ FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 FIXTURE1 = "8x8-one-interface"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_712, 18_944, 21_568
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_776, 19_072, 21_824
 
 
 class Case(NamedTuple):

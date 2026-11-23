@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 from ctrl_build import CTRL, ROOT, Tree, Refusal, Outcome
 import fw_gtest
-from srp_arms import arm_srp
+from srp_arms import DEFAULT_ENTITY, arm_srp
 import srp_pub_mutants
 import srp_reopen_mutants
 import srp_compare_mutants
@@ -15,6 +15,7 @@ import srp_talker_mutants
 import srp_listener_mutants
 import srp_kind_mutants
 import srp_reclaim_mutants
+import srp_early_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -955,6 +956,7 @@ DEFECTS += srp_talker_mutants.defects(Defect)
 DEFECTS += srp_listener_mutants.defects(Defect)
 DEFECTS += srp_kind_mutants.defects(Defect)
 DEFECTS += srp_reclaim_mutants.defects(Defect)
+DEFECTS += srp_early_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
@@ -981,7 +983,9 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity
                            debug=d.debug,test=(d.suite, selected),**at)
             ok=caught(selected,d.needle,result)
             (root/(d.name+".log")).write_text(result.log)
-            print(f"[{'ok' if ok else 'ESCAPED'}] {d.name}: {d.test} / {d.needle}",flush=True)
+            # the shape it was planted at, each campaign's line its own (#969)
+            shape=f"{config or DEFAULT_ENTITY.stem}, {interfaces} interface{'s' if interfaces>1 else ''}"
+            print(f"[{'ok' if ok else 'ESCAPED'}] {d.name} [{shape}]: {d.test} / {d.needle}",flush=True)
             if not ok: print(result.log,flush=True)
         except Refusal as error:
             ok=False

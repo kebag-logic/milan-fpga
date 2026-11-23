@@ -162,6 +162,7 @@ import srp_mutants  # noqa: E402
 import srp_pub_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
 import srp_reclaim_mutants  # noqa: E402
+import srp_early_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import plat_arms  # noqa: E402
@@ -231,9 +232,11 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
                                                         *srp_pub_mutants.ROUND5)))
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
-        # the Listener copies at 8x8/1if too (#930), and the SRP cut (#665's ruling of 2026-11-20, item 3)
+        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the
+        # Talkers kept for StreamIDs no binding holds (#969)
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
-                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX)))
+                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+                                                          srp_early_mutants.PREFIX)))
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

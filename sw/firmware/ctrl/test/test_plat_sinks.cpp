@@ -70,6 +70,17 @@
 //       Listener Asking Failed is registered for its stream on its interface,
 //       not for Ready or Ready Failed nor at another output, and drops it once
 //       the registration goes (#954; Milan v1.2 Table 5.47)
+//
+// A Talker registered before its input's binding settles (Early), at the same shapes:
+//   S13 every STREAM_INPUT's saved binding is restored at power-on; its
+//       talker declares the stream's Talker Advertise (or Failed) before it
+//       is discovered and probed, and is then quiet; once the probe is
+//       answered the input declares its Listener Ready (Asking Failed) in
+//       THE TRANSMIT's next MRPDU, within a JoinTime, and GET_STREAM_INFO
+//       shows REGISTERING (and REGISTERING_FAILED) (#969; Milan v1.2 5.3.8.5,
+//       5.5.3.5.18 step 4, Tables 5.9, 5.10)
+//   S14 as S13 after BIND_RX while bound: each input is re-bound to another
+//       stream, whose Talker has been declared all along
 
 #include <gtest/gtest.h>
 
@@ -561,11 +572,12 @@ struct Sinks : ::testing::Test {
     }
     // A controller's ACMP command `msg` (IEEE 1722.1-2021 8.2.1) to the entity's listener n, as the datapath
     // delivers it.
-    bool acmp(std::uint8_t msg, unsigned n) {
+    bool acmp(std::uint8_t msg, unsigned n, std::uint16_t talker_uid = 0u) {
         acmp_test::Pdu c;
         c.msg = msg;
         c.controller = acmp_test::kCtl1;
         c.talker = acmp_test::kTkA;
+        c.talker_uid = talker_uid;
         c.listener = ctrl_plat.config.entity->entity_id;
         c.listener_uid = static_cast<std::uint16_t>(n);
         const auto frame = acmp_test::acmpdu(c);
@@ -585,7 +597,7 @@ struct Sinks : ::testing::Test {
     }
     // The talker's answer to the newest PROBE_TX_COMMAND of listener n sent from frame `since` on (Milan v1.2
     // 5.5.3.5.3), stepped until the binding settles with its stream.
-    bool answer_probe(unsigned n, std::uint32_t since) {
+    bool answer_probe(unsigned n, std::uint32_t since, unsigned variant = 0u) {
         for (std::uint32_t k = fabric.tx_sent; k-- > since;) {
             const auto* tx = mbx_model_tx_frame(&fabric, k);
             if (tx == nullptr || tx->len < 70u || tx->bytes[14] != 0xfcu ||
@@ -595,17 +607,18 @@ struct Sinks : ::testing::Test {
             acmp_test::Pdu r;
             r.msg = spec::MSG_PROBE_TX_RESPONSE;
             r.controller = acmp_test::kCtl1;
-            r.talker = acmp_test::kTkA;
+            r.talker = be(tx->bytes + 34, 8);
+            r.talker_uid = static_cast<std::uint16_t>(be(tx->bytes + 50, 2));
             r.listener = ctrl_plat.config.entity->entity_id;
             r.listener_uid = static_cast<std::uint16_t>(n);
             r.seq = static_cast<std::uint16_t>(be(tx->bytes + 62, 2));
-            r.stream_id = acmp_test::kSid;
-            r.dest_mac = acmp_test::kDa;
+            r.stream_id = acmp_test::kSid + variant;
+            r.dest_mac = acmp_test::kDa + variant;
             r.vlan = 2u;
             const auto frame = acmp_test::acmpdu(r);
             if (!mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) return false;
             for (unsigned turn = 0; turn < 400u && !sink(n).settled; ++turn) ctrl_plat_step();
-            return sink(n).settled && sink(n).stream.stream_id == acmp_test::kSid;
+            return sink(n).settled && sink(n).stream.stream_id == acmp_test::kSid + variant;
         }
         return false;
     }
@@ -1317,6 +1330,257 @@ TEST_F(Streams, T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIs
         }
         EXPECT_EQ(flags(n), 0u) << "T1 REGISTERING_FAILED drops once the Listener's registration goes: output " << n;
     }
+}
+
+// ---- #969: a Talker registered before its input's binding settles -------------------------------------------------
+// The talker's MSRP Talker Advertise (Failed: failure code 1) of stream v, JoinIn, to interface 0 (IEEE 802.1Q-2018
+// 35.2.2.8, 10.8): StreamID kSid + v, destination kDa + v, VID 2, as answer_probe's PROBE_TX_RESPONSE carries them.
+std::vector<std::uint8_t> talker_declaration(unsigned v, bool failed) {
+    std::vector<std::uint8_t> value(failed ? 34u : 25u, 0);
+    const auto put = [&](std::size_t at, std::uint64_t x, unsigned bytes) {
+        for (unsigned k = 0; k < bytes; ++k) value[at + k] = static_cast<std::uint8_t>(x >> (8u * (bytes - 1u - k)));
+    };
+    put(0, acmp_test::kSid + v, 8);
+    put(8, acmp_test::kDa + v, 6);
+    put(14, 2u, 2);
+    put(16, 224u, 2);
+    put(18, 1u, 2);
+    value[20] = 0x60u;
+    if (failed) value[33] = 1u;
+    std::vector<std::uint8_t> f = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x22, 0xea,
+                                   0x00, static_cast<std::uint8_t>(failed ? 2u : 1u),
+                                   static_cast<std::uint8_t>(value.size())};
+    const unsigned list = 2u + static_cast<unsigned>(value.size()) + 1u + 2u;
+    f.push_back(static_cast<std::uint8_t>(list >> 8));
+    f.push_back(static_cast<std::uint8_t>(list));
+    f.push_back(0x00);
+    f.push_back(0x01);  // no LeaveAll, one value
+    f.insert(f.end(), value.begin(), value.end());
+    f.push_back(36u);  // JoinIn
+    f.insert(f.end(), {0, 0, 0, 0});
+    return f;
+}
+
+// The Listener declaration of StreamID `sid` in MSRP frame `t`: 2 Ready, 1 Asking Failed, 0 none or withdrawn (a
+// Message's type, attribute length and list length; a Listener vector's values, their events three to a byte and
+// their declarations four to one, IEEE 802.1Q-2018 10.8, 35.2.2).
+unsigned listener_of(const mbx_model_tx* t, std::uint64_t sid) {
+    const std::uint8_t* end = t->bytes + t->len;
+    for (const std::uint8_t* p = t->bytes + 15; p + 4 <= end && p[0] != 0; p += 4 + be(p + 2, 2)) {
+        const std::uint8_t* last = p + 4 + be(p + 2, 2);
+        for (const std::uint8_t* q = p + 4; p[0] == 3u && q + 2 <= last && be(q, 2) != 0u;) {
+            const unsigned count = static_cast<unsigned>(be(q, 2) % 8192u);
+            for (unsigned v = 0; v < count; ++v) {
+                const unsigned packed = q[10 + v / 3];
+                const unsigned event = v % 3 == 0 ? packed / 36 : v % 3 == 1 ? packed / 6 % 6 : packed % 6;
+                const unsigned declaration = q[10 + (count + 2) / 3 + v / 4] >> (6 - 2 * (v % 4)) & 3u;
+                if (be(q + 2, 8) + v == sid) return event == 5u ? 0u : declaration;
+            }
+            q += 10 + (count + 2) / 3 + (count + 3) / 4;
+        }
+    }
+    return 0u;
+}
+
+struct Early : Sinks {
+    static constexpr std::uint16_t kGetStreamInfo = 0x000fu;   // IEEE 1722.1-2021 Table 7-125
+    static constexpr unsigned kJoinMs = CTRL_LOOP_JOIN_CS * 10u;
+    // `ms` milliseconds pass, a pass a millisecond
+    void pass(unsigned ms) {
+        for (unsigned k = 0; k < ms; ++k) {
+            mbx_model_advance_ms(&fabric, 1);
+            ctrl_plat_step();
+        }
+    }
+    // The first MSRP MRPDU the entity sent from frame `from` on, or nullptr
+    static const mbx_model_tx* first_msrp(std::uint32_t from) {
+        for (std::uint32_t k = from; k < fabric.tx_sent; ++k) {
+            const auto* t = mbx_model_tx_frame(&fabric, k);
+            if (t != nullptr && t->channel == MBX_CH_SRP && be(t->bytes + 12, 2) == 0x22eau) return t;
+        }
+        return nullptr;
+    }
+    // Whether the entity's MSRP MRPDUs from frame `from` on, by `by` ms, declare `sid`'s Listener as `kind`
+    static bool declared_by(std::uint32_t from, std::uint64_t sid, unsigned kind, std::uint32_t by) {
+        for (std::uint32_t k = from; k < fabric.tx_sent; ++k) {
+            const auto* t = mbx_model_tx_frame(&fabric, k);
+            if (t != nullptr && t->channel == MBX_CH_SRP && be(t->bytes + 12, 2) == 0x22eau && t->now_ms <= by &&
+                listener_of(t, sid) == kind) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // GET_STREAM_INFO of STREAM_INPUT n (IEEE 1722.1-2021 7.4.16): its SUCCESS response's flags and flags_ex
+    bool stream_info(unsigned n, std::uint16_t seq, std::uint32_t* flags, std::uint32_t* flags_ex) {
+        std::vector<std::uint8_t> payload(4, 0);
+        payload[1] = static_cast<std::uint8_t>(kStreamInput);
+        payload[3] = static_cast<std::uint8_t>(n);
+        if (!send(kGetStreamInfo, payload, seq) || final_status(kGetStreamInfo, seq) != static_cast<int>(kSuccess)) {
+            return false;
+        }
+        for (std::uint32_t k = fabric.tx_sent; k-- > 0;) {
+            const auto* t = mbx_model_tx_frame(&fabric, k);
+            if (t != nullptr && t->len >= 38u + 52u && t->bytes[14] == 0xfbu && be(t->bytes + 34, 2) == seq &&
+                be(t->bytes + 36, 2) == kGetStreamInfo) {
+                *flags = static_cast<std::uint32_t>(be(t->bytes + 42, 4));
+                *flags_ex = static_cast<std::uint32_t>(be(t->bytes + 86, 4));
+                return true;
+            }
+        }
+        return false;
+    }
+    // The talker's answer to listener n's outstanding probe (PRB_W_RESP or PRB_W_RESP2) with stream v, then until
+    // the binding reaches SRP: the time the answer met, the frame count when SRP took the binding, and whether it
+    // settled and was delivered. What was owed before (a BIND_RX while bound owes its withdrawal) may leave first.
+    bool answer_outstanding(unsigned n, unsigned v, std::uint32_t* from, std::uint32_t* at) {
+        *at = fabric.now_ms;
+        const srp_sink& s = ctrl_plat.srp.ifs[0].sinks[n];
+        const auto taken = [&] { return s.bound && be(s.stream_id.bytes, 8) == acmp_test::kSid + v; };
+        if (!answer_probe(n, 0u, v)) return false;
+        for (unsigned turn = 0; turn < 400u && !taken(); ++turn) ctrl_plat_step();
+        *from = fabric.tx_sent;
+        return taken();
+    }
+    // Input n, its probe answered with stream v at `at`, SRP taking the binding at frame `from`: its Listener `kind`
+    // (2 Ready, 1 Asking Failed) in THE TRANSMIT's next MRPDU, within a JoinTime of the answer, and GET_STREAM_INFO's
+    // REGISTERING (flags_ex bit 31) and REGISTERING_FAILED (flags bit 25) (Milan v1.2 Tables 5.9, 5.10).
+    void expect_declares(unsigned n, unsigned v, std::uint32_t from, std::uint32_t at, bool failed,
+                         const std::string& what, std::uint16_t seq) {
+        const unsigned kind = failed ? 1u : 2u;
+        const auto* first = first_msrp(from);
+        ASSERT_NE(first, nullptr) << what << ": an MRPDU follows the probe's answer, input " << n;
+        EXPECT_EQ(listener_of(first, acmp_test::kSid + v), kind)
+            << what << ": the Listener is declared in THE TRANSMIT's next MRPDU, input " << n;
+        EXPECT_TRUE(declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs))
+            << what << ": the Listener is declared within a JoinTime of the probe's answer, input " << n;
+        std::uint32_t flags = 0, flags_ex = 0;
+        ASSERT_TRUE(stream_info(n, seq, &flags, &flags_ex)) << what << ": GET_STREAM_INFO of input " << n;
+        EXPECT_EQ(flags_ex & 1u, 1u) << what << ": GET_STREAM_INFO shows REGISTERING, input " << n;
+        EXPECT_EQ((flags & 0x40u) != 0u, failed)
+            << what << ": GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input " << n;
+    }
+    // Every listener answered as soon as its probe is outstanding, each with its own stream, then each judged
+    void answer_every_probe(const std::vector<unsigned>& all, unsigned offset, bool failed, const std::string& what,
+                            std::uint16_t seq) {
+        std::map<unsigned, std::pair<std::uint32_t, std::uint32_t>> answered;
+        for (unsigned ms = 0; ms < 6000u && answered.size() < all.size(); ++ms) {
+            for (const unsigned n : all) {
+                const auto state = sink(n).state;
+                if (answered.count(n) == 0u && (state == ACMP_PRB_W_RESP || state == ACMP_PRB_W_RESP2)) {
+                    std::uint32_t from = 0, at = 0;
+                    ASSERT_TRUE(answer_outstanding(n, n + offset, &from, &at))
+                        << what << ": input " << n << "'s probe is answered and its binding reaches SRP";
+                    answered[n] = {from, at};
+                    pass(6);
+                }
+            }
+            pass(1);
+        }
+        ASSERT_EQ(answered.size(), all.size()) << what << ": every input probes";
+        pass(kJoinMs + 10u);
+        for (const unsigned n : all) {
+            expect_declares(n, n + offset, answered[n].first, answered[n].second, failed, what,
+                            static_cast<std::uint16_t>(seq + n));
+        }
+    }
+    std::vector<unsigned> every_input() const {
+        std::vector<unsigned> out;
+        for (const auto& [n, in] : inputs()) {
+            if (in.interface == 0u) out.push_back(n);
+        }
+        return out;
+    }
+};
+
+TEST_F(Early, S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled) {
+    for (const bool failed : {false, true}) {
+        const char* what = failed ? "S13 a Talker Failed registered before the restored binding settled"
+                                  : "S13 a Talker Advertise registered before the restored binding settled";
+        for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_gm(&fabric, i, acmp_test::kGm0, 0);
+        ASSERT_TRUE(ready());
+        const auto all = every_input();
+        ASSERT_FALSE(all.empty());
+        for (const unsigned n : all) {
+            const std::uint32_t since = fabric.tx_sent;
+            ASSERT_TRUE(bind(n, true)) << what << ": input " << n << " is bound";
+            ASSERT_TRUE(answer_probe(n, since, n)) << what << ": input " << n << " settles";
+            pass(12);  // the ACMP channel's bucket refills (mbx_model.h, MBX_CH_ACMP_RATE_REFILL_MS)
+        }
+        // the saved state written back by the store's service on the loop's tick, both clocks 10 ms a pass (S12)
+        const unsigned commits = nvm_store_status()->commits_ok;
+        for (unsigned k = 0; k < 3000u && (nvm_store_status()->commits_ok == commits ||
+                                           ctrl_plat.state.pending_count != 0u ||
+                                           nvm_store_status()->phase != NVM_P_IDLE); ++k) {
+            mbx_model_advance_ms(&fabric, 10u);
+            nvm_fmodel_advance_us(10000u);
+            ctrl_plat_step();
+            ctrl_plat_step();
+        }
+        ASSERT_EQ(ctrl_plat.state.pending_count, 0u) << what << ": the bindings are saved";
+        // the power cut, as S12's: the flash keeps its contents
+        seen.on = false;
+        srp_mbx_destroy(&ctrl_plat.srp);
+        bus().reset();
+        bus().csr[CTRL_PLAT_CSR_STRM_SEL] = kOtherSelection;
+        mailbox.clear();
+        mbx_model_reset(&fabric);
+        mbx_model_far_bind(&fabric, &side);
+        for (unsigned i = 0; i < MBX_N_IF; ++i) {
+            mbx_model_set_link(&fabric, i, true);
+            mbx_model_set_gm(&fabric, i, acmp_test::kGm0, 0);
+        }
+        nvm_fmodel_power_on();
+        far.power_on();
+        ASSERT_TRUE(ready()) << what << ": the boot after the cut reaches READY";
+        for (const unsigned n : all) {
+            ASSERT_TRUE(sink(n).bound) << what << ": input " << n << "'s binding is restored";
+            ASSERT_FALSE(sink(n).settled) << what << ": input " << n << " probes again";
+        }
+        pass(400);
+        // the talker declares every stream, then is quiet: no LeaveAll, no declaration again
+        for (const unsigned n : all) {
+            const auto f = talker_declaration(n, failed);
+            ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << what << ": the Talker reaches the mailbox";
+            pass(2);
+        }
+        pass(1000);
+        // the talker is discovered (Milan v1.2 5.6.4), so every restored binding probes it
+        const auto avail = acmp_test::adpdu(acmp_test::Adp{});
+        ASSERT_TRUE(mbx_model_rx(&fabric, avail.data(), avail.size(), 0)) << what << ": ENTITY_AVAILABLE";
+        answer_every_probe(all, 0u, failed, what, failed ? 0x0d40u : 0x0d00u);
+        TearDown();
+        SetUp();
+    }
+}
+
+TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
+    ASSERT_TRUE(ready());
+    const auto all = every_input();
+    ASSERT_FALSE(all.empty());
+    const unsigned other = 0x40u;  // the streams the inputs are re-bound to: kSid + 0x40 + n
+    for (const unsigned n : all) {
+        const std::uint32_t since = fabric.tx_sent;
+        ASSERT_TRUE(bind(n, true)) << "S14 input " << n << " is bound";
+        ASSERT_TRUE(answer_probe(n, since, n)) << "S14 input " << n << " settles";
+        pass(12);  // the ACMP channel's bucket refills (mbx_model.h, MBX_CH_ACMP_RATE_REFILL_MS)
+        const auto f = talker_declaration(n, false);
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
+        pass(kJoinMs + 10u);
+        ASSERT_EQ(ctrl_plat.srp.ifs[0].sinks[n].declared, 2u) << "S14 input " << n << " declares its first stream";
+    }
+    // every other stream's Talker is declared, and stays so, while the inputs are bound to their first
+    for (const unsigned n : all) {
+        const auto f = talker_declaration(n + other, false);
+        ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
+        pass(2);
+    }
+    pass(1000);
+    for (const unsigned n : all) {
+        ASSERT_TRUE(acmp(spec::MSG_BIND_RX_COMMAND, n, 1u)) << "S14 BIND_RX of input " << n << " while bound";
+        pass(6);
+    }
+    answer_every_probe(all, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
 }
 
 }  // namespace
