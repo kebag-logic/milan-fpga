@@ -1270,21 +1270,27 @@ static CTRL_CC_NOINLINE int build_mrpdu(struct srp_mbx *m, struct srp_interface 
     return result;
 }
 
-// Whether the UP the LINK register reads is carried (#973): by the last LINK the loop dispatched (bit 0 of
-// link_carried), or by none owed. A poll that reads it uncarried marks it (bit 1), and a later poll takes it if no
-// LINK has come by then and the loop's take in that poll's pass ended on an empty ring (events_left); a LINK's level
-// replaces both bits. Only the loop takes events, and the fabric posts a LINK first of its sources once the ring has
-// room (KL_mbx_evt.sv). So a LINK owed at the marking poll was posted then, if the ring had room, or else as the next
-// take made room, a take that stops at CTRL_LOOP_EVENTS_PER_PASS of the full ring's MBX_EVT_WORDS / MBX_EV_WORDS
-// records; either way a later take that empties the ring takes it. So a re-attach that read a DOWN whose record the
-// fabric then elided, its level back before the record posted, follows the link that is up.
+// Whether the level `up` the LINK register reads is a carried UP (#973): by the last LINK the loop dispatched (bit 0
+// of link_carried), or by none owed. A poll that reads an uncarried UP marks it (bit 1), and a later poll takes it if
+// no LINK has come by then and the loop's take in that poll's pass ended on an empty ring (events_left); a LINK's
+// level replaces both bits, and a poll that reads a DOWN clears the mark (the mask). Only the loop takes events, and
+// the fabric posts a LINK first of its sources once the ring has room (KL_mbx_evt.sv). So a LINK owed at the marking
+// poll was posted then, if the ring had room, or else as the next take made room, a take that stops at
+// CTRL_LOOP_EVENTS_PER_PASS of the full ring's MBX_EVT_WORDS / MBX_EV_WORDS records; either way a later take that
+// empties the ring takes it. A DOWN can elide that UP's record, and the UP after it is owed a LINK of its own, posted
+// after takes the mark rests on: so the mark holds only while each poll reads the link up. A DOWN that no poll reads
+// ends between two of SRP's polls, and a link the PHY dropped renegotiates for longer (IEEE 802.3-2022 28.3.2,
+// break_link_timer). So a re-attach that read a DOWN whose record the fabric then elided, its level back before the
+// record posted, follows the link that is up, and an UP after a DOWN is taken from its own LINK.
 _Static_assert(CTRL_LOOP_EVENTS_PER_PASS < MBX_EVT_WORDS / MBX_EV_WORDS, "a full event ring outlasts one take");
-static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
 {
-    if ((i->link_carried & 1u) == 0u) {
-        i->link_carried = (uint8_t)((i->link_carried >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u);
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = ((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up;
+        i->link_carried = (uint8_t)c;
     }
-    return (i->link_carried & 1u) != 0u;
+    return c & up;
 }
 
 static bool poll(void *ctx)
@@ -1300,7 +1306,7 @@ static bool poll(void *ctx)
     // participants it keeps, and a later one would reset the interface twice.
     bool links[MBX_N_IF];
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
-        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);
+        links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));
     }
     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
     const unsigned turn = m->build_turn % MBX_N_IF;

@@ -64,8 +64,8 @@ struct srp_interface {
     bool link_seen;
     bool link;
     // Bit 0 the level the last LINK the loop dispatched carried, the register's at attach; bit 1 set by a poll that
-    // read an UP no LINK carried. The poll takes an UP only while bit 0 is set, or once no LINK is owed after bit 1
-    // was set (#973; srp_mbx.c, carried_up)
+    // read an UP no LINK carried, cleared by one that reads a DOWN. The poll takes an UP only while bit 0 is set, or
+    // once no LINK is owed after bit 1 was set (#973; srp_mbx.c, carried_up)
     uint8_t link_carried;
     bool vlan_sent;
     bool domain_owed;
