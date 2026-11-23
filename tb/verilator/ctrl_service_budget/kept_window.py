@@ -29,8 +29,9 @@ MRPDU as srp.kept_advertise (srp.bound_advertise), as a bridge re-declares the T
 
 A record that registers Talkers is past CTRL_LOOP_SRP_UNIT_US on the bound path the base has (#977), and the kept
 Talkers make the same registrations before the bindings. kept_grade.py grades both groups as owed to #977, held at
-kept <= bound on the same image and no work pass of srp-kept over THE SHARE, each pass given whole to a build within
-its stated cost; run.py gives their #977 lines that disposition (kept_grade.Disposition).
+kept <= bound within the measurement rule's 5 % on the same image (#969's 2026-11-23 amendment) and no work pass of
+srp-kept over THE SHARE, each of srp-kept's builds within its stated cost; srp-bound's build of one and its passes over
+THE SHARE are owed to #977 with its records; run.py gives their #977 lines that disposition (kept_grade.Disposition).
 """
 from __future__ import annotations
 
