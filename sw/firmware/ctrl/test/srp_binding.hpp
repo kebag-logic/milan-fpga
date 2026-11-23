@@ -245,6 +245,19 @@ TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
     }
 }
 
+// THE SETTLE (#977): a request parked when the settle runs takes no registration's completion, as the delivery takes
+// none, and the bound sink beside it is completed.
+TEST_F(SrpBinding, TheSettleSkipsAParkedRequest) {
+    bind(0); bind(1); response(1);
+    auto invalid=answer(0); invalid.vlan=4095;   // sink 0's talker answers with no valid VLAN: its request parks
+    ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+    ASSERT_TRUE(app.srp_requests[0].parked);
+    registration(1); settle();
+    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "the bound sink's registration is completed";
+    EXPECT_TRUE(app.srp_requests[0].parked) << "the parked request stays parked";
+    EXPECT_FALSE(app.srp_settle_owed) << "and nothing stays owed";
+}
+
 TEST_F(SrpBinding, AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline) {
     for (unsigned k=0;k<2u;++k) { bind(k); response(k); }
     without_delivery([&] { for (unsigned k=0;k<2u;++k) registration(k); });

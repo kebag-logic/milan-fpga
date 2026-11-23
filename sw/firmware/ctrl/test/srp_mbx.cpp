@@ -500,8 +500,15 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
         {"both kinds' one each",record(0x22ea,cat({message(1,25,{1}),message(2,34,{1}),end})),u+2u*r},
         {"a Talker past the EndMark",record(0x22ea,cat({end,message(1,25,{1})})),u},
         {"a Message whose length passes the record",record(0x22ea,message(1,25,{1},2000)),u+r},
+        {"a Message whose length ends at its last vector",record(0x22ea,cat({message(1,25,{1},2+25+1),end})),u+r},
         {"past eight Messages, by its length",record(0x22ea,past),u+r*s*rest},
     };
+    // the shortest record the filter passes, its ProtocolVersion and no Message: the unit
+    std::vector<uint8_t> shortest(15); wire_put_be(shortest.data(),0x0180c200000eull,6);
+    wire_put_be(shortest.data()+12,0x22ea,2);
+    ASSERT_TRUE(mbx_model_rx(&model,shortest.data(),shortest.size(),0));
+    EXPECT_EQ(loop.drain_charge(&adapter),u) << "a record that ends at its ProtocolVersion";
+    settle();
     for (const auto &c:cases) {
         mbx_model_advance_ms(&model,100); settle();   // the channel's bucket refilled
         ASSERT_TRUE(mbx_model_rx(&model,c.f.data(),c.f.size(),0)) << c.what;
@@ -511,6 +518,30 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
     }
     srp_mbx_destroy(&adapter);
     EXPECT_TRUE(loop.drain_charge == nullptr) << "destroy unbinds the charge";
+}
+// The byte compares (#977): a StreamID whose last byte is a bound sink's and another byte not is no Talker of that sink,
+// in the receive filter, the indication and the walk; and a Talker of a bound StreamID at another destination touches
+// its sink with no change of its declaration, which the filter's pass over the touched sinks leaves as it was.
+TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
+    settle();
+    const msrp_stream_id a{{2,1,2,3,4,5,6,7}}, b{{3,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9}, other[]={0x91,0xe0,0xf0,0,0,10};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&a,da,2));
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&b,da,2));
+    // one Message of two vectors: b's Talker at another destination, then a's
+    const auto vb=talker_value(b,other,2), va=talker_value(a,da,2);
+    std::vector<uint8_t> f(14); wire_put_be(f.data(),0x0180c200000eull,6);
+    wire_put_be(f.data()+6,0x020304010203ull,6); wire_put_be(f.data()+12,0x22ea,2);
+    f.insert(f.end(),{0,1,25,0,2*(2+25+1)+2});
+    for (const auto *v:{&vb,&va}) {
+        f.insert(f.end(),{0,1}); f.insert(f.end(),v->begin(),v->end()); f.push_back(1*36);
+    }
+    f.insert(f.end(),{0,0,0,0});
+    offer(f); advance(200); capture();
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "a's Talker registers for its own sink";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "b's at another destination registers for none";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "a's sink declares Ready";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].declared,0u) << "b's sink declares nothing";
 }
 TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     mbx_model_tx_pause(&model,true);

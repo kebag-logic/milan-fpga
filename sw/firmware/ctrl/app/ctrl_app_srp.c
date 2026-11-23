@@ -134,7 +134,8 @@ static bool deliver(void *ctx)
     // is owed to THE SETTLE, the next ordinary pass's first work, and the loop passes on to it (#977, its ruling of
     // 2026-11-23, item 3)
     const bool settles = CTRL_LOOP_SETTLE_ALONE && app->loop.drain_taken != 0u;
-    app->srp_settle_owed = app->srp_settle_owed || settles;
+    // a delivery that owes no settle completes every binding itself, below, so it leaves none owed
+    app->srp_settle_owed = settles;
     pending = pending || settles;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
