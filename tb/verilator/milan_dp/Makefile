@@ -163,6 +163,9 @@ PAIRFIFO_SRC ?= $(RTL_DIR)/common/cdc_pair_fifo.sv
 # #653: the CRF Media Clock Input engine, overridable the same way so
 # unb_mutants.py elaborates a MUTATED copy through the notify recipe.
 CRFRX_SRC ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
+# #948: the AVTP stream parser, overridable the same way so twin-fanout-plants
+# elaborates the planted parser through the twin's 8x8 recipe.
+PARSER_SRC ?= $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -227,7 +230,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
-       $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv \
+       $(PARSER_SRC) \
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
@@ -837,8 +840,11 @@ exec-nxndv:
 # -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
 # asserts zero dup / zero skip / whole-ramp / clean tail instead of the
 # pre-fix stair signature.
+# NXN8_MDIR is overridable so fan-stop-plants builds this leg on a planted
+# datapath (DP_SRC) beside the clean one.
+NXN8_MDIR ?= obj_nxn8
 build-nxn8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir $(NXN8_MDIR) -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 
 exec-nxn8:
 	./obj_nxn8/Vmilan_dp_nxn8
@@ -1083,6 +1089,78 @@ twin-maps-plants: build-twin-sp
 	  grep -qF -- "$$w" $(TWIN_MAPS_OUT)/no-edit.log || { echo "FAIL the no-edit plant escaped: $$w"; exit 1; }; \
 	  echo "caught: $$w"; done
 
+# #948: ONE TALKER STREAM BOUND TO SEVERAL STREAM INPUTS, on the split half at
+# the 8x8 shape with one interface (twin_split.cpp --fanout): the 8x8 split
+# image's platform firmware, built for the host by twin_fw.py, on
+# tb_split_top's datapath at N_STREAMS_P = 8. A controller binds STREAM_INPUT 0
+# and 1 to one peer talker's stream over ACMP, then 2 as well, then unbinds 1;
+# the talker answers each probe. Each bound input counts every PDU in
+# GET_COUNTERS (TIMESTAMP_VALID, counted on receipt) and receives it (its DEPKT
+# tally in the 0x800 window), and the unbound input neither. The twin's own
+# shape, 1x1, has one AAF input, and the two placements share the datapath
+# this lives in, so the comparison itself could not see it. twin-fanout-plants
+# builds the same binary on a parser planted with the defect #948 found, each
+# PDU to the highest matching entry alone, and requires each word to fail.
+TWIN8_CFG = ../../../configs/endstation_ax7101_8x8.yaml
+TWIN8_FW ?= obj_twin8_fw
+TWIN8_SP_MDIR ?= obj_twin8_sp
+TWIN8_PLANT_MDIR ?= obj_twin8_plant
+TWIN8_OUT ?= obj_twin8
+TWIN8_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_8x8_F))ULL $$(cat $(TWIN8_FW)/cflags)
+TWIN8_PLANT_WORDS = "FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS" \
+  "FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input" \
+  "FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU" \
+  "FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS"
+.PHONY: twin8-fw build-twin8-sp twin-fanout twin-fanout-plants
+twin8-fw: stack-pin
+	python3 -B twin_fw.py --config $(TWIN8_CFG) --out $(TWIN8_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+
+build-twin8-sp: twin8-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) twin_probes.vlt $(SHAPE_8x8) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+	  -GN_STREAMS_P=8 --Mdir $(TWIN8_SP_MDIR) -CFLAGS "$(TWIN8_FW_CFLAGS) -Wall -Wextra" \
+	  -LDFLAGS "$(SRPTX_WRAPS) $(abspath $(TWIN8_FW))/libtwinfw.a" \
+	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin8_sp
+
+twin-fanout: build-twin8-sp
+	@mkdir -p $(TWIN8_OUT)
+	./$(TWIN8_SP_MDIR)/Vmilan_dp_twin8_sp --fanout > $(TWIN8_OUT)/fanout.log; rc=$$?; cat $(TWIN8_OUT)/fanout.log; exit $$rc
+
+twin-fanout-plants: twin8-fw
+	@mkdir -p $(TWIN8_OUT) $(TWIN8_PLANT_MDIR)
+	python3 -B twin_fanout_plant.py $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv $(TWIN8_PLANT_MDIR)/avtp_stream_parser.sv
+	$(MAKE) --no-print-directory build-twin8-sp TWIN8_SP_MDIR=$(TWIN8_PLANT_MDIR) \
+	  PARSER_SRC=$(abspath $(TWIN8_PLANT_MDIR))/avtp_stream_parser.sv
+	if ./$(TWIN8_PLANT_MDIR)/Vmilan_dp_twin8_sp --fanout > $(TWIN8_OUT)/one-entry.log; then \
+	  echo "FAIL the one-entry plant passed"; exit 1; fi
+	set -e; for w in $(TWIN8_PLANT_WORDS); do \
+	  grep -qF -- "$$w" $(TWIN8_OUT)/one-entry.log || { echo "FAIL the one-entry plant escaped: $$w"; exit 1; }; \
+	  echo "caught: $$w"; done
+
+# #948, Milan v1.2 5.3.8.7 input by input: sim_nxn.cpp's [FAN] STOPs input 4,
+# then 6, of the two bound to one talker stream, and the other goes on
+# receiving every PDU. fan-stop-plants builds obj_nxn8 on a datapath whose stop
+# gate is not per input (fan_stop_plant.py: shared, a stopped input among a
+# PDU's accepting inputs discards it for all; one-index, the accept pulse's
+# one-index stop gates every input's share) and requires each named check to
+# fail.
+FAN_STOP_PLANTS = shared one-index
+FAN_STOP_WORDS_shared = "[FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)" \
+  "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"
+FAN_STOP_WORDS_one-index = "[FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)" \
+  "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"
+.PHONY: fan-stop-plants $(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS))
+fan-stop-plants: $(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS))
+$(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS)): fan-stop-plant-%:
+	@mkdir -p obj_nxn8_plant_$*
+	python3 -B fan_stop_plant.py $(RTL_DIR)/milan/milan_datapath.sv obj_nxn8_plant_$*/milan_datapath.sv $*
+	$(MAKE) --no-print-directory build-nxn8 NXN8_MDIR=obj_nxn8_plant_$* \
+	  DP_SRC=$(abspath obj_nxn8_plant_$*)/milan_datapath.sv
+	if ./obj_nxn8_plant_$*/Vmilan_dp_nxn8 > obj_nxn8_plant_$*/run.log; then \
+	  echo "FAIL the $* stop-gate plant passed"; exit 1; fi
+	set -e; for w in $(FAN_STOP_WORDS_$*); do \
+	  grep -qF -- "$$w" obj_nxn8_plant_$*/run.log || { echo "FAIL the $* stop-gate plant escaped: $$w"; exit 1; }; \
+	  echo "caught ($*): $$w"; done
+
 # #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
 # (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP transmit ring, KL_mbx_tx,
 # the crossing, ctl_tx_mux and the MAC. Three scenarios, each graded by
@@ -1254,4 +1332,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa obj_nxn8_plant_* $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)

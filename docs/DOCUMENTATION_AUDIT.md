@@ -222,7 +222,7 @@ Areas follow the directory tree.
 
 | Page | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
 |---|---|---|---|---|---|---|---|
-| [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | maintainer | One AAF frame, hop by hop | `hdl/milan` | current | no recorded contradiction | area lane | design |
+| [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | maintainer | One AAF frame, hop by hop | `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | design |
 | [docs/fpga/FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | maintainer | FPGA design reference - every module in `hdl/`, and how they compose | `hdl/milan`, `hdl/common`, `hdl/common/csr`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | stale | 1 finding(s): D0-057 | area lane | design |
 
 ### docs/guides
@@ -444,7 +444,7 @@ Areas follow the directory tree.
 | [tb/verilator/milan_dp/README.md](../tb/verilator/milan_dp/README.md) | verification | milan_dp - the `milan_datapath` integration suite | `tb/verilator/milan_dp`, `sw/firmware/ctrl`, `scripts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/milan_dp_gm_steps/README.md](../tb/verilator/milan_dp_gm_steps/README.md) | verification | milan_dp_gm_steps: the GM step leg and its controls (#387, #602, #621) | `tb/verilator/milan_dp_gm_steps`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/milan_dp_gptp/README.md](../tb/verilator/milan_dp_gptp/README.md) | verification | AX7101 physical gPTP integration suite | `tb/verilator/milan_dp_gptp`, `scripts`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
-| [tb/verilator/milan_dp_mclk/README.md](../tb/verilator/milan_dp_mclk/README.md) | verification | milan_dp_mclk: media-clock following at the root (#629) | `tb/verilator/milan_dp_mclk`, `tb/verilator/milan_dp`, `tb/verilator/follow_ring`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/milan_dp_mclk/README.md](../tb/verilator/milan_dp_mclk/README.md) | verification | milan_dp_mclk: media-clock following at the root (#629) | `tb/verilator/milan_dp_mclk`, `tb/verilator/milan_dp`, `tb/verilator/follow_ring`, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/nvm_backend/README.md](../tb/verilator/nvm_backend/README.md) | verification | nvm_backend -- the saved-state backing store, graded on bytes | `tb/verilator/nvm_backend`, `scripts`, `hdl/milan` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/nvm_capture_cpu/README.md](../tb/verilator/nvm_capture_cpu/README.md) | verification | Product CPU capture measurement | `tb/verilator/nvm_capture_cpu`, `scripts`, `sw/litex` | current | no recorded contradiction | area lane | module READMEs |
 | [tb/verilator/nvm_cosim/README.md](../tb/verilator/nvm_cosim/README.md) | verification | nvm_cosim -- the saved-state snapshot ownership co-simulation | `tb/verilator/nvm_cosim`, `hdl/milan`, `scripts` | current | no recorded contradiction | area lane | module READMEs |

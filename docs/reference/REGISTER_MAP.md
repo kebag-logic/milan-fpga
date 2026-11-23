@@ -2008,7 +2008,7 @@ RTL name: `A_PCMRX_CNT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `DROPPED` | R | X | Whole frames dropped: FIFO overflow. |
+| 31:16 | `DROPPED` | R | X | Whole frames dropped: FIFO overflow, or a queued PDU's frame short of its payload (#948). |
 | 15:0 | `PDUS` | R | X | PDU payloads emitted to the fabric. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pcmrx_cnt-offset-0x6c4).
