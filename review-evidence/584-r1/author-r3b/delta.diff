@@ -1,0 +1,55 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index e7f0544fd6..2a70fc3b8c 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -79,7 +79,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - No input cluster is backed by the loopback lane.
+ - The 8x8 builds no loopback lane, as before.
+ - `TDM32 Out 0` stands for the decision's first TDM8 channel.
+-- All three points await the owner's disposition on #584.
++- The owner approved all three points on #584 (2026-11-23).
+ - `milan_dp_render` gains `ship8`, the 8x8 at its pins.
+ - It elaborates the builder's own render parameters.
+ - Eight listeners feed it; slot 0 renders port 0's source.
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index e4bb6da426..519d2601c7 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -756,11 +756,12 @@ alone and serializes zero in slots 1-31; the datapath and the builder accept a
+ master lane narrower than its bus, and a slave lane stays full-width. The
+ capture direction stays 0.
+ 
+-**Pending owner disposition (#584).** The owner's decision of 2026-11-22 asked
++**Owner-approved departure (#584).** The owner's decision of 2026-11-22 asked
+ to back the input model with the loopback lane and the first TDM8 channel
+ only. This build departs from that wording in two ways, stated in
+ [#584's decision comment](https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7077045073)
+-and awaiting the owner's disposition there:
++and approved by the owner on 2026-11-23
++([#584](https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7092564847)):
+ 
+ - **No input cluster is backed by the loopback lane, and the 8x8 builds no
+   loopback lane** (`fabric.loopback_lane: false`, as before #584). The lane's
+@@ -772,8 +773,7 @@ and awaiting the owner's disposition there:
+   standing for the decision's first TDM8 channel: the 8x8's bus is TDM32, and
+   it has no TDM8 bus.
+ 
+-If the owner requires loopback-backed input clusters, the model and the lane
+-posture change in a later round. `tb/verilator/milan_dp_render`'s `ship8` case
++A block-RAM loopback fed through the input mapping is separate follow-up work. `tb/verilator/milan_dp_render`'s `ship8` case
+ grades this posture at the pins.
+ 
+ That is *why* the loopback pool matters rather than being a nicety: with
+diff --git a/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md b/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+index 307f5e5b31..848b3b5ead 100644
+--- a/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
++++ b/docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+@@ -170,7 +170,7 @@ The builder refuses a zero-cluster port by name, `STREAM_PORT_CLUSTER_MINIMUM`.
+ The 8x8 configuration's L1 waiver is removed: every input port passes the check.
+ No input cluster is backed by the loopback lane, which the 8x8 does not build.
+ Port 0's TDM32 slot 0 stands for the owner's first TDM8 channel.
+-Both points await the owner's disposition on #584 ([D8](../ENDSTATION_BUILDER.md#d8--role-named-88-port-model-per-platform-cluster-pools-pilot-cluster-loopback-lane)).
++The owner approved both points on #584 ([D8](../ENDSTATION_BUILDER.md#d8--role-named-88-port-model-per-platform-cluster-pools-pilot-cluster-loopback-lane)).
+ 
+ The shipping `arty_current` image retains six static-map coherence deviations.
+ They map channels 2..7 against a stereo output format.
