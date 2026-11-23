@@ -11,11 +11,19 @@ Its 1x1 media shape has one source and two sinks.
 The CRF sink accounts for the second sink.
 The split scheduler requires measured costs for that exact shape.
 Its existing 1x1 cost point has two sources instead.
-The owner retained this entity shape for round 2.
-The exploratory `arty-1x1` measurement used exactly 83,333,000 Hz.
-Its production clock export also refuses the exact-divider requirement.
-The PLL can produce 83,333,333⅓ Hz, a different frequency.
-That clock conflict needs an owner decision before image generation.
+The owner retained this entity shape.
+Round 3's clock ruling selects exactly 80,000,000 Hz for sys/CPU.
+The datapath remains at 50 MHz; `margin=0` remains mandatory.
+That clock decision is settled; its implementation remains pending.
+
+Round 3 re-graded round 2's held-egress observations at 83,333,000 Hz.
+Seven paths take 61.79409 to 63.21346 ms against 20 ms.
+The stimulus holds egress for 60 ms after admitting commands.
+[The service contract](reference/FR_NFR.md#341-control-service-budget-and-normative-timing) explicitly charges TX-ring backpressure.
+Freeing space never restarts that budget.
+These paths have no normative wait allowance.
+They remain service-budget failures, requiring the instructed STOP.
+The 80 MHz costs, slice and pace remain unqualified.
 No image is qualified by a successful builder export alone.
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema

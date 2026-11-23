@@ -346,19 +346,29 @@ elaborates and drives the complete five-signal header.
 
 The Arty split port (#878) is separate from that recipe.
 Its requested datapath clock is 50 MHz.
-Its CPU shares the 83.333 MHz system clock.
+The owner's round-3 ruling selects exactly 80 MHz sys/CPU.
 The first firmware build refuses its unmeasured scheduler shape.
 That shape has one source, two sinks, and one interface.
 The existing AX7101 1x1 point has two sources instead.
 Each scheduler shape requires its own measured service costs.
-Round 2 explored that point as `arty-1x1` in the service-budget harness.
-The requested CPU clock is exactly 83,333,000 Hz.
-The production `_CRG` refuses that rate with `margin=0`.
-A 100 MHz input can instead produce 83,333,333⅓ Hz.
-That difference is about 4 ppm; it is not an accepted clock tolerance.
-The companion outputs are 25, 50 and 200 MHz.
-The clock request and exact-divider contract need an owner decision.
-A simulation at the requested frequency does not resolve that conflict.
+The clock ruling keeps `_CRG`'s `margin=0` contract.
+Its selected VCO is 800 MHz, divided by ten.
+Companion outputs use divisors 32, 16 and four: 25/50/200 MHz.
+This decision replaces round 2's unachievable 83,333,000 Hz request.
+The configuration and launcher updates remain pending after STOP.
+
+Round 3 re-graded round 2's seven held-egress misses.
+Those measurements remain at 83,333,000 Hz, never re-labelled as 80 MHz.
+The `backlog-owed` stimulus fills the ACMP transmit ring.
+It holds egress for 60 ms after admitting measured commands.
+No frame leaves during the hold.
+Five response commits take 62.67491 to 63.21346 ms.
+Two receive-service rows take 61.79409 and 61.99946 ms.
+[FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges backpressure to their 20 ms budgets.
+No normative wait applies; releasing egress never restarts timing.
+These failures require STOP under the round-3 instruction.
+The existing egress ledger supplies no Arty exception.
+No 80 MHz service costs, slice or pace are qualified.
 No routed image or flash layout is qualified yet.
 Earlier Arty bench evidence applies only to its recorded images.
 
