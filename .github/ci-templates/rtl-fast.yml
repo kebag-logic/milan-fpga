@@ -563,8 +563,66 @@ jobs:
   # target that builds the stack is pinned; planted and pin controls first.
   # This job has no Verilator, so the builders that need it are named and
   # left out (--without verilator): firmware-verilator judges them.
-  firmware-boundary:
+  # #980: the builds are cut into shards (ctrl_configs.SHARDS), each a
+  # deterministic share of the compile set's units built under a capture of
+  # its own, judging nothing; firmware-boundary takes every shard's capture,
+  # requires each unit's run in exactly one, and judges them as one with the
+  # self-test, once. Only the capture's records, manifest and kept texts are
+  # uploaded: its wrappers link the SDK's tools.
+  firmware-boundary-shards:
+    name: firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2]
+        total: [3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Build this shard of the firmware builders' compiles under its capture
+        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --shard ${{ matrix.shard }}/${{ matrix.total }} --capture-out "$RUNNER_TEMP/boundary-capture"
+      - name: Upload this shard's capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: boundary-capture-${{ matrix.shard }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/boundary-capture/records.jsonl
+            ${{ runner.temp }}/boundary-capture/manifest.jsonl
+            ${{ runner.temp }}/boundary-capture/text
+          if-no-files-found: error
+          retention-days: 3
+
+  # The stable job name. It runs only when every shard succeeded (a failed
+  # shard skips it, and the rtl-fast verdict reads the shards' own result);
+  # the shards' captures must hold each unit of the compile set exactly once.
+  firmware-boundary:
+    needs: [changes, firmware-boundary-shards]
     if: ${{ needs.changes.outputs.rtl == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -593,8 +651,17 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
+      - name: Download the boundary shards' captures
+        uses: actions/download-artifact@v4
+        with:
+          pattern: boundary-capture-*-${{ github.sha }}
+          path: ${{ runner.temp }}/boundary-captures
       - name: Hold the TSN stack boundary over the firmware builders' compiles
-        run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+        run: |
+          set -euo pipefail
+          given=()
+          for capture in "$RUNNER_TEMP"/boundary-captures/boundary-capture-*; do given+=(--capture "$capture"); done
+          python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --shards 3 "${given[@]}"
 
   # #697: the TSN stack's boundary over the compiles only the builders that
   # need Verilator make: the mailbox bench, the MAAP differential and the
@@ -670,7 +737,7 @@ jobs:
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, split-cdc, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, split-cdc, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary-shards, firmware-boundary, firmware-verilator]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -686,6 +753,7 @@ jobs:
           FIRMWARE_CONTROL_MUTANTS_RESULT: ${{ needs.firmware-control-mutants.result }}
           FIRMWARE_AECP_MUTANTS_RESULT: ${{ needs.firmware-aecp-mutants.result }}
           FIRMWARE_SRP_MUTANTS_RESULT: ${{ needs.firmware-srp-mutants.result }}
+          FIRMWARE_BOUNDARY_SHARDS_RESULT: ${{ needs.firmware-boundary-shards.result }}
           FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
           FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
         run: |
@@ -702,6 +770,7 @@ jobs:
             "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
             "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
             "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT" \
+            "firmware-boundary-shards:$FIRMWARE_BOUNDARY_SHARDS_RESULT" \
             "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
             "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
             name="${pair%%:*}"

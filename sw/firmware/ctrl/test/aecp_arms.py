@@ -2,6 +2,7 @@
 """Firmware AECP arms on the existing host harness."""
 from __future__ import annotations
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from ctrl_build import (CTRL, HERE, ROOT, HARNESS, C_FLAGS, STACK, STACK_INCLUDE, STACK_TESTS, Tree, Outcome, Refusal,
                         run, source, stack_pin)
@@ -36,10 +37,18 @@ def key_geometry(out: Path, name: str, widths: tuple[int, ...]) -> Path:
 
 def key_arms(tree: Tree) -> list[Outcome]:
     """KEYS in the work arm at every checked-in configuration and at each of KEY_GEOMETRIES."""
+    return [arm() for arm in key_arms_in_order(tree)]
+
+
+def key_arms_in_order(tree: Tree) -> list[Callable[[], Outcome]]:
+    """key_arms, in their order, each not yet run (a geometry's configuration written as its arm runs)."""
+    def keyed(config: Path) -> Outcome:
+        """KEYS in the work arm at one configuration."""
+        return core_arm(Tree(tree.src, tree.out / "keys" / config.stem, tree.reuse, tree.build, tree.stack), config,
+                        mode="work", selected=KEYS)
     configs = sorted((ROOT / "configs").glob("endstation_*.yaml"))
-    configs += [key_geometry(tree.out / "keys", *shape) for shape in KEY_GEOMETRIES]
-    return [core_arm(Tree(tree.src, tree.out / "keys" / config.stem, tree.reuse, tree.build, tree.stack), config,
-                     mode="work", selected=KEYS) for config in configs]
+    return [*(lambda config=config: keyed(config) for config in configs),
+            *(lambda shape=shape: keyed(key_geometry(tree.out / "keys", *shape)) for shape in KEY_GEOMETRIES)]
 
 
 def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
@@ -173,20 +182,25 @@ def all_arms(tree: Tree) -> list[Outcome]:
     """Full application on both contracts, plus every builder image and the debug guard; and at the 8x8 shape at one
     interface, the mailbox tests that read its own costs and counts (EIGHT_ONE) and the application's STREAM_OUTPUT
     test (OUTPUTS)."""
+    return [arm() for arm in arms_in_order(tree)]
+
+
+def arms_in_order(tree: Tree) -> list[Callable[[], Outcome]]:
+    """all_arms, in their order, each not yet run: a build-only part of the control gate takes some (#980)."""
     shipping = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     eight = ROOT / "configs/endstation_ax7101_8x8.yaml"
-    results = [core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
-    results.append(core_arm(tree, eight, 1, mode="mailbox", selected=EIGHT_ONE))
-    results.append(core_arm(Tree(tree.src, tree.out / "outputs", tree.reuse, tree.build, tree.stack), eight, 1,
-                            mode="app", selected=OUTPUTS))
-    results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
+    arms: list[Callable[[], Outcome]] = [lambda i=i: core_arm(tree, shipping, i, mode="app") for i in (1, 2)]
+    arms.append(lambda: core_arm(tree, eight, 1, mode="mailbox", selected=EIGHT_ONE))
+    arms.append(lambda: core_arm(Tree(tree.src, tree.out / "outputs", tree.reuse, tree.build, tree.stack), eight, 1,
+                                 mode="app", selected=OUTPUTS))
+    arms += [lambda p=p: image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     if not tree.build.coverage:
-        results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,
-                                mode="debug"))
-        results.append(core_arm(Tree(tree.src, tree.out / "work", tree.reuse, tree.build, tree.stack), shipping,
-                                mode="work", selected=WORK))
-        results += key_arms(tree)
-    return results
+        arms.append(lambda: core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack),
+                                     shipping, mode="debug"))
+        arms.append(lambda: core_arm(Tree(tree.src, tree.out / "work", tree.reuse, tree.build, tree.stack),
+                                     shipping, mode="work", selected=WORK))
+        arms += key_arms_in_order(tree)
+    return arms
 
 
 if __name__ == "__main__":

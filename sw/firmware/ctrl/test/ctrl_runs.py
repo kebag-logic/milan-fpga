@@ -16,11 +16,12 @@ archives that do not exist, so it compiles every object and then stops at its
 link, and it must stop there and nowhere else. The images themselves are
 never this gate's: the capture needs the invocations only.
 
-STANDALONE, when the gate is given no capture (the hosted firmware-boundary
-and firmware-verilator jobs): every other builder of ctrl_configs.BUILDERS,
-by its own build commands (a suite builder's --build-only: its builds, not
-its suites), from the checkout's root, but the ones the run leaves out
-(ctrl_configs.Scope). Each must exit 0: a builder that fails may have
+STANDALONE, when the gate is given no capture (the hosted firmware-verilator
+job), or builds a shard (the hosted firmware-boundary-shards jobs: that
+shard's units of ctrl_configs.SHARDS alone): every other builder of
+ctrl_configs.BUILDERS, by its own build commands (a suite builder's
+--build-only: its builds, not its suites), from the checkout's root, but the
+ones the run leaves out (ctrl_configs.Scope). Each must exit 0: a builder that fails may have
 compiled less than it does.
 
 THE STACK'S GATE (stack_gate) and THE CONTROLS' BUILDERS (planted_run,
@@ -50,7 +51,7 @@ import ctrl_capture
 import ctrl_image
 from ctrl_build import CTRL, HERE, NVM_DIR, ROOT, STACK, Refusal, Tree, includes
 from ctrl_capture import Capture
-from ctrl_configs import BUILDERS, CONFIGS, Scope, run
+from ctrl_configs import BUILDERS, CONFIGS, Scope, Unit, run
 from ctrl_pin import named_compilers
 from ctrl_plants import Plant
 
@@ -125,17 +126,18 @@ def owned(capture: Path, work: Path) -> list[str]:
     return lines
 
 
-def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None) -> list[str]:
-    """Every builder of BUILDERS with commands, but those the run leaves out, run under the capture; one line
-    each. A builder that does not exit 0 refuses the gate."""
+def standalone(capture: Path, work: Path, scope: Scope, verilator: str | None,
+               shard: tuple[Unit, ...] | None = None) -> list[str]:
+    """Every builder of BUILDERS with commands, but those the run leaves out, run under the capture (a shard's
+    units alone, given `shard`: ctrl_configs, THE SHARDS); one line each. A builder that does not exit 0 refuses
+    the gate."""
     out = {b.path for b in scope.left_out()}
     lines = []
-    for b in BUILDERS:
-        if b.path in out or not b.runs:
-            continue
+    for b, runs in ([(b, b.runs) for b in BUILDERS if b.path not in out and b.runs] if shard is None else
+                    [(u.builder, (u.words,)) for u in shard]):
         if b.needs == "verilator" and verilator is None:
             raise Refusal(f"{b.path} needs Verilator (VERILATOR, or on PATH); --without verilator leaves it out")
-        for words in b.runs:
+        for words in runs:
             argv = [w.format(python=sys.executable, work=work, verilator=verilator) for w in words]
             log = work / f"{Path(b.path).name}-{len(lines)}.log"
             work.mkdir(parents=True, exist_ok=True)

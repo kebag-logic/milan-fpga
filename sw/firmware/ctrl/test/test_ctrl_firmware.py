@@ -120,7 +120,11 @@ runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 --build-only builds and links every arm's binaries (with --coverage, the
 coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
 The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
-the boundary needs the compiles, not the tests (#697).
+the boundary needs the compiles, not the tests (#697). --build-part INDEX/COUNT
+builds the normal suites whose place in their order is INDEX modulo COUNT, the
+boundary's shards' parts (#980); it first proves, through the live dispatch,
+that the COUNT parts build every suite of the default build-only run exactly
+once, and refuses a planted dropped and a planted duplicated suite.
 
 --shard INDEX/4 schedules the complete gate across four jobs: normal suites,
 control mutants, AECP mutants, and SRP mutants with the pin controls.
@@ -134,6 +138,7 @@ Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only --build-part 0/2
 
 Exit 0 = every arm passed and every planted defect reddened (with
 --build-only, every binary built); 1 = a finding;
@@ -147,6 +152,7 @@ import argparse
 import os
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -179,37 +185,58 @@ def shard_part(text: str) -> tuple[int, int]:
     return int(index), int(count)
 
 
+def build_part(text: str) -> tuple[int, int]:
+    """INDEX/COUNT, 0 <= INDEX < COUNT: one member of a build-only partition of the normal suites (#980)."""
+    index, _, count = text.partition("/")
+    if not (index.isdigit() and count.isdigit() and 0 <= int(index) < int(count)):
+        raise argparse.ArgumentTypeError(f"{text!r} is not INDEX/COUNT with 0 <= INDEX < COUNT")
+    return int(index), int(count)
+
+
 def selected_phases(shard: tuple[int, int] | None) -> tuple[str, ...]:
     """Keep the default complete; each hosted member owns one whole phase."""
     return PHASES if shard is None else (PHASES[shard[0]],)
 
 
-def run_suites(args: argparse.Namespace, tree: Tree) -> list:
-    """The normal suites, including compiled service bounds and each live shape."""
-    outcomes = [ctrl_arms.arm_service_bounds(tree), ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree),
-                ctrl_arms.arm_portable(tree),
-                ctrl_arms.arm_adp(tree),
-                ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
-                ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
-                ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
-                ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
-                ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
-                ctrl_arms.arm_srpcmp(), ctrl_arms.arm_hot()]
+def suite_arms(args: argparse.Namespace, tree: Tree) -> list[Callable[[], object]]:
+    """The normal suites, in their order, each not yet run: an arm's outcome, or a composite's list of them."""
+    arms: list[Callable[[], object]] = [
+        lambda: ctrl_arms.arm_service_bounds(tree), lambda: ctrl_arms.arm_model(tree),
+        lambda: ctrl_arms.arm_port(tree), lambda: ctrl_arms.arm_portable(tree), lambda: ctrl_arms.arm_adp(tree),
+        lambda: ctrl_arms.arm_unit(tree), lambda: ctrl_arms.arm_walk(tree), lambda: ctrl_arms.arm_acmp(tree),
+        lambda: ctrl_arms.arm_acmpwalk(tree), lambda: ctrl_arms.arm_acmpnvm(tree),
+        lambda: ctrl_arms.arm_acmpif2(tree), lambda: ctrl_arms.arm_entity(tree),
+        lambda: ctrl_arms.arm_rv32(tree, args.require_rv32), lambda: ctrl_arms.arm_maap(tree),
+        lambda: ctrl_arms.arm_maap_debug(tree), lambda: ctrl_arms.arm_maap_if2(tree),
+        lambda: ctrl_arms.arm_reentry_debug(tree), lambda: ctrl_arms.arm_reentry_release(tree),
+        lambda: ctrl_arms.arm_srpcmp(), lambda: ctrl_arms.arm_hot()]
     if args.lwsrp is not None:
-        outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+        arms.append(lambda: ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
         for i in (1, 2):
-            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
-            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+            arms.append(lambda i=i: srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+            arms.append(lambda i=i: srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
             for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
                           "srp_latency.cpp", "srp_walk.cpp"):
-                outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
-        outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
-        outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
-        outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
-        outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
-    outcomes.extend(aecp_arms.all_arms(tree))
-    outcomes.extend(plat_arms.all_arms(tree, args.require_rv32))
-    outcomes.extend(plat_arms.sink_arms(tree))
+                arms.append(lambda i=i, suite=suite: srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+        arms.append(lambda: srp_arms.talker_arms(tree, args.lwsrp.resolve()))
+        arms.append(lambda: srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+        arms.append(lambda: srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
+        arms.append(lambda: srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+    arms.extend(aecp_arms.arms_in_order(tree))
+    arms.append(lambda: plat_arms.all_arms(tree, args.require_rv32))
+    arms.append(lambda: plat_arms.sink_arms(tree))
+    return arms
+
+
+def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+    """The normal suites, including compiled service bounds and each live shape, in their order; with
+    --build-part K/N, only the suites whose place in that order is K modulo N (#980)."""
+    index, count = getattr(args, "build_part", None) or (0, 1)
+    outcomes = []
+    for at, arm in enumerate(suite_arms(args, tree)):
+        if at % count == index:
+            made = arm()
+            outcomes.extend(made if isinstance(made, list) else [made])
     return outcomes
 
 
@@ -319,12 +346,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
     ap.add_argument("--build-only", action="store_true",
                     help="build and link every binary and run none (the TSN stack boundary gate's builds)")
+    ap.add_argument("--build-part", type=build_part, metavar="INDEX/COUNT",
+                    help="with --build-only: build only the suites whose place in the order is INDEX modulo COUNT "
+                         "(the TSN stack boundary gate's shards, #980)")
     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
                     help="with --self-test: plant slice K of N of the defect table")
     args = ap.parse_args(argv)
     args.jobs = min(4, max(1, args.jobs))
     if args.build_only and args.self_test:
         ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
+    if args.build_part is not None and (not args.build_only or args.coverage is not None or args.shard is not None):
+        ap.error("--build-part requires --build-only and excludes --coverage and --shard")
     if args.shard is not None and (not args.self_test or args.coverage is not None
                                   or args.mutation_shard is not None or args.slice != (1, 1)):
         ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
@@ -340,6 +372,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.shard is not None:
         from test_ctrl_firmware_shards import run_cases
         run_cases(sys.modules[__name__])
+    if args.build_part is not None:
+        from test_ctrl_firmware_shards import build_part_cases
+        build_part_cases(sys.modules[__name__], args.build_part[1])
     print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)

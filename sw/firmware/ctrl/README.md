@@ -129,7 +129,8 @@ Its output and dependency options are dropped as the expansion drops them, its o
 The recorder resolves every file the pass names while it is there, and keeps the list and the tree in the capture.
 It then runs the compile itself, waits for it, and records its exit status with the invocation.
 Python builders load an audit hook that names, for each compile, the builder files on the stack that started it, and records any compiler a builder runs by a path no wrapper stands on.
-Run without `--capture`, as the hosted `firmware-boundary` and `firmware-verilator` jobs run it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+Run without `--capture`, as the hosted `firmware-verilator` job runs it, the gate first runs every known builder it judges under a capture of its own, by that builder's own build commands: its builds, not its suites.
+The hosted `firmware-boundary` job judges the same builds made in shards (#980), described below.
 A suite builder's builds are its `--build-only` (`test_ctrl_firmware.py`, `test_ctrl_nvm.py` and `fw_coverage.py`): every binary and image its suites build, built and linked, none run and no defect planted.
 The sixth capture builds both F5 gap-check shapes with `stream_counter_f5.py --build-only`.
 It links the AECP core and mailbox adapter without running tests.
@@ -157,9 +158,17 @@ So does a compiler run by a path no wrapper stands on: one a Python builder star
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
 `--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-boundary` has no Verilator.
 `--only verilator` judges those three alone, under the gate's own capture, and names the others.
+The `--without verilator` run's builds are cut into shards ([`ctrl_configs.py`](test/ctrl_configs.py), `SHARDS`, #980).
+Each unit of that compile set is one run of a known builder; the control gate's run is cut into two by its `--build-part`.
+`--shard K/N --capture-out <capture>` builds shard K's units under a capture of its own and judges nothing, as each hosted `firmware-boundary-shards` job does.
+Given every shard's capture (`--capture` each, `--shards N`), as the hosted `firmware-boundary` job is, the gate requires each unit's run in exactly one of them.
+It refuses, by name, a unit no capture holds a run of, one two captures hold, and a run that is no unit's; it then judges the captures as one, with the controls and the self-test once.
+Every run also holds the shards' table to the compile set: a unit no shard builds, or two build, is named.
+The self-test's shard controls drop the first unit from the table and add it to a second shard; given the shards' captures, they drop that unit's run and repeat it; each must be refused naming the unit.
+`--build-part` first proves, through the control gate's live dispatch, that its parts build every suite of the default build-only run once, and refuses a planted dropped and a planted duplicated suite.
 Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
-The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
+The boundary and Verilator paths partition the builders. Each recorded compile is judged whole; the boundary aggregate judges the shard captures.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
 Each must be a known builder, be listed in `PART_OF` with the builder it runs under, in `OUTSIDE` with the reason its compiles are none of the firmware's, or in `SUITES` with what it compiles only inside a suite; one that is no program (a Makefile, or a Python module with a `__main__` block, is one) may instead have compiled in the capture.
 So a builder dropped from the known set refuses the gate by name, even where another builder still runs it.
@@ -623,11 +632,13 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
 python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --capture <capture> --without verilator
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --without verilator --shard <k>/3 --capture-out <capture k>
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --shards 3 --capture <capture 0> --capture <capture 1> --capture <capture 2>
 ```
 
 `--build-only` builds and links every arm's binaries and runs none; it plants nothing and ends `BUILT`, never `PASS`.
 The first boundary command runs every known builder by its builds under a capture of its own first (Verilator from `VERILATOR` or `PATH`).
-The second is the `firmware-boundary` job's: every known builder but those that need Verilator (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
+The second judges every known builder but those that need Verilator in one run; the `firmware-boundary` job judges the same compile set built in shards, as the last two commands do (see [CI workflows](../../../docs/testing/CI_WORKFLOWS.md)).
 The third judges a capture made of any builder's commands, each run as `ctrl_capture.py --out <capture> -- <command>`.
 
 Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML (the

@@ -116,6 +116,8 @@ def observe(jobs: list[dict], expected: set[str],
             skipped: dict[str, list[str]] | None = None) -> tuple[bool, dict | None]:
     """Do not confuse an empty startup response with successful completion."""
     skipped = skipped or {}
+    if set(skipped) & expected:
+        raise ValueError("an unexpanded matrix name equals an expanded job name")
     terminal_names = {"Fail fast across this head", "Cancel late CI failures"}
     if {job["name"] for job in jobs} - expected - set(skipped) - terminal_names:
         raise ValueError("API returned an unplanned job name")

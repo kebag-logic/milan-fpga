@@ -1588,14 +1588,14 @@ jobs:
             shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator
             shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator shard 18/19","verilator-suites","yosys-portability","Yosys
             shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
-          SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
-            0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator shard
-            4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator shard
-            8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator shard 11/19","Verilator shard
-            12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator shard 15/19","Verilator
-            shard 16/19","Verilator shard 17/19","Verilator shard 18/19"],"Yosys shard ${{ matrix.shard
-            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
-            3/4"]}'
+          SKIPPED_MATRICES: '{"Verilator shard \u0024{{ matrix.shard }}/\u0024{{ matrix.total }}":["Verilator
+            shard 0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator
+            shard 4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator
+            shard 8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator shard 11/19","Verilator
+            shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator shard 15/19","Verilator
+            shard 16/19","Verilator shard 17/19","Verilator shard 18/19"],"Yosys shard \u0024{{ matrix.shard
+            }}/\u0024{{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys
+            shard 3/4"]}'
         run: |
           python3 scripts/ci_fail_fast.py watch
       - name: Cancel this run and sibling workflows
