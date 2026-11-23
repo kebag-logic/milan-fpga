@@ -339,8 +339,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0 and the "
-                                          f"platform's 8x8 image with one at 58.0 ({held})")
+                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.5, the "
+                                          f"platform's 8x8 image with one at 59.0 and the size fixture's at 56.5 "
+                                          f"({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
