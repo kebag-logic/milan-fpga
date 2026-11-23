@@ -1,0 +1,85 @@
+Note: Google Test filter = Core.MapEditWorkObservesEachOutputStreamOnce:Core.MapEditsAreTheirDefinitionRowForRow
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Core
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2963: Failure
+Expected equality of these values:
+  reads
+    Which is: 3
+  want.reads
+    Which is: 1
+the edit reads its port once for each output stream its definition reaches
+Google Test trace:
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2958: edit 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: <checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2958: edit 0
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 1 vs 20
+the seeded edits include ADD 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 0
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include ADD 7
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 7
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include ADD 8
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include ADD 8
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include REMOVE 0
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include REMOVE 0
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include REMOVE 7
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include REMOVE 7
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include a REMOVE that keeps a row equal to one it removed
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include a REMOVE that keeps a row equal to one it removed
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:2975: Failure
+Expected: (seen[name]) >= (20u), actual: 0 vs 20
+the seeded edits include an output edit refused after its port is read
+
+  [FAIL] Core.MapEditsAreTheirDefinitionRowForRow: the seeded edits include an output edit refused after its port is read
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (0 ms)
+[ RUN      ] Core.MapEditWorkObservesEachOutputStreamOnce
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:3000: Failure
+Expected equality of these values:
+  observed
+    Which is: { 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, ... }
+  (Streams{0,1})
+    Which is: { 0, 1 }
+an edit observes each stream it maps once, in its order
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+<checkout>/sw/firmware/ctrl/test/test_aecp.cpp:3003: Failure
+Expected equality of these values:
+  observed
+    Which is: { 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, ... }
+  (Streams{0,1})
+    Which is: { 0, 1 }
+an edit observes each stream it maps once, in its order
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce (0 ms)
+[----------] 2 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

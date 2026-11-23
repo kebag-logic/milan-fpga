@@ -1,0 +1,137 @@
+{
+  "policy": "Only host-diagnostic local path prefixes replaced; native gzip logs are unchanged raw bytes.",
+  "files": [
+    {
+      "file": "core.log",
+      "original_sha256": "0de5bc3eda5ca1ff5d17f96c306c2fcc3d9328dcee1da51cb85e9984a53e88e1",
+      "published_sha256": "720777043375e42bc4007b2f89f40879a4cce515b5214513f30e57abed67708d",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "harness-shard-0.log",
+      "original_sha256": "432f71a4a77d51639b2f932d9f40e62446adebfa2a6117643404d059db3e3046",
+      "published_sha256": "432f71a4a77d51639b2f932d9f40e62446adebfa2a6117643404d059db3e3046",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-1.log",
+      "original_sha256": "54281db25c5b66d1fd393560ef6f208e6a7f5ad93d0099ef50dbdb1924aab19c",
+      "published_sha256": "54281db25c5b66d1fd393560ef6f208e6a7f5ad93d0099ef50dbdb1924aab19c",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-2.log",
+      "original_sha256": "160828ef762fbc9b62017cf92c1def5b3e5eea0a6ccf47e19b4294e118eaf6f0",
+      "published_sha256": "160828ef762fbc9b62017cf92c1def5b3e5eea0a6ccf47e19b4294e118eaf6f0",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-3.log",
+      "original_sha256": "af7d35e7557c9e0a45b8b2271593f56bfb886ea95255a92b925ccaa010e309ca",
+      "published_sha256": "af7d35e7557c9e0a45b8b2271593f56bfb886ea95255a92b925ccaa010e309ca",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-4.log",
+      "original_sha256": "f2cfc8e083d7df441abcbb6d5629e02528efcb387fc4c86cbe1ee1b2e0ff4772",
+      "published_sha256": "f2cfc8e083d7df441abcbb6d5629e02528efcb387fc4c86cbe1ee1b2e0ff4772",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-5.log",
+      "original_sha256": "edb839704378fa9c9f4eb75d7ccc6d385e7fa4b970ef1dcaf4dcf8b7ba082f0a",
+      "published_sha256": "edb839704378fa9c9f4eb75d7ccc6d385e7fa4b970ef1dcaf4dcf8b7ba082f0a",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-6.log",
+      "original_sha256": "faf752bb6ddb108223c03bd8ae6811d2d287157c6898f0435cdb605c0b4512de",
+      "published_sha256": "faf752bb6ddb108223c03bd8ae6811d2d287157c6898f0435cdb605c0b4512de",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "harness-shard-7.log",
+      "original_sha256": "bd76e363b7ddd33105dd90d4a5d0a1da9fae6cc95cb459a8bf17ac5b9a51a6e5",
+      "published_sha256": "bd76e363b7ddd33105dd90d4a5d0a1da9fae6cc95cb459a8bf17ac5b9a51a6e5",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "probe-base.log",
+      "original_sha256": "39b15715046bc46d02b8523188894b8febf47c2010cb8d996e13bfe105074a17",
+      "published_sha256": "4e063d5abc72b8b1dd9dadf24ca86a25a92f0bf027cd599eaeb5ec684d49a280",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-head.log",
+      "original_sha256": "01cec69b9f865bdc4d76b6844d9a35c06cce17bdf2a9e7f688670a94299899b2",
+      "published_sha256": "01cec69b9f865bdc4d76b6844d9a35c06cce17bdf2a9e7f688670a94299899b2",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "probe-later-unanswered-base.log",
+      "original_sha256": "345540e17d8d273025fc415c5227c20403e7032498534d47574f1f2aa9466b86",
+      "published_sha256": "345540e17d8d273025fc415c5227c20403e7032498534d47574f1f2aa9466b86",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "probe-later-unanswered-head.log",
+      "original_sha256": "345540e17d8d273025fc415c5227c20403e7032498534d47574f1f2aa9466b86",
+      "published_sha256": "345540e17d8d273025fc415c5227c20403e7032498534d47574f1f2aa9466b86",
+      "path_prefixes_redacted": false
+    },
+    {
+      "file": "probe-map-checked-before-its-read.log",
+      "original_sha256": "cccb29d755a6b9920b46788048781f5cd8c4db2edc02f49408670345ce5425bf",
+      "published_sha256": "4fbb698103c3386defdee2c7755c1d06481266f11cbb9d03b8e3a83fddbdd62c",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-idle-reads-whole.log",
+      "original_sha256": "50a9de7e92012cfa1139cc1171cd9a0d9379d51e8e56a67af5bc70ca80b6153c",
+      "published_sha256": "0a637ddd46d67e03111e2dcb79fd281242e2863849237357ed61fb77c1c9b012",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-owners-unread.log",
+      "original_sha256": "642fa1ed48bfbc55e1160c50dd3bdc915d985c562621decbe5bb3794dd2aaf52",
+      "published_sha256": "a545d54cfa486da801f583e73ad1661461832cf1a9c7f615293d2ce7da4d4fb1",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-port-rows-unread.log",
+      "original_sha256": "68a7ea426a49f23f9b183fbdccf151c916d883519a63cdf22f717855c3135f82",
+      "published_sha256": "fb4ec91b94cb064e88a3e3b8dbdca22c7d40d45446eabb52e82af57d3f43d3b9",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-stream-idle-one-bit.log",
+      "original_sha256": "3d5a01d8b0688b7b2b8db901415bb76d8ae7fe15421349c6fe051d3ad89864c4",
+      "published_sha256": "7c3f9e0cc57ae92286d5bbd8060d1d13fb5a0e329454069d266c5df138d22c97",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-stream-idle-uncleared.log",
+      "original_sha256": "0316a16344bb8d1ef96c7e07ed8d1f1a1bfcd351cf97313573f21593e17fca9b",
+      "published_sha256": "72f971a34f909e4d7ec63d2459a8c23c697b09e894cc1e1ba43be818efac476a",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-stream-observed-every-mapping.log",
+      "original_sha256": "8fe324a330aa09ab7732f719566726700d98a3c6e8eb96b3c83e23eae1d21aff",
+      "published_sha256": "a9fe67cc2fc8c1f6e16eeca6a572bc9b803606ec36c9634f8d0ae12e553032cc",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "probe-map-stream-running-accepted.log",
+      "original_sha256": "8d890799936c50dcb896e40cc1c345fa91805fa3ffdb1d290ecb2d21e59cada0",
+      "published_sha256": "f657e820af9f3ed6b1d8da79d5768c054ed93366700980527513be42618a7170",
+      "path_prefixes_redacted": true
+    },
+    {
+      "file": "shard-selftest.log",
+      "original_sha256": "0d1c6f7941de8f42b8437c08344cc44f2f7c3fe4d784162741e28a0765de94ed",
+      "published_sha256": "0d1c6f7941de8f42b8437c08344cc44f2f7c3fe4d784162741e28a0765de94ed",
+      "path_prefixes_redacted": false
+    }
+  ]
+}

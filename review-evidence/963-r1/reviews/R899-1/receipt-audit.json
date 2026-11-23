@@ -1,0 +1,202 @@
+{
+  "publication_commit": "e31126d8e3c975f09a9c539f1496d3bccf44e8f2",
+  "checked_published_hashes": 703,
+  "paired_groups": 481,
+  "exact_groups": 481,
+  "group_counts": {
+    "1x1/answering-every-port": 16,
+    "1x1/answering-later": 8,
+    "1x1/answering-ports": 100,
+    "1x1/declaring-outputs": 5,
+    "1x1/none": 99,
+    "1x1/shutdown-entry": 2,
+    "1x1/talker-notices": 8,
+    "1x1/valid-destinations": 3,
+    "8x8-1if/answering-every-port": 16,
+    "8x8-1if/answering-later": 8,
+    "8x8-1if/answering-ports": 100,
+    "8x8-1if/declaring-outputs": 5,
+    "8x8-1if/none": 98,
+    "8x8-1if/shutdown-entry": 2,
+    "8x8-1if/talker-notices": 8,
+    "8x8-1if/valid-destinations": 3
+  },
+  "targets": [
+    {
+      "point": "1x1",
+      "arm": "answering-ports",
+      "group": "aecp-largest-notice",
+      "exact": true,
+      "difference": null,
+      "changed_frames": {},
+      "changed_unsolicited_frames": 0,
+      "first": null,
+      "frames": 59,
+      "target": true,
+      "over": [
+        0,
+        0
+      ],
+      "longest": [
+        145380,
+        136285
+      ],
+      "stated": [
+        0,
+        0
+      ],
+      "rc": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "point": "1x1",
+      "arm": "declaring-outputs",
+      "group": "aecp-largest-notice",
+      "exact": true,
+      "difference": null,
+      "changed_frames": {},
+      "changed_unsolicited_frames": 0,
+      "first": null,
+      "frames": 59,
+      "target": true,
+      "over": [
+        0,
+        0
+      ],
+      "longest": [
+        146088,
+        137072
+      ],
+      "stated": [
+        0,
+        0
+      ],
+      "rc": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "point": "1x1",
+      "arm": "none",
+      "group": "aecp-largest-notice",
+      "exact": true,
+      "difference": null,
+      "changed_frames": {},
+      "changed_unsolicited_frames": 0,
+      "first": null,
+      "frames": 59,
+      "target": true,
+      "over": [
+        0,
+        0
+      ],
+      "longest": [
+        144353,
+        135258
+      ],
+      "stated": [
+        0,
+        0
+      ],
+      "rc": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "point": "8x8-1if",
+      "arm": "answering-ports",
+      "group": "aecp-largest-notice",
+      "exact": true,
+      "difference": null,
+      "changed_frames": {},
+      "changed_unsolicited_frames": 0,
+      "first": null,
+      "frames": 59,
+      "target": true,
+      "over": [
+        2,
+        0
+      ],
+      "longest": [
+        222104,
+        149307
+      ],
+      "stated": [
+        0,
+        0
+      ],
+      "rc": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "point": "8x8-1if",
+      "arm": "declaring-outputs",
+      "group": "aecp-largest-notice",
+      "exact": true,
+      "difference": null,
+      "changed_frames": {},
+      "changed_unsolicited_frames": 0,
+      "first": null,
+      "frames": 59,
+      "target": true,
+      "over": [
+        2,
+        0
+      ],
+      "longest": [
+        227112,
+        153071
+      ],
+      "stated": [
+        0,
+        0
+      ],
+      "rc": [
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "calibrated_head_arms": 16,
+  "placement_proofs": 16,
+  "load": {
+    "1x1/1if": {
+      "base": 0.4891093771929825,
+      "head": 0.4891093771929825,
+      "delta": 0.0,
+      "within_owner": true,
+      "no_regression": true
+    },
+    "8x8/1if": {
+      "base": 0.6008172807017544,
+      "head": 0.6008172807017544,
+      "delta": 0.0,
+      "within_owner": true,
+      "no_regression": true
+    }
+  },
+  "shard_invocations": [
+    {
+      "suite": 88
+    },
+    {
+      "control": 827
+    },
+    {
+      "aecp": 390
+    },
+    {
+      "srp-if2": 359,
+      "srp-if1": 167,
+      "srp-if1-endstation_ax7101_8x8": 15,
+      "lwsrp": 1
+    }
+  ],
+  "note": "Published evidence audited; this script does not execute the 481 simulations or full campaigns."
+}
