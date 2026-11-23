@@ -1,0 +1,25 @@
+{
+  "issue": "https://github.com/kebag-logic/milan-fpga/issues/584",
+  "ownerDecision": [
+    {
+      "id": 7092564847,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7092564847",
+      "body": "[A10] **Owner disposition (2026-11-23 06:36): PR #975 is approved as is.** At 8x8/1if:\n- STREAM_PORT_INPUT 0 owns one cluster on TDM32 slot 0 (the first TDM channel);\n- ports 1-7 each own one documented \"Unrouted S<p>\" cluster;\n- no input cluster is backed by the loopback lane, which stays off at 8x8.\n\nThis closes R894-1-F1 and R893-1-F1 (the backing's owner disposition).\n\nFollow-up (separate work, not part of #975): a block-RAM loopback fed through the input mapping (a real \"Loopback\" input cluster whose samples a talker re-transmits), designed and measured on its own branch, replacing the flop-based lane's +2.3k LUT / +1.5k FF."
+    }
+  ],
+  "publication": {
+    "sha": "faacf4dfb277313f6cbe7804a995dbbd5227a12c",
+    "verification": {
+      "verified": false,
+      "reason": "unsigned",
+      "signature": null,
+      "payload": null,
+      "verified_at": null
+    }
+  },
+  "pr": {
+    "head": "3cda030c174b325e36c26af6420487ff91346d15",
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/975"
+  },
+  "processor": "[A348] STOP disposition: retain F07.2's STREAM_PORT_INPUT-to-AUDIO_CLUSTER_IN multiplicity `1..*`.\n\nMilan Specification v1.2 §5.3.3.8, printed p. 27 (PDF p. 34), states: “Each Stream Port Input of a Configuration shall contain at least one AUDIO_CLUSTER descriptor.” The same clause imposes the corresponding output minimum.\n\nMilan §5.3.3.7 requires the STREAM_PORT descriptor format from IEEE 1722.1 §7.2.13 and prohibits attached input AUDIO_MAP descriptors. IEEE Std 1722.1-2021 §7.2.13, pp. 81–82, Table 7-23, defines number_of_clusters at offset 12: “The number of clusters within the Port.” Dynamic mapping uses number_of_maps=0; it does not waive Milan's cluster minimum.\n\nThe zero-cluster 8x8 input pools recorded by parent D8 (docs/ENDSTATION_BUILDER.md) and docs/reference/PP_DESCRIPTOR_OWNERSHIP.md therefore conflict with Milan §5.3.3.8. Their correction is a parent decision. Successful packing is no waiver. No F07.2 multiplicity edit will be made in this lane; #125's separate documentation work continues.\n"
+}

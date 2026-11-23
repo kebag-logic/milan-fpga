@@ -1,0 +1,14 @@
+PASS exact head/tree; delta is only the three specified documentation files
+1	1	CHANGELOG.md
+4	4	docs/ENDSTATION_BUILDER.md
+1	1	docs/reference/PP_DESCRIPTOR_OWNERSHIP.md
+PASS public manifest: 270 author files match published SHA256 (review reports excluded)
+PASS round-3 index: 159 exact size/hash rows, complete file coverage
+PASS historical correction author-r2/receipts/f5/round1-INDEX-corrected.md: 80 exact size/hash rows
+PASS historical correction author-r3/receipts/f5/round2-INDEX-corrected.md: 16 exact size/hash rows
+PASS parent raw bytes/modes/index: 1944 blobs; 6 exact gitlink index entries
+PASS required gitlink gptp-processor 1616fc8f062fbf58c35ad31674b5b233207bbdb8: 115 raw blobs/modes and exact index
+PASS required gitlink protocol-processor 801ef2283ec793e35a2590fc6593c90313a64041: 868 raw blobs/modes and exact index
+PASS required gitlink third_party/tsn-c-stack 715589c1db7cf67e2f3259fd7083ebc7f0923376: 100 raw blobs/modes and exact index
+PASS required gitlink third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce: 214 raw blobs/modes and exact index
+PASS no tracked source edits; no source mutation or hardware execution performed

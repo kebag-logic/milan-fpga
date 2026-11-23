@@ -1,0 +1,18 @@
+Command: make -C tb/verilator/milan_dp_render ship8-mutants
+Head: 599c79af9cfe242bc3d60dd1c80f3e8d57cca12e
+[PASS] the unplanted leg passes
+[PASS] plant caught: projection: input key 0 onto render key 3, past the one-slot lane - breaks "P1 POWER-ON: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: projection: unrouted port 1's cluster onto render key 2, the lane's key - breaks "U3: render keys 0-9 hold port 0's mapping on key 2 and nothing else" and 1 more
+[PASS] plant caught: adapter: the walk's first write takes the key after the lane base - breaks "P3 POWER-ON RENDER: slot 0 carries stream 0 channel 0 in every frame" and 1 more
+[PASS] plant caught: bus binding: the serializer framed as eight slots inside the 32-slot bus frame - breaks "P3 POWER-ON RENDER: slots 1-31 carry zero in every frame" and 1 more
+[PASS] plant caught: zero tail: slots past the lane copy slot 0 - breaks "P3 POWER-ON RENDER: slots 1-31 carry zero in every frame" and 0 more
+[PASS] plant caught: epoch mask: a bind fall on any stream closes the lane's epoch - breaks "B1: a bind fall on stream 5, which the lane does not render, opens no epoch" and 0 more
+[PASS] plant caught: edit direction: every REMOVE taken as an ADD - breaks "X2 SILENCE: all 32 slots are digital silence in every frame" and 0 more
+[PASS] refused at elaboration: bus binding: BUS_SLOTS_P bound to the render width - "does not match $clog2(BUS_SLOTS_P*SLOT_BITS_P)"
+[PASS] leg defect caught (--defect-stale-rebind): stale: stream 0's pre-loss events replayed just after the rebind - breaks "B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past"
+[PASS] leg defect caught (--defect-stale-reset): stale: stream 0's pre-reset events replayed just after the post-reset bind - breaks "Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past"
+
+11 checks: 11 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION_STORAGE/584-a818/clones/r3ship/tb/verilator/milan_dp_render'
+MUTANTS WALL 466.10 s
+mutants_rc=0
