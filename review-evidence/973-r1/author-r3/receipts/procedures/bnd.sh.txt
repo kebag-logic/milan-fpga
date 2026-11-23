@@ -1,0 +1,8 @@
+#!/bin/bash
+# bnd.sh CLONE: the firmware boundary gate, ctrl_boundary.py --require-rv32 --selftest (CI_WORKFLOWS.md), on CLONE.
+export MAKEFLAGS="-j8 --no-print-directory"
+cd "$1" || exit 3
+echo "HEAD $(git rev-parse --short=8 HEAD) dirty $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest; rc=$?
+echo "dirty-after $(git status --porcelain --untracked-files=no | wc -l)"
+echo "END rc=$rc $(date +%T)"; exit $rc

@@ -1,0 +1,294 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index b74d2993f9..d88d9a234a 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -66,6 +66,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - A first UP keeps the clean startup participants.
+ - A DOWN still fails closed from the LINK register.
+ - Re-attach follows an up link with no LINK owed.
++- An UP elided by a DOWN authorizes no later UP.
+ 
+ ## Unreleased - the Mark II split ships
+ 
+diff --git a/sw/firmware/ctrl/srp/README.md b/sw/firmware/ctrl/srp/README.md
+index ec0f4266c2..b973f796bb 100644
+--- a/sw/firmware/ctrl/srp/README.md
++++ b/sw/firmware/ctrl/srp/README.md
+@@ -117,6 +117,10 @@ Otherwise it takes an UP only once no LINK is owed (`carried_up`).
+ A poll that reads such an UP marks it; a later poll takes it if no LINK came and its pass's take emptied the ring.
+ The fabric posts a LINK first once the ring has room, and one pass takes fewer records than a full ring holds.
+ So a LINK owed at the mark has been taken by then.
++A poll that reads a DOWN clears the mark, so the mark holds only while each poll reads the link up.
++A DOWN can elide the marked UP's record; the UP after it is owed a LINK of its own, posted after the takes the mark saw.
++So an UP after a DOWN is taken from its LINK: the first keeps the startup participants, and a later one resets once.
++A DOWN that no poll reads ends between two polls, sooner than a dropped link renegotiates (IEEE 802.3-2022 28.3.2).
+ The register can rise after the loop took a pass's events, before SRP's poll reads it.
+ A reset on that level would make the next pass's LINK a repeated UP, which resets the interface again.
+ So a first UP would lose the clean startup participants, and a later UP would reset twice.
+@@ -124,7 +128,8 @@ The same rule follows the link after a re-attach that read a DOWN whose record t
+ It also takes an UP that SRP's sink dropped on a re-entry, counted in `reentries`.
+ A DOWN inside a pass still resets the interface twice: the poll's reset, then its LINK's.
+ Nothing transmits on the down link between the two.
+-`srp_link_pass.cpp` moves the link at each phase of a pass, behind a full event ring, and across a re-attach.
++`srp_link_pass.cpp` moves the link at each phase of a pass, behind a full event ring, across a DOWN that elides an UP,
++and across a re-attach.
+ It runs in a process of its own at 1x1/1if and 8x8/1if.
+ 
+ `ctrl_app_attach_srp` wires the ACMP environment's SRP port into a static
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.c b/sw/firmware/ctrl/srp/srp_mbx.c
+index 2eb99eafa4..7fc6773d63 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.c
++++ b/sw/firmware/ctrl/srp/srp_mbx.c
+@@ -1270,21 +1270,27 @@ static CTRL_CC_NOINLINE int build_mrpdu(struct srp_mbx *m, struct srp_interface
+     return result;
+ }
+ 
+-// Whether the UP the LINK register reads is carried (#973): by the last LINK the loop dispatched (bit 0 of
+-// link_carried), or by none owed. A poll that reads it uncarried marks it (bit 1), and a later poll takes it if no
+-// LINK has come by then and the loop's take in that poll's pass ended on an empty ring (events_left); a LINK's level
+-// replaces both bits. Only the loop takes events, and the fabric posts a LINK first of its sources once the ring has
+-// room (KL_mbx_evt.sv). So a LINK owed at the marking poll was posted then, if the ring had room, or else as the next
+-// take made room, a take that stops at CTRL_LOOP_EVENTS_PER_PASS of the full ring's MBX_EVT_WORDS / MBX_EV_WORDS
+-// records; either way a later take that empties the ring takes it. So a re-attach that read a DOWN whose record the
+-// fabric then elided, its level back before the record posted, follows the link that is up.
++// Whether the level `up` the LINK register reads is a carried UP (#973): by the last LINK the loop dispatched (bit 0
++// of link_carried), or by none owed. A poll that reads an uncarried UP marks it (bit 1), and a later poll takes it if
++// no LINK has come by then and the loop's take in that poll's pass ended on an empty ring (events_left); a LINK's
++// level replaces both bits, and a poll that reads a DOWN clears the mark (the mask). Only the loop takes events, and
++// the fabric posts a LINK first of its sources once the ring has room (KL_mbx_evt.sv). So a LINK owed at the marking
++// poll was posted then, if the ring had room, or else as the next take made room, a take that stops at
++// CTRL_LOOP_EVENTS_PER_PASS of the full ring's MBX_EVT_WORDS / MBX_EV_WORDS records; either way a later take that
++// empties the ring takes it. A DOWN can elide that UP's record, and the UP after it is owed a LINK of its own, posted
++// after takes the mark rests on: so the mark holds only while each poll reads the link up. A DOWN that no poll reads
++// ends between two of SRP's polls, and a link the PHY dropped renegotiates for longer (IEEE 802.3-2022 28.3.2,
++// break_link_timer). So a re-attach that read a DOWN whose record the fabric then elided, its level back before the
++// record posted, follows the link that is up, and an UP after a DOWN is taken from its own LINK.
+ _Static_assert(CTRL_LOOP_EVENTS_PER_PASS < MBX_EVT_WORDS / MBX_EV_WORDS, "a full event ring outlasts one take");
+-static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
++static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+ {
+-    if ((i->link_carried & 1u) == 0u) {
+-        i->link_carried = (uint8_t)((i->link_carried >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u);
++    unsigned c = i->link_carried;
++    if ((c & 1u) == 0u) {
++        c = ((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up;
++        i->link_carried = (uint8_t)c;
+     }
+-    return (i->link_carried & 1u) != 0u;
++    return c & up;
+ }
+ 
+ static bool poll(void *ctx)
+@@ -1300,7 +1306,7 @@ static bool poll(void *ctx)
+     // participants it keeps, and a later one would reset the interface twice.
+     bool links[MBX_N_IF];
+     for (unsigned n = 0; n < MBX_N_IF; ++n) {
+-        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);
++        links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));
+     }
+     // Interface n builds before the one whose turn it is only when that one does not build in this poll.
+     const unsigned turn = m->build_turn % MBX_N_IF;
+diff --git a/sw/firmware/ctrl/srp/srp_mbx.h b/sw/firmware/ctrl/srp/srp_mbx.h
+index cbd61eb4e2..aa7363822b 100644
+--- a/sw/firmware/ctrl/srp/srp_mbx.h
++++ b/sw/firmware/ctrl/srp/srp_mbx.h
+@@ -64,8 +64,8 @@ struct srp_interface {
+     bool link_seen;
+     bool link;
+     // Bit 0 the level the last LINK the loop dispatched carried, the register's at attach; bit 1 set by a poll that
+-    // read an UP no LINK carried. The poll takes an UP only while bit 0 is set, or once no LINK is owed after bit 1
+-    // was set (#973; srp_mbx.c, carried_up)
++    // read an UP no LINK carried, cleared by one that reads a DOWN. The poll takes an UP only while bit 0 is set, or
++    // once no LINK is owed after bit 1 was set (#973; srp_mbx.c, carried_up)
+     uint8_t link_carried;
+     bool vlan_sent;
+     bool domain_owed;
+diff --git a/sw/firmware/ctrl/test/srp_link_mutants.py b/sw/firmware/ctrl/test/srp_link_mutants.py
+index 38b7acc218..e114be8e50 100644
+--- a/sw/firmware/ctrl/test/srp_link_mutants.py
++++ b/sw/firmware/ctrl/test/srp_link_mutants.py
+@@ -4,11 +4,12 @@
+ the loop dispatched carried (link_carried).
+ 
+ SRP's poll takes a DOWN as the LINK register reads it, and an UP only while the last LINK the loop dispatched carried
+-one, or once no LINK is owed; attach carries the register's level (srp_mbx.c, poll, carried_up, on_event,
+-srp_mbx_attach). srp_mutants.py plants each into a copy of sw/firmware/ctrl with the rest of its table, and the named
+-test must fail on its own words: srp_link_pass.cpp's for the level a link that comes up inside a pass or behind a full
+-event ring shows and for a re-attach whose DOWN record was elided, srp_mbx.cpp's for the DOWN that fails closed and
+-for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
++one, or once no LINK is owed, a poll that reads a DOWN clearing the mark that the take of an UP no LINK carried rests
++on; attach carries the register's level (srp_mbx.c, poll, carried_up, on_event, srp_mbx_attach). srp_mutants.py
++plants each into a copy of sw/firmware/ctrl with the rest of its table, and the named test must fail on its own
++words: srp_link_pass.cpp's for the level a link that comes up inside a pass or behind a full event ring shows, for a
++fresh UP after an UP a DOWN elided, and for a re-attach whose DOWN record was elided, srp_mbx.cpp's for the DOWN that
++fails closed and for the level attach learns. The one-interface campaigns plant them at 1x1/1if and at 8x8/1if
+ (test_ctrl_firmware.run_srp_mutants), the two-interface campaign at 1x1/2if.
+ """
+ from __future__ import annotations
+@@ -22,11 +23,15 @@ PREFIX = "link-pass-"
+ SUITE = "srp_link_pass.cpp"
+ INSIDE = "SrpLinkPass.AfterTheEventsBeforeSrpsPoll"
+ #: srp_mbx.c's poll, the level it takes for each interface, as it holds it.
+-POLL = "        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);\n"
+-#: carried_up's mark and take of an UP no LINK carried.
+-UNOWED = "        i->link_carried = (uint8_t)((i->link_carried >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u);\n"
++POLL = "        links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));\n"
++#: carried_up's mark and take of an UP no LINK carried, and its clearing of the mark on a DOWN (the mask).
++UNOWED = "        c = ((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up;\n"
++#: carried_up's level: the carried UP the register reads.
++TAKEN = "    return c & up;\n"
+ ELIDED = "Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp"
+ HELD = "SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp"
++FRESH = "SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp"
++FRESH_LATER = "SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp"
+ #: on_event's record of the level a LINK carried, and its first UP, which keeps the startup participants.
+ CARRIED = "        i->link_carried = event->link_up;\n"
+ FIRST_UP = "        if (i->link_seen || !event->link_up) {\n"
+@@ -66,19 +71,33 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
+              "        links[n] = (m->ifs[n].link_carried & 1u) != 0u;\n        (void)carried_up;\n",
+              "adapter.ifs[0].active[0]"),
+         # the register's level ORed with the carried one: a DOWN no longer fails closed
+-        kind(PREFIX + "poll-or-instead-of-and", "LinkLevelLossAndFirstDownEventAreFailClosed", POLL,
+-             "        links[n] = mbx_link_up(n) || carried_up(m, &m->ifs[n]);\n", "adapter.ifs[0].active[0]"),
++        kind(PREFIX + "poll-or-instead-of-and", "LinkLevelLossAndFirstDownEventAreFailClosed", TAKEN,
++             "    return (c | up) & 1u;\n", "adapter.ifs[0].active[0]"),
+         # an UP no LINK carries never taken: a re-attach whose DOWN record was elided never follows the link that is up
+-        kind(PREFIX + "unowed-up-never-taken", ELIDED, UNOWED, "        (void)m;\n        i->link_carried = 2u;\n",
++        kind(PREFIX + "unowed-up-never-taken", ELIDED, UNOWED, "        (void)m;\n        c = 2u & -(unsigned)up;\n",
+              "SRP does not follow a link that is up", suite=SUITE),
+         # a double reset: an uncarried UP taken at once, at a poll whose pass's take found the ring empty, though its
+         # LINK was posted after that take
+         kind(PREFIX + "unowed-up-taken-unmarked", INSIDE, UNOWED,
+-             "        i->link_carried = (uint8_t)(m->loop->events_left ? 2u : 3u);\n",
++             "        c = (m->loop->events_left ? 2u : 3u) & -(unsigned)up;\n",
+              "SRP's poll reset the interface on a level no LINK had carried", suite=SUITE),
+         # a double reset: an uncarried UP taken at the poll after its mark whatever that pass's take left, though its
+         # LINK still waits behind a full ring's records
+         kind(PREFIX + "unowed-up-ignores-the-take", HELD, UNOWED,
+-             "        (void)m;\n        i->link_carried = (uint8_t)(i->link_carried >> 1 | 2u);\n",
++             "        (void)m;\n        c = (c >> 1 | 2u) & -(unsigned)up;\n",
+              "SRP took an UP from the register while its LINK waited behind the ring's records", suite=SUITE),
++        # the fix of an elided UP's mark reverted: a DOWN the poll reads leaves the mark, so a fresh UP raised after a
++        # later pass's take, owed a LINK of its own, is taken on the elided UP's observation: the first UP resets the
++        # interface and loses the startup participants, and a later one resets it twice
++        kind(PREFIX + "mark-survives-a-down", FRESH, UNOWED,
++             "        c = (((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up) | (c & 2u);\n",
++             "SRP's poll took a fresh UP on an elided UP's observation", suite=SUITE),
++        kind(PREFIX + "mark-survives-a-down-later", FRESH_LATER, UNOWED,
++             "        c = (((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up) | (c & 2u);\n",
++             "a later UP resets the interface once", suite=SUITE),
++        # the mask applied before the shift, not after it: a DOWN the poll reads sets the mark instead of clearing
++        # it, so the fresh UP is taken on an observation made while the link was down
++        kind(PREFIX + "mark-masked-before-the-shift", FRESH, UNOWED,
++             "        c = ((c & -(unsigned)up) >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u;\n",
++             "SRP's poll took a fresh UP on an elided UP's observation", suite=SUITE),
+     )
+diff --git a/sw/firmware/ctrl/test/srp_link_pass.cpp b/sw/firmware/ctrl/test/srp_link_pass.cpp
+index 7a6c4f0db2..e590c7c3e5 100644
+--- a/sw/firmware/ctrl/test/srp_link_pass.cpp
++++ b/sw/firmware/ctrl/test/srp_link_pass.cpp
+@@ -8,7 +8,8 @@
+ // which resets the interface again: so a first UP would lose the clean startup participants it keeps (on_event), and
+ // any later UP would reset the interface twice. Four tests move interface 0's link at one phase each: before a pass,
+ // from a sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a
+-// poll after SRP's. Another raises it while the event ring is full, and two re-attach SRP, with the link's DOWN record
++// poll after SRP's. Another raises it while the event ring is full; two more raise it there and drop it before its
++// LINK posts, then raise a fresh UP, the first and a later one; and two re-attach SRP, with the link's DOWN record
+ // elided and with a later UP. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if
+ // (srp_arms.link_pass_arms).
+ #include "srp_fixture.hpp"
+@@ -167,6 +168,79 @@ TEST_F(SrpLinkPass, ALinkUpHeldBehindAFullEventRingIsTheFirstUp) {
+     EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+ }
+ 
++// An UP raised while the event ring is full, then a DOWN before any take makes room: the fabric owes no LINK for that
++// UP any more, since a record posts only when its level differs from the last one posted (KL_mbx_evt.sv), and the ring
++// drains while the link is down. A fresh UP raised after a later pass's events is owed a LINK of its own; the poll that
++// marked the elided UP, and that pass's empty take, observed the ring before the fresh UP rose, so they authorize
++// nothing for it, and SRP takes it from its LINK (#973; srp_mbx.c, carried_up).
++class SrpLinkPassElided : public SrpLinkPass {
++protected:
++    // Interface 0's link up after a pass's events while the ring is full, then down before a take makes room, then the
++    // passes until the loop settles
++    void elided_up() {
++        const srp_interface &i = adapter.ifs[0];
++        const bool seen = i.link_seen;
++        const unsigned before = resets;
++        for (uint16_t type : {uint16_t{MBX_CTRCHG_STREAM_INPUT_TYPE}, uint16_t{MBX_CTRCHG_STREAM_OUTPUT_TYPE}}) {
++            for (uint16_t n = 0; n < 16u; ++n) {
++                mbx_model_face_event(&model, 0, MBX_MODEL_EV_COUNTERS, type, n);
++            }
++        }
++        move_at(Phase::AfterTheEvents, true);
++        ASSERT_TRUE(loop.events_left) << "(the pass took all it may, the ring refilled behind it)";
++        ASSERT_FALSE(model.posted_up[0]) << "(the LINK is held behind the full ring)";
++        mbx_model_set_link(&model, 0, false);
++        settle();
++        ASSERT_FALSE(model.posted_up[0]) << "(the DOWN elided the UP: no LINK posted)";
++        ASSERT_FALSE(loop.events_left) << "(the ring drained while the link was down)";
++        EXPECT_FALSE(i.link);
++        EXPECT_EQ(i.link_seen, seen) << "SRP took the elided UP";
++        EXPECT_EQ(resets, before) << "SRP took the elided UP";
++    }
++    // A fresh UP after a pass's events: no poll takes it before its LINK, then the passes until the loop settles;
++    // returns the resets it made
++    unsigned fresh_up() {
++        const srp_interface &i = adapter.ifs[0];
++        const bool seen = i.link_seen;
++        const unsigned before = resets;
++        move_at(Phase::AfterTheEvents, true);
++        EXPECT_FALSE(i.link) << "SRP's poll took a fresh UP on an elided UP's observation";
++        EXPECT_EQ(i.link_seen, seen) << "SRP's poll took a fresh UP on an elided UP's observation";
++        EXPECT_EQ(resets, before) << "SRP's poll took a fresh UP on an elided UP's observation";
++        settle();
++        EXPECT_TRUE(i.link);
++        EXPECT_TRUE(i.link_seen);
++        return resets - before;
++    }
++};
++
++// The elided UP before any link: the fresh UP is the first, so it resets nothing and keeps the startup participants
++TEST_F(SrpLinkPassElided, AnElidedUpAuthorizesNoFreshFirstUp) {
++    srp_interface &i = adapter.ifs[0];
++    mrp_app *const startup = i.msrp;
++    ASSERT_NE(startup, nullptr) << "(the startup participants exist before any link)";
++    elided_up();
++    ASSERT_FALSE(HasFatalFailure());
++    EXPECT_FALSE(i.link_seen);
++    EXPECT_EQ(fresh_up(), 0u) << "a first UP resets nothing";
++    EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
++}
++
++// The elided UP after a carried UP and its DOWN: the fresh UP is a later one, so it resets the interface once
++TEST_F(SrpLinkPassElided, AnElidedUpAuthorizesNoFreshLaterUp) {
++    srp_interface &i = adapter.ifs[0];
++    mbx_model_set_link(&model, 0, true);
++    settle();
++    mbx_model_set_link(&model, 0, false);
++    settle();
++    ASSERT_TRUE(i.link_seen) << "(a LINK carried the first UP)";
++    ASSERT_FALSE(i.link);
++    elided_up();
++    ASSERT_FALSE(HasFatalFailure());
++    EXPECT_EQ(fresh_up(), 1u) << "a later UP resets the interface once";
++    EXPECT_NE(i.msrp, nullptr) << "(the interface rebuilt)";
++}
++
+ // SRP re-attached while interface 0's link is momentarily down and its DOWN record is held, the level recovering
+ // before the record posts, so the fabric owes no LINK: a record posts only when its level differs from the last one
+ // posted (KL_mbx_evt.sv). Attach reads the DOWN. SRP follows the link that is up all the same, once a poll found no
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+index 2c016d9aee..ec88f1a731 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -836,8 +836,8 @@ DEFECTS = (
+            'SRP_MBX_RX_MAX) + SRP_MBX_POLL_MAX / 2u)',
+            'pass funds the independently measured poll envelope', path='srp/srp_bounds.h', suite='srp_app.cpp'),
+     Defect('srp-poll-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
+-           '        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);\n',
+-           '        links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);\n        (void)mbx_irq_status();\n',
++           '        links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));\n',
++           '        links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));\n        (void)mbx_irq_status();\n',
+            'one link read per interface', path='srp/srp_mbx.c', suite='srp_app.cpp'),
+     Defect('srp-send-extra-read','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
+            '    if (mbx_tx_send(MBX_CH_SRP,m->owed_if,m->owed_frame,m->owed_len) != MBX_STATUS_OK) {',

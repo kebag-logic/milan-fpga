@@ -1,0 +1,75 @@
+# Executed by receipts_r3.py with put, keep, lines, run, clean, S and L in scope.
+import hashlib
+BASE = 'dd163e41438acb86e0c4d4e76df90f3f91ace1c0'
+R2 = '5759780f2251ef25221c6a395250312dce656ca4'
+OLD = '9a71daa9aa2379e2a57eb93ccafe83101bcb37f7'
+HEAD = run('git', 'rev-parse', 'HEAD').strip()
+U = S / 'units'
+ST = S / 'receipts-stage/r3'
+GROUPS = ('srp','adp-link','maap','control','backlog','aecp','aecp-fanout','acmp-cmd','datapath-events','fixture')
+raw = []
+
+def take(rel, src, transform=None):
+    src = Path(src)
+    if not src.exists():
+        return
+    data = src.read_bytes()
+    raw.append(f'{clean(str(src.relative_to(S))) if src.is_relative_to(S) else clean(str(src))}\t{len(data)}\t{hashlib.sha256(data).hexdigest()}')
+    keep(rel, src, transform)
+
+def shard(t):
+    return (f'# [ok] {sum(l.startswith("[ok]") for l in t.splitlines())}; escaped {t.count("ESCAPED")}; '
+            f'suite PASS {t.count("verdict: PASS")}, FAIL {t.count("verdict: FAIL")}\n' +
+            lines(r'^HEAD|^\[unit|^END|^test_ctrl_firmware:|^\[ok\] arm|verdict:|checks passed|checks:|link-pass-|srp-poll-extra|ESCAPED|^\[FAIL',t))
+
+# Receipts written during the round (sanitised on the way in).
+for f in sorted(p for p in ST.rglob('*') if p.is_file()):
+    take(f.relative_to(ST).as_posix(), f)
+
+put('change/head.txt', f'Head {HEAD}\nRound 2 head {R2}\nRound 1 {OLD}\nBase {BASE}\n' + run('git','status','--porcelain') + run('git','log','--reverse','--format=%H %s',f'{R2}..HEAD'))
+put('change/round3.diff',run('git','diff',R2,'HEAD'))
+put('change/full-diffstat.txt',run('git','diff','--stat',BASE,'HEAD'))
+put('change/test-first.txt',run('git','show','--stat','--oneline','d9f8929d') + '\nFirmware diff between the round-2 head and the test commit (none: the tests came first):\n' + run('git','diff',R2,'d9f8929d','--','sw/firmware/ctrl/srp'))
+protected=['hdl','sw/firmware/ctrl/loop','sw/firmware/ctrl/mbx','tb/verilator/ctrl_service_budget','sw/firmware/gtest']
+put('change/protected-artifacts.txt', '# These paths have no delta from the flip base: RTL, loop, mailbox, CPU budget rows/harness, coverage ratchet.\n' + '\n'.join(protected) + '\n' + run('git','diff',BASE,'HEAD','--',*protected))
+for k in range(4):
+    take(f'gates/firmware-shard-{k}.txt',U/f'r3-fw{k}.log',shard)
+    take(f'gates/firmware-shard-{k}.rc',U/f'r3-fw{k}.rc')
+for name in ['r3-bnd','r3-twin','r3-cov','r3-boot','r3-b0','r3-b1']:
+    take(f'gates/{name}.txt',U/f'{name}.log',
+         (lambda t: lines(r'^HEAD|^\[unit|^END|^==|^POINT|^NATIVE|^PLANT|twin:|caught:|RESULT|PASS|FAIL|finding',t)) if name in ('r3-twin', 'r3-boot') else None)
+    take(f'gates/{name}.rc',U/f'{name}.rc')
+for name in ['r3-b0-refused','r3-b1-refused','r3-b0-refused2','r3-b1-refused2']:
+    take(f'gates/builder-refused/{name}.txt',U/f'{name}.log')
+take('gates/docs-steps.txt',S/'docs/r3-docs/steps.txt')
+for f in sorted((S/'docs/r3-docs/logs').glob('*.log')):
+    take(f'gates/docs/{f.name}',f)
+for k in [0,1]:
+    take(f'gates/builder-leg-{k}.json',S/f'docs/r3-b{k}/builder-leg-{k}.json')
+# Raw killing-test logs of the link plants from the firmware gate's SRP shard, at its three campaign shapes.
+for d in ['srp-mutants','srp-if1-mutants','srp-8x8-if1-mutants']:
+    for f in sorted((S/f'fw/r3-3/{d}').glob('link-pass-*.log')):
+        take(f'plants/{d}/{f.name}',f)
+    take(f'plants/{d}/srp-poll-extra-read.log',S/f'fw/r3-3/{d}/srp-poll-extra-read.log')
+for shape in ['if1','if2','8x8-if1']:
+    for f in sorted((S/f'r3/plants/{shape}').glob('rv-*.log')):
+        take(f'plants/reviewer-{shape}/{f.name}',f)
+for p in ['1x1','8x8-1if']:
+    take(f'cpu/head-{p}.txt',U/f'leg-r3-{p}.log')
+    take(f'cpu/head-{p}.rc',U/f'leg-r3-{p}.rc')
+    take(f'cpu/head-{p}-results.json',S/f'meas/r3/{p}/none/results/results.json')
+    for g in GROUPS:
+        take(f'cpu/head-{p}/{g}.txt',S/f'meas/r3/{p}/none/results/{g}.txt')
+for f in sorted((S/'cpu/compare-r3').glob('*')):
+    take(f'cpu/compare/{f.name}',f)
+for f in sorted((S/'cpu/graders-r3').glob('*')):
+    take(f'cpu/graders/{f.name}',f)
+take('images/plat-ledger-full.txt',S/'img/plat-r3/plat_ledger.log',lambda t:lines(r'^POINT|plat_ledger:|REFUSED|FINDING',t))
+# The procedures, not a copied source tree.
+for name in ['t/plants2.py','t/probe_cmp.py','t/fw.sh','t/bnd.sh','t/twin.sh','t/cov.sh','t/docs_steps.py','t/bootsim.sh',
+             't/meas_run.sh','t/mb2.sh','t/meas_build.py','t/plat_images.sh','t/sizes.py','t/builder_leg.sh','t/clone.sh',
+             'clone3.sh','go.sh','unit.sh','receipts_r3.py','receipts_r3_spec.py']:
+    take(f'procedures/{Path(name).name}.txt',S/f'bin/{name}')
+take('procedures/linkarms.py.txt',S/'r3/tools/linkarms.py')
+take('procedures/reviewer_plants.py.txt',S/'r3/tools/reviewer_plants.py')
+put('raw-log-identities.tsv','scratch-relative artifact\tbytes\tsha256\n'+'\n'.join(raw)+'\n')

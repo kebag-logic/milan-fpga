@@ -1,0 +1,61 @@
+Note: Google Test filter = SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLinkPassElided
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+<scratch>/clones/r3-fw3/sw/firmware/ctrl/test/srp_link_pass.cpp:207: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<scratch>/clones/r3-fw3/sw/firmware/ctrl/test/srp_link_pass.cpp:208: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<scratch>/clones/r3-fw3/sw/firmware/ctrl/test/srp_link_pass.cpp:209: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<scratch>/clones/r3-fw3/sw/firmware/ctrl/test/srp_link_pass.cpp:225: Failure
+Expected equality of these values:
+  fresh_up()
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP resets nothing
+<scratch>/clones/r3-fw3/sw/firmware/ctrl/test/srp_link_pass.cpp:226: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x7fa611c95270
+  startup
+    Which is: 0x7fa611c95230
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP keeps the startup participants
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[----------] 1 test from SrpLinkPassElided (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

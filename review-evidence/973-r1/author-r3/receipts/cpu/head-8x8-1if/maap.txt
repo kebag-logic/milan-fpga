@@ -1,0 +1,21 @@
+wait ready
+mark booted
+wait cycles 5000000
+wait quiet 3 within 2000000
+mark maap.probe1.if0
+link 0 1
+wait tx 3 1 within 10000000
+mark maap.probe2.if0
+wait tx 3 1 within 80000000
+mark maap.probe3.if0
+wait tx 3 1 within 80000000
+mark maap.probe4.if0
+mark maap.announce.if0
+wait tx 3 2 within 80000000
+wait quiet 3 within 2000000
+mark maap.barrier0
+mark maap.defend.if0
+reply 0 3 15:03 6=0e0e0e0e0e01 15=01 tag=maap.defend.if0
+wait tx 3 1 within 5000000
+wait quiet 3 within 2000000
+end

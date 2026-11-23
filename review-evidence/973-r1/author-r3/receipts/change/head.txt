@@ -1,0 +1,8 @@
+Head 87b2fc0f2867ef132b9388e22ec262fc626cbb57
+Round 2 head 5759780f2251ef25221c6a395250312dce656ca4
+Round 1 9a71daa9aa2379e2a57eb93ccafe83101bcb37f7
+Base dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+d9f8929da412a05464e590873c165b8365322643 Test that an UP elided behind a full event ring and a DOWN authorizes no fresh UP inside a pass, first or later; both fail at this head (#973)
+0338f66a824e0e34e77d6cfd426ed2e781cba7b7 Clear the mark of an UP no LINK carried on every DOWN SRP's poll reads, so an elided UP's observation authorizes no fresh UP after it, with three more planted defects (#973)
+9509dbd36557e332c941751aef18177331250298 Parenthesize the mark-survives-a-down plants so the warning-strict build compiles them and the tests kill them (#973)
+87b2fc0f2867ef132b9388e22ec262fc626cbb57 State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973)

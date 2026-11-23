@@ -1,0 +1,33 @@
+# .text of srp/srp_mbx.c in the split image's flags (sizes.py CTRL OUT SHAPE IF), round base 5759780f vs fix candidates
+# base (5759780f): 8x8/1if total 11544, poll 812; 1x1/1if total 11628, poll 816; 8x8/2if 12232, poll 1064; 1x1/2if 12384, poll 1068
+# candidates (8x8/1if total / poll):
+#  if(!up) clear and return (C, H): 11552 / 820 (+8)
+#  ternary up ? mark : 0 (A, F): 11560 / 828 (+16)
+#  if/else store (B, E): 11556 / 824 (+12)
+#  branchless and/or (G, K): 11548 / 816 (+4)
+#  mask & -(unsigned)up (J, committed): 11544 / 812 (+0)
+# committed head 87b2fc0f:
+endstation_ax7101_8x8 if1 srp/srp_mbx.c: .text total 11544; on_event 164, poll 812
+endstation_ax7101_8x8 if2 srp/srp_mbx.c: .text total 12236; on_event 184, poll 1068
+endstation_ax7101_1x1_tdm8 if1 srp/srp_mbx.c: .text total 11628; on_event 164, poll 816
+endstation_ax7101_1x1_tdm8 if2 srp/srp_mbx.c: .text total 12388; on_event 184, poll 1072
+# generated code of carried_up in poll at 8x8/1if (objdump, committed head):
+  50:	ret
+
+00000054 <.L505>:
+  54:	li	a0,0
+  58:	auipc	ra,0x0
+  5c:	jalr	ra # 58 <.L505+0x4>
+  60:	lbu	a5,633(s0)
+  64:	andi	a4,a5,1
+  68:	bnez	a4,8c <.L510>
+  6c:	lw	a4,688(s0)
+  70:	srli	a5,a5,0x1
+  74:	lbu	a4,1844(a4)
+  78:	xori	a4,a4,1
+  7c:	and	a5,a4,a5
+  80:	ori	a5,a5,2
+  84:	mul	a5,a0,a5
+  88:	sb	a5,633(s0)
+
+0000008c <.L510>:

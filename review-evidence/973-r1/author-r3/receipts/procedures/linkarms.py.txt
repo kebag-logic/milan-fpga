@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+"""linkarms.py LANE CTRL_TREE OUT: srp_link_pass.cpp of LANE's test directory against CTRL_TREE's firmware
+(srp_arms.link_pass_arms), at 1x1/1if and 8x8/1if; prints each verdict and its log's test lines."""
+import sys
+from pathlib import Path
+
+lane, ctrl, out = (Path(p).resolve() for p in sys.argv[1:4])
+here = lane / "sw/firmware/ctrl/test"
+sys.path[:0] = [str(here), str(here.parents[1] / "gtest")]
+import fw_gtest  # noqa: E402
+import srp_arms  # noqa: E402
+from ctrl_build import Tree  # noqa: E402
+
+tree = Tree(ctrl, out / "t", out / "reuse", fw_gtest.Build(jobs=8))
+bad = 0
+for o in srp_arms.link_pass_arms(tree, lane / "third_party/lwSRP"):
+    print(f"=== {o.arm} rc={o.rc}")
+    for line in o.log.replace(str(lane), "<lane>").replace(str(ctrl), "<ctrl>").replace(str(out), "<out>").splitlines():
+        if line.startswith(("[ RUN", "[       OK", "[  FAILED", "  [FAIL]", "==", "RESULT", "  verdict")) or "Failure" in line:
+            print(line)
+    bad += o.rc != 0
+print(f"LINKARMS {'FAIL' if bad else 'PASS'} ({bad} failed)")
+sys.exit(1 if bad else 0)

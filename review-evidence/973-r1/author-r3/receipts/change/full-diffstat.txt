@@ -1,0 +1,12 @@
+ CHANGELOG.md                                |  10 +
+ sw/firmware/ctrl/srp/README.md              |  20 ++
+ sw/firmware/ctrl/srp/srp_mbx.c              |  32 +++-
+ sw/firmware/ctrl/srp/srp_mbx.h              |   4 +
+ sw/firmware/ctrl/test/ctrl_configs.py       |   2 +
+ sw/firmware/ctrl/test/srp_arms.py           |  10 +
+ sw/firmware/ctrl/test/srp_fixture.hpp       |   8 +-
+ sw/firmware/ctrl/test/srp_link_mutants.py   | 103 ++++++++++
+ sw/firmware/ctrl/test/srp_link_pass.cpp     | 285 ++++++++++++++++++++++++++++
+ sw/firmware/ctrl/test/srp_mutants.py        |   6 +-
+ sw/firmware/ctrl/test/test_ctrl_firmware.py |  15 +-
+ 11 files changed, 486 insertions(+), 9 deletions(-)

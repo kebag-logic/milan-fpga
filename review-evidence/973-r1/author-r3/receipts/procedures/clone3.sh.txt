@@ -1,0 +1,13 @@
+#!/bin/bash
+# clone3.sh NAME [REV]: a --shared clone of the lane at REV (default the lane's HEAD) under clones/NAME, its submodules
+# (all but external) from the lane's own checkouts. Prints the clone's HEAD.
+set -eu
+L=<lane>; C=<scratch>/clones/$1; REV=${2:-$(git -C $L rev-parse HEAD)}
+rm -rf "$C"
+git clone -q --shared --no-checkout "$L" "$C"
+git -C "$C" -c advice.detachedHead=false checkout -q -f --detach "$REV"
+for d in $(git -C "$C" config -f .gitmodules --get-regexp 'submodule\..*\.path' | awk '{print $2}' | grep -vx external); do
+  git -C "$C" config "submodule.$d.url" "$L/$d"
+  git -C "$C" -c protocol.file.allow=always submodule update -q --init --force "$d"
+done
+echo "$1 $(git -C "$C" rev-parse HEAD) dirty $(git -C "$C" status --porcelain --untracked-files=no | wc -l)"

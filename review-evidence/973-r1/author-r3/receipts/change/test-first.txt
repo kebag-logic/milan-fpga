@@ -1,0 +1,5 @@
+d9f8929da4 Test that an UP elided behind a full event ring and a DOWN authorizes no fresh UP inside a pass, first or later; both fail at this head (#973)
+ sw/firmware/ctrl/test/srp_link_pass.cpp | 76 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 75 insertions(+), 1 deletion(-)
+
+Firmware diff between the round-2 head and the test commit (none: the tests came first):

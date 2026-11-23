@@ -1,0 +1,94 @@
+| Probe | base ms | head ms | head-base | budget ms | verdict base / head | pass instructions base / head |
+|---|---:|---:|---:|---:|---|---|
+| `acmp-cmd/acmp.bind_rx.if0` | 0.195 | 0.194 | -0.001 | 20 | fits / fits | 8228 / 8232 |
+| `acmp-cmd/acmp.disconnect_tx.if0` | 0.087 | 0.085 | -0.002 | 20 | fits / fits | 5712 / 5716 |
+| `acmp-cmd/acmp.get_rx_state.if0` | 0.097 | 0.093 | -0.004 | 20 | fits / fits | 5732 / 5736 |
+| `acmp-cmd/acmp.get_tx_connection.if0` | 0.092 | 0.091 | -0.001 | 20 | fits / fits | 5704 / 5705 |
+| `acmp-cmd/acmp.get_tx_state.if0` | 0.090 | 0.092 | +0.001 | 20 | fits / fits | 5808 / 5812 |
+| `acmp-cmd/acmp.probe_tx.if0` | 0.098 | 0.094 | -0.003 | 20 | fits / fits | 5848 / 5849 |
+| `acmp-cmd/acmp.probe_tx_response.if0` | 0.099 | 0.098 | -0.001 | 20 | fits / fits | 6300 / 6301 |
+| `acmp-cmd/acmp.unbind_rx.if0` | 0.147 | 0.149 | +0.002 | 20 | fits / fits | 7496 / 7497 |
+| `adp-link/adp.link_down.if0` | 0.017 | 0.018 | +0.001 | 20 | fits / fits | 6187 / 6201 |
+| `adp-link/adp.link_up.if0` | 0.021 | 0.021 | +0.000 | 20 | fits / fits | 6387 / 6392 |
+| `adp-link/adp.tmr_delay.if0` | 0.084 | 0.133 | +0.049 | 20 | fits / fits | 4900 / 4910 |
+| `aecp-fanout/aecp_fanout.lock_entity.if0` | 0.365 | 0.367 | +0.002 | 20 | fits / fits | 9481 / 9489 |
+| `aecp-fanout/aecp_fanout.set_clock_source.if0` | 0.537 | 0.547 | +0.009 | 20 | fits / fits | 9852 / 9866 |
+| `aecp-fanout/aecp_fanout.set_control_identify_off.if0` | 0.361 | 0.360 | -0.001 | 20 | fits / fits | 9334 / 9348 |
+| `aecp-fanout/aecp_fanout.set_control_identify_on.if0` | 0.370 | 0.370 | -0.001 | 20 | fits / fits | 9349 / 9357 |
+| `aecp-fanout/aecp_fanout.set_name.if0` | 0.590 | 0.596 | +0.006 | 20 | fits / fits | 10568 / 10576 |
+| `aecp-fanout/aecp_fanout.set_sampling_rate.if0` | 0.523 | 0.529 | +0.005 | 20 | fits / fits | 9639 / 9640 |
+| `aecp-fanout/aecp_fanout.unlock_entity.if0` | 0.510 | 0.513 | +0.003 | 20 | fits / fits | 9490 / 9504 |
+| `aecp/aecp.entity_available.if0` | 0.212 | 0.218 | +0.005 | 20 | fits / fits | 4950 / 4951 |
+| `aecp/aecp.get_as_path.if0` | 0.152 | 0.120 | -0.032 | 20 | fits / fits | 5219 / 5223 |
+| `aecp/aecp.get_avb_info.if0` | 0.216 | 0.223 | +0.008 | 20 | fits / fits | 5282 / 5283 |
+| `aecp/aecp.get_configuration.if0` | 0.186 | 0.192 | +0.006 | 20 | fits / fits | 4900 / 4901 |
+| `aecp/aecp.get_counters.if0` | 0.256 | 0.259 | +0.003 | 20 | fits / fits | 5317 / 5318 |
+| `aecp/aecp.get_name.if0` | 0.205 | 0.213 | +0.008 | 20 | fits / fits | 5289 / 5290 |
+| `aecp/aecp.lock_entity.if0` | 0.235 | 0.242 | +0.008 | 20 | fits / fits | 6269 / 6273 |
+| `aecp/aecp.mvu_get_milan_info.if0` | 0.180 | 0.186 | +0.006 | 20 | fits / fits | 4897 / 4898 |
+| `aecp/aecp.read_descriptor.t0.i0.c0.if0` | 0.271 | 0.276 | +0.005 | 20 | fits / fits | 5826 / 5827 |
+| `aecp/aecp.read_descriptor.t1.i0.c0.if0` | 0.209 | 0.214 | +0.006 | 20 | fits / fits | 5345 / 5346 |
+| `aecp/aecp.read_descriptor.t10.i9.c0.if0` | 0.200 | 0.205 | +0.005 | 20 | fits / fits | 5144 / 5145 |
+| `aecp/aecp.read_descriptor.t12.i0.c0.if0` | 0.235 | 0.239 | +0.004 | 20 | fits / fits | 5263 / 5264 |
+| `aecp/aecp.read_descriptor.t13.i0.c0.if0` | 0.273 | 0.287 | +0.015 | 20 | fits / fits | 6111 / 6112 |
+| `aecp/aecp.read_descriptor.t14.i7.c0.if0` | 0.201 | 0.206 | +0.005 | 20 | fits / fits | 5148 / 5149 |
+| `aecp/aecp.read_descriptor.t15.i7.c0.if0` | 0.231 | 0.235 | +0.004 | 20 | fits / fits | 5148 / 5149 |
+| `aecp/aecp.read_descriptor.t2.i0.c0.if0` | 0.234 | 0.238 | +0.003 | 20 | fits / fits | 5196 / 5197 |
+| `aecp/aecp.read_descriptor.t20.i71.c0.if0` | 0.201 | 0.206 | +0.005 | 20 | fits / fits | 5152 / 5153 |
+| `aecp/aecp.read_descriptor.t26.i0.c0.if0` | 0.240 | 0.244 | +0.004 | 20 | fits / fits | 5359 / 5360 |
+| `aecp/aecp.read_descriptor.t36.i0.c0.if0` | 0.206 | 0.212 | +0.006 | 20 | fits / fits | 5314 / 5315 |
+| `aecp/aecp.read_descriptor.t5.i8.c0.if0` | 0.238 | 0.242 | +0.004 | 20 | fits / fits | 5192 / 5193 |
+| `aecp/aecp.read_descriptor.t6.i8.c0.if0` | 0.210 | 0.217 | +0.008 | 20 | fits / fits | 5433 / 5434 |
+| `aecp/aecp.read_descriptor.t9.i0.c0.if0` | 0.234 | 0.239 | +0.005 | 20 | fits / fits | 5163 / 5164 |
+| `aecp/aecp.register_unsolicited.if0` | 0.176 | 0.181 | +0.006 | 20 | fits / fits | 5026 / 5024 |
+| `aecp/aecp.set_name.if0` | 0.300 | 0.306 | +0.006 | 20 | fits / fits | 7307 / 7318 |
+| `aecp/aecp.unknown_command.if0` | 0.225 | 0.229 | +0.005 | 20 | fits / fits | 4884 / 4888 |
+| `aecp/aecp.unlock_entity.if0` | 0.131 | 0.250 | +0.119 | 20 | fits / fits | 6238 / 6252 |
+| `backlog/backlog.acmp_command.if0` | 4.470 | 4.386 | -0.084 | 20 | fits / fits | 13577 / 13551 |
+| `backlog/backlog.event.if0` | 1.674 | 1.617 | -0.057 | 20 | fits / fits | 11132 / 11137 |
+| `backlog/backlog.service.acmp.first.if0` | 4.244 | 4.151 | -0.093 | 20 | fits / fits | 36271 / 36202 |
+| `backlog/backlog.service.acmp.last.if0` | 4.822 | 4.706 | -0.115 | 20 | fits / fits | 13577 / 13551 |
+| `backlog/backlog.service.adp.first.if0` | 4.287 | 4.194 | -0.093 | 20 | fits / fits | 36271 / 36202 |
+| `backlog/backlog.service.adp.last.if0` | 4.281 | 4.188 | -0.093 | 20 | fits / fits | 36271 / 36202 |
+| `backlog/backlog.service.aecp.first.if0` | 1.562 | 1.522 | -0.041 | 20 | fits / fits | 32283 / 32216 |
+| `backlog/backlog.service.aecp.last.if0` | 2.730 | 2.669 | -0.062 | 20 | fits / fits | 12289 / 12291 |
+| `backlog/backlog.service.maap.first.if0` | 4.270 | 4.177 | -0.093 | 20 | fits / fits | 36271 / 36202 |
+| `backlog/backlog.service.maap.last.if0` | 4.266 | 4.173 | -0.093 | 20 | fits / fits | 36271 / 36202 |
+| `backlog/backlog.service.srp.first.if0` | 4.851 | 4.736 | -0.115 | 20 | fits / fits | 13577 / 13551 |
+| `backlog/backlog.service.srp.last.if0` | 5.446 | 5.300 | -0.146 | 20 | fits / fits | 5508 / 5496 |
+| `control/adp.link_up.if0` | 0.021 | 0.021 | +0.000 | 20 | fits / fits | 6387 / 6392 |
+| `control/adp.tmr_delay.if0` | 0.084 | 0.133 | +0.049 | 20 | fits / fits | 4900 / 4910 |
+| `control/control.discover.if0` | 0.040 | 0.040 | +0.000 | 20 | fits / fits | 3939 / 3940 |
+| `fixture/fixture.bind_rx.if0` | 0.189 | 0.191 | +0.002 | 20 | fits / fits | 8187 / 8196 |
+| `fixture/fixture.entity_departing.if0` | 0.071 | 0.095 | +0.024 | 20 | fits / fits | 5446 / 5455 |
+| `fixture/fixture.link_down.if0` | 0.021 | 0.022 | +0.001 | 20 | fits / fits | 6335 / 6349 |
+| `fixture/fixture.link_up.if0` | 0.021 | 0.021 | +0.000 | 20 | fits / fits | 6387 / 6392 |
+| `fixture/fixture.malformed.if0` | 0.221 | 0.214 | -0.007 | 20 | fits / fits | 4352 / 4350 |
+| `fixture/fixture.service.acmp.first.if0` | 0.861 | 0.861 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.acmp.last.if0` | 0.861 | 0.861 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.adp.first.if0` | 0.863 | 0.863 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.adp.last.if0` | 0.863 | 0.863 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.aecp.first.if0` | 0.863 | 0.863 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.aecp.last.if0` | 0.863 | 0.863 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.maap.first.if0` | 0.862 | 0.862 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.maap.last.if0` | 0.862 | 0.862 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.srp.first.if0` | 0.861 | 0.861 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.service.srp.last.if0` | 0.861 | 0.861 | +0.000 | 20 | fits / fits | 14999 / 14988 |
+| `fixture/fixture.set_name.if0` | 0.323 | 0.322 | -0.001 | 20 | fits / fits | 7304 / 7312 |
+| `fixture/fixture.tmr_no_resp1.if0` | 0.269 | 0.221 | -0.049 | 20 | fits / fits | 8190 / 8199 |
+| `maap/maap.announce.if0` | 0.149 | 0.264 | +0.115 | 20 | fits / fits | 7229 / 7233 |
+| `maap/maap.defend.if0` | 0.131 | 0.126 | -0.005 | 20 | fits / fits | 5884 / 5882 |
+| `maap/maap.probe1.if0` | 0.142 | 0.145 | +0.003 | 20 | fits / fits | 6387 / 6392 |
+| `maap/maap.probe2.if0` | 0.253 | 0.189 | -0.064 | 20 | fits / fits | 5907 / 5911 |
+| `maap/maap.probe3.if0` | 0.197 | 0.119 | -0.079 | 20 | fits / fits | 5907 / 5911 |
+| `maap/maap.probe4.if0` | 0.130 | 0.245 | +0.115 | 20 | fits / fits | 7229 / 7233 |
+| `srp/srp.domain.if0` | 0.730 | 0.723 | -0.008 | 220 | fits / fits | 9647 / 9653 |
+| `srp/srp.listener_ready.if0` | 0.404 | 0.405 | +0.001 | 20 | fits / fits | 7087 / 7085 |
+| `srp/srp.malformed.if0` | 0.219 | 0.216 | -0.003 | 20 | fits / fits | 4406 / 4404 |
+| `srp/srp.startup.if0` | 0.791 | 0.782 | -0.009 | 20 | fits / fits | 5904 / 5901 |
+
+probes: base 86, head 86, paired 86, only base 0, only head 0
+verdicts changed: 0
+misses each side: base 0, head 0
+largest differences: backlog/backlog.service.srp.last.if0 -0.146 ms (5.446 -> 5.300, budget 20); aecp/aecp.unlock_entity.if0 +0.119 ms (0.131 -> 0.250, budget 20); backlog/backlog.service.srp.first.if0 -0.115 ms (4.851 -> 4.736, budget 20); backlog/backlog.service.acmp.last.if0 -0.115 ms (4.822 -> 4.706, budget 20); maap/maap.announce.if0 +0.115 ms (0.149 -> 0.264, budget 20)
+passes with another instruction count: 86 of 86 (acmp-cmd/acmp.bind_rx.if0 8228 -> 8232; acmp-cmd/acmp.disconnect_tx.if0 5712 -> 5716; acmp-cmd/acmp.get_rx_state.if0 5732 -> 5736; acmp-cmd/acmp.get_tx_connection.if0 5704 -> 5705; acmp-cmd/acmp.get_tx_state.if0 5808 -> 5812; acmp-cmd/acmp.probe_tx.if0 5848 -> 5849; acmp-cmd/acmp.probe_tx_response.if0 6300 -> 6301; acmp-cmd/acmp.unbind_rx.if0 7496 -> 7497; adp-link/adp.link_down.if0 6187 -> 6201; adp-link/adp.link_up.if0 6387 -> 6392; adp-link/adp.tmr_delay.if0 4900 -> 4910; aecp-fanout/aecp_fanout.lock_entity.if0 9481 -> 9489)

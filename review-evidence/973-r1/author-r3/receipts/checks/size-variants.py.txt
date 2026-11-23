@@ -1,0 +1,106 @@
+import subprocess,shutil,pathlib,sys
+base=pathlib.Path('sw/firmware/ctrl')
+s0=(base/'srp/srp_mbx.c').read_text()
+a=s0.index('static bool carried_up('); b=s0.index('\n}\n',a)+3
+old_fn=s0[a:b]
+old_call='links[n] = mbx_link_up(n) && carried_up(m, &m->ifs[n]);'
+EL='(m->loop->events_left ? 0u : 1u)'
+CALL='links[n] = carried_up(m, &m->ifs[n], mbx_link_up(n));'
+V={
+'E':('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if (up && (c & 1u) == 0u) {
+        c = (c >> 1 & %s) | 2u;
+    } else {
+        c &= 1u;
+    }
+    i->link_carried = (uint8_t)c;
+    return up && (c & 1u) != 0u;
+}
+''' % EL, CALL),
+'F':('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = up ? (c >> 1 & %s) | 2u : 0u;
+        i->link_carried = (uint8_t)c;
+    }
+    return up && (c & 1u) != 0u;
+}
+''' % EL, CALL),
+'G':('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = (c >> 1 & %s & up) | (unsigned)up << 1;
+        i->link_carried = (uint8_t)c;
+    }
+    return c & up;
+}
+''' % EL, CALL),
+'H':('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    if (!up) {
+        i->link_carried &= 1u;
+        return false;
+    }
+    if ((i->link_carried & 1u) == 0u) {
+        i->link_carried = (uint8_t)((i->link_carried >> 1 & %s) | 2u);
+    }
+    return (i->link_carried & 1u) != 0u;
+}
+''' % EL, CALL),
+'I':('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = up ? (c >> 1 & %s) | 2u : 0u;
+        i->link_carried = (uint8_t)c;
+    }
+    return c & up;
+}
+''' % EL, CALL),
+}
+
+V['J']=('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = ((c >> 1 & %s) | 2u) & -(unsigned)up;
+        i->link_carried = (uint8_t)c;
+    }
+    return c & up;
+}
+''' % EL, CALL)
+V['K']=('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = (c >> 1 & !m->loop->events_left & up) | (unsigned)up << 1;
+        i->link_carried = (uint8_t)c;
+    }
+    return c & up;
+}
+''', CALL)
+V['L']=('''static bool carried_up(const struct srp_mbx *m, struct srp_interface *i, bool up)
+{
+    unsigned c = i->link_carried;
+    if ((c & 1u) == 0u) {
+        c = up ? (c >> 1 & %s) | 2u : c;
+        i->link_carried = (uint8_t)(c & -(unsigned)up | (c & 1u));
+    }
+    return c & up;
+}
+''' % EL, CALL)
+sel=sys.argv[1:] or list(V)
+for k in sel:
+    fn,call=V[k]
+    d=pathlib.Path(f'<scratch>/var-{k}')
+    if d.exists(): shutil.rmtree(d)
+    shutil.copytree(base,d)
+    p=d/'srp/srp_mbx.c'
+    p.write_text(s0.replace(old_fn,fn).replace(old_call,call))
+    for shape in ('endstation_ax7101_8x8','endstation_ax7101_1x1_tdm8'):
+        r=subprocess.run(['python3','-B','<scratch>/tools/sizes.py',str(d),f'<scratch>/sz-{k}-{shape}',shape,'1'],capture_output=True,text=True)
+        print(k,shape,(r.stdout.strip().splitlines() or ['?'])[-1], r.stderr[-400:])
