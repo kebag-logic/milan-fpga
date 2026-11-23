@@ -351,6 +351,14 @@ The first firmware build refuses its unmeasured scheduler shape.
 That shape has one source, two sinks, and one interface.
 The existing AX7101 1x1 point has two sources instead.
 Each scheduler shape requires its own measured service costs.
+Round 2 explored that point as `arty-1x1` in the service-budget harness.
+The requested CPU clock is exactly 83,333,000 Hz.
+The production `_CRG` refuses that rate with `margin=0`.
+A 100 MHz input can instead produce 83,333,333⅓ Hz.
+That difference is about 4 ppm; it is not an accepted clock tolerance.
+The companion outputs are 25, 50 and 200 MHz.
+The clock request and exact-divider contract need an owner decision.
+A simulation at the requested frequency does not resolve that conflict.
 No routed image or flash layout is qualified yet.
 Earlier Arty bench evidence applies only to its recorded images.
 

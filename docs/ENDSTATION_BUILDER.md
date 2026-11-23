@@ -11,6 +11,11 @@ Its 1x1 media shape has one source and two sinks.
 The CRF sink accounts for the second sink.
 The split scheduler requires measured costs for that exact shape.
 Its existing 1x1 cost point has two sources instead.
+The owner retained this entity shape for round 2.
+The exploratory `arty-1x1` measurement used exactly 83,333,000 Hz.
+Its production clock export also refuses the exact-divider requirement.
+The PLL can produce 83,333,333⅓ Hz, a different frequency.
+That clock conflict needs an owner decision before image generation.
 No image is qualified by a successful builder export alone.
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
