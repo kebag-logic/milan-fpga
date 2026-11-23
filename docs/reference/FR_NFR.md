@@ -196,6 +196,29 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-DISC-04 | Advertised fields (`entity_id`, `entity_model_id`, capabilities, talker/listener counts, `gptp_grandmaster_id`, `identify_control_index`, `interface_index`) MUST equal the ENTITY descriptor in the entity model. | M | T,I |
 | FR-DISC-05 | `entity_id` MUST be an EUI-64 derived from the AVB_INTERFACE MAC and be stable across reboots. | M | A |
 
+#### 2.1.1 The declared discovery time
+
+The entity declares a discovery time of 6.0 s: a controller that sees the entity's link come up waits that long for its first `ENTITY_AVAILABLE` ([#970](https://github.com/kebag-logic/milan-fpga/issues/970), its ruling of 2026-11-22).
+It is derived here for the split placement, term by term, from the interface's link-up as its PHY reports it:
+
+| Term | Bound | Source |
+|---|---:|---|
+| The PHY's link published to the datapath: one poll period, then the poll's frames | 250 ms | the release's link publication bound ([397_SERVICE_BUDGET.md, PHY poll derivation and simulation](../findings/397_SERVICE_BUDGET.md#phy-poll-derivation-and-simulation)), graded by the split boot simulation (`tb/verilator/ctrl_split_boot/run.py`, `PUBLICATION_MS`); the period is `CTRL_PLAT_PHY_POLL_US`, 125 ms (`ctrl_plat_phy.h`, THE PACE) |
+| The PHY link time: the link guard's settle before the MAC is released, once the link's clocks return | 0 added: 41.94 ms at 50 MHz, inside the publication | `hdl/common/KL_link_guard.sv`, `SETTLE_CYC_C` |
+| The LINK event to ADP's TMR_DELAY armed | 30 ms | ADP's row bound (section 3.4.1); the event is taken by pass `CTRL_LOOP_EVT_PASSES` (`ctrl_loop.h`, `adp_mbx.h`) |
+| TMR_DELAY on LINK_UP | 0 to 4,000 ms, uniform | Milan v1.2 5.6.3.5.3 and Table 5.50; IEEE 1722.1-2021 6.2.4.2.2 |
+| The expiry to the committed `ENTITY_AVAILABLE` | 30 ms | ADP's row bound (section 3.4.1) |
+| The frame to the wire | 1 ms | `CTRL_LOOP_T_EGRESS_MS` (`ctrl_loop.h`) |
+| **Sum** | **4,311 ms** | |
+
+The declared 6.0 s leaves 1,689 ms above the sum.
+A startup with the link up draws 0 to 2,000 ms instead (Milan v1.2 5.6.3.5.2), less than LINK_UP's draw.
+A grandmaster change adds nothing to the first advertisement: in DELAY it is ignored (Milan v1.2 Table 5.51), and the frame samples the grandmaster when it is built (IEEE 1722.1-2021 6.2.2.16); in WAITING it is announced by a new `ENTITY_AVAILABLE` after its own 0 to 4 s draw (5.6.3.5.7).
+The boot path adds nothing either ([#972](https://github.com/kebag-logic/milan-fpga/issues/972)): the split's link-status word resets to link down (`sw/litex/mac_link_status.py`), so the datapath sees no link before a poll publishes the PHY's verified one, and the boot restarts no negotiation the PHY already holds.
+A boot whose PHY must be advertised again (#840), or whose BMCR does not negotiate (forced, isolated or resetting), renegotiates before that first publication, so before the link-up this derivation starts from.
+`sw/firmware/ctrl/test/test_adp.cpp` G1 to G5 hold ADP's part on the host model: each first `ENTITY_AVAILABLE` within its draw, inside the 6,000 ms stated here.
+The all-fabric placement's boot path is not covered by #972, and this derivation does not claim it.
+
 ### 2.2 Enumeration & control  -  AECP/AEM  *(1722.1-2021 Sections 7 and 9; Milan v1.2 Section 5.3–5.4)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|

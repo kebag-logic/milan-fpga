@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
 - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
 - **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
 - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
@@ -59,6 +60,18 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - the boot forms its link once
+
+- #972: the split's boot forms its link once.
+- A PHY holding the advertisement is not restarted.
+- Holding it needs BMCR negotiating, as #840 asks.
+- A forced or isolated PHY is renegotiated, never published up.
+- The split's link word now resets to link down.
+- Boards without an MDIO pair keep link up.
+- So nothing is sent before the PHY's verified link.
+- A datapath leg checks it from reset at both shapes.
+- FR_NFR derives the declared 6.0 s discovery time.
 
 ## Unreleased - a link-up inside a loop pass
 

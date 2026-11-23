@@ -114,6 +114,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
 - **[One stream bound to several Stream Inputs on the split half (obj_twin8_\*, #948)](#one-stream-bound-to-several-stream-inputs-on-the-split-half-obj_twin8_-948)** -- The split half at the 8x8 shape with its own firmware: a controller binds two, then three Stream Inputs to one peer talker's stream over ACMP and unbinds one, each bound input counting and receiving every PDU, and the planted defect #948 found
 - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+- **[The #972 link from reset (obj_linkreset_\*)](#the-972-link-from-reset-obj_linkreset_)** -- The split datapath at 1x1/1if and 8x8/1if from reset with the PHY's link retained: no frame before the firmware's publication, the gPTP plane's frames after it, a refused boot that sends nothing, and a planted reset at link up caught
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -2026,6 +2027,56 @@ frame's source. The others:
   own check.
 
 What it does not grade: `nvm_boot()`'s own CSR traffic.
+
+## The #972 link from reset (`obj_linkreset_*`)
+
+The question: from reset, does the split datapath send anything before the
+firmware publishes the PHY's verified link? The datapath's effective link
+(`eff_link_w`) is the SoC's link-status word AND `LINK_CTRL[0]` AND the link
+guard's estimate. The gPTP plane's port enable, the mailbox's LINK level and
+the AVB_INTERFACE counters all read it. With the PHY's link retained, as after
+a reload that kept it, `LINK_CTRL[0]` resets to 1 and the guard's estimate
+qualifies, so the word's reset decides. The split's word resets to link down
+(`sw/litex/mac_link_status.py`, which `milan_soc.py`'s MilanMAC resets the
+word from). Before #972 it reset to link up.
+
+`sim_link_reset.cpp` elaborates `milan_datapath` at `CTRL_SPLIT_P = 1`, the
+gPTP plane at its product default, with each shape's parameters as the split
+SoC's export hands them (`LINKRESET_1X1_G`, `LINKRESET_8X8_G`). The fabric
+clock is 10 MHz and the plane's image is generated for it. The word is a sys
+register at the reset the Makefile reads from `mac_link_status.py`, crossed
+by two flops into the datapath clock, as MilanMAC's MultiReg crosses it. The
+bench is the MAC behind the boundary through the shared launch observer.
+The firmware's boot before its PHY poll arms is its own code:
+`ctrl_plat_csr.c`'s identity check and CSR policy, built for the host with the
+shape's generated policy, each access an AXI4-Lite transaction, at 3 ms. Two
+arms run from a fresh model at each shape:
+
+- **published**: the firmware's publication at 1,500 ms, after the plane's
+  boot cadence (1,200 ms), whose Pdelay_Req a link qualified from reset sends.
+  No frame crosses the MAC boundary before it; the plane's first Pdelay_Req
+  (`INITIAL_SEND_PDELAY_REQ` at the port's rise) follows it.
+- **refused**: no policy and no publication, as on a boot refused at the CSR
+  identity check. No frame in 1,600 ms.
+
+Each arm also checks that `LINK_CTRL[0]` and the guard's estimate qualify
+throughout, so only the word holds the link down, and that `o_ctl_link_up`,
+the mailbox's LINK level, stays down before the publication.
+
+`make linkreset` builds both shapes and runs the four arms;
+`make linkreset-plants` runs `linkreset_plants.py`. Its plant is made at the
+cause: a copy of `mac_link_status.py` whose link_up reset is 1 whatever owns
+the PHY. Under it the published arm must fail at each shape with "no frame
+crosses the MAC boundary before the firmware's publication". The leg is outside
+the hosted case inventory (`ORDINARY_CASES`), which takes a case only with a
+hosted measurement; run it by name.
+
+At the #972 head:
+
+| Shape | published | refused | plant |
+|---|---|---|---|
+| 1x1/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
+| 8x8/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
 
 ## GM step re-base leg (#387)
 

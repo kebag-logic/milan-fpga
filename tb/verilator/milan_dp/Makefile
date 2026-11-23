@@ -913,6 +913,63 @@ exec-ax1x1:
 build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
 
+# #972: THE LINK FROM RESET (sim_link_reset.cpp). milan_datapath at
+# CTRL_SPLIT_P = 1 with the gPTP plane at its product default, at both shipping
+# shapes, its link input the SoC's link-status word at the reset
+# sw/litex/mac_link_status.py gives the split with an MDIO pair (LINKRESET_PY,
+# overridable so linkreset_plants.py runs a planted copy), the PHY's link
+# retained. Each shape runs published (the firmware's publication at 200 ms)
+# and refused (none, a boot refused before the PHY poll arms); linkreset-plants
+# plants a premature qualification, the word's reset at link up, and requires
+# the check to fail on each shape. Outside the hosted case inventory: run it by
+# name. Each shape takes the parameters the split SoC's export hands its
+# milan_datapath instance (milan_soc.py from the config's soc_params.json),
+# but the clock: the fabric clock is compressed to LINKRESET_CLK_HZ, the
+# gPTP plane's image generated for it (2 MHz, the gptp leg's, is too short a
+# period for the 8x8 talker's fixed delay, Milan v1.2 5.3.7.6).
+LINKRESET_PY ?= ../../../sw/litex/mac_link_status.py
+LINKRESET_COMMON_G = -GAUDIO_IF_MASTER_P=1 -GI2SPB_P=0 -GLPF_P=0 -GTALKER_WIRE_CHANS_P=8 \
+  -GGPTP_INGRESS_LAT_NS_P=656 -GGPTP_EGRESS_LAT_NS_P=219 -GREBOOT_MAC_MIN_MBPS_P=1000 -GREBOOT_MAC_TX_OCTETS_P=11656
+LINKRESET_1X1_G = $(LINKRESET_COMMON_G) -GN_STREAMS=1 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_RENDER_SLOTS_P=8 \
+  -GLOOPBACK_P=1 -GAUDIO_IF_CLK_HZ_P=24576000
+LINKRESET_8X8_G = $(LINKRESET_COMMON_G) -GN_STREAMS=8 -GAUDIO_IF_SLOTS_P=32 -GDPROBES_P=0 -GLTAP_P=0 \
+  -GAUDIO_IF_CLK_HZ_P=98304000
+LINKRESET_CLK_HZ = 10000000
+LINKRESET_WORD = $(shell python3 -B $(LINKRESET_PY) gmii 1 | cut -d' ' -f2)
+LINKRESET_MDIR ?= obj_linkreset
+# the publication after the plane's boot cadence (1200 ms), whose Pdelay_Req a
+# link qualified from reset sends, and the window past the publication's own
+LINKRESET_PUBLISH_MS = 1500
+LINKRESET_WINDOW_MS = 1600
+LINKRESET_PLAT = $(abspath ../../../sw/firmware/ctrl/plat)
+define LINKRESET_BUILD
+mkdir -p $(LINKRESET_MDIR)_$(2)/policy
+python3 -B $(LINKRESET_PLAT)/ctrl_plat_gen.py policy $(5) -o $(LINKRESET_MDIR)_$(2)/policy/ctrl_plat_policy_gen.h
+python3 -B gen_gptp_leg_ucode.py $(5) -o $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex --clk-hz $(LINKRESET_CLK_HZ)
+$(VERILATOR) linkreset_probes.vlt $(1) $(GPTP_ON_VFLAGS) --Mdir $(LINKRESET_MDIR)_$(2) \
+  -GCTRL_SPLIT_P=1 -GMILAN_CLK_FREQ_HZ=$(LINKRESET_CLK_HZ) -GGPTP_PHC_TICK_NS_P=8 $(4) \
+  -GGPTP_UCODE_HEX_P=\"$(abspath $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex)\" \
+  -CFLAGS "-DLINKRESET_POINT=$(3) -DLINKRESET_CLK_HZ=$(LINKRESET_CLK_HZ)u -I$(LINKRESET_PLAT) \
+  -I$(abspath $(LINKRESET_MDIR)_$(2)/policy) -Wall -Wextra" \
+  $(SRCS) sim_link_reset.cpp $(LINKRESET_PLAT)/ctrl_plat_csr.c -o Vmilan_dp_linkreset
+endef
+.PHONY: linkreset build-linkreset-1x1 build-linkreset-8x8 exec-linkreset linkreset-plants
+build-linkreset-1x1: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
+	$(call LINKRESET_BUILD,$(SHAPE_AX1x1),1x1,1,$(LINKRESET_1X1_G),../../../configs/endstation_ax7101_1x1_tdm8.yaml)
+build-linkreset-8x8: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
+	$(call LINKRESET_BUILD,$(SHAPE_8x8),8x8,8,$(LINKRESET_8X8_G),../../../configs/endstation_ax7101_8x8.yaml)
+exec-linkreset:
+	@test -n "$(LINKRESET_WORD)" || { echo "linkreset: no reset from $(LINKRESET_PY)"; exit 2; }
+	set -e; for s in 1x1 8x8; do \
+	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms $(LINKRESET_PUBLISH_MS) \
+	    --window-ms $(LINKRESET_WINDOW_MS); \
+	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms 0 \
+	    --window-ms $(LINKRESET_WINDOW_MS); done
+linkreset: build-linkreset-1x1 build-linkreset-8x8
+	$(MAKE) --no-print-directory exec-linkreset
+linkreset-plants: build-linkreset-1x1 build-linkreset-8x8
+	python3 -B linkreset_plants.py --publish-ms $(LINKRESET_PUBLISH_MS) --window-ms $(LINKRESET_WINDOW_MS)
+
 # #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
 # KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
 # CTRL_SPLIT_P = 1 at the shipping AX7101 shape, as milan_soc.py's split SoC
