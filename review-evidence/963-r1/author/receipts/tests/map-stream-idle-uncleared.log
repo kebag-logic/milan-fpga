@@ -1,0 +1,115 @@
+Note: Google Test filter = Core.MapEditWorkObservesEachOutputStreamOnce
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.MapEditWorkObservesEachOutputStreamOnce
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3000: Failure
+Expected equality of these values:
+  observed
+    Which is: {}
+  (Streams{0,1})
+    Which is: { 0, 1 }
+an edit observes each stream it maps once, in its order
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3003: Failure
+Expected equality of these values:
+  observed
+    Which is: {}
+  (Streams{0,1})
+    Which is: { 0, 1 }
+an edit observes each stream it maps once, in its order
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 44
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: status for command 44
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3006: Failure
+Expected equality of these values:
+  observed
+    Which is: {}
+  (Streams{0,1})
+    Which is: { 0, 1 }
+a stream found running is observed at its first mapping, and the edit ends
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: a stream found running is observed at its first mapping, and the edit ends
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3007: Failure
+Expected equality of these values:
+  maps[1].count
+    Which is: 3
+  0u
+    Which is: 0
+a stream found running refuses the edit at its first mapping
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: a stream found running refuses the edit at its first mapping
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 44
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: status for command 44
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3009: Failure
+Expected equality of these values:
+  observed
+    Which is: {}
+  (Streams{0,1})
+    Which is: { 0, 1 }
+an unanswered stream is observed at its first mapping, and the edit ends
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an unanswered stream is observed at its first mapping, and the edit ends
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3010: Failure
+Expected equality of these values:
+  maps[1].count
+    Which is: 3
+  0u
+    Which is: 0
+an unanswered observation refuses the edit at its first mapping
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an unanswered observation refuses the edit at its first mapping
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:184: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 7
+status for command 44
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: status for command 44
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3013: Failure
+Expected equality of these values:
+  observed
+    Which is: {}
+  (Streams{0})
+    Which is: { 0 }
+a stream found idle in one edit is observed again in the next
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: a stream found idle in one edit is observed again in the next
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:3014: Failure
+Value of: same_rows(maps[1],{zero})
+  Actual: false
+Expected: true
+a stream found running in the next edit refuses it
+
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: a stream found running in the next edit refuses it
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

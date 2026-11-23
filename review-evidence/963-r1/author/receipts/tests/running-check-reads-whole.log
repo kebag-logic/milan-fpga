@@ -1,0 +1,58 @@
+Note: Google Test filter = Core.TheRunningCheckObservesEveryStreamBriefly:Face.TheRunningCheckReadsOneWindowWordAStream
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.TheRunningCheckObservesEveryStreamBriefly
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:2212: Failure
+Expected equality of these values:
+  briefs
+    Which is: { false, false, false, false }
+  std::vector<bool>(streams,true)
+    Which is: { true, true, true, true }
+SET_CONFIGURATION observes every stream, briefly
+
+  [FAIL] Core.TheRunningCheckObservesEveryStreamBriefly: SET_CONFIGURATION observes every stream, briefly
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:2215: Failure
+Value of: briefs.front()
+  Actual: false
+Expected: true
+SET_STREAM_FORMAT's running check is brief
+
+  [FAIL] Core.TheRunningCheckObservesEveryStreamBriefly: SET_STREAM_FORMAT's running check is brief
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:2221: Failure
+Expected equality of these values:
+  briefs
+    Which is: { false }
+  std::vector<bool>(briefs.size(),true)
+    Which is: { true }
+an output map edit's running check is brief
+
+  [FAIL] Core.TheRunningCheckObservesEveryStreamBriefly: an output map edit's running check is brief
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] 1 test from Face
+[ RUN      ] Face.TheRunningCheckReadsOneWindowWordAStream
+<lane>/sw/firmware/ctrl/test/test_aecp.cpp:5025: Failure
+Expected equality of these values:
+  far.selectors
+    Which is: { 0, 2, 3, 4, 5, 6, 0, 2, 3, 4, 5, 6, 0, 2, 3, 4, 5, 6, 0, 2, 3, 4, 5, 6 }
+  std::vector<unsigned>(streams,0u)
+    Which is: { 0, 0, 0, 0 }
+one word a stream, selector 0
+
+  [FAIL] Face.TheRunningCheckReadsOneWindowWordAStream: one word a stream, selector 0
+[  FAILED  ] Face.TheRunningCheckReadsOneWindowWordAStream (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.TheRunningCheckObservesEveryStreamBriefly
+[  FAILED  ] Face.TheRunningCheckReadsOneWindowWordAStream
+
+ 2 FAILED TESTS
+== AECP core: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)

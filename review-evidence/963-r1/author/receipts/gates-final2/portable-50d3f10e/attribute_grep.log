@@ -1,0 +1,3 @@
+sw/firmware/ctrl/plat/ctrl_cc.h:34:#define CTRL_CC_NOINLINE __attribute__((noinline))
+sw/firmware/ctrl/plat/ctrl_cc.h:35:#define CTRL_CC_INLINE inline __attribute__((always_inline))
+sw/firmware/ctrl/plat/ctrl_cc.h:36:typedef void *__attribute__((may_alias)) ctrl_cc_ptr;

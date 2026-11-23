@@ -1,0 +1,56 @@
+[
+ {
+  "check": "diff-check",
+  "command": [
+   "git",
+   "diff",
+   "--check",
+   "dd163e41",
+   "HEAD"
+  ],
+  "rc": 0
+ },
+ {
+  "check": "cpp-idiom",
+  "command": [
+   "python3",
+   "scripts/check_cpp_idiom.py"
+  ],
+  "rc": 0
+ },
+ {
+  "check": "em-dash",
+  "command": [
+   "<scratch>/venv-md/bin/python",
+   "scripts/check_em_dash.py",
+   "--base",
+   "dd163e41"
+  ],
+  "rc": 0
+ },
+ {
+  "check": "docs",
+  "command": [
+   "python3",
+   "scripts/docs_check.py"
+  ],
+  "rc": 0
+ },
+ {
+  "check": "doc-style",
+  "command": [
+   "python3",
+   "scripts/check_doc_style.py"
+  ],
+  "rc": 0
+ },
+ {
+  "check": "bare-metal",
+  "command": [
+   "python3",
+   "scripts/check_baremetal_only.py",
+   "--check"
+  ],
+  "rc": 0
+ }
+]

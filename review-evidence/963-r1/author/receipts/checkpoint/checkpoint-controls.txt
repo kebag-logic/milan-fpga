@@ -1,0 +1,6 @@
+The exact calibration block from checkpoint_windows.py is executed on controlled log fixtures.
+Source sha256 81625d5d10c110dc0198ea961c4b82cbd410412dfd36517ad356f5fa1f225772
+PASS none: nine entire logs identical
+CAUGHT changed-log-byte: same: False in the complete-log comparison
+CAUGHT missing-reference: len(calibration) == 9
+CAUGHT missing-leaf-success: RESULT: PASS required in the leaf log

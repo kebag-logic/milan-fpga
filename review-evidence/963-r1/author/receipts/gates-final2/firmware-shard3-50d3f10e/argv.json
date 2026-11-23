@@ -1,0 +1,13 @@
+[
+ "python3",
+ "-B",
+ "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+ "--require-rv32",
+ "--self-test",
+ "--jobs",
+ "4",
+ "--shard",
+ "3/4",
+ "--build-dir",
+ "<scratch>/tmp/fwb7-3"
+]

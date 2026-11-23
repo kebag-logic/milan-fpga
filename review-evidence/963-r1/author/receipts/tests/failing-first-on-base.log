@@ -1,0 +1,25 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+== app arm, the head tests on the base firmware: rc=1
+[ RUN      ] Core.MapEditsAreTheirDefinitionRowForRow
+the edit reads its port once for each output stream its definition reaches
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow (0 ms)
+[ RUN      ] Core.MapEditWorkObservesEachOutputStreamOnce
+an edit observes each stream it maps once, in its order
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+an edit observes each stream it maps once, in its order
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Core.MapEditsAreTheirDefinitionRowForRow
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)
+== work arm, the head tests on the base firmware: rc=1
+[ RUN      ] Core.MapEditWorkObservesEachOutputStreamOnce
+an edit observes each stream it maps once, in its order
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+an edit observes each stream it maps once, in its order
+  [FAIL] Core.MapEditWorkObservesEachOutputStreamOnce: an edit observes each stream it maps once, in its order
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce (0 ms)
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.MapEditWorkObservesEachOutputStreamOnce
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

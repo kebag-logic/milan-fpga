@@ -1,0 +1,58 @@
+== 1x1: 241 groups both ran
+cost                                    base      head head/base  where (base | head)
+pass.longest                         156,496   156,026     0.997  answering-later/notice-retried-4 | answering-later/notice-retried-4
+poll.acmp                              4,739     4,505     0.951  answering-ports/backlog-owed | answering-ports/backlog-owed
+poll.acmp_declined                     1,700     1,476     0.868  none/backlog-owed | answering-ports/backlog-owed
+poll.acmp_kept                         7,158     7,088     0.990  answering-ports/backlog-owed | answering-ports/backlog-owed
+poll.aecp                             14,084    14,158     1.005  declaring-outputs/aecp-fanout | declaring-outputs/aecp-fanout
+poll.aecp_long                        29,652    29,644     1.000  none/aecp-largest-notice | declaring-outputs/aecp-largest-notice
+poll.base                             19,359    19,304     0.997  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+poll.mrpdu                                 0         0         -   | 
+poll.rebuild                          18,186    18,468     1.016  answering-ports/adp-link | answering-ports/adp-link
+poll.reclaim                           1,767     1,688     0.955  none/srp | none/srp
+poll.record                           24,268    23,949     0.987  answering-every-port/notice-every-6 | answering-ports/backlog-adp@program-aged2-6
+poll.retained                              0         0         -   | 
+poll.walk                              2,105     2,112     1.003  none/srp | answering-ports/srp
+poll.withdraw                          4,789     4,865     1.016  none/backlog | answering-ports/backlog
+record.acmp_mbx:on_frame              19,427    19,100     0.983  answering-ports/fixture | declaring-outputs/aecp-fanout
+record.adp_mbx:on_frame            51,989,307 52,000,604     1.000  talker-notices/talker-notice-5 | talker-notices/talker-notice-0
+record.aecp_mbx:frame                 91,923    82,522     0.898  declaring-outputs/aecp-largest-notice | answering-ports/aecp-largest-notice
+record.maap_mbx:receive               10,411    10,291     0.988  talker-notices/talker-notice-0 | talker-notices/talker-notice-0
+record.srp_mbx:apply_receive          24,268    23,949     0.987  answering-every-port/notice-every-6 | answering-ports/backlog-adp@program-aged2-6
+record.srp_mbx:receive                24,662    24,319     0.986  answering-every-port/notice-every-6 | answering-ports/backlog-adp@program-aged2-6
+round                                 59,705    59,315     0.993  answering-every-port/notice-every-7 | answering-every-port/notice-every-0
+slice.build                           58,394    53,929     0.924  valid-destinations/srp-talker | answering-ports/srp
+slice.round                           59,705    59,315     0.993  answering-every-port/notice-every-7 | answering-every-port/notice-every-0
+slice.srp                             80,936    81,070     1.002  answering-ports/save-starved | answering-ports/save-starved
+whole.build                                0         0         -   | 
+whole.build-one                       53,827    53,929     1.002  answering-ports/srp | answering-ports/srp
+whole.step                            81,365    81,040     0.996  answering-ports/backlog-adp@program-aged2-4 | answering-ports/backlog-adp@program-aged2-4
+== 8x8-1if: 240 groups both ran
+cost                                    base      head head/base  where (base | head)
+pass.longest                         227,112   169,467     0.746  declaring-outputs/aecp-largest-notice | valid-destinations/srp-talker-held
+poll.acmp                              6,217     6,231     1.002  answering-ports/backlog-owed | none/backlog-owed
+poll.acmp_declined                     2,181     2,181     1.000  none/backlog-owed | none/backlog-owed
+poll.acmp_kept                         8,649     8,753     1.012  none/backlog-owed | none/backlog-owed
+poll.aecp                             13,414    13,377     0.997  answering-later/notice-retried-0 | answering-later/notice-retried-0
+poll.aecp_long                        29,401    29,433     1.001  declaring-outputs/aecp-largest-notice | declaring-outputs/aecp-largest-notice
+poll.base                             27,896    27,676     0.992  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+poll.mrpdu                                 0         0         -   | 
+poll.rebuild                          20,770    21,189     1.020  answering-ports/adp-link | answering-ports/fixture
+poll.reclaim                             995     1,044     1.049  none/srp | none/srp
+poll.record                           34,550    35,019     1.014  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+poll.retained                              0         0         -   | 
+poll.walk                              3,300     3,379     1.024  valid-destinations/srp-talker-loss | valid-destinations/srp-talker-loss
+poll.withdraw                          5,995     5,984     0.998  answering-ports/backlog | answering-ports/backlog
+record.acmp_mbx:on_frame              21,368    21,663     1.014  answering-ports/backlog-adp@blank-0 | answering-ports/backlog-adp@blank-0
+record.adp_mbx:on_frame            52,004,604 51,999,126     1.000  talker-notices/talker-notice-2 | talker-notices/talker-notice-0
+record.aecp_mbx:frame                167,691   104,717     0.624  declaring-outputs/aecp-largest-notice | declaring-outputs/aecp-largest-notice
+record.maap_mbx:receive               16,176    16,203     1.002  valid-destinations/srp-talker-loss | valid-destinations/srp-talker-loss
+record.srp_mbx:apply_receive          34,550    35,019     1.014  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+record.srp_mbx:receive                34,803    35,244     1.013  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+round                                 87,596    89,207     1.018  answering-every-port/notice-burst-4 | answering-every-port/notice-burst-7
+slice.build                          124,099   123,346     0.994  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+slice.round                           87,596    89,207     1.018  answering-every-port/notice-burst-4 | answering-every-port/notice-burst-7
+slice.srp                            130,353   129,683     0.995  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+whole.build                                0         0         -   | 
+whole.build-one                      123,076   123,346     1.002  valid-destinations/srp-talker-held | valid-destinations/srp-talker-held
+whole.step                            80,729    80,644     0.999  answering-ports/backlog-adp@program-aged2-3 | none/backlog-adp@program-aged2-5

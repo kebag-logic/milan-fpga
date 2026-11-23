@@ -1,0 +1,802 @@
+# fw-shard3.log: 229,773 bytes, sha256 9a505c49cc559b40c9e997392f3b6d4df910481aee4bf3c344d217adb8d11e2f; its first and last 400 of 1,628 lines
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1847 live invocations in exactly one shard; shard sizes [88, 827, 390, 542]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] f3b-listener-wrong-interface: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-8x8-sources-past-two-undeclared: StartupDeclaresTalkersDomainAndVlan / each source's three Talker declarations and no other
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-8x8-failure-code-past-two: StartupDeclaresTalkersDomainAndVlan / source 2's failure code
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] duplicate-tick-owner-8x8: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] preamble-ifg-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ninety-percent-ceiling: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] readyfailed-callback-stop: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] old-prefix-accepted: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] event-reentry-unguarded: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] backlogged-old-prefix-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] downlink-receive-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] delayed-in-listener: InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] delayed-in-talker: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rebind-loses-shared-applicant: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] consecutive-rebind-loses-applicant: ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] joining-binding-loses-applicant: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] applicant-inherited-across-streams: ReboundStreamCannotInheritAnotherStreamsReady / ready
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] final-unbind-withdraws-domain-vid: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] last-ineligible-vid-leaks: LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-keeps-owed-domain: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-keeps-sink-vlan: SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] milan-rapid-leave-leaks-to-mvrp: MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered()
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] composition-attach-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] composition-srp-irq-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] composition-srp-tick-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] composition-refusal-ignored: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] recovery-latency-retry-removed: SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0]
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+# ...
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-declaration-missed: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-withdrawal-missed: Talker.DeclarationAndWithdrawalAreNoticed / a withdrawal is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-record-dropped: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-every-declared-source: Talker.TypeSwapIsNoticed / a Talker Failed withdrawn is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-swap-missed: Talker.TypeSwapIsNoticed / a type swapped in place is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-refused-swap-noticed: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-vid-missed: Talker.AdoptedDomainVidIsNoticed / a declared Talker carrying another VID is noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-vid-on-every-domain: Talker.AdoptedDomainVidIsNoticed / a Domain that keeps the VID notices nothing
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_talker-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-reset-forgets-what-was-shown: Talker.ResetNoticesNothingUnchanged / a source a reset declares again unchanged is not noticed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-not-taken: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / a probe's declaration notices its source
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-kept-across-a-recomposition: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / an attached SRP instance starts with no record
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-record-kept: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / the SRP delivery takes SRP's record
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] talker-notice-owed-unreported: SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice / owes its notice
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-renew-not-recorded: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-unknown-withdraws: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-not-carried-in-place: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-filter-holds-nothing: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-filter-holds-nothing-acmp: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-not-held: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-held-not-taken: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-held-for-another-stream: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-held-with-one-kind: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-held-past-a-leave: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-held-past-a-reset: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] held-latest-any-interface: SrpTalkerKinds.AStreamIsHeldForItsOwnInterface / another interface's binding takes none of it
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] held-latest-reset-any-interface: SrpTalkerKinds.AStreamIsHeldForItsOwnInterface / another interface's reset leaves it
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-stream-kinds-kept: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-filter-failed-first: Listeners.RandomRecordsMatchTheReferenceReclaim / the copied run makes the reference run's mailbox writes and licence calls, in order, and holds its state
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-srp_listeners-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/tmp/fwb3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] four-way-srp-irq-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-srp-wake-missing: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone
+[ok] four-way-acmp-enable-lost: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others
+[ok] four-way-unbound-irq-enabled: AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask
+[ok] four-way-bound-drops-srp: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] four-way-bound-duplicates-events: AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once
+[ok] binding-delivery-missing: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-synchronous: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding
+[ok] binding-poll-adds-access: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access
+[ok] binding-interface-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-sink-lost: SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered
+[ok] binding-refusal-dropped: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered
+[ok] binding-owed-retry-dropped: SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered
+[ok] binding-unbind-lost: SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind
+[ok] binding-replacement-lost: SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered
+[ok] binding-pending-sleeps: SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake
+[ok] binding-count-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-poll-overflow: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp
+[ok] binding-reattach-recurses: SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter
+[ok] srp-bound-event: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound
+[ok] srp-bound-receive: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound
+[ok] srp-bound-poll-transmit: PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-bound-poll: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound
+[ok] srp-bound-tx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound
+[ok] srp-bound-rx-record: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound
+[ok] srp-bound-pass: EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound
+[ok] feedback-advertise-missing: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP
+[ok] feedback-failed-as-advertise: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP
+[ok] feedback-withdrawal-missing: SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP
+[ok] feedback-sink-crossed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity
+[ok] feedback-interface-suppressed: SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface
+[ok] feedback-repeated: SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once
+[ok] binding-park-keeps-old: SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding
+[ok] binding-invalid-retries: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep
+[ok] binding-invalid-upper-bound: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible
+[ok] binding-park-never-clears: SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking
+[ok] srp-term-fixed: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-transmit-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-interface-count: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently
+[ok] srp-term-poll-frames-uncapped: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / both of an interface's MRPDUs a call
+[ok] srp-term-send-cost: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum
+[ok] srp-term-event-record: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently
+[ok] srp-term-rx-count: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently
+[ok] srp-term-pass-poll: Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ok] srp-send-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record's accesses
+[ok] feedback-kind-failed-lost: SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-kind-advertise-lost: SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] feedback-withdrawal-overwritten: SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-intrapdu-lost: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-leave-clears-advertise-only: SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] feedback-failed-indication-as-advertise: SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes
+[ok] feedback-change-clears-both-kinds: SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn
+[ok] feedback-expiry-lost: SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive
+[ok] feedback-first-registration-lost: SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes
+[ok] feedback-kind-order-lost: SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal
+[ok] feedback-supersession-lost: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state
+[ok] feedback-withdrawal-sink-crossed: SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes
+[ok] feedback-advertise-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-failed-copy-lost: SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state
+[ok] feedback-identity-copy-stale: SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes
+[ok] p11-supersession-kind-stale: SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch
+[ok] p11-reset-withdrawal-lost: SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration
+[ok] p11-postwithdrawal-kind-overwrite: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] r10-feedback-ignores-pending: SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement
+[ok] r10-transient-refusal-forgotten: SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake
+[ok] r10-feedback-allowance-quarter: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] r10-feedback-allowance-eight: SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance
+[ok] binding-change-not-copied: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] talker-declared-while-not-valid: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a source whose SRP parameters are not valid declares nothing
+[ok] talker-lapse-kept: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a source whose parameters lapse withdraws its Talker
+[ok] talker-lapse-ignored-by-the-entry: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / the probe's 15 s expiry withdraws the Talker
+[ok] talker-unchanged-held: Talker.UnchangedDestinationIsDeclaredAgainAtOnce / an unchanged destination is declared again at once
+[ok] talker-hold-off-skipped: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-lapse-starts-no-hold-off: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two of the longest LeaveAll periods after the Leave
+[ok] talker-hold-off-one-leaveall: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-two-leavealltime-periods: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / no Talker of a changed destination is declared before the hold-off ends
+[ok] talker-hold-off-two-leavealltime-periods-after-a-conflict: SrpGate.F895ARangeLostWithdrawsAndTheNewRangeWaitsTheHoldOff / a changed destination waits two of the longest LeaveAll periods after the Leave
+[ok] talker-hold-off-drops-the-transmit-term: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave / the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+[ok] talker-hold-off-drops-the-join-and-transmit-terms: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave
+[ok] talker-hold-off-rounds-the-transmit-term-down: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave / the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave
+[ok] talker-hold-off-never-ends: Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods / a changed destination is declared once the hold-off ends
+[ok] talker-change-while-valid-unmarked: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-reset-forgets-the-move: Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne / the new participants hold a source that moved before the reset
+[ok] talker-decl-kept-at-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / TALKER_DECL clears the withdrawn source before its Leave leaves
+[ok] talker-licence-closed-after-the-withdrawal: Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing / a lapse closes LICENCE before TALKER_DECL drops the source
+[ok] talker-unchanged-declared-again: Talker.ValidSourceDeclaresAtOnceAndNothingBefore / a Talker whose parameters did not change is not declared again
+[ok] talker-admission-change-held: Talker.AdmissionChangeSwapsTheTypeInPlace / a swap whose join is refused keeps the declared type
+[ok] talker-swap-keeps-the-old-type: Talker.AdmissionChangeSwapsTheTypeInPlace / the Failed leaves as the Advertise joins
+[ok] talker-swap-leaves-a-failed-only: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission lost swaps the Advertise to Talker Failed in place
+[ok] talker-withdrawal-leaves-an-advertise-only: Talker.AdmissionChangeSwapsTheTypeInPlace / a lapse withdraws a Talker Failed too
+[ok] talker-refused-swap-takes-the-new-type: Talker.AdmissionChangeSwapsTheTypeInPlace / an admission change swaps the type in place at once
+[ok] talker-allocated-unfit-declares-code-2: Talker.AdmissionChangeSwapsTheTypeInPlace / an allocated source whose bandwidth does not fit declares Talker Failed, code 1
+[ok] talker-refused-declaration-forgotten: Talker.RefusedDeclarationIsDeclaredAgain / a refused declaration is declared again
+[ok] talker-refused-withdrawal-forgotten: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / a withdrawal lwSRP refused keeps the source declared
+[ok] talker-refused-withdrawal-not-owed: Talker.RefusedWithdrawalIsWithdrawnOnceLwsrpTakesIt / the refused withdrawal's Leave leaves once lwSRP takes it
+[ok] talker-transmit-publishes-past-its-terms: Talker.TransmitPublishesWithinItsTermsAfterARefusedJoin / THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass
+[ok] talker-gate-before-attach: Talker.GateEntryRecordsOnlyWhatChanged / refused before attach
+[ok] talker-gate-reentered: Talker.GateEntryRecordsOnlyWhatChanged / reentry is refused
+[ok] talker-gate-past-the-sources: Talker.GateEntryRecordsOnlyWhatChanged / a mask bit past the sources is no source
+[ok] talker-gate-repeat-ignores-its-base: Talker.DestinationChangeWhileValidWithdrawsTheOld / a changed destination withdraws the old destination's Advertise
+[ok] talker-gate-not-fed: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / a probe declares the source's Talker on its own interface
+[ok] talker-gate-of-another-range: SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt / with MAAP's base + n
+[ok] talker-listener-demand-not-forwarded: SrpGate.F895AListenerKeepsTheSourceDeclaredPastTheProbeWindow / a registered Listener keeps the Talker past the probe window
+[ok] talker-sid-unwritten-at-start: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-words-swapped: SrpGate.F905AEachSourceStreamIdIsWrittenBeforeItsGateOpens / SRC_SID_LO holds the stream_id's low word and SRC_SID_HI its high word
+[ok] talker-sid-never-held: SrpGate.F905AStreamIdChangedWhileClosedIsWrittenBeforeTheGateReopens / SRC_SID holds the source's stream_id when its DA_GATE bit opens
+[ok] talker-sid-opens-before-its-high-word: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / SRC_SID is written only while the source's DA_GATE bit is clear
+[ok] talker-sid-written-mark-kept: SrpGate.F905AGateReopensOnlyOnceItsStreamIdIsWrittenAgain / both SRC_SID words are written again between the bit's closing and its reopening
+[ok] talker-notice-declaration-missed: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+[ok] talker-notice-withdrawal-missed: Talker.DeclarationAndWithdrawalAreNoticed / a withdrawal is noticed
+[ok] talker-notice-record-dropped: Talker.DeclarationAndWithdrawalAreNoticed / a declaration is noticed
+[ok] talker-notice-every-declared-source: Talker.TypeSwapIsNoticed / a Talker Failed withdrawn is noticed
+[ok] talker-notice-swap-missed: Talker.TypeSwapIsNoticed / a type swapped in place is noticed
+[ok] talker-notice-refused-swap-noticed: Talker.TypeSwapIsNoticed / a swap lwSRP refuses is not noticed until it is made
+[ok] talker-notice-vid-missed: Talker.AdoptedDomainVidIsNoticed / a declared Talker carrying another VID is noticed
+[ok] talker-notice-vid-on-every-domain: Talker.AdoptedDomainVidIsNoticed / a Domain that keeps the VID notices nothing
+[ok] talker-notice-reset-forgets-what-was-shown: Talker.ResetNoticesNothingUnchanged / a source a reset declares again unchanged is not noticed
+[ok] talker-notice-not-taken: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / a probe's declaration notices its source
+[ok] talker-notice-kept-across-a-recomposition: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / an attached SRP instance starts with no record
+[ok] talker-notice-record-kept: SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource / the SRP delivery takes SRP's record
+[ok] talker-notice-owed-unreported: SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice / owes its notice
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] feedback-latest-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-walk-failed-first: SrpTalkerKinds.AnAdvertiseNewReplacesARegisteredFailedWithinAJoinTime / an Advertise New replaces the registered Failed
+[ok] feedback-latest-advertise-only: SrpTalkerKinds.AFailedNewReplacesARegisteredAdvertiseWithinAJoinTime / a Failed New replaces the registered Advertise
+[ok] feedback-latest-decides-unregistered: SrpTalkerKinds.LeaveOfEitherKindLeavesTheOtherDeciding / the latest leaves: the other decides
+[ok] feedback-latest-earliest-decides: SrpTalkerKinds.CoincidentRegistrationsInOneMrpduFollowTheirOrder / Failed then Advertise in one MRPDU
+[ok] feedback-latest-not-carried: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / the shared declaration stays Ready, not ReadyFailed
+[ok] feedback-latest-matching-only: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / a later binding takes the latest registration
+[ok] feedback-latest-renew-not-recorded: SrpTalkerKinds.EachNewInTurnDecidesWhileBothAreRegistered / a Failed New beside the Advertise decides again
+[ok] feedback-latest-unknown-withdraws: SrpTalkerKinds.AFullHeldTableHoldsNothingMore / no latest known: Failed
+[ok] feedback-latest-not-carried-in-place: SrpTalkerKinds.ABindingMadeLaterTakesTheLatestFromAnyBindingOfTheStream / one in place too
+[ok] feedback-latest-filter-holds-nothing: SrpTalkerKinds.AReplacementBeforeAMessageThatChangesNothingIsDeclaredWithinAJoinTime / a New before a message that changes nothing
+[ok] feedback-latest-filter-holds-nothing-acmp: SrpFeedback.AnAdvertiseNewBeforeAnUnchangedDomainUpdatesBothWireViews / Listener Ready on the wire within a JoinTime
+[ok] feedback-latest-not-held: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-not-taken: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / a final unbinding keeps the latest registration
+[ok] feedback-latest-held-for-another-stream: SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered / another StreamID takes none of it
+[ok] feedback-latest-held-with-one-kind: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / one kind registered holds nothing
+[ok] feedback-latest-held-past-a-leave: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-held-past-a-reset: SrpTalkerKinds.AHeldStreamEndsWithEitherRegistrationOrAReset / a registration's end or a reset ends the hold
+[ok] feedback-latest-stream-kinds-kept: HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep / holds what a walk copies
+[ok] feedback-latest-filter-failed-first: Listeners.RandomRecordsMatchTheReferenceReclaim / the copied run makes the reference run's mailbox writes and licence calls, in order, and holds its state
+[ok] feedback-latest-acmp-failed-first: SrpFeedback.AdvertiseNewOverARegisteredFailedUpdatesTheSettledWireView / current kind reaches ACMP
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] listener-copy-talker-indication-unwalked: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-declaration-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-presence-lost: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-leaving-counted-absent: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] listener-copy-departure-dropped: Listeners.RandomRecordsMatchTheReferenceWalk / the copied run makes the reference run's mailbox writes and licence calls, in order
+[ok] srp-cut-same-id-last-byte-only: Srp.AListenerIsASourcesOnlyForItsStreamIDByteForByte / differs from source 0's in byte 0 alone
+[ok] srp-cut-filter-pass-dropped: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-filter-pass-inverted: SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes
+[ok] srp-cut-reclaim-every-change: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-any-registrar: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-reclaim-very-anxious-kept: Listeners.ALeavingListenerIsReclaimed / an attribute changed into a state mrp_reclaim frees is reclaimed
+[ok] srp-cut-reclaim-every-change-fresh: Listeners.AListenerLeftAsCreatedBesideAnotherChangeIsReclaimed / an attribute a receive created and left as created beside another change is reclaimed
+[ok] srp-cut-reclaim-creation-unowed: Listeners.AListenerLeftAsCreatedIsReclaimed / an attribute a receive created and left as created is reclaimed
+[ok] srp-cut-reclaim-every-receive: Listeners.SteadyListenerRecordsAndBuildsWalkNoAttributes / a registered Listener's JoinIn and THE TRANSMIT's builds walk no attributes
+[ok] srp-cut-snapshot-copy-over-withdrawal: SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS

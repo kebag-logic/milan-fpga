@@ -1,0 +1,175 @@
+--- tb/verilator/ctrl_service_budget/sim_main.cpp
++++ checkpoint_main.cpp
+@@ -31,8 +31,13 @@
+ #include <stdexcept>
+ #include <string>
+ #include <vector>
++#include <unistd.h>
++#include <sys/wait.h>
++#include <dirent.h>
++#include <cerrno>
+ 
+ namespace {
++Vsim* checkpoint_model = nullptr;
+ // printf's %llu takes unsigned long long; the widening is implicit, never a cast.
+ unsigned long long ull(std::uint64_t value) { return value; }
+ 
+@@ -84,14 +89,9 @@
+ 
+ struct Step { std::string op; std::vector<std::string> args; };
+ 
+-class Bench {
+-public:
+-    Bench(const char* script, const char* flash_image) : flash_(0, 0) {
+-        // The store's journal is the flash map's (budget_config.hpp), the KLJ3 journal at the split placement
+-        // (#823): the device refuses a write outside it, and its reads are the FLASHRD runs below.
+-        flash_.journal(journal_offset, journal_size);
+-        if (flash_image[0] != '-') flash_.load(flash_image, 0);
+-        if (const char* journal = std::getenv("BUDGET_JOURNAL_IN")) flash_.load(journal, journal_offset);
++
++std::vector<Step> checkpoint_steps(const char* script) {
++    std::vector<Step> steps;
+         std::ifstream input(script);
+         if (!input) throw std::runtime_error("cannot open stimulus script");
+         std::string line;
+@@ -101,9 +101,21 @@
+             Step step;
+             words >> step.op;
+             for (std::string w; words >> w;) step.args.push_back(w);
+-            steps_.push_back(step);
++            steps.push_back(step);
+         }
+-        if (steps_.empty() || steps_.back().op != "end") throw std::runtime_error("script must end with end");
++        if (steps.empty() || steps.back().op != "end") throw std::runtime_error("script must end with end");
++    return steps;
++}
++
++class Bench {
++public:
++    Bench(const char* script, const char* flash_image) : flash_(0, 0) {
++        // The store's journal is the flash map's (budget_config.hpp), the KLJ3 journal at the split placement
++        // (#823): the device refuses a write outside it, and its reads are the FLASHRD runs below.
++        flash_.journal(journal_offset, journal_size);
++        if (flash_image[0] != '-') flash_.load(flash_image, 0);
++        if (const char* journal = std::getenv("BUDGET_JOURNAL_IN")) flash_.load(journal, journal_offset);
++        steps_ = checkpoint_steps(script);
+     }
+ 
+     void sample(Vsim& dut) {
+@@ -636,8 +648,102 @@
+         frames_.push_back(f);
+     }
+ 
++
++    // Local validation accelerator: fork only after a proven common stimulus prefix.
++    // The parent remains at that exact state; each child gets an independent process image.
++    using CheckpointJobs = std::vector<std::pair<std::string, std::string>>;
++    bool checkpoint_initialized_ = false;
++    std::size_t checkpoint_step_ = ~std::size_t(0);
++    CheckpointJobs checkpoint_jobs_;
++    std::string checkpoint_log_;
++    void checkpoint_target() {
++        checkpoint_step_ = steps_.size();
++        for (const auto& job : checkpoint_jobs_) {
++            const auto next = checkpoint_steps(job.first.c_str());
++            size_t n = 0;
++            while (n < std::min(next.size(), checkpoint_step_) &&
++                   next[n].op == steps_[n].op && next[n].args == steps_[n].args) ++n;
++            checkpoint_step_ = n;
++        }
++        if (checkpoint_step_ < step_) throw std::runtime_error("checkpoint stimulus prefix differs");
++        if (checkpoint_jobs_.size() < 2) checkpoint_step_ = ~std::size_t(0);
++    }
++    void checkpoint() {
++        if (!checkpoint_initialized_) {
++            checkpoint_initialized_ = true;
++            const char* manifest = std::getenv("CHECKPOINT_MANIFEST");
++            if (!manifest) return;
++            const char* log = std::getenv("CHECKPOINT_LOG");
++            if (!log) throw std::runtime_error("checkpoint log path missing");
++            checkpoint_log_ = log;
++            std::ifstream list(manifest);
++            if (!list) throw std::runtime_error("cannot open checkpoint manifest");
++            std::string script, output;
++            while (list >> script >> output) checkpoint_jobs_.emplace_back(script, output);
++            if (checkpoint_jobs_.empty()) throw std::runtime_error("empty checkpoint manifest");
++            checkpoint_target();
++        }
++        if (step_ != checkpoint_step_) return;
++        if (armed_) throw std::runtime_error("checkpoint at an armed wait");
++        DIR* tasks = opendir("/proc/self/task");
++        if (!tasks) throw std::runtime_error("cannot count checkpoint threads");
++        unsigned threads = 0;
++        while (auto* e = readdir(tasks)) if (e->d_name[0] != '.') ++threads;
++        closedir(tasks);
++        if (threads != 1) throw std::runtime_error("checkpoint requires a single-threaded process");
++        std::map<std::vector<std::string>, CheckpointJobs> branches;
++        for (const auto& job : checkpoint_jobs_) {
++            const auto next = checkpoint_steps(job.first.c_str());
++            if (next.size() <= step_) throw std::runtime_error("short checkpoint script");
++            for (size_t n = 0; n < step_; ++n)
++                if (next[n].op != steps_[n].op || next[n].args != steps_[n].args)
++                    throw std::runtime_error("checkpoint stimulus prefix differs");
++            std::vector<std::string> key{next[step_].op};
++            key.insert(key.end(), next[step_].args.begin(), next[step_].args.end());
++            branches[key].push_back(job);
++        }
++        if (branches.size() < 2) throw std::runtime_error("checkpoint did not branch");
++        std::fflush(nullptr);
++        checkpoint_model->prepareClone();
++        std::vector<pid_t> children;
++        for (const auto& branch : branches) {
++            const pid_t pid = fork();
++            if (pid < 0) throw std::runtime_error("checkpoint fork failed");
++            if (pid == 0) {
++                checkpoint_model->atClone();
++                checkpoint_jobs_ = branch.second;
++                const auto previous_log = checkpoint_log_;
++                checkpoint_log_ = checkpoint_jobs_[0].second;
++                if (checkpoint_jobs_.size() > 1) checkpoint_log_ += ".prefix-" + std::to_string(step_);
++                if (!std::freopen(checkpoint_log_.c_str(), "w", stdout))
++                    throw std::runtime_error("cannot open checkpoint log");
++                std::ifstream prefix(previous_log, std::ios::binary);
++                if (!prefix) throw std::runtime_error("cannot read checkpoint prefix log");
++                std::array<char, 65536> bytes;
++                while (prefix) {
++                    prefix.read(bytes.data(), bytes.size());
++                    if (std::fwrite(bytes.data(), 1, prefix.gcount(), stdout) != size_t(prefix.gcount()))
++                        throw std::runtime_error("cannot write checkpoint prefix log");
++                }
++                steps_ = checkpoint_steps(checkpoint_jobs_[0].first.c_str());
++                checkpoint_target();
++                return;
++            }
++            children.push_back(pid);
++        }
++        int failures = 0;
++        for (pid_t child : children) {
++            int status = 0; pid_t pid;
++            do { pid = waitpid(child, &status, 0); } while (pid < 0 && errno == EINTR);
++            if (pid < 0) throw std::runtime_error("checkpoint waitpid failed");
++            if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) ++failures;
++        }
++        std::_Exit(failures ? 1 : 0);
++    }
++
+     void run_script() {
+         while (step_ < steps_.size()) {
++            checkpoint();
+             const Step& s = steps_[step_];
+             if (s.op == "wait") {
+                 if (!armed_) {
+@@ -847,11 +953,13 @@
+ int main(int argc, char** argv) {
+     std::setvbuf(stdout, nullptr, _IOFBF, 1 << 20);
+     Verilated::commandArgs(argc, argv);
++    Verilated::threadContextp()->threads(1);
+     milan::tb::Checker check{"ctrl_service_budget"};
+     try {
+         if (argc != 3) throw std::runtime_error("expected the stimulus script and the flash image (or -)");
+         const milan::tb::Model<Vsim> model;
+         auto& dut = *model.get();
++        checkpoint_model = &dut;
+         initialize(dut);
+         Bench bench(argv[1], argv[2]);
+         simulate(dut, bench);

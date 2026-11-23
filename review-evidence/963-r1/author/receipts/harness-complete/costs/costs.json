@@ -1,0 +1,434 @@
+[
+ {
+  "point": "1x1",
+  "cost": "pass.longest",
+  "base": 156496,
+  "head": 156026,
+  "base_at": "answering-later/notice-retried-4",
+  "head_at": "answering-later/notice-retried-4"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.acmp",
+  "base": 4739,
+  "head": 4505,
+  "base_at": "answering-ports/backlog-owed",
+  "head_at": "answering-ports/backlog-owed"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.acmp_declined",
+  "base": 1700,
+  "head": 1476,
+  "base_at": "none/backlog-owed",
+  "head_at": "answering-ports/backlog-owed"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.acmp_kept",
+  "base": 7158,
+  "head": 7088,
+  "base_at": "answering-ports/backlog-owed",
+  "head_at": "answering-ports/backlog-owed"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.aecp",
+  "base": 14084,
+  "head": 14158,
+  "base_at": "declaring-outputs/aecp-fanout",
+  "head_at": "declaring-outputs/aecp-fanout"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.aecp_long",
+  "base": 29652,
+  "head": 29644,
+  "base_at": "none/aecp-largest-notice",
+  "head_at": "declaring-outputs/aecp-largest-notice"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.base",
+  "base": 19359,
+  "head": 19304,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.mrpdu",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.rebuild",
+  "base": 18186,
+  "head": 18468,
+  "base_at": "answering-ports/adp-link",
+  "head_at": "answering-ports/adp-link"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.reclaim",
+  "base": 1767,
+  "head": 1688,
+  "base_at": "none/srp",
+  "head_at": "none/srp"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.record",
+  "base": 24268,
+  "head": 23949,
+  "base_at": "answering-every-port/notice-every-6",
+  "head_at": "answering-ports/backlog-adp@program-aged2-6"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.retained",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.walk",
+  "base": 2105,
+  "head": 2112,
+  "base_at": "none/srp",
+  "head_at": "answering-ports/srp"
+ },
+ {
+  "point": "1x1",
+  "cost": "poll.withdraw",
+  "base": 4789,
+  "head": 4865,
+  "base_at": "none/backlog",
+  "head_at": "answering-ports/backlog"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.acmp_mbx:on_frame",
+  "base": 19427,
+  "head": 19100,
+  "base_at": "answering-ports/fixture",
+  "head_at": "declaring-outputs/aecp-fanout"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.adp_mbx:on_frame",
+  "base": 51989307,
+  "head": 52000604,
+  "base_at": "talker-notices/talker-notice-5",
+  "head_at": "talker-notices/talker-notice-0"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.aecp_mbx:frame",
+  "base": 91923,
+  "head": 82522,
+  "base_at": "declaring-outputs/aecp-largest-notice",
+  "head_at": "answering-ports/aecp-largest-notice"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.maap_mbx:receive",
+  "base": 10411,
+  "head": 10291,
+  "base_at": "talker-notices/talker-notice-0",
+  "head_at": "talker-notices/talker-notice-0"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.srp_mbx:apply_receive",
+  "base": 24268,
+  "head": 23949,
+  "base_at": "answering-every-port/notice-every-6",
+  "head_at": "answering-ports/backlog-adp@program-aged2-6"
+ },
+ {
+  "point": "1x1",
+  "cost": "record.srp_mbx:receive",
+  "base": 24662,
+  "head": 24319,
+  "base_at": "answering-every-port/notice-every-6",
+  "head_at": "answering-ports/backlog-adp@program-aged2-6"
+ },
+ {
+  "point": "1x1",
+  "cost": "round",
+  "base": 59705,
+  "head": 59315,
+  "base_at": "answering-every-port/notice-every-7",
+  "head_at": "answering-every-port/notice-every-0"
+ },
+ {
+  "point": "1x1",
+  "cost": "slice.build",
+  "base": 58394,
+  "head": 53929,
+  "base_at": "valid-destinations/srp-talker",
+  "head_at": "answering-ports/srp"
+ },
+ {
+  "point": "1x1",
+  "cost": "slice.round",
+  "base": 59705,
+  "head": 59315,
+  "base_at": "answering-every-port/notice-every-7",
+  "head_at": "answering-every-port/notice-every-0"
+ },
+ {
+  "point": "1x1",
+  "cost": "slice.srp",
+  "base": 80936,
+  "head": 81070,
+  "base_at": "answering-ports/save-starved",
+  "head_at": "answering-ports/save-starved"
+ },
+ {
+  "point": "1x1",
+  "cost": "whole.build",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "1x1",
+  "cost": "whole.build-one",
+  "base": 53827,
+  "head": 53929,
+  "base_at": "answering-ports/srp",
+  "head_at": "answering-ports/srp"
+ },
+ {
+  "point": "1x1",
+  "cost": "whole.step",
+  "base": 81365,
+  "head": 81040,
+  "base_at": "answering-ports/backlog-adp@program-aged2-4",
+  "head_at": "answering-ports/backlog-adp@program-aged2-4"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "pass.longest",
+  "base": 227112,
+  "head": 169467,
+  "base_at": "declaring-outputs/aecp-largest-notice",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.acmp",
+  "base": 6217,
+  "head": 6231,
+  "base_at": "answering-ports/backlog-owed",
+  "head_at": "none/backlog-owed"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.acmp_declined",
+  "base": 2181,
+  "head": 2181,
+  "base_at": "none/backlog-owed",
+  "head_at": "none/backlog-owed"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.acmp_kept",
+  "base": 8649,
+  "head": 8753,
+  "base_at": "none/backlog-owed",
+  "head_at": "none/backlog-owed"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.aecp",
+  "base": 13414,
+  "head": 13377,
+  "base_at": "answering-later/notice-retried-0",
+  "head_at": "answering-later/notice-retried-0"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.aecp_long",
+  "base": 29401,
+  "head": 29433,
+  "base_at": "declaring-outputs/aecp-largest-notice",
+  "head_at": "declaring-outputs/aecp-largest-notice"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.base",
+  "base": 27896,
+  "head": 27676,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.mrpdu",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.rebuild",
+  "base": 20770,
+  "head": 21189,
+  "base_at": "answering-ports/adp-link",
+  "head_at": "answering-ports/fixture"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.reclaim",
+  "base": 995,
+  "head": 1044,
+  "base_at": "none/srp",
+  "head_at": "none/srp"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.record",
+  "base": 34550,
+  "head": 35019,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.retained",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.walk",
+  "base": 3300,
+  "head": 3379,
+  "base_at": "valid-destinations/srp-talker-loss",
+  "head_at": "valid-destinations/srp-talker-loss"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "poll.withdraw",
+  "base": 5995,
+  "head": 5984,
+  "base_at": "answering-ports/backlog",
+  "head_at": "answering-ports/backlog"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.acmp_mbx:on_frame",
+  "base": 21368,
+  "head": 21663,
+  "base_at": "answering-ports/backlog-adp@blank-0",
+  "head_at": "answering-ports/backlog-adp@blank-0"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.adp_mbx:on_frame",
+  "base": 52004604,
+  "head": 51999126,
+  "base_at": "talker-notices/talker-notice-2",
+  "head_at": "talker-notices/talker-notice-0"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.aecp_mbx:frame",
+  "base": 167691,
+  "head": 104717,
+  "base_at": "declaring-outputs/aecp-largest-notice",
+  "head_at": "declaring-outputs/aecp-largest-notice"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.maap_mbx:receive",
+  "base": 16176,
+  "head": 16203,
+  "base_at": "valid-destinations/srp-talker-loss",
+  "head_at": "valid-destinations/srp-talker-loss"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.srp_mbx:apply_receive",
+  "base": 34550,
+  "head": 35019,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "record.srp_mbx:receive",
+  "base": 34803,
+  "head": 35244,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "round",
+  "base": 87596,
+  "head": 89207,
+  "base_at": "answering-every-port/notice-burst-4",
+  "head_at": "answering-every-port/notice-burst-7"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "slice.build",
+  "base": 124099,
+  "head": 123346,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "slice.round",
+  "base": 87596,
+  "head": 89207,
+  "base_at": "answering-every-port/notice-burst-4",
+  "head_at": "answering-every-port/notice-burst-7"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "slice.srp",
+  "base": 130353,
+  "head": 129683,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "whole.build",
+  "base": 0,
+  "head": 0,
+  "base_at": "",
+  "head_at": ""
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "whole.build-one",
+  "base": 123076,
+  "head": 123346,
+  "base_at": "valid-destinations/srp-talker-held",
+  "head_at": "valid-destinations/srp-talker-held"
+ },
+ {
+  "point": "8x8-1if",
+  "cost": "whole.step",
+  "base": 80729,
+  "head": 80644,
+  "base_at": "answering-ports/backlog-adp@program-aged2-3",
+  "head_at": "none/backlog-adp@program-aged2-5"
+ }
+]

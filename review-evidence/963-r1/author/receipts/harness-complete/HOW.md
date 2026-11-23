@@ -1,0 +1,13 @@
+# Complete harness census and differential
+
+The complete set is 481 groups per tree: 241 at 1x1/1if and 240 at 8x8/1if, all eight arms, all 72 save windows wherever applicable. Base is dd163e41; measured final firmware is e9627b31, equivalent to final head 9860395a as recorded in ../provenance/proof.json. All 962 runs return 0 under the formal recording options. The census lists the hash of each full result JSON. Full logs remain in scratch; only bounded receipts are retained here.
+
+Every head work pass is within THE SHARE. Base findings occur only in the two target groups. No graded row or bound was changed. Both complete record-class gates pass; the reported-only 1x1 declaring-outputs paced row remains above its statement (30,148 cycles versus base 30,839). Every held class is within its statement.
+
+The strict comparison masks no byte: frames in order per channel/interface, publication writes in order per word, transmit counts, probe statuses and budget verdicts, refusal lines and result status. It reports 454 exact groups and 27 raw differences, with zero missing runs. Its script exit code is diagnostic, not an exact-equality pass. All five target groups are exact; ../target-differential additionally proves their one global wire-frame order.
+
+Nineteen answering-every-port groups reorder unsolicited descriptor notices and assign sequence IDs accordingly; full notice-byte multisets differ. Eight save-second/save-starved groups carry different grandmaster IDs from the pass-count-driven input flood. The diagnostic comparison masks that input identity and compares notice payloads without sequence IDs while requiring consecutive IDs per recipient. Its 481 SAME results mean that explicitly defined timing-normalized equivalence only. They do not discharge strict byte identity across the complete harness. Acceptance of that distinction is pending.
+
+Both trees retain 28 recorded budget misses in backlog-owed (held egress). There are no save, notice, or refusal findings. The same probes and budget verdicts fail on both trees; recording those findings does not turn them into passes. See retained-budget-findings.json. The unchanged approved load model, separately checked byte for byte against base, remains 0.511 and 0.744. Individual measured costs can move in either direction within their statements; costs/ lists all maxima without suppressing increases.
+
+Checkpoint acceleration was calibrated against all 72 complete ordinary-run logs before accepting the additional 504 measurements. It retains the original hardware model, firmware, scripts and graders. See ../checkpoint for provenance, exact full-log calibrations, reproduction helpers and failing calibration controls.
