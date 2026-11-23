@@ -1,0 +1,204 @@
+{
+  "head": "99a003ccb38d78a51324986fd040924326a87ac6",
+  "scope": "Input-map table construction only; no full candidate generation, RTL or area measurement.",
+  "base_shapes": [
+    {
+      "shape": "1x1/1if",
+      "input_cluster_counts": [
+        8
+      ],
+      "input_pools": [
+        [
+          {
+            "role": "physical",
+            "offset": 0,
+            "width": 8,
+            "first": 0
+          }
+        ]
+      ],
+      "legacy_loopback_enabled": true,
+      "output_cluster_counts": [
+        17
+      ]
+    },
+    {
+      "shape": "8x8/1if",
+      "input_cluster_counts": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "input_pools": [
+        [
+          {
+            "role": "physical",
+            "offset": 0,
+            "width": 1,
+            "first": 0
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 1
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 2
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 3
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 4
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 5
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 6
+          }
+        ],
+        [
+          {
+            "role": "unrouted",
+            "offset": 0,
+            "width": 1,
+            "first": 7
+          }
+        ]
+      ],
+      "legacy_loopback_enabled": false,
+      "output_cluster_counts": [
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9
+      ]
+    }
+  ],
+  "geometry_probes": [
+    {
+      "case": "selected B: physical plus eight on port 0, seven on port 7",
+      "keys": 64,
+      "result": "accepted geometry",
+      "page_size": 8,
+      "pages_per_port": [
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "case": "minimal: physical plus one loop per port",
+      "keys": 9,
+      "result": "accepted geometry",
+      "page_size": 2,
+      "pages_per_port": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "case": "63 separate loop channels plus physical",
+      "keys": 64,
+      "result": "accepted geometry",
+      "page_size": 8,
+      "pages_per_port": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "case": "64 loop channels, first sharing the physical mapping",
+      "keys": 64,
+      "result": "accepted geometry",
+      "page_size": 8,
+      "pages_per_port": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "case": "64 separate loop channels plus physical",
+      "keys": 65,
+      "result": "refused as expected",
+      "reason": "65 dynamic cluster keys exceeds the 64-key render map address space (chmap64)"
+    },
+    {
+      "case": "1x1: eight physical plus eight separate loop",
+      "keys": 16,
+      "result": "accepted geometry",
+      "page_size": 8,
+      "pages_per_port": [
+        2
+      ]
+    }
+  ],
+  "source_sha256": {
+    "avdecc/aem_assemble.py": "afdfad0a991d0f6e22b32825ed2e08ce3f81bea866c620ce93057b5f93eaca9e",
+    "sw/builder/endstation_builder.py": "3cc61c066fce3de223e8cf98fdabcc8d12adfd4a02745673b41c43552d89a641",
+    "hdl/ieee1722/aaf/KL_render_queue.sv": "1f43d6390fac261cb00b773350fcfb1e323ac82e4ad93c8d9c977428ae2182d3",
+    "hdl/milan/milan_datapath.sv": "90ea516853460fb6703e5747ed8db2e6c490823bb621175b6d1259fa873f335a",
+    "hdl/ieee1722/aaf/KL_chan_map_capture.sv": "95a9f57a958683eb68b555138ea02f7f943ee67a70f44b361b56ca866ea1b794"
+  }
+}
