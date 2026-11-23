@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""plants2.py CTRL_TEST_DIR OUT REVIEWER_PLANTS PREFIX...: srp_mutants.campaign over the table's defects whose names
+start with a PREFIX plus the defects REVIEWER_PLANTS' defects(kind) builds, at 1x1/1if, 8x8/1if and 1x1/2if. A
+reviewer defect whose planting site the head no longer holds is reported, not planted."""
+import sys
+from pathlib import Path
+
+here = Path(sys.argv[1]).resolve()
+out = Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(here))
+sys.path.insert(0, str(here.parents[1] / "gtest"))
+import srp_mutants  # noqa: E402
+from ctrl_build import CTRL  # noqa: E402
+
+lwsrp = (CTRL.parents[2] / "third_party/lwSRP").resolve()
+ns: dict = {}
+exec(compile(Path(sys.argv[3]).read_text(), sys.argv[3], "exec"), ns)
+reviewer = ns["defects"](srp_mutants.Defect)
+ours = tuple(d for d in srp_mutants.DEFECTS if d.name.startswith(tuple(sys.argv[4:])))
+table = []
+for d in ours + tuple(reviewer):
+    src = (CTRL / d.path).read_text()
+    if src.count(d.old) != 1:
+        print(f"[SITE-GONE] {d.name}: {src.count(d.old)} planting sites at this head", flush=True)
+        continue
+    table.append(d)
+srp_mutants.DEFECTS = tuple(table)
+print(f"{len(table)} defects: {[d.name for d in table]}", flush=True)
+bad = False
+for label, interfaces, entity in (("if1", 1, ""), ("8x8-if1", 1, "endstation_ax7101_8x8"), ("if2", 2, "")):
+    failed = srp_mutants.campaign(out / label, lwsrp, 4, interfaces, entity)
+    print(f"CAMPAIGN {label}: {'FAIL' if failed else 'PASS'}", flush=True)
+    bad |= failed
+sys.exit(1 if bad else 0)

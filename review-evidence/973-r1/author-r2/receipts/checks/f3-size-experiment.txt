@@ -1,0 +1,11 @@
+Candidate: 5759780f2251ef25221c6a395250312dce656ca4.
+Discarded prototype: f3-discarded-prototype.diff, applied only to a scratch firmware copy.
+Object sizing: python3 sizes.py "$CTRL_SOURCE" "$OUT" endstation_ax7101_8x8 1
+Current: .text total 11544 B; on_event 164 B; poll 812 B.
+Prototype: .text total 11560 B; on_event 180 B; poll 812 B.
+Platform link uses the same CSR/flash map and runtime as the passing 8x8/1if ledger:
+python3 -B sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 1 --csr-csv "$CSR_CSV" --flash-map "$FLASH_MAP" --output "$OUT" --ctrl-source "$PROTOTYPE_CTRL" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a" --ledgered-point platform-8x8-one-interface
+Result: REFUSED, exit 2 (r2-f3-image.txt).
+ROM 139272 B, SRAM 98160 B, 58.5 RAMB36 > unchanged ledger 58.
+Current image: ROM 139256 B, SRAM 98160 B, 58 RAMB36 (images/head-8x8-if1-size.json).
+The candidate source was not modified by this experiment.

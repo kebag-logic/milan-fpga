@@ -1,0 +1,13 @@
+--- HEAD/srp_mbx.c
++++ discarded-prototype/srp_mbx.c
+@@ -1224,7 +1224,9 @@
+         // A repeated UP can represent coalesced down/up edges. Only the
+         // initial UP uses the already clean startup participants.
+         if (i->link_seen || !event->link_up) {
+-            reset_interface(i);
++            if (!i->link_seen || event->link_up || i->link) {
++                reset_interface(i);
++            }
+         } else {
+             hold(i);
+         }

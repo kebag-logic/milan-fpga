@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+"""arms.py CTRL_TEST_DIR OUT SPEC...: run single SRP arms of the firmware gate on a tree, each SPEC
+`suite[:filter]@interfaces@config-stem` (srp_arms.arm_srp), printing each verdict and the tail of its log."""
+import sys
+from pathlib import Path
+
+here = Path(sys.argv[1]).resolve()
+out = Path(sys.argv[2]).resolve()
+sys.path.insert(0, str(here))
+sys.path.insert(0, str(here.parents[1] / "gtest"))
+import fw_gtest  # noqa: E402
+import srp_arms  # noqa: E402
+from ctrl_build import CTRL, ROOT, Tree  # noqa: E402
+from ctrl_reuse import cut_reuse  # noqa: E402
+
+tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=4))
+cut_reuse(tree.reuse)
+lwsrp = (CTRL.parents[2] / "third_party/lwSRP").resolve()
+bad = 0
+for spec in sys.argv[3:]:
+    test, n, stem = spec.split("@")
+    suite, _, flt = test.partition(":")
+    o = srp_arms.arm_srp(tree, lwsrp, int(n), test=(suite, flt) if flt else suite,
+                         config=ROOT / "configs" / f"{stem}.yaml")
+    print(f"=== {o.arm} rc={o.rc}")
+    print("\n".join(o.log.splitlines()[-40:]))
+    bad += o.rc != 0
+print(f"ARMS {'FAIL' if bad else 'PASS'} ({bad} failed)")
+sys.exit(1 if bad else 0)

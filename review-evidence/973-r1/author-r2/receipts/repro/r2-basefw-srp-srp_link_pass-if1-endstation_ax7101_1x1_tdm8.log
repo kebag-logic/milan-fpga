@@ -1,0 +1,133 @@
+[==========] Running 7 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:94: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:95: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:96: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll reset the interface on a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:112: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP resets nothing
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:113: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x556e2dee9bf0
+  startup
+    Which is: 0x556e2dee9bb0
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP keeps the startup participants
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:122: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x556e2dee9bf0
+  startup
+    Which is: 0x556e2dee9bb0
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a first UP keeps the startup participants
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:94: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:96: Failure
+Expected equality of these values:
+  resets
+    Which is: 4
+  before
+    Which is: 3
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: SRP's poll reset the interface on a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:127: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 2
+  1u
+    Which is: 1
+a later UP resets the interface once
+
+  [FAIL] SrpLinkPass.AfterTheEventsBeforeSrpsPoll: a later UP resets the interface once
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:153: Failure
+Value of: i.link_seen
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:161: Failure
+Value of: i.link_seen
+  Actual: true
+Expected: false
+SRP took an UP from the register while its LINK waited behind the ring's records
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP took an UP from the register while its LINK waited behind the ring's records
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:164: Failure
+Expected equality of these values:
+  resets
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: a first UP resets nothing
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[----------] 5 tests from SrpLinkPass (1 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+
+ 2 FAILED TESTS
+== ctrl SRP link inside a pass: checks: 7   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 7 checks, exit 1)

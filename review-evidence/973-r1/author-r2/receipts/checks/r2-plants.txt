@@ -1,0 +1,305 @@
+[SITE-GONE] rv-poll-or-instead-of-and: 0 planting sites at this head
+20 defects: ['short-link-interruption-ignored', 'link-level-loss-ignored', 'attach-ignores-current-link', 'cancelled-link-never-recovers', 'cancelled-link-record-posted', 'srp-poll-extra-read', 'link-pass-poll-takes-the-register', 'link-pass-attach-carries-an-up', 'link-pass-carried-stays-up', 'link-pass-first-up-resets', 'link-pass-carried-never-recorded', 'link-pass-attach-carries-nothing', 'link-pass-down-waits-for-its-record', 'link-pass-poll-or-instead-of-and', 'link-pass-unowed-up-never-taken', 'link-pass-unowed-up-taken-unmarked', 'link-pass-unowed-up-ignores-the-take', 'rv-poll-clears-carried', 'rv-sink-double-reset', 'rv-poll-resets-on-register-up']
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ESCAPED] link-pass-poll-takes-the-register: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/if1/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+[ok] link-pass-attach-carries-an-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-carried-stays-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a later UP resets the interface once
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+[ok] link-pass-carried-never-recorded: SrpLinkPass.BeforeAPass / a first UP resets nothing
+[ESCAPED] link-pass-attach-carries-nothing: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / Value of: talker
+Note: Google Test filter = Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1057: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: Expected: true
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1046: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1058: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+[ESCAPED] link-pass-down-waits-for-its-record: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/if1/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+[ok] link-pass-poll-or-instead-of-and: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] link-pass-unowed-up-never-taken: Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp / SRP does not follow a link that is up
+[ok] link-pass-unowed-up-taken-unmarked: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-unowed-up-ignores-the-take: SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp / SRP took an UP from the register while its LINK waited behind the ring's records
+[ESCAPED] rv-poll-clears-carried: Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / level recovery resumes declarations
+Note: Google Test filter = Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] rv-sink-double-reset: SrpLinkPass.InTheEvents / resets the interface once
+[ok] rv-poll-resets-on-register-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+CAMPAIGN if1: FAIL
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+[ESCAPED] link-pass-poll-takes-the-register: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/8x8-if1/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+[ok] link-pass-attach-carries-an-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-carried-stays-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a later UP resets the interface once
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+[ok] link-pass-carried-never-recorded: SrpLinkPass.BeforeAPass / a first UP resets nothing
+[ESCAPED] link-pass-attach-carries-nothing: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / Value of: talker
+Note: Google Test filter = Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1057: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: Expected: true
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1046: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1058: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+[ESCAPED] link-pass-down-waits-for-its-record: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/8x8-if1/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+[ok] link-pass-poll-or-instead-of-and: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] link-pass-unowed-up-never-taken: Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp / SRP does not follow a link that is up
+[ok] link-pass-unowed-up-taken-unmarked: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+[ok] link-pass-unowed-up-ignores-the-take: SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp / SRP took an UP from the register while its LINK waited behind the ring's records
+[ESCAPED] rv-poll-clears-carried: Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / level recovery resumes declarations
+Note: Google Test filter = Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+[ok] rv-sink-double-reset: SrpLinkPass.InTheEvents / resets the interface once
+[ok] rv-poll-resets-on-register-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+CAMPAIGN 8x8-if1: FAIL
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] cancelled-link-record-posted: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] srp-poll-extra-read: Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] link-pass-poll-takes-the-register: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/if2/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-attach-carries-an-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-carried-stays-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / a later UP resets the interface once
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-first-up-resets: SrpLinkPass.BeforeAPass / a first UP keeps the startup participants
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-carried-never-recorded: SrpLinkPass.BeforeAPass / a first UP resets nothing
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] link-pass-attach-carries-nothing: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / Value of: talker
+Note: Google Test filter = Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1057: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: Expected: true
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1046: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+<lane>/sw/firmware/ctrl/test/srp_mbx.cpp:1058: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] link-pass-down-waits-for-its-record: srp_mbx.c does not compile:
+<scratch>/dev/r2-plants/if2/work/ctrl/srp/srp_mbx.c:1282:13: error: ‘carried_up’ defined but not used [-Werror=unused-function]
+ 1282 | static bool carried_up(const struct srp_mbx *m, struct srp_interface *i)
+      |             ^~~~~~~~~~
+cc1: all warnings being treated as errors
+
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-poll-or-instead-of-and: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-unowed-up-never-taken: Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp / SRP does not follow a link that is up
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-unowed-up-taken-unmarked: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] link-pass-unowed-up-ignores-the-take: SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp / SRP took an UP from the register while its LINK waited behind the ring's records
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] rv-poll-clears-carried: Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / level recovery resumes declarations
+Note: Google Test filter = Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (4 ms)
+[----------] 1 test from Srp (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+== ctrl SRP mailbox: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rv-sink-double-reset: SrpLinkPass.InTheEvents / resets the interface once
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/dev/r2-plants/if2/work/build/srp-srp_link_pass-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rv-poll-resets-on-register-up: SrpLinkPass.AfterTheEventsBeforeSrpsPoll / SRP's poll reset the interface on a level no LINK had carried
+CAMPAIGN if2: FAIL

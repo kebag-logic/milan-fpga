@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""sizes.py CTRL_TREE OUT [CONFIG_STEM] [INTERFACES]: loop/ctrl_loop.c and srp/srp_mbx.c of CTRL_TREE compiled with
+the split image's flags (ctrl_srp_image.layout_flags('split'), -DLWSRP_MILAN=1) and the SRP arms' includes at the
+entity's shape; prints each object's .text.* sections and their sum, to size a change before an image build."""
+import subprocess
+import sys
+from pathlib import Path
+
+ctrl = Path(sys.argv[1]).resolve()
+out = Path(sys.argv[2]).resolve()
+stem = sys.argv[3] if len(sys.argv) > 3 else "endstation_ax7101_8x8"
+n_if = int(sys.argv[4]) if len(sys.argv) > 4 else 1
+test = Path("<lane>/sw/firmware/ctrl/test")
+sys.path.insert(0, str(test))
+sys.path.insert(0, str(test.parents[1] / "gtest"))
+import fw_rv32  # noqa: E402
+import ctrl_srp_image as image  # noqa: E402
+from ctrl_build import ROOT, Tree, source  # noqa: E402
+from srp_arms import prepared  # noqa: E402
+
+cc = fw_rv32.compiler()
+tree = Tree(ctrl, out / "t", out / "r")
+variant, inc = prepared(tree, n_if, out, ROOT / "configs" / f"{stem}.yaml")
+lw = ROOT / "third_party/lwSRP/src"
+inc += ["-DLWSRP_MILAN=1", f"-I{lw / 'include'}", f"-I{lw}", f"-I{ctrl / 'plat'}", *fw_rv32.includes(cc)]
+flags = image.layout_flags("split")[1]
+size = cc.removesuffix("gcc") + "size"
+for rel in ("loop/ctrl_loop.c", "srp/srp_mbx.c"):
+    src = source(variant if rel.startswith("mbx/") else ctrl, tree.stack, rel)
+    obj = out / (Path(rel).stem + ".o")
+    r = subprocess.run([cc, *flags, *inc, "-c", str(src), "-o", str(obj)], capture_output=True, text=True)
+    if r.returncode:
+        print(r.stderr)
+        sys.exit(2)
+    rows = [l.split() for l in subprocess.run([size, "-A", str(obj)], capture_output=True, text=True).stdout.splitlines()]
+    text = {r[0]: int(r[1]) for r in rows if len(r) >= 2 and r[0].startswith(".text") and r[1].isdigit()}
+    print(f"{rel}: .text total {sum(text.values())}; " +
+          ", ".join(f"{k[6:]} {v}" for k, v in text.items() if k[6:] in ("ctrl_loop_service", "poll", "on_event")))

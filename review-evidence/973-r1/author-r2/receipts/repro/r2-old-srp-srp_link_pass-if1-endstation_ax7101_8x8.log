@@ -1,0 +1,48 @@
+[==========] Running 7 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[----------] 5 tests from SrpLinkPass (1 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:188: Failure
+Value of: adapter.ifs[0].link
+  Actual: false
+Expected: true
+SRP does not follow a link that is up
+
+  [FAIL] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp: SRP does not follow a link that is up
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:190: Failure
+Expected equality of these values:
+  resets
+    Which is: 0
+  1u
+    Which is: 1
+SRP resets the interface once for the link it follows
+
+  [FAIL] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp: SRP resets the interface once for the link it follows
+[  FAILED  ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 7   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 7 checks, exit 1)

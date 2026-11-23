@@ -1,0 +1,83 @@
+=== srp-srp_link_pass-if1-endstation_ax7101_1x1_tdm8 rc=1
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:161: Failure
+Value of: i.link_seen
+  Actual: true
+Expected: false
+SRP took an UP from the register while its LINK waited behind the ring's records
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP took an UP from the register while its LINK waited behind the ring's records
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:164: Failure
+Expected equality of these values:
+  resets
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: a first UP resets nothing
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[----------] 5 tests from SrpLinkPass (1 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+
+ 2 FAILED TESTS
+== ctrl SRP link inside a pass: checks: 7   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 7 checks, exit 1)
+=== srp-srp_link_pass-if1-endstation_ax7101_8x8 rc=1
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP's poll took a level no LINK had carried
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:161: Failure
+Value of: i.link_seen
+  Actual: true
+Expected: false
+SRP took an UP from the register while its LINK waited behind the ring's records
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: SRP took an UP from the register while its LINK waited behind the ring's records
+<scratch>/clones/r2-basefw/sw/firmware/ctrl/test/srp_link_pass.cpp:164: Failure
+Expected equality of these values:
+  resets
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp: a first UP resets nothing
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[----------] 5 tests from SrpLinkPass (1 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[  FAILED  ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+
+ 2 FAILED TESTS
+== ctrl SRP link inside a pass: checks: 7   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 7 checks, exit 1)
+ARMS FAIL (2 failed)

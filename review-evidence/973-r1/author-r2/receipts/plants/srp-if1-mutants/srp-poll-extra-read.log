@@ -1,0 +1,37 @@
+Note: Google Test filter = Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+<scratch>/clones/r2-fw3/sw/firmware/ctrl/test/srp_app.cpp:166: Failure
+Expected equality of these values:
+  idle
+    Which is: 2
+  1u
+    Which is: 1
+one link read per interface
+
+  [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: one link read per interface
+<scratch>/clones/r2-fw3/sw/firmware/ctrl/test/srp_app.cpp:202: Failure
+Expected equality of these values:
+  fixed
+    Which is: 4
+  1u*3u
+    Which is: 3
+fixed poll branch envelope
+
+  [FAIL] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks: fixed poll branch envelope
+  SRP poll terms: fixed 4, frames a poll 1, real send accesses 765, envelope 769/427
+[  FAILED  ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks
+
+ 1 FAILED TEST
+== ctrl ADP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
