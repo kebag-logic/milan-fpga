@@ -27,9 +27,9 @@ shipped core's (#950), at input 0, the CRF input and every STREAM_OUTPUT at both
 stream 0; and GET_TX_STATE's REGISTERING_FAILED from the platform's source port never reported, the shipped
 platform's (#954), reported for any Listener, with none, or from output 0's Listener.
 
-The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
-holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a bind
-while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
+The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no
+binding holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a
+bind while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
 """
 from __future__ import annotations
 

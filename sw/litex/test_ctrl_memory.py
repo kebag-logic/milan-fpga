@@ -13,10 +13,9 @@ block RAM the SoC builds from them. This file grades nine things:
      image is accepted and its rom contents are the bytes placed at their load addresses. Every rule in
      `ctrl_memory.RULES` has a planted defect that must be refused by that rule, among them a truncated ELF, writable
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
-     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
-     (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one, and the size fixture's with one) plans its 61.5, 64.5, 59.5
-     or 57.5 by name, and through
+     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point (LEDGERED,
+     ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images, two interfaces then one) plans its
+     61.5, 64.5, 57.5 or 59.5 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
@@ -226,8 +225,7 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
     """A ledger case written: the good image with seven tiles of .text more and of .bss less, still 56 RAMB36,
     then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 65.0, half a tile past
-    the platform's 64.5 (the post-flip composition train; six tiles reached 64.5 with #584, five 63.5, past which
-    .bss would run out of sram)."""
+    the platform's 64.5 (the post-flip train; six reached 64.5, five 63.5, past which .bss would run out of sram)."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
                                   text=GOOD.text + 14 * GRANULE,
                                   bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 14) * GRANULE))
