@@ -102,7 +102,10 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            each AAF Stream Input above 0 holds its current format in its
            receive-monitor context on the CSR window, at 8x8/1if and the
            shipping 1x1/1if (plat_arms.arm_platsinks, test_plat_sinks.cpp;
-           #946).
+           #946); beside them, a waiting SET_STREAM_FORMAT refused once
+           applied onto an input with no context bound, or an output started,
+           meanwhile (#950), and GET_TX_STATE's REGISTERING_FAILED at every
+           output (#954).
 
 Every arm but rv32, srpcmp, hot and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.

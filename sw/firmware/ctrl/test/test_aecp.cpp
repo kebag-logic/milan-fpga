@@ -1678,6 +1678,70 @@ TEST_F(Core, AWaitingChangeIsAnsweredOnTheInterfaceItCameIn)
     EXPECT_EQ(a.identify,255u);
 }
 
+// #950 (IEEE 1722.1-2021 7.4.9, 8.2): a SET_STREAM_FORMAT that waits for the platform makes its running check again
+// once applied, before it is done again. At every stream of the configuration in force (input 0, the CRF input and
+// every STREAM_OUTPUT among them), a STREAM_INPUT bound or a STREAM_OUTPUT streaming meanwhile keeps its format in
+// force and is answered STREAM_IS_RUNNING, the status its dispatch gives, notifying no one and giving the platform
+// the values in force again; a stream the check cannot observe is answered ENTITY_MISBEHAVING. An input is judged by
+// its binding alone and an output by its streaming alone, as at the dispatch, and the check is brief (#894).
+TEST_F(Core, AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied)
+{
+    bool face=true,late=true;unsigned noted=0;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){++noted;face=face&&!late;});
+    register_controller();register_controller(CTLR+1);
+    struct Case{bool own,other,observable;unsigned status;const char *why;};
+    unsigned inputs=0,outputs=0;
+    for(auto &d:descriptors){
+        if((d.type!=5&&d.type!=6)||d.configuration!=a.configuration)continue;
+        const bool input=d.type==5;
+        (input?inputs:outputs)+=1;
+        const std::string what=std::string(input?"STREAM_INPUT ":"STREAM_OUTPUT ")+std::to_string(d.index);
+        Bytes format=target(d.type,d.index,12);put(format,4,get(d.value+74,8),8);
+        auto state=[&]{Bytes b(d.value,d.value+d.length);b.push_back(events[&d-descriptors.data()].overrides);
+                       return b;};
+        // the refusals first: each leaves the change undone, so the same command waits again
+        const Case cases[]={
+            {true,false,true,AECP_STREAM_IS_RUNNING,input?"bound meanwhile":"streaming meanwhile"},
+            {false,false,false,AECP_ENTITY_MISBEHAVING,"not observable once applied"},
+            {false,true,true,AECP_SUCCESS,input?"streaming but not bound":"bound but not streaming"}};
+        for(const Case &c:cases){
+            late=true;face=true;noted=0;bound=false;streaming=false;observations=true;
+            const auto before=state();
+            auto in=ask(8,format,AECP_IN_PROGRESS);
+            ASSERT_TRUE(a.waiting)<<what<<": the change waits";
+            EXPECT_EQ(state(),before)<<what<<": the change waits undone";
+            // settled while it waits, then applied
+            (input?bound:streaming)=c.own;(input?streaming:bound)=c.other;observations=c.observable;
+            late=false;face=true;briefs.clear();sent.clear();drain();
+            ASSERT_FALSE(sent.empty())<<what<<", "<<c.why<<": the final response";
+            const auto out=sent[0].second;
+            EXPECT_EQ(get(out,16,2)>>11,c.status)
+                <<"a waiting SET_STREAM_FORMAT makes its running check again once applied: "<<what<<", "<<c.why;
+            EXPECT_EQ(get(out,36,2),8u);EXPECT_EQ(get(out,26,8),CTLR);
+            EXPECT_EQ(get(out,34,2),0x1234u)<<"the command's own sequence";
+            EXPECT_FALSE(briefs.empty())<<what<<": the check is made again";
+            EXPECT_EQ(briefs,std::vector<bool>(briefs.size(),true))<<what<<": the check made again is brief";
+            if(c.status==AECP_SUCCESS){
+                EXPECT_EQ(sent.size(),2u)<<what<<", "<<c.why<<": SUCCESS, then its notification";
+                EXPECT_NE(state(),before)<<what<<", "<<c.why<<": done again";
+                continue;
+            }
+            EXPECT_EQ(sent.size(),1u)<<what<<", "<<c.why<<": one final response, no notification";
+            EXPECT_EQ(Bytes(out.begin()+38,out.end()),Bytes(in.begin()+38,in.end()))
+                <<what<<", "<<c.why<<": the format in force, as IN_PROGRESS reported it";
+            EXPECT_EQ(state(),before)<<"a refused waiting SET_STREAM_FORMAT stays undone: "<<what<<", "<<c.why;
+            EXPECT_EQ(noted,2u)<<what<<", "<<c.why<<": the platform is given the values in force again";
+            EXPECT_FALSE(a.waiting);
+        }
+    }
+    bound=false;streaming=false;observations=true;
+    EXPECT_GE(inputs,2u)<<"input 0 and the CRF input at least";EXPECT_GE(outputs,2u);
+    // the refusal ends with the wait: another change is taken at once
+    late=false;face=true;Bytes identify=target(26,0,5);identify[4]=255;ask(24,identify);
+    EXPECT_EQ(a.identify,255u)<<"the refusal ends with the wait";
+}
+
 TEST_F(Core, NamesAndDescriptorOverlay)
 {
     for(auto&d:descriptors){
