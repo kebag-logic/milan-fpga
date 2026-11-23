@@ -1,0 +1,10 @@
+42c42
+< | Firmware gate shard 0, the suites (`--shard 0/4`) | `25d3dd7a` | PASS: 88 suite arms. **Not re-run at the final head.** At `a18f0996`, its 18 AECP arms, the only arms that compile `test_aecp.cpp`, pass, after the gate's own inventory (`1848 live invocations`, shard sizes `[88, 827, 391, 542]`) |
+---
+> | Firmware gate shard 0, the suites (`--shard 0/4`) | `25d3dd7a` | PASS: 88 suite arms. **Not re-run at the final head.** At `a18f0996`, its 18 AECP arms, which include every arm that compiles `test_aecp.cpp`, pass, after the gate's own inventory (`1848 live invocations`, shard sizes `[88, 827, 391, 542]`) |
+123c123
+< their own words, as before. A further 4,000 edits carry the new mapping, and 86 of them are output edits refused at
+---
+> their own words, as before. A further 4,000 edits are drawn with it as their illegal kind: 469 carry it, and 86 are output edits refused at
+218a219
+> 
