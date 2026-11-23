@@ -393,6 +393,33 @@ extern "C" {
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #define CTRL_LOOP_QUEUED_MS 62u
 #define CTRL_LOOP_TX_MS 105u
+// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is
+// defined by a platform that runs this firmware as a host program on the
+// mailbox model (host/mbx_model.c) and by no image of this repository, so the
+// rows above and the #error below are unchanged for every image built here.
+// One interface, one talker source (an AAF STREAM_OUTPUT) and two listener
+// sinks (an AAF and a CRF STREAM_INPUT): the descriptor-only host profile's
+// shape (endstation_builder.py HOST_TARGET, configs/host).
+// Its figures are a STATED HOST SCHEDULING PROFILE, not a measurement of the
+// host. Each is 1x1/1if's, measured on the RV32 at 100 cycles a microsecond
+// with one talker source more (the CRF output) over the same two sinks: this
+// shape has one SRP Talker declaration fewer to build and one STREAM_OUTPUT
+// fewer to notify for. The host platform states that it serves the loop from
+// one thread, at a real-time priority below only its time owner's, on a CPU
+// that runs this code at least as fast as that RV32, and it holds these
+// figures as the loop's budgets on its microsecond clock. Two things are not
+// measured by any harness here and are not claimed: the costs that follow the
+// descriptor set rather than the streams, and the preemption of that thread,
+// on which the millisecond bounds (CTRL_LOOP_QUEUED_MS, CTRL_LOOP_TX_MS) rest.
+#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
+#define CTRL_LOOP_SLICE_US 950u
+#define CTRL_LOOP_BUILD_PASS_US 1010u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+#define CTRL_LOOP_SRP_UNIT_US 285u
+#define CTRL_LOOP_RETRY_COLD_US 85u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_TX_MS 35u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
