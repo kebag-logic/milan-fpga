@@ -188,6 +188,10 @@ module KL_render_queue #(
   parameter int unsigned MAX_EV_P      = 504, //! the most events one PDU
                                               //! walks (two per payload
                                               //! beat, one channel)
+  parameter int unsigned INPUT_LOOPBACK_P = 0, //! optional mapped copy
+  parameter int unsigned INPUT_KEYS_P = 64, //! committed input-map entries
+  parameter int unsigned INPUT_FIRST_P = 1, //! first loopback destination
+  parameter int unsigned INPUT_CH_P = 63, //! mono buffer destinations
   parameter int unsigned CLK_FREQ_HZ_P = 100_000_000 //! clk_i, Hz (the
                                               //! observer's millisecond)
 )(
@@ -231,6 +235,14 @@ module KL_render_queue #(
                                                  //! 2 x PAIRS_C lanes
   output logic [N_IF_P-1:0]        render_tick_p_o, //! per interface: its
                                                  //! events are in, render
+
+  input wire [INPUT_KEYS_P*8-1:0] input_map_i = '0, //! committed logical map
+  input wire input_invalidate_i = 1'b0, //! accepted map change or clock loss
+  input wire input_capture_i = 1'b0, //! claim a frame once for a capture walk
+  input wire input_read_i = 1'b0, //! synchronous mono source request
+  input wire [5:0] input_addr_i = '0, //! destination, independent of stream
+  input wire [31:0] input_capture_ns_i = '0, //! capture frame's instant
+  output wire [23:0] input_sample_o, //! return next cycle, zero if unavailable
 
   //! --- observability (#443 RENDER_STAT) ---------------------------------
   output logic [N_STREAMS_P-1:0]   pop_p_o,      //! one-cycle per stream:
@@ -499,6 +511,10 @@ module KL_render_queue #(
   wire        far_in_w = !sof_r && pdu_early_r;
 
   //! the stream's flush state (declared with the walker below)
+  //! A stopped domain cannot retain rows whose frame indices stop with it.
+  //! Enabled only with the mapped input source; map edits do not flush RX.
+  wire input_clock_flush_w;
+  wire [N_STREAMS_P-1:0] flush_w = flush_i | {N_STREAMS_P{input_clock_flush_w}};
   logic [N_STREAMS_P-1:0] flpend_r;
   logic                   fl_busy_r;
   logic [3:0]             fl_s_r;
@@ -581,7 +597,8 @@ module KL_render_queue #(
   typedef enum logic [1:0] {
     S_IDLE_S,
     S_READ_S,
-    S_SCRUB_S
+    S_SCRUB_S,
+    S_COPY_S
   } sstate_t;
   sstate_t sst_r;
 
@@ -638,7 +655,12 @@ module KL_render_queue #(
 
   //! the read port: the schedule's (slot, frame, pair)
   wire rd_go_w = (sst_r == S_READ_S);
-  assign ra_w = waddr(slot_r, rd_fr_w[RW_C-1:0], beat_r);
+  wire [3:0] copy_stream_w;
+  wire [2:0] copy_channel_w;
+  wire copy_done_w;
+  assign ra_w = (INPUT_LOOPBACK_P != 0 && sst_r == S_COPY_S)
+      ? waddr(copy_stream_w, cons_w[RW_C-1:0], {2'b00, copy_channel_w[2:1]})
+      : waddr(slot_r, rd_fr_w[RW_C-1:0], beat_r);
 
   //! the beat being read, one cycle behind its address (the banks' read
   //! register)
@@ -667,7 +689,7 @@ module KL_render_queue #(
   always_comb begin : fl_rd_lookup
     fl_rd_w = 1'b0;
     for (int unsigned s = 0; s < N_STREAMS_P; s++)
-      if (32'(slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
+      if (32'((INPUT_LOOPBACK_P != 0 && sst_r == S_COPY_S) ? copy_stream_w : slot_r) == s) fl_rd_w = flpend_r[s] || (fl_busy_r && (32'(fl_s_r) == s));
   end : fl_rd_lookup
 
   always_ff @(posedge clk_i) begin : schedule
@@ -720,7 +742,7 @@ module KL_render_queue #(
               slot_r <= '0;
               if (last_if_w) begin
                 //! every interface has read frame sn + K_min: consumed
-                sst_r <= S_SCRUB_S;
+                sst_r <= (INPUT_LOOPBACK_P != 0) ? S_COPY_S : S_SCRUB_S;
                 r_r   <= cons_w;
               end else begin
                 if_r <= if_r + 1'b1;
@@ -731,6 +753,9 @@ module KL_render_queue #(
           end else begin
             beat_r <= beat_r + 1'b1;
           end
+        end
+        S_COPY_S: begin
+          if (copy_done_w) sst_r <= S_SCRUB_S;
         end
         S_SCRUB_S: begin
           if (scrub_go_w) begin
@@ -752,6 +777,134 @@ module KL_render_queue #(
       endcase
     end
   end : schedule
+
+  //! Four pages retain complete mapped frames, never a prior sample hold.
+  //! Expiry and invalidation clear metadata; the sample RAM has no reset.
+  if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
+    localparam int IDLE_CYC_C = 2 * (CLK_FREQ_HZ_P / FS_HZ_P);
+    localparam int IDLE_W_C = $clog2(IDLE_CYC_C + 1);
+    (* ram_style = "block" *) logic [23:0] samples_r [0:255];
+    logic [3:0] page_valid_r;
+    logic [FW_C-1:0] page_frame_r [4];
+    logic [31:0] page_capture_ns_r [4];
+    logic [IDLE_W_C-1:0] idle_cyc_r;
+    logic [6:0] cursor_r;
+    logic return_r, return_bank_r, return_valid_r, bad_r;
+    logic [5:0] return_addr_r;
+    logic [23:0] read_data_r;
+    logic read_valid_r;
+    logic [1:0] read_page_w;
+    logic [1:0] active_page_r;
+    logic active_valid_r;
+    localparam int STAMP_TOL_NS_C = 3 * ((1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P);
+    logic signed [31:0] stamp_delta_w [4];
+    logic read_valid_w;
+    wire [7:0] entry_w = input_map_i[(INPUT_FIRST_P + 32'(cursor_r[5:0]))*8 +: 8];
+    wire copy_w = (sst_r == S_COPY_S);
+    wire copy_issue_w = copy_w && (32'(cursor_r) < INPUT_CH_P);
+    wire start_w = (sst_r == S_READ_S) && last_beat_w && last_slot_w && last_if_w;
+    wire invalidate_w = input_invalidate_i || (|flush_i)
+                         || (32'(idle_cyc_r) == IDLE_CYC_C);
+    wire [FW_C-1:0] age_w = n_now_w - cons_w;
+    wire [31:0] target_ns_w = ev_ns_i + 32'((64'(KMIN_C + 1) * PS3_L) / 3);
+    wire [24:0] returned_w = return_bank_r ? rd1_r : rd0_r;
+    assign input_clock_flush_w = (32'(idle_cyc_r) == IDLE_CYC_C);
+    assign copy_stream_w = {1'b0, entry_w[5:3]};
+    assign copy_channel_w = entry_w[2:0];
+    assign copy_done_w = copy_w && (32'(cursor_r) == INPUT_CH_P);
+    assign input_sample_o = (read_valid_r && !invalidate_w) ? read_data_r : 24'd0;
+
+    //! Match the actual capture instant, not the independently phased tick.
+    //! Clock-domain synchronizers and PHC sampling bound the stamp tolerance.
+    always_comb begin : select_page
+      read_page_w = '0;
+      read_valid_w = 1'b0;
+      for (int p = 0; p < 4; p++) begin
+        stamp_delta_w[p] = $signed(input_capture_ns_i - page_capture_ns_r[p]);
+        if (page_valid_r[p] && (stamp_delta_w[p] >= -STAMP_TOL_NS_C)
+            && (stamp_delta_w[p] <= STAMP_TOL_NS_C)) begin
+          read_page_w = 2'(p);
+          read_valid_w = 1'b1;
+        end
+      end
+    end : select_page
+
+    always_ff @(posedge clk_i) begin : input_ram_write
+      if (return_r)
+        samples_r[{cons_w[1:0], return_addr_r}] <=
+            (return_valid_r && returned_w[24]) ? returned_w[23:0] : 24'd0;
+    end : input_ram_write
+    always_ff @(posedge clk_i) begin : input_ram_read
+      if (input_read_i) read_data_r <= samples_r[{active_page_r, input_addr_i}];
+    end : input_ram_read
+
+    always_ff @(posedge clk_i) begin : input_metadata
+      if (!rst_n) begin
+        page_valid_r <= '0;
+        for (int p = 0; p < 4; p++) begin
+          page_frame_r[p] <= '0;
+          page_capture_ns_r[p] <= '0;
+        end
+        cursor_r <= '0;
+        return_r <= 1'b0;
+        return_bank_r <= 1'b0;
+        return_valid_r <= 1'b0;
+        return_addr_r <= '0;
+        bad_r <= 1'b1;
+        idle_cyc_r <= '0;
+        read_valid_r <= 1'b0;
+        active_page_r <= '0;
+        active_valid_r <= 1'b0;
+      end else begin
+        if (ev_p_i) idle_cyc_r <= '0;
+        else if (32'(idle_cyc_r) < IDLE_CYC_C) idle_cyc_r <= idle_cyc_r + 1'b1;
+        read_valid_r <= input_read_i && active_valid_r && !invalidate_w
+                         && (32'(input_addr_i) < INPUT_CH_P);
+        return_r <= copy_issue_w;
+        if (copy_issue_w) begin
+          cursor_r <= cursor_r + 1'b1;
+          return_addr_r <= cursor_r[5:0];
+          return_bank_r <= copy_channel_w[0] ^ cons_w[0];
+          return_valid_r <= entry_w[7] && !entry_w[6]
+                            && (32'(copy_stream_w) < N_STREAMS_P)
+                            && (32'(copy_channel_w) < N_CH_P);
+        end
+        //! Expire before the modulo page can alias a later frame.
+        for (int p = 0; p < 4; p++) begin
+          if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))
+            page_valid_r[p] <= 1'b0;
+        end
+        if (input_capture_i) begin
+          active_page_r <= read_page_w;
+          active_valid_r <= read_valid_w && !invalidate_w;
+          if (read_valid_w) page_valid_r[read_page_w] <= 1'b0;
+        end
+        if (start_w) begin
+          cursor_r <= '0;
+          bad_r <= invalidate_w || (sn_r != n_r);
+          page_valid_r[cons_w[1:0]] <= 1'b0;
+          page_frame_r[cons_w[1:0]] <= cons_w;
+          page_capture_ns_r[cons_w[1:0]] <= target_ns_w;
+        end
+        if (copy_done_w && !bad_r && !invalidate_w
+            && (age_w[FW_C-1] || age_w == '0))
+          page_valid_r[cons_w[1:0]] <= 1'b1;
+        if (invalidate_w) begin
+          page_valid_r <= '0;
+          bad_r <= 1'b1;
+          active_valid_r <= 1'b0;
+          read_valid_r <= 1'b0;
+        end
+      end
+    end : input_metadata
+  end else begin : g_no_input_loopback
+    assign input_clock_flush_w = 1'b0;
+    assign copy_stream_w = '0;
+    assign copy_channel_w = '0;
+    assign copy_done_w = 1'b0;
+    assign input_sample_o = '0;
+  end
+
 
   // ------------------------------------------------------------------ //
   // Header, divider and the PDU walk                                    //
@@ -868,7 +1021,7 @@ module KL_render_queue #(
           if (32'(conv_ms_r[s]) != CONV_DWELL_C) conv_ms_r[s] <= conv_ms_r[s] + 7'd1;
           else                                    converged_r[s] <= 1'b1;
         end
-        if (flush_i[s]) begin
+        if (flush_w[s]) begin
           flpend_r[s]    <= 1'b1;
           lwv_r[s]       <= 1'b0;
           live_r[s]      <= 1'b0;
@@ -886,7 +1039,7 @@ module KL_render_queue #(
           fl_s_r    <= fl_low_w;
           fl_a_r    <= '0;
           for (int unsigned s = 0; s < N_STREAMS_P; s++)
-            if ((32'(fl_low_w) == s) && !flush_i[s]) flpend_r[s] <= 1'b0;
+            if ((32'(fl_low_w) == s) && !flush_w[s]) flpend_r[s] <= 1'b0;
         end
       end else if (fl_go_w) begin
         fl_a_r <= fl_a_r + 1'b1;

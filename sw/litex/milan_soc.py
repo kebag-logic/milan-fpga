@@ -534,6 +534,7 @@ class MilanNIC(LiteXModule):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  loopback_lane=False,
+                 input_loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_split=False):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
@@ -558,6 +559,7 @@ class MilanNIC(LiteXModule):
                            gptp_ingress_lat_ns=gptp_ingress_lat_ns,
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
                            loopback_lane=loopback_lane,
+                           input_loopback_lane=input_loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            entity_gen_dir=entity_gen_dir,
                            ctrl_split=ctrl_split)
@@ -872,6 +874,7 @@ def add_milan_datapath(host: Module, platform: object,
                        gptp_ingress_lat_ns: int = 0,
                        gptp_egress_lat_ns: int = 0,
                        loopback_lane: bool = False,
+                       input_loopback_lane: bool = False,
                        render_lpf: bool = True,
                        optional_blocks: dict[str, bool] | None = None,
                        entity_gen_dir: str | None = None,
@@ -1109,6 +1112,8 @@ def add_milan_datapath(host: Module, platform: object,
     dp_params["p_PP_RESP_BASE_P"] = resp_base
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
+    if input_loopback_lane:
+        dp_params["p_INPUT_LOOPBACK_P"] = 1
     if loopback_lane:
         # task #65 rx -> talker LOOPBACK bucket. The SV parameter is
         # LOOPBACK_P. Passed only when asked for, so a build that does not
@@ -3628,6 +3633,7 @@ class MilanSoC(SoCCore):
                  audio_fs_hz=AUDIO_IF_FS_HZ_DEFAULT,
                  audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  loopback_lane=False,
+                 input_loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="baremetal",
                  gptp_plane=None,
@@ -4138,6 +4144,7 @@ class MilanSoC(SoCCore):
                                   gptp_ingress_lat_ns=int(gptp_ingress_lat_ns),
                                   gptp_egress_lat_ns=int(gptp_egress_lat_ns),
                                   loopback_lane=bool(loopback_lane),
+                                  input_loopback_lane=bool(input_loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   entity_gen_dir=entity_gen_dir)
@@ -4739,6 +4746,8 @@ def main() -> None:
                          "byte-identical. The endstation config "
                          "declares it (cluster_mapping.fabric.loopback_lane) so the AEM's "
                          "power-on map and this flag can never disagree.")
+    ap.add_argument("--input-loopback-lane", action="store_true",
+                    help="Build the input-mapped block-RAM loopback source.")
     ap.add_argument("--pps", action="store_true",
                     help="METROLOGY: build the PPS output (milan_datapath "
                          "PPS_P -> the timestamp counter's own comparator) and "
@@ -5060,6 +5069,7 @@ def main() -> None:
                    gptp_ingress_lat_ns=args.gptp_ingress_lat_ns,
                    gptp_egress_lat_ns=args.gptp_egress_lat_ns,
                    loopback_lane=args.loopback_lane,
+                   input_loopback_lane=args.input_loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the
                    # flag is set, and False is the ONLY value that prunes.

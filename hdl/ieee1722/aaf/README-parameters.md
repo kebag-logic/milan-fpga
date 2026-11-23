@@ -69,3 +69,25 @@ The runtime clock-consumption claim is checked against the
   board table).
 - `FIFO_LOG2` / `SETPOINT_P` bounds: UNCHECKED in RTL today (no elaboration
   assert) - flagged for the item-4 parameterization round.
+
+## Optional input-mapped loopback
+
+`INPUT_LOOPBACK_P=0` leaves the existing capture and render schedule in place.
+At one, `KL_render_queue` reads each committed logical input destination after
+physical rendering and before scrubbing the consumed source frame.
+`INPUT_KEYS_P`, `INPUT_FIRST_P`, and `INPUT_CH_P` describe that map slice.
+The two approved tuples are `(16,8,8)` and `(64,1,63)`.
+A four-page, 256 by 24-bit sample RAM has one write port and one synchronous read port.
+Only a complete, current frame may publish; absent source words write zero.
+
+`KL_chan_map_capture` uses source bucket 6 for these destinations.
+The mono address is `{idxh[2:0],idx[1:0],half}`; reserved upper bits select silence.
+Two extra cycles per output pair issue and collect its two synchronous reads.
+A capture walk claims one page by its capture timestamp and can fan it out.
+A second walk cannot replay that page. Input-map changes, reset, unbind and
+clock loss invalidate availability. Two missing domain periods also flush
+source rows, preventing old future rows from shifting across a clock restart.
+The disabled option has neither this RAM nor this additional flush behavior.
+
+See [the complete contract](../../../docs/design/INPUT_MAPPED_LOOPBACK.md)
+and [the wire test](../../../tb/verilator/input_loopback/README.md).

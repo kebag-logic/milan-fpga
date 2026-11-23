@@ -1,6 +1,6 @@
-# Input-mapped block-RAM loopback proposal
+# Input-mapped block-RAM loopback
 
-Status: STOP before implementation; routing capacity needs owner selection.
+Status: implemented behind a default-off option; route and regression evidence belongs to the review packet.
 
 Issue: [#979](https://github.com/kebag-logic/milan-fpga/issues/979).
 
@@ -8,74 +8,51 @@ Author: [A826]. Date: 2026-11-23.
 
 Examined base: `3cda030c174b325e36c26af6420487ff91346d15`.
 
-This document proposes behavior; it grants no implementation approval.
+The manager authorized implementation behind a default-off build option.
 
-## Decision required
+## Selected topology
 
-The request specifies a Loopback input cluster, not its cardinality.
+The manager selected option B on Issue #979.
 
-The old 8x8 lane exposes 64 received channels.
+The physical destination remains independent of every Loopback destination.
 
-Those facts allow materially different advertised routing capabilities.
+The existing table accepts nine clusters on port 0.
 
-Milan requires every cluster to be mono.
+The reproduced 8x8 input counts are `[9,8,8,8,8,8,8,7]`.
 
-One 64-channel cluster cannot avoid the input-key limit.
+Port 0 contains its physical cluster plus eight Loopback clusters.
 
-The approved physical destination remains independently useful.
+Ports 1 through 6 each contain eight Loopback clusters.
 
-At 8x8, it consumes one input-map key.
+Port 7 contains seven Loopback clusters.
 
-Eight independent Loopback destinations per listener consume another 64.
+That exposes 63 independent destinations within 64 map keys.
 
-The resulting 65 keys exceed the current 64-key limit.
+The fixed page size remains eight keys.
 
-`avdecc/aem_assemble.py:441` explicitly refuses that geometry.
+Port 0 has two pages; other ports have one.
 
-This is an implementation limit, not a Milan limit.
+At 1x1, eight physical plus eight Loopback clusters require 16 keys.
 
-It is also distinct from the owner's immutable resource ceilings.
+Every cluster has `channel_count=1`.
 
-Choose the enabled configuration's capacity and physical-map independence:
+No map interface or owner resource ceiling increases.
 
-| Option | 8x8 input geometry | Forwarding capacity | Consequence |
-|---|---|---|---|
-| A: minimal pool | Port 0: physical plus one Loopback; ports 1-7: one Loopback each | Eight independently mapped mono channels | Nine keys; no physical coupling. Its area cannot establish savings for a 64-channel replacement. |
-| B: bounded separate pool | Port 0: physical plus seven Loopback; ports 1-7: eight Loopback each | 63 independently mapped mono channels | 64 keys; preserves physical independence, with asymmetric forwarding capacity. |
-| C: shared first destination | Same geometry as B; also copy the physical destination into buffer channel 0 | 64 forwarded mono channels | 64 keys; physical slot 0 and forwarding channel 0 share one input mapping. |
-| D: full separate pool | Port 0: physical plus eight Loopback; ports 1-7: eight Loopback each | 64 independently mapped mono channels | 65 keys; requires a separately authorized map-capacity extension and interface audit. |
+The constructor still refuses a 65-key negative control.
 
-Recommendation: C if sharing the first mapping is acceptable.
+The builder test also generates complete descriptor images for both shapes.
 
-It preserves forwarding width without raising the input-key limit.
+Loopback destination indices follow the input pools' declaration order.
 
-Otherwise choose B, or authorize D's capacity work explicitly.
+Output sources identify those destinations, independent of their current mappings.
 
-Option A is suitable only for a deliberately smaller feature.
+## Implementation status
 
-None changes a resource, timing, memory, or service bound.
+The mapped copy, synchronous capture reads, and descriptor pools are implemented.
 
-No option has been selected or implemented.
+The enabled 8x8 firmware exceeds its unchanged control-memory ledger.
 
-At 1x1, eight physical plus eight Loopback clusters fit.
-
-That geometry requires 16 keys.
-
-Option C would share consistently at 1x1 too.
-
-Retain eight physical clusters and add seven Loopback clusters.
-
-Only the first physical cluster also feeds the buffer.
-
-That gives eight forwarding channels and 15 input keys.
-
-Every cluster still has `channel_count=1`.
-
-The geometry probe exercised the existing table constructor directly.
-
-Nine, 16, and 64 keys were accepted; 65 was refused.
-
-It proved this boundary only, not full descriptor generation.
+Its product allocation remains refused; measurement exports record S14 debt.
 
 ## Authority and existing behavior
 
@@ -188,15 +165,15 @@ Distinct names must identify the new source pool.
 
 The buffer has four pages of up to 64 words.
 
-A word contains a 24-bit sample and validity/tag information.
+Each word contains a 24-bit sample, for 6144 sample-storage bits.
 
-A 32-bit, 256-word organization uses 8192 storage bits.
+Frame validity and capture timestamps are held separately for four pages.
 
 Simple-dual-port operation targets one RAMB18.
 
 It supports one write and one synchronous read.
 
-Physical inference and control cost remain unmeasured.
+The review receipts record physical inference and control cost.
 
 Page validity makes old words unreachable without resetting the array.
 
@@ -216,7 +193,7 @@ Absent or invalid samples become silence; every slot emits.
 
 ## Latency and rate contract
 
-Proposed additional audio delay: exactly one local media frame.
+Additional audio delay: exactly one local media frame.
 
 At 48 kHz this is 20.833333 microseconds.
 
@@ -238,7 +215,7 @@ Its existing packetization and transport lead remain additional terms.
 
 Recalculate those terms with the new synchronous source-read schedule.
 
-The one-frame proposal is a target contract, not measured latency.
+The wire scoreboard grades this one-frame relationship for both shapes.
 
 Both shapes must pass deadline assertions before claiming completion.
 
@@ -260,6 +237,14 @@ The existing placement policy settles overlaps and counts slips.
 
 Reset, unbind, and stopped/restarted media clocks invalidate availability.
 
+Two missing domain-frame periods trigger the existing source-row flush.
+
+The flush remains active while the domain is stopped.
+
+This prevents queued future rows from acquiring shifted times on restart.
+
+Only the enabled option adds this clock-loss flush.
+
 A missed publication deadline drops the frame permanently.
 
 Consumers can fan out eligible frames within their capture periods.
@@ -270,7 +255,11 @@ Period expiry invalidates frames regardless of retained RAM contents.
 
 Use committed logical-map state, never speculative edit rows.
 
-Freeze a map snapshot for a buffer-frame fill.
+Read the committed map during the fill.
+
+An edit invalidates the entire fill, so a mixed map cannot publish.
+
+This avoids a second 64-entry register snapshot.
 
 Any input-map change during the fill invalidates that publication.
 
@@ -300,9 +289,9 @@ Map-generation wrap must not resurrect a retained buffer page.
 
 ## Build and descriptor contract
 
-Proposed option: `INPUT_LOOPBACK_P`, default zero.
+RTL option: `INPUT_LOOPBACK_P`, default zero.
 
-Proposed config fact: `fabric.input_loopback_lane`, default false.
+Config fact: `audio_interface.cluster_mapping.fabric.input_loopback_lane`, default false.
 
 The builder derives the instance flag and descriptor pools together.
 
@@ -328,7 +317,7 @@ Include descriptor identities, names, saved maps, and firmware geometry.
 
 Record capacity overflow as debt; never widen owner ledgers.
 
-## Validation and measurement after the decision
+## Validation and measurement contract
 
 Exercise received audio through the real acceptance and talker paths.
 
@@ -346,7 +335,10 @@ Check page/tag wrap and prolonged absence for stale replay.
 
 Plant ignored input mappings, wrong sources, and retained-page replay.
 
-Also plant REMOVE-as-no-op, wrong projection, and bucket wiring faults.
+The new controls cover ignored invalidation, skipped copy, wrong bank,
+wrong source, retained words, and wrong latency.
+
+The existing render campaigns cover projection and bus-binding faults.
 
 Each plant must fail its named assertion.
 
@@ -372,20 +364,12 @@ Report historical comparison separately from fresh same-head measurements.
 
 The Issue additionally requests routing evidence for both shapes.
 
-No routing, area, binary-equivalence, or simulation pass is claimed here.
+Detailed verdicts and exact source hashes are recorded in the review receipts.
 
-## Stop disposition
+## Completion disposition
 
-The decision changes advertised channel capacity or physical routing coupling.
+Implementation must meet every validation and measurement obligation above.
 
-It cannot be settled by choosing an RTL implementation detail.
+The topology ruling does not relax resource or timing ceilings.
 
-The request explicitly requires stopping for an owner-only decision.
-
-Implementation and measurements therefore remain unstarted.
-
-The Issue remains Backlog pending the recorded topology decision.
-
-Independent implementation review remains unassigned and unclaimed.
-
-STOP: owner must select loopback channel count and physical-map independence
+Overflow remains S14 debt; unmeasured behavior remains unclaimed.

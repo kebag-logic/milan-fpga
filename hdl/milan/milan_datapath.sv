@@ -203,6 +203,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! prune it. Priced at the instantiation below (+2303 LUT / +1542 FF OOC
   //! at 8x8) - a real feature with a real bill, not a free connection.
   parameter int LOOPBACK_P = 0,
+  parameter int INPUT_LOOPBACK_P = 0, //! mapped block-RAM source, default absent
   //! BANKED AREA LEVER (docs/CHANNEL_MAP_64.md): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
@@ -1479,8 +1480,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! crossbar banks with the frame itself: the AAF talkers' time base
   wire [63:0] dom_mark_ns_w;
   wire [31:0] cmap_walk_ns_w;
+  wire input_loop_capture_w;
+  wire input_loop_read_w;
+  wire [5:0] input_loop_addr_w;
+  wire [23:0] input_loop_sample_w;
+  logic input_loop_invalidate_r;
+  localparam int INPUT_LOOP_FIRST_C = (N_STREAMS == 1) ? 8 : 1;
+  localparam int INPUT_LOOP_CH_C = (N_STREAMS == 1) ? 8 : 63;
+
 
   KL_chan_map_capture #(
+    .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
     //! the walk's gap, one value with the talkers' walk term (#773)
@@ -1556,6 +1566,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! #645: every stream's queues take the settle recentre the render
     //! stage takes, at the same PDU end
     .lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),
+    .input_capture_o (input_loop_capture_w),
+    .input_read_o (input_loop_read_w),
+    .input_addr_o (input_loop_addr_w),
+    .input_sample_i (input_loop_sample_w),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
@@ -1684,7 +1698,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam longint TLK_AGE_CYC_C    = KL_media_if_latency_pkg::age_max_cyc(
       64'(MILAN_CLK_FREQ_HZ), 64'(AUDIO_IF_FS_HZ_P));
   localparam longint TLK_WALK_CYC_C   = KL_media_if_latency_pkg::walk_pair_cyc(
-      TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1);
+      TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1)
+      + ((INPUT_LOOPBACK_P != 0) ? 64'(2 * 4 * N_STREAMS) : 64'd0);
   localparam int          TLK_AAF_IN_NS_C  = int'(TLK_SPAN_NS_C + KL_media_if_latency_pkg::cyc_ns(
       TLK_AGE_CYC_C + TLK_WALK_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! the CRF timing point's ev_p_i: the marker, then the event's register
@@ -4997,6 +5012,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
             && (c < 32'(amap_decl_ch(1'b0, p)))
             && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
           r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
+    if (INPUT_LOOPBACK_P != 0)
+      for (int p = 0; p < AMAP_IN_PORTS_C; p++)
+        for (int c = 0; c < 8; c++)
+          if ((INPUT_LOOP_FIRST_C + 8*p + c < AMAP_IN_KEYS_C)
+              && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
+              && (c < 32'(amap_decl_ch(1'b0, p))))
+            r[(INPUT_LOOP_FIRST_C + 8*p + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
     return r;
   endfunction
 
@@ -5176,6 +5198,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_oclaim_cluster_r <= '0;
       amap_edit_out_resv_r <= '0;
       amap_in_store_r <= AMAP_IN_IMAGE_C;
+      input_loop_invalidate_r <= 1'b1;
       amap_out_owner_v_r <= AMAP_OUT_IMAGE_C;
       amap_out_owner_r <= amap_out_owner_of(AMAP_OUT_IMAGE_C);
       amap_out_cluster_r <= amap_out_cluster_of(AMAP_OUT_IMAGE_C);
@@ -5186,6 +5209,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_owr_slot_r <= 6'd0;
       amap_edit_owr_word_r <= 13'd0;
     end else begin
+      input_loop_invalidate_r <= 1'b0;
       amap_edit_iwr_p_r <= 1'b0;
       amap_edit_owr_p_r <= 1'b0;
       //! #658 boot writer: never beside a phase-5 write, which cannot run
@@ -5258,6 +5282,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end
           3'd5: begin
             if (amap_edit_context_w && amap_edit_in_change_w) begin
+              input_loop_invalidate_r <= 1'b1;
               amap_in_store_r[amap_edit_in_key_w*8 +: 8]
                 <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
               if (ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][6]) begin
@@ -5303,6 +5328,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           && !amap_boot_busy_w && !aecp_locked
           && cfg_chmap_wr_en && !cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
+        if (amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+            != {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+                cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]})
+          input_loop_invalidate_r <= 1'b1;
         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
           <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
@@ -5312,6 +5341,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! a transport failure inside its walk (D3 8.6): every port returns to
       //! its reset set, whatever the walk had applied.
       if (amap_boot_r || amr_rb_r) begin
+        if (amap_in_store_r != amap_in_boot_w) input_loop_invalidate_r <= 1'b1;
         amap_in_store_r <= amap_in_boot_w;
         amap_out_owner_v_r <= amap_out_boot_w;
         amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);
@@ -8427,7 +8457,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
          rq_lead_w[s*8 +: 8]};
   end : g_render_status
 
+  if (INPUT_LOOPBACK_P != 0 && (ADP_DMAP_IN_KEYS_C != INPUT_LOOP_FIRST_C + INPUT_LOOP_CH_C))
+  begin : g_input_loop_shape
+    $error("input loopback requires its generated 16-key or 64-key topology");
+  end
   KL_render_queue #(
+    .INPUT_LOOPBACK_P (INPUT_LOOPBACK_P),
+    .INPUT_KEYS_P (AMAP_IN_KEYS_C),
+    .INPUT_FIRST_P (INPUT_LOOP_FIRST_C),
+    .INPUT_CH_P (INPUT_LOOP_CH_C),
     .N_STREAMS_P    (N_STREAMS),
     .N_CH_P         (RX_WIRE_CHANS_C),
     .FS_HZ_P        (AUDIO_IF_FS_HZ_P),
@@ -8439,6 +8477,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .MAX_EV_P       (RENDER_MAX_EV_C),
     .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
   ) render_queue (
+    .input_map_i (amap_in_store_r),
+    .input_invalidate_i (input_loop_invalidate_r || !dom_live_w),
+    .input_capture_i (input_loop_capture_w),
+    .input_read_i (input_loop_read_w),
+    .input_addr_i (input_loop_addr_w),
+    .input_capture_ns_i (cmap_walk_ns_w),
+    .input_sample_o (input_loop_sample_w),
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .hdr_p_i      (dpkt_hdr_p_w),
     .hdr_ts_ns_i  (dpkt_hdr_ts_w),

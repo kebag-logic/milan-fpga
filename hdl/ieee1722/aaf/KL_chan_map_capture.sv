@@ -373,6 +373,7 @@
 `default_nettype none
 
 module KL_chan_map_capture #(
+  parameter int INPUT_LOOPBACK_P = 0, //! synchronous input-buffer source
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
   //! TDM FRAME HANDOFF (#617): the pairs one front-end frame delivers into
@@ -487,6 +488,10 @@ module KL_chan_map_capture #(
   input  wire [N_LB_STREAMS_P-1:0] lb_recentre_i = '0,
 
   //! --- media sample tick (one walk of the enabled slots per pulse) -------
+  output wire input_capture_o, //! claim one buffer frame per capture walk
+  output wire input_read_o, //! one mono request per synchronous source read
+  output wire [5:0] input_addr_o, //! buffered input destination
+  input wire [23:0] input_sample_i = '0, //! one-cycle RAM return
   input  wire         tick_i,
 
   //! --- pair injection to the shared packetizer (its capture contract) ----
@@ -923,11 +928,13 @@ module KL_chan_map_capture #(
   end : skid_kill_scan
 
   // ---- pre-walk pop control (sequenced by the emit FSM below) ----------- //
-  typedef enum logic [1:0] {
+  typedef enum logic [2:0] {
     CM_IDLE_S,     //! wait for a media tick
     CM_POP_S,      //! LOOP pre-walk: pop one queued event per fed pair
     CM_STEP_S,     //! decide the current slot: emit
-    CM_GAP_S       //! settle gap after a pair pulse
+    CM_GAP_S,      //! settle gap after a pair pulse
+    CM_INPUT_L_S,  //! first mono return and second request
+    CM_INPUT_R_S   //! second mono return and pair publication
   } cstate_t;
 
   cstate_t                st_r;
@@ -1362,6 +1369,23 @@ module KL_chan_map_capture #(
   wire [23:0] out_l_w = (32'(row_l_w) < N_CAND_C) ? cand_w[row_l_w] : 24'd0;
   wire [23:0] out_r_w = (32'(row_r_w) < N_CAND_C) ? cand_w[row_r_w] : 24'd0;
 
+  //! Bucket 6 reads a mono destination from synchronous block RAM.
+  //! Only the current pair is held; there is no parallel sample bank.
+  logic [23:0] input_left_r, input_right_r;
+  logic input_left_select_r, input_right_select_r;
+  wire input_right_w = (st_r == CM_INPUT_L_S);
+  logic [5:0] input_right_addr_r;
+  assign input_capture_o = (INPUT_LOOPBACK_P != 0)
+      && (st_r == CM_POP_S) && (pop_idx_r == '0);
+  assign input_read_o = (INPUT_LOOPBACK_P != 0)
+                        && ((st_r == CM_STEP_S) || input_right_w);
+  assign input_addr_o = input_right_w ? input_right_addr_r
+      : {ent_l_w[6:4], ent_l_w[1:0], ent_l_w[11]};
+  wire input_left_select_w = ent_l_w[12] && (ent_l_w[10:8] == 3'd6)
+                              && !ent_l_w[7] && (ent_l_w[3:2] == '0);
+  wire input_right_select_w = ent_r_w[12] && (ent_r_w[10:8] == 3'd6)
+                               && !ent_r_w[7] && (ent_r_w[3:2] == '0);
+
   // ---------------------------------------------------------------------- //
   // Emit walk FSM (pre-walk pop, then the slot walk)                        //
   // ---------------------------------------------------------------------- //
@@ -1380,6 +1404,11 @@ module KL_chan_map_capture #(
       pair_slot_o  <= '0;
       pair_l_o     <= '0;
       pair_r_o     <= '0;
+      input_right_addr_r <= '0;
+      input_left_r <= '0;
+      input_right_r <= '0;
+      input_left_select_r <= 1'b0;
+      input_right_select_r <= 1'b0;
     end
     else begin
       unique case (st_r)
@@ -1415,12 +1444,27 @@ module KL_chan_map_capture #(
         //! packetizer's input. Milan v1.2 5.3.7.3 gives a bound Stream Output
         //! no way to be silent except by sending silence.
         CM_STEP_S : begin
-          pair_valid_o <= 1'b1;
+          pair_valid_o <= (INPUT_LOOPBACK_P == 0);
           pair_slot_o  <= 5'(slot_r);
           pair_l_o     <= out_l_w;
           pair_r_o     <= out_r_w;
           gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
-          st_r         <= CM_GAP_S;
+          st_r         <= (INPUT_LOOPBACK_P != 0) ? CM_INPUT_L_S : CM_GAP_S;
+          input_left_r <= out_l_w;
+          input_right_r <= out_r_w;
+          input_right_addr_r <= {ent_r_w[6:4], ent_r_w[1:0], ent_r_w[11]};
+          input_left_select_r <= input_left_select_w;
+          input_right_select_r <= input_right_select_w;
+        end
+        CM_INPUT_L_S: begin
+          if (input_left_select_r) input_left_r <= input_sample_i;
+          st_r <= CM_INPUT_R_S;
+        end
+        CM_INPUT_R_S: begin
+          pair_valid_o <= 1'b1;
+          pair_l_o <= input_left_r;
+          pair_r_o <= input_right_select_r ? input_sample_i : input_right_r;
+          st_r <= CM_GAP_S;
         end
 
         // -------- settle gap between injects ------------------------------

@@ -26961,7 +26961,7 @@ def test_d10_cluster_namer_paths() -> None:
                        "silently named as a loopback channel")
 
     # -- every known role still has a namer, and the table IS the dispatch ---
-    assert set(eb.CLUSTER_NAMERS) == {"physical", "virtual", "pilot", "loopback", "unrouted"}, \
+    assert set(eb.CLUSTER_NAMERS) == {"physical", "virtual", "pilot", "loopback", "input_loopback", "unrouted"}, \
         eb.CLUSTER_NAMERS
     for direction, roles in eb.PRIMARY_ROLE_ORDER.items():
         for role in roles:
@@ -30180,7 +30180,8 @@ def _name_boundary_variant(names: int) -> Path:
     listeners, talkers, sources = _NAME_BOUNDARY_SHAPES[names]
 
     def widen(cfg: dict) -> None:
-        """Copy the one stream line per direction, numbered."""
+        """Exercise the all-fabric backend's 128-record NAME block."""
+        cfg["control"]["placement"] = "all-fabric"
         streams = cfg["streams"]
         first_in, first_out = streams["listeners"][0], streams["talkers"][0]
         streams["listeners"] = [dict(first_in, name=f"Stream In {k}") for k in range(listeners)]
@@ -30585,6 +30586,7 @@ def test_split_record_space_bounds_the_split_output() -> None:
 
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
+    from test_input_loopback import test_input_loopback_contract
     from test_clock_contract import (
         test_baremetal_clock_contract, test_builder_clock_source, test_extra_sweep_clocks,
         test_extra_sweep_invocation, test_sim_clock, test_tap_clock_docs,
@@ -30714,7 +30716,8 @@ if __name__ == "__main__":
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
                test_name_count_fits_the_nvm_name_block,
-               test_split_record_space_bounds_the_split_output)):
+               test_split_record_space_bounds_the_split_output,
+               test_input_loopback_contract)):
         print(f"{fn.__name__}:")
         before = len(SKIPPED)
         fn()

@@ -350,6 +350,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | Explicit campaign | Command | Who runs it |
 |---|---|---|
 | #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+| #979 mapped input loopback | `make -C tb/verilator/input_loopback`; `python3 tb/verilator/input_loopback/mutants.py --output <scratch-directory>` | Authors and reviewers changing the optional mapped copy, synchronous bucket 6, or invalidation; [coverage](../../tb/verilator/input_loopback/README.md) |
 | #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_queue.sv`, `sim_aclk.cpp` or this campaign |
 | #645/#647 settle recentre, sixteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
 | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
