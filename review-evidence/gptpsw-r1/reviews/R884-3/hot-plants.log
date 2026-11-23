@@ -1,0 +1,13 @@
+control: the tree's script and order, linked: PASS
+control: an entry of an object compiled out, absent from the image: PASS
+[caught] stale-name: LINKED: hot-list name *-aecp.o(.text.aecp_retry_aged_old) is no section of the linked image
+[caught] absent-from-image: LINKED: hot-list name *-aecp.o(.text.aecp_retry_aged) is no section of the linked image
+[caught] only-discarded: LINKED: hot-list name *-aecp.o(.text.aecp_retry_aged) is no section of the linked image
+[caught] reordered: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 1 is *-ctrl_loop.o(.text.ctrl_loop_service), recorded *-aecp.o(.text.aecp_retry_aged)
+[caught] dropped: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-srp_mbx.o(.text.transmit_aged), recorded *-ctrl_loop.o(.text.ctrl_loop_service)
+[caught] unrecorded: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 287 is *-mbx.o(.text.mbx_open), recorded the end
+[caught] recorded-elsewhere: ORDER: the hot list is not the order ctrl_split_hot.txt records: entry 2 is *-ctrl_loop.o(.text.ctrl_loop_service), recorded *-srp_mbx.o(.text.transmit_aged)
+[caught] no-end-marker: ORDER: ctrl_split.ld holds no hot list of entries alone between _ctrl_hot_start = .; and _ctrl_hot_end = .;
+[caught] compiled-out-but-linked: LINKED: object aecp is named compiled out, yet the image links its sections
+[caught] another-object-compiled-out: LINKED: hot-list name *-aecp.o(.text.aecp_retry_aged) is no section of the linked image
+self-test: 0 failure(s)

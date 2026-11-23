@@ -1,0 +1,161 @@
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Net.*Step*
+[==========] Running 11 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 11 tests from Net
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt1msTurnaround (0 ms)
+[ RUN      ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepAtTaiScaleKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround
+[       OK ] Net.AStepOf100msKeepsAsCapableAt1msTurnaround (5 ms)
+[ RUN      ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround
+[       OK ] Net.AStepOf1sKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround
+[       OK ] Net.ABackwardStepOf100msKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1194: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 2000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 200
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1193: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1194: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1193: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1194: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1193: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 3000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 267
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround (6 ms)
+[ RUN      ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1193: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 4000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1194: Failure
+Expected equality of these values:
+  down_ms[1]
+    Which is: 4000
+  0u
+    Which is: 0
+the slave's port fell from asCapable across its own step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 401
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround (0 ms)
+[ RUN      ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1193: Failure
+Expected equality of these values:
+  down_ms[0]
+    Which is: 3000
+  0u
+    Which is: 0
+the grandmaster's port fell from asCapable across the slave's step
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:1195: Failure
+Expected equality of these values:
+  gm_changes
+    Which is: 267
+  0u
+    Which is: 0
+the slave left its grandmaster after it first followed it
+
+[  FAILED  ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround (0 ms)
+[----------] 11 tests from Net (17 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 1 test suite ran. (17 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] Net.AForwardStepOf150usKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.AForwardStepOf300usKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.AForwardStepOf400usKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.ABackwardStepOf300usKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.ABackwardStepOf400usKeepsAsCapableAt10msTurnaround
+[  FAILED  ] Net.ABackwardStepOf475usKeepsAsCapableAt5msTurnaround
+
+ 6 FAILED TESTS

@@ -1,0 +1,28 @@
+author-r4/receipts/builder-final/test_builder.log
+  [gate 1c] fabric ownership is the only product configuration; software ownership is the --sw-gptp opt-in alone
+ALL GATES PASS EXCEPT 2 NOT RUN
+rc=0
+
+author-r4/receipts/memory-631dc544/test_ctrl_memory-631dc544.log
+  [ok  ] the ledger holds the ruled points, the 8x8 two-interface images at 60.5 and 63.0, the platform's one-interface image at 58.5, and the gPTP images at 59.0, 64.0 and 62.0 ({'8x8-one-interface-gptp': ((('nvm_stage', 13594), ('image_allocation', 8), ('image_gptp', 1104)), 59.0), '8x8-two-interfaces-gptp': ((('nvm_stage', 13594), ('image_allocation', 16), ('image_gptp', 2152)), 64.0), 'platform-8x8-one-interface-gptp': ((('nvm_stage', 13594), ('ctrl_plat', 20160)), 62.0), '8x8-two-interfaces': ((('nvm_stage', 13594), ('image_allocation', 16)), 60.5), 'platform-8x8-two-interfaces': ((('nvm_stage', 13594), ('ctrl_plat', 21568)), 63.0), 'platform-8x8-one-interface': ((('nvm_stage', 13594), ('ctrl_plat', 19008)), 58.5)})
+
+author-r4/receipts/memory-631dc544/plat_ledger-631dc544.log
+POINT 1x1-if1: rom 126,640 B, sram 56,800 B, 45 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18112 B: PASS
+POINT 1x1-if2: rom 128,208 B, sram 59,104 B, 46 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19776 B: PASS
+POINT 8x8-if1: rom 139,408 B, sram 98,224 B, 58.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19008 B: PASS
+POINT 8x8-if1-gptp: rom 152,072 B, sram 99,392 B, 62 RAMB36 (platform-8x8-one-interface-gptp), ctrl_plat 20160 B: PASS
+POINT 8x8-if2: rom 140,960 B, sram 115,568 B, 63 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21568 B: PASS
+plat_ledger: PASS (0 finding(s))
+
+author-r4/receipts/closedloop-final/baseline.log
+[ FLOOD ] 32 Pdelay_Req every 200 ms from 2.5 s: event messages handed out 977, committed at once 462, refused or held frames 526, received stamped 490, unstamped 0, egress records lost 0; lock 2.9 s, then worst |offset| 95.0 ns
+== gptp in firmware, closed loop over the mailbox model and the timestamp units: checks: 48   failures: 0 ==
+
+author-r4/receipts/closedloop-final/plants.log
+closed-loop plants: 14 checks, 0 failures
+
+author-r4/receipts/gptp/gptp_mutants-4e934621.log
+  ok   steps-left-on-the-local-clock: KILLED by Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate: [FAIL] Scripted.AnOwnStepVoidsTheExchangeInFlightAndMovesNoRate: the rate across the step reached the delay
+  ok   multiple-responses-cleared-at-completion: KILLED by Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce: [FAIL] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce: multiple responses without Follow_Up kept asCapable, request 1
+== ctrl gPTP planted defects: checks: 41   failures: 0 ==
+

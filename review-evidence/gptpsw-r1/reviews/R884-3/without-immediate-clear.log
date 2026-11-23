@@ -1,0 +1,92 @@
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+Note: Google Test filter = Scripted.*Response*:Scripted.OneClockAnsweringTwice*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Scripted
+[ RUN      ] Scripted.FifthLostResponseClearsAsCapable
+[       OK ] Scripted.FifthLostResponseClearsAsCapable (0 ms)
+[ RUN      ] Scripted.LateResponseIsLost
+[       OK ] Scripted.LateResponseIsLost (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease
+[       OK ] Scripted.OneClockAnsweringTwiceIsNotAsCapableButDoesNotCease (0 ms)
+[ RUN      ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:515: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+multiple responses without Follow_Up kept asCapable, request 1
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:515: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+multiple responses without Follow_Up kept asCapable, request 2
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:515: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+multiple responses without Follow_Up kept asCapable, request 3
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:522: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+asCapable came back during the cease
+
+[  FAILED  ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce (0 ms)
+[ RUN      ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:541: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+a second response in flight kept asCapable until a Follow_Up
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:544: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+a late Follow_Up restored asCapable
+
+[  FAILED  ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes (0 ms)
+[ RUN      ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:574: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+one clock answering twice kept asCapable, request 1
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:574: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+one clock answering twice kept asCapable, request 2
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:574: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+one clock answering twice kept asCapable, request 3
+
+$REVIEWS/r884-3-gptpsw/sw/firmware/ctrl/test/test_gptp.cpp:574: Failure
+Value of: gptp_port_pub(&port)->as_capable
+  Actual: true
+Expected: false
+one clock answering twice kept asCapable, request 4
+
+[  FAILED  ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease (0 ms)
+[ RUN      ] Scripted.AnOwnStepCompletesNoResponseOwed
+[       OK ] Scripted.AnOwnStepCompletesNoResponseOwed (0 ms)
+[ RUN      ] Scripted.OwnResponseIsIgnored
+[       OK ] Scripted.OwnResponseIsIgnored (0 ms)
+[----------] 8 tests from Scripted (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Scripted.MultipleResponsesWithoutFollowUpClearAsCapableAtOnce
+[  FAILED  ] Scripted.ASecondResponseClearsAsCapableBeforeItsExchangeCompletes
+[  FAILED  ] Scripted.OneClockAnsweringTwiceClearsAsCapableAtOnceAndDoesNotCease
+
+ 3 FAILED TESTS
