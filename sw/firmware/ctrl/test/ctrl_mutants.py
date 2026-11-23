@@ -259,7 +259,7 @@ MUTANTS = (
     Mutant("rx-before-events", "loop/ctrl_loop.c",
            "\tunsigned work = service_events(l);\n\tl->backlog = false;\n",
            "\tunsigned work = 0;\n\tl->backlog = false;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
-           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline);\n\t\t}\n\t}\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch, l->rx_cap, deadline, false);\n\t\t}\n\t}\n"
            "\twork += service_events(l);\n", "adp", "AdpBacklog.F0toF7FullBacklogs", "F1 events first"),
     Mutant("carried-ticks-overwritten", "loop/ctrl_loop.c", "l->ticks_owed += ev.tick_count;",
            "l->ticks_owed = ev.tick_count;",
