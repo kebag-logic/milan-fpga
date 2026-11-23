@@ -1,0 +1,56 @@
+A $REVIEWS/950-r882-2-packet/scratch/pl-head/1x1-if1/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/pl-src/1x1-if1/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 159528 159528
+  .text 0x12291 f7->07 in ctrl_plat_generated_image
+      1x1-if1: 12290:	db1df7b7          	lui	a5,0xdb1df
+      1x1-if1: 12290:	38a807b7          	lui	a5,0x38a80
+  .text 0x12292 1d->a8 in ctrl_plat_generated_image
+  .text 0x12293 db->38 in ctrl_plat_generated_image
+  .text 0x12296 57->37 in ctrl_plat_generated_image
+      1x1-if1: 12294:	ab578793          	addi	a5,a5,-1355
+      1x1-if1: 12294:	32378793          	addi	a5,a5,803
+  .text 0x12297 ab->32 in ctrl_plat_generated_image
+  .rodata 0x1c11c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'ctrl_plat_generated_image']
+A $REVIEWS/950-r882-2-packet/scratch/pl-head/1x1-if2/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/pl-src/1x1-if2/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 163484 163484
+  .text 0x128b5 f7->07 in ctrl_plat_generated_image
+      1x1-if2: 128b4:	db1df7b7          	lui	a5,0xdb1df
+      1x1-if2: 128b4:	38a807b7          	lui	a5,0x38a80
+  .text 0x128b6 1d->a8 in ctrl_plat_generated_image
+  .text 0x128b7 db->38 in ctrl_plat_generated_image
+  .text 0x128ba 57->37 in ctrl_plat_generated_image
+      1x1-if2: 128b8:	ab578793          	addi	a5,a5,-1355
+      1x1-if2: 128b8:	32378793          	addi	a5,a5,803
+  .text 0x128bb ab->32 in ctrl_plat_generated_image
+  .rodata 0x1c764 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'ctrl_plat_generated_image']
+A $REVIEWS/950-r882-2-packet/scratch/pl-head/8x8-if1/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/pl-src/8x8-if1/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 172208 172208
+  .text 0x12245 f7->77 in ctrl_plat_generated_image
+      8x8-if1: 12244:	b730f7b7          	lui	a5,0xb730f
+      8x8-if1: 12244:	d6dd77b7          	lui	a5,0xd6dd7
+  .text 0x12246 30->dd in ctrl_plat_generated_image
+  .text 0x12247 b7->d6 in ctrl_plat_generated_image
+  .text 0x1224a 17->97 in ctrl_plat_generated_image
+      8x8-if1: 12248:	c9178793          	addi	a5,a5,-879
+      8x8-if1: 12248:	4b978793          	addi	a5,a5,1209
+  .text 0x1224b c9->4b in ctrl_plat_generated_image
+  .rodata 0x1c0d4 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'ctrl_plat_generated_image']
+A $REVIEWS/950-r882-2-packet/scratch/pl-head/8x8-if2/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/pl-src/8x8-if2/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 176164 176164
+  .text 0x12861 f7->77 in ctrl_plat_generated_image
+      8x8-if2: 12860:	b730f7b7          	lui	a5,0xb730f
+      8x8-if2: 12860:	d6dd77b7          	lui	a5,0xd6dd7
+  .text 0x12862 30->dd in ctrl_plat_generated_image
+  .text 0x12863 b7->d6 in ctrl_plat_generated_image
+  .text 0x12866 17->97 in ctrl_plat_generated_image
+      8x8-if2: 12864:	c9178793          	addi	a5,a5,-879
+      8x8-if2: 12864:	4b978793          	addi	a5,a5,1209
+  .text 0x12867 c9->4b in ctrl_plat_generated_image
+  .rodata 0x1c704 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'ctrl_plat_generated_image']

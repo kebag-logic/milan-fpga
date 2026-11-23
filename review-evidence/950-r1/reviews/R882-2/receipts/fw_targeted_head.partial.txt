@@ -1,0 +1,6 @@
+ARM plat rc=0 :: == ctrl split platform MMIO (host array): checks: 2   failures: 0 == | RESULT: PASS |   verdict: PASS (2 tests, 0 failures, exit 0)
+ARM platsinks rc=0 :: == ctrl split platform sink formats (host model, endstation_ax7101_8x8 if1): checks: 15   failures: 0 == | RESULT: PASS |   verdict: PASS (15 tests, 0 failures, exit 0)
+ARM platsinks rc=0 :: == ctrl split platform sink formats (host model, endstation_ax7101_1x1_tdm8 if1): checks: 15   failures: 0 == | RESULT: PASS |   verdict: PASS (15 tests, 0 failures, exit 0)
+ARM platboot rc=0 :: == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 52   failures: 0 == | RESULT: PASS |   verdict: PASS (52 tests, 0 failures, exit 0)
+ARM platboot rc=0 :: == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 52   failures: 0 == | RESULT: PASS |   verdict: PASS (52 tests, 0 failures, exit 0)
+stopped by the reviewer after the full arm run (fw_arms_head) passed; the arms above completed before the stop

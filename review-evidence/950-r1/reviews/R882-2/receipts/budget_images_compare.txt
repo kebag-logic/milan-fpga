@@ -1,0 +1,240 @@
+ARM 1x1 answering-every-port src16=98b26cab6be33586 published-head16=98b26cab6be33586 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-answering-every-port/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-answering-every-port/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149780 149780
+  .text 0x10779 f6->06 in main
+      image: 10778:	db1df6b7          	lui	a3,0xdb1df
+      image: 10778:	38a806b7          	lui	a3,0x38a80
+  .text 0x1077a 1d->a8 in main
+  .text 0x1077b db->38 in main
+  .text 0x1079a 56->36 in main
+      image: 10798:	ab568693          	addi	a3,a3,-1355
+      image: 10798:	32368693          	addi	a3,a3,803
+  .text 0x1079b ab->32 in main
+  .rodata 0x19f0c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 answering-later src16=75a690be56ddc9ba published-head16=75a690be56ddc9ba match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-answering-later/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-answering-later/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149704 149704
+  .text 0x106f1 f6->06 in main
+      image: 106f0:	db1df6b7          	lui	a3,0xdb1df
+      image: 106f0:	38a806b7          	lui	a3,0x38a80
+  .text 0x106f2 1d->a8 in main
+  .text 0x106f3 db->38 in main
+  .text 0x10712 56->36 in main
+      image: 10710:	ab568693          	addi	a3,a3,-1355
+      image: 10710:	32368693          	addi	a3,a3,803
+  .text 0x10713 ab->32 in main
+  .rodata 0x19e64 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 answering-ports src16=a3b41a92548b543b published-head16=a3b41a92548b543b match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-answering-ports/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-answering-ports/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149700 149700
+  .text 0x10829 f6->06 in main
+      image: 10828:	db1df6b7          	lui	a3,0xdb1df
+      image: 10828:	38a806b7          	lui	a3,0x38a80
+  .text 0x1082a 1d->a8 in main
+  .text 0x1082b db->38 in main
+  .text 0x1084a 56->36 in main
+      image: 10848:	ab568693          	addi	a3,a3,-1355
+      image: 10848:	32368693          	addi	a3,a3,803
+  .text 0x1084b ab->32 in main
+  .rodata 0x19fbc 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 declaring-outputs src16=501b185c87a2ba3a published-head16=501b185c87a2ba3a match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-declaring-outputs/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-declaring-outputs/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149852 149852
+  .text 0x1091d f6->06 in main
+      image: 1091c:	db1df6b7          	lui	a3,0xdb1df
+      image: 1091c:	38a806b7          	lui	a3,0x38a80
+  .text 0x1091e 1d->a8 in main
+  .text 0x1091f db->38 in main
+  .text 0x1093e 56->36 in main
+      image: 1093c:	ab568693          	addi	a3,a3,-1355
+      image: 1093c:	32368693          	addi	a3,a3,803
+  .text 0x1093f ab->32 in main
+  .rodata 0x1a0d4 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 none src16=4e49e9530e73418d published-head16=4e49e9530e73418d match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-none/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-none/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149560 149560
+  .text 0x10675 f6->06 in main
+      image: 10674:	db1df6b7          	lui	a3,0xdb1df
+      image: 10674:	38a806b7          	lui	a3,0x38a80
+  .text 0x10676 1d->a8 in main
+  .text 0x10677 db->38 in main
+  .text 0x10696 56->36 in main
+      image: 10694:	ab568693          	addi	a3,a3,-1355
+      image: 10694:	32368693          	addi	a3,a3,803
+  .text 0x10697 ab->32 in main
+  .rodata 0x19dcc 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 shutdown-entry src16=7762e5c21ac5a1ca published-head16=7762e5c21ac5a1ca match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-shutdown-entry/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-shutdown-entry/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149628 149628
+  .text 0x106c9 f6->06 in main
+      image: 106c8:	db1df6b7          	lui	a3,0xdb1df
+      image: 106c8:	38a806b7          	lui	a3,0x38a80
+  .text 0x106ca 1d->a8 in main
+  .text 0x106cb db->38 in main
+  .text 0x106ea 56->36 in main
+      image: 106e8:	ab568693          	addi	a3,a3,-1355
+      image: 106e8:	32368693          	addi	a3,a3,803
+  .text 0x106eb ab->32 in main
+  .rodata 0x19e3c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 talker-notices src16=094a8c9dc5ff8a5e published-head16=094a8c9dc5ff8a5e match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-talker-notices/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-talker-notices/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149628 149628
+  .text 0x10721 f6->06 in main
+      image: 10720:	db1df6b7          	lui	a3,0xdb1df
+      image: 10720:	38a806b7          	lui	a3,0x38a80
+  .text 0x10722 1d->a8 in main
+  .text 0x10723 db->38 in main
+  .text 0x10742 56->36 in main
+      image: 10740:	ab568693          	addi	a3,a3,-1355
+      image: 10740:	32368693          	addi	a3,a3,803
+  .text 0x10743 ab->32 in main
+  .rodata 0x19e8c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 1x1 valid-destinations src16=014ed2374cf8c82e published-head16=014ed2374cf8c82e match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/1x1-valid-destinations/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/1x1-valid-destinations/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 149588 149588
+  .text 0x106f9 f6->06 in main
+      image: 106f8:	db1df6b7          	lui	a3,0xdb1df
+      image: 106f8:	38a806b7          	lui	a3,0x38a80
+  .text 0x106fa 1d->a8 in main
+  .text 0x106fb db->38 in main
+  .text 0x1071a 56->36 in main
+      image: 10718:	ab568693          	addi	a3,a3,-1355
+      image: 10718:	32368693          	addi	a3,a3,803
+  .text 0x1071b ab->32 in main
+  .rodata 0x19e54 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if answering-every-port src16=04f4562818336556 published-head16=04f4562818336556 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-answering-every-port/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-answering-every-port/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162460 162460
+  .text 0x10731 f6->76 in main
+      image: 10730:	b730f6b7          	lui	a3,0xb730f
+      image: 10730:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x10732 30->dd in main
+  .text 0x10733 b7->d6 in main
+  .text 0x10752 16->96 in main
+      image: 10750:	c9168693          	addi	a3,a3,-879
+      image: 10750:	4b968693          	addi	a3,a3,1209
+  .text 0x10753 c9->4b in main
+  .rodata 0x19ed4 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if answering-later src16=53eab00abe984533 published-head16=53eab00abe984533 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-answering-later/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-answering-later/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162384 162384
+  .text 0x106a9 f6->76 in main
+      image: 106a8:	b730f6b7          	lui	a3,0xb730f
+      image: 106a8:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x106aa 30->dd in main
+  .text 0x106ab b7->d6 in main
+  .text 0x106ca 16->96 in main
+      image: 106c8:	c9168693          	addi	a3,a3,-879
+      image: 106c8:	4b968693          	addi	a3,a3,1209
+  .text 0x106cb c9->4b in main
+  .rodata 0x19e34 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if answering-ports src16=e80ac321b98dda12 published-head16=e80ac321b98dda12 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-answering-ports/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-answering-ports/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162380 162380
+  .text 0x107e1 f6->76 in main
+      image: 107e0:	b730f6b7          	lui	a3,0xb730f
+      image: 107e0:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x107e2 30->dd in main
+  .text 0x107e3 b7->d6 in main
+  .text 0x10802 16->96 in main
+      image: 10800:	c9168693          	addi	a3,a3,-879
+      image: 10800:	4b968693          	addi	a3,a3,1209
+  .text 0x10803 c9->4b in main
+  .rodata 0x19f8c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if declaring-outputs src16=b5abd78ccd2ae8fd published-head16=b5abd78ccd2ae8fd match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-declaring-outputs/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-declaring-outputs/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162532 162532
+  .text 0x108d5 f6->76 in main
+      image: 108d4:	b730f6b7          	lui	a3,0xb730f
+      image: 108d4:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x108d6 30->dd in main
+  .text 0x108d7 b7->d6 in main
+  .text 0x108f6 16->96 in main
+      image: 108f4:	c9168693          	addi	a3,a3,-879
+      image: 108f4:	4b968693          	addi	a3,a3,1209
+  .text 0x108f7 c9->4b in main
+  .rodata 0x1a0ac 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if none src16=f3d8ade8410059f1 published-head16=f3d8ade8410059f1 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-none/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-none/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162240 162240
+  .text 0x1062d f6->76 in main
+      image: 1062c:	b730f6b7          	lui	a3,0xb730f
+      image: 1062c:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x1062e 30->dd in main
+  .text 0x1062f b7->d6 in main
+  .text 0x1064e 16->96 in main
+      image: 1064c:	c9168693          	addi	a3,a3,-879
+      image: 1064c:	4b968693          	addi	a3,a3,1209
+  .text 0x1064f c9->4b in main
+  .rodata 0x19d9c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if shutdown-entry src16=09add36a0fc897fb published-head16=09add36a0fc897fb match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-shutdown-entry/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-shutdown-entry/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162308 162308
+  .text 0x10681 f6->76 in main
+      image: 10680:	b730f6b7          	lui	a3,0xb730f
+      image: 10680:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x10682 30->dd in main
+  .text 0x10683 b7->d6 in main
+  .text 0x106a2 16->96 in main
+      image: 106a0:	c9168693          	addi	a3,a3,-879
+      image: 106a0:	4b968693          	addi	a3,a3,1209
+  .text 0x106a3 c9->4b in main
+  .rodata 0x19e0c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if talker-notices src16=a196d875769f8cbd published-head16=a196d875769f8cbd match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-talker-notices/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-talker-notices/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162308 162308
+  .text 0x106d9 f6->76 in main
+      image: 106d8:	b730f6b7          	lui	a3,0xb730f
+      image: 106d8:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x106da 30->dd in main
+  .text 0x106db b7->d6 in main
+  .text 0x106fa 16->96 in main
+      image: 106f8:	c9168693          	addi	a3,a3,-879
+      image: 106f8:	4b968693          	addi	a3,a3,1209
+  .text 0x106fb c9->4b in main
+  .rodata 0x19e54 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']
+ARM 8x8-1if valid-destinations src16=8e665cc6fbd06767 published-head16=8e665cc6fbd06767 match=yes
+A $REVIEWS/950-r882-2-packet/scratch/bi-head/8x8-1if-valid-destinations/image/ctrl_app.elf
+B $REVIEWS/950-r882-2-packet/scratch/bi-src/8x8-1if-valid-destinations/image/ctrl_app.elf
+sections identical: True; symbols (address, size, kind, name) identical: True; file sizes 162268 162268
+  .text 0x106b1 f6->76 in main
+      image: 106b0:	b730f6b7          	lui	a3,0xb730f
+      image: 106b0:	d6dd76b7          	lui	a3,0xd6dd7
+  .text 0x106b2 30->dd in main
+  .text 0x106b3 b7->d6 in main
+  .text 0x106d2 16->96 in main
+      image: 106d0:	c9168693          	addi	a3,a3,-879
+      image: 106d0:	4b968693          	addi	a3,a3,1209
+  .text 0x106d3 c9->4b in main
+  .rodata 0x19e1c 33->32 in aecp_entity_image
+VERDICT DATA-ONLY 6 byte(s) in ['aecp_entity_image', 'main']

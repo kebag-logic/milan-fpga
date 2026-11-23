@@ -1,0 +1,48 @@
+# composition facts at the candidate
+HEAD 7a92791973ccb57c01597a4b4387afbdbe5444ce tree 3547b84c6da677de140ea615bcfbc81e011a1382
+parents: 854bd7236792ce1adbd10c43b13a6a5002ad3bb6 287ca1ee96e69f71a5036061d2bf33c564965755
+merge-base(base, source) 15168e14a1fe709b9ab5336acd6daf54e4d6e0a4 (Cite rulings by issue, date and item in the train's source and test comments and)
+source tree e293283d32580fb8bcfb8fb4dc48d413cda71f68
+remote dev-soft-core / dev: e275d7950ef3385753e6a15d2e191ba855b171ed	refs/heads/dev 854bd7236792ce1adbd10c43b13a6a5002ad3bb6	refs/heads/dev-soft-core 
+
+## PR patch (merge-base..source) vs composed patch (base..HEAD), differing lines only
+2c2
+< index 1068da0dc..a2add4d42 100644
+---
+> index a40808d4f..b6bd4ab15 100644
+963c963
+< index c6195b168..94a6aadc8 100644
+---
+> index c1a8541a7..5b2dff105 100644
+rc=1 (only index lines of the two overlapping files differ)
+
+## files the PR changes that a predecessor (merge-base..base) also changed
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/litex/test_ctrl_memory.py
+
+## predecessor commits on them
+62477be4c Cite #665 alone, without the lane label, in the flip's source comments, messages and the register map text they generate
+15db681ad Keep test_ctrl_memory.py within the module ratchet: its all-fabric argv's docstring on one line (#665 S13)
+bfdb5a2d5 Elaborate the shipping split at both AX7101 shapes and the all-fabric release build in the clock-constraint probe, census the processor's publication 
+6eef968e1 State the split as the shipping placement at VERSION 0x0003_0060 and the all-fabric build kept at 0x0002_0060 behind its switch in the docs, the featu
+
+## PR files differing from the source head at the candidate
+ docs/design/SPLIT_CONTROL_MEMORY.md | 2 +-
+ sw/litex/test_ctrl_memory.py        | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+## live dev tail (merge-base(base,dev)..dev) files vs PR files
+AGENTS.md
+CONTRIBUTING.md
+docs/testing/CI_WORKFLOWS.md
+overlap: 0
+
+## gitlinks HEAD (equal to base and to source)
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+merge-tree 3547b84c6da677de140ea615bcfbc81e011a1382 vs HEAD tree 3547b84c6da677de140ea615bcfbc81e011a1382
+CLEAN-MERGE-TREE-EQUAL

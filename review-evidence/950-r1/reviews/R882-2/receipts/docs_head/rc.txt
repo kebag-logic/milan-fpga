@@ -1,0 +1,26 @@
+0 docs_check :: python3 scripts/docs_check.py
+0 feature_status :: python3 scripts/check_feature_status.py
+2 toc_check :: python3 scripts/gen_toc.py --check
+2 toc_anchors :: python3 scripts/gen_toc.py --verify-anchors
+2 em_dash :: python3 scripts/check_em_dash.py --base 854bd7236792ce1adbd10c43b13a6a5002ad3bb6
+0 doc_paths :: python3 scripts/check_doc_paths.py
+0 doc_style :: python3 scripts/check_doc_style.py
+0 py_idiom :: python3 scripts/check_py_idiom.py
+0 cpp_idiom :: python3 scripts/check_cpp_idiom.py
+0 docs_inventory :: python3 scripts/docs_inventory.py --check
+0 doc_map :: python3 docs/DOC_MAP.gen.py --check
+0 ci_events_check :: python3 scripts/ci_events.py --check
+0 toc_check (md-venv) :: scripts/gen_toc.py --check
+0 toc_anchors (md-venv) :: scripts/gen_toc.py --verify-anchors
+0 em_dash (md-venv) :: scripts/check_em_dash.py --base 854bd7236792ce1adbd10c43b13a6a5002ad3bb6
+0 toc_selftest (md-venv) :: scripts/gen_toc.py --selftest
+0 ci_events_selftest :: python3 scripts/ci_events.py --selftest
+0 measure_naming :: python3 scripts/measure_naming.py --check
+0 measure_test_evidence :: python3 scripts/measure_test_evidence.py --check
+0 measure_fail_fast :: python3 scripts/measure_fail_fast.py --check
+0 hygiene :: python3 scripts/check_hygiene.py --check
+0 todo_ownership :: python3 scripts/check_todo_ownership.py
+0 solution_docs :: python3 scripts/check_solution_docs.py
+0 evidence_pins :: python3 scripts/generate_ci_evidence_pins.py --check
+0 gate_workflows :: python3 scripts/ci_gate_workflows.py --check
+0 module_matrix :: python3 docs/traceability/gen_module_matrix.py --check
