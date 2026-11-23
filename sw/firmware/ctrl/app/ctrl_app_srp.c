@@ -54,10 +54,12 @@ static bool delivered(const struct ctrl_app_srp_request *r)
     return !r->parked && !r->pending && r->bound;
 }
 
-// ACMP's completion of SRP's registrations at a binding delivered (srp_requests), from the kind it holds now: a kind
-// registered the sink awaits or a changed kind, then a loss the binding latched (srp_mbx.c, capture).
-static void complete(struct ctrl_app *app, unsigned sink, struct srp_sink *s)
+// ACMP's completion of SRP's registrations at a binding delivered (srp_requests), the sink on its interface, from the
+// kind it holds now: a kind registered the sink awaits or a changed kind, then a loss the binding latched (srp_mbx.c,
+// capture).
+static void complete(struct ctrl_app *app, unsigned sink, unsigned interface)
 {
+    struct srp_sink *s = &app->srp->ifs[interface].sinks[sink];
     uint8_t registered = s->feedback_kind;
     enum acmp_sink_state state = app->acmp.acmp.sinks[sink].state;
     if (registered && state == ACMP_SETTLED_NO_RSV) {
@@ -90,7 +92,7 @@ static bool settle(void *ctx)
     }
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         if (delivered(&app->srp_requests[sink])) {
-            complete(app,sink,&app->srp->ifs[app->acmp.acmp.cfg.sink_interface[sink]].sinks[sink]);
+            complete(app,sink,app->acmp.acmp.cfg.sink_interface[sink]);
         }
     }
     return true;
@@ -159,7 +161,7 @@ static bool deliver(void *ctx)
             }
         }
         if (delivered(r) && !settles) {
-            complete(app,sink,s);
+            complete(app,sink,interface);
         }
         pending = r->pending || pending;
     }
