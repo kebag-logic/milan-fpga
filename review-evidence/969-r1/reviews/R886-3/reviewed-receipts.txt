@@ -1,0 +1,294 @@
+
+PUBLIC ARTIFACT author-r3/receipts/budget/hot-section-census.txt
+# the hot section (_ctrl_hot_start .. _ctrl_hot_end), base dd163e41 against the final firmware (5dba2089; no firmware source changed since f02d44cd), every function by its place in the section (scripts/hot_census.py; static functions can share a name)
+# corrects the counted population of round 2's hot-section-f02d44cd.txt: its 152 'at a different offset or size' include reset_interface (resized at its own offset), so 151 functions after it moved
+## platform image (ctrl_plat_image.py against the base ledger run's split SoC), 1x1/1if: base, then the final firmware
+sha256 f5a6b98df27667ce6d7998327051e42a533139374faaabb00f0b13fe42e6ca74 159484 B; rom 126432 B, sram 56736 B, tiles 45.0
+sha256 902e5e39367947314243d8c0fa46bb1ea96bc68a33a4af97eee454b2c6f25a72 163624 B; rom 127376 B, sram 56736 B, tiles 45.5
+hot section: base 56696 B, 261 functions; head 56712 B, 261 functions
+changed in offset or size: 152
+resized: 1: reset_interface 536 -> 552 B at offset 26852 (moved +0 B)
+at another offset only (the same size): 151, moved by {16: 151}
+unchanged: 109
+after reset_interface in the section: 151 functions, 151 of them moved; before it: 109, 0 of them moved
+## platform image (ctrl_plat_image.py against the base ledger run's split SoC), 8x8/1if: base, then the final firmware
+sha256 0add4cbd25ffc66df02b4410cc6c125d791a9d618d978c9b8034d8c7655878d7 172164 B; rom 139208 B, sram 98160 B, tiles 58.0
+sha256 1e0e66163d6f4c0dfda4f40933c6810ee529b3de156cfb55b43600b98a09a568 176304 B; rom 140136 B, sram 98288 B, tiles 58.5
+hot section: base 56620 B, 261 functions; head 56636 B, 261 functions
+changed in offset or size: 152
+resized: 1: reset_interface 552 -> 568 B at offset 26828 (moved +0 B)
+at another offset only (the same size): 151, moved by {16: 151}
+unchanged: 109
+after reset_interface in the section: 151 functions, 151 of them moved; before it: 109, 0 of them moved
+## CPU budget image (run.py's build, the image the srp-kept and srp-bound runs measured), 1x1: base, then 5dba2089
+sha256 ffea0386823638ff22f5dfb8024e2558f7f65a2676ab8059d0f07035ea116c3c 149516 B
+sha256 5aac39263dab9609dfccf2dd8aa6bedb71b5f09c5ca99da9f7c46515180e9a16 149560 B
+hot section: base 56776 B, 266 functions; head 56792 B, 266 functions
+changed in offset or size: 155
+resized: 1: reset_interface 536 -> 552 B at offset 26880 (moved +0 B)
+at another offset only (the same size): 154, moved by {16: 154}
+unchanged: 111
+after reset_interface in the section: 154 functions, 154 of them moved; before it: 111, 0 of them moved
+## CPU budget image (run.py's build, the image the srp-kept and srp-bound runs measured), 8x8-1if: base, then 5dba2089
+sha256 c6ce195013b1539ac9e35cf49f91af32dcc41290ea1e2d7d0acc280eaee7290d 162196 B
+sha256 3d1bc5252da3b6b2df44e9bcb59cc5dab58708127da44421d6b587c451864e66 162240 B
+hot section: base 56700 B, 266 functions; head 56716 B, 266 functions
+changed in offset or size: 155
+resized: 1: reset_interface 552 -> 568 B at offset 26856 (moved +0 B)
+at another offset only (the same size): 154, moved by {16: 154}
+unchanged: 111
+after reset_interface in the section: 154 functions, 154 of them moved; before it: 111, 0 of them moved
+
+PUBLIC ARTIFACT author-r2/receipts/budget/leaveall-build-with-the-kept.txt
+# the srp-kept group's LeaveAll and the build that carries the kept Talkers (results/srp-kept.log, its SRP TX
+# frames decoded vector by vector): the entity's LeaveAll MRPDU, then the next MRPDU, which answers it with In for
+# every kept Talker (an observed attribute in LO, IEEE 802.1Q-2018 Table 10-3), one value a vector
+1x1/1if  14.213 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+1x1/1if  14.404 s   92 B  type 1: 2 vectors (streams 1, 2: stream 0 left, stream 2 kept in its place), type 4: 1
+8x8/1if  14.253 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+8x8/1if  14.443 s  288 B  type 1: 9 vectors (streams 1 .. 9), type 4: 1
+# the heaviest pass given whole to a build of one MRPDU in the group (whole_grade.held, kept_grade.py's BUILD line):
+# 39,123 CPU cycles at 1x1/1if against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US 735 us), 82,768 at 8x8/1if
+# against 147,500 (1475 us); run.py: "LeaveAll timers' run-outs by their LeaveAll: 2 sent" at each point, no late,
+# skipped or absent run-out
+
+PUBLIC ARTIFACT author-r3/receipts/budget/kept_grade-c113018d-on-5dba2089-1x1.txt
+# kept_grade.py at c113018d (standalone) on the 5dba2089 run of srp-kept and srp-bound at 1x1 (run.py --groups srp-kept,srp-bound; no firmware source changed since f02d44cd, no re-measurement)
+POINT endstation_ax7101_1x1_tdm8, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 34,497 CPU cycles, 365 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 32,224 CPU cycles, 340 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 36,859 CPU cycles, 390 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 38,956 CPU cycles, 410 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 34,497 against 38,956 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 32,224 against 38,956 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 36,859 against 38,956 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1910 work pass(es) and 1862 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1225 work pass(es) and 831 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 39,123 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 53,970 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+OWED srp.kept_advertise.if0: a record of 34,497 CPU cycles, 365 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 32,224 CPU cycles, 340 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 36,859 CPU cycles, 390 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 38,956 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+rc=0
+
+PUBLIC ARTIFACT author-r3/receipts/budget/kept_grade-c113018d-on-5dba2089-8x8-1if.txt
+# kept_grade.py at c113018d (standalone) on the 5dba2089 run of srp-kept and srp-bound at 8x8-1if (run.py --groups srp-kept,srp-bound; no firmware source changed since f02d44cd, no re-measurement)
+POINT endstation_ax7101_8x8, 1 interface(s): shape (1, 9, 9)
+RECORD srp.kept_advertise.if0: the dearest 137,352 CPU cycles, 1445 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_recount.if0: the dearest 68,692 CPU cycles, 725 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_failed.if0: the dearest 142,909 CPU cycles, 1505 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.bound_advertise.if0: the dearest 153,208 CPU cycles, 1610 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+KEPT <= BOUND srp.kept_advertise.if0: 137,352 against 153,208 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 68,692 against 153,208 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 142,909 against 153,208 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1911 work pass(es) and 1863 idle run(s) in its log
+SHARE srp-bound: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 5756 work pass(es) and 2016 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 82,768 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 101,786 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+OWED srp.kept_advertise.if0: a record of 137,352 CPU cycles, 1445 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 68,692 CPU cycles, 725 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 142,909 CPU cycles, 1505 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 153,208 CPU cycles, 1610 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a work pass of 224,540 CPU cycles at bus cycle 616767420 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+kept_grade: PASS (0 finding(s), 5 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+rc=0
+
+PUBLIC ARTIFACT author-r3/receipts/budget/disposition-c113018d-on-5dba2089-1x1.txt
+# run.py's disposition (kept_grade.Disposition at c113018d) on the same run's logs and grades, against that run's STATED lines (round2/receipts/budget/run-summary-5dba2089-1x1-srp-kept-srp-bound.txt) and run.share_misses
+STATED lines of the run: 5; still failing: 0
+SHARE lines of the run: 0; still failing: 0
+OWED srp.kept_advertise.if0: a record of 34,497 CPU cycles, 365 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 32,224 CPU cycles, 340 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 36,859 CPU cycles, 390 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 38,956 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 34,076 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 31,893 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 36,338 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a walk item of 3,841 CPU cycles, over its stated 3,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: an SRP record's apply of 38,625 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+disposition findings: 0
+rc=0
+
+PUBLIC ARTIFACT author-r3/receipts/budget/disposition-c113018d-on-5dba2089-8x8-1if.txt
+# run.py's disposition (kept_grade.Disposition at c113018d) on the same run's logs and grades, against that run's STATED lines (round2/receipts/budget/run-summary-5dba2089-8x8-1if-srp-kept-srp-bound.txt) and run.share_misses
+STATED lines of the run: 7; still failing: 0
+SHARE lines of the run: 1; still failing: 0
+OWED srp.kept_advertise.if0: a record of 137,352 CPU cycles, 1445 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 68,692 CPU cycles, 725 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 142,909 CPU cycles, 1505 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 153,208 CPU cycles, 1610 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a work pass of 224,540 CPU cycles at bus cycle 616767420 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 137,000 CPU cycles, over its stated 37,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 68,340 CPU cycles, over its stated 37,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 142,473 CPU cycles, over its stated 37,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a pass's polls base of 65,000 CPU cycles, over its stated 30,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a walk item of 14,587 CPU cycles, over its stated 12,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: an SRP record's apply of 152,856 CPU cycles, over its stated 37,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a tier-2 slice of SRP's records of 157,372 CPU cycles, over the stated slice 147,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+disposition findings: 0
+rc=0
+
+PUBLIC ARTIFACT author-r3/receipts/grader/kept_grade-plants-c113018d.txt
+# scripts/plant_kept_grade.py at c113018d: each held condition removed in memory, kept_grade's own --selftest on the planted module
+unplanted: 19/19 self-test checks pass
+log-refusal-removed: CAUGHT by 2 check(s): an unfinished srp-kept log measures nothing: a finding
+never-marked-unfound: CAUGHT by 2 check(s): a probe the point makes that is never marked is a finding
+foreign-probe-unfound: CAUGHT by 1 check(s): a kept probe with no bound record of its own interface is a finding, never a skipped comparison
+no-record-unfound: CAUGHT by 1 check(s): a probe with no record is a finding, the next probe's record not taken for it
+unit-never-owed: CAUGHT by 1 check(s): records past the unit with kept <= bound are owed to #977, by name and link, and found nothing
+mate-missing-skipped: CAUGHT by 1 check(s): a kept probe with no bound record of its own interface is a finding, never a skipped comparison
+kept-over-bound-unfound: CAUGHT by 1 check(s): a kept record one cycle dearer than the bound one breaks kept <= bound, its own probe's
+share-not-read-from-log: CAUGHT by 5 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+kept-share-unfound: CAUGHT by 3 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+bound-share-not-owed: CAUGHT by 1 check(s): a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977
+idle-run-unfound: CAUGHT by 2 check(s): an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start
+idle-read-as-work: CAUGHT by 2 check(s): an idle run over THE SHARE in either group is a finding, never owed, read without a work pass's start
+build-over-cost-unfound: CAUGHT by 1 check(s): a build of one MRPDU one cycle over its stated cost is a finding in either group
+pair-not-required: CAUGHT by 1 check(s): one group graded alone is a finding: nothing is owed and every line stays a failure
+disposition-ignores-findings: CAUGHT by 1 check(s): both groups graded together with a condition broken in a log: the finding stays, nothing is owed
+owed-despite-findings: CAUGHT by 2 check(s): one group graded alone is a finding: nothing is owed and every line stays a failure
+absent-log-unfound: CAUGHT by 1 check(s): standalone: a group with no log fails by name
+share-owed-despite-findings: CAUGHT by 1 check(s): both groups graded together with a condition broken in a log: the finding stays, nothing is owed
+record-taken-by-the-next-mark: CAUGHT by 13 check(s): records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found
+unparsed-log-unfound: CAUGHT by 1 check(s): standalone: a log that does not parse fails by name
+plants: 20, caught 20, escaped 0
+rc=0
+
+PUBLIC ARTIFACT author-r3/receipts/grader/REVIEWER-PROBES-c113018d.txt
+# reviewers' probes run at c113018d: R886-2's probe_kept_grade.py unchanged; R885-2's probe_kept_grade.py and probe_selftest_coverage.py adapted to the changed signatures (scripts/r885_*.py; the diffs are their only changes)
+PASS build-one one cycle over cost: ['srp-kept: a build-one pass at bus cycle 5000000: 73,501 CPU cycles over 
+PASS only one group graded: ['srp-kept and srp-bound are graded together on one image, this run graded srp-kep
+PASS named and linked OWED disposition: ["srp-kept: an SRP record's apply of 40000 CPU cycles, over its stated
+PASS valid idle-only over-share row: ([], [(0, 250000)])
+PASS complete-clean: expected rc=0, observed rc=0
+PASS complete-over-share: expected rc=1, observed rc=1
+PASS missing-json: expected rc=1, observed rc=1
+PASS empty-json: expected rc=1, observed rc=1
+PASS missing-share: expected rc=1, observed rc=1
+R886 valid-within rc 0 kept_grade: PASS (0 finding(s), 0 owed t
+R886 valid-over rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 absent-result rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 empty-result rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 missing-share rc 1 kept_grade: FAIL (1 finding(s), 0 owed t
+R886 missing-mate rc 1 kept_grade: FAIL (5 finding(s), 0 owed t
+R886 stale-result rc 1 kept_grade: FAIL (2 finding(s), 0 owed t
+no-build-over-cost-finding: CAUGHT; 18/19 self-tests pass
+no-missing-json-finding: CAUGHT; 18/19 self-tests pass
+no-paired-group-requirement: CAUGHT; 18/19 self-tests pass
+
+PUBLIC ARTIFACT author-r3/receipts/budget/harness-selftest-run.py_--self-test-c113018d.log.gz (selected summary)
+self-test: 0 failures
+
+PUBLIC ARTIFACT author-r3/receipts/docs/docs-workflow-c113018d.txt
+# the docs workflow's 103 commands (the flip lane's table, the em-dash base dd163e41), quick.sh on a clean clone at c113018d (the final head); one line per command, its rc and last line; the 4 CI-environment rows (act install dir, GITHUB_EVENT_PATH x3) refuse on any local replay, as on the base's
+00-check_wire_accountability-selftest rc=0  RESULT: PASS
+01-docs_check                rc=0  docs_check: 0 finding(s) across 223 md files + 1913 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+02-check_feature_status      rc=0  feature_status: 0 finding(s)
+03-gen_hdl_reference-selftest rc=0  HDL reference self-test: 44/44 arms passed
+04-check_em_dash-basedd163e41 rc=0  check_em_dash: 0 finding(s) over 124 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [dd163e41..HEAD]
+05-check_doc_style           rc=0  documentation style: OK (25 current documents)
+06-check_doc_style-selftest  rc=0  documentation style selftest: OK
+07-check_gptp_docs           rc=0  gPTP documentation: OK (8 current pages)
+08-check_gptp_docs-selftest  rc=0  gPTP documentation selftest: OK (30 controls)
+09-DOC_MAP_gen-check         rc=0  documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+10-DOC_MAP_gen-selftest      rc=0  documentation map selftest: OK (valid wrong-raster control)
+11-timesync_chain_gen-check  rc=0  time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+12-timesync_chain_gen-selftest rc=0  time-sync diagram selftest: OK (source, status, XML, raster)
+13-check_solution_docs       rc=0  solution documentation: OK (product recipe, 3 memory faces, 15 exhaustive port groups)
+14-check_solution_docs-selftest rc=0  solution documentation selftest: OK (47 mutation controls)
+15-submodule_boundaries_gen-check rc=0  submodule diagram: OK (6 exact gitlinks, decoded PNG)
+16-submodule_boundaries_gen-selftest rc=0  submodule diagram selftest: OK (valid wrong-raster control)
+17-check_submodule_docs      rc=0  submodule documentation: OK (6 exact gitlinks)
+18-check_submodule_docs-selftest rc=0  submodule documentation selftest: OK (table and diagram controls)
+19-gen_wavedrom-selftest     rc=0  gen_wavedrom selftest: OK (metadata, checksum, and raster-manifest controls)
+20-gen_wavedrom-docsdiagramswdaxisba rc=0  WaveDrom current: docs/diagrams/wd_axis_backpressure.json
+21-gen_wavedrom-docsdiagramswdcdchan rc=0  WaveDrom current: docs/diagrams/wd_cdc_handshake.json
+22-gen_wavedrom-docsdiagramswdgptppd rc=0  WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+23-check_diagram_pngs        rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+24-check_diagram_pngs-selftest rc=0  diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+25-check_feature_status-selftest rc=0  feature_status: 0 finding(s)
+26-gen_module_matrix-check   rc=0  traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+27-check_gptp_docs-withsubmodule rc=0  gPTP documentation: OK (8 current pages, donor checkout verified)
+28-measure_control_flow-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+29-measure_cohesion-selftest rc=0  18 checks: 18 PASS, 0 FAIL
+30-check_baremetal_only-check rc=0  baremetal-only: OK (0 findings across 1911 tracked first-party file(s))
+31-check_baremetal_only-selftest rc=0  baremetal-only selftest: PASS (867 arm(s))
+32-ci_rv32_sdk_selftest      rc=0  OK
+33-test_firmware_compiler-selftest rc=0  compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+34-check_nvm_record_space    rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+35-check_nvm_record_space-selftest rc=0  0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persist
+36-check_nvm_format_32x32    rc=0  docs/design/SAVED_STATE_FORMAT_32X32.md: 0 finding(s)
+37-check_nvm_format_32x32-selftest rc=0  self-test: PASS
+38-check_nvm_klj3            rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128
+39-check_nvm_klj3-selftest   rc=0  split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+40-check_nvm_capture         rc=0  PASS: capture census, clocks, both timing arms and receipt agree
+41-test_nvm_firmware-selftest rc=0  saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+42-check_soc_sources         rc=0  SoC source gate: OK (47 instantiated modules all registered, 85 sources all present)
+43-check_soc_sources-selftest rc=0  25 checks: 25 PASS, 0 FAIL
+44-iob_pack_selftest         rc=0  iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+45-check_rtl_source_lists    rc=0  RTL source-list gate: OK (113 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorde
+46-check_rtl_source_lists-selftest rc=0  50 checks: 50 PASS, 0 FAIL
+47-measure_naming-check      rc=0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+48-measure_naming-selftest   rc=0  66 checks: 66 PASS, 0 FAIL
+49-check_port_contracts      rc=0    review inventory: 94 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 477 test-only hi
+50-check_port_contracts-selftest rc=0  82 checks: 82 PASS, 0 FAIL
+51-measure_fail_fast-check   rc=0    the ratchets can be lowered to 80, 3 and 0
+52-measure_fail_fast-selftest rc=0  106 checks: 106 PASS, 0 FAIL
+53-check_todo_ownership      rc=0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 80 near-miss occurrence(s) on 73 line(s) correctly not treated as markers; 1591 first-party fil
+54-check_todo_ownership-selftest rc=0  45 checks: 45 PASS, 0 FAIL
+55-measure_test_evidence-check rc=0    the mutation ratchet can be lowered to 67
+56-measure_test_evidence-selftest rc=0  105 checks: 105 PASS, 0 FAIL
+57-check_hygiene-check       rc=0  HYGIENE RATCHET: PASS (3 population(s), 1518 file(s))
+58-check_hygiene-selftest    rc=0  35 checks: 35 PASS, 0 FAIL
+59-check_sv_idiom            rc=0  SystemVerilog idiom gate: OK (145 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always
+60-check_sv_idiom-selftest   rc=0  55 checks: 55 PASS, 0 FAIL
+61-check_cpp_idiom           rc=0    build without warnings: 0 <= 0
+62-check_cpp_idiom-selftest  rc=0  83 checks: 83 PASS, 0 FAIL
+63-check_py_idiom            rc=0    over-long line: 0 <= 0
+64-check_py_idiom-selftest   rc=0  54 checks: 54 PASS, 0 FAIL
+65-check_sh_idiom            rc=0    top-heavy long script: 0 <= 0
+66-check_sh_idiom-selftest   rc=0  48 checks: 48 PASS, 0 FAIL
+67-check_doc_paths           rc=0  doc path gate: OK (1753 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+68-check_archive             rc=0  archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+69-check_archive-selftest    rc=0  archive selftest: OK (24 controls)
+70-gen_toc-selftest          rc=0  TOC selftest: PASS (1501/1501 arm(s))
+71-gen_toc-verifyanchors     rc=0  anchor check: 755 existing cross-page fragment links reproduced
+72-gen_toc-check             rc=0  TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+73-docs_inventory-check      rc=0  documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+74-docs_inventory-selftest   rc=0  documentation inventory selftest: OK (60 controls)
+75-gen_aem_store-selftest    rc=0  gen_aem_store self-test: PASS
+76-check_sweep_shape-selftest rc=0    [self-test] OK: 1 drift(s) reported
+77-check_deploy_shape-selftest rc=0    [selftest] OK: 1 drift(s) reported
+78-check_entity_shape-selftest rc=0  RESULT: PASS
+79-gen_register_reference-check rc=0  register reference: fresh (203 registers, 34 modules, 240 files)
+80-gen_register_reference-selftest rc=0  register reference selftest: OK (61/61 controls)
+81-memory_map_gen-check      rc=0  memory map diagram: fresh
+82-ci_gate_workflows-check   rc=0  HEAD c113018d START 06:04:19
+83-ci_gate_workflows_selftest rc=0  gate workflow and union controls: PASS
+84-ci_case_receipts_selftest rc=0  case receipt self-test: 34 driver cases, union and comparison controls pass
+85-ci_make_cases_selftest    rc=0  make case runner: all controls pass
+86-ci_maap_cases_selftest    rc=0  MAAP scheduling controls: 66 cases retain their source and checks
+87-ci_capture_cases_selftest rc=0  capture observations: full/sharded values match; failed unit remains failed
+88-ci_suite_pieces_selftest  rc=0  suite pieces: 65 parents, 82 scheduled units, all controls PASS
+89-ci_suite_collect_selftest rc=0  physical suite collection: all controls PASS
+90-ci_fail_fast_selftest     rc=0  fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+91-ci_runtime_evidence_selftest rc=0  runtime manifest collectors: all controls PASS
+92-ci_install_cache_selftest rc=0  constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+93-generate_ci_evidence_pins-check rc=0  HEAD c113018d START 06:04:41
+94-ci_workflow_plan_selftest rc=0  workflow planner: all controls pass
+95-ci_manifest_selftest      rc=0  manifest comparison controls: PASS
+96-ci_events-check           rc=0  ci_events: OK (2287 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+97-ci_events-selftest        rc=0  selftest: PASS (2287 contract items, 5723 arms)
+98-act_ci-selftest           rc=0  selftest: PASS
+99-_I-installdiractcipysel   rc=2  /usr/bin/python3: can't open file '/act_ci.py': [Errno 2] No such file or directory
+100-ci_fail_fast-watch       rc=1  KeyError: 'GITHUB_EVENT_PATH'
+101-ci_fail_fast-cancel      rc=1  KeyError: 'GITHUB_EVENT_PATH'
+102-ci_fail_fast-tail        rc=1  KeyError: 'GITHUB_EVENT_PATH'
+tree porcelain: 0
+rc=1
