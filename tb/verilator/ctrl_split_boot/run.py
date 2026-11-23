@@ -91,7 +91,7 @@ DIFFERS = {
 #: gPTP peer, and why: each verdict is printed and none is evidence, pass or fail.
 STAND_IN = {
     'id-miln': 'ID is the datapath\'s reset value, which the testbench answers',
-    'version-gptp-publication': 'VERSION is the datapath\'s reset value, 0x0002_0060 (decision D2), which '
+    'version-gptp-publication': 'VERSION is the split datapath\'s reset value, 0x0003_0060 (#665), which '
                                 'the testbench answers',
     'gptp-identities': 'no gPTP peer and no datapath: GM and parent are the stand-in register file\'s words',
     'gptp-path': 'no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file\'s word',
@@ -195,7 +195,7 @@ NATIVE_CONTROLS = {
 }
 #: A boot's lines and the answers the smoke grader passes, as the stand-in prints them.
 BANNER = 'Milan split control firmware: boot\r\nMilan split control firmware: ready\r\n'
-ANSWERS = (('milan_status', 'ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 '
+ANSWERS = (('milan_status', 'ID=4d494c4e VERSION=00030060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 '
                             'PP_STAT=00000000 AEM=loaded\r\nGPTP_GM=001bc5fffe001122 GPTP_PARENT=001bc5fffe334455 '
                             'PDELAY_NS=600 AS_PATH_COUNT=3 AS_PATH_GEN=7 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 '
                             'TU=0 GPTP_LAT=029000db\r\nTAI_NS=0x0000000000001000\r\n'),

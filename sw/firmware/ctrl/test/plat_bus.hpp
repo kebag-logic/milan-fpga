@@ -33,7 +33,7 @@ namespace plat_bus {
 constexpr std::uintptr_t kCsr = 0x90000000u;
 constexpr std::uintptr_t kUart = 0xf0001000u;
 constexpr ctrl_plat_uart kUartRegs = {kUart + 0x0u, kUart + 0x4u, kUart + 0x8u, kUart + 0x10u};
-constexpr std::uint32_t kVersion = 0x00020060u;
+constexpr std::uint32_t kVersion = 0x00030060u;  // a split image's VERSION since the flip (#665)
 
 struct Access {
     bool write;

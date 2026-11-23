@@ -99,6 +99,7 @@ cd sw/litex
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
 | `./build.sh ... --dry-run` | print the exact launch commands, start no build. It still RUNS the builder for the bound config (section 2), so `sw/builder/out/<shape>/` is rewritten; a regeneration that would move a tracked generated file is put back and refused, and one that cannot copy a protected file aside or put it back refuses rather than run or claim it did. Only the entity-definition refusal (section 2.1) is previewed rather than enforced |
 | `BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101` | the named recipe's flow flags on another config under `configs/`, for one call (`sweep.sh`'s `SWEEP_CFG`) |
+| `BUILD_PLACEMENT=all-fabric ./build.sh ax7101` | the bound config at another control placement, for one call: the builder's `--placement` recipe, every other key the config's (#665 S13). The AX7101 configs ship the split, whose launch reads the platform image its argv names (`sw/builder/out/<config>/ctrl_app.elf`, [`sw/firmware/ctrl/plat/README.md`](../../sw/firmware/ctrl/plat/README.md)); this is the all-fabric release image's one launch |
 | `INSTALLED_BUILD=<current> ./build.sh flash <config>[:<target-builddir>]` | prove the current QSPI bitstream, then flash the target set in its owner-safe order — see section 4 |
 
 Outputs land in `~/litex-milan/work/build_<config>[_<directive>]_<TAG>/`

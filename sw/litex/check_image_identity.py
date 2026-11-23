@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """check_image_identity.py - the identity gate of one built image (#665, decision D2).
 
-Before the flip (S13) VERSION does not tell the two placements apart, so a
-split image is identified by three things that must agree with what the image
-holds: the SoC ident string names the placement, the mailbox's ID register
-gives the contract major and minor, and the image manifest
+Since the flip (#665) a split image reads VERSION major 0x0003 and an all-fabric
+one 0x0002, over one minor. A split image is also identified by three things
+that must agree with what the image holds: the SoC ident string names the
+placement, the mailbox's ID register gives the contract major and minor, and
+the image manifest
 (`image_manifest.json`, which milan_soc.py writes for a split build only)
 records the placement, the control firmware ELF's sha256 and the bitstream's
 payload sha256. An image directory without a manifest is all-fabric, as every
@@ -17,9 +18,10 @@ Verilog, its Vivado script and the rom banks' init files, and the manifest.
 The gate reads only what the build wrote there, then refuses, by kind:
 
   manifest   a manifest that is not schema 1 or names another placement, an
-             ident other than the one csr.csv carries, a VERSION or a mailbox
-             contract other than the milan_csr.sv and KL_mbx_pkg.sv the
-             image's Vivado script reads
+             ident other than the one csr.csv carries, a VERSION other than
+             the split VERSION the milan_csr.sv the image's Vivado script
+             reads states (VERSION_SPLIT_MAJOR over VERSION's minor), or a
+             mailbox contract other than its KL_mbx_pkg.sv's
   ident      an ident whose last word does not name the placement: `split`
              for a split image, any other word for an all-fabric one
   firmware   a control firmware ELF whose sha256 is not the manifest's, or
@@ -145,7 +147,11 @@ def facts(image: Path) -> dict:
     except json.JSONDecodeError as exc:
         raise Unreadable(f"{path}: {exc}") from exc
     pkg = [p for p in _sources(script) if p.name == "KL_mbx_pkg.sv"]
-    major, minor = rtl_version(_source(script, "milan_csr.sv", image / "gateware"))
+    # the VERSION of the placement the image claims: a manifest claims the split, whose major is
+    # VERSION_SPLIT_MAJOR (#665); the placement rule holds the datapath to that claim (CTRL_SPLIT_P = 1),
+    # so together they pin the VERSION the image reads
+    placement = "split" if claimed is not None else "all-fabric"
+    major, minor = rtl_version(_source(script, "milan_csr.sv", image / "gateware"), placement)
     return {
         "manifest": claimed,
         "ident": idents[0],

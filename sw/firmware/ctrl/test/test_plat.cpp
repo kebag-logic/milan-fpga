@@ -204,7 +204,7 @@ TEST_F(Plat, K1MilanStatusAnswersTheGradersLines) {
     bus().csr[CTRL_PLAT_CSR_TOD_RD_LO] = 0x1000u;
     console.aem_loaded = true;
     EXPECT_EQ(answer("milan_status\r"),
-              "ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 "
+              "ID=4d494c4e VERSION=00030060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 "
               "PP_STAT=5b000010 AEM=loaded\r\n"
               "GPTP_GM=001bc5fffe001122 GPTP_PARENT=001bc5fffe334455 PDELAY_NS=600 AS_PATH_COUNT=3 "
               "AS_PATH_GEN=7 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db\r\n"

@@ -11,6 +11,9 @@ python3 scripts/gen_register_reference.py --check
 ```
 
 The SoC facts come from the `endstation_ax7101_1x1_tdm8` export, recorded in `scripts/register_map_soc.json`.
+That export is the all-fabric build.
+
+The shipping split image reads VERSION `0x0003_0060` (#665).
 
 Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
@@ -21,9 +24,9 @@ Rationale and version history are in the [design notes](../design/CSR_REGISTER_N
 | Section | What it holds |
 |---|---|
 | [Reading this page](#reading-this-page) | Verdicts, history notes and how to read the tables. |
-| [Memory map](#memory-map) | Regions and windows of the shipping SoC. |
+| [Memory map](#memory-map) | Regions and windows of the all-fabric SoC. |
 | [Access types](#access-types) | The access and reset codes the tables use. |
-| [Build parameters](#build-parameters) | The parameters the shipping build elaborates. |
+| [Build parameters](#build-parameters) | The parameters the all-fabric build elaborates. |
 | [0x000 - Identification / IRQ](#0x000-----identification--irq) | Identification, capabilities and the interrupt registers. |
 | [0x100 - MAC control / status (REQ-MAC-01..03)](#0x100-----mac-control--status--req-mac-0103) | MAC control, link status and the inert PHY reset. |
 | [0x200 - Statistics (RMON) (REQ-MAC-04)](#0x200-----statistics-rmon--req-mac-04) | RMON counter snapshot and its capability mask. |
@@ -148,7 +151,10 @@ Design record: [design notes](../design/CSR_REGISTER_NOTES.md#reading-the-regist
 
 ## Memory map
 
-![Memory map of the shipping SoC](../diagrams/memory_map.svg)
+This is the recorded all-fabric SoC's map.
+The shipping split SoC's map is in [SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md#1-memory-map) (#665).
+
+![Memory map of the all-fabric SoC](../diagrams/memory_map.svg)
 
 | Region | Start address | End address | Size | Description |
 |---|---|---|---|---|
@@ -239,6 +245,7 @@ A reserved `R/W` field stores bits that drive nothing.
 Some reset values depend on these parameters.
 
 `milan_datapath` sets them; the export supplies its values.
+The shipping split build sets `CTRL_SPLIT_P` to 1 (#665).
 
 | Parameter | Set from | Value |
 |---|---|---|
@@ -252,6 +259,7 @@ Some reset values depend on these parameters.
 | `CHMAP_RDBK_P` | `3` | 3 |
 | `PPS_P` | `PPS_P` | 0 |
 | `PPS_WIDTH_CYC_P` | `PPS_WIDTH_CYC_P` | 50,000 |
+| `CTRL_SPLIT_P` | `CTRL_SPLIT_P` | 0 |
 
 ## 0x000  -  Identification / IRQ
 
@@ -300,6 +308,8 @@ RTL name: `A_ID`.
 Major and minor version of this CSR block's ABI.
 
 This build's VERSION is `0x0002_0060`.
+
+A split image's VERSION is `0x0003_0060` (#665).
 
 RTL name: `A_VERSION`.
 
@@ -4538,7 +4548,7 @@ These rows come from the feature status ledger.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aaf.media-clock-following` | `implemented` | - |
 | `gptp.fabric-product-owner` | `implemented` | - |
 | `aem.served-command-set` | `implemented` | - |

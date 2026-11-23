@@ -3,8 +3,8 @@
 Mark II moves every control protocol to bare-metal firmware.
 No retained-fabric option stays in the end state.
 
-The all-fabric build remains the shipping default at VERSION `0x0002_0060`.
-It stays only until the firmware passes the bench qualification.
+The split build is the shipping default since the flip (#665 S13), at VERSION `0x0003_0060`.
+The all-fabric build stays built and gated at its major `0x0002` until the full qualification.
 
 Qualification covers the suites, all streams, counters and audio soak.
 Requirement approval precedes the switch-over; the processor is then deleted.
@@ -349,7 +349,13 @@ MINOR remains a flat ordinal, continuous across majors.
 The split firmware string is `3.<minor>.<patch>`, derived from CSR identity.
 The [VERSION policy](reference/REGISTER_MAP.md#version-is-also-what-every-atdecc-controller-is-told-2026-07-28)
 remains the single source for that derivation.
-This documents-only change leaves VERSION at `0x0002_0060`.
+
+The flip (#665 S13) landed the chain below.
+`milan_csr.sv` states `VERSION_SPLIT_MAJOR` beside `VERSION`.
+The datapath's `CTRL_SPLIT_P` selects it, so a split image reads VERSION `0x0003_0060`.
+An all-fabric image keeps `0x0002_0060`.
+Only the defaults ROM's word for `0x004` differs between the placements.
+The builder derives the firmware string at the config's placement: 3.96.0 or 2.96.0.
 
 The default-flip PR must land the version chain together:
 
@@ -361,8 +367,9 @@ The default-flip PR must land the version chain together:
 6. Update the CSR documentation, feature ledger and changelog together.
 7. Run the full local and hosted implementation gates on that head.
 
-Under the 2026-10-31 decisions the flip also deletes the processor.
+Under the 2026-10-31 decisions the switch-over deletes the processor.
 Its build switch and major-2 assertion leg go too.
+The flip itself keeps both, so it reverts in one commit (#665 S13, NFR-SCOUT-02).
 
 The firmware's differential suites keep the reused processor stimuli.
 F6 repeats this sequence for the fabric gPTP plane.
@@ -374,12 +381,17 @@ F6 repeats this sequence for the fabric gPTP plane.
 | `tb/verilator/milan_dp/sim_nxn.cpp` | Every supported stream shape's version |
 | `tb/verilator/milan_dp/sim_gptp.cpp` | Product gPTP option and version |
 | `tb/verilator/milan_dp/sim_prune.cpp` | Pruning cannot misidentify the selected architecture |
+| `tb/verilator/milan_dp/sim_split.cpp` | The split datapath's version and its major 3 (added at the flip) |
+
+The five all-fabric simulations pin `0x0002_0060`; each elaborates `CTRL_SPLIT_P = 0`.
 
 The assignment also names a retired major-only simulation.
 That suite is absent from this base under #259's retirement.
 
-The flip must carry its `>> 16` assertion into a live suite.
-It tests major 3, and major 2 while all-fabric remains.
+The flip carries its `>> 16` assertion into two live suites.
+`sim_split.cpp` tests major 3, and `milan_dp/sim_main.cpp` tests major 2.
+
+`split_mutants.py` plants a split datapath whose CSR keeps major 2.
+The major-3 check refuses it.
 
 Do not restore a retired runtime merely to restore that assertion.
-No simulation, firmware or RTL changes are made here.

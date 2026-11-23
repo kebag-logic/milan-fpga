@@ -6,9 +6,14 @@ recipe's refusals, and price the CPU core and the SoC top in Yosys.
 
 The variants are the `soc` section of syn/resmap/sweep_plan.json. Each one is
 the shipping configuration's own SoC argument list (the builder's
-soc_params.json) with the named flags changed, run through sw/litex/milan_soc.py
-WITHOUT --build, from the scratch export syn/resmap/yosys_sweep.py `shapes`
-wrote. A variant the script refuses is recorded here with its refusal line, and
+soc_params.json, at the placement the section names) with the named flags
+changed, run through sw/litex/milan_soc.py WITHOUT --build, from the scratch
+export syn/resmap/yosys_sweep.py `shapes` wrote. The section names the
+all-fabric placement, the one the recorded figures were taken at; the AX7101
+configurations ship the split since #665. An argument list that names a
+platform image (the split's --ctrl-firmware) is refused before any export
+unless that image is in the export tree: no export leans on an earlier,
+unrelated firmware build. A variant the script refuses is recorded here with its refusal line, and
 this script prices only what the recipe accepts. The refused CPU, cache and L2
 variants were priced separately, from a scratch-only copy of the recipe with the
 refusal removed (never committed; issue #649's round-2 ruling): the findings page
@@ -38,6 +43,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -55,6 +61,22 @@ STUB_WIDTH = 1024
 def plan_variants(plan: dict) -> dict:
     """The soc section of the plan."""
     return plan["soc"]["variants"]
+
+
+def plan_placement(plan: dict) -> str:
+    """The control placement the soc section prices; the plan must name it (#665)."""
+    placement = plan["soc"].get("placement")
+    if not isinstance(placement, str) or not placement:
+        raise yosys_sweep.PlanError("the soc section names no control placement")
+    return placement
+
+
+def missing_images(argv: list[str], tree: Path) -> list[str]:
+    """Each platform image the SoC arguments name (--ctrl-firmware) that is not a file, a relative path read
+    against the export tree as milan_soc.py reads it against its repository."""
+    named = [argv[i + 1] for i, flag in enumerate(argv[:-1]) if flag == "--ctrl-firmware"]
+    named += ["(no value)"] if argv[-1:] == ["--ctrl-firmware"] else []
+    return [path for path in named if not (tree / path).is_file()]
 
 
 def variant_argv(base: list[str], spec: dict) -> list[str]:
@@ -80,18 +102,23 @@ def git_listable(tree: Path) -> None:
             subprocess.run(argv, cwd=checkout, check=True)
 
 
-def prepare(work: Path) -> list[str]:
-    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments."""
+def prepare(work: Path, placement: str) -> list[str]:
+    """The export tree made usable for milan_soc.py, and the shipping configuration's SoC arguments at
+    `placement`; refused when they name a platform image the tree does not hold."""
     tree = work / "tree"
     git_listable(tree)
     out = work / "builder-out"
     config = tree / "configs" / f"{yosys_sweep.BASE_CONFIG}.yaml"
-    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config)],
-                   cwd=tree, capture_output=True, check=True)
+    subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o", str(out), str(config),
+                    "--placement", placement], cwd=tree, capture_output=True, check=True)
     link = tree / "sw" / "builder" / "out"
     if not link.exists():
         link.symlink_to(out)
     params = json.loads((out / yosys_sweep.BASE_CONFIG / "soc_params.json").read_text())
+    missing = missing_images(params["argv"], tree)
+    if missing:
+        raise yosys_sweep.PlanError(f"the {placement} SoC arguments name platform image(s) {missing} that the "
+                                    "export tree does not hold; the sweep builds none (#665)")
     return [*params["argv"], "--entity-gen-dir", str(tree / "configs/generated" / yosys_sweep.BASE_CONFIG)]
 
 
@@ -104,7 +131,7 @@ def compiler_triple() -> str:
 
 def command_export(work: Path, plan: dict, names: list[str], tools: argparse.Namespace) -> int:
     """Run milan_soc.py without --build for each variant and record its outcome."""
-    base = prepare(work)
+    base = prepare(work, plan_placement(plan))
     env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
            "PATH": f"{tools.sdk / 'bin'}:{Path(tools.litex_python).parent}:{os.environ['PATH']}"}
     records = {}
@@ -219,6 +246,65 @@ def command_price(work: Path, names: list[str]) -> int:
     return 1 if failures else 0
 
 
+class _Exported(Exception):
+    """Raised by the self-test's stand-in for prepare(), carrying the placement command_export asked for."""
+
+
+def wiring_problems(plan: dict) -> list[str]:
+    """prepare() and command_export() with the builder and the export stubbed (#665): the builder is asked for the
+    placement given, and a builder run without one gives the config's own, the split; an argument list naming an
+    absent platform image is refused before any export; an all-fabric one comes back with the shape's include;
+    command_export asks prepare() for the plan's placement."""
+    problems, calls = [], []
+    module = sys.modules[__name__]
+
+    def builder(argv: list[str], **_kwargs: object) -> subprocess.CompletedProcess:
+        """The builder's stand-in: soc_params.json for the placement asked for (the split when none is)."""
+        calls.append(list(argv))
+        placement = argv[argv.index("--placement") + 1] if "--placement" in argv else "split"
+        image = [] if placement == "all-fabric" else ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/c/x.elf"]
+        out = Path(argv[argv.index("-o") + 1]) / yosys_sweep.BASE_CONFIG
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "soc_params.json").write_text(json.dumps({"argv": ["--xlen", "32", *image]}))
+        return subprocess.CompletedProcess(argv, 0)
+
+    def stand_in(work: Path, placement: str) -> list[str]:
+        """prepare()'s stand-in: stops command_export, carrying the placement it was asked for."""
+        raise _Exported(placement)
+
+    with tempfile.TemporaryDirectory(prefix="resmap-wiring-") as tmp:
+        work = Path(tmp)
+        (work / "tree/sw/builder").mkdir(parents=True)
+        with mock.patch.object(module, "git_listable", lambda tree: None), mock.patch("subprocess.run", builder):
+            try:
+                argv = prepare(work, "all-fabric")
+                if argv[-2:-1] != ["--entity-gen-dir"]:
+                    problems.append(f"prepare(all-fabric) returned {argv}")
+            except yosys_sweep.PlanError as refusal:
+                problems.append(f"prepare(all-fabric) was refused: {refusal}")
+            if not calls or calls[-1][-2:] != ["--placement", "all-fabric"]:
+                problems.append(f"prepare(all-fabric) did not ask the builder for all-fabric: ...{calls[-1][-3:]}")
+            try:
+                prepare(work, "split")
+                problems.append("prepare(split) returned an argument list naming an absent platform image")
+            except yosys_sweep.PlanError as refusal:
+                if "x.elf" not in str(refusal):
+                    problems.append(f"prepare(split) refused without naming the image: {refusal}")
+        with mock.patch.object(module, "prepare", stand_in):
+            try:
+                command_export(work, plan, [], argparse.Namespace(sdk=work, litex_python=sys.executable))
+                problems.append("command_export ran past a refusing prepare()")
+            except _Exported as asked:
+                if str(asked) != plan_placement(plan):
+                    problems.append(f"command_export asked prepare() for {asked}, the plan names "
+                                    f"{plan_placement(plan)}")
+            except yosys_sweep.PlanError as refusal:
+                problems.append(f"command_export refused the plan: {refusal}")
+        if (work / "soc").exists():
+            problems.append("command_export wrote under soc/ before prepare() returned")
+    return problems
+
+
 SELFTEST_TOP = """module top(input a);
 //------------------------------------------------------------------------------
 // Instance core of core Module.
@@ -260,6 +346,29 @@ def selftest() -> int:
         (Path(tmp) / "names.txt").write_text("\n".join(plan_variants(plan)))
         if "ship" not in plan_variants(plan):
             problems.append("the plan has no shipping SoC variant")
+        try:
+            if plan_placement(plan) != "all-fabric":
+                problems.append(f"the plan prices the {plan_placement(plan)} SoC, not the all-fabric one its "
+                                "recorded figures were taken at")
+        except yosys_sweep.PlanError as refusal:
+            problems.append(f"the plan: {refusal}")
+        try:
+            plan_placement({"soc": {"variants": {}}})
+            problems.append("a soc section that names no placement was accepted")
+        except yosys_sweep.PlanError:
+            pass
+        image = Path(tmp) / "sw/builder/out/cfg/ctrl_app.elf"
+        split = ["--ctrl-mailbox", "--ctrl-firmware", "sw/builder/out/cfg/ctrl_app.elf"]
+        for label, argv, want in (("an absent platform image", split, ["sw/builder/out/cfg/ctrl_app.elf"]),
+                                  ("a platform image flag with no value", split[:2], ["(no value)"]),
+                                  ("an all-fabric argument list", ["--xlen", "32"], [])):
+            if missing_images(argv, Path(tmp)) != want:
+                problems.append(f"{label}: missing images {missing_images(argv, Path(tmp))}, want {want}")
+        image.parent.mkdir(parents=True)
+        image.write_bytes(b"\x7fELF")
+        if missing_images(split, Path(tmp)):
+            problems.append("a platform image present in the tree was reported missing")
+        problems += wiring_problems(plan)
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"soc_sweep self-test: {'PASS' if not problems else 'FAIL'}")
@@ -287,7 +396,11 @@ def main() -> int:
         if args.sdk is None:
             print("export needs --sdk")
             return 2
-        return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
+        try:
+            return command_export(work, yosys_sweep.load_plan(args.plan), args.names, args)
+        except yosys_sweep.PlanError as refusal:
+            print(f"soc_sweep: export refused: {refusal}")
+            return 2
     return command_price(work, args.names)
 
 

@@ -52,23 +52,20 @@ The [glossary](docs/GLOSSARY.md) explains shared terminology.
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0060` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
-`protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
-in this repository. There is no legacy fallback.
+The shipping image runs the [Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) split placement (#665 S13).
+Its VERSION is `0x0003_0060`: major 3 marks a split image.
 
-[Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) firmware runs ADP, ACMP, AECP, MAAP and SRP.
+Bare-metal firmware runs ADP, ACMP, AECP, MAAP and SRP behind the packet mailbox.
 AECP includes descriptor serving, unsolicited notifications and counter serving.
 
-Until the switch-over, each has build-selectable placement with one owner.
-All-fabric stays the shipping default until F2 to F5 acceptance.
+The all-fabric build stays built and gated behind `control.placement: all-fabric`.
+It keeps VERSION major 2, `hdl/milan/KL_pp_shadow.sv` and the pinned `protocol-processor`.
 
-That acceptance covers all streams, counters and the audio soak.
-After the switch-over, no all-fabric build remains.
+Each function has one owner in either placement.
+The processor is deleted only after the full qualification (NFR-SCOUT-02).
 
 Framing, timestamps, ingress filtering and media remain in fabric.
 gPTP stays in fabric until F6, then moves to firmware.
-
-F0/F1 are merged foundations; no shipping placement changes here.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
@@ -76,7 +73,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -296,10 +293,23 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 `INSTALLED_BUILD=<exact-current-build> sw/litex/build.sh flash
 ax7101:<target-builddir>`. The launcher live-reads QSPI to prove the installed
 bitstream owner, preflights the complete target set, and selects the
-direction-safe verified write order. The full flow, with the load-bearing rules
-(matched bitstream/layout/AEM, recovery) in one picture:
+direction-safe verified write order.
 
-![Build → Flash → Boot → Verify pipeline](docs/BUILD_FLASH_BOOT.png)
+`sw/litex/build.sh ax7101` builds the shipping split image (#665). Its launch
+needs the split's platform image at `sw/builder/out/<config>/ctrl_app.elf`,
+built by the recipe in
+[sw/firmware/ctrl/plat/README.md](sw/firmware/ctrl/plat/README.md#generated-inputs);
+without it the launch stops and names that path. The split image boots its
+control firmware from ROM
+([boot sequence](docs/ARCHITECTURE_HW_SW_SPLIT.md#2-boot-sequence)), and its
+UART reports VERSION `0x00030060`.
+
+The picture is the all-fabric release flow
+(`BUILD_PLACEMENT=all-fabric sw/litex/build.sh ax7101`, VERSION `0x00020060`),
+which stays built and gated, with the load-bearing rules (matched
+bitstream/layout/AEM, recovery):
+
+![Build → Flash → Boot → Verify pipeline, all-fabric release](docs/BUILD_FLASH_BOOT.png)
 
 Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 [docs/integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) ·

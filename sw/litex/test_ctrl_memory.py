@@ -612,16 +612,16 @@ SOC_ARGV: list[str] = []
 
 
 def soc_argv() -> list[str]:
-    """The shipping 1x1 config's argv from the end-station builder, its output written first."""
+    """The 1x1 config's all-fabric argv, its output written first; each case adds the split's flags (#665)."""
     if not SOC_ARGV:
         sys.path.insert(0, str(ROOT / "sw/builder"))
         try:
             import endstation_builder as eb
         except SystemExit as exc:     # the builder exits when PyYAML is absent
             raise RuntimeError(f"the end-station builder cannot load: {exc}") from exc
-        cfg = eb.load_config(str(SOC_CONFIG))
+        cfg = eb.with_placement(eb.load_config(str(SOC_CONFIG)), "all-fabric")
         with contextlib.redirect_stdout(None):
-            eb.build(str(SOC_CONFIG))
+            eb.build(str(SOC_CONFIG), placement="all-fabric")
         SOC_ARGV.extend(eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg["name"])])
     return SOC_ARGV
 

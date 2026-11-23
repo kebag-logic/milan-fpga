@@ -332,8 +332,8 @@ The [owner's decision](https://github.com/kebag-logic/milan-fpga/issues/640#issu
 Integration precedes P3.
 ADP, ACMP, MAAP, SRP, AECP and saved-state handling move.
 
-All-fabric remains the current shipping default until the flip.
-After the flip, no all-fabric build remains.
+The split placement is the shipping default since the flip (#665 S13).
+All-fabric stays built and gated until the full qualification; then no all-fabric build remains.
 
 The flip requires F2-F5 suites and bench acceptance.
 [#664](https://github.com/kebag-logic/milan-fpga/issues/664) governs that qualification.
@@ -525,7 +525,7 @@ Its tooling and both measurements precede week 4.
 They also precede the default flip.
 First, now: route integrated F0-F4 with AECP in fabric.
 Second, after F5 merges: route the complete selected split.
-Both select build switches; all-fabric remains the shipping default.
+Both select build switches; all-fabric was then the shipping default.
 F5 integration must land by week 3 for this schedule.
 Later qualification does not delay the pre-flip measurement requirement.
 A missing route is a missed checkpoint, never a pass.

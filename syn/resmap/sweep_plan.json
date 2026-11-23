@@ -68,7 +68,8 @@
    ["    enabled: true ", "    enabled: false "]]}
  },
  "soc": {
-  "description": "SoC-side variants: the shipping SoC arguments with the named flags changed. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
+  "description": "SoC-side variants: the shipping SoC arguments at the named placement with the named flags changed. placement: all-fabric is the placement the recorded figures were taken at; the AX7101 configurations ship the split since #665, whose platform image this sweep does not build. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
+  "placement": "all-fabric",
   "variants": {
    "ship": {},
    "axilite": {"set": {"--bus-standard": "axi-lite"}},

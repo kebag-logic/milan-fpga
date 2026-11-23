@@ -729,10 +729,11 @@ def reuse_checks() -> list[Check]:
 
 
 def build_checks() -> list[Check]:
-    """The ledgered point is named at its own point only, and every labelled arm and control plant
-    applies to the checkout's sources (each a scratch copy, never the tree)."""
-    sys.path.insert(0, str(HERE.parents[2] / 'sw/litex'))
+    """The ledgered point is named at its own point only, every labelled arm and control plant applies to the
+    checkout's sources (scratch copies, never the tree), and the split SoC argv names one image (#665)."""
+    sys.path[:0] = [str(HERE.parents[2] / 'sw/litex'), str(HERE.parents[2] / 'sw/builder')]
     import ctrl_memory
+    import endstation_builder as eb
     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
@@ -749,6 +750,11 @@ def build_checks() -> list[Check]:
                 failed.append(str(error))
         out.append(("every labelled arm and control plant applies to the checkout's sources", not failed,
                     '; '.join(failed)))
+    for cfg in (eb.load_config(str(build.ROOT / f'configs/endstation_ax7101_{s}.yaml')) for s in ('1x1_tdm8', '8x8')):
+        got, fabric = build.split_argv(eb.emit_soc_argv(cfg), Path('x.elf')), eb.emit_soc_argv(eb.with_placement(
+            cfg, 'all-fabric'))
+        out.append((f"{cfg['name']}: the split SoC argv names the harness image once, after the all-fabric argv",
+                    got == [*fabric, '--ctrl-mailbox', '--ctrl-firmware', 'x.elf'], str(got[len(fabric) - 1:])))
     return out
 
 
