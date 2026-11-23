@@ -1,0 +1,6 @@
+ilator builders' compiles	﻿2026-11-23T14:22:33.8886282Z ##[group]Run python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+ilator builders' compiles	2026-11-23T14:22:33.8887060Z ^[[36;1mpython3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator^[[0m
+ilator builders' compiles	2026-11-23T14:41:12.5152194Z [ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 186, where the self-test has 192
+ilator builders' compiles	2026-11-23T14:41:39.3357248Z   [FAIL] sw/firmware/ctrl/README.md gives the pin controls as 185, where the self-test has 192
+ilator builders' compiles	2026-11-23T14:41:39.3361381Z ctrl_boundary: 1239 compiled sources of 1379 recorded invocations (556 the firmware's, 106 the stack's, 577 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 1 finding(s), 6 boundary, 192 pin and 4 figure controls, 0 misbehaved
+ilator builders' compiles	2026-11-23T14:41:39.3363071Z ctrl_boundary: FAIL
