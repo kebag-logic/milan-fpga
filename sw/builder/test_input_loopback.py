@@ -67,6 +67,11 @@ def test_input_loopback_contract() -> None:
             assert destinations == list(range(channels))
             addresses = []
             for j, p in enumerate(ports["output"]):
+                # The datapath factory map takes the first source clusters.
+                # Its offset must equal the descriptor model's primary pool.
+                assert aem_specs._out_identity_offset(p) == 0
+                if channels == 63:
+                    assert p["pool"][0]["role"] == "input_loopback"
                 for source in aem_specs._out_cluster_sources(on.overlay, j, p):
                     if source["src"] == 6:
                         assert source["valid"]

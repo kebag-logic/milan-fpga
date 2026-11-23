@@ -46,6 +46,8 @@ Loopback destination indices follow the input pools' declaration order.
 
 Output sources identify those destinations, independent of their current mappings.
 
+The new output pool follows physical sources, matching factory-map priority.
+
 ## Implementation status
 
 The mapped copy, synchronous capture reads, and descriptor pools are implemented.

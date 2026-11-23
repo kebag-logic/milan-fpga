@@ -1680,9 +1680,9 @@ def _role_pool(rules, direction, port_index, widths, render_from=0):
                  ("input_loopback", loop_width))
     else:
         roles = (("physical", ph_capture),
+                 ("input_loopback", loop_width),
                  ("pilot", 1 if pools.get("pilot") else 0),
-                 ("loopback", int(pools.get("loopback", 0))),
-                 ("input_loopback", loop_width))
+                 ("loopback", int(pools.get("loopback", 0))))
     for role, width in roles:
         if width > 0:
             first = (render_from if role == "physical" and direction == "input"
