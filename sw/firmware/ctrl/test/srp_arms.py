@@ -31,7 +31,8 @@ def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple
     """Generate the entity shape and, for two interfaces, the mailbox header."""
     out.mkdir(parents=True, exist_ok=True)
     header = out / "srp_entity_gen.h"
-    result = run([sys.executable,"-B",str(CTRL / "srp/srp_entity.py"),str(config),"-o",str(header)])
+    result = run([sys.executable,"-B",str(CTRL / "srp/srp_entity.py"),str(config),"-o",str(header),
+                  "--interfaces",str(interface_count)])
     if result.returncode:
         raise Refusal(f"SRP entity generation failed: {result.stderr}")
     include_tree = tree.src

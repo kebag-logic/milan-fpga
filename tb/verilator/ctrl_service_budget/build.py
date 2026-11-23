@@ -314,7 +314,8 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
 #: by its name, which this harness gives only its measurement of that point: the image
 #: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
 #: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
-LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
+LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces',
+                   ('endstation_ax7101_8x8', 1): '8x8-one-interface'}
 
 
 def ledgered_point(shape: str, n_if: int) -> str | None:

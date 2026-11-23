@@ -155,10 +155,18 @@ TEST_F(SrpLatency, ReceiveRecoveryKeepsOriginalArrivalBudget) {
     settle(); at(400);
     for(unsigned delay : {1u,11u}) {
         EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),0,2));
+        // the unallocated source's Listener left and reclaimed, so the refused receive below creates it again: its
+        // allocation is the one refused, the Leave behind it not applied, with or without MAP work at one port
+        // (LWSRP_ONE_PORT_MAP, #977)
+        offer(frame(3,identity(0,1),5,2));
         std::vector<void*> held;
         while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
         const uint64_t origin=now_ns;
-        offer(frame(3,identity(),5,2));
+        auto f=frame(3,identity(0,1),1,2);
+        f.resize(f.size()-2);
+        const auto leave=frame(3,identity(),5,2);
+        f.insert(f.end(),leave.begin()+15,leave.end());
+        offer(f);
         ASSERT_NE(adapter.pending_rx.len,0u);
         const unsigned arrival=adapter.pending_rx.arrival_ms;
         at(model.now_ms+delay);

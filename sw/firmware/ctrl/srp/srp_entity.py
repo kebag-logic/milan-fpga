@@ -16,16 +16,27 @@ import adp_entity
 import aecp_shape
 import endstation_builder
 
+#: lwSRP's build options at each product shape (interfaces, sources, sinks), in the shape header every unit an image
+#: compiles force-includes first, so lwSRP's units and the adapter's agree on the layouts the options change (#977,
+#: its ruling of 2026-11-23, items 3 and 4): at both one-interface shapes the attribute lookup's buckets, no MAP work
+#: at one port and no zeroing in the parser's validation pass (lwSRP doc/integrator.md), and at 8x8/1if alone the
+#: merged Message build, which costs 1x1/1if its build pass. Every other shape builds lwSRP's defaults.
+LWSRP_OPTIONS = {(1, 2, 2): (("LWSRP_ATTR_BUCKETS", "16u"), ("LWSRP_ONE_PORT_MAP", "1"), ("LWSRP_LEAN_VALIDATE", "1")),
+                 (1, 9, 9): (("LWSRP_ATTR_BUCKETS", "16u"), ("LWSRP_ONE_PORT_MAP", "1"), ("LWSRP_LEAN_VALIDATE", "1"),
+                             ("LWSRP_TX_MERGE", "1"))}
+
 #: The AEM descriptors a change notice is kept for (aecp.c, aecp_changed), each the shape header's name.
 NOTICE_DESCRIPTORS = {"STREAM_INPUT": "CTRL_AEM_STREAM_INPUTS", "STREAM_OUTPUT": "CTRL_AEM_STREAM_OUTPUTS",
                       "AVB_INTERFACE": "CTRL_AEM_AVB_INTERFACES", "CLOCK_DOMAIN": "CTRL_AEM_CLOCK_DOMAINS"}
 
 
-def emit(config: Path) -> str:
+def emit(config: Path, interfaces: int | None = None) -> str:
     """The same stream counts advertised by ADP size the SRP tables and pool; the AEM model's own descriptor counts
     (the builder's overlay, the image's descriptors) state those that bear notices; and the image's descriptors, as
-    aecp_entity.py renders them, the map edits' key domain."""
+    aecp_entity.py renders them, the map edits' key domain. Given the interfaces an image is built for, lwSRP's
+    options at that shape (LWSRP_OPTIONS)."""
     fields=adp_entity.entity_fields(config)
+    shape=(interfaces,fields['talker_stream_sources'],fields['listener_stream_sinks'])
     cfg=endstation_builder.load_config(str(config))
     overlay=endstation_builder.emit_aem_overlay(cfg)
     counts=overlay["descriptor_counts"]
@@ -39,6 +50,7 @@ def emit(config: Path) -> str:
         f"#define CTRL_SRP_SINKS {fields['listener_stream_sinks']}u",
         *(f"#define {name} {int(counts.get(kind, 0))}u" for kind, name in NOTICE_DESCRIPTORS.items()),
         *aecp_shape.key_domain(blob),
+        *(f"#define {name} {value}" for name, value in LWSRP_OPTIONS.get(shape, ())),
         "#endif", "",
     ])
 
@@ -48,9 +60,10 @@ def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("config",type=Path)
     parser.add_argument("-o","--output",type=Path,required=True)
+    parser.add_argument("--interfaces",type=int,required=True,help="the interfaces the image is built for")
     args=parser.parse_args()
     try:
-        args.output.write_text(emit(args.config),encoding="utf-8")
+        args.output.write_text(emit(args.config,args.interfaces),encoding="utf-8")
     except (OSError,ValueError,KeyError) as error:
         print(f"srp_entity: {error}",file=sys.stderr)
         return 2

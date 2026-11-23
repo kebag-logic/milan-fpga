@@ -284,6 +284,13 @@ LEDGERED: dict[str, Ledgered] = {
                                          "answering-ports arm needs 131,128 B of rom, 56 B past the 131,072 B "
                                          "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
                                          "ROM debt of 4.5 RAMB36 owed to S14"),
+    "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 13_594), ("image_allocation", 8)), 56.5,
+                                  "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, the size "
+                                  "fixture with lwSRP's one-interface options at 8x8 (#977, its ruling of "
+                                  "2026-11-23: the attribute lookup's buckets, no MAP work at one port, the lean "
+                                  "validation pass and the merged Message build) and the drain's charge, 132,384 B "
+                                  "of rom, 1,312 B past the 131,072 B 56.0 holds, by the owner's rule of 2026-11-15 "
+                                  "(#923's ruling of 2026-11-16): ROM debt of half a tile owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_568)), 63.0,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

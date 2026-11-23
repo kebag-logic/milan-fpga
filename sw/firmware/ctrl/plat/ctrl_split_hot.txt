@@ -25,6 +25,8 @@
 # check, and an entry it lacks places nothing there.
 # Dropped: aecp owe; the size fixture's 8x8/2if images lack it, in every arm.
 # Dropped: aecp owed_drain; the size fixture's 8x8/2if images lack it, in every arm.
+# Dropped: mrp_mad find_attr.isra.0; the one-interface images build lwSRP's lookup buckets, whose lookup
+# links as find_attr, and the 8x8/2if images keep find_attr.isra.0, so neither name links in every image (#977).
 # The traces' sha256:
 #   backlog              c20af90805ec27ac1e13778ff39263ee91215b51b724bf909d233ceaccf3ec66
 #   backlog-adp          0095424351ea6b71ccfce8348e0c8eed846eb1bfe4f1054d299dc44b58494a06
@@ -184,7 +186,6 @@ mrp_mad mrp_set_rx_filter
 mbx mbx_pub_domain
 mrp_mad mrp_mad_join
 mrp_mad get_or_create_attr
-mrp_mad find_attr.isra.0
 mrp_mad attr_store_len
 msrp msrp_attr_mem_len
 mrp_mad deliver_event_changed
