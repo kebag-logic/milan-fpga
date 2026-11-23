@@ -1,0 +1,28 @@
+head: 5392adf989349b68cfbb54d91fd0413c5b745521
+docs committed runtime control PASS; raw matrices: []
+docs failure detected on read 2; no observer error
+docs cancelled detected on read 2; no observer error
+docs timed_out detected on read 2; no observer error
+docs action_required detected on read 2; no observer error
+elaborate committed runtime control PASS; raw matrices: []
+elaborate failure detected on read 2; no observer error
+elaborate cancelled detected on read 2; no observer error
+elaborate timed_out detected on read 2; no observer error
+elaborate action_required detected on read 2; no observer error
+rtl committed runtime control PASS; raw matrices: ['Verilator shard ${{ matrix.shard }}/${{ matrix.total }}', 'Yosys shard ${{ matrix.shard }}/${{ matrix.total }}']
+rtl previous committed workflow CAUGHT: watcher stopped observing: observer_error after 1 read(s), rc=0
+rtl failure detected on read 2; no observer error
+rtl cancelled detected on read 2; no observer error
+rtl timed_out detected on read 2; no observer error
+rtl action_required detected on read 2; no observer error
+rtl-fast committed runtime control PASS; raw matrices: ['firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}']
+rtl-fast previous committed workflow CAUGHT: watcher stopped observing: observer_error after 1 read(s), rc=0
+rtl-fast failure detected on read 2; no observer error
+rtl-fast cancelled detected on read 2; no observer error
+rtl-fast timed_out detected on read 2; no observer error
+rtl-fast action_required detected on read 2; no observer error
+all same-head sibling cancellation requests PASS (offline fixture)
+generator collision plant REFUSED: .github/workflows/rtl-fast.yml: an unexpanded matrix name equals an expanded job name
+consumer collision plant REFUSED: an unexpanded matrix name equals an expanded job name
+literal JSON round-trip including backslashes and quotes PASS
+focused probe PASS

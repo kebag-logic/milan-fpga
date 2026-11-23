@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.018
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.267
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.068
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 8.784
+  }
+]

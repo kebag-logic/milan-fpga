@@ -1,0 +1,107 @@
+{
+  "docs": {
+    "raw_names": [],
+    "expanded_names": [
+      "Collect CI manifest",
+      "docs-check",
+      "docs-check-no-git",
+      "docs-gates-0",
+      "docs-gates-1",
+      "docs-gates-2",
+      "wire-accountability"
+    ],
+    "runtime_control": "PASS",
+    "old_form": "no matrix",
+    "failure_conclusions": 4
+  },
+  "elaborate": {
+    "raw_names": [],
+    "expanded_names": [
+      "Collect CI manifest",
+      "elaborate",
+      "elaborate-gates-0",
+      "elaborate-gates-1",
+      "elaborate-gates-2",
+      "elaborate-gates-3",
+      "elaborate-gates-4"
+    ],
+    "runtime_control": "PASS",
+    "old_form": "no matrix",
+    "failure_conclusions": 4
+  },
+  "rtl": {
+    "raw_names": [
+      "Verilator shard ${{ matrix.shard }}/${{ matrix.total }}",
+      "Yosys shard ${{ matrix.shard }}/${{ matrix.total }}"
+    ],
+    "expanded_names": [
+      "Collect CI manifest",
+      "Physical gPTP (nightly and manual)",
+      "Prepare pinned Yosys",
+      "Union capture_coherence",
+      "Union maap",
+      "Union milan_dp",
+      "Union milan_dp_mclk",
+      "Union milan_dp_render",
+      "Union pp_shadow",
+      "Verilator shard 0/19",
+      "Verilator shard 1/19",
+      "Verilator shard 10/19",
+      "Verilator shard 11/19",
+      "Verilator shard 12/19",
+      "Verilator shard 13/19",
+      "Verilator shard 14/19",
+      "Verilator shard 15/19",
+      "Verilator shard 16/19",
+      "Verilator shard 17/19",
+      "Verilator shard 18/19",
+      "Verilator shard 2/19",
+      "Verilator shard 3/19",
+      "Verilator shard 4/19",
+      "Verilator shard 5/19",
+      "Verilator shard 6/19",
+      "Verilator shard 7/19",
+      "Verilator shard 8/19",
+      "Verilator shard 9/19",
+      "Yosys shard 0/4",
+      "Yosys shard 1/4",
+      "Yosys shard 2/4",
+      "Yosys shard 3/4",
+      "full-ci-gate",
+      "verilator-suites",
+      "yosys-portability"
+    ],
+    "runtime_control": "PASS",
+    "old_form": "CAUGHT",
+    "failure_conclusions": 4
+  },
+  "rtl-fast": {
+    "raw_names": [
+      "firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}"
+    ],
+    "expanded_names": [
+      "Collect CI manifest",
+      "Prepare pinned Yosys",
+      "bdd-conformance",
+      "changes",
+      "firmware-aecp-mutants",
+      "firmware-boundary",
+      "firmware-boundary shard 0/3",
+      "firmware-boundary shard 1/3",
+      "firmware-boundary shard 2/3",
+      "firmware-control-mutants",
+      "firmware-srp-mutants",
+      "firmware-unit",
+      "firmware-verilator",
+      "publication-census",
+      "rtl-fast",
+      "split-cdc",
+      "verilator-lint",
+      "yosys-elaboration"
+    ],
+    "runtime_control": "PASS",
+    "old_form": "CAUGHT",
+    "failure_conclusions": 4
+  },
+  "head": "5392adf989349b68cfbb54d91fd0413c5b745521"
+}
