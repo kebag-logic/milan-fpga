@@ -26222,6 +26222,9 @@ def _pools_variant(base, phys, pools, mutate=None):
     def m(c: dict[str, Any]) -> None:
         """Put the role-pools policy, its pools and the physical channel
         count on the config, then apply the caller's own edit."""
+        # These capacity fixtures exercise the fabric backend's 128 NAME
+        # records, independently of the shipping split backend's larger block.
+        c["control"] = {"placement": "all-fabric"}
         c["audio_interface"]["physical_channels"] = phys
         c["audio_interface"]["cluster_mapping"] = {"policy": "role-pools",
                                                    "pools": pools}
