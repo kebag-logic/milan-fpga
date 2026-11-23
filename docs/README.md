@@ -81,6 +81,7 @@ Publish conflicts before continuing.
 | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
 | Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
 | Review the Mark II 32x32 datapath | [Mark II stream engines, proposed](design/MARK_II_STREAM_ENGINES.md) |
+| Review input-mapped loopback options | [Loopback proposal, owner decision pending](design/INPUT_MAPPED_LOOPBACK.md) |
 
 ## Verification
 
