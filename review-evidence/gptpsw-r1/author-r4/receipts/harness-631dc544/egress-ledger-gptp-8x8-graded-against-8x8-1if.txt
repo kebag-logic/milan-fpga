@@ -1,0 +1,19 @@
+# 8x8-1if: the rows the egress decides against their ledger; 59 instance(s) read (59 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.91048 | 63.86 | +0.05048 | no |
+| `backlog.owed_behind0.if0` | 64.17273 | 64.1 | +0.07273 | no |
+| `backlog.owed_behind1.if0` | 64.43417 | 64.36 | +0.07417 | no |
+| `backlog.owed_behind2.if0` | 64.69623 | 64.61 | +0.08623 | no |
+| `backlog.owed_behind3.if0` | 64.95703 | 64.86 | +0.09703 | no |
+| `backlog-owed.service.acmp.last.if0` | 62.58682 | 62.62 | -0.03318 | yes |
+| `backlog-owed.service.aecp.last.if0` | not measured | 62.16 | | no |
+RESULT: FAIL
+- backlog.owed.if0 (backlog-owed): 63.91048 ms, over its ledger figure 63.86 ms by 0.05048 ms: a larger miss
+- backlog.owed_behind0.if0 (backlog-owed): 64.17273 ms, over its ledger figure 64.1 ms by 0.07273 ms: a larger miss
+- backlog.owed_behind1.if0 (backlog-owed): 64.43417 ms, over its ledger figure 64.36 ms by 0.07417 ms: a larger miss
+- backlog.owed_behind2.if0 (backlog-owed): 64.69623 ms, over its ledger figure 64.61 ms by 0.08623 ms: a larger miss
+- backlog.owed_behind3.if0 (backlog-owed): 64.95703 ms, over its ledger figure 64.86 ms by 0.09703 ms: a larger miss
+- backlog-owed.service.aecp.last.if1 (backlog-owed): a new budget miss, 61.81864 ms against its budget 20.0 ms
+- backlog-owed.service.aecp.last.if0: no measured instance of the ledger row
+rc=1

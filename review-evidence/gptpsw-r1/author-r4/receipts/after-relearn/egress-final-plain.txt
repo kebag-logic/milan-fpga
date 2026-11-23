@@ -1,0 +1,13 @@
+COMMAND python3 tb/verilator/ctrl_service_budget/egress_ledger.py --point 8x8-1if receipts/harness-631dc544/plain-8x8-1if
+# 8x8-1if: the rows the egress decides against their ledger; 49 instance(s) read (49 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.21072 | 63.86 | -0.64928 | yes |
+| `backlog.owed_behind0.if0` | 63.43510 | 64.1 | -0.66490 | yes |
+| `backlog.owed_behind1.if0` | 63.65923 | 64.36 | -0.70077 | yes |
+| `backlog.owed_behind2.if0` | 63.88244 | 64.61 | -0.72756 | yes |
+| `backlog.owed_behind3.if0` | 64.10518 | 64.86 | -0.75482 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.15963 | 62.62 | -0.46037 | yes |
+| `backlog-owed.service.aecp.last.if0` | 61.84002 | 62.16 | -0.31998 | yes |
+RESULT: PASS: no ledger row over its figure, every one measured, no new budget miss
+rc=0

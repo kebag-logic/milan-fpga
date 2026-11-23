@@ -1,0 +1,31 @@
+# route 8x8/1if --sw-gptp AltSpreadLogic_high at a6323318: 2026-11-22T15:46:39+01:00 to 2026-11-22T16:16:22+01:00, rc 0
+## placed utilization (alinx_ax7101_utilization_place.rpt)
+ Slice LUTs                      38088  of    63400
+ Slice Registers                 45961  of   126800
+ Slice                           14495  of    15850
+ LUT as Memory                     671  of    19000
+ Block RAM Tile                   95.5  of      135
+ RAMB18                             35  of      270
+ DSPs                                5  of      240
+## hierarchy (utilization_hierarchical_place.rpt: instance, LUT, LUTRAM, FF, RAMB36, RAMB18)
+   alinx_ax7101                                                        38088    604   45961   78   35
+   (alinx_ax7101)                                                        965     62    2427   66    7
+   KL_gptp_gmii_launch                                                   165      0     221    0    0
+   KL_mac_rmon_events                                                     49      0      78    0    0
+   KL_mbx                                                               5567     22    9060    1   12
+   KL_mbx_cdc                                                           6641      0    6617    0    0
+   KL_mbx_dma                                                            783      0     713    0    0
+   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51                     3875    134    4368    6    9
+   milan_datapath                                                      20103    386   22476    5    7
+## signoff corners (WNS, WHS ns)
+Slow_85C: WNS 0.281 failing 0 WHS 0.070 failing 0
+Slow_0C: WNS 0.281 failing 0 WHS 0.070 failing 0
+Fast_85C: WNS 1.636 failing 0 WHS 0.036 failing 0
+Fast_0C: WNS 1.636 failing 0 WHS 0.036 failing 0
+## worst setup path, Slow_85C
+ Slack (MET) :             0.281ns  (required time - arrival time)
+ Source:                 FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]/C
+ Destination:            KL_mbx/face_f_fmt_out_lo_r_reg[0][6][22]/CE
+ Path Group:             milansoc_crg_clkout0
+ Data Path Delay:        9.411ns  (logic 1.864ns (19.806%)  route 7.547ns (80.194%))
+ Logic Levels:           12  (LUT2=5 LUT3=2 LUT5=3 LUT6=2)

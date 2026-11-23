@@ -1,0 +1,13 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/hot-gptp/clone/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/hot-gptp/trace-build --reuse-build --out <scratch>/hot-gptp/trace-build/part0 --groups backlog,backlog-adp,aecp-largest-notice --record-budget-findings --record-share-findings --jobs 3 --fetch-l1 split --with-gptp start 20:11:22
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/hot-gptp/trace-build/native/Vsim <scratch>/hot-gptp/trace-build/part0/backlog.txt -
+COMMAND <scratch>/hot-gptp/trace-build/native/Vsim <scratch>/hot-gptp/trace-build/part0/backlog-adp.txt -
+COMMAND <scratch>/hot-gptp/trace-build/native/Vsim <scratch>/hot-gptp/trace-build/part0/aecp-largest-notice.txt -
+STEPS 614 passes carry the store's step; the longest 27,699 CPU cycles (0.277 ms), backlog; the longest step 2,566 (0.026 ms), backlog
+SLICES 44795 tier-2 slices; the longest SRP's records 74,664, THE TRANSMIT's build 30,834, THE RETRY's round 14,754 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS backlog: 3 join interval(s), the shortest 188.632 ms and the longest 190.005 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog-adp: 3 join interval(s), the shortest 188.632 ms and the longest 190.005 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 188.632 ms and the longest 190.005 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+3 groups graded, 0 refusals, 0 budget misses (0 of 32 probe instances, 0 of 20 paths), 0 of 2253 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 20:37:55

@@ -1,0 +1,13 @@
+COMMAND <home>/litex-milan/venv/bin/python3 -B <scratch>/hot-std/clone/tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/hot-std/trace-build --reuse-build --out <scratch>/hot-std/trace-build/part0 --groups backlog,backlog-adp,aecp-largest-notice --record-budget-findings --record-share-findings --jobs 3 --fetch-l1 split start 20:11:28
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/hot-std/trace-build/native/Vsim <scratch>/hot-std/trace-build/part0/backlog.txt -
+COMMAND <scratch>/hot-std/trace-build/native/Vsim <scratch>/hot-std/trace-build/part0/backlog-adp.txt -
+COMMAND <scratch>/hot-std/trace-build/native/Vsim <scratch>/hot-std/trace-build/part0/aecp-largest-notice.txt -
+STEPS 614 passes carry the store's step; the longest 21,304 CPU cycles (0.213 ms), backlog; the longest step 2,686 (0.027 ms), backlog
+SLICES 45882 tier-2 slices; the longest SRP's records 74,797, THE TRANSMIT's build 29,582, THE RETRY's round 9,970 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS backlog: 3 join interval(s), the shortest 187.974 ms and the longest 189.946 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS backlog-adp: 3 join interval(s), the shortest 187.974 ms and the longest 189.946 ms, against 181.0 to 239.0; MRP timers' run-outs: 7 released, 6 empty
+JOINS aecp-largest-notice: 3 join interval(s), the shortest 187.974 ms and the longest 189.946 ms, against 181.0 to 239.0; MRP timers' run-outs: 3 released, 2 empty
+3 groups graded, 0 refusals, 0 budget misses (0 of 28 probe instances, 0 of 18 paths), 0 of 704 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 20:39:43

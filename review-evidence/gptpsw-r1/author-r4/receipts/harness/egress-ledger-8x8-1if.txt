@@ -1,0 +1,13 @@
+# 8x8-1if: the rows the egress decides against their ledger; 59 instance(s) read (59 measured) from 1 path(s)
+| Row the egress decides | Measured, ms | Ledger, ms | Difference, ms | Within |
+|---|---:|---:|---:|---|
+| `backlog.owed.if0` | 63.57597 | 63.86 | -0.28403 | yes |
+| `backlog.owed_behind0.if0` | 63.80107 | 64.1 | -0.29893 | yes |
+| `backlog.owed_behind1.if0` | 64.08786 | 64.36 | -0.27214 | yes |
+| `backlog.owed_behind2.if0` | 64.30229 | 64.61 | -0.30771 | yes |
+| `backlog.owed_behind3.if0` | 64.54103 | 64.86 | -0.31897 | yes |
+| `backlog-owed.service.acmp.last.if0` | 62.51027 | 62.62 | -0.10973 | yes |
+| `backlog-owed.service.aecp.last.if0` | 62.18188 | 62.16 | +0.02188 | no |
+RESULT: FAIL
+- backlog-owed.service.aecp.last.if0 (backlog-owed): 62.18188 ms, over its ledger figure 62.16 ms by 0.02188 ms: a larger miss
+rc=1

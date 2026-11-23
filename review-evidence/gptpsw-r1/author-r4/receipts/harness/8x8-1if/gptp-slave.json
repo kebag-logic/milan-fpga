@@ -1,0 +1,333 @@
+{
+ "group": "gptp-slave",
+ "probes": [
+  {
+   "probe": "gptp.pdelay_resp.if0",
+   "row": "Pdelay_Req -> Pdelay_Resp (responder turnaround)",
+   "family": "gptp",
+   "interface": 0,
+   "path": [
+    "gptp.pdelay_resp",
+    0
+   ],
+   "start_sys": 141407138,
+   "end_sys": 141436037,
+   "sys_cycles": 28899,
+   "cpu_cycles": 28899,
+   "ms": 0.28899,
+   "wait_ms": 0.0,
+   "passes": 1,
+   "ring": "gptp",
+   "ahead": 0,
+   "budget_ms": 10.0,
+   "ceiling_ms": 10.0,
+   "within_budget": true,
+   "within_ceiling": true,
+   "bound_cpu_cycles": 64449,
+   "bound_ms": 0.64449,
+   "bound_within_budget": true,
+   "pass_cycles": 32444,
+   "pass_instr": 6637,
+   "pass_mbx_accesses": 16,
+   "pass_fetch_share": 0.7415,
+   "pass_fetch_wait_share": 0.269,
+   "pass_regions": {
+    "rom": [
+     109,
+     0,
+     0
+    ],
+    "mbx": [
+     0,
+     12,
+     4
+    ],
+    "csr": [
+     0,
+     14,
+     8
+    ]
+   },
+   "pass_modules": {
+    "gptp": 6776,
+    "ctrl_loop": 3557,
+    "ctrl_app_srp": 3239,
+    "mbx": 2910,
+    "ctrl_mem": 2380,
+    "ctrl_app_aecp": 2357
+   },
+   "status": "measured"
+  }
+ ],
+ "timeouts": [],
+ "passes": {
+  "count": 9540,
+  "work": 604,
+  "idle_min": 2653,
+  "idle_max": 28502,
+  "worst": {
+   "cycles": 93588,
+   "ms": 0.93588,
+   "instr": 18504,
+   "start_sys": 11407056,
+   "modules": {
+    "aecp_mbx": 252,
+    "ctrl_app_aecp": 3128,
+    "ctrl_loop": 11747,
+    "nvm_store": 1382,
+    "nvm_flash_litespi": 2712,
+    "aecp": 3003,
+    "mbx": 12102,
+    "srp_mbx": 2625,
+    "acmp_mbx": 1396,
+    "adp_mbx": 278,
+    "adp": 802,
+    "acmp": 2969,
+    "maap_mbx": 3880,
+    "ctrl_mem": 9069,
+    "ctrl_app_srp": 4697,
+    "ctrl_aecp_image": 434,
+    "maap": 3539,
+    "aecp_nvm": 70,
+    "aecp_face": 313,
+    "aecp_commands": 298,
+    "gptp": 21074,
+    "gptp_mbx": 5788,
+    "rt_lshrdi3": 2030
+   }
+  },
+  "composed": null,
+  "share": {
+   "ms": 2.0,
+   "cycles": 200000,
+   "passes": 604,
+   "over": 0,
+   "over_passes": [],
+   "idle_over": 0,
+   "idle_longest": 28502
+  },
+  "steps": {
+   "passes": 165,
+   "cycles": 31151,
+   "ms": 0.31151,
+   "start_sys": 30287595,
+   "store_cycles": 2600,
+   "store_ms": 0.026,
+   "store_start_sys": 30287595
+  },
+  "stated": {
+   "heaviest": {
+    "step": 0,
+    "build": 0,
+    "build-one": 27846
+   },
+   "limits": {
+    "step": 97500,
+    "build": 179500,
+    "build-one": 147500
+   },
+   "over": []
+  },
+  "rounds": {
+   "rounds": 9136,
+   "heaviest": {
+    "0": 8379,
+    "1": 13281
+   },
+   "stated": {
+    "cold": 165,
+    "notice": 255,
+    "attempt": 25
+   },
+   "over": []
+  },
+  "polls": {
+   "passes": 9494,
+   "heaviest": {
+    "base": 18831,
+    "withdraw": 0,
+    "rebuild": 0,
+    "walk": 723,
+    "reclaim": 0,
+    "retained": 0,
+    "mrpdu": 0,
+    "acmp": 0,
+    "aecp": 0,
+    "aecp_long": 0,
+    "acmp_declined": 0,
+    "record": 0,
+    "acmp_kept": 0
+   },
+   "limits": {
+    "base": 30000,
+    "withdraw": 11000,
+    "rebuild": 59000,
+    "walk": 12000,
+    "reclaim": 4000,
+    "retained": 37500,
+    "mrpdu": 147500,
+    "acmp": 8000,
+    "aecp": 14500,
+    "aecp_long": 32000,
+    "acmp_declined": 3000,
+    "record": 37500,
+    "acmp_kept": 28000
+   },
+   "over": [],
+   "long": []
+  },
+  "slices": {
+   "slices": 9143,
+   "longest": {
+    "srp": 0,
+    "build": 27846,
+    "round": 13281
+   },
+   "limit": 147500,
+   "over": []
+  },
+  "joins": {
+   "count": 3,
+   "shortest": 187.331,
+   "longest": 190.017,
+   "over": [],
+   "runs": {
+    "released": 5,
+    "empty": 4,
+    "late": 0,
+    "absent": 0,
+    "unresolved": 0,
+    "unowned": 0
+   },
+   "failing": [],
+   "leave_all": {
+    "runs": {
+     "sent": 0,
+     "skipped": 0,
+     "late": 0,
+     "absent": 0,
+     "unresolved": 0,
+     "unowned": 0
+    },
+    "failing": []
+   }
+  }
+ },
+ "save": null,
+ "burst": null,
+ "summary": {
+  "sys": "171579839",
+  "cpu": "171579775",
+  "passes": "9540",
+  "instr": "42177592",
+  "bus_errors": "0",
+  "traps": "0",
+  "mbx_read": "98033/844841/7/70",
+  "mbx_write": "2222/19240/7/68",
+  "host_cycles": "101194/197633/1/2",
+  "fetch_rom": "28033/2283268/80/208",
+  "load_rom": "0/0/0/0",
+  "store_rom": "0/0/0/0",
+  "fetch_sram": "0/0/0/0",
+  "load_sram": "0/0/0/0",
+  "store_sram": "0/0/0/0",
+  "fetch_mbx": "0/0/0/0",
+  "load_mbx": "98033/844841/7/70",
+  "store_mbx": "2222/19240/7/68",
+  "fetch_flash": "0/0/0/0",
+  "load_flash": "240/126413/267/625",
+  "store_flash": "0/0/0/0",
+  "fetch_csr": "0/0/0/0",
+  "load_csr": "37999/270790/7/90",
+  "store_csr": "37847/268452/7/70",
+  "fetch_other": "0/0/0/0",
+  "load_other": "0/0/0/0",
+  "store_other": "0/0/0/0"
+ },
+ "modules": {
+  "ctrl_split_start": 375322,
+  "aecp_mbx": 3118517,
+  "ctrl_app_aecp": 14917289,
+  "ctrl_loop": 26851656,
+  "nvm_store": 3810892,
+  "nvm_flash_litespi": 4940789,
+  "aecp": 15911286,
+  "mbx": 8101485,
+  "mbx_plat_mmio": 54116,
+  "srp_mbx": 10622688,
+  "acmp_mbx": 2999534,
+  "adp_mbx": 72154,
+  "adp": 1500822,
+  "acmp": 13501558,
+  "maap_mbx": 14263437,
+  "ctrl_mem": 12647866,
+  "ctrl_app_srp": 26089185,
+  "ctrl_aecp_image": 604933,
+  "maap": 3240940,
+  "aecp_nvm": 154169,
+  "aecp_face": 1332348,
+  "timer": 67010,
+  "mrp_mad": 170546,
+  "aecp_commands": 297535,
+  "msrp": 2526,
+  "shlan_port": 501,
+  "ctrl_pool": 7967,
+  "mvrp": 1589,
+  "nvm_klj2": 1340264,
+  "aecp_maps": 47564,
+  "ctrl_debug": 18,
+  "acmp_nvm": 432,
+  "ctrl_app": 2455,
+  "aecp_image": 4067761,
+  "gptp": 262439,
+  "gptp_mbx": 165282,
+  "mrp_pdu": 7837,
+  "rt_lshrdi3": 24218,
+  "rt_ashldi3": 1195,
+  "rt_ashrdi3": 1300,
+  "unmapped": 350
+ },
+ "code": {
+  "boot_bytes": "17792",
+  "service_bytes": "55040",
+  "service_only_bytes": "51200",
+  "aecp_mbx": "1156",
+  "ctrl_app_aecp": "1496",
+  "ctrl_loop": "2376",
+  "nvm_store": "644",
+  "nvm_flash_litespi": "228",
+  "aecp": "4944",
+  "mbx": "2940",
+  "mbx_plat_mmio": "20",
+  "srp_mbx": "6248",
+  "acmp_mbx": "476",
+  "adp_mbx": "428",
+  "adp": "1760",
+  "acmp": "1676",
+  "maap_mbx": "1552",
+  "ctrl_mem": "1016",
+  "ctrl_app_srp": "984",
+  "ctrl_aecp_image": "540",
+  "maap": "2184",
+  "aecp_nvm": "156",
+  "aecp_face": "2276",
+  "timer": "128",
+  "mrp_mad": "5900",
+  "aecp_commands": "1364",
+  "msrp": "632",
+  "shlan_port": "36",
+  "ctrl_pool": "364",
+  "mvrp": "524",
+  "nvm_klj2": "112",
+  "aecp_maps": "1036",
+  "ctrl_app": "92",
+  "aecp_state": "56",
+  "gptp": "8676",
+  "gptp_mbx": "1640",
+  "mrp_pdu": "1144",
+  "rt_lshrdi3": "60",
+  "rt_ashldi3": "60",
+  "rt_ashrdi3": "60",
+  "unmapped": "56"
+ }
+}

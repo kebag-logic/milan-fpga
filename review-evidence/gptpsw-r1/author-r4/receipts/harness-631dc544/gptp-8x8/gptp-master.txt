@@ -1,0 +1,15 @@
+wait ready
+mark booted
+wait cycles 5000000
+wait quiet 3 within 2000000
+link 0 1
+link 1 1
+gptp slave 0
+wait cycles 130000000
+mark gptp_settled
+mark gptp.pdelay_resp.if0
+frame 0 0180c200000e02aabb00000188f7121200360000000000000000000000000000000002aabbfffe0000010001777705000000000000000000000000000000000000000000 gptp.pdelay_resp.if0
+wait tx 5 1 within 2000000
+wait quiet 3 within 2000000
+wait cycles 30000000
+end

@@ -1,0 +1,38 @@
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "<lane>/sw/builder/test_builder.py", line 11086, in assert_boot_contract
+    verdicts.append(assert_boot_contract(
+                    ~~~~~~~~~~~~~~~~~~~~^
+        selected, docs, csr, makefile, listing, datapath))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/sw/builder/test_builder.py", line 11304, in assert_boot_contract
+    reference_census(
+    ~~~~~~~~~~~~~~~~^
+        datapath,
+        ^^^^^^^^^
+    ...<46 lines>...
+            "phc_tod_snap_valid_ts_w": 3,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        }, phc_net_reason)
+        ^^^^^^^^^^^^^^^^^^
+  File "<lane>/sw/builder/test_builder.py", line 11178, in reference_census
+    assert found == count, \
+           ^^^^^^^^^^^^^^
+AssertionError: datapath PHC nets must retain sole-driver reference ownership: gptp_adj_w must have exactly 4 live references, found 5
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<lane>/sw/builder/test_builder.py", line 30569, in <module>
+    fn()
+    ~~^^
+  File "<lane>/sw/builder/test_builder.py", line 12192, in test_baremetal_profile_contract
+    baseline_census_verdict = assert_boot_contract(
+        firmware_source, docs_source, csr_source)
+  File "<lane>/sw/builder/test_builder.py", line 11089, in assert_boot_contract
+    raise AssertionError(
+    ...<3 lines>...
+        f"{exc}") from exc
+AssertionError: under the arm selection line 971 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): datapath PHC nets must retain sole-driver reference ownership: gptp_adj_w must have exactly 4 live references, found 5

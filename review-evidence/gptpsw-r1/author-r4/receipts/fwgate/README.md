@@ -1,0 +1,3 @@
+# Firmware gate at `7d4dc57c`
+
+`python3 -B sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard k/4 --jobs 2`, k in 0..3, each in its own clean clone at `7d4dc57c`: 4 of 4 rc 0; the control campaign 826 of 826 caught; arms `gptp` and `gptp_ubsan` 63 tests each, `gptp_rv32` 4 checks, `model`. Each shard's verdict lines are its `.verdicts`; the full logs are in LARGE.txt by size and sha256. After `7d4dc57c` nothing under `sw/firmware/` moved: `a6323318` re-measures the memory ledger (`sw/litex/ctrl_memory*.py`, covered by `memory/`), `ba2c8ed6` changes `sw/builder/test_builder.py`, `e81cecdb` the design page.

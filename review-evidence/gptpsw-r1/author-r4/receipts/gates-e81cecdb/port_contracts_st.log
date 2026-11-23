@@ -1,0 +1,84 @@
+[PASS] a wildcard binding is caught, with its line
+[PASS] a positional binding is caught
+[PASS] a named binding is accepted
+[PASS] a parameterised named binding is accepted
+[PASS] a parameterised positional binding is caught
+[PASS] a positional PARAMETER list is caught
+[PASS] an instance array with a wildcard is caught
+[PASS] an instance array bound by position is caught
+[PASS] an instance array bound by name is accepted
+[PASS] a wildcard on the second instance of a declaration is caught, with its line
+[PASS] a positional binding on the second instance is caught
+[PASS] a clean two-instance declaration is accepted and both instances are seen
+[PASS] a three-instance declaration with an array and a parameterised head is accepted, every instance seen
+[PASS] a wildcard on the third instance is caught on its own line
+[PASS] a positional array instance in the middle of a declaration is caught
+[PASS] a positional parameter list on a shared head is refused for every instance it configures
+[PASS] a read through the second instance is a hierarchical dependency
+[PASS] a foreign head's later instance is not judged but still roots a read
+[PASS] a foreign module is not judged
+[PASS] a foreign wildcard keeps its boundary exception
+[PASS] control flow is not an instantiation
+[PASS] a commented-out binding is not counted
+[PASS] a string literal is not a hierarchical read
+[PASS] a read through a first-party child is caught
+[PASS] a read through a FOREIGN child instance is caught
+[PASS] a reference rooted in a module name is caught
+[PASS] a $root reference is caught
+[PASS] interface member access is a modport, not a backdoor
+[PASS] a struct member or package item named like a module is not a reference
+[PASS] a declaration is not a foreign instantiation
+[PASS] a documented port is not counted
+[PASS] an undocumented port is counted
+[PASS] documentation may sit on the line above
+[PASS] one comment documents a contiguous bundle
+[PASS] a blank line ends the bundle
+[PASS] a sibling port's trailing comment does not document the next port
+[PASS] a plain // banner is not a port contract
+[PASS] a `module X import pkg::*;` header keeps its port list
+[PASS] a parameter's comment does not document the ports after `)(`
+[PASS] names sharing one declaration are each a port
+[PASS] an interface-modport port is in the population
+[PASS] a keyword inside `//!` prose is not a port
+[PASS] a function argument in the body is not a port
+[PASS] a non-ANSI port list is refused, with its line
+[PASS] a parameter list alone is not a non-ANSI header
+[PASS] an empty port list is not a non-ANSI header
+[PASS] no port list is not a non-ANSI header
+[PASS] an ANSI port list is not a non-ANSI header
+[PASS] open and literal-bound ports are inventoried
+[PASS] a comment on the connection's line justifies it
+[PASS] a comment directly above justifies it
+[PASS] a comment above a contiguous run justifies the whole run
+[PASS] a blank line between the comment and the connection leaves it unjustified
+[PASS] no comment is no rationale
+[PASS] an ordinary connection ends the run
+[PASS] a sibling's own comment ends the run
+[PASS] open and literal-bound ports on the second instance are inventoried with their rationale
+[PASS] counts at the ratchet and recorded identities pass
+[PASS] a tree over its count is refused even when another fell
+[PASS] a new unjustified identity is refused
+[PASS] a recorded identity that gained its rationale has left
+[PASS] a processor identity is spelled <submodule>:<path>, never as a source path
+[PASS] a budget missing a tree is unusable
+[PASS] a non-numeric count is unusable
+[PASS] a missing budget is unusable
+[PASS] a tracked HDL path present as a regular file is not refused
+[PASS] a tracked HDL path that is absent, a directory or a symlink is refused, by name
+[PASS] an empty population is refused
+[PASS] a tree with no file is refused, by name
+[PASS] a tree with files but no parsed port is refused, by name
+[PASS] a whole population is accepted
+[PASS] the live population is whole
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches hdl
+[PASS] the live scan reaches gptp-processor
+[PASS] the live scan reaches protocol-processor
+[PASS] lint_rtl's exclusion list is empty today, so every tracked .sv/.svh is in the population
+[PASS] the `import` header of milan_datapath.sv contributes its ports
+[PASS] the `import` header of KL_gptp_engine.sv contributes its ports
+[PASS] the `import` header of protocol_processor_top.sv contributes its ports
+[PASS] the .svh files are in the binding population
+[PASS] the tree's interface is not a hierarchical root
+
+82 checks: 82 PASS, 0 FAIL
