@@ -1,0 +1,5 @@
+adp/adp_entity rc=0
+aecp/aecp_entity rc=0
+srp/srp_entity rc=0
+CONFIG ERROR: configs/host/endstation_host_example.yaml: board.target 'host' is the descriptor-only host profile (#983). It elaborates no gateware, so this pipeline writes nothing for it; its descriptor image, ADP fields and shape header come from emit_aem_overlay and the firmware generators (sw/firmware/ctrl/adp/adp_entity.py, aecp/aecp_entity.py, srp/srp_entity.py)
+builder rc=1

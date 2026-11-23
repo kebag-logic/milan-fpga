@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/load_grade.py", line 872, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/load_grade.py", line 861, in main
+    print('\n'.join(report(ROOT) + held(ROOT)))
+                    ~~~~~~^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/load_grade.py", line 609, in report
+    pin, terms = load(root, point, STATED_US), load(root, point, table)
+                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/load_grade.py", line 491, in load
+    s, k, h = POINTS[point], contract(root), macros(root, shape(point, root))
+                                             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/load_grade.py", line 347, in macros
+    found.update({name: f'{us}u' for name, us in shape_costs.at(n_if, root).items()})
+                                                 ~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/shape_costs.py", line 167, in at
+    table = listed(text)
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/shape_costs.py", line 123, in listed
+    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')
+ValueError: ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+rc=1

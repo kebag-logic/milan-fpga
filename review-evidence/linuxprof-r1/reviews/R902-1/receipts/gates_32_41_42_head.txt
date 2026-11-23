@@ -1,0 +1,12 @@
+test_builder_doc_key_map:
+  [gate 32] 116 loader keys == 116 keys across 68 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 25 untaken loader arms, where a key read is not recorded: endstation_builder.py:1585 endstation_builder.py:1665 endstation_builder.py:1669 endstation_builder.py:2032 endstation_builder.py:2036 endstation_builder.py:3435 endstation_builder.py:3524 endstation_builder.py:3626 endstation_builder.py:3904 endstation_builder.py:3913 endstation_builder.py:3950 endstation_builder.py:3969 endstation_builder.py:4006 endstation_builder.py:4470 endstation_builder.py:4576 endstation_builder.py:4585 endstation_builder.py:4617 endstation_builder.py:4803 endstation_builder.py:4805 endstation_builder.py:4811 endstation_builder.py:4821 endstation_builder.py:4827 endstation_builder.py:4830 endstation_builder.py:4863 endstation_builder.py:4869
+test_host_profile_feeds_the_generators:
+  [gate 41] configs/host/endstation_host_example.yaml: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the 5784-byte image; build() refuses it; 64 host loader keys documented; a talker advertising 2 and 8 channels at current 2 reserves 217 octets, the widest format's, not the current 73
+  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone and is refused without it; the macro moves none of the 2 listed FPGA rows; arty_current, arty_4x4, arty_8ch still refused without it; only docs/ENDSTATION_BUILDER.md, sw/builder/test_builder.py, sw/firmware/ctrl/loop/ctrl_loop.h name the macro
+test_host_profile_refusals:
+  [gate 42] both unedited copies load; 31/31 planted defects refused in their own words (8 on the FPGA 1x1, 23 on the host example)
+
+SUBSET: 3 of 115 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+rc=0

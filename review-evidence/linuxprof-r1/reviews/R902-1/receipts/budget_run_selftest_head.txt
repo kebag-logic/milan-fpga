@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/run.py", line 997, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/run.py", line 898, in main
+    import selftest
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/selftest.py", line 46, in <module>
+    import selftest_mutants  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/selftest_mutants.py", line 24, in <module>
+    import flip_grade
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/flip_grade.py", line 55, in <module>
+    import rows_tiers  # noqa: E402
+    ^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/rows_tiers.py", line 127, in <module>
+    LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if')}
+                         ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/poll_grade.py", line 172, in stated_us
+    out['mrpdu'] = shape_costs.at(shape, scenario.ROOT)[shape_costs.BUILD_ONE]
+                   ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/shape_costs.py", line 167, in at
+    table = listed(text)
+  File "<PACKET>/scratch/head/tb/verilator/ctrl_service_budget/shape_costs.py", line 123, in listed
+    raise ValueError(f'ctrl_loop.h states {lines[k]!r} for the shape {tuple(shape)}')
+ValueError: ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+rc=1

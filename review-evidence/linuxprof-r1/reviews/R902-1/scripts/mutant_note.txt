@@ -1,0 +1,3 @@
+Mutants (applied by the inline edits recorded in REPORT.md, each in its own disposable copy of the head tree):
+ m1: ctrl_loop.h host row's guard dropped: '#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)' -> '#elif CTRL_LOOP_SHAPE(1u, 1u, 2u)'
+ m2: endstation_builder.py _load_board: 'if "gptp_owner" in brd:' -> 'if False:'

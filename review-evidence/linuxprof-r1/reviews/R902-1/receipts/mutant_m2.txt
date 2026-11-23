@@ -1,0 +1,12 @@
+test_host_profile_refusals:
+Traceback (most recent call last):
+  File "<PACKET>/scratch/mut_m2/sw/builder/test_builder.py", line 31073, in <module>
+    fn()
+    ~~^^
+  File "<PACKET>/scratch/mut_m2/sw/builder/test_builder.py", line 30930, in test_host_profile_refusals
+    caught = [_host_refused(label, bases[base], _host_mutation(path, value), words)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<PACKET>/scratch/mut_m2/sw/builder/test_builder.py", line 30906, in _host_refused
+    raise AssertionError(f"gate 42 {label}: accepted")
+AssertionError: gate 42 an FPGA target naming a host PHC owner: accepted
+rc=1

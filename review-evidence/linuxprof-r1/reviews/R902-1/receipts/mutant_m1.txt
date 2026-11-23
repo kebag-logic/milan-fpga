@@ -1,0 +1,12 @@
+test_host_profile_feeds_the_generators:
+Traceback (most recent call last):
+  File "<PACKET>/scratch/mut_m1/sw/builder/test_builder.py", line 31073, in <module>
+    fn()
+    ~~^^
+  File "<PACKET>/scratch/mut_m1/sw/builder/test_builder.py", line 30809, in test_host_profile_feeds_the_generators
+    unlisted = _check_host_shape(cc, headers["srp_entity"], Path(tmp))
+  File "<PACKET>/scratch/mut_m1/sw/builder/test_builder.py", line 30685, in _check_host_shape
+    assert isinstance(refused, str) and SHAPES_WORDS in refused, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 41: (1, 1, 2) without CTRL_HOST_PLATFORM was not refused by THE SHAPES: {'CTRL_LOOP_SOURCES': 1, 'CTRL_LOOP_SINKS': 2, 'CTRL_LOOP_SLICE_US': 950, 'CTRL_LOOP_BUILD_PASS_US': 1010, 'CTRL_LOOP_BUILD_ONE_PASS_US': 735, 'CTRL_LOOP_SRP_UNIT_US': 285, 'CTRL_LOOP_RETRY_COLD_US': 85, 'CTRL_LOOP_RETRY_ATTEMPT_US': 34, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 35}
+rc=1
