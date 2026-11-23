@@ -245,6 +245,24 @@ TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
     }
 }
 
+// THE SETTLE (#977, CTRL_LOOP_SETTLE_ALONE): a registration's record leaves ACMP's completion owed by its pass, and the
+// next ordinary pass makes it as it starts; a shape without THE SETTLE completes it in the record's own pass.
+TEST_F(SrpBinding, ARegistrationIsCompletedAsTheNextOrdinaryPassStarts) {
+    bind(0); response(0);
+    const auto f=talker();
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),acfg.sink_interface[0]));
+    for (unsigned n=0;n<20u && app.loop.drain_taken==0u;++n) static_cast<void>(ctrl_loop_service(&app.loop));
+    ASSERT_NE(app.loop.drain_taken,0u) << "a pass took the registration";
+    if (CTRL_LOOP_SETTLE_ALONE) {
+        EXPECT_EQ(core()->sinks[0].state,ACMP_SETTLED_NO_RSV) << "the record's pass leaves ACMP's completion owed";
+        EXPECT_TRUE(app.srp_settle_owed);
+        for (unsigned n=0;n<20u && app.srp_settle_owed;++n) static_cast<void>(ctrl_loop_service(&app.loop));
+        EXPECT_FALSE(app.srp_settle_owed);
+    }
+    EXPECT_EQ(core()->sinks[0].state,ACMP_SETTLED_RSV_OK) << "the registration is completed";
+    settle();
+}
+
 // THE SETTLE (#977): a request parked when the settle runs takes no registration's completion, as the delivery takes
 // none, and the bound sink beside it is completed.
 TEST_F(SrpBinding, TheSettleSkipsAParkedRequest) {

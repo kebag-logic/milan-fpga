@@ -15,6 +15,7 @@ import srp_talker_mutants
 import srp_listener_mutants
 import srp_kind_mutants
 import srp_reclaim_mutants
+import srp_drain_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -955,6 +956,7 @@ DEFECTS += srp_talker_mutants.defects(Defect)
 DEFECTS += srp_listener_mutants.defects(Defect)
 DEFECTS += srp_kind_mutants.defects(Defect)
 DEFECTS += srp_reclaim_mutants.defects(Defect)
+DEFECTS += srp_drain_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that

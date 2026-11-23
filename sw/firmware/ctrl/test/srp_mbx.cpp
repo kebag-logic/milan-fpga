@@ -498,7 +498,7 @@ TEST_F(Srp, TheDrainChargesARecordTheTalkersItsVectorsCanRegister) {
         {"a Talker Advertise's two values",record(0x22ea,cat({message(1,25,{2}),end})),u+r*(2u<s?2u:s)},
         {"a Talker Failed's values past the sinks",record(0x22ea,cat({message(2,34,{s+3u}),end})),u+r*s},
         {"both kinds' one each",record(0x22ea,cat({message(1,25,{1}),message(2,34,{1}),end})),u+2u*r},
-        {"a Talker past the EndMark",record(0x22ea,cat({end,message(1,25,{1})})),u},
+        {"a Talker past the EndMark",record(0x22ea,cat({end,end,message(1,25,{1})})),u},
         {"a Message whose length passes the record",record(0x22ea,message(1,25,{1},2000)),u+r},
         {"a Message whose length ends at its last vector",record(0x22ea,cat({message(1,25,{1},2+25+1),end})),u+r},
         {"past eight Messages, by its length",record(0x22ea,past),u+r*s*rest},
@@ -542,6 +542,71 @@ TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
     EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "b's at another destination registers for none";
     EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "a's sink declares Ready";
     EXPECT_EQ(adapter.ifs[0].sinks[1].declared,0u) << "b's sink declares nothing";
+}
+// lwSRP's build options by shape (#977; srp_entity.py, LWSRP_OPTIONS, the shape header every unit force-includes): the
+// one-interface shapes build the lookup buckets, no MAP work at one port and the lean validation pass, 8x8/1if alone
+// the merged Message build; every other shape lwSRP's defaults.
+#ifdef LWSRP_ONE_PORT_MAP
+#define SRP_TEST_ONE_PORT LWSRP_ONE_PORT_MAP
+#else
+#define SRP_TEST_ONE_PORT 0
+#endif
+#ifdef LWSRP_LEAN_VALIDATE
+#define SRP_TEST_LEAN LWSRP_LEAN_VALIDATE
+#else
+#define SRP_TEST_LEAN 0
+#endif
+#ifdef LWSRP_ATTR_BUCKETS
+#define SRP_TEST_BUCKETS LWSRP_ATTR_BUCKETS
+#else
+#define SRP_TEST_BUCKETS 0u
+#endif
+#ifdef LWSRP_TX_MERGE
+#define SRP_TEST_MERGE LWSRP_TX_MERGE
+#else
+#define SRP_TEST_MERGE 0
+#endif
+TEST_F(Srp, TheShapeHeaderSetsLwsrpsEndStationOptions) {
+    const bool one=MBX_N_IF==1u, eight=CTRL_SRP_SINKS==9u;
+    EXPECT_EQ(SRP_TEST_ONE_PORT,one ? 1 : 0) << "no MAP work at one port at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_LEAN,one ? 1 : 0) << "the lean validation pass at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_BUCKETS,one ? 16u : 0u) << "the lookup buckets at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_MERGE,one && eight ? 1 : 0) << "the merged Message build at 8x8/1if alone";
+}
+// THE TRANSMIT's re-declarations in a slice of their own (#977, its ruling of 2026-11-23, item 3; CTRL_LOOP_DECLARE_ALONE
+// at 8x8/1if): a call whose declarations re-declared a Listener ends after them and the next call builds the MRPDU, no
+// SRP record taken between; at every other shape one call declares and builds.
+TEST_F(Srp, ARedeclarationBuildsItsMrpduInTheNextCallWhereTheShapeSaysSo) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2));
+    settle(); advance(400);
+    const auto f=frame(1,talker_value(sid,da,2),0);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    for(unsigned n=0;n<20u && loop.drain_taken==0u;++n) ctrl_loop_service(&loop);
+    ASSERT_NE(loop.drain_taken,0u) << "a pass took the registration";
+    ASSERT_NE(adapter.tx_due,0u) << "its Listener declaration is owed THE TRANSMIT";
+    const auto sent=adapter.transmitted;
+    loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+    EXPECT_NE(adapter.ifs[0].sinks[0].declared,0u) << "the call declares the Listener";
+    if(CTRL_LOOP_DECLARE_ALONE) {
+        EXPECT_EQ(adapter.transmitted,sent) << "the call that re-declared builds nothing";
+        EXPECT_TRUE(adapter.declared_alone) << "its build owed to the next call";
+        // a Listener of no source here, posted before the mark a pass's events read (THE DRAIN's order)
+        const auto r=frame(3,{9,9,9,9,9,9,9,9},0,2);
+        ASSERT_TRUE(mbx_model_rx(&model,r.data(),r.size(),0));
+        loop.rx_order=mbx_rx_mark(MBX_CH_SRP);
+        EXPECT_FALSE(loop.rx[MBX_CH_SRP].ready(&adapter)) << "no SRP record is taken before the build";
+        loop.transmit(loop.transmit_ctx,CTRL_LOOP_BUILD_MOST);
+        EXPECT_GT(adapter.transmitted,sent) << "the next call builds the MRPDU";
+        EXPECT_FALSE(adapter.declared_alone);
+        EXPECT_TRUE(loop.rx[MBX_CH_SRP].ready(&adapter)) << "and records are taken again";
+    } else {
+        EXPECT_GT(adapter.transmitted,sent) << "the call that declares builds the MRPDU";
+        EXPECT_FALSE(adapter.declared_alone);
+    }
+    settle();
 }
 TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     mbx_model_tx_pause(&model,true);

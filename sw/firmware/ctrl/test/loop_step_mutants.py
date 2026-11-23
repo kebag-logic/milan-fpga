@@ -39,7 +39,31 @@ ROW = ("\treturn l->whole < CTRL_LOOP_WHOLE_RUN && (!l->backlog || l->retry_firm
 def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every defect of the step, of THE RETRY and of THE TRANSMIT, built with ctrl_mutant.Mutant."""
     return (*step_mutants(kind), *retry_mutants(kind), *transmit_mutants(kind), *tick_mutants(kind),
-            *row_mutants(kind), *tier_mutants(kind))
+            *row_mutants(kind), *tier_mutants(kind), *charge_mutants(kind))
+
+
+def charge_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE DRAIN's charge and THE SETTLE (#977, its ruling of 2026-11-23, items 3 and 4): a record past the unit starts
+    only while its slice holds its charge, one alone in a quiet slice on the unit, and the settle first in a pass."""
+    port, l23b = "port", "Loop.L23bTheDrainChargesARecordAndSettlesFirst"
+    alone = "if (!(alone && n == 0u) && (int32_t)(stop + CTRL_LOOP_SRP_UNIT_US - charge - now) < 0) {"
+    settle = "\tconst bool settled = l->settle != NULL && l->settle(l->settle_ctx);\n"
+    events = "\tunsigned work = service_events(l);\n"
+    return (
+        kind("drain-charge-ignored", "loop/ctrl_loop.c", "const unsigned charge = l->drain_charge(l->rx[ch].ctx);",
+             "const unsigned charge = CTRL_LOOP_SRP_UNIT_US + 0u * l->drain_charge(l->rx[ch].ctx);", port, l23b,
+             "L23b each record past the first starts only while its slice holds its charge"),
+        kind("drain-alone-never", "loop/ctrl_loop.c", alone, alone.replace("n == 0u", "n == ~0u"), port, l23b,
+             "L23b a record past any slice starts alone"),
+        kind("drain-alone-past-a-settle", "loop/ctrl_loop.c", "const bool alone = !settled && ",
+             "const bool alone = !(settled && l->settle == NULL) && ", port, l23b,
+             "L23b and none starts alone after a settle that did work"),
+        kind("settle-after-the-events", "loop/ctrl_loop.c", settle + "\tconst uint32_t ticks = l->stats.ticks;\n"
+             "\tconst uint32_t taken = l->stats.rx_records;\n" + events,
+             "\tconst uint32_t ticks = l->stats.ticks;\n\tconst uint32_t taken = l->stats.rx_records;\n" + events
+             + settle,
+             port, l23b, "L23b THE SETTLE runs as an ordinary pass starts, before its events"),
+    )
 
 
 def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
