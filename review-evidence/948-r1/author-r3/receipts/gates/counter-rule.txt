@@ -1,0 +1,17 @@
+Candidate: 64117b77cb9e5c421717835b5be032b5905c447d
+Primary clauses checked from the local authorized specifications:
+- Milan v1.2 5.3.8.10 and Table 5.6, printed pages 36-38: Stream Input standard counters are 32-bit unsigned values with wrap to zero.
+- IEEE 1722.1-2021 7.4.42.2, printed page 224: counters_valid identifies the valid quadlets returned in counters_block.
+- IEEE 1722.1-2021 7.4.42.2.4: STREAM_INPUT counter definitions.
+
+Candidate implementation:
+- hdl/milan/milan_datapath.sv:3933 defines CTR_VALID_SIN_C = 0x00000FFF.
+- hdl/milan/milan_datapath.sv:3996-4020 maps standard quadlets 0-11 to the monitor counter columns; other quadlets are zero; word 32 returns that validity mask.
+- sw/firmware/ctrl/aecp/aecp_face.c:231-255 reads those 32 quadlets and counters_valid through CTR for GET_COUNTERS.
+- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:60 documents LCTX w11 DEPKT as a vendor diagnostic in the 0x800 window, outside GET_COUNTERS.
+- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:725-731 updates the two 16-bit halves independently. Each sum is 16 bits: modulo 65536, without carrying from deliveries into drops.
+- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:356-364,486-510,1045-1057,1173-1189 widens pending tallies to six bits, prioritizes drainage while any is half full, and preserves increments coincident with a drain.
+
+The six-bit registers are pending-event accumulators, not the public counter width. The correction preserves the vendor word's two 16-bit wrapping fields and the standard counters' 32-bit wrapping fields. No mailbox or firmware change is needed or made.
+
+Runtime evidence: FO15 reconciles 150 accepted PDUs per input against 46 deliveries and 104 drops, and separately compares each input's delivered tally with the observed payload count. Both the original three-bit/idle-only drain plant and the six-bit/idle-only drain plant fail FO15's named conservation check.

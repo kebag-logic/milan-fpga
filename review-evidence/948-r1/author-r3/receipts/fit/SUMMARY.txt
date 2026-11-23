@@ -1,0 +1,19 @@
+Candidate 64117b77cb9e5c421717835b5be032b5905c447d
+Completed builds: 6 of 6.
+
+| Shape | Directive | Slow WNS / WHS ns | Fast WNS / WHS ns | LUTs | FFs | Slices | BRAM | DSP | Delta vs round 2b: LUT / FF / slice |
+|---|---|---|---|---:|---:|---:|---:|---:|---|
+| 8x8/1if | ExtraPostPlacementOpt | +0.272 / +0.044 | +1.526 / +0.013 | 44,103 | 51,272 | 15,691 | 94 | 13 | -1,058 / +57 / -15 |
+| 8x8/1if | ExtraTimingOpt | +0.152 / +0.102 | +1.660 / +0.036 | 44,099 | 51,270 | 15,708 | 94 | 13 | -1,014 / +57 / +577 |
+| 8x8/1if | AltSpreadLogic_high | +0.102 / +0.102 | +1.660 / +0.036 | 44,072 | 51,269 | 15,646 | 94 | 13 | -1,092 / +55 / +516 |
+| 1x1/1if | ExtraPostPlacementOpt | +0.193 / +0.102 | +1.636 / +0.036 | 32,768 | 42,805 | 13,989 | 79.5 | 13 | -102 / -33 / +243 |
+| 1x1/1if | ExtraTimingOpt | +0.054 / +0.102 | +1.687 / +0.036 | 32,765 | 42,804 | 14,297 | 79.5 | 13 | -155 / -38 / +80 |
+| 1x1/1if | AltSpreadLogic_high | +0.020 / +0.102 | +1.687 / +0.023 | 32,778 | 42,804 | 14,299 | 79.5 | 13 | -140 / -39 / +83 |
+
+8x8/1if selected among completed routes: ExtraPostPlacementOpt; worst WNS +0.272 ns; #818 floor PASS at all four corners.
+Selected total delta vs train ExtraPostPlacementOpt: Slice LUTs +1118, Slice Registers +279, Slice -7, Block RAM Tile -0.5, DSPs +2.
+1x1/1if selected among completed routes: ExtraPostPlacementOpt; worst WNS +0.193 ns; #818 floor PASS at all four corners.
+Selected total delta vs train ExtraPostPlacementOpt: Slice LUTs +54, Slice Registers +177, Slice +296, Block RAM Tile -0.5, DSPs +2.
+8x8 ExtraPostPlacementOpt: misses stricter both-+0.030 floor; original signoff rc=1 retained.
+1x1 AltSpreadLogic_high: misses #818 floor; retained as an alternative, not selected.
+1x1 AltSpreadLogic_high: misses stricter both-+0.030 floor; original signoff rc=1 retained.

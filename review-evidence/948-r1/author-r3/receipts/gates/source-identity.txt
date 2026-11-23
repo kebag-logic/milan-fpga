@@ -1,0 +1,26 @@
+Candidate: 64117b77cb9e5c421717835b5be032b5905c447d
+Tree: 0c58762aaf41530ba148e99969f04bfaa3404f17
+Resume audit: committed candidate and test/build clone inputs.
+Git index/status are supplemented below with direct blob-byte comparisons.
+
+r2/c2-final: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-dp: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-mclk: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-small: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+r2/c2-s-twin: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+viv/clones/r41x1: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+viv/clones/r48x8: HEAD 64117b77cb9e5c421717835b5be032b5905c447d; all 10 round-3 changed files equal candidate blobs; mismatches 0
+
+Failing-first clone:
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv: bytes equal 64e55a59
+hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv: bytes equal 64e55a59
+tb/verilator/avtp_rxmon/sim_fanout.cpp: bytes equal tests-first commit 9f8f689c
+tb/verilator/avtp_rxmon/sim_depkt.cpp: bytes equal tests-first commit 9f8f689c
+
+Round-3 protected scope:
+No firmware, budget-bound, mailbox-contract or submodule-gitlink change.
+
+Large original logs, retained outside packet (hash and byte count):
+r3/final/avtp_rxmon-suite.log: 398870 bytes sha256 6a7915ebd90f7b70b717a069099b61fd343b94b95ef4460f38ab7e6510b7c4da
+r3/sweep/s-dp/milan_dp.log: 3168890 bytes sha256 39f8b7e117100a6c5fa4b50dc918a4b2ed54fb23beffdfdc41d16538a53e09df
+r3/twin/twin-gate.log: 978958 bytes sha256 e4c4347410ddfffcf286659f84e3dd6f9520646f02d5b9a49dad1fa9c4ae2af1

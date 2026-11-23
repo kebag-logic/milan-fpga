@@ -1,0 +1,11 @@
+Head: 64117b77cb9e5c421717835b5be032b5905c447d
+Plant: tap-delay data stages shift only on an accepted input beat; valid still shifts every cycle.
+control build rc=0
+control executable: 355616 bytes sha256 446d1a09181b6dd7ef2cc5d5eb7ed552677ee38948a1bdb4aed8a20730ed4136
+control run rc=0
+  [ ok ] [DT5] cases whose every output frame is whole, in order, under its index = 584
+plant build rc=0
+plant executable: 355616 bytes sha256 37ed1619fdabddaa741b6f4c63488091d427cdc64c3960bb4cf90ee3fb965220
+plant run rc=1
+  [FAIL] [DT5] cases whose every output frame is whole, in order, under its index got=0 exp=584
+DT5 planted data-delay defect: caught by name; control passes.

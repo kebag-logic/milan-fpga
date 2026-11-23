@@ -1,0 +1,17 @@
+--- hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv
++++ plant/KL_aaf_rx_depacketizer.sv
+@@ -212,12 +212,14 @@
+     else        dv_r <= {dv_r[ENQ_LAT_C-2:0], tap_acc_w};
+   end : tap_delay_valid
+   always_ff @(posedge clk_i) begin : tap_delay_data
++    if (tap_acc_w) begin
+     dl_r    <= {dl_r[ENQ_LAT_C-2:0], s_tlast_i};
+     dd_r[0] <= s_tdata_i;
+     dk_r[0] <= s_tkeep_i;
+     for (int i = 1; i < ENQ_LAT_C; i++) begin
+       dd_r[i] <= dd_r[i-1];
+       dk_r[i] <= dk_r[i-1];
++    end
+     end
+   end : tap_delay_data
+   wire        in_acc    = dv_r[ENQ_LAT_C-1];
