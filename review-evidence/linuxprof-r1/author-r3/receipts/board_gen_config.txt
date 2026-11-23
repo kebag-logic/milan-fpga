@@ -1,0 +1,8 @@
+afc350641dc2d93cee39bb4c62258b6d55f00ccb
+$ tools/gen-config.sh --check <tree 66b4def3>
+config/: every generated file is current for endstation_pb2_bridge.yaml
+rc=0
+$ tools/gen-config.sh --check <tree 58f7673b>
+config/entity.conf is not what endstation_pb2_bridge.yaml generates at milan-fpga 58f7673b8c57a80230e716bc1774ff9cc2f71ddc: run tools/gen-config.sh
+config/nvm_shape_gen.h is not what endstation_pb2_bridge.yaml generates at milan-fpga 58f7673b8c57a80230e716bc1774ff9cc2f71ddc: run tools/gen-config.sh
+rc=1

@@ -1,0 +1,19 @@
+Board host build (board afc350641dc2d93cee39bb4c62258b6d55f00ccb, Makefile flags unchanged: -DCTRL_HOST_PLATFORM, -include config/srp_entity_gen.h), milan-fpga 66b4def3 vs 58f7673b; cc cc (GCC) 16.2.1 20260810
+objects: 35 identical, 0 differ
+fw/ctrl_loop.o: 204afd952f53cfd9a040ddb521d99b2398864ce59df6c95e22c07f80738ef10e vs 204afd952f53cfd9a040ddb521d99b2398864ce59df6c95e22c07f80738ef10e
+control program binary: 1c9240b21ce566a743c010bc33144ea520d292e67f376fdee3486d923270f00a vs 1c9240b21ce566a743c010bc33144ea520d292e67f376fdee3486d923270f00a
+binary: byte-identical
+
+Shape macros under the board's flags (-DCTRL_HOST_PLATFORM -include config/srp_entity_gen.h):
+#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+#define CTRL_LOOP_BUILD_PASS_US 1010u
+#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+#define CTRL_LOOP_RETRY_COLD_US 85u
+#define CTRL_LOOP_SINKS CTRL_SRP_SINKS
+#define CTRL_LOOP_SLICE_US 950u
+#define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
+#define CTRL_LOOP_SRP_UNIT_US 285u
+#define CTRL_LOOP_TX_MS 35u
+#define MBX_N_IF 1u
+macros: identical at 66b4def3 and 58f7673b (11 lines)

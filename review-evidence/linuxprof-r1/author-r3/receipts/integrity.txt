@@ -1,0 +1,46 @@
+HEAD 58f7673b8c57a80230e716bc1774ff9cc2f71ddc tree 6dbb2ebaa80cf656a39b93c10c46e98fa6b92d2a
+parent 66b4def34dcbc0d371ce4eb339d3d0226875befa
+THE SHAPES chain (#if CTRL_LOOP_SHAPE(1u, 2u, 2u) .. #endif) sha256: base f1bbae922af5c477519369c00cc87e4650db3db3fc014646dcad6933347a9d89, head f1bbae922af5c477519369c00cc87e4650db3db3fc014646dcad6933347a9d89, lines 39
+--- git diff 854bd723..HEAD -- sw/firmware/ctrl/loop/ctrl_loop.h
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 95152026a6..40664a90d3 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -357,6 +357,14 @@ extern "C" {
+ #endif
+ #define CTRL_LOOP_SHAPE(n_if, sources, sinks) \
+ 	(MBX_N_IF == (n_if) && CTRL_LOOP_SOURCES == (sources) && CTRL_LOOP_SINKS == (sinks))
++// THE HOST PLATFORM's shape (#983) is selected here, before THE SHAPES, and
++// stated apart from them (host/ctrl_loop_host.h, which says what it claims):
++// the table below is the FPGA images' alone, as its readers take it
++// (shape_costs.py). Only a build that defines CTRL_HOST_PLATFORM, which no image
++// of this repository does, takes it, and only at the host profile's (1, 1, 2).
++#if defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
++#include "../host/ctrl_loop_host.h"
++#else
+ #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
+ #define CTRL_LOOP_SLICE_US 950u
+ #define CTRL_LOOP_BUILD_PASS_US 1010u
+@@ -396,6 +404,7 @@ extern "C" {
+ #else
+ #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+ #endif
++#endif // the host platform's shape, or THE SHAPES
+ // The passes given whole that may stand in a row: what a queue of notices needs
+ // at its point's recipients, at no record's cost, since none stands in a row
+ // beside a record of THE DRAIN's channel or a full pass's events.
+--- service-budget harness changed since base (empty = untouched):
+--- git diff --raw 66b4def3..HEAD
+:100644 100644 f67edecda6 3775a712f1 M	docs/ENDSTATION_BUILDER.md
+:100644 100644 70bd25870f fa0e031e5d M	sw/builder/test_builder.py
+:000000 100644 0000000000 facf137f29 A	sw/firmware/ctrl/host/ctrl_loop_host.h
+:100644 100644 08645b5034 40664a90d3 M	sw/firmware/ctrl/loop/ctrl_loop.h
+--- submodules
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/640-m7-99-g1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (remotes/origin/acmp-da-fresh-37-g715589c)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+--- status (tracked and untracked, ignored excluded):
+(end status)

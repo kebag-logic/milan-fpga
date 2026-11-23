@@ -1,0 +1,10 @@
+== m1-round2-placement: gate 41 rc=1
+AssertionError: gate 41: shape_costs.py does not read THE SHAPES: ctrl_loop.h states "// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is" for the shape (2, 9, 9)
+== m2-figures-beside-chain: gate 41 rc=1
+AssertionError: gate 41: ctrl_loop.h defines CTRL_LOOP_SLICE_US 5 times, not once for each of its 4 listed shapes
+== m3-guard-without-macro: gate 41 rc=1
+AssertionError: gate 41: shape_costs.py does not read THE SHAPES: ctrl_loop.h states '#include "../host/ctrl_loop_host.h"' for the shape (1, 1, 2)
+== m4-host-figure-not-1x1: gate 41 rc=1
+AssertionError: gate 41: the host figures {'CTRL_LOOP_SLICE_US': 900, 'CTRL_LOOP_BUILD_PASS_US': 1010, 'CTRL_LOOP_BUILD_ONE_PASS_US': 735, 'CTRL_LOOP_SRP_UNIT_US': 285, 'CTRL_LOOP_RETRY_COLD_US': 85, 'CTRL_LOOP_RETRY_ATTEMPT_US': 34, 'CTRL_LOOP_QUEUED_MS': 130, 'CTRL_LOOP_TX_MS': 35} are not the 1x1/1if row's {'CTRL_LOOP_SLICE_US': 950, 'CTRL_LOOP_BUILD_PASS_US': 1010, 'CTRL_LOOP_BUILD_ONE_PASS_US
+== m3b-guard-macro-always-true: gate 41 rc=1
+AssertionError: gate 41: (1, 1, 2) without CTRL_HOST_PLATFORM was not refused by THE SHAPES: In file included from <SCRATCH>/mut/m3b-guard-macro-always-true/sw/firmware/ctrl/loop/ctrl_loop.h:366,

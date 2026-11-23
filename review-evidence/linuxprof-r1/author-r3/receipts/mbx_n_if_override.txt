@@ -1,0 +1,6 @@
+R902-1 preproc_shapes.sh's MBX_N_IF 2 override (sed'd contract in an -I directory ahead of the tree's mbx/):
+  gcc -std=c11 -E -dM -I<W>/mbx -I<TREE>/sw/firmware/ctrl/loop -I<TREE>/sw/firmware/ctrl/mbx p.c | grep MBX_N_IF
+  -> #define MBX_N_IF 1u
+mbx.h includes "mbx_contract.h" from its own directory first, so the -I copy is never read.
+Force-including the variant (gate 41's _contract_at; fpga_preproc.sh):
+  -> #define MBX_N_IF 2u
