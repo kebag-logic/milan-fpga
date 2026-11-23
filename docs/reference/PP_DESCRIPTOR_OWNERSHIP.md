@@ -170,7 +170,7 @@ The builder refuses a zero-cluster port by name, `STREAM_PORT_CLUSTER_MINIMUM`.
 The 8x8 configuration's L1 waiver is removed: every input port passes the check.
 No input cluster is backed by the loopback lane, which the 8x8 does not build.
 Port 0's TDM32 slot 0 stands for the owner's first TDM8 channel.
-Both points await the owner's disposition on #584 ([D8](../ENDSTATION_BUILDER.md#d8--role-named-88-port-model-per-platform-cluster-pools-pilot-cluster-loopback-lane)).
+The owner approved both points on #584 ([D8](../ENDSTATION_BUILDER.md#d8--role-named-88-port-model-per-platform-cluster-pools-pilot-cluster-loopback-lane)).
 
 The shipping `arty_current` image retains six static-map coherence deviations.
 They map channels 2..7 against a stereo output format.

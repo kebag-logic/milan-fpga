@@ -756,11 +756,12 @@ alone and serializes zero in slots 1-31; the datapath and the builder accept a
 master lane narrower than its bus, and a slave lane stays full-width. The
 capture direction stays 0.
 
-**Pending owner disposition (#584).** The owner's decision of 2026-11-22 asked
+**Owner-approved departure (#584).** The owner's decision of 2026-11-22 asked
 to back the input model with the loopback lane and the first TDM8 channel
 only. This build departs from that wording in two ways, stated in
 [#584's decision comment](https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7077045073)
-and awaiting the owner's disposition there:
+and approved by the owner on 2026-11-23
+([#584](https://github.com/kebag-logic/milan-fpga/issues/584#issuecomment-7092564847)):
 
 - **No input cluster is backed by the loopback lane, and the 8x8 builds no
   loopback lane** (`fabric.loopback_lane: false`, as before #584). The lane's
@@ -772,8 +773,7 @@ and awaiting the owner's disposition there:
   standing for the decision's first TDM8 channel: the 8x8's bus is TDM32, and
   it has no TDM8 bus.
 
-If the owner requires loopback-backed input clusters, the model and the lane
-posture change in a later round. `tb/verilator/milan_dp_render`'s `ship8` case
+A block-RAM loopback fed through the input mapping is separate follow-up work. `tb/verilator/milan_dp_render`'s `ship8` case
 grades this posture at the pins.
 
 That is *why* the loopback pool matters rather than being a nicety: with

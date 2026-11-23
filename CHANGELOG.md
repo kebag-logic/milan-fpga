@@ -79,7 +79,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - No input cluster is backed by the loopback lane.
 - The 8x8 builds no loopback lane, as before.
 - `TDM32 Out 0` stands for the decision's first TDM8 channel.
-- All three points await the owner's disposition on #584.
+- The owner approved all three points on #584 (2026-11-23).
 - `milan_dp_render` gains `ship8`, the 8x8 at its pins.
 - It elaborates the builder's own render parameters.
 - Eight listeners feed it; slot 0 renders port 0's source.
