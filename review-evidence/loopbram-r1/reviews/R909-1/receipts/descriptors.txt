@@ -1,0 +1,43 @@
+default endstation_ax7101_1x1_tdm8: 25 AUDIO_CLUSTER, channel_count histogram {1: 25}
+  STREAM_PORT_IN 0: clusters=8 base_cluster=0 number_of_maps=0
+  STREAM_PORT_OUT 0: clusters=17 base_cluster=8 number_of_maps=0
+default endstation_ax7101_8x8: 80 AUDIO_CLUSTER, channel_count histogram {1: 80}
+  STREAM_PORT_IN 0: clusters=1 base_cluster=0 number_of_maps=0
+  STREAM_PORT_IN 1: clusters=1 base_cluster=1 number_of_maps=0
+  STREAM_PORT_IN 2: clusters=1 base_cluster=2 number_of_maps=0
+  STREAM_PORT_IN 3: clusters=1 base_cluster=3 number_of_maps=0
+  STREAM_PORT_IN 4: clusters=1 base_cluster=4 number_of_maps=0
+  STREAM_PORT_IN 5: clusters=1 base_cluster=5 number_of_maps=0
+  STREAM_PORT_IN 6: clusters=1 base_cluster=6 number_of_maps=0
+  STREAM_PORT_IN 7: clusters=1 base_cluster=7 number_of_maps=0
+  STREAM_PORT_OUT 0: clusters=9 base_cluster=8 number_of_maps=0
+  STREAM_PORT_OUT 1: clusters=9 base_cluster=17 number_of_maps=0
+  STREAM_PORT_OUT 2: clusters=9 base_cluster=26 number_of_maps=0
+  STREAM_PORT_OUT 3: clusters=9 base_cluster=35 number_of_maps=0
+  STREAM_PORT_OUT 4: clusters=9 base_cluster=44 number_of_maps=0
+  STREAM_PORT_OUT 5: clusters=9 base_cluster=53 number_of_maps=0
+  STREAM_PORT_OUT 6: clusters=9 base_cluster=62 number_of_maps=0
+  STREAM_PORT_OUT 7: clusters=9 base_cluster=71 number_of_maps=0
+enabled endstation_ax7101_1x1_tdm8: 41 AUDIO_CLUSTER, channel_count histogram {1: 41}
+  STREAM_PORT_IN 0: clusters=16 base_cluster=0 number_of_maps=0
+  STREAM_PORT_OUT 0: clusters=25 base_cluster=16 number_of_maps=0
+  Input Loopback clusters: 16; names 'Input Loopback 0' .. 'Input Loopback 7'
+enabled endstation_ax7101_8x8: 199 AUDIO_CLUSTER, channel_count histogram {1: 199}
+  STREAM_PORT_IN 0: clusters=9 base_cluster=0 number_of_maps=0
+  STREAM_PORT_IN 1: clusters=8 base_cluster=9 number_of_maps=0
+  STREAM_PORT_IN 2: clusters=8 base_cluster=17 number_of_maps=0
+  STREAM_PORT_IN 3: clusters=8 base_cluster=25 number_of_maps=0
+  STREAM_PORT_IN 4: clusters=8 base_cluster=33 number_of_maps=0
+  STREAM_PORT_IN 5: clusters=8 base_cluster=41 number_of_maps=0
+  STREAM_PORT_IN 6: clusters=8 base_cluster=49 number_of_maps=0
+  STREAM_PORT_IN 7: clusters=7 base_cluster=57 number_of_maps=0
+  STREAM_PORT_OUT 0: clusters=17 base_cluster=64 number_of_maps=0
+  STREAM_PORT_OUT 1: clusters=17 base_cluster=81 number_of_maps=0
+  STREAM_PORT_OUT 2: clusters=17 base_cluster=98 number_of_maps=0
+  STREAM_PORT_OUT 3: clusters=17 base_cluster=115 number_of_maps=0
+  STREAM_PORT_OUT 4: clusters=17 base_cluster=132 number_of_maps=0
+  STREAM_PORT_OUT 5: clusters=17 base_cluster=149 number_of_maps=0
+  STREAM_PORT_OUT 6: clusters=17 base_cluster=166 number_of_maps=0
+  STREAM_PORT_OUT 7: clusters=16 base_cluster=183 number_of_maps=0
+  Input Loopback clusters: 126; names 'Input Loopback 0' .. 'Input Loopback 62'
+CHANNEL_COUNT_ONE PASS

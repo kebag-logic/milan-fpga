@@ -1,0 +1,426 @@
+[
+ {
+  "probe": "cap_left_addr8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "capture",
+    "assign input_addr_o = input_right_w ? input_right_addr_r",
+    "assign input_addr_o = 1'b0 ? input_right_addr_r"
+   ]
+  ],
+  "expect": "fail",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=2744",
+  "failing_labels": [
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": true,
+  "seconds": 10.5
+ },
+ {
+  "probe": "cap_right_ignored8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "capture",
+    "pair_r_o <= input_right_select_r ? input_sample_i : input_right_r;",
+    "pair_r_o <= input_right_r;"
+   ]
+  ],
+  "expect": "fail",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=2844",
+  "failing_labels": [
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": true,
+  "seconds": 11.1
+ },
+ {
+  "probe": "clean1",
+  "shape": 1,
+  "params": {
+   "STREAMS": 1,
+   "FIRST": 8,
+   "CHANNELS": 8,
+   "LEAD": 2
+  },
+  "plants": [],
+  "expect": "pass",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=0",
+  "failing_labels": [],
+  "expectation_met": true,
+  "seconds": 10.1
+ },
+ {
+  "probe": "clean8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [],
+  "expect": "pass",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": true,
+  "seconds": 11.4
+ },
+ {
+  "probe": "drift_m60_8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "sim",
+    "if(events) d->frame_ns_i=stamp(frame);",
+    "if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? -60 : 0);"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 8.2
+ },
+ {
+  "probe": "drift_p60_8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "sim",
+    "if(events) d->frame_ns_i=stamp(frame);",
+    "if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? 60 : 0);"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 9.3
+ },
+ {
+  "probe": "drift_p70_8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "sim",
+    "if(events) d->frame_ns_i=stamp(frame);",
+    "if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? 70 : 0);"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=5588",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": null,
+  "seconds": 9.0
+ },
+ {
+  "probe": "lead2_8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 2
+  },
+  "plants": [],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=2: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 11.5
+ },
+ {
+  "probe": "lead3_1",
+  "shape": 1,
+  "params": {
+   "STREAMS": 1,
+   "FIRST": 8,
+   "CHANNELS": 8,
+   "LEAD": 3
+  },
+  "plants": [],
+  "expect": "observe",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=1 channels=8 lead=3: checks=76017 packets=447 failures=3496",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": null,
+  "seconds": 9.7
+ },
+ {
+  "probe": "lead3_8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 3
+  },
+  "plants": [],
+  "expect": "observe",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=8 channels=63 lead=3: checks=79587 packets=468 failures=5476",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": null,
+  "seconds": 10.2
+ },
+ {
+  "probe": "no_age8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "&& (age_w[FW_C-1] || age_w == '0))",
+    "&& 1'b1)"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 9.3
+ },
+ {
+  "probe": "no_backlog8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "bad_r <= invalidate_w || (sn_r != n_r);",
+    "bad_r <= invalidate_w;"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 10.7
+ },
+ {
+  "probe": "no_claim8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "if (read_valid_w) page_valid_r[read_page_w] <= 1'b0;",
+    "if (1'b0) page_valid_r[read_page_w] <= 1'b0;"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 10.1
+ },
+ {
+  "probe": "no_expiry8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))",
+    "if (1'b0 && ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 10.5
+ },
+ {
+  "probe": "no_flush_term8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "wire invalidate_w = input_invalidate_i || (|flush_i)",
+    "wire invalidate_w = input_invalidate_i || 1'b0"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 0,
+  "built": true,
+  "verdict": "PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0",
+  "failing_labels": [],
+  "expectation_met": null,
+  "seconds": 11.5
+ },
+ {
+  "probe": "tol_zero8",
+  "shape": 8,
+  "params": {
+   "STREAMS": 8,
+   "FIRST": 1,
+   "CHANNELS": 63,
+   "LEAD": 1
+  },
+  "plants": [
+   [
+    "queue",
+    "localparam int STAMP_TOL_NS_C = 3 * ((1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P);",
+    "localparam int STAMP_TOL_NS_C = 0;"
+   ]
+  ],
+  "expect": "observe",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=3728",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": null,
+  "seconds": 10.4
+ },
+ {
+  "probe": "wrong_bank1",
+  "shape": 1,
+  "params": {
+   "STREAMS": 1,
+   "FIRST": 8,
+   "CHANNELS": 8,
+   "LEAD": 2
+  },
+  "plants": [
+   [
+    "queue",
+    "return_bank_r <= copy_channel_w[0] ^ cons_w[0];",
+    "return_bank_r <= !(copy_channel_w[0] ^ cons_w[0]);"
+   ]
+  ],
+  "expect": "fail",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=3552",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": true,
+  "seconds": 9.7
+ },
+ {
+  "probe": "wrong_latency1",
+  "shape": 1,
+  "params": {
+   "STREAMS": 1,
+   "FIRST": 8,
+   "CHANNELS": 8,
+   "LEAD": 2
+  },
+  "plants": [
+   [
+    "queue",
+    "64'(KMIN_C + 1) * PS3_L",
+    "64'(KMIN_C + 2) * PS3_L"
+   ]
+  ],
+  "expect": "fail",
+  "exit": 2,
+  "built": true,
+  "verdict": "FAIL input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=3552",
+  "failing_labels": [
+   "COPY_SAMPLE_L",
+   "COPY_SAMPLE_R"
+  ],
+  "expectation_met": true,
+  "seconds": 7.9
+ }
+]

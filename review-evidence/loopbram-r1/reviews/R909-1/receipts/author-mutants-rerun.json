@@ -1,0 +1,122 @@
+[
+ {
+  "plant": "control",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/control-7kcakqla/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/control-7kcakqla/KL_render_queue.sv"
+  ],
+  "exit": 0,
+  "passed": true
+ },
+ {
+  "plant": "ignored_mapping",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/ignored_mapping-4dq6ix1a/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/ignored_mapping-4dq6ix1a/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "wrong_bank",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/wrong_bank-qqmosbmp/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/wrong_bank-qqmosbmp/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "skipped_copy",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/skipped_copy-4y_z_fak/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/skipped_copy-4y_z_fak/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "ignored_invalidation",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/ignored_invalidation-7fo6wc8_/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/ignored_invalidation-7fo6wc8_/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "retained_word",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/retained_word-lbmwd43n/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/retained_word-lbmwd43n/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "missing_clock_flush",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/missing_clock_flush-l0aqbybu/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/missing_clock_flush-l0aqbybu/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ },
+ {
+  "plant": "wrong_latency",
+  "command": [
+   "make",
+   "-s",
+   "-C",
+   "$PACKET/scratch/tree-head/tb/verilator/input_loopback",
+   "run",
+   "VERILATOR_JOBS=4",
+   "MDIR=$PACKET/scratch/mutants-head/wrong_latency-e2ahbq9r/obj",
+   "QUEUE_SRC=$PACKET/scratch/mutants-head/wrong_latency-e2ahbq9r/KL_render_queue.sv"
+  ],
+  "exit": 2,
+  "passed": true
+ }
+]

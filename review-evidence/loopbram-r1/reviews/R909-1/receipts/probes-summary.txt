@@ -1,0 +1,18 @@
+cap_left_addr8: exit 2 expect=fail met=True | FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=2744 | FAIL COPY_SAMPLE_R frame=19 phase=306 got=9e0012 want=9c0012 ; FAIL COPY_SAMPLE_R frame=19 phase=334 got=9a0012 want=980012
+cap_right_ignored8: exit 2 expect=fail met=True | FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=2844 | FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=9c0012 ; FAIL COPY_SAMPLE_R frame=19 phase=334 got=000000 want=980012
+clean1: exit 0 expect=pass met=True | PASS input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=0 | 
+clean8: exit 0 expect=pass met=True | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+drift_m60_8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+drift_p60_8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+drift_p70_8: exit 2 expect=observe met=None | FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=5588 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=9c0012
+lead2_8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=2: checks=79587 packets=468 failures=0 | 
+lead3_1: exit 2 expect=observe met=None | FAIL input-loopback streams=1 channels=8 lead=3: checks=76017 packets=447 failures=3496 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=8e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=8c0012
+lead3_8: exit 2 expect=observe met=None | FAIL input-loopback streams=8 channels=63 lead=3: checks=79587 packets=468 failures=5476 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=9c0012
+no_age8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+no_backlog8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+no_claim8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+no_expiry8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+no_flush_term8: exit 0 expect=observe met=None | PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0 | 
+tol_zero8: exit 2 expect=observe met=None | FAIL input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=3728 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=9e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=9c0012
+wrong_bank1: exit 2 expect=fail met=True | FAIL input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=3552 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=8c0012 want=8e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=8e0012 want=8c0012
+wrong_latency1: exit 2 expect=fail met=True | FAIL input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=3552 | FAIL COPY_SAMPLE_L frame=19 phase=306 got=000000 want=8e0012 ; FAIL COPY_SAMPLE_R frame=19 phase=306 got=000000 want=8c0012
