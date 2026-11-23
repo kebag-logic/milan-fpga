@@ -1,0 +1,19 @@
+Head: 165476c755e4728a044c12ea6bc33ce0a0a9d28f
+Parent: 8267b8951616cfd570baf690835d4b0d38f14596
+Branch: opt-gptp-sw-1
+Working tree: clean
+Committed diff is byte-identical to the diff whose worktree passed the documentation and ledger checks.
+Only changed repository paths:
+docs/design/GPTP_SOFTWARE.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+All other tracked paths, including source, tests, budgets, linker layout and submodule pins, equal the parent.
+No new image build: platform checks regraded the five original images from 631dc544.
+
+SHA-256 of changed files at the tested worktree and committed head:
+fb6148dcbf8808a11f573e9734fdc209a5661a6e11b993aa00749f794bef62ce  docs/design/GPTP_SOFTWARE.md
+91619b758e882758c7616004e4e2c67e990fd1407cf8b66d01a8dfb5786607e9  docs/design/SPLIT_CONTROL_MEMORY.md
+
+Commit subject:
+docs: align gPTP memory identities and plain-image layout claims
+
+git diff --check 8267b8951616cfd570baf690835d4b0d38f14596 HEAD: PASS (exit 0)
