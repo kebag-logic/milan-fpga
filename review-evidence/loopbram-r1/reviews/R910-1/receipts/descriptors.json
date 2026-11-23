@@ -1,0 +1,100 @@
+[
+  {
+    "config": "endstation_arty_4x4.yaml",
+    "enabled": "REFUSED",
+    "reason": "audio_interface.cluster_mapping.fabric is only read by the role-pools policy; this config selects 'cap-at-interface'"
+  },
+  {
+    "config": "endstation_arty_8ch.yaml",
+    "enabled": "REFUSED",
+    "reason": "audio_interface.cluster_mapping.fabric is only read by the role-pools policy; this config selects 'cap-at-interface'"
+  },
+  {
+    "config": "endstation_arty_current.yaml",
+    "enabled": "REFUSED",
+    "reason": "audio_interface.cluster_mapping.fabric is only read by the role-pools policy; this config selects 'cluster-per-stream-channel'"
+  },
+  {
+    "config": "endstation_ax7101_1x1_tdm8.yaml",
+    "enabled": "PASS",
+    "mono_clusters": 41,
+    "input_ports": [
+      {
+        "index": 0,
+        "clusters": 16,
+        "base": 0,
+        "maps": 0
+      }
+    ],
+    "input_keys": 16,
+    "fixed_pages": [
+      2
+    ]
+  },
+  {
+    "config": "endstation_ax7101_8x8.yaml",
+    "enabled": "PASS",
+    "mono_clusters": 199,
+    "input_ports": [
+      {
+        "index": 0,
+        "clusters": 9,
+        "base": 0,
+        "maps": 0
+      },
+      {
+        "index": 1,
+        "clusters": 8,
+        "base": 9,
+        "maps": 0
+      },
+      {
+        "index": 2,
+        "clusters": 8,
+        "base": 17,
+        "maps": 0
+      },
+      {
+        "index": 3,
+        "clusters": 8,
+        "base": 25,
+        "maps": 0
+      },
+      {
+        "index": 4,
+        "clusters": 8,
+        "base": 33,
+        "maps": 0
+      },
+      {
+        "index": 5,
+        "clusters": 8,
+        "base": 41,
+        "maps": 0
+      },
+      {
+        "index": 6,
+        "clusters": 8,
+        "base": 49,
+        "maps": 0
+      },
+      {
+        "index": 7,
+        "clusters": 7,
+        "base": 57,
+        "maps": 0
+      }
+    ],
+    "input_keys": 64,
+    "fixed_pages": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  }
+]
