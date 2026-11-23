@@ -30743,6 +30743,43 @@ def _check_host_key_map() -> int:
     return len(accepted)
 
 
+def _check_host_tspec() -> tuple[int, int]:
+    """The host TSpec rule (section 6): MaxFrameSize is the widest advertised
+    AAF format's frame at clocking.sampling_rate_hz, not the current format's.
+    A talker whose current format is two channels and which also advertises
+    eight reserves the eight-channel frame, and the unedited example (current
+    and widest both eight) its own. Returns (reserved, current-format) octets
+    for the report line."""
+    def widen(doc: dict) -> None:
+        """Current two channels; supported two and eight."""
+        talker = doc["streams"]["talkers"][0]
+        talker["channels"] = 2
+        talker["formats"] = [f"0x{eb.aaf_pcm32(n, 48000):016X}" for n in (2, 8)]
+
+    def reserved(cfg: dict) -> int:
+        """The talker row's MaxFrameSize."""
+        return next(r["max_frame_bytes"] for r in cfg["srp"]["rows"] if r["direction"] == "talker")
+
+    example = eb.load_config(str(HOST_EXAMPLE))
+    eight = eb.srp_frame_geometry(8, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
+    two = eb.srp_frame_geometry(2, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
+    assert reserved(example) == eight, \
+        "gate 41: the host example's talker does not reserve its eight-channel frame"
+    path = _variant(HOST_EXAMPLE, widen)
+    try:
+        cfg = eb.load_config(str(path))
+        got = reserved(cfg)
+        assert eb.fmt_channels(cfg["talkers"][0]["formats"][0]) == 2, \
+            "gate 41: the widened talker's current format is not two channels"
+        assert got == eight != two, \
+            (f"gate 41: a host talker with a two-channel current format that advertises eight reserves "
+             f"{got} octets; the widest advertised format's frame is {eight} (the current format's {two})")
+        eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))
+    finally:
+        path.unlink()
+    return got, two
+
+
 def test_host_profile_feeds_the_generators() -> None:
     """Gate 41 (#983): the descriptor-only host profile feeds the existing
     generators. Its example loads through load_config's unchanged checks,
@@ -30760,6 +30797,7 @@ def test_host_profile_feeds_the_generators() -> None:
     _expect_red("build() of the host profile", lambda: eb.build(str(HOST_EXAMPLE), str(OUT)),
                 "descriptor-only host profile (#983)", "gate 41")
     keys = _check_host_key_map()
+    tspec, current = _check_host_tspec()
     with tempfile.TemporaryDirectory(prefix="gate41.") as tmp:
         headers = _host_generated(Path(tmp))
         _check_host_headers(headers, blob)
@@ -30771,7 +30809,9 @@ def test_host_profile_feeds_the_generators() -> None:
             unlisted = _check_host_shape(cc, headers["srp_entity"], Path(tmp))
     print(f"  [gate 41] {HOST_EXAMPLE.relative_to(ROOT)}: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, "
           f"STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the "
-          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented")
+          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented; a talker "
+          f"advertising 2 and 8 channels at current 2 reserves {tspec} octets, the widest format's, "
+          f"not the current {current}")
     if unlisted is not None:
         print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone and is refused without "
               f"it; the macro moves none of the {len(CONFIGS) - len(unlisted)} listed FPGA rows; "
@@ -30803,6 +30843,10 @@ def _host_mutation(path: str, value: Any) -> Callable[[dict], None]:
 #: The planted defects of gate 42: (label, base config, dotted path, value or
 #: HOST_DELETE for a deletion, the words the refusal must carry).
 HOST_REFUSALS = (
+    ("a board that is an empty list", "fpga", "board", [], "board: missing required key 'target'"),
+    ("a board that is an empty string", "fpga", "board", "", "board: missing required key 'target'"),
+    ("a board that is a list naming a target", "fpga", "board", ["ax7101"],
+     "board: missing required key 'target'"),
     ("an FPGA target naming a host PHC owner", "fpga", "board.gptp_owner", "host-phc",
      "board.gptp_owner: ax7101 is an FPGA target"),
     ("an FPGA target with fabric_gptp false", "fpga", "board.features.fabric_gptp", False,
@@ -30866,7 +30910,9 @@ def _host_refused(label: str, base: Path, mutate: Callable[[dict], None], words:
 
 
 def test_host_profile_refusals() -> None:
-    """Gate 42 (#983): planted defects. An FPGA config still refuses a missing
+    """Gate 42 (#983): planted defects. A board that is not a mapping is
+    refused through ConfigError before the host dispatch reads its target,
+    in the words load_config used before the profile. An FPGA config still refuses a missing
     fabric gPTP owner, by both refusals it had (fabric_gptp false, no gptp
     section) and by the new one (a gptp_owner on an FPGA target), and refuses
     being retargeted at the host profile or the host's interface family. The

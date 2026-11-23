@@ -1245,8 +1245,22 @@ The host profile refuses `board.features` (it has no fabric blocks), the FPGA
 `gptp.egress_latency_ns` (the fabric plane's corrections, row 33d) and the
 `role-pools` cluster policy (its pilot and loopback pools are fabric sources).
 Two fabric derivations do not run there. The render-lane bound (#447) does
-not apply. SRP's TSpec takes the declared current format, which the board's
-media program emits, instead of the framer's supply cap.
+not apply. SRP's TSpec takes no framer supply cap. Its channel width is the
+widest `channels_per_frame` any talker advertises among its formats
+(`framer_declared_channels`). Every talker row uses that one width at
+`clocking.sampling_rate_hz`. It is not each talker's current format. The
+reason is that IEEE 802.1Q-2018 35.2.2.8.4 a) makes MaxFrameSize "the maximum
+frame size that the Talker will produce", and here that is the widest
+advertised format. The control firmware declares one fixed TSpec per source.
+SET_STREAM_FORMAT moves an output that is not streaming to any format it
+advertises, and the declaration stays in place. MSRP changes no FirstValue of
+a declared StreamID short of a withdrawal and two LeaveAllTime periods
+(35.2.2.8). So a talker whose current format is narrower than another it
+advertises reserves for the wider one. Milan v1.2 4.3.3.2 Table 4.4 gives
+each format's value, and the profile takes the largest. Gate 41 holds this
+on a talker with a two-channel current format that also advertises eight
+channels: its MaxFrameSize is the eight-channel 217 octets, not the
+two-channel 73.
 
 **The station MAC.** The image bakes `platform.mac_address` and the
 mac-derived `entity_id` into three fields: ENTITY `entity_id`, AVB_INTERFACE
@@ -1261,7 +1275,9 @@ build that defines `CTRL_HOST_PLATFORM`, and for no other. Its figures are
 1x1/1if's, held as a stated host scheduling profile rather than a
 measurement; its comment says what that profile claims and what it does not.
 Without the macro the shape is refused as before, and the macro moves no FPGA
-row. Gate 41 compiles all three cases. Gate 42 plants the refusals: the three
-ways an FPGA config still refuses a missing fabric gPTP owner, the host
-profile's own refusals, and the shared Milan and IEEE checks on the host
-example.
+row. Gate 41 compiles all three cases. Gate 42 plants the refusals: a `board`
+that is not a mapping (an empty list, an empty string, a list naming a
+target), refused by `load_config`'s `ConfigError` before the profile is
+chosen, as it was before the host profile existed; the three ways an FPGA
+config still refuses a missing fabric gPTP owner; the host profile's own
+refusals; and the shared Milan and IEEE checks on the host example.

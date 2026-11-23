@@ -4797,8 +4797,9 @@ def load_config(path: str) -> dict[str, Any]:
     # The descriptor-only host profile (#983) takes its own board, gPTP and
     # interface loaders, and has no SoC, fabric blocks or render crossbar.
     # Every entity, clocking, names, stream, format, SRP, platform, layout and
-    # model-id check below is the FPGA profiles' own, run unchanged.
-    host = brd.get("target") == HOST_TARGET
+    # model-id check below is the FPGA profiles' own, run unchanged. _req
+    # reads the target as _load_board does: a list or string board refuses.
+    host = _req(brd, "target", "board") == HOST_TARGET
     target, cons = _load_host_board(cfg, path, control) if host else _load_board(cfg, path)
     clocking = _load_clocking(cfg, path)
     gptp = _load_host_gptp(cfg) if host else _load_gptp(cfg)
@@ -4811,9 +4812,11 @@ def load_config(path: str) -> dict[str, Any]:
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
-    # carrying exactly the keys framer_wire_channels consumes. A host board's
-    # framer is its own media program, which emits the current format each
-    # talker declares: no fabric front-end supply caps it.
+    # carrying exactly the keys framer_wire_channels consumes. No fabric
+    # supply caps a host board's framer: every talker row takes the widest
+    # format any talker advertises, not its current one, since one fixed
+    # TSpec per source covers each format SET_STREAM_FORMAT can move an idle
+    # output to (802.1Q-2018 35.2.2.8; ENDSTATION_BUILDER.md section 6).
     if host:
         wire_ch = framer_declared_channels(dict(talkers=talkers))
     else:
