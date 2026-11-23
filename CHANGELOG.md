@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
 - **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
 - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
 - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
@@ -58,6 +59,15 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - a link-up inside a loop pass
+
+- #973: SRP's poll takes an UP the loop dispatched.
+- A link-up after a pass's events no longer resets twice.
+- A first UP keeps the clean startup participants.
+- A DOWN still fails closed from the LINK register.
+- Re-attach follows an up link with no LINK owed.
+- An UP elided by a DOWN authorizes no later UP.
 
 ## Unreleased - 8x8 input clusters
 

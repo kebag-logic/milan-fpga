@@ -115,6 +115,26 @@ Destroy before reinitializing an already initialized instance.
 Attach reads each interface's current mailbox link level.
 Polling reconciles that level even without another LINK record.
 A held DOWN record can disappear when the level recovers.
+The poll takes a DOWN as the LINK register reads it, so a link lost while a full ring holds its record fails closed.
+It takes an UP while the last LINK the loop dispatched carried one, or attach read one (`link_carried`, #973).
+Otherwise it takes an UP only once no LINK is owed (`carried_up`).
+A poll that reads such an UP marks it; a later poll takes it if no LINK came and its pass's take emptied the ring.
+The fabric posts a LINK first once the ring has room, and one pass takes fewer records than a full ring holds.
+So a LINK owed at the mark has been taken by then.
+A poll that reads a DOWN clears the mark, so the mark holds only while each poll reads the link up.
+A DOWN can elide the marked UP's record; the UP after it is owed a LINK of its own, posted after the takes the mark saw.
+So an UP after a DOWN is taken from its LINK: the first keeps the startup participants, and a later one resets once.
+A DOWN that no poll reads ends between two polls, sooner than a dropped link renegotiates (IEEE 802.3-2022 28.3.2).
+The register can rise after the loop took a pass's events, before SRP's poll reads it.
+A reset on that level would make the next pass's LINK a repeated UP, which resets the interface again.
+So a first UP would lose the clean startup participants, and a later UP would reset twice.
+The same rule follows the link after a re-attach that read a DOWN whose record the fabric then elided.
+It also takes an UP that SRP's sink dropped on a re-entry, counted in `reentries`.
+A DOWN inside a pass still resets the interface twice: the poll's reset, then its LINK's.
+Nothing transmits on the down link between the two.
+`srp_link_pass.cpp` moves the link at each phase of a pass, behind a full event ring, across a DOWN that elides an UP,
+and across a re-attach.
+It runs in a process of its own at 1x1/1if and 8x8/1if.
 
 `ctrl_app_attach_srp` wires the ACMP environment's SRP port into a static
 latest-request slot per sink. It refuses a sink count beyond the generated

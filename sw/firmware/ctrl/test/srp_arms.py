@@ -116,6 +116,16 @@ def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
             arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
 
 
+#: The suite of a link that comes up at each phase of a loop pass (#973).
+LINK_PASS = "srp_link_pass.cpp"
+
+
+def link_pass_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """A link that comes up at each phase of a loop pass is SRP's first UP (#973): srp_link_pass.cpp at 1x1/1if and
+    8x8/1if, each a process of its own, apart from every other SRP suite."""
+    return [arm_srp(tree, lwsrp, 1, test=LINK_PASS), arm_srp(tree, lwsrp, 1, test=LINK_PASS, config=ENTITY_8X8)]
+
+
 def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
     """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
     source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""
