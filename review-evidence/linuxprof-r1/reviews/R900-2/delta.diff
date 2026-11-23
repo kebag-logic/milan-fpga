@@ -1,0 +1,163 @@
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index 970247071f..f67edecda6 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -1245,8 +1245,22 @@ The host profile refuses `board.features` (it has no fabric blocks), the FPGA
+ `gptp.egress_latency_ns` (the fabric plane's corrections, row 33d) and the
+ `role-pools` cluster policy (its pilot and loopback pools are fabric sources).
+ Two fabric derivations do not run there. The render-lane bound (#447) does
+-not apply. SRP's TSpec takes the declared current format, which the board's
+-media program emits, instead of the framer's supply cap.
++not apply. SRP's TSpec takes no framer supply cap. Its channel width is the
++widest `channels_per_frame` any talker advertises among its formats
++(`framer_declared_channels`). Every talker row uses that one width at
++`clocking.sampling_rate_hz`. It is not each talker's current format. The
++reason is that IEEE 802.1Q-2018 35.2.2.8.4 a) makes MaxFrameSize "the maximum
++frame size that the Talker will produce", and here that is the widest
++advertised format. The control firmware declares one fixed TSpec per source.
++SET_STREAM_FORMAT moves an output that is not streaming to any format it
++advertises, and the declaration stays in place. MSRP changes no FirstValue of
++a declared StreamID short of a withdrawal and two LeaveAllTime periods
++(35.2.2.8). So a talker whose current format is narrower than another it
++advertises reserves for the wider one. Milan v1.2 4.3.3.2 Table 4.4 gives
++each format's value, and the profile takes the largest. Gate 41 holds this
++on a talker with a two-channel current format that also advertises eight
++channels: its MaxFrameSize is the eight-channel 217 octets, not the
++two-channel 73.
+ 
+ **The station MAC.** The image bakes `platform.mac_address` and the
+ mac-derived `entity_id` into three fields: ENTITY `entity_id`, AVB_INTERFACE
+@@ -1261,7 +1275,9 @@ build that defines `CTRL_HOST_PLATFORM`, and for no other. Its figures are
+ 1x1/1if's, held as a stated host scheduling profile rather than a
+ measurement; its comment says what that profile claims and what it does not.
+ Without the macro the shape is refused as before, and the macro moves no FPGA
+-row. Gate 41 compiles all three cases. Gate 42 plants the refusals: the three
+-ways an FPGA config still refuses a missing fabric gPTP owner, the host
+-profile's own refusals, and the shared Milan and IEEE checks on the host
+-example.
++row. Gate 41 compiles all three cases. Gate 42 plants the refusals: a `board`
++that is not a mapping (an empty list, an empty string, a list naming a
++target), refused by `load_config`'s `ConfigError` before the profile is
++chosen, as it was before the host profile existed; the three ways an FPGA
++config still refuses a missing fabric gPTP owner; the host profile's own
++refusals; and the shared Milan and IEEE checks on the host example.
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 330ccb3da4..c621ada7f8 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -4797,8 +4797,9 @@ def load_config(path: str) -> dict[str, Any]:
+     # The descriptor-only host profile (#983) takes its own board, gPTP and
+     # interface loaders, and has no SoC, fabric blocks or render crossbar.
+     # Every entity, clocking, names, stream, format, SRP, platform, layout and
+-    # model-id check below is the FPGA profiles' own, run unchanged.
+-    host = brd.get("target") == HOST_TARGET
++    # model-id check below is the FPGA profiles' own, run unchanged. _req
++    # reads the target as _load_board does: a list or string board refuses.
++    host = _req(brd, "target", "board") == HOST_TARGET
+     target, cons = _load_host_board(cfg, path, control) if host else _load_board(cfg, path)
+     clocking = _load_clocking(cfg, path)
+     gptp = _load_host_gptp(cfg) if host else _load_gptp(cfg)
+@@ -4811,9 +4812,11 @@ def load_config(path: str) -> dict[str, Any]:
+ 
+     # the framer's emitted width, for the TSpec derivation (802.1Q
+     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
+-    # carrying exactly the keys framer_wire_channels consumes. A host board's
+-    # framer is its own media program, which emits the current format each
+-    # talker declares: no fabric front-end supply caps it.
++    # carrying exactly the keys framer_wire_channels consumes. No fabric
++    # supply caps a host board's framer: every talker row takes the widest
++    # format any talker advertises, not its current one, since one fixed
++    # TSpec per source covers each format SET_STREAM_FORMAT can move an idle
++    # output to (802.1Q-2018 35.2.2.8; ENDSTATION_BUILDER.md section 6).
+     if host:
+         wire_ch = framer_declared_channels(dict(talkers=talkers))
+     else:
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index b5dea52563..70bd25870f 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -30743,6 +30743,43 @@ def _check_host_key_map() -> int:
+     return len(accepted)
+ 
+ 
++def _check_host_tspec() -> tuple[int, int]:
++    """The host TSpec rule (section 6): MaxFrameSize is the widest advertised
++    AAF format's frame at clocking.sampling_rate_hz, not the current format's.
++    A talker whose current format is two channels and which also advertises
++    eight reserves the eight-channel frame, and the unedited example (current
++    and widest both eight) its own. Returns (reserved, current-format) octets
++    for the report line."""
++    def widen(doc: dict) -> None:
++        """Current two channels; supported two and eight."""
++        talker = doc["streams"]["talkers"][0]
++        talker["channels"] = 2
++        talker["formats"] = [f"0x{eb.aaf_pcm32(n, 48000):016X}" for n in (2, 8)]
++
++    def reserved(cfg: dict) -> int:
++        """The talker row's MaxFrameSize."""
++        return next(r["max_frame_bytes"] for r in cfg["srp"]["rows"] if r["direction"] == "talker")
++
++    example = eb.load_config(str(HOST_EXAMPLE))
++    eight = eb.srp_frame_geometry(8, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
++    two = eb.srp_frame_geometry(2, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
++    assert reserved(example) == eight, \
++        "gate 41: the host example's talker does not reserve its eight-channel frame"
++    path = _variant(HOST_EXAMPLE, widen)
++    try:
++        cfg = eb.load_config(str(path))
++        got = reserved(cfg)
++        assert eb.fmt_channels(cfg["talkers"][0]["formats"][0]) == 2, \
++            "gate 41: the widened talker's current format is not two channels"
++        assert got == eight != two, \
++            (f"gate 41: a host talker with a two-channel current format that advertises eight reserves "
++             f"{got} octets; the widest advertised format's frame is {eight} (the current format's {two})")
++        eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))
++    finally:
++        path.unlink()
++    return got, two
++
++
+ def test_host_profile_feeds_the_generators() -> None:
+     """Gate 41 (#983): the descriptor-only host profile feeds the existing
+     generators. Its example loads through load_config's unchanged checks,
+@@ -30760,6 +30797,7 @@ def test_host_profile_feeds_the_generators() -> None:
+     _expect_red("build() of the host profile", lambda: eb.build(str(HOST_EXAMPLE), str(OUT)),
+                 "descriptor-only host profile (#983)", "gate 41")
+     keys = _check_host_key_map()
++    tspec, current = _check_host_tspec()
+     with tempfile.TemporaryDirectory(prefix="gate41.") as tmp:
+         headers = _host_generated(Path(tmp))
+         _check_host_headers(headers, blob)
+@@ -30771,7 +30809,9 @@ def test_host_profile_feeds_the_generators() -> None:
+             unlisted = _check_host_shape(cc, headers["srp_entity"], Path(tmp))
+     print(f"  [gate 41] {HOST_EXAMPLE.relative_to(ROOT)}: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, "
+           f"STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the "
+-          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented")
++          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented; a talker "
++          f"advertising 2 and 8 channels at current 2 reserves {tspec} octets, the widest format's, "
++          f"not the current {current}")
+     if unlisted is not None:
+         print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone and is refused without "
+               f"it; the macro moves none of the {len(CONFIGS) - len(unlisted)} listed FPGA rows; "
+@@ -30803,6 +30843,10 @@ def _host_mutation(path: str, value: Any) -> Callable[[dict], None]:
+ #: The planted defects of gate 42: (label, base config, dotted path, value or
+ #: HOST_DELETE for a deletion, the words the refusal must carry).
+ HOST_REFUSALS = (
++    ("a board that is an empty list", "fpga", "board", [], "board: missing required key 'target'"),
++    ("a board that is an empty string", "fpga", "board", "", "board: missing required key 'target'"),
++    ("a board that is a list naming a target", "fpga", "board", ["ax7101"],
++     "board: missing required key 'target'"),
+     ("an FPGA target naming a host PHC owner", "fpga", "board.gptp_owner", "host-phc",
+      "board.gptp_owner: ax7101 is an FPGA target"),
+     ("an FPGA target with fabric_gptp false", "fpga", "board.features.fabric_gptp", False,
+@@ -30866,7 +30910,9 @@ def _host_refused(label: str, base: Path, mutate: Callable[[dict], None], words:
+ 
+ 
+ def test_host_profile_refusals() -> None:
+-    """Gate 42 (#983): planted defects. An FPGA config still refuses a missing
++    """Gate 42 (#983): planted defects. A board that is not a mapping is
++    refused through ConfigError before the host dispatch reads its target,
++    in the words load_config used before the profile. An FPGA config still refuses a missing
+     fabric gPTP owner, by both refusals it had (fabric_gptp false, no gptp
+     section) and by the new one (a gptp_owner on an FPGA target), and refuses
+     being retargeted at the host profile or the host's interface family. The

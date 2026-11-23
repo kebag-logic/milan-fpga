@@ -1,0 +1,171 @@
+{
+  "head": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+  "malformed_boards": [
+    {
+      "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+      "board": [],
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "board": [],
+      "outcome": "AttributeError",
+      "message": "'list' object has no attribute 'get'"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "board": [],
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+      "board": "",
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "board": "",
+      "outcome": "AttributeError",
+      "message": "'str' object has no attribute 'get'"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "board": "",
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+      "board": [
+        "ax7101"
+      ],
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "board": [
+        "ax7101"
+      ],
+      "outcome": "AttributeError",
+      "message": "'list' object has no attribute 'get'"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "board": [
+        "ax7101"
+      ],
+      "outcome": "ConfigError",
+      "message": "board: missing required key 'target'"
+    },
+    {
+      "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+      "board": null,
+      "outcome": "TypeError",
+      "message": "argument of type 'NoneType' is not a container or iterable"
+    },
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "board": null,
+      "outcome": "AttributeError",
+      "message": "'NoneType' object has no attribute 'get'"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "board": null,
+      "outcome": "TypeError",
+      "message": "argument of type 'NoneType' is not a container or iterable"
+    },
+    {
+      "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+      "board": 5,
+      "outcome": "TypeError",
+      "message": "argument of type 'int' is not a container or iterable"
+    },
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "board": 5,
+      "outcome": "AttributeError",
+      "message": "'int' object has no attribute 'get'"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "board": 5,
+      "outcome": "TypeError",
+      "message": "argument of type 'int' is not a container or iterable"
+    }
+  ],
+  "adp_cli": {
+    "rc": 2,
+    "stdout": "",
+    "stderr": "adp_entity: board: missing required key 'target'\n"
+  },
+  "tspec": {
+    "reserved": 217,
+    "current_format": 73,
+    "literal_formula": "24*N + 24 + 1",
+    "mutant_rejected": "gate 41: a host talker with a two-channel current format that advertises eight reserves 73 octets; the widest advertised format's frame is 217 (the current format's 73)"
+  },
+  "example_images": [
+    {
+      "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+      "bytes": 5784,
+      "sha256": "9a59e2741913d93e9ad71bba890ce65d75fc4101170e9427997a00aa15ee29dd"
+    },
+    {
+      "revision": "66b4def34dcbc0d371ce4eb339d3d0226875befa",
+      "bytes": 5784,
+      "sha256": "9a59e2741913d93e9ad71bba890ce65d75fc4101170e9427997a00aa15ee29dd"
+    }
+  ],
+  "regenerated_fpga_artifacts": {
+    "endstation_ax7101_1x1_tdm8@own/adp_shape_defaults.svh": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb",
+    "endstation_ax7101_1x1_tdm8@own/nvm_split.json": "32fc4a3e0af8079af8de9f02bf4f4ef0a164b46e5d89087c2516f1ffc3acfb5f",
+    "endstation_ax7101_1x1_tdm8@own/gptp_ucode.hex": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9",
+    "endstation_ax7101_1x1_tdm8@own/aecp_aem_rom.svh": "95ed5ff10787ed596a7dcb0e2caaa265d4706ece67768ccbc36b90a6957daa7e",
+    "endstation_ax7101_1x1_tdm8@own/lwsrp_csr_defaults.svh": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74",
+    "endstation_ax7101_1x1_tdm8@own/build_plan.md": "5803b32f7673c0cc372d0e1897c9f7be9da2314f30c0d7d168c80c47590b259c",
+    "endstation_ax7101_1x1_tdm8@own/lwsrp_table.svh": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522",
+    "endstation_ax7101_1x1_tdm8@own/aem_overlay.json": "1d24f59b7154a22dea8a98aa8f3fd65cff6373c187fdbbdde7ee485a980b3ae0",
+    "endstation_ax7101_1x1_tdm8@own/lwsrp_table.json": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d",
+    "endstation_ax7101_1x1_tdm8@own/soc_params.json": "f5a2382570765b882a4394bad1b42eb097f09ab3bb73bfaa8b555b5ad0dfa010",
+    "endstation_ax7101_1x1_tdm8@own/platform_shape.json": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7",
+    "endstation_ax7101_1x1_tdm8@own/sweep.sh": "a88b373c63bc1dba8d6710818b5a6f97a25dcc4e882149a9f6eb0640683dada6",
+    "endstation_ax7101_1x1_tdm8@own/image/aem_desc.bin": "fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26",
+    "endstation_ax7101_1x1_tdm8@own/image/aem_desc.json": "3077db633f69fbd70b97e83c648b5f4fc1afd47f3d14d0eb018e654a7d0d3d92",
+    "endstation_ax7101_1x1_tdm8@own/image/aem_desc.map": "4b458346fab6ee8d4014f9e41452dd443423232e319714f9e66359286a7e3c22",
+    "endstation_ax7101_8x8@own/adp_shape_defaults.svh": "e9a2a76a634501da2a0660f09074b4b54f5cc721aa55388af072f25540998535",
+    "endstation_ax7101_8x8@own/nvm_split.json": "6f5c990f5e95666be7f4eed1dc295f2b3f1c6d9cb08140ba65f48bbb136a6248",
+    "endstation_ax7101_8x8@own/gptp_ucode.hex": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9",
+    "endstation_ax7101_8x8@own/aecp_aem_rom.svh": "84f0495a9496f5f6ce031e6659a54f3a54b1a75305506ee1e091d627e9e78665",
+    "endstation_ax7101_8x8@own/lwsrp_csr_defaults.svh": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4",
+    "endstation_ax7101_8x8@own/build_plan.md": "9a5460db7dd9a4184aedf30b4eaa51a14d42576233dc6c5a714f6cfd90bb214c",
+    "endstation_ax7101_8x8@own/lwsrp_table.svh": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e",
+    "endstation_ax7101_8x8@own/aem_overlay.json": "3a37119d5198f93c3689751ed2ea30a0bd1131d1217e0d1a019b8449c7c2a65e",
+    "endstation_ax7101_8x8@own/lwsrp_table.json": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266",
+    "endstation_ax7101_8x8@own/soc_params.json": "41d188e6b6952c2b085c55383ac93422866cc4f50f2cd3564ea9dae094a030f7",
+    "endstation_ax7101_8x8@own/platform_shape.json": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17",
+    "endstation_ax7101_8x8@own/sweep.sh": "6f2c7cefe1bb5e19d2d0fe1adfedd2f2a192a4d54260d00e742f8ea75c48ba68",
+    "endstation_ax7101_8x8@own/image/aem_desc.bin": "3594c9457b6d6afcfb39af707ae4c993a39315950766f9c7f4a528071a78e86e",
+    "endstation_ax7101_8x8@own/image/aem_desc.json": "e1fea9d145b71979499db6a264570517f57086341c2058946ebb5a3ae57b0ff3",
+    "endstation_ax7101_8x8@own/image/aem_desc.map": "0a999b1df5ec2706694c346b0481140da9c8724009689245004f8ab4f3187715",
+    "endstation_arty_current@own/adp_shape_defaults.svh": "867fb2377eafe496ce361d38da5e5472c4df7b64b9a09aef62d9b94a500efb27",
+    "endstation_arty_current@own/nvm_split.json": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51",
+    "endstation_arty_current@own/gptp_ucode.hex": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91",
+    "endstation_arty_current@own/aecp_aem_rom.svh": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e",
+    "endstation_arty_current@own/lwsrp_csr_defaults.svh": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+    "endstation_arty_current@own/build_plan.md": "4c7174c0a3e8ecd2d4b2ec512ca24c45f6b0a80240176b98b9acf49fce62636e",
+    "endstation_arty_current@own/lwsrp_table.svh": "df3c4fa0289d23deea8f8e688573faa1adbb12f8485a7b5613bd30b8b288f8e4",
+    "endstation_arty_current@own/aem_overlay.json": "86130ad21bb809ce8696118f6abc523d666bbd2ef92fefeca054a7a39dd5b88c",
+    "endstation_arty_current@own/lwsrp_table.json": "dc4a200fa4dae047598419a78713677aefeab85b957808b9ec7284f2411a668f",
+    "endstation_arty_current@own/soc_params.json": "696350eee365adb614b78e445d6522569e73d0eaa555b4de6603319d45da59cb",
+    "endstation_arty_current@own/platform_shape.json": "03328f238565f45f775a8fb17921a20ac4172d864b218e3703c23e185e678c99",
+    "endstation_arty_current@own/sweep.sh": "969f765fe53c592a9fd4afcbb415733fd3ed1c2e367d788faf81e9f2e88ec6c7",
+    "endstation_arty_current@own/image/aem_desc.bin": "def92aeceaaaf23019c789ec0402f44a4b3d6b510f9b2d7de959e23c97ad9f74",
+    "endstation_arty_current@own/image/aem_desc.json": "26cd86dde58e2daeb80623993a32d612219938b29e314c7db12758c6c652f9aa",
+    "endstation_arty_current@own/image/aem_desc.map": "de5c27c068351e97934c89f06c3fd351c509bb4907966f5b21211fd23ccda9e3"
+  }
+}

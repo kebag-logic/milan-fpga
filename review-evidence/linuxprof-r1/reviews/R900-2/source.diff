@@ -1,0 +1,1016 @@
+diff --git a/configs/host/endstation_host_example.yaml b/configs/host/endstation_host_example.yaml
+new file mode 100644
+index 0000000000..3beaef17ee
+--- /dev/null
++++ b/configs/host/endstation_host_example.yaml
+@@ -0,0 +1,78 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++#
++# The descriptor-only HOST PROFILE (#983), annotated. An end station whose
++# control firmware is the split placement's, run as a host program on the
++# mailbox model (sw/firmware/ctrl/host/mbx_model.c) of another board, whose
++# gPTP owner is that board's own PHC. Nothing here is elaborated:
++# endstation_builder.py refuses to build it, and these read it instead:
++#   sw/firmware/ctrl/adp/adp_entity.py    the ADP fields (struct adp_entity)
++#   sw/firmware/ctrl/aecp/aecp_entity.py  the AEM image AECP serves, its CRC
++#                                          and storage sizes
++#   sw/firmware/ctrl/srp/srp_entity.py    the shape header (CTRL_SRP_SOURCES
++#                                          1, CTRL_SRP_SINKS 2 here)
++# Every stream, clocking, format, SRP and model-id check is the FPGA
++# profiles'; docs/ENDSTATION_BUILDER.md section 6 lists what differs.
++#
++# The stream inventory is #983's first user: one 8-channel AAF input, the
++# CRF input an AAF talker requires (Milan v1.2 7.2.2), and one 8-channel AAF
++# output. There is no CRF output, because there is no second AAF input
++# (7.2.3). ADP advertises 1 source and 2 sinks.
++
++schema: kebag-logic/milan-endstation-config
++schema_version: "1.3.0"
++
++entity:
++  name: "Host profile example"
++  entity_model_id: hash-derived
++  entity_id: mac-derived
++  vendor_name: "Kebag Logic"
++  serial_number: "HOST-0001"
++  group_name: ""
++
++board:
++  target: host                       # the descriptor-only host profile
++  gptp_owner: host-phc               # the board's own PHC, the only value
++  constraints:
++    link_mbps: 1000                  # the port's rate: SRP's class A ceiling
++
++platform:
++  # The station MAC the image is generated with. A board whose MAC is read
++  # at run time substitutes its own for the three mac-derived fields
++  # (ENTITY entity_id, AVB_INTERFACE mac_address and clock_identity).
++  mac_address: "02:00:00:00:00:01"
++
++control:
++  placement: split                   # required: the host program is this firmware
++
++# The Announce dataset the board's own gPTP program sends, every field
++# stated: no fabric engine supplies a pin (ENDSTATION_BUILDER.md section 6).
++gptp:
++  priority1: 248
++  priority2: 248
++  clock_class: 248
++  clock_accuracy: 0xFE               # unknown (802.1AS-2011 8.6.2.3 b)
++  offset_scaled_log_variance: 0xFFFF
++  domain: 0
++  log_sync_interval: -3
++  log_announce_interval: 0
++  log_pdelay_interval: 0
++  port_number: 1
++
++clocking:
++  sampling_rate_hz: 48000
++  audio_unit_rates_hz: [48000]
++  media_clock_sources: [internal, crf]   # INTERNAL 0, CRF 1
++  default_source: internal
++  crf_sink: true                     # STREAM_INPUT 1 (Milan v1.2 7.2.2)
++
++audio_interface:
++  kind: usb_audio                    # a USB Audio Class 2 function
++  channels: 8
++  word_length_bits: 32
++
++streams:
++  listeners:
++    - { name: "Stream In 0", channels: 8 }
++  talkers:
++    - { name: "Stream Out 0", channels: 8 }
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index fe7534e800..f67edecda6 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -1,6 +1,7 @@
+ # Software-defined End-Station builder — spec basis (roadmap item 4)
+ 
+ This page describes the builder at both control placements.
++Section 6 describes the descriptor-only host profile, which builds no gateware (#983).
+ The AX7101 configs ship the split since the flip (#665); the all-fabric build stays built and gated.
+ 
+ The [split contract](ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+@@ -77,9 +78,10 @@ The processor contract update remains a separate reviewed delivery.
+ 
+ - **[1. Artifacts and flow](#1-artifacts-and-flow)** -- What one config emits and, more usefully, who reads each file and where a stale one is caught. The descriptor ROM remains an orphan of the deleted fabric store; the flat image, manifest, and map are the processor deliverables. The section ends with the five tracked shapes side by side, where the 8x8 role-pool policy emits 72 clusters.
+ - **[2. Settled design decisions](#2-settled-design-decisions)** -- Ten recorded decisions with their clause basis, opening with the index that says which you can rely on today. D3 keeps talker `channels` and `clusters` separate, D8 records the role-tagged cluster pools, D10 names every cluster without moving `entity_model_id`, and D6 records the processor DRAM image contract and its implemented supply chain.
+-- **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** -- The field-by-field contract: 66 rows numbered 0 to 44 (letter suffixes where a key sits beside its neighbour) covering the 107 keys `load_config` accepts (some rows carry a `{...}` group; rows 16c, 24, 25 and 26 are derived facts and rows 33a to 33c generator-owned ones, with no key), held in step with the loaders by `test_builder.py` gate 32. Each row names the key, the descriptor, argv, constant or register it generates, the clause that governs it, and which consumer reads it. Rows 14 (AEM half), 25 (above one AAF stream per direction) and 27 (the provisioning half) carry *planned* marks; the config validates rather than erroring, and the trailer says where the build plan's own marks live (items 5 and 8, as it names them) and that it carries none for row 14's descriptors.
++- **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** -- The field-by-field contract: 75 rows numbered 0 to 45 (letter suffixes where a key sits beside its neighbour) covering the 116 keys `load_config` reads on the five FPGA configs (some rows carry a `{...}` group; rows 16c, 24, 25 and 26 are derived facts and rows 33a to 33c generator-owned ones, with no key), held in step with the loaders by `test_builder.py` gate 32. Each row names the key, the descriptor, argv, constant or register it generates, the clause that governs it, and which consumer reads it. Rows 14 (AEM half), 25 (above one AAF stream per direction) and 27 (the provisioning half) carry *planned* marks; the config validates rather than erroring, and the trailer says where the build plan's own marks live (items 5 and 8, as it names them) and that it carries none for row 14's descriptors.
+ - **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** -- Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligation the shape triggers: two or more AAF inputs make a CRF Media Clock Output mandatory, now enforced as a validation error. Also the honest split -- the model half is done, the provisioning half rides with item 5, and the area cost at 100 MHz is a measurement this page declines to claim.
+ - **[5. Relation to the bench suite and the traceability matrix](#5-relation-to-the-bench-suite-and-the-traceability-matrix)** -- Why the builder adds no normative behaviour of its own, and the two gates that hold it honest: today's config must reproduce the shipped ROM and `sweep.sh` argv byte-for-byte, and an unchanged model must keep an unchanged `entity_model_id`.
++- **[6. The descriptor-only host profile](#6-the-descriptor-only-host-profile)** -- `board.target: host` (#983): a board that runs the split control firmware on the mailbox model, its gPTP owner its own PHC. It feeds the same descriptor generators through the same checks, and `build()` refuses it. The section lists the keys that differ, the station MAC substitution a board owns, and the host-only `(1, 1, 2)` row of THE SHAPES.
+ 
+ ## 1. Artifacts and flow
+ 
+@@ -1026,6 +1028,7 @@ Line numbers are those of the cited file at the time of writing.
+ | 5a | `board.constraints.{sys_clk_hz,milan_clk_hz,l2_bytes,gtx_tx_invert,floorplan,flashboot,uart_baudrate,eth_port}` | `--sys-clk-freq` (only off the board default), `--milan-clk-freq`, `--l2-bytes` (and the fragment's `L2=`), `--gtx-tx-invert`, `--floorplan`, `--with-spiflash --flashboot`, `--uart-baudrate`, `--eth-port` (`emit_board_opts` lines 3995 to 4003, `emit_soc_argv` lines 4092 to 4098). `milan_clk_hz` also reaches the gPTP microcode (`--clk-hz`, line 4917) and the `lwsrp_table.json` `module_params`. The Milan clock is fixed to `CPU_HZ` in [recipe.py](../tb/verilator/nvm_capture_cpu/recipe.py); divergent values refuse | - | SoC (`milan_soc.py` lines 3450 to 3485) |
+ | 5b | `board.constraints.phy` | nothing: it is checked against the board table (`_load_board`, line 3286) and printed in the plan (line 4632); the SoC derives the PHY from `--board` | - | check, plan |
+ | 5c | `board.constraints.num_queues` | nothing in the argv: it bounds `srp.class_queue` (`_srp_validate`, line 1700) and is published as the `lwsrp_table.json` `module_params` entry `milan_csr.NUM_QUEUES`, which gate 18c pins to `ethernet_packet_pkg::NUMBER_OF_QUEUES` (`test_builder.py` line 11421) | - | check |
++| 5d | `board.gptp_owner` | nothing on an FPGA target: it is REFUSED there (`_load_board`), because that target's gPTP owner is its fabric plane (row 29, #259) and an ignored key would build that owner under a config that names another. The host profile reads it (section 6, row 6b) | - | check |
+ | 6 | `platform.pp_mem_phys` | protocol-processor DRAM reservation; fixed extent is builder-owned (`emit_platform_shape`, line 2999) | - | PMEM |
+ | 6a | `platform.mac_address` | the station MAC: the overlay `adp.mac_address` (`overlay_adp_block`, line 2314) that AVB_INTERFACE repeats; the `MILAN_STATION_MAC_*` constants; the gPTP microcode station identity (`--mac`, line 4915); row 3's default `entity_id`. A set U/L bit warns on stderr and still builds (`identity_warnings`, [#840](https://github.com/kebag-logic/milan-fpga/issues/840)) | 1722.1 7.2.8; 802-2014 8.2 | AEM (`gen_aemi_image.py` line 157); fw (into `MAC_ADDR_LO/HI`); SoC (`gptp_ucode.hex`, `p_GPTP_UCODE_HEX_P` line 838) |
+ | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded); the default Base format of every stream (rows 18, 22); the SRP frame geometry (row 43); the AES3 serial clock (row 13). **And, on a TDM bus master, the FABRIC's frame rate** (#399): `emit_design_opts` (line 4375) emits `--audio-fs-hz` whenever the declaration is off the SoC's own default, `milan_soc.py` passes it as `p_AUDIO_IF_FS_HZ_P` (line 1008) and derives `AUDIO_IF_CLK_HZ_P` = `2 x SLOTS x slot bits x fs` from it, which is also the rate `_CRG` gives the master's MMCM output. At the 48000 default the flag and the parameter are withheld, so a config declaring the shipping rate keeps a byte-identical argv and top `.v`. On any other front-end the audio clock is fixed and `milan_soc.py` REFUSES the flag rather than accepting a rate it cannot elaborate; such a config carries an item-6 plan mark instead | 1722.1 7.2.3; Milan 5.3.3.3, 6.2 | SoC (`milan_soc.py` lines 98, 1008; `milan_datapath.sv` line 139); AEM (`aem_specs.py` line 233); check (must be a Milan 6.2 base rate); plan |
+@@ -1186,3 +1189,95 @@ Its own gates are:
+ Any new descriptor content the NxN shapes introduce (per-stream
+ ports/maps, CRF output) gets new traceability rows before it gets RTL,
+ per the matrix's review workflow.
++
++## 6. The descriptor-only host profile
++
++`board.target: host` (#983) describes an end station this repository builds
++no gateware for. It is a board that runs the split placement's control
++firmware as a host program on the mailbox model
++([`sw/firmware/ctrl/host/mbx_model.c`](../sw/firmware/ctrl/host/mbx_model.c)),
++and its gPTP owner is that board's own PHC. The annotated example is
++[`configs/host/endstation_host_example.yaml`](../configs/host/endstation_host_example.yaml).
++It carries #983's first stream inventory: one 8-channel AAF input, the CRF
++input an AAF talker requires (Milan v1.2 7.2.2) and one 8-channel AAF output.
++It has no CRF output, because it has no second AAF input (7.2.3). ADP
++advertises one source and two sinks.
++
++**What it feeds.** The same generators an FPGA config feeds:
++`emit_aem_overlay`, the AEM image (`_entity_model_image`, the protocol
++processor's packer and its model lint), and the firmware's
++[`adp_entity.py`](../sw/firmware/ctrl/adp/adp_entity.py) (the ADP fields),
++[`aecp_entity.py`](../sw/firmware/ctrl/aecp/aecp_entity.py) (the image AECP
++serves, its CRC and its storage sizes) and
++[`srp_entity.py`](../sw/firmware/ctrl/srp/srp_entity.py) (the shape header).
++`build()` refuses the profile by name: it writes no SoC argv, sweep fragment,
++shape include, lwSRP table or gPTP microcode for it.
++
++**What is unchanged.** Every entity, clocking, names, stream, format, SRP,
++platform, cluster-layout and model-id check of section 3 runs on it, in the
++same functions and with the same words. That includes the Milan v1.2 7.2.3
++CRF output rule, the 5.3.3.6 INTERNAL source rule, the 5.3.3.4 format and
++buffer rules, 6.4's derived format family, the 5.3.3.9 dynamic input maps,
++the 802.1AS-2011 8.1 domain rule, the IEEE 1588-2008 Table 6 clockAccuracy
++values, SRP's class A ceiling and the reserved model ids. The FPGA targets
++keep every check they had. The one addition is row 5d: an FPGA target naming
++`board.gptp_owner` is refused, so its gPTP owner stays the fabric plane
++(#259).
++
++**What differs.** These rows are the keys only the host profile reads, and
++the shared keys whose rule differs there. Gate 41 holds this table to the
++host loaders as gate 32 holds section 3 to the FPGA ones.
++
++| # | Key | On the host profile | Why |
++|---|---|---|---|
++| 6a | `board.target` | `host`, outside `BOARDS` (`HOST_TARGET`) | no pin, clock or PHY table applies |
++| 6b | `board.gptp_owner` | required; `host-phc` is the only value | the board's own PHC owns gPTP time |
++| 6c | `board.constraints.link_mbps` | required, `100` or `1000` | SRP's class A ceiling (Milan v1.2 5.6); an FPGA board takes its rate from `BOARDS` |
++| 6d | `board.constraints.num_queues` | optional, default `5`, as row 5c | it bounds `srp.class_queue` |
++| 6e | `audio_interface.kind` | `usb_audio` alone (`HOST_INTERFACES`); its cluster label is `USB` | the board's media program's interface; the FPGA front-ends are refused there, and `usb_audio` is refused on an FPGA target |
++| 6f | `audio_interface.channels` | required, 1 to 32 | a USB Audio Class 2 function's width is configured, not a bus width |
++| 6g | `gptp.port_number` | required, 1 to 65534 | the port the board's gPTP program announces from; an FPGA target's is generator-owned (row 33b) |
++| 6h | `gptp.{priority1,priority2,clock_class,clock_accuracy,offset_scaled_log_variance,log_sync_interval,log_announce_interval,log_pdelay_interval}` | each required | the dataset that program announces, which AVB_INTERFACE repeats (IEEE 1722.1-2021 7.2.8); no engine supplies a pin (rows 31 and 32) |
++| 6i | `control.placement` | must be `split` | the host program is that firmware; `all-fabric` names the protocol processor |
++
++The host profile refuses `board.features` (it has no fabric blocks), the FPGA
++`board.constraints` keys, a `soc:` section, `gptp.ingress_latency_ns` and
++`gptp.egress_latency_ns` (the fabric plane's corrections, row 33d) and the
++`role-pools` cluster policy (its pilot and loopback pools are fabric sources).
++Two fabric derivations do not run there. The render-lane bound (#447) does
++not apply. SRP's TSpec takes no framer supply cap. Its channel width is the
++widest `channels_per_frame` any talker advertises among its formats
++(`framer_declared_channels`). Every talker row uses that one width at
++`clocking.sampling_rate_hz`. It is not each talker's current format. The
++reason is that IEEE 802.1Q-2018 35.2.2.8.4 a) makes MaxFrameSize "the maximum
++frame size that the Talker will produce", and here that is the widest
++advertised format. The control firmware declares one fixed TSpec per source.
++SET_STREAM_FORMAT moves an output that is not streaming to any format it
++advertises, and the declaration stays in place. MSRP changes no FirstValue of
++a declared StreamID short of a withdrawal and two LeaveAllTime periods
++(35.2.2.8). So a talker whose current format is narrower than another it
++advertises reserves for the wider one. Milan v1.2 4.3.3.2 Table 4.4 gives
++each format's value, and the profile takes the largest. Gate 41 holds this
++on a talker with a two-channel current format that also advertises eight
++channels: its MaxFrameSize is the eight-channel 217 octets, not the
++two-channel 73.
++
++**The station MAC.** The image bakes `platform.mac_address` and the
++mac-derived `entity_id` into three fields: ENTITY `entity_id`, AVB_INTERFACE
++`mac_address` and `clock_identity`. A board that reads its MAC at run time
++verifies the generated image against its CRC first, then substitutes its own
++MAC in those three fields. That step belongs to the board's integration, not
++to this repository.
++
++**The firmware shape.** THE SHAPES in
++[`ctrl_loop.h`](../sw/firmware/ctrl/loop/ctrl_loop.h) lists `(1, 1, 2)` for a
++build that defines `CTRL_HOST_PLATFORM`, and for no other. Its figures are
++1x1/1if's, held as a stated host scheduling profile rather than a
++measurement; its comment says what that profile claims and what it does not.
++Without the macro the shape is refused as before, and the macro moves no FPGA
++row. Gate 41 compiles all three cases. Gate 42 plants the refusals: a `board`
++that is not a mapping (an empty list, an empty string, a list naming a
++target), refused by `load_config`'s `ConfigError` before the profile is
++chosen, as it was before the host profile existed; the three ways an FPGA
++config still refuses a missing fabric gPTP owner; the host profile's own
++refusals; and the shared Milan and IEEE checks on the host example.
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 0c3aa6135e..c621ada7f8 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -42,6 +42,13 @@ Usage:
+ The product software contract is cacheless RV32 bare metal with the fabric
+ plane as the sole gPTP owner. Configurations outside that contract are refused
+ before any output is written.
++
++One target is not an FPGA product: board.target host, the descriptor-only
++host profile (#983, HOST_TARGET). Its config feeds the descriptor generators
++(emit_aem_overlay, the AEM image, the firmware's adp_entity.py, aecp_entity.py
++and srp_entity.py) for a board that runs the split control firmware on the
++mailbox model, its gPTP owner that board's own PHC. build() refuses it: it has
++no gateware to write.
+ """
+ 
+ import argparse
+@@ -188,7 +195,8 @@ CLUSTER_ROLES = ("physical", "virtual", "pilot", "loopback")
+ #: the role segment; the physical/virtual names carry the interface label so
+ #: "TDM16 In 3" reads as the wire it is.
+ IFACE_LABEL = {"i2s_philips": "I2S", "tdm8": "TDM8", "tdm16": "TDM16",
+-               "tdm32": "TDM32", "aes3": "AES3", "spdif": "S/PDIF"}
++               "tdm32": "TDM32", "aes3": "AES3", "spdif": "S/PDIF",
++               "usb_audio": "USB"}
+ 
+ 
+ class ConfigError(Exception):
+@@ -213,6 +221,42 @@ BOARDS = {
+     ),
+ }
+ 
++#: THE HOST PROFILE (#983): a DESCRIPTOR-ONLY target, outside BOARDS on
++#: purpose. Its entity runs the split placement's control firmware as a host
++#: program on the mailbox model (sw/firmware/ctrl/host/mbx_model.c) of another
++#: board, whose gPTP owner is that board's own PHC, not this repository's
++#: fabric plane. It feeds the same descriptor generators (emit_aem_overlay,
++#: the AEM image, the firmware's adp_entity.py, aecp_entity.py and
++#: srp_entity.py) through the same stream, clocking, format and model-id
++#: checks; it elaborates no gateware, so build() refuses it by name and no
++#: FPGA table here (BOARDS, INTERFACES, SOC_DEFAULTS, the engine pins) admits
++#: it. A product configuration's one gPTP owner stays the fabric plane (#259):
++#: an FPGA target that names a gptp_owner is refused (_load_board).
++HOST_TARGET = "host"
++#: board.gptp_owner: who owns gPTP time on a host-profile board. One value:
++#: that board's PHC, steered by its own gPTP program.
++HOST_GPTP_OWNERS = ("host-phc",)
++#: board.constraints a host profile declares: the port's rate (SRP's class A
++#: ceiling, Milan v1.2 5.6) and its shaper queue count (srp.class_queue's
++#: bound), defaulting as every board's does.
++HOST_CONSTRAINTS = ("link_mbps", "num_queues")
++HOST_LINK_MBPS = (100, 1000)
++#: The audio interface families a host profile may declare: what that board's
++#: media program moves samples through, never a fabric front-end. Each takes
++#: its channel width from the config (audio_interface.channels), as a USB
++#: Audio Class 2 function is configured, not from a fixed bus width.
++HOST_INTERFACES = {
++    "usb_audio": dict(word_bits=(16, 24, 32), rtl="host"),
++}
++#: The gptp: keys a host profile must state: the Announce dataset its own
++#: gPTP program sends and the port number it announces from. The
++#: AVB_INTERFACE descriptor repeats them (IEEE 1722.1-2021 7.2.8), and there
++#: is no engine in this tree to read them from, so none takes a default.
++HOST_GPTP_STATED = ("priority1", "priority2", "clock_class", "clock_accuracy",
++                    "offset_scaled_log_variance", "log_sync_interval",
++                    "log_announce_interval", "log_pdelay_interval",
++                    "port_number")
++
+ # Physical audio interfaces (item-4 subtask). channels = per direction.
+ # `rtl` says how far the fabric has got for this kind:
+ #   present - front-end RTL AND the milan_datapath/milan_soc plumbing exist
+@@ -4010,6 +4054,15 @@ def _load_board(cfg, path):
+     target = _req(brd, "target", "board")
+     if target not in BOARDS:
+         raise ConfigError(f"board.target '{target}' not in {sorted(BOARDS)}")
++    # An FPGA product's one gPTP owner is its fabric plane (#259), so naming
++    # another one here is refused, never ignored: an ignored key would build
++    # the fabric owner under a config that says it has none (#983).
++    if "gptp_owner" in brd:
++        raise ConfigError(
++            f"board.gptp_owner: {target} is an FPGA target, whose gPTP owner "
++            f"is its fabric plane (board.features.fabric_gptp, #259); a "
++            f"gptp_owner names a host-profile board's own (board.target "
++            f"'{HOST_TARGET}', #983). Remove the key")
+     binfo = BOARDS[target]
+     c = _req(brd, "constraints", "board")
+     if not isinstance(c, dict):
+@@ -4067,6 +4120,55 @@ def _load_board(cfg, path):
+     return target, cons
+ 
+ 
++def _load_host_board(cfg, path, control):
++    """The host profile's board section (#983): its gPTP owner and the two
++    port facts SRP's checks read. Returns (HOST_TARGET, constraints).
++
++    Descriptor-only, so every FPGA declaration is refused by name rather
++    than accepted and ignored: the fabric blocks (board.features), the pin
++    and clock constraints, the SoC. The host program is the split
++    placement's control firmware (sw/firmware/ctrl/host/mbx_model.c), so
++    control.placement must say split."""
++    brd = _req(cfg, "board", path)
++    unknown = sorted(set(brd) - {"target", "gptp_owner", "constraints"})
++    if unknown:
++        raise ConfigError(
++            f"board: {unknown} on board.target '{HOST_TARGET}': the host "
++            f"profile is descriptor-only and elaborates no fabric, so it takes "
++            f"gptp_owner and constraints {list(HOST_CONSTRAINTS)} alone (#983)")
++    owner = _req(brd, "gptp_owner", "board")
++    if owner not in HOST_GPTP_OWNERS:
++        raise ConfigError(
++            f"board.gptp_owner {owner!r} is not one of {list(HOST_GPTP_OWNERS)}: "
++            f"a host-profile board's gPTP owner is its own PHC (#983)")
++    if control["placement"] != "split":
++        raise ConfigError(
++            f"control.placement {control['placement']!r} on board.target "
++            f"'{HOST_TARGET}': the host program is the split placement's "
++            f"control firmware on the mailbox model; all-fabric names the "
++            f"protocol processor, which a host board does not have (#983)")
++    if "soc" in cfg:
++        raise ConfigError(
++            f"soc: board.target '{HOST_TARGET}' builds no SoC; remove the "
++            f"section (#983)")
++    c = _req(brd, "constraints", "board")
++    if not isinstance(c, dict) or set(c) - set(HOST_CONSTRAINTS):
++        raise ConfigError(
++            f"board.constraints: board.target '{HOST_TARGET}' takes "
++            f"{list(HOST_CONSTRAINTS)} alone (#983)")
++    link = _req(c, "link_mbps", "board.constraints")
++    if type(link) is not int or link not in HOST_LINK_MBPS:
++        raise ConfigError(
++            f"board.constraints.link_mbps {link!r} not in {list(HOST_LINK_MBPS)}"
++            f": the port's rate, which SRP's class A ceiling is computed "
++            f"against (Milan v1.2 5.6)")
++    queues = c.get("num_queues", 5)
++    if not (type(queues) is int and 1 <= queues <= 8):
++        raise ConfigError(f"num_queues {queues} outside 1..8")
++    return HOST_TARGET, dict(link_mbps=link, num_queues=queues,
++                             gptp_owner=owner)
++
++
+ def _load_clocking(cfg, path):
+     """The media clock: its rate, the sources that may drive it and
+     the two CRF stream formats."""
+@@ -4315,6 +4417,53 @@ def _load_gptp(cfg):
+     return gptp
+ 
+ 
++def _host_gptp_int(gp_raw, k, low, high):
++    """One stated gptp: integer of a host profile, refused outside low..high."""
++    v = gp_raw[k]
++    if type(v) is not int or not low <= v <= high:
++        raise ConfigError(f"gptp.{k} {v!r} outside {low}..{high}")
++    return v
++
++
++def _load_host_gptp(cfg):
++    """The host profile's gPTP dataset (#983): what the AVB_INTERFACE
++    descriptor states (IEEE 1722.1-2021 7.2.8), as the board's own gPTP
++    program announces it from its PHC. Every field is stated
++    (HOST_GPTP_STATED): there is no fabric engine to take a pin from. The
++    Milan domain rule and the clockAccuracy table are the FPGA profiles'
++    own functions, unchanged. The two latency corrections are refused: they
++    are the fabric plane's timestamp corrections (#358), and a PHC owner
++    timestamps for itself."""
++    gp_raw = _req(cfg, "gptp", "config")
++    known = {*HOST_GPTP_STATED, "domain"}
++    if not isinstance(gp_raw, dict) or set(gp_raw) - known:
++        raise ConfigError(
++            f"gptp: board.target '{HOST_TARGET}' takes {sorted(known)} "
++            f"(unknown {sorted(set(gp_raw) - known) if isinstance(gp_raw, dict) else gp_raw!r}); "
++            f"ingress_latency_ns and egress_latency_ns are the fabric "
++            f"plane's corrections (#358), which a PHC owner does not take")
++    missing = [k for k in HOST_GPTP_STATED if k not in gp_raw]
++    if missing:
++        raise ConfigError(
++            f"gptp.{missing[0]} is required on board.target '{HOST_TARGET}' "
++            f"(missing {missing}): the AVB_INTERFACE descriptor repeats the "
++            f"dataset the board's own gPTP program announces (IEEE "
++            f"1722.1-2021 7.2.8) and no engine here supplies it (#983)")
++    return dict(
++        port_number=_host_gptp_int(gp_raw, "port_number", 1, 0xFFFE),
++        priority1=_host_gptp_int(gp_raw, "priority1", 0, 255),
++        priority2=_host_gptp_int(gp_raw, "priority2", 0, 255),
++        clock_class=_host_gptp_int(gp_raw, "clock_class", 0, 255),
++        clock_accuracy=_gptp_clock_accuracy_key(gp_raw),
++        offset_scaled_log_variance=_host_gptp_int(
++            gp_raw, "offset_scaled_log_variance", 0, 0xFFFF),
++        domain=_gptp_domain_key(gp_raw),
++        log_sync_interval=_host_gptp_int(gp_raw, "log_sync_interval", -128, 127),
++        log_announce_interval=_host_gptp_int(gp_raw, "log_announce_interval", -128, 127),
++        log_pdelay_interval=_host_gptp_int(gp_raw, "log_pdelay_interval", -128, 127),
++    )
++
++
+ def _load_cluster_pools(aif, iinfo, kind, policy):
+     """What the BOARD routes and what the D8 role pools declare.
+     Returns (physical channels per direction, pools, loopback lane)."""
+@@ -4400,16 +4549,35 @@ def _load_channel_names(aif, phys):
+     return names
+ 
+ 
+-def _load_interface(cfg, path, clocking):
++def _host_interface(aif, kind):
++    """A host profile's audio interface family (HOST_INTERFACES, #983), its
++    channel width the declared audio_interface.channels. The FPGA families
++    are not among them, nor is this one among INTERFACES."""
++    if kind not in HOST_INTERFACES:
++        raise ConfigError(
++            f"audio_interface.kind '{kind}' not in {sorted(HOST_INTERFACES)} "
++            f"(board.target '{HOST_TARGET}': the FPGA front-ends are not this "
++            f"board's)")
++    channels = _req(aif, "channels", "audio_interface")
++    if type(channels) is not int or not 1 <= channels <= 32:
++        raise ConfigError(f"audio_interface.channels {channels!r} outside 1..32")
++    return dict(HOST_INTERFACES[kind], channels=channels)
++
++
++def _load_interface(cfg, path, clocking, host=False):
+     """The audio interface: its family, word length, cluster policy
+     and - for the AES3 family - the serial clock the media clock
+-    forces."""
++    forces. A host profile's family is a HOST_INTERFACES one, and it takes
++    no role pools: their pilot and loopback sources are fabric blocks."""
+     rate = clocking["sampling_rate_hz"]
+     aif = _req(cfg, "audio_interface", path)
+     kind = _req(aif, "kind", "audio_interface")
+-    if kind not in INTERFACES:
++    if host:
++        iinfo = _host_interface(aif, kind)
++    elif kind not in INTERFACES:
+         raise ConfigError(f"audio_interface.kind '{kind}' not in {sorted(INTERFACES)}")
+-    iinfo = INTERFACES[kind]
++    else:
++        iinfo = INTERFACES[kind]
+     wl = int(aif.get("word_length_bits", 24))
+     if wl not in iinfo["word_bits"]:
+         raise ConfigError(f"word_length_bits {wl} invalid for {kind} "
+@@ -4423,6 +4591,11 @@ def _load_interface(cfg, path, clocking):
+     if policy not in CLUSTER_POLICIES:
+         raise ConfigError(f"cluster_mapping.policy '{policy}' not in "
+                           f"{CLUSTER_POLICIES}")
++    if host and policy == "role-pools":
++        raise ConfigError(
++            f"cluster_mapping.policy role-pools on board.target '{HOST_TARGET}'"
++            f": its pilot and loopback pools are fabric sources (KL_tone_gen, "
++            f"the rx -> talker LOOP bucket) a host board does not have")
+     # PHYSICAL truth, per direction. Defaults to the declared interface width
+     # (every existing config keeps exactly the roles it had), but a platform
+     # that routes no audio pins says so HERE rather than letting the model
+@@ -4585,34 +4758,9 @@ def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
+     return {**cfg, "entity": entity, "control": {"placement": placement}}
+ 
+ 
+-def load_config(path: str) -> dict[str, Any]:
+-    """Load + validate + normalize a YAML end-station config. Returns the
+-    normalized config dict; raises ConfigError on any violation."""
+-    cfg = _load_document(path)
+-    ent = _req(cfg, "entity", path)
+-    brd = _req(cfg, "board", path)
+-    control = _load_control(cfg)
+-    entity = _load_entity(cfg, path, control["placement"])
+-    target, cons = _load_board(cfg, path)
+-    clocking = _load_clocking(cfg, path)
+-    gptp = _load_gptp(cfg)
+-    names = _load_names(cfg, clocking)
+-    interface = _load_interface(cfg, path, clocking)
+-    policy = interface["cluster_policy"]
+-    phys, pools = interface["physical_channels"], interface["cluster_pools"]
+-    listeners, talkers = _load_streams(cfg, path, clocking)
+-    soc = _load_soc(cfg, cons)
+-
+-    # the framer's emitted width, for the TSpec derivation (802.1Q
+-    # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
+-    # carrying exactly the keys framer_wire_channels consumes.
+-    wire_ch = framer_wire_channels(dict(talkers=talkers, interface=interface,
+-                                        board_target=target))
+-    srp = load_srp(cfg.get("srp"),
+-                   SrpShape(listeners, talkers, clocking, cons,
+-                            BOARDS[target], wire_channels=wire_ch))
+-    platform = load_platform(cfg.get("platform"))
+-
++def _load_fabric_features(brd, clocking, interface, srp, platform, gptp):
++    """An FPGA target's board.features, and its one gPTP owner, the fabric
++    plane (#259)."""
+     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
+     # because the gate cross-checks against clocking / interface / srp /
+     # platform - a prune is only wrong RELATIVE to what the rest asked for.
+@@ -4633,6 +4781,53 @@ def load_config(path: str) -> dict[str, Any]:
+             "board.features.fabric_gptp requires a gptp: section so the "
+             "microcode station identity and priority cannot fall back to "
+             "generator defaults")
++    return features
++
++
++def load_config(path: str) -> dict[str, Any]:
++    """Load + validate + normalize a YAML end-station config. Returns the
++    normalized config dict; raises ConfigError on any violation. A
++    board.target of HOST_TARGET loads the descriptor-only host profile
++    (#983), whose config build() refuses."""
++    cfg = _load_document(path)
++    ent = _req(cfg, "entity", path)
++    brd = _req(cfg, "board", path)
++    control = _load_control(cfg)
++    entity = _load_entity(cfg, path, control["placement"])
++    # The descriptor-only host profile (#983) takes its own board, gPTP and
++    # interface loaders, and has no SoC, fabric blocks or render crossbar.
++    # Every entity, clocking, names, stream, format, SRP, platform, layout and
++    # model-id check below is the FPGA profiles' own, run unchanged. _req
++    # reads the target as _load_board does: a list or string board refuses.
++    host = _req(brd, "target", "board") == HOST_TARGET
++    target, cons = _load_host_board(cfg, path, control) if host else _load_board(cfg, path)
++    clocking = _load_clocking(cfg, path)
++    gptp = _load_host_gptp(cfg) if host else _load_gptp(cfg)
++    names = _load_names(cfg, clocking)
++    interface = _load_interface(cfg, path, clocking, host)
++    policy = interface["cluster_policy"]
++    phys, pools = interface["physical_channels"], interface["cluster_pools"]
++    listeners, talkers = _load_streams(cfg, path, clocking)
++    soc = None if host else _load_soc(cfg, cons)
++
++    # the framer's emitted width, for the TSpec derivation (802.1Q
++    # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
++    # carrying exactly the keys framer_wire_channels consumes. No fabric
++    # supply caps a host board's framer: every talker row takes the widest
++    # format any talker advertises, not its current one, since one fixed
++    # TSpec per source covers each format SET_STREAM_FORMAT can move an idle
++    # output to (802.1Q-2018 35.2.2.8; ENDSTATION_BUILDER.md section 6).
++    if host:
++        wire_ch = framer_declared_channels(dict(talkers=talkers))
++    else:
++        wire_ch = framer_wire_channels(dict(talkers=talkers, interface=interface,
++                                            board_target=target))
++    srp = load_srp(cfg.get("srp"),
++                   SrpShape(listeners, talkers, clocking, cons,
++                            dict(link_mbps=cons["link_mbps"]) if host else BOARDS[target],
++                            wire_channels=wire_ch))
++    platform = load_platform(cfg.get("platform"))
++    features = {} if host else _load_fabric_features(brd, clocking, interface, srp, platform, gptp)
+ 
+     out = dict(
+         source=_repo_relative(Path(path)),
+@@ -4646,7 +4841,8 @@ def load_config(path: str) -> dict[str, Any]:
+         # document unread; the packer validates and reports them
+         model_lint_waivers=list(cfg.get("model_lint_waivers") or []),
+     )
+-    validate_render_lane(out)
++    if not host:
++        validate_render_lane(out)
+ 
+     # per-stream port layout (needed by the model-id hash and the overlay)
+     out["ports_in"], out["ports_out"] = cluster_layout(
+@@ -6071,6 +6267,14 @@ def _derive_artifacts(config_path, placement=None):
+     every artifact below is in memory, so a config that cannot be built
+     fails before any file has been touched."""
+     cfg = load_config(config_path)
++    if cfg["board_target"] == HOST_TARGET:
++        raise ConfigError(
++            f"{cfg['source']}: board.target '{HOST_TARGET}' is the "
++            f"descriptor-only host profile (#983). It elaborates no gateware, "
++            f"so this pipeline writes nothing for it; its descriptor image, "
++            f"ADP fields and shape header come from emit_aem_overlay and the "
++            f"firmware generators (sw/firmware/ctrl/adp/adp_entity.py, "
++            f"aecp/aecp_entity.py, srp/srp_entity.py)")
+     if placement is not None:
+         cfg = with_placement(cfg, placement)
+     argv = emit_soc_argv(cfg)
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index ba8680e7a7..70bd25870f 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -28804,12 +28804,13 @@ def _raising_census() -> list[int] | None:
+     raise RuntimeError("planted census failure")
+ 
+ 
+-def _key_map_rows(doc: str) -> dict[str, list[str]]:
++def _key_map_rows(doc: str, heading: str = KEY_MAP_HEADING) -> dict[str, list[str]]:
+     """{config key path: the row numbers that carry it}, from the section 3
+-    table's key column. The key column is the second cell of every row
++    table's key column (or the table under `heading`, gate 41's section 6).
++    The key column is the second cell of every row
+     below the header; a backticked dotted path is a key, `{a,b}` expands,
+     anything else in the cell (a derived fact, prose) is not a key."""
+-    start = doc.index(KEY_MAP_HEADING)
++    start = doc.index(heading)
+     end = doc.find("\n## ", start + 1)
+     rows: dict[str, list[str]] = {}
+     for line in doc[start:end if end > 0 else None].splitlines():
+@@ -30572,6 +30573,367 @@ def test_split_record_space_bounds_the_split_output() -> None:
+     print(f"  [gate 39] {len(caught)}/{len(caught)} planted defects turned their check red: {'; '.join(caught)}")
+ 
+ 
++# --------------------------------- gates 41 and 42: the host profile (#983) --
++HOST_EXAMPLE = ROOT / "configs/host/endstation_host_example.yaml"
++#: The host profile's section of the builder page; it ends at the next `## `.
++HOST_SECTION_HEADING = "## 6. The descriptor-only host profile"
++#: The firmware generators the host profile feeds, each run as its own CLI.
++HOST_GENERATORS = ("sw/firmware/ctrl/adp/adp_entity.py", "sw/firmware/ctrl/aecp/aecp_entity.py",
++                   "sw/firmware/ctrl/srp/srp_entity.py")
++#: Where the stated gPTP dataset lands in AVB_INTERFACE (IEEE 1722.1-2021
++#: Table 7-13): (dataset key, offset, octets).
++AVB_INTERFACE_GPTP_FIELDS = (
++    ("priority1", 86, 1), ("clock_class", 87, 1), ("offset_scaled_log_variance", 88, 2),
++    ("clock_accuracy", 90, 1), ("priority2", 91, 1), ("domain", 92, 1), ("log_sync_interval", 93, 1),
++    ("log_announce_interval", 94, 1), ("log_pdelay_interval", 95, 1), ("port_number", 96, 2))
++#: The figures of one THE SHAPES row (ctrl_loop.h), printed by gate 41's probe.
++SHAPE_FIGURES = ("CTRL_LOOP_SOURCES", "CTRL_LOOP_SINKS", "CTRL_LOOP_SLICE_US", "CTRL_LOOP_BUILD_PASS_US",
++                 "CTRL_LOOP_BUILD_ONE_PASS_US", "CTRL_LOOP_SRP_UNIT_US", "CTRL_LOOP_RETRY_COLD_US",
++                 "CTRL_LOOP_RETRY_ATTEMPT_US", "CTRL_LOOP_QUEUED_MS", "CTRL_LOOP_TX_MS")
++
++
++def _host_generated(tmp: Path, config: Path = HOST_EXAMPLE) -> dict[str, Path]:
++    """Each firmware generator's header for `config`, written into `tmp`, by
++    its stem."""
++    out = {}
++    for tool in HOST_GENERATORS:
++        dest = tmp / f"{config.stem}.{Path(tool).stem}.h"
++        ran = subprocess.run([sys.executable, "-B", str(ROOT / tool), str(config), "-o", str(dest)],
++                             capture_output=True, text=True, check=False)
++        assert ran.returncode == 0, f"gate 41: {tool} refused {config.name}: {ran.stderr}"
++        out[Path(tool).stem] = dest
++    return out
++
++
++def _check_host_model(cfg: dict, overlay: dict, blob: bytes) -> None:
++    """The first user's inventory (#983), as the overlay states it and the
++    image serves it: STREAM_INPUT 0 AAF and 1 CRF, STREAM_OUTPUT 0 AAF, no
++    CRF output, ADP 1 source and 2 sinks; AVB_INTERFACE carries the stated
++    gPTP dataset, octet for octet."""
++    aaf = f"0x{eb.aaf_pcm32(8, 48000):016X}"
++    inputs, outputs = overlay["stream_inputs"], overlay["stream_outputs"]
++    assert [(s["kind"], s["formats"][0]) for s in inputs] == [("aaf", aaf), ("crf", eb.CRF_FORMAT_DEFAULT)], \
++        f"gate 41: the host example's STREAM_INPUTs are {inputs}"
++    assert [(s["kind"], s["formats"]) for s in outputs] == [("aaf", [aaf])], \
++        f"gate 41: the host example's STREAM_OUTPUTs are {outputs}"
++    entity = image_descriptor(blob, 0x0000)
++    sources, sinks = (int.from_bytes(entity[at:at + 2], "big") for at in (24, 28))
++    assert (sources, sinks) == (1, 2), f"gate 41: the image's ENTITY advertises {sources}/{sinks}"
++    avb = image_descriptor(blob, 0x0009)
++    for key, at, width in AVB_INTERFACE_GPTP_FIELDS:
++        want = cfg["gptp"][key] & ((1 << 8 * width) - 1)
++        got = int.from_bytes(avb[at:at + width], "big")
++        assert got == want, f"gate 41: AVB_INTERFACE {key} at {at} reads {got:#x}, the config states {want:#x}"
++
++
++def _check_host_headers(headers: dict[str, Path], blob: bytes) -> None:
++    """The three generated headers agree with the model: ADP's counts, the
++    shape header's (1, 2), the AEM image's CRC."""
++    adp = headers["adp_entity"].read_text(encoding="utf-8")
++    for field in (".talker_stream_sources = 0x1u", ".listener_stream_sinks = 0x2u"):
++        assert field in adp, f"gate 41: adp_entity.py's header lacks {field}"
++    shape = headers["srp_entity"].read_text(encoding="utf-8")
++    for line in ("#define CTRL_SRP_SOURCES 1u", "#define CTRL_SRP_SINKS 2u"):
++        assert line in shape, f"gate 41: srp_entity.py's header lacks {line}"
++    crc = f"#define AECP_ENTITY_CRC 0x{binascii.crc32(blob):08x}u"
++    assert crc in headers["aecp_entity"].read_text(encoding="utf-8"), \
++        f"gate 41: aecp_entity.py's image is not the builder's ({crc} absent)"
++
++
++def _shape_figures(cc: str, shape_h: Path, host: bool, tmp: Path) -> dict[str, int] | str:
++    """THE SHAPES row ctrl_loop.h selects for `shape_h`, with or without
++    CTRL_HOST_PLATFORM: its figures, or the compiler's words when refused."""
++    probe = tmp / "shape_probe.c"
++    probe.write_text('#include <stdio.h>\n#include "ctrl_loop.h"\nint main(void) {\n'
++                     + "".join(f'    printf("%u\\n", (unsigned){name});\n' for name in SHAPE_FIGURES)
++                     + "    return 0;\n}\n", encoding="utf-8")
++    exe = tmp / "shape_probe"
++    ctrl = ROOT / "sw/firmware/ctrl"
++    built = subprocess.run([cc, "-std=c11", "-Werror", "-pedantic", *(["-DCTRL_HOST_PLATFORM"] if host else []),
++                            "-include", str(shape_h), f"-I{ctrl / 'loop'}", f"-I{ctrl / 'mbx'}", str(probe),
++                            "-o", str(exe)], capture_output=True, text=True, check=False)
++    if built.returncode:
++        return built.stderr
++    printed = subprocess.run([str(exe)], capture_output=True, text=True, check=True).stdout.split()
++    return dict(zip(SHAPE_FIGURES, map(int, printed)))
++
++
++#: The tracked files that may name CTRL_HOST_PLATFORM: the row it selects, its
++#: documentation and this gate. A build input of this repository naming it
++#: would let an FPGA image take the host row.
++HOST_MACRO_FILES = ("docs/ENDSTATION_BUILDER.md", "sw/builder/test_builder.py",
++                    "sw/firmware/ctrl/loop/ctrl_loop.h")
++SHAPES_WORDS = "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
++
++
++def _host_macro_files() -> list[str]:
++    """Every tracked file naming CTRL_HOST_PLATFORM."""
++    listed = subprocess.run(["git", "grep", "-l", "CTRL_HOST_PLATFORM"], cwd=ROOT,
++                            capture_output=True, text=True, check=False)
++    assert listed.returncode in (0, 1), f"gate 41: git grep failed: {listed.stderr}"
++    return sorted(listed.stdout.split())
++
++
++def _check_host_shape(cc: str, host_h: Path, tmp: Path) -> list[str]:
++    """ctrl_loop.h lists (1, 1, 2) for a CTRL_HOST_PLATFORM build alone: the
++    macro selects the host row, its absence leaves THE SHAPES' #error, under
++    the macro every FPGA config's listed row is the one it has without it,
++    an FPGA shape THE SHAPES does not list is refused without it as before,
++    and no build input of this tree names the macro. Returns the FPGA configs
++    THE SHAPES refuses (an all-fabric shape no split image is built at)."""
++    refused = _shape_figures(cc, host_h, False, tmp)
++    assert isinstance(refused, str) and SHAPES_WORDS in refused, \
++        f"gate 41: (1, 1, 2) without CTRL_HOST_PLATFORM was not refused by THE SHAPES: {refused}"
++    host = _shape_figures(cc, host_h, True, tmp)
++    assert isinstance(host, dict) and (host["CTRL_LOOP_SOURCES"], host["CTRL_LOOP_SINKS"]) == (1, 2), \
++        f"gate 41: the host row did not build at (1, 1, 2): {host}"
++    unlisted = []
++    for name, path in CONFIGS.items():
++        fpga_h = _host_generated(tmp, path)["srp_entity"]
++        plain = _shape_figures(cc, fpga_h, False, tmp)
++        if isinstance(plain, str):
++            assert SHAPES_WORDS in plain, f"gate 41: {name}'s shape probe failed for another cause: {plain}"
++            unlisted.append(name)
++        else:
++            marked = _shape_figures(cc, fpga_h, True, tmp)
++            assert plain == marked, f"gate 41: CTRL_HOST_PLATFORM moved {name}'s THE SHAPES row: {plain} -> {marked}"
++    named = set(_host_macro_files())
++    assert named <= set(HOST_MACRO_FILES), \
++        f"gate 41: CTRL_HOST_PLATFORM is named outside its row, docs and gate: {sorted(named - set(HOST_MACRO_FILES))}"
++    return unlisted
++
++
++def _host_key_paths() -> set[str]:
++    """Every config key the loaders read on the host example, recorded as
++    gate 32 records the FPGA configs' (`_KeyRecorder`)."""
++    seen: set[str] = set()
++    real_yaml = eb.yaml
++    eb.yaml = types.SimpleNamespace(safe_load=lambda fh: _KeyRecorder(real_yaml.safe_load(fh), "", seen))
++    try:
++        eb.load_config(str(HOST_EXAMPLE))
++    finally:
++        eb.yaml = real_yaml
++    return {p for p in seen if not any(q.startswith((p + ".", p + "[]")) for q in seen)}
++
++
++def _host_key_map_diff(doc: str, accepted: set[str]) -> tuple[set[str], set[str]]:
++    """(host keys in neither section 3 nor section 6, section 6 rows naming no
++    host key). A key that only contains documented keys is a section."""
++    host_rows = set(_key_map_rows(doc, HOST_SECTION_HEADING))
++    documented = set(_key_map_rows(doc)) | host_rows
++    missing = {k for k in accepted
++               if k not in documented and not any(d.startswith((k + ".", k + "[]")) for d in documented)}
++    return missing, host_rows - accepted
++
++
++def _check_host_key_map() -> int:
++    """Gate 32's twin for the host profile: every key its loaders read on the
++    host example has a row in section 3 or section 6, and section 6 names no
++    key they do not read; a planted row and a dropped one are both refused."""
++    accepted = _host_key_paths()
++    doc = BUILDER_DOC_MD.read_text(encoding="utf-8")
++    missing, stale = _host_key_map_diff(doc, accepted)
++    assert not missing and not stale, (f"gate 41: section 6 disagrees with the host loaders - no row: "
++                                       f"{sorted(missing)}; naming no host key: {sorted(stale)}")
++    planted = doc.replace(HOST_SECTION_HEADING, HOST_SECTION_HEADING + "\n\n| 6z | `planted.key` | - | - |", 1)
++    assert _host_key_map_diff(planted, accepted)[1] == {"planted.key"}, "gate 41: a planted row was not refused"
++    dropped = doc.replace("`audio_interface.channels`", "`(dropped)`")
++    assert _host_key_map_diff(dropped, accepted)[0] == {"audio_interface.channels"}, \
++        "gate 41: dropping the audio_interface.channels row was not refused"
++    return len(accepted)
++
++
++def _check_host_tspec() -> tuple[int, int]:
++    """The host TSpec rule (section 6): MaxFrameSize is the widest advertised
++    AAF format's frame at clocking.sampling_rate_hz, not the current format's.
++    A talker whose current format is two channels and which also advertises
++    eight reserves the eight-channel frame, and the unedited example (current
++    and widest both eight) its own. Returns (reserved, current-format) octets
++    for the report line."""
++    def widen(doc: dict) -> None:
++        """Current two channels; supported two and eight."""
++        talker = doc["streams"]["talkers"][0]
++        talker["channels"] = 2
++        talker["formats"] = [f"0x{eb.aaf_pcm32(n, 48000):016X}" for n in (2, 8)]
++
++    def reserved(cfg: dict) -> int:
++        """The talker row's MaxFrameSize."""
++        return next(r["max_frame_bytes"] for r in cfg["srp"]["rows"] if r["direction"] == "talker")
++
++    example = eb.load_config(str(HOST_EXAMPLE))
++    eight = eb.srp_frame_geometry(8, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
++    two = eb.srp_frame_geometry(2, 48000, example["srp"]["intervals_ps"])["max_frame_bytes"]
++    assert reserved(example) == eight, \
++        "gate 41: the host example's talker does not reserve its eight-channel frame"
++    path = _variant(HOST_EXAMPLE, widen)
++    try:
++        cfg = eb.load_config(str(path))
++        got = reserved(cfg)
++        assert eb.fmt_channels(cfg["talkers"][0]["formats"][0]) == 2, \
++            "gate 41: the widened talker's current format is not two channels"
++        assert got == eight != two, \
++            (f"gate 41: a host talker with a two-channel current format that advertises eight reserves "
++             f"{got} octets; the widest advertised format's frame is {eight} (the current format's {two})")
++        eb._entity_model_image(cfg, eb.emit_aem_overlay(cfg))
++    finally:
++        path.unlink()
++    return got, two
++
++
++def test_host_profile_feeds_the_generators() -> None:
++    """Gate 41 (#983): the descriptor-only host profile feeds the existing
++    generators. Its example loads through load_config's unchanged checks,
++    the overlay and the AEM image (the processor packer and its lint) carry
++    the first user's inventory and the stated gPTP dataset, and adp_entity.py,
++    aecp_entity.py and srp_entity.py each generate from it, agreeing with the
++    image; build() refuses it by name. ctrl_loop.h lists its (1, 1, 2) shape
++    for a CTRL_HOST_PLATFORM build alone, leaving every FPGA row as it was
++    and the shape refused without the macro. Section 6 of the builder page
++    documents every key the host loaders read."""
++    cfg = eb.load_config(str(HOST_EXAMPLE))
++    overlay = eb.emit_aem_overlay(cfg)
++    blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
++    _check_host_model(cfg, overlay, blob)
++    _expect_red("build() of the host profile", lambda: eb.build(str(HOST_EXAMPLE), str(OUT)),
++                "descriptor-only host profile (#983)", "gate 41")
++    keys = _check_host_key_map()
++    tspec, current = _check_host_tspec()
++    with tempfile.TemporaryDirectory(prefix="gate41.") as tmp:
++        headers = _host_generated(Path(tmp))
++        _check_host_headers(headers, blob)
++        cc = shutil.which("cc") or shutil.which("gcc")
++        unlisted = None
++        if cc is None:
++            skip("gate 41", "no host C compiler: ctrl_loop.h's host shape row not compiled")
++        else:
++            unlisted = _check_host_shape(cc, headers["srp_entity"], Path(tmp))
++    print(f"  [gate 41] {HOST_EXAMPLE.relative_to(ROOT)}: ADP 1 source, 2 sinks; STREAM_INPUT AAF + CRF, "
++          f"STREAM_OUTPUT AAF; AVB_INTERFACE carries the stated dataset; three generators agree with the "
++          f"{len(blob)}-byte image; build() refuses it; {keys} host loader keys documented; a talker "
++          f"advertising 2 and 8 channels at current 2 reserves {tspec} octets, the widest format's, "
++          f"not the current {current}")
++    if unlisted is not None:
++        print(f"  [gate 41] THE SHAPES: (1, 1, 2) builds with CTRL_HOST_PLATFORM alone and is refused without "
++              f"it; the macro moves none of the {len(CONFIGS) - len(unlisted)} listed FPGA rows; "
++              f"{', '.join(unlisted) or 'no config'} still refused without it; only "
++              f"{', '.join(HOST_MACRO_FILES)} name the macro")
++
++
++#: Gate 42's value for a deletion rather than an edit.
++HOST_DELETE = object()
++
++
++def _host_mutation(path: str, value: Any) -> Callable[[dict], None]:
++    """A config edit at a dotted `path` (a list element by its index): set it
++    to `value`, or delete it when `value` is HOST_DELETE."""
++    *parents, leaf = path.split(".")
++
++    def mutate(doc: dict) -> None:
++        """Walk to the parent mapping and edit the leaf."""
++        node = doc
++        for key in parents:
++            node = node[int(key)] if isinstance(node, list) else node.setdefault(key, {})
++        if value is HOST_DELETE:
++            node.pop(leaf)
++        else:
++            node[leaf] = value
++    return mutate
++
++
++#: The planted defects of gate 42: (label, base config, dotted path, value or
++#: HOST_DELETE for a deletion, the words the refusal must carry).
++HOST_REFUSALS = (
++    ("a board that is an empty list", "fpga", "board", [], "board: missing required key 'target'"),
++    ("a board that is an empty string", "fpga", "board", "", "board: missing required key 'target'"),
++    ("a board that is a list naming a target", "fpga", "board", ["ax7101"],
++     "board: missing required key 'target'"),
++    ("an FPGA target naming a host PHC owner", "fpga", "board.gptp_owner", "host-phc",
++     "board.gptp_owner: ax7101 is an FPGA target"),
++    ("an FPGA target with fabric_gptp false", "fpga", "board.features.fabric_gptp", False,
++     "fabric_gptp: false is retired (#259)"),
++    ("an FPGA target with no gptp section", "fpga", "gptp", HOST_DELETE, "requires a gptp: section"),
++    ("an FPGA config retargeted at host", "fpga", "board.target", "host", "on board.target 'host'"),
++    ("usb_audio on an FPGA target", "fpga", "audio_interface.kind", "usb_audio",
++     "audio_interface.kind 'usb_audio' not in"),
++    ("no gptp_owner", "host", "board.gptp_owner", HOST_DELETE, "missing required key 'gptp_owner'"),
++    ("a fabric gptp_owner", "host", "board.gptp_owner", "fabric", "is not one of ['host-phc']"),
++    ("fabric blocks", "host", "board.features", {"maap": True}, "board: ['features'] on board.target 'host'"),
++    ("an FPGA constraint", "host", "board.constraints.milan_clk_hz", 50000000,
++     "board.constraints: board.target 'host' takes"),
++    ("no link rate", "host", "board.constraints.link_mbps", HOST_DELETE, "missing required key 'link_mbps'"),
++    ("an unknown link rate", "host", "board.constraints.link_mbps", 10, "link_mbps 10 not in [100, 1000]"),
++    ("a SoC", "host", "soc", {"xlen": 32}, "builds no SoC"),
++    ("the all-fabric placement", "host", "control.placement", "all-fabric",
++     "control.placement 'all-fabric' on board.target 'host'"),
++    ("a fabric latency correction", "host", "gptp.ingress_latency_ns", 0, "a PHC owner does not take"),
++    ("an unstated port number", "host", "gptp.port_number", HOST_DELETE,
++     "gptp.port_number is required on board.target 'host'"),
++    ("an unstated clockClass", "host", "gptp.clock_class", HOST_DELETE,
++     "gptp.clock_class is required on board.target 'host'"),
++    ("port number 0", "host", "gptp.port_number", 0, "gptp.port_number 0 outside 1..65534"),
++    ("gPTP domain 1 (802.1AS-2011 8.1)", "host", "gptp.domain", 1, "gptp.domain 1 is not 0"),
++    ("a reserved clockAccuracy", "host", "gptp.clock_accuracy", 0x10, "is not a clockAccuracy"),
++    ("an FPGA audio front-end", "host", "audio_interface.kind", "tdm8",
++     "audio_interface.kind 'tdm8' not in ['usb_audio']"),
++    ("no interface width", "host", "audio_interface.channels", HOST_DELETE, "missing required key 'channels'"),
++    ("role pools", "host", "audio_interface.cluster_mapping", {"policy": "role-pools"},
++     "role-pools on board.target 'host'"),
++    ("two AAF inputs, no CRF output (Milan v1.2 7.2.3)", "host", "streams.listeners",
++     [{"name": "In 0", "channels": 8}, {"name": "In 1", "channels": 8}],
++     "require a CRF Media Clock Output (Milan v1.2 7.2.3)"),
++    ("a CRF source with no CRF input (#389)", "host", "clocking.crf_sink", False,
++     "the CRF CLOCK_SOURCE is located on that sink's"),
++    ("an output with no INTERNAL source (Milan v1.2 5.3.3.6)", "host", "clocking",
++     {"sampling_rate_hz": 48000, "media_clock_sources": ["crf"], "default_source": "crf"},
++     "every Stream Output requires INTERNAL"),
++    ("a static input map (Milan v1.2 5.3.3.9)", "host", "streams.listeners.0.map_mode", "static",
++     "Milan v1.2 5.3.3.9"),
++    ("an input buffer under the floor (Milan v1.2 5.3.3.4)", "host", "streams.listeners.0.buffer_length_ns", 1000,
++     "listener buffer floor"),
++    ("a zero model id (Milan v1.2 5.3.3.1)", "host", "entity.entity_model_id", "0x0",
++     "must not be zero or all ones"),
++)
++
++
++def _host_refused(label: str, base: Path, mutate: Callable[[dict], None], words: str) -> str:
++    """One planted defect: the edited copy of `base` is refused, in `words`."""
++    path = _variant(base, mutate)
++    try:
++        eb.load_config(str(path))
++    except eb.ConfigError as exc:
++        assert words in str(exc), f"gate 42 {label}: refused for another cause: {exc}"
++    else:
++        raise AssertionError(f"gate 42 {label}: accepted")
++    finally:
++        path.unlink()
++    return label
++
++
++def test_host_profile_refusals() -> None:
++    """Gate 42 (#983): planted defects. A board that is not a mapping is
++    refused through ConfigError before the host dispatch reads its target,
++    in the words load_config used before the profile. An FPGA config still refuses a missing
++    fabric gPTP owner, by both refusals it had (fabric_gptp false, no gptp
++    section) and by the new one (a gptp_owner on an FPGA target), and refuses
++    being retargeted at the host profile or the host's interface family. The
++    host profile refuses each fabric declaration and each unstated gPTP
++    field, and every shared Milan and IEEE check refuses there in the words
++    it uses for an FPGA config. Each copy is edited at one key; the unedited
++    copy of each base is the control and loads."""
++    bases = {"fpga": CONFIGS["ax7101_1x1_tdm8"], "host": HOST_EXAMPLE}
++    for base in bases.values():
++        control = _variant(base, lambda _doc: None)
++        try:
++            eb.load_config(str(control))
++        finally:
++            control.unlink()
++    caught = [_host_refused(label, bases[base], _host_mutation(path, value), words)
++              for label, base, path, value, words in HOST_REFUSALS]
++    fpga = sum(1 for row in HOST_REFUSALS if row[1] == "fpga")
++    print(f"  [gate 42] both unedited copies load; {len(caught)}/{len(HOST_REFUSALS)} planted defects refused "
++          f"in their own words ({fpga} on the FPGA 1x1, {len(caught) - fpga} on the host example)")
++
++
+ if __name__ == "__main__":
+     from test_declarations import test_declaration_contracts
+     from test_clock_contract import (
+@@ -30703,7 +31065,9 @@ if __name__ == "__main__":
+                test_pp_shadow_audio_unit_rates_match_config,
+                test_descriptor_fields_name_this_device,
+                test_name_count_fits_the_nvm_name_block,
+-               test_split_record_space_bounds_the_split_output)):
++               test_split_record_space_bounds_the_split_output,
++               test_host_profile_feeds_the_generators,
++               test_host_profile_refusals)):
+         print(f"{fn.__name__}:")
+         before = len(SKIPPED)
+         fn()
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 95152026a6..08645b5034 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -393,6 +393,33 @@ extern "C" {
+ #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
+ #define CTRL_LOOP_QUEUED_MS 62u
+ #define CTRL_LOOP_TX_MS 105u
++// THE HOST PLATFORM's shape (#983), for its build alone. CTRL_HOST_PLATFORM is
++// defined by a platform that runs this firmware as a host program on the
++// mailbox model (host/mbx_model.c) and by no image of this repository, so the
++// rows above and the #error below are unchanged for every image built here.
++// One interface, one talker source (an AAF STREAM_OUTPUT) and two listener
++// sinks (an AAF and a CRF STREAM_INPUT): the descriptor-only host profile's
++// shape (endstation_builder.py HOST_TARGET, configs/host).
++// Its figures are a STATED HOST SCHEDULING PROFILE, not a measurement of the
++// host. Each is 1x1/1if's, measured on the RV32 at 100 cycles a microsecond
++// with one talker source more (the CRF output) over the same two sinks: this
++// shape has one SRP Talker declaration fewer to build and one STREAM_OUTPUT
++// fewer to notify for. The host platform states that it serves the loop from
++// one thread, at a real-time priority below only its time owner's, on a CPU
++// that runs this code at least as fast as that RV32, and it holds these
++// figures as the loop's budgets on its microsecond clock. Two things are not
++// measured by any harness here and are not claimed: the costs that follow the
++// descriptor set rather than the streams, and the preemption of that thread,
++// on which the millisecond bounds (CTRL_LOOP_QUEUED_MS, CTRL_LOOP_TX_MS) rest.
++#elif defined(CTRL_HOST_PLATFORM) && CTRL_LOOP_SHAPE(1u, 1u, 2u)
++#define CTRL_LOOP_SLICE_US 950u
++#define CTRL_LOOP_BUILD_PASS_US 1010u
++#define CTRL_LOOP_BUILD_ONE_PASS_US 735u
++#define CTRL_LOOP_SRP_UNIT_US 285u
++#define CTRL_LOOP_RETRY_COLD_US 85u
++#define CTRL_LOOP_RETRY_ATTEMPT_US 34u
++#define CTRL_LOOP_QUEUED_MS 130u
++#define CTRL_LOOP_TX_MS 35u
+ #else
+ #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+ #endif
