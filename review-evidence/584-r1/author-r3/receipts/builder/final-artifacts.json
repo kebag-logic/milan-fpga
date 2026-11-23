@@ -1,0 +1,954 @@
+{
+ "endstation_arty_4x4/all-fabric": {
+  "clusters_in": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "clusters_out": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 32,
+   "AUDIO_MAP": 4,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 6,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 5,
+   "STREAM_OUTPUT": 5,
+   "STREAM_PORT_INPUT": 4,
+   "STREAM_PORT_OUTPUT": 4,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8521,
+    "sha256": "025ac85bea8a72f3a58fc0dcd2303a933529e62e5312952f0763b4892c1b9bf1"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8521,
+    "sha256": "025ac85bea8a72f3a58fc0dcd2303a933529e62e5312952f0763b4892c1b9bf1"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 55007,
+    "sha256": "b048b3b12f4234fe16de285e73366ad58f665d02e86ffca4d07adfe08bbf4b71"
+   },
+   "aem_desc.bin": {
+    "bytes": 10728,
+    "sha256": "b4c757eadf01edfdddb2fa373b6ee5421b84a26cd511673352435ce87fc0c10c"
+   },
+   "aem_desc.json": {
+    "bytes": 225,
+    "sha256": "473776ee175963e31af443351e3221bbb169a4885ede0637665751b10bf12ca7"
+   },
+   "aem_desc.map": {
+    "bytes": 1668,
+    "sha256": "6073de899ebcbc10d0f3546f96fc1fa6d0e0b110b96900fb14b4294bc2a1d877"
+   },
+   "aem_overlay.json": {
+    "bytes": 12476,
+    "sha256": "a14027bb606ec7d70a192c58f2ead350084eda7250224884c85954fe7b7e33fa"
+   },
+   "build_plan.md": {
+    "bytes": 11000,
+    "sha256": "82d647bbe4a99f550c3fb28d4dbb4578e12791c35218f7b1cbfa3a54fe021a23"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2183,
+    "sha256": "90d4615e95883d5c1fdf5ce4eb8e716ac655114d8f0eb9e5579ec8e671bbfa88"
+   },
+   "lwsrp_table.json": {
+    "bytes": 4084,
+    "sha256": "90e1aa992317980e97ec42768d524e9b8af65e2279a31e1696f5f68254f05221"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4288,
+    "sha256": "36331d96c16b57ba3660a3183af58752195d94f2681d03ccfcf50003f227b222"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "821fa0a99b2cfacfbb0d07d177894dcc30d8105ed46ff8a5cf4b468b0bfa8ab5"
+   },
+   "platform_shape.json": {
+    "bytes": 246,
+    "sha256": "bbd040ba298a66ff0bd856f8f0b4e75c04c1831ba635a5b3ad756625ab8b0a28"
+   },
+   "soc_params.json": {
+    "bytes": 589,
+    "sha256": "fe552b1ec220f349b55cd499bc62680e9f7abf28397125cc457fd7cf63f61fb8"
+   }
+  },
+  "model_id": "0x001BC549808B210C"
+ },
+ "endstation_arty_4x4/split": {
+  "clusters_in": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "clusters_out": [
+   4,
+   4,
+   4,
+   4
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 32,
+   "AUDIO_MAP": 4,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 6,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 5,
+   "STREAM_OUTPUT": 5,
+   "STREAM_PORT_INPUT": 4,
+   "STREAM_PORT_OUTPUT": 4,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8521,
+    "sha256": "025ac85bea8a72f3a58fc0dcd2303a933529e62e5312952f0763b4892c1b9bf1"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8521,
+    "sha256": "025ac85bea8a72f3a58fc0dcd2303a933529e62e5312952f0763b4892c1b9bf1"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 55007,
+    "sha256": "6c2548366f130c608e35a2d9923be2543904db0ee0d8cc563760948b3c994f89"
+   },
+   "aecp_entity_gen.h": {
+    "bytes": 58160,
+    "sha256": "5f7691b6a2f59011b39cff51b38031f30d2e22d2561db68dfecb3fa467af8aa0"
+   },
+   "aem_desc.bin": {
+    "bytes": 10728,
+    "sha256": "3189b87deed9bc5150257a39e25f3015e44016f573e4dfb1a2d02cac25d42270"
+   },
+   "aem_desc.json": {
+    "bytes": 225,
+    "sha256": "473776ee175963e31af443351e3221bbb169a4885ede0637665751b10bf12ca7"
+   },
+   "aem_desc.map": {
+    "bytes": 1668,
+    "sha256": "6073de899ebcbc10d0f3546f96fc1fa6d0e0b110b96900fb14b4294bc2a1d877"
+   },
+   "aem_overlay.json": {
+    "bytes": 12476,
+    "sha256": "88e2d0d551893163ae2b761dce86704f37945181ed4d9ba91b0ec6d2d2c96bd1"
+   },
+   "build_plan.md": {
+    "bytes": 11079,
+    "sha256": "1bd8b81b32e322a2b3d12178d9e97df4b17c184f78204dd9d6a640df94f00dc6"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2183,
+    "sha256": "90d4615e95883d5c1fdf5ce4eb8e716ac655114d8f0eb9e5579ec8e671bbfa88"
+   },
+   "lwsrp_table.json": {
+    "bytes": 4084,
+    "sha256": "90e1aa992317980e97ec42768d524e9b8af65e2279a31e1696f5f68254f05221"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4288,
+    "sha256": "36331d96c16b57ba3660a3183af58752195d94f2681d03ccfcf50003f227b222"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "821fa0a99b2cfacfbb0d07d177894dcc30d8105ed46ff8a5cf4b468b0bfa8ab5"
+   },
+   "platform_shape.json": {
+    "bytes": 246,
+    "sha256": "bbd040ba298a66ff0bd856f8f0b4e75c04c1831ba635a5b3ad756625ab8b0a28"
+   },
+   "soc_params.json": {
+    "bytes": 683,
+    "sha256": "d02c77d75989669bab4b213a2b16987babcc244d78e7441e0f7856d5e4dea57c"
+   }
+  },
+  "model_id": "0x001BC549808B210C"
+ },
+ "endstation_arty_8ch/all-fabric": {
+  "clusters_in": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "clusters_out": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 64,
+   "AUDIO_MAP": 4,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 6,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 5,
+   "STREAM_OUTPUT": 5,
+   "STREAM_PORT_INPUT": 4,
+   "STREAM_PORT_OUTPUT": 4,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8795,
+    "sha256": "4c601cebd19769f885f7ffdd1dd19a3fc7ecddc7d1870c2e7c4cfa5b147cd26d"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8795,
+    "sha256": "4c601cebd19769f885f7ffdd1dd19a3fc7ecddc7d1870c2e7c4cfa5b147cd26d"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 74485,
+    "sha256": "1da7900308418b14084b88b0538df582201459bb8515f27dd2541a2c42162272"
+   },
+   "aem_desc.bin": {
+    "bytes": 15976,
+    "sha256": "bfcfa4df2a75d2add72f7964959d267e864b17be9997b9590f1e5893f6364bc9"
+   },
+   "aem_desc.json": {
+    "bytes": 225,
+    "sha256": "0aeef65b04a106ea5e18d06931a53c694215186246e20b021f2f12f77dd25a3e"
+   },
+   "aem_desc.map": {
+    "bytes": 1668,
+    "sha256": "440ada72fe5ae3b065bf44edab0e71d0e2d2e1cc7e8e3a1943d51c8ac5b08c3c"
+   },
+   "aem_overlay.json": {
+    "bytes": 17534,
+    "sha256": "22602e72d8cd1614c5e4bb9045ebb38100a9b713ddbdf02785a1fb9c85ff6d8f"
+   },
+   "build_plan.md": {
+    "bytes": 11003,
+    "sha256": "23748c469609fab25ba1c22394c957412a5e0e1d348e833f1b71d698fd033c8d"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2183,
+    "sha256": "f2519804843397b4bde6393e3be67f348e3b3ef6e73e62fef22b3a71b4ecf87f"
+   },
+   "lwsrp_table.json": {
+    "bytes": 4084,
+    "sha256": "0e151e2854b3799281d19d01e67c27b04a53ca470a672ad27bc48f93ea840987"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4288,
+    "sha256": "c7189e2e3dcf79a7fcd6c204674fca581d89aea327c77b65ea7aa57f38aa3e19"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "cff73d615248bcdc20546553983753319a099f8feda2862151630b87bbabdbaf"
+   },
+   "platform_shape.json": {
+    "bytes": 246,
+    "sha256": "b818b72a035c5f73870925ffe208eda20292bedc629a399d5d31aa14160242ce"
+   },
+   "soc_params.json": {
+    "bytes": 589,
+    "sha256": "7a10be52746259e11e1c43402cb8097ca5234e9b358fd6160af5c5e42673faff"
+   }
+  },
+  "model_id": "0x001BC55491CCAA9B"
+ },
+ "endstation_arty_8ch/split": {
+  "clusters_in": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "clusters_out": [
+   8,
+   8,
+   8,
+   8
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 64,
+   "AUDIO_MAP": 4,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 6,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 5,
+   "STREAM_OUTPUT": 5,
+   "STREAM_PORT_INPUT": 4,
+   "STREAM_PORT_OUTPUT": 4,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8795,
+    "sha256": "4c601cebd19769f885f7ffdd1dd19a3fc7ecddc7d1870c2e7c4cfa5b147cd26d"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8795,
+    "sha256": "4c601cebd19769f885f7ffdd1dd19a3fc7ecddc7d1870c2e7c4cfa5b147cd26d"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 74485,
+    "sha256": "1c6c238e70f1a740fb55b0e4f58724dacb00405c3af91c6ce673c0839bd3792a"
+   },
+   "aecp_entity_gen.h": {
+    "bytes": 86243,
+    "sha256": "162ffb92431a2f34fd56d1abdb17eff60e693d16ad4536cdd5a0546d58455e1d"
+   },
+   "aem_desc.bin": {
+    "bytes": 15976,
+    "sha256": "f9290b0403628d2e1e7776e90f9943040b5843c125cf1e2b931df711b73ee433"
+   },
+   "aem_desc.json": {
+    "bytes": 225,
+    "sha256": "0aeef65b04a106ea5e18d06931a53c694215186246e20b021f2f12f77dd25a3e"
+   },
+   "aem_desc.map": {
+    "bytes": 1668,
+    "sha256": "440ada72fe5ae3b065bf44edab0e71d0e2d2e1cc7e8e3a1943d51c8ac5b08c3c"
+   },
+   "aem_overlay.json": {
+    "bytes": 17534,
+    "sha256": "b1e1e44fbd2ca7c71fb2f4aa674bbec33a15190dac88570ea3e8c0d924945bef"
+   },
+   "build_plan.md": {
+    "bytes": 11082,
+    "sha256": "c7bf0c977b7b5b51034234d07fb12977e2cf8a44c1c6e884309a2519881dd36c"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2183,
+    "sha256": "f2519804843397b4bde6393e3be67f348e3b3ef6e73e62fef22b3a71b4ecf87f"
+   },
+   "lwsrp_table.json": {
+    "bytes": 4084,
+    "sha256": "0e151e2854b3799281d19d01e67c27b04a53ca470a672ad27bc48f93ea840987"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4288,
+    "sha256": "c7189e2e3dcf79a7fcd6c204674fca581d89aea327c77b65ea7aa57f38aa3e19"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "cff73d615248bcdc20546553983753319a099f8feda2862151630b87bbabdbaf"
+   },
+   "platform_shape.json": {
+    "bytes": 246,
+    "sha256": "b818b72a035c5f73870925ffe208eda20292bedc629a399d5d31aa14160242ce"
+   },
+   "soc_params.json": {
+    "bytes": 683,
+    "sha256": "152c980a2a9776c4d1f678274c2b19401e125ee5479799bfc4e9879f695273aa"
+   }
+  },
+  "model_id": "0x001BC55491CCAA9B"
+ },
+ "endstation_arty_current/all-fabric": {
+  "clusters_in": [
+   8
+  ],
+  "clusters_out": [
+   8
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 16,
+   "AUDIO_MAP": 1,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 3,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 2,
+   "STREAM_OUTPUT": 1,
+   "STREAM_PORT_INPUT": 1,
+   "STREAM_PORT_OUTPUT": 1,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8009,
+    "sha256": "867fb2377eafe496ce361d38da5e5472c4df7b64b9a09aef62d9b94a500efb27"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8009,
+    "sha256": "867fb2377eafe496ce361d38da5e5472c4df7b64b9a09aef62d9b94a500efb27"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 34240,
+    "sha256": "72e8a3aa56f75e9c890e229043402ef6d05545712b70e629c30cfe7601ce999e"
+   },
+   "aem_desc.bin": {
+    "bytes": 5952,
+    "sha256": "def92aeceaaaf23019c789ec0402f44a4b3d6b510f9b2d7de959e23c97ad9f74"
+   },
+   "aem_desc.json": {
+    "bytes": 228,
+    "sha256": "26cd86dde58e2daeb80623993a32d612219938b29e314c7db12758c6c652f9aa"
+   },
+   "aem_desc.map": {
+    "bytes": 1667,
+    "sha256": "de5c27c068351e97934c89f06c3fd351c509bb4907966f5b21211fd23ccda9e3"
+   },
+   "aem_overlay.json": {
+    "bytes": 6375,
+    "sha256": "86130ad21bb809ce8696118f6abc523d666bbd2ef92fefeca054a7a39dd5b88c"
+   },
+   "build_plan.md": {
+    "bytes": 9105,
+    "sha256": "4c7174c0a3e8ecd2d4b2ec512ca24c45f6b0a80240176b98b9acf49fce62636e"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2187,
+    "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d"
+   },
+   "lwsrp_table.json": {
+    "bytes": 2274,
+    "sha256": "dc4a200fa4dae047598419a78713677aefeab85b957808b9ec7284f2411a668f"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 3826,
+    "sha256": "df3c4fa0289d23deea8f8e688573faa1adbb12f8485a7b5613bd30b8b288f8e4"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51"
+   },
+   "platform_shape.json": {
+    "bytes": 250,
+    "sha256": "03328f238565f45f775a8fb17921a20ac4172d864b218e3703c23e185e678c99"
+   },
+   "soc_params.json": {
+    "bytes": 498,
+    "sha256": "696350eee365adb614b78e445d6522569e73d0eaa555b4de6603319d45da59cb"
+   }
+  },
+  "model_id": "0x001BC50AC1000006"
+ },
+ "endstation_arty_current/split": {
+  "clusters_in": [
+   8
+  ],
+  "clusters_out": [
+   8
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 16,
+   "AUDIO_MAP": 1,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 3,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 2,
+   "STREAM_OUTPUT": 1,
+   "STREAM_PORT_INPUT": 1,
+   "STREAM_PORT_OUTPUT": 1,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8009,
+    "sha256": "867fb2377eafe496ce361d38da5e5472c4df7b64b9a09aef62d9b94a500efb27"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8009,
+    "sha256": "867fb2377eafe496ce361d38da5e5472c4df7b64b9a09aef62d9b94a500efb27"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 34240,
+    "sha256": "3a5b1c8df3aa262a59b11617e15ea3e04fa7585d2e05b064882a447bd0b4bd26"
+   },
+   "aecp_entity_gen.h": {
+    "bytes": 32570,
+    "sha256": "1a90b9c35fb28ce98480aabc76a1cfcf79e64afbbbf916fcbf09697b12a1cd2e"
+   },
+   "aem_desc.bin": {
+    "bytes": 5952,
+    "sha256": "019bced16c167794869a794af3b5389103b3665f5d4a45878ea2bdeaf55a9463"
+   },
+   "aem_desc.json": {
+    "bytes": 228,
+    "sha256": "26cd86dde58e2daeb80623993a32d612219938b29e314c7db12758c6c652f9aa"
+   },
+   "aem_desc.map": {
+    "bytes": 1667,
+    "sha256": "de5c27c068351e97934c89f06c3fd351c509bb4907966f5b21211fd23ccda9e3"
+   },
+   "aem_overlay.json": {
+    "bytes": 6375,
+    "sha256": "d230f785a64593b0a3d20ffa8dcd9ebd05397cc8922626b2955a3984d8eabdfe"
+   },
+   "build_plan.md": {
+    "bytes": 9188,
+    "sha256": "8526516419401bb069182a84d04ff3d1709d5cbe599503c900a644d1ca473f29"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "bd87317b321dbe1f7fe6a8a647b9937fb13e33faf8f4a405819655ad06539b91"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2187,
+    "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d"
+   },
+   "lwsrp_table.json": {
+    "bytes": 2274,
+    "sha256": "dc4a200fa4dae047598419a78713677aefeab85b957808b9ec7284f2411a668f"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 3826,
+    "sha256": "df3c4fa0289d23deea8f8e688573faa1adbb12f8485a7b5613bd30b8b288f8e4"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "1f79befa89d29bae4e5fc617e655c191276ce96311b90757fb99d5a7442b5a51"
+   },
+   "platform_shape.json": {
+    "bytes": 250,
+    "sha256": "03328f238565f45f775a8fb17921a20ac4172d864b218e3703c23e185e678c99"
+   },
+   "soc_params.json": {
+    "bytes": 596,
+    "sha256": "f968f056de9ed7eb9ad7cf2c00fce7dd0aa9cdeccd008335dab653f0a51a286a"
+   }
+  },
+  "model_id": "0x001BC50AC1000006"
+ },
+ "endstation_ax7101_1x1_tdm8/all-fabric": {
+  "clusters_in": [
+   8
+  ],
+  "clusters_out": [
+   17
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 25,
+   "AUDIO_MAP": 0,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 3,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 2,
+   "STREAM_OUTPUT": 2,
+   "STREAM_PORT_INPUT": 1,
+   "STREAM_PORT_OUTPUT": 1,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8119,
+    "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8119,
+    "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 41787,
+    "sha256": "8325be17a89775690d56eb9323f158e570239bdb2fdcaaad421f2a0d73f92d50"
+   },
+   "aem_desc.bin": {
+    "bytes": 7512,
+    "sha256": "bdfde7cf448ed032ffb1663b0898aeef9ded3bb11b4ead5dc36dfa3df873f180"
+   },
+   "aem_desc.json": {
+    "bytes": 231,
+    "sha256": "3077db633f69fbd70b97e83c648b5f4fc1afd47f3d14d0eb018e654a7d0d3d92"
+   },
+   "aem_desc.map": {
+    "bytes": 1600,
+    "sha256": "4b458346fab6ee8d4014f9e41452dd443423232e319714f9e66359286a7e3c22"
+   },
+   "aem_overlay.json": {
+    "bytes": 7332,
+    "sha256": "9cad781cabb54b326acafbbc2e89e783f0e65f69f29355e86c587eef24adbe15"
+   },
+   "build_plan.md": {
+    "bytes": 10825,
+    "sha256": "27efb83b0dd1d56df6da34d067bf5ff4c6788c52450453b41243f9f33ee3e371"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2190,
+    "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+   },
+   "lwsrp_table.json": {
+    "bytes": 2289,
+    "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 3832,
+    "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "32fc4a3e0af8079af8de9f02bf4f4ef0a164b46e5d89087c2516f1ffc3acfb5f"
+   },
+   "platform_shape.json": {
+    "bytes": 253,
+    "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+   },
+   "soc_params.json": {
+    "bytes": 799,
+    "sha256": "d5ec9866f86c339dc1c178c31c7800a359813660d9cbcc95e242e1e29b13c516"
+   }
+  },
+  "model_id": "0x001BC5CD179523AB"
+ },
+ "endstation_ax7101_1x1_tdm8/split": {
+  "clusters_in": [
+   8
+  ],
+  "clusters_out": [
+   17
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 25,
+   "AUDIO_MAP": 0,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 3,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 2,
+   "STREAM_OUTPUT": 2,
+   "STREAM_PORT_INPUT": 1,
+   "STREAM_PORT_OUTPUT": 1,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 8119,
+    "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 8119,
+    "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 41787,
+    "sha256": "95ed5ff10787ed596a7dcb0e2caaa265d4706ece67768ccbc36b90a6957daa7e"
+   },
+   "aecp_entity_gen.h": {
+    "bytes": 41097,
+    "sha256": "b29b1036c9f741600cbb9529faf4714f6e8b2382387eb3878988360fb9f529e7"
+   },
+   "aem_desc.bin": {
+    "bytes": 7512,
+    "sha256": "fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26"
+   },
+   "aem_desc.json": {
+    "bytes": 231,
+    "sha256": "3077db633f69fbd70b97e83c648b5f4fc1afd47f3d14d0eb018e654a7d0d3d92"
+   },
+   "aem_desc.map": {
+    "bytes": 1600,
+    "sha256": "4b458346fab6ee8d4014f9e41452dd443423232e319714f9e66359286a7e3c22"
+   },
+   "aem_overlay.json": {
+    "bytes": 7332,
+    "sha256": "1d24f59b7154a22dea8a98aa8f3fd65cff6373c187fdbbdde7ee485a980b3ae0"
+   },
+   "build_plan.md": {
+    "bytes": 10911,
+    "sha256": "5803b32f7673c0cc372d0e1897c9f7be9da2314f30c0d7d168c80c47590b259c"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2190,
+    "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+   },
+   "lwsrp_table.json": {
+    "bytes": 2289,
+    "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 3832,
+    "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+   },
+   "nvm_split.json": {
+    "bytes": 1805,
+    "sha256": "32fc4a3e0af8079af8de9f02bf4f4ef0a164b46e5d89087c2516f1ffc3acfb5f"
+   },
+   "platform_shape.json": {
+    "bytes": 253,
+    "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+   },
+   "soc_params.json": {
+    "bytes": 900,
+    "sha256": "f5a2382570765b882a4394bad1b42eb097f09ab3bb73bfaa8b555b5ad0dfa010"
+   }
+  },
+  "model_id": "0x001BC5CD179523AB"
+ },
+ "endstation_ax7101_8x8/all-fabric": {
+  "clusters_in": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "clusters_out": [
+   9,
+   9,
+   9,
+   9,
+   9,
+   9,
+   9,
+   9
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 80,
+   "AUDIO_MAP": 0,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 10,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 9,
+   "STREAM_OUTPUT": 9,
+   "STREAM_PORT_INPUT": 8,
+   "STREAM_PORT_OUTPUT": 8,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 9511,
+    "sha256": "3f074fe93e6940828b0128e09e21c6a9a04e2494fb37bcce4b4cee151382e33a"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 9511,
+    "sha256": "3f074fe93e6940828b0128e09e21c6a9a04e2494fb37bcce4b4cee151382e33a"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 96141,
+    "sha256": "f88f16e228252e6a20e39d104903ff1211a94d1c85586b91a0543687439cd15f"
+   },
+   "aem_desc.bin": {
+    "bytes": 20800,
+    "sha256": "1e55eb21e4d49e875a6df43ca6e2a361a1b11e613c4f763d8afd0bef7f607164"
+   },
+   "aem_desc.json": {
+    "bytes": 227,
+    "sha256": "723ea3368bb78649c282dcc31e6bdd08cb5a8ab83c12d64db02924bdbdb55358"
+   },
+   "aem_desc.map": {
+    "bytes": 1602,
+    "sha256": "d30531dd487f302ee775679015acaef991d864a31f9a64308274140ddf7c3303"
+   },
+   "aem_overlay.json": {
+    "bytes": 23044,
+    "sha256": "45be45c49aad3f3ebd1bd067f06153c1d7265bc7d963864dc702c01214739b7f"
+   },
+   "build_plan.md": {
+    "bytes": 15205,
+    "sha256": "ad38158fa1b559d891e66634d764c8c7343f4df3c703afe7b2b36fe9f98ef811"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2185,
+    "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+   },
+   "lwsrp_table.json": {
+    "bytes": 6496,
+    "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4917,
+    "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+   },
+   "nvm_split.json": {
+    "bytes": 1806,
+    "sha256": "8c737b7b57bf04994f5ad2e5cbd67d0ea6356427da5ad7e6c455c4fcdf48c369"
+   },
+   "platform_shape.json": {
+    "bytes": 248,
+    "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+   },
+   "soc_params.json": {
+    "bytes": 823,
+    "sha256": "24f8d82634f3a10207b8b59207e03698cf15d6658fad59e7bf602a41449b5c86"
+   }
+  },
+  "model_id": "0x001BC5CFD464421E"
+ },
+ "endstation_ax7101_8x8/split": {
+  "clusters_in": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "clusters_out": [
+   9,
+   9,
+   9,
+   9,
+   9,
+   9,
+   9,
+   9
+  ],
+  "counts": {
+   "AUDIO_CLUSTER": 80,
+   "AUDIO_MAP": 0,
+   "AUDIO_UNIT": 1,
+   "AVB_INTERFACE": 1,
+   "CLOCK_DOMAIN": 1,
+   "CLOCK_SOURCE": 10,
+   "CONFIGURATION": 1,
+   "CONTROL": 1,
+   "ENTITY": 1,
+   "LOCALE": 1,
+   "STREAM_INPUT": 9,
+   "STREAM_OUTPUT": 9,
+   "STREAM_PORT_INPUT": 8,
+   "STREAM_PORT_OUTPUT": 8,
+   "STRINGS": 1
+  },
+  "files": {
+   "adp_shape_defaults.gen.svh": {
+    "bytes": 9511,
+    "sha256": "3f074fe93e6940828b0128e09e21c6a9a04e2494fb37bcce4b4cee151382e33a"
+   },
+   "adp_shape_defaults.svh": {
+    "bytes": 9511,
+    "sha256": "3f074fe93e6940828b0128e09e21c6a9a04e2494fb37bcce4b4cee151382e33a"
+   },
+   "aecp_aem_rom.svh": {
+    "bytes": 96141,
+    "sha256": "683043bb1fc2cdbc2d0942b20fd2de629a08199f512d86045dde2911299feb1d"
+   },
+   "aecp_entity_gen.h": {
+    "bytes": 112942,
+    "sha256": "fd25161c7e830734ea3317df91fe5abad727d99fea31d9483b7a693b45d01e96"
+   },
+   "aem_desc.bin": {
+    "bytes": 20800,
+    "sha256": "a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c"
+   },
+   "aem_desc.json": {
+    "bytes": 227,
+    "sha256": "723ea3368bb78649c282dcc31e6bdd08cb5a8ab83c12d64db02924bdbdb55358"
+   },
+   "aem_desc.map": {
+    "bytes": 1602,
+    "sha256": "d30531dd487f302ee775679015acaef991d864a31f9a64308274140ddf7c3303"
+   },
+   "aem_overlay.json": {
+    "bytes": 23044,
+    "sha256": "b0287ffb5cc23d41ce50e85e526947c6bd2dec994c45994d35f7ce9cd90d40c5"
+   },
+   "build_plan.md": {
+    "bytes": 15286,
+    "sha256": "ae006c6b9188bbaacac2e0109ed18d10c0c6780134268660095812238174b4aa"
+   },
+   "gptp_ucode.hex": {
+    "bytes": 13312,
+    "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+   },
+   "lwsrp_csr_defaults.svh": {
+    "bytes": 2185,
+    "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+   },
+   "lwsrp_table.json": {
+    "bytes": 6496,
+    "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+   },
+   "lwsrp_table.svh": {
+    "bytes": 4917,
+    "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+   },
+   "nvm_split.json": {
+    "bytes": 1806,
+    "sha256": "8c737b7b57bf04994f5ad2e5cbd67d0ea6356427da5ad7e6c455c4fcdf48c369"
+   },
+   "platform_shape.json": {
+    "bytes": 248,
+    "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+   },
+   "soc_params.json": {
+    "bytes": 919,
+    "sha256": "c4740662cac44f4d6fc3567c839ddf6d7eaad3104c8218d4191964fc37df6cca"
+   }
+  },
+  "model_id": "0x001BC5CFD464421E"
+ }
+}

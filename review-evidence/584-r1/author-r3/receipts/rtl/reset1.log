@@ -1,0 +1,171 @@
+  [ ok ] the generated 8x8 entity image is on disk (make ship8_aemi.bin)
+  [ ok ] BOOT: PP_STAT[2] the restore walk sequenced got=1 exp=1
+  [ ok ] BOOT: streams 1-7's listener format reads back out of the LCTX got=7 exp=7
+
+[POWER-ON] the 8x8 shape's input ports, read back
+  [ ok ] the AECP descriptor store fetched the generated 8x8 entity image
+  [i]    5 descriptor burst(s) served from the 20800-byte image
+  [ ok ] P1 POWER-ON: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] P1 POWER-ON: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] P1 POWER-ON: the lane's stream mask names port 0's stream alone got=0x1 exp=0x1
+  [ ok ] P2 BIND: listener 0 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 1 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 2 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 3 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 4 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 5 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 6 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: listener 7 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] P2 BIND: all eight listener streams are bound got=0xff exp=0xff
+  [ ok ] P2 BIND: entry s of the stream table holds the stream id stream s's answer carried got=8 exp=8
+  [i]    P3 POWER-ON RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 39/144 39/144 39/144 39/144 39/144 39/144 39/144 39/144
+  [i]    P3 POWER-ON RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 24..142, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.4 ns over 119 events (band 1041.7)
+  [ ok ] P3 POWER-ON RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] P3 POWER-ON RENDER: slot 0 carries stream 0 channel 0 in every frame got=119 exp=119
+  [ ok ] P3 POWER-ON RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] P3 POWER-ON RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] P3 POWER-ON RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] P3 POWER-ON RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] P3 POWER-ON RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+
+[ROUTES] port 0's one cluster, remapped through ADD and REMOVE
+  [ ok ] R1: REMOVE of port 0's power-on mapping succeeds got=0 exp=0
+  [ ok ] R1: ADD stream 0 channel 5 on port 0 succeeds got=0 exp=0
+  [ ok ] R1: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] R1: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] R1: the lane's stream mask names port 0's stream alone got=0x1 exp=0x1
+  [i]    R1 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 64/291 64/291 64/291 64/291 64/291 64/291 64/291 64/291
+  [i]    R1 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 170..288, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [ ok ] R1 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] R1 RENDER: slot 0 carries stream 0 channel 5 in every frame got=119 exp=119
+  [ ok ] R1 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] R1 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] R1 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] R1 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] R1 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+  [ ok ] R2: REMOVE stream 0 channel 5 from port 0 succeeds got=0 exp=0
+  [ ok ] R2: ADD stream 3 channel 2 on port 0 succeeds got=0 exp=0
+  [ ok ] R2: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] R2: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] R2: the lane's stream mask names port 0's stream alone got=0x8 exp=0x8
+  [i]    R2 RENDER: bound FF, lane streams 08; accepted PDUs / presented events per stream: 88/438 88/438 88/438 88/438 88/438 88/438 88/438 88/438
+  [i]    R2 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 317..435, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.2 ns over 119 events (band 1041.7)
+  [ ok ] R2 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] R2 RENDER: slot 0 carries stream 3 channel 2 in every frame got=119 exp=119
+  [ ok ] R2 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] R2 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] R2 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] R2 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] R2 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+
+[UNROUTED] ports 1-7, mapped, against the pins
+  [ ok ] U1: REMOVE of each unrouted port's power-on mapping succeeds got=7 exp=7
+  [ ok ] U1: ADD stream p channel 7 on each unrouted port p succeeds got=7 exp=7
+  [ ok ] U2: cluster_offset 1 past port 7's one cluster is BAD_ARGUMENTS got=7 exp=7
+  [ ok ] U3: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] U3: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] U3: the lane's stream mask names port 0's stream alone got=0x8 exp=0x8
+  [i]    U4 RENDER: bound FF, lane streams 08; accepted PDUs / presented events per stream: 113/588 113/588 113/588 113/588 113/588 113/588 113/588 113/588
+  [i]    U4 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 467..585, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [ ok ] U4 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] U4 RENDER: slot 0 carries stream 3 channel 2 in every frame got=119 exp=119
+  [ ok ] U4 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] U4 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] U4 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] U4 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] U4 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+  [ ok ] U4: the seven other streams each presented a window of events, none at the pins got=7 exp=7
+
+[REMOVE] port 0's mapping removed: silence
+  [ ok ] X1: REMOVE stream 3 channel 2 from port 0 succeeds got=0 exp=0
+  [ ok ] X1: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] X1: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] X1: the lane's stream mask names port 0's stream alone got=0x0 exp=0x0
+  [i]    X2 SILENCE: bound FF, lane streams 00; accepted PDUs / presented events per stream: 138/734 138/734 138/734 138/734 138/734 138/734 138/734 138/734
+  [i]    X2 SILENCE: 119 frames, slot 0 rendered 0 silent 119 other 0, events -1..-1, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 0.0 ns over 0 events (band 1041.7)
+  [ ok ] X2 SILENCE FRAMING: the bus keeps framing, over at least 100 frames
+  [ ok ] X2 SILENCE: all 32 slots are digital silence in every frame
+  [ ok ] X3: ADD stream 0 channel 1 on port 0 succeeds got=0 exp=0
+  [ ok ] X3: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] X3: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] X3: the lane's stream mask names port 0's stream alone got=0x1 exp=0x1
+  [i]    X3 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 162/881 162/881 162/881 162/881 162/881 162/881 162/881 162/881
+  [i]    X3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 760..878, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.4 ns over 119 events (band 1041.7)
+  [ ok ] X3 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] X3 RENDER: slot 0 carries stream 0 channel 1 in every frame got=119 exp=119
+  [ ok ] X3 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] X3 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] X3 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] X3 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] X3 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+
+[BIND] bind falls and the rebind's freshness
+  [ ok ] B1: a bind fall on stream 5, which the lane does not render, opens no epoch got=1 exp=1
+  [i]    B1 RENDER: bound DF, lane streams 01; accepted PDUs / presented events per stream: 182/1002 182/1002 182/1002 182/1002 182/1002 162/881 182/1002 182/1002
+  [i]    B1 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 881..999, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [ ok ] B1 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] B1 RENDER: slot 0 carries stream 0 channel 1 in every frame got=119 exp=119
+  [ ok ] B1 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] B1 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] B1 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] B1 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] B1 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+  [ ok ] B2: the bind fall on stream 0, which the lane renders, opens one epoch got=2 exp=2
+  [ ok ] B3 REBIND: listener 0 launched a PROBE_TX at its talker got=1 exp=1
+  [i]    B2..B3 record: 357 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 0 non-silent to the rebind; then 96 silent, the first rendered event 1218 against 1092 sent before the loss, 140 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+  [ ok ] B2 FLUSH: the lane falls silent within one PDU of the fall, every frame before that pre-loss audio of stream 0 channel 1
+  [ ok ] B2: from then to the rebind all 32 slots are silent in every frame, at least 100
+  [ ok ] B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1092 sent before the loss
+  [ ok ] B3 FRESHNESS: the first frame rendered after the rebind is a post-loss event
+  [ ok ] B3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+  [ ok ] B3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+  [ ok ] B3: the rebind opened no further epoch   got=2 exp=2
+  [i]    B3 RENDER: bound DF, lane streams 01; accepted PDUs / presented events per stream: 241/1264 262/1480 262/1480 262/1480 262/1480 162/881 262/1480 262/1480
+  [i]    B3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 1359..1477, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 10.3 ns over 119 events (band 1041.7)
+  [ ok ] B3 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] B3 RENDER: slot 0 carries stream 0 channel 1 in every frame got=119 exp=119
+  [ ok ] B3 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] B3 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] B3 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] B3 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] B3 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+  [ ok ] B4 REBIND: listener 5 launched a PROBE_TX at its talker got=1 exp=1
+
+[RESET] a datapath reset while the lane renders
+  [ ok ] BOOT: PP_STAT[2] the restore walk sequenced got=1 exp=1
+  [ ok ] Z1: streams 1-7's listener format reads back out of the LCTX got=7 exp=7
+  [ ok ] Z1 POWER-ON AGAIN: GET_AUDIO_MAP on all eight ports reads the issued route record got=8 exp=8
+  [ ok ] Z1 POWER-ON AGAIN: render keys 0-9 hold port 0's mapping on key 2 and nothing else got=10 exp=10
+  [ ok ] Z1 POWER-ON AGAIN: the lane's stream mask names port 0's stream alone got=0x1 exp=0x1
+  [ ok ] Z3 BIND: listener 0 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 1 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 2 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 3 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 4 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 5 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 6 launched a PROBE_TX at its talker got=1 exp=1
+  [ ok ] Z3 BIND: listener 7 launched a PROBE_TX at its talker got=1 exp=1
+  [i]    DEFECT ARM: stream 0's next 2 PDUs carry events 1560..1571 again
+  [i]    record frame 352 renders event 1560, before the 1572 sent first
+  [i]    record frame 353 renders event 1561, before the 1572 sent first
+  [i]    record frame 354 renders event 1562, before the 1572 sent first
+  [i]    record frame 355 renders event 1563, before the 1572 sent first
+  [i]    Z2..Z3 record: 492 frames; 0 pre-reset frame(s), silence from frame 0, 243 silent and 0 non-silent to the rebind; then 97 silent, the first rendered event 1812 against 1572 sent before the reset, 152 rendered (12 stale, 0 foreign, 0 gap(s), 1 reordered)
+  [ ok ] Z2: the lane is silent from the reset's release
+  [ ok ] Z2: from then to the rebind all 32 slots are silent in every frame, at least 100
+  [FAIL] Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past the 1572 sent before the reset
+  [ ok ] Z3 FRESHNESS: the first frame rendered after the rebind is a post-reset event
+  [ ok ] Z3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+  [FAIL] Z3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+  [i]    Z3 RENDER: bound FF, lane streams 01; accepted PDUs / presented events per stream: 302/1539 323/1755 323/1755 322/1749 322/1749 222/1148 322/1749 321/1743
+  [i]    Z3 RENDER: 119 frames, slot 0 rendered 119 silent 0 other 0, events 1965..2083, 0 skipped (0 counted) 0 repeated (0 counted), presentation max 7.1 ns over 119 events (band 1041.7)
+  [ ok ] Z3 RENDER FRAMING: fsync every 1024 bclk rises and at position 0, over at least 100 frames
+  [ ok ] Z3 RENDER: slot 0 carries stream 0 channel 0 in every frame got=119 exp=119
+  [ ok ] Z3 RENDER: no other source and no silence in slot 0 got=0 exp=0
+  [ ok ] Z3 RENDER: slots 1-31 carry zero in every frame got=0 exp=0
+  [ ok ] Z3 RENDER: slot 0 is 24-in-32, its pad byte zero got=0 exp=0
+  [ ok ] Z3 RENDER: events in order, each skip and repeat counted by the lane
+  [ ok ] Z3 RENDER: every rendered event at its presentation time (+/-5% Ps, #632)
+== ship8_render: checks: 130   failures: 2 ==
+RESULT: FAIL
+rc=1

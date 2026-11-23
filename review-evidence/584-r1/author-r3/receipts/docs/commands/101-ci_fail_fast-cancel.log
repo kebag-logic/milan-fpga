@@ -1,0 +1,12 @@
+CMD /usr/bin/python3 scripts/ci_fail_fast.py cancel
+HEAD 599c79af START 22:27:50
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/584-a818/clones/r3docs/scripts/ci_fail_fast.py", line 237, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$VALIDATION_STORAGE/584-a818/clones/r3docs/scripts/ci_fail_fast.py", line 216, in main
+    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'GITHUB_EVENT_PATH'
+rc=1

@@ -1,0 +1,45 @@
+# Round 2 receipts index, corrected
+
+Supersedes `author-r2/receipts/INDEX.md`, whose two `f5/` rows held the sizes and sha256 of those files before publication redacted a home-directory path in their text (#584, R894-2 F5-R2, R893-2 F7). Every row below is the size and sha256 of the file as published at evidence commit `e3127c91`, read from its Git blob. `author-r2/receipts/f5/round1-INDEX-corrected.md` in turn supersedes `author-r1/receipts/INDEX.md`.
+
+## docs/
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `docs/docswf-64d539f1.txt` | 9964 | `de23dad0bc1a4080dbcccc3e24d62baeb1332c496884be3bb9595b3fd7c04425` |
+
+## f5/
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `f5/index-check.md` | 930 | `2028461caefbe9d38a8ac90a1e67ff33e2108066bf34059a76f80e615030479f` |
+| `f5/round1-INDEX-corrected.md` | 10838 | `d132b10e40e22722e59df58ab56547d2f4896a339f67225a8698ba51ea2c758c` |
+
+## gates/
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `gates/builder-leg-0-25ad9c9a.json` | 4613 | `3d3543456d86837dd5d4277c55571e4a53d9bf383936fce0385b14be856400c4` |
+| `gates/builder-leg-1-25ad9c9a.json` | 16615 | `7ae3e1af78ed7166a0fc6d1e497790d4967d3641205d9d9abffdbfa42e8dd16a` |
+| `gates/builder-leg0-25ad9c9a.txt` | 50739 | `01d434cf5d27cd8319002ab9345175a4e63e497577a8281bb24854542b706513` |
+| `gates/builder-leg1-25ad9c9a.txt` | 109809 | `22a77f4c918f459ba25bf3dd39792384ed1f8dc198d5e93866f99dc61d869d3c` |
+| `gates/builder-legs-union-25ad9c9a.txt` | 431 | `ee73673540acc1e868d84c28b6463d48d3f28fbb82bbec1c3de9c73923ca47bf` |
+| `gates/twin-ledger-25ad9c9a.txt` | 63078 | `e188ec13967647f9fa4f9f839573937b9d0bad8ec292e3fd58580ada6742fbc8` |
+
+## public/
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `public/review-ready-r2.md` | 5859 | `8892fba4705d114547a696e6acf05e71f012ae3568abbd791fefccc737713748` |
+
+## rtl/
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| `rtl/milan_dp_render-suite-25ad9c9a.txt` | 2211 | `3ee1db8d87c43a272749944b31dc65180ceebfa94c8c9284140e3c0501c8637b` |
+| `rtl/ship8-25ad9c9a.log` | 4340 | `63febd0ec01be13fa44702f8fe08cf3197110acdc6396d2ab20c3c1b3513de79` |
+| `rtl/ship8-64d539f1.log` | 14435 | `1e2d21ee6a06a92d55dc2cbf41fe3066a645bd29ea54988772ab68df347a52d4` |
+| `rtl/ship8-ci-driver-e2a0858c.txt` | 249 | `994bf91cd161e858945d16a5c7476ff3dc884ce861a2cdff2b1563d4342a90ac` |
+| `rtl/ship8-mutants-25ad9c9a.txt` | 1057 | `ebae32ed74cb04eee62e7604b78dfd7fcb685d7a736b7d19d4d236cb6d90007b` |
+| `rtl/ship8-mutants-64d539f1.txt` | 1013 | `85251699279ab8e81cbb7e1ed00d651aa1600d619598eadfea705eb54493975d` |
+

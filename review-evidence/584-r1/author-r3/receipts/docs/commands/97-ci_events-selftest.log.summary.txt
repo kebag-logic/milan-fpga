@@ -1,0 +1,17 @@
+Raw source log: 97-ci_events-selftest.log
+Bytes: 367287
+SHA256: c34264fa0e7367ad43b891a49c39095ce4f06c3f12f41c4b542da85f056718ba
+The full log stays in scratch under the packet size limit.
+Final output excerpt (paths normalized):
+  ok   default-branch: schedule on dev passes
+  ok   default-branch: dispatch on dev passes
+  ok   default-branch: schedule on main refuses, naming main
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2287 contract items, 5723 arms)
+rc=0
