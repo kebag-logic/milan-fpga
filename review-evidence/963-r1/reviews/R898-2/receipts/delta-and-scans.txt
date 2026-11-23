@@ -1,0 +1,24 @@
+## git diff --name-only 4cca956932073b3f704f12f81c53f2934cfa215c a18f0996f4b1b654a232dfe56fa64ee7ecaf697e
+sw/firmware/ctrl/test/aecp_map_mutants.py
+sw/firmware/ctrl/test/test_aecp.cpp
+## git diff --name-only 25d3dd7a83 HEAD
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/test/aecp_map_mutants.py
+sw/firmware/ctrl/test/test_aecp.cpp
+## git diff --name-only dd163e41 HEAD
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/aecp/aecp_maps.c
+sw/firmware/ctrl/test/aecp_map_mutants.py
+sw/firmware/ctrl/test/aecp_output_mutants.py
+sw/firmware/ctrl/test/test_aecp.cpp
+## added lines 4cca9569..head matching lane/round/reviewer/comment-ID patterns (expect none)
+grep rc=1 (1 = no match)
+## plant site count in aecp_maps.c
+1
+## AECP campaign table at head
+DEFECTS 390 distinct 390
+graded by Core.MapEditsAreTheirDefinitionRowForRow: 17; map-read-before-legal among them: True
+rows: map-value-cluster-channel-ignored map-add-stops-early map-illegal-ends-early map-illegal-unflagged map-port-rows-unread map-owners-unread map-checked-before-its-read map-read-before-legal map-stream-observed-every-mapping map-repeat-counted map-remove-every-copy map-remove-reach-a-row-late map-remove-reach-a-row-short map-remove-rows-past-the-reach-dropped map-remove-kept-row-unmoved map-row-words-cluster-channel-dropped map-copy-cluster-channel-dropped
+## evidence packet 7bd1b854: MANIFEST.json sha256 and author-r2 verification
+dd660e59eecad7c624bd2cbae9342d9453ba9c4a719bd2a92e31d498daa4f790  review-evidence/963-r1/MANIFEST.json
+349 author-r2 entries, 0 hash mismatches, 0 unlisted files; evidence commit reported unsigned by the host
