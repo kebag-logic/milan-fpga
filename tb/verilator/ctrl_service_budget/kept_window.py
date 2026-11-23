@@ -14,9 +14,12 @@ the group declares is one no binding holds. On every interface, after the link s
 - srp.kept_recount: one MRPDU declaring one stream more than the shape's inputs past the kept ones: its count before
   the receive (a kept registration ended and a block was returned since), the first kept in the freed place, and the
   rest past the bound, each a scan of the kept list and refused;
-- the participant's LeaveAll timer runs out (10 s, lwSRP's randomised LeaveAllTime, srp_mbx.c's SRP_LEAVEALL_CS),
-  so the build that sends the LeaveAll carries each kept attribute (an observed attribute answers a LeaveAll with In,
-  Table 10-3); mrpdu_grade.py's LeaveAll row and whole_grade.py's builds grade it, as in every group;
+- the participant's LeaveAll timer runs out (10 s, lwSRP's randomised LeaveAllTime, srp_mbx.c's SRP_LEAVEALL_CS)
+  and the entity sends its LeaveAll, which carries no kept value: its txLA! takes each kept attribute, observed and
+  not declared, to LO with only an optional [s] (IEEE 802.1Q-2018 Table 10-3). The next MRPDU's tx! sends In from LO
+  for each, its Registrar IN (s, 10.7.6.5): that build is the one that encodes the kept values. mrpdu_grade.py's
+  LeaveAll row grades the LeaveAll's owner and deadline, as in every group, and whole_grade.py's builds grade both
+  builds' passes;
 - the link goes down and up, a reset whose new participants keep none, then srp.kept_failed: one MRPDU declaring a
   Talker Failed for each STREAM_INPUT, each kept.
 
@@ -27,7 +30,7 @@ MRPDU as srp.kept_advertise (srp.bound_advertise), as a bridge re-declares the T
 A record that registers Talkers is past CTRL_LOOP_SRP_UNIT_US on the bound path the base has (#977), and the kept
 Talkers make the same registrations before the bindings. kept_grade.py grades both groups as owed to #977, held at
 kept <= bound on the same image and no work pass of srp-kept over THE SHARE, each pass given whole to a build within
-its stated cost; run.py gives their #977 lines that disposition (kept_grade.disposed).
+its stated cost; run.py gives their #977 lines that disposition (kept_grade.Disposition).
 """
 from __future__ import annotations
 

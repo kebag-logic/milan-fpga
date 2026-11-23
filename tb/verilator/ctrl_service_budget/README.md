@@ -768,19 +768,27 @@ of their own, `srp-kept` ([`kept_window.py`](kept_window.py)), in arm A at every
 declares every STREAM_INPUT's Talker Advertise in one MRPDU before any binding (the fixture binds none), so each is
 kept; one of them leaves, and past its leave timer a receive of one stream more than the inputs counts the kept
 again after the block's return, keeps one in the freed place and refuses the rest past the bound; the LeaveAll
-timer then runs out with the kept present, so the build that sends the LeaveAll carries them; and after a link
-down and up, a reset, every input's Talker Failed in one MRPDU is kept. Beside it on the same image, `srp-bound`
+timer then runs out with the kept present: the LeaveAll itself carries none of them (its txLA! takes each, observed
+and not declared, to LO with only an optional [s], IEEE 802.1Q-2018 Table 10-3), and the next MRPDU answers it with
+In for each from LO (s, 10.7.6.5), the build that encodes the kept values (2 values at 1x1, 9 at 8x8, both
+measured); `mrpdu_grade.py`'s LeaveAll row grades the LeaveAll's owner and deadline. After a link down and up, a
+reset, every input's Talker Failed in one MRPDU is kept. Beside it on the same image, `srp-bound`
 is the bound path the base has: every input bound to its own stream through BIND_RX and the talker's
 PROBE_TX_RESPONSE, then the same MRPDU, as a bridge re-declares the bound Talkers after any LeaveAll.
 
 A record that registers more than one or two Talkers is past `CTRL_LOOP_SRP_UNIT_US`, on that bound path as for the
 kept ones. That cost is owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977), and the unit is not
 restated (the owner's ruling on #969, 2026-11-22). [`kept_grade.py`](kept_grade.py) grades both groups as owed to
-it: each record over the unit, and the bound group's walk, polls base and passes over THE SHARE, are named OWED #977
-while every kept record costs no more than the bound record of its interface on the same image, no work pass of
-`srp-kept` is over THE SHARE, every build pass of both is within its stated cost and every probe has its record;
-any breach is a finding. `run.py` gives its STATED and SHARE lines the same disposition (`kept_grade.Disposition`),
-and one of the two groups graded alone is a finding. `--selftest` plants each breach.
+it: each record over the unit, and the bound group's walk, polls base and work passes over THE SHARE, are named
+OWED #977 while every condition holds, each breach a finding by name: both groups' logs are present and finished (no
+incomplete simulation, trap or bus error); every probe the point makes is marked, none other, and each has its record;
+every kept record costs no more than the bound record of its own interface on the same image, that record present; no
+work pass of `srp-kept` is over THE SHARE, nor any idle run's longest pass in either group (an idle pass makes no
+registration, so none is owed); every build pass of both is within its stated cost. THE SHARE is read from the logs
+graded, never from a result file beside them, so a stale, empty or absent `<group>.json` neither clears nor hides it.
+`run.py` gives its STATED and SHARE lines the same disposition (`kept_grade.Disposition`), and one of the two groups
+graded alone is a finding. `--selftest` breaks each condition in synthetic logs at 1x1/1if, through `held`,
+`Disposition` and the standalone entry point (19 checks), and each must be the finding it names.
 
 ### Backlog rows
 
