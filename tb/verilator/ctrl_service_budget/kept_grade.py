@@ -224,17 +224,25 @@ def grade_dir(build_dir: Path, results: Path | None = None) -> tuple[list[str], 
         owed, findings
 
 
-def selftest() -> list[tuple[str, bool, str]]:
-    """Each condition's outcome on synthetic logs at 1x1/1if and 100 MHz, the unit's edge from the rule, through held,
-    Disposition and the standalone entry point."""
-    shape, hz = shape_costs.of_point('1x1/1if'), 100_000_000
-    unit = shape_costs.at(shape, scenario.ROOT)[UNIT]
-    edge = next(c for c in range(unit * 100, 0, -1) if record_classes.rule(c, hz) <= unit)
-    share = grade.pass_share(grade.parse('', hz, hz))['cycles']
-    build_one = whole_grade.held(grade.parse('', hz, hz), shape)['limits']['build-one']
-    kept_names = ('srp.kept_advertise.if0', 'srp.kept_recount.if0', 'srp.kept_failed.if0')
-    clean = ([edge, edge, 1_000], [('srp.bound_advertise.if0', edge)])
+class Synthetic:
+    """The self-test's synthetic logs at 1x1/1if and 100 MHz: the unit's edge from the rule, THE SHARE and the stated
+    build of one MRPDU, and the extra lines that break each condition."""
 
+    KEPT = ('srp.kept_advertise.if0', 'srp.kept_recount.if0', 'srp.kept_failed.if0')
+
+    def __init__(self) -> None:
+        self.shape, self.hz = shape_costs.of_point('1x1/1if'), 100_000_000
+        self.unit = shape_costs.at(self.shape, scenario.ROOT)[UNIT]
+        self.edge = next(c for c in range(self.unit * 100, 0, -1) if record_classes.rule(c, self.hz) <= self.unit)
+        share = grade.pass_share(grade.parse('', self.hz, self.hz))['cycles']
+        build_one = whole_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limits']['build-one']
+        self.clean = ([self.edge, self.edge, 1_000], [('srp.bound_advertise.if0', self.edge)])
+        self.over_share = (f'PASS 0 9000000 9000000 {share + 1}',)
+        self.idle_over = (f'IDLE 4 1000 {share + 1}',)
+        self.build_over = (f'PASS 1 9500000 9500000 {build_one + 1}', 'ENTRY 9500010 build_mrpdu')
+        self.spec = dict(sys_hz=self.hz, cpu_hz=self.hz, interfaces=1)
+
+    @staticmethod
     def text(probes: list[tuple[str, int | None]], extra: tuple[str, ...] = (), result: str = 'PASS') -> str:
         """A log of the probes' marks, each followed by a record of those cycles, or none, then the extra lines."""
         lines = []
@@ -245,80 +253,39 @@ def selftest() -> list[tuple[str, bool, str]]:
                 lines.append(f'SPAN {at + 100} {at + 100} {c} 00002000 {RECORD}')
         return '\n'.join([*lines, *extra, 'SUMMARY passes=1', f'RESULT: {result}']) + '\n'
 
-    def texts(kept: list[int | None], bound: list[tuple[str, int | None]], kept_extra: tuple[str, ...] = (),
+    def texts(self, kept: list[int | None], bound: list[tuple[str, int | None]], kept_extra: tuple[str, ...] = (),
               bound_extra: tuple[str, ...] = (), kept_result: str = 'PASS') -> dict[str, str]:
         """srp-kept's three probes, those cycles each, and srp-bound's probes, each log with its extra lines."""
-        return {kept_window.NAME: text(list(zip(kept_names, kept)), kept_extra, kept_result),
-                kept_window.BOUND: text(bound, bound_extra)}
+        return {kept_window.NAME: self.text(list(zip(self.KEPT, kept)), kept_extra, kept_result),
+                kept_window.BOUND: self.text(bound, bound_extra)}
 
-    def graded(*args, **kwargs) -> tuple[list[str], list[str]]:
+    def graded(self, *args, **kwargs) -> tuple[list[str], list[str]]:
         """The owed lines and the findings of held on those logs; an exception is a finding of its own."""
-        logs = texts(*args, **kwargs)
+        logs = self.texts(*args, **kwargs)
         try:
-            return held(*(grade.parse(logs[name], hz, hz) for name in OWED_KINDS), shape, 1)[1:]
+            return held(*(grade.parse(logs[name], self.hz, self.hz) for name in OWED_KINDS), self.shape, 1)[1:]
         except Exception as error:  # noqa: BLE001 - the self-test reports it as the check's failure
             return [], [f'held raised {type(error).__name__}: {error}']
 
-    over_share_pass = (f'PASS 0 9000000 9000000 {share + 1}',)
-    idle_over = (f'IDLE 4 1000 {share + 1}',)
-    build_over = (f'PASS 1 9500000 9500000 {build_one + 1}', 'ENTRY 9500010 build_mrpdu')
-    within = graded(*clean)
-    owed = graded([2 * edge, edge, 1_000], [('srp.bound_advertise.if0', 3 * edge)])
-    over = graded([2 * edge, edge, 1_000], [('srp.bound_advertise.if0', 2 * edge - 1)])
-    missing = graded([1_000, None, 1], [('srp.bound_advertise.if0', edge)])
-    shared = graded(*clean, kept_extra=over_share_pass, bound_extra=over_share_pass)
-    idle = [graded(*clean, kept_extra=idle_over), graded(*clean, bound_extra=idle_over)]
-    built = [graded(*clean, kept_extra=build_over), graded(*clean, bound_extra=build_over)]
-    unfinished = graded(*clean, kept_result='FAIL')
-    unmarked = graded([1_000, 1_000], [('srp.bound_advertise.if0', edge)])
-    unmated = graded(clean[0], [('srp.bound_advertise.if1', edge)])
 
-    with tempfile.TemporaryDirectory() as tmp:
-        out = Path(tmp)
-        (out / 'build.json').write_text(json.dumps(dict(sys_hz=hz, cpu_hz=hz, interfaces=1)))
-        (out / 'results').mkdir()
+def only(found: list[str], *words: str) -> bool:
+    """One finding, carrying every word."""
+    return len(found) == 1 and all(w in found[0] for w in words)
 
-        def standalone(logs: dict[str, str | None], beside: str | None = None) -> tuple[int, str]:
-            """main's exit and output on those logs (None: no log), each with that text as its result file."""
-            for name, body in logs.items():
-                for suffix in ('.log', '.json'):
-                    (out / 'results' / f'{name}{suffix}').unlink(missing_ok=True)
-                if body is not None:
-                    (out / 'results' / f'{name}.log').write_text(body)
-                if beside is not None:
-                    (out / 'results' / f'{name}.json').write_text(beside)
-            printed = io.StringIO()
-            try:
-                with contextlib.redirect_stdout(printed):
-                    rc = main([str(out)])
-            except Exception as error:  # noqa: BLE001 - the self-test reports it as the check's failure
-                return 2, f'main raised {type(error).__name__}: {error}'
-            return rc, printed.getvalue()
 
-        stale = json.dumps(dict(group=kept_window.NAME, passes=dict(share=dict(over_passes=[]))))
-        alone_clean = standalone(texts(*clean))
-        alone_over = [standalone(texts(*clean, kept_extra=over_share_pass), beside) for beside in (stale, '{}')]
-        alone_idle = standalone(texts(*clean, kept_extra=idle_over))
-        alone_absent = standalone({**texts(*clean), kept_window.BOUND: None})
-        alone_failed = standalone(texts(*clean, kept_result='FAIL'), stale)
-        alone_garbled = standalone({**texts(*clean), kept_window.NAME: 'NOT-A-LINE 1\nRESULT: PASS\n'})
-        for name, body in texts(*clean).items():
-            (out / f'{name}.log').write_text(body)
-        pair = Disposition([dict(group=name) for name in OWED_KINDS], out, dict(sys_hz=hz, cpu_hz=hz, interfaces=1))
-        stated = [f"{kept_window.NAME}: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500",
-                  f'{kept_window.BOUND}: a walk item of 15,000 CPU cycles, over its stated 12,000']
-        pair_left = pair.stated(list(stated))
-        alone = Disposition([dict(group=kept_window.NAME)], out, dict(sys_hz=hz, cpu_hz=hz, interfaces=1))
-        alone_left = alone.stated(list(stated))
-        (out / f'{kept_window.NAME}.log').write_text(texts(*clean, kept_extra=over_share_pass)[kept_window.NAME])
-        broken = Disposition([dict(group=name) for name in OWED_KINDS], out, dict(sys_hz=hz, cpu_hz=hz, interfaces=1))
-        broken_left = broken.stated(list(stated))
-
-    def only(found: list[str], *words: str) -> bool:
-        """One finding, carrying every word."""
-        return len(found) == 1 and all(w in found[0] for w in words)
-
-    return [(f'records at the unit by the rule ({edge:,} cycles, {unit} us), kept <= bound: nothing owed or found',
+def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
+    """Each condition's outcome through held."""
+    within = s.graded(*s.clean)
+    owed = s.graded([2 * s.edge, s.edge, 1_000], [('srp.bound_advertise.if0', 3 * s.edge)])
+    over = s.graded([2 * s.edge, s.edge, 1_000], [('srp.bound_advertise.if0', 2 * s.edge - 1)])
+    missing = s.graded([1_000, None, 1], [('srp.bound_advertise.if0', s.edge)])
+    shared = s.graded(*s.clean, kept_extra=s.over_share, bound_extra=s.over_share)
+    idle = [s.graded(*s.clean, kept_extra=s.idle_over), s.graded(*s.clean, bound_extra=s.idle_over)]
+    built = [s.graded(*s.clean, kept_extra=s.build_over), s.graded(*s.clean, bound_extra=s.build_over)]
+    unfinished = s.graded(*s.clean, kept_result='FAIL')
+    unmarked = s.graded([1_000, 1_000], [('srp.bound_advertise.if0', s.edge)])
+    unmated = s.graded(s.clean[0], [('srp.bound_advertise.if1', s.edge)])
+    return [(f'records at the unit by the rule ({s.edge:,} cycles, {s.unit} us), kept <= bound: nothing owed or found',
              within == ([], []), str(within)),
             ('records past the unit with kept <= bound are owed to #977, by name and link, and found nothing',
              len(owed[0]) == 2 and all('#977' in o and '/issues/977' in o for o in owed[0]) and owed[1] == [],
@@ -343,8 +310,53 @@ def selftest() -> list[tuple[str, bool, str]]:
             ('a kept probe with no bound record of its own interface is a finding, never a skipped comparison',
              len(unmated[1]) == 5 and sum('kept <= bound is unchecked' in f for f in unmated[1]) == 3 and
              any('srp.bound_advertise.if0: never marked' in f for f in unmated[1]) and
-             any('srp.bound_advertise.if1' in f and 'not a probe' in f for f in unmated[1]), str(unmated)),
-            ('both groups graded together: their #977 lines are owed by name and link, and nothing stays',
+             any('srp.bound_advertise.if1' in f and 'not a probe' in f for f in unmated[1]), str(unmated))]
+
+
+def standalone(out: Path, logs: dict[str, str | None], beside: str | None = None) -> tuple[int, str]:
+    """main's exit and output on a build directory's logs (None: no log), each with that text as its result file
+    (None: none); an exception is exit 2."""
+    for name, body in logs.items():
+        for suffix in ('.log', '.json'):
+            (out / 'results' / f'{name}{suffix}').unlink(missing_ok=True)
+        if body is not None:
+            (out / 'results' / f'{name}.log').write_text(body)
+        if beside is not None:
+            (out / 'results' / f'{name}.json').write_text(beside)
+    printed = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(printed):
+            rc = main([str(out)])
+    except Exception as error:  # noqa: BLE001 - the self-test reports it as the check's failure
+        return 2, f'main raised {type(error).__name__}: {error}'
+    return rc, printed.getvalue()
+
+
+def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
+    """Each condition's outcome through Disposition (run.py's) and the standalone entry point, on files."""
+    stated = [f"{kept_window.NAME}: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500",
+              f'{kept_window.BOUND}: a walk item of 15,000 CPU cycles, over its stated 12,000']
+    stale = json.dumps(dict(group=kept_window.NAME, passes=dict(share=dict(over_passes=[]))))
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp)
+        (out / 'build.json').write_text(json.dumps(s.spec))
+        (out / 'results').mkdir()
+        alone_clean = standalone(out, s.texts(*s.clean))
+        alone_over = [standalone(out, s.texts(*s.clean, kept_extra=s.over_share), beside) for beside in (stale, '{}')]
+        alone_idle = standalone(out, s.texts(*s.clean, kept_extra=s.idle_over))
+        alone_absent = standalone(out, {**s.texts(*s.clean), kept_window.BOUND: None})
+        alone_failed = standalone(out, s.texts(*s.clean, kept_result='FAIL'), stale)
+        alone_garbled = standalone(out, {**s.texts(*s.clean), kept_window.NAME: 'NOT-A-LINE 1\nRESULT: PASS\n'})
+        for name, body in s.texts(*s.clean).items():
+            (out / f'{name}.log').write_text(body)
+        pair = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
+        pair_left = pair.stated(list(stated))
+        alone = Disposition([dict(group=kept_window.NAME)], out, s.spec)
+        alone_left = alone.stated(list(stated))
+        (out / f'{kept_window.NAME}.log').write_text(s.texts(*s.clean, kept_extra=s.over_share)[kept_window.NAME])
+        broken = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
+        broken_left = broken.stated(list(stated))
+    return [('both groups graded together: their #977 lines are owed by name and link, and nothing stays',
              pair.findings == [] and pair_left == [] and len(pair.owed) == 2 and
              all('/issues/977' in o for o in pair.owed), str((pair.findings, pair_left, pair.owed))),
             ('one group graded alone is a finding: nothing is owed and every line stays a failure',
@@ -371,6 +383,13 @@ def selftest() -> list[tuple[str, bool, str]]:
             ('standalone: a log that does not parse fails by name',
              alone_garbled[0] == 1 and 'FINDING srp-kept: its log does not parse' in alone_garbled[1],
              alone_garbled[1])]
+
+
+def selftest() -> list[tuple[str, bool, str]]:
+    """Each condition's outcome on synthetic logs at 1x1/1if and 100 MHz, through held, Disposition and the standalone
+    entry point."""
+    s = Synthetic()
+    return selftest_held(s) + selftest_files(s)
 
 
 def main(argv: list[str]) -> int:
