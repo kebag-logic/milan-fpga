@@ -90,10 +90,10 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         # later pass's take, owed a LINK of its own, is taken on the elided UP's observation: the first UP resets the
         # interface and loses the startup participants, and a later one resets it twice
         kind(PREFIX + "mark-survives-a-down", FRESH, UNOWED,
-             "        c = ((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up | (c & 2u);\n",
+             "        c = (((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up) | (c & 2u);\n",
              "SRP's poll took a fresh UP on an elided UP's observation", suite=SUITE),
         kind(PREFIX + "mark-survives-a-down-later", FRESH_LATER, UNOWED,
-             "        c = ((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up | (c & 2u);\n",
+             "        c = (((c >> 1 & (m->loop->events_left ? 0u : 1u)) | 2u) & -(unsigned)up) | (c & 2u);\n",
              "a later UP resets the interface once", suite=SUITE),
         # the mask applied before the shift, not after it: a DOWN the poll reads sets the mark instead of clearing
         # it, so the fresh UP is taken on an observation made while the link was down
