@@ -1,0 +1,553 @@
+vivado-slot: slot 0 ($VIVADO_LOCK), MemAvailable 69 GB, 2026-11-23T23:16:34+01:00
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Mon Nov 23 23:16:35 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '<home-path>/.Xilinx/Vivado/Vivado_init.tcl'
+source $SCRATCH/leaf-capture/legacy/leaf.tcl
+# set_param general.maxThreads 8
+# read_verilog -sv $CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+# read_verilog -sv $SCRATCH/leaf-capture/capture_leaf.sv
+# synth_design -mode out_of_context -top capture_leaf -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P=0 -generic LEGACY_P=1 -generic N_LB_STREAMS_P=8 -generic N_LB_CH_P=8
+Command: synth_design -mode out_of_context -top capture_leaf -part xc7a100t-fgg484-2 -directive AreaOptimized_high -generic INPUT_LOOPBACK_P=0 -generic LEGACY_P=1 -generic N_LB_STREAMS_P=8 -generic N_LB_CH_P=8
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 2265976
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2202.488 ; gain = 494.922 ; free physical = 20913 ; free virtual = 96780
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'capture_leaf' [$SCRATCH/leaf-capture/capture_leaf.sv:1]
+	Parameter LEGACY_P bound to: 32'sb00000000000000000000000000000001 
+	Parameter INPUT_LOOPBACK_P bound to: 32'sb00000000000000000000000000000000 
+	Parameter N_LB_STREAMS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_LB_CH_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6157] synthesizing module 'KL_chan_map_capture' [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:375]
+	Parameter INPUT_LOOPBACK_P bound to: 32'sb00000000000000000000000000000000 
+	Parameter N_SLOTS_P bound to: 32'b00000000000000000000000000100000 
+	Parameter N_TDM_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TDM_FRAME_PAIRS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TDM_CLOSE_SLOT_P bound to: 32'b00000000000000000000000000000011 
+	Parameter GAP_CYC_P bound to: 32'b00000000000000000000000000011000 
+	Parameter N_LB_STREAMS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_LB_CH_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:1345]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:890]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:1249]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:1414]
+INFO: [Synth 8-6155] done synthesizing module 'KL_chan_map_capture' (0#1) [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:375]
+INFO: [Synth 8-6155] done synthesizing module 'capture_leaf' (0#1) [$SCRATCH/leaf-capture/capture_leaf.sv:1]
+WARNING: [Synth 8-6014] Unused sequential element tdm_stage_r_reg[3] was removed.  [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:654]
+WARNING: [Synth 8-4767] Trying to implement RAM 'skid_addr_r_reg' in registers. Block RAM or DRAM implementation is not possible; see log for reasons. [$CHECKOUT/hdl/ieee1722/aaf/KL_chan_map_capture.sv:1101]
+Reason is one or more of the following :
+	1: RAM has multiple writes via different ports in same process. If RAM inferencing intended, write to one port per process. 
+	2: Invalid write to RAM. 
+	3: Invalid write to RAM. 
+	4: No valid clock found for write to RAM. 
+WARNING: [Synth 8-7129] Port lb_tdata_i[63] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[62] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[61] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[60] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[59] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[58] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[57] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[56] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[31] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[30] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[29] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[28] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[27] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[26] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[25] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[24] in module KL_chan_map_capture is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2334.457 ; gain = 626.891 ; free physical = 20710 ; free virtual = 96598
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2337.426 ; gain = 629.859 ; free physical = 20766 ; free virtual = 96655
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2337.426 ; gain = 629.859 ; free physical = 20766 ; free virtual = 96655
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'st_r_reg' in module 'KL_chan_map_capture'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               CM_IDLE_S |                           000001 |                              000
+                CM_POP_S |                           100000 |                              001
+               CM_STEP_S |                           000100 |                              010
+                CM_GAP_S |                           000010 |                              011
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'st_r_reg' using encoding 'one-hot' in module 'KL_chan_map_capture'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 2361.449 ; gain = 653.883 ; free physical = 20785 ; free virtual = 96677
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 1     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input    6 Bit       Adders := 1     
+	   3 Input    5 Bit       Adders := 3     
+	   2 Input    5 Bit       Adders := 4     
+	   2 Input    4 Bit       Adders := 5     
+	   3 Input    4 Bit       Adders := 2     
+	   3 Input    3 Bit       Adders := 1     
+	   5 Input    3 Bit       Adders := 1     
+	   2 Input    3 Bit       Adders := 2     
+	   2 Input    2 Bit       Adders := 5     
+	   3 Input    2 Bit       Adders := 2     
++---Registers : 
+	               48 Bit    Registers := 45    
+	               32 Bit    Registers := 4     
+	               24 Bit    Registers := 5     
+	               16 Bit    Registers := 2     
+	               15 Bit    Registers := 1     
+	               13 Bit    Registers := 64    
+	                8 Bit    Registers := 2     
+	                6 Bit    Registers := 1     
+	                5 Bit    Registers := 40    
+	                4 Bit    Registers := 88    
+	                3 Bit    Registers := 41    
+	                2 Bit    Registers := 10    
+	                1 Bit    Registers := 13    
++---RAMs : 
+	              24K Bit	(512 X 48 bit)          RAMs := 1     
++---Muxes : 
+	   4 Input   48 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 3     
+	   2 Input   24 Bit        Muxes := 2     
+	   4 Input   24 Bit        Muxes := 3     
+	   2 Input   20 Bit        Muxes := 1     
+	   2 Input   15 Bit        Muxes := 1     
+	   2 Input    8 Bit        Muxes := 1     
+	   5 Input    7 Bit        Muxes := 2     
+	   2 Input    7 Bit        Muxes := 2     
+	   2 Input    6 Bit        Muxes := 4     
+	   4 Input    6 Bit        Muxes := 2     
+	   2 Input    5 Bit        Muxes := 45    
+	   4 Input    5 Bit        Muxes := 4     
+	   2 Input    4 Bit        Muxes := 70    
+	   2 Input    3 Bit        Muxes := 34    
+	   2 Input    2 Bit        Muxes := 11    
+	   4 Input    2 Bit        Muxes := 2     
+	   2 Input    1 Bit        Muxes := 504   
+	   4 Input    1 Bit        Muxes := 9     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-7129] Port lb_tdata_i[63] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[62] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[61] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[60] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[59] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[58] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[57] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[56] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[31] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[30] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[29] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[28] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[27] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[26] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[25] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port lb_tdata_i[24] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[23] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[22] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[21] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[20] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[19] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[18] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[17] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[16] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[15] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[14] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[13] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[12] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[11] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[10] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[9] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[8] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[7] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[6] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[5] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[4] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[3] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[2] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[1] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-7129] Port input_sample_i[0] in module KL_chan_map_capture is either unconnected or has no load
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_st_r_reg[4]) is unused and will be removed from module KL_chan_map_capture.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:58 ; elapsed = 00:00:58 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 21253 ; free virtual = 97180
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|dut         | lb_q_r_reg | 512 x 48(READ_FIRST)   | W |   | 512 x 48(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++------------+-----------------+-----------+----------------------+--------------+
+|Module Name | RTL Object      | Inference | Size (Depth x Width) | Primitives   | 
++------------+-----------------+-----------+----------------------+--------------+
+|dut         | beat_bank_r_reg | Implied   | 4 x 72               | RAM32M x 12  | 
++------------+-----------------+-----------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:59 ; elapsed = 00:00:59 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 21266 ; free virtual = 97201
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|dut         | lb_q_r_reg | 512 x 48(READ_FIRST)   | W |   | 512 x 48(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
++------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++------------+-----------------+-----------+----------------------+--------------+
+|Module Name | RTL Object      | Inference | Size (Depth x Width) | Primitives   | 
++------------+-----------------+-----------+----------------------+--------------+
+|dut         | beat_bank_r_reg | Implied   | 4 x 72               | RAM32M x 12  | 
++------------+-----------------+-----------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance dut/lb_q_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:01:00 ; elapsed = 00:01:01 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 21020 ; free virtual = 96956
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20576 ; free virtual = 96514
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20576 ; free virtual = 96514
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20566 ; free virtual = 96504
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20561 ; free virtual = 96500
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20561 ; free virtual = 96499
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20561 ; free virtual = 96499
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |    20|
+|2     |LUT1     |    17|
+|3     |LUT2     |   170|
+|4     |LUT3     |   162|
+|5     |LUT4     |   246|
+|6     |LUT5     |   192|
+|7     |LUT6     |  2234|
+|8     |MUXF7    |   736|
+|9     |MUXF8    |   243|
+|10    |RAM32M   |    12|
+|11    |RAMB36E1 |     1|
+|12    |FDRE     |  3954|
+|13    |FDSE     |     2|
++------+---------+------+
+
+Report Instance Areas: 
++------+---------+--------------------+------+
+|      |Instance |Module              |Cells |
++------+---------+--------------------+------+
+|1     |top      |                    |  7989|
+|2     |  dut    |KL_chan_map_capture |  7989|
++------+---------+--------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20561 ; free virtual = 96499
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 59 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.832 ; gain = 1245.266 ; free physical = 20572 ; free virtual = 96510
+Synthesis Optimization Complete : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2952.840 ; gain = 1245.266 ; free physical = 20572 ; free virtual = 96510
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2952.840 ; gain = 0.000 ; free physical = 20679 ; free virtual = 96617
+INFO: [Netlist 29-17] Analyzing 1012 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'capture_leaf' is not ideal for floorplanning, since the cellview 'KL_chan_map_capture' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2992.852 ; gain = 0.000 ; free physical = 20315 ; free virtual = 96257
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 12 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 12 instances
+
+Synth Design complete | Checksum: fe3e5e37
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+24 Infos, 60 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:08 ; elapsed = 00:01:07 . Memory (MB): peak = 2992.887 ; gain = 1285.320 ; free physical = 20469 ; free virtual = 96411
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2510.366; main = 2141.552; forked = 368.814
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3985.359; main = 2992.855; forked = 1032.523
+# create_clock -period 20 [get_ports clk_i]
+# opt_design -directive ExploreArea
+Command: opt_design -directive ExploreArea
+INFO: [Vivado_Tcl 4-136] Directive used for opt_design is: ExploreArea
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 8 threads
+WARNING: [DRC 23-814] Not all possible (connectivity based) DRCs may have been run because this design is seen as Out of Context.
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:00.54 ; elapsed = 00:00:00.24 . Memory (MB): peak = 3056.883 ; gain = 63.996 ; free physical = 20418 ; free virtual = 96361
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20309 ; free virtual = 96271
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20318 ; free virtual = 96280
+Phase 1 Initialization | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20318 ; free virtual = 96280
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Detect if minReqCache needed
+Phase 2.1 Detect if minReqCache needed | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20318 ; free virtual = 96281
+
+Phase 2.2 Timer Update
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Phase 2.2 Timer Update | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20815 ; free virtual = 96828
+Phase 2 Timer Update And Timing Data Collection | Checksum: 3422f569a
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20808 ; free virtual = 96821
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 11 inverters resulting in an inversion of 88 pins
+INFO: [Opt 31-138] Pushed 1 inverter(s) to 1 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 1ccdc8dce
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20822 ; free virtual = 96836
+Retarget | Checksum: 1ccdc8dce
+INFO: [Opt 31-389] Phase Retarget created 0 cells and removed 11 cells
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 1ccdc8dce
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20830 ; free virtual = 96844
+Constant propagation | Checksum: 1ccdc8dce
+INFO: [Opt 31-389] Phase Constant propagation created 0 cells and removed 0 cells
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20819 ; free virtual = 96832
+Phase 5 Sweep | Checksum: 2806d2542
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3056.883 ; gain = 0.000 ; free physical = 20819 ; free virtual = 96832
+Sweep | Checksum: 2806d2542
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 0 cells
+
+Phase 6 BUFG optimization
+Phase 6 BUFG optimization | Checksum: 2806d2542
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3088.898 ; gain = 32.016 ; free physical = 20830 ; free virtual = 96844
+BUFG optimization | Checksum: 2806d2542
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 2806d2542
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3088.898 ; gain = 32.016 ; free physical = 20831 ; free virtual = 96844
+Shift Register Optimization | Checksum: 2806d2542
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+INFO: [Opt 31-1555] control_set_opt supports Versal devices only, and device 7a100t is unsupported
+
+Phase 8 Resynthesis
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+INFO: [Opt 31-74] Optimized 1 modules.
+INFO: [Opt 31-75] Optimized module 'KL_chan_map_capture'.
+INFO: [Opt 31-1566] Pulled 36 inverters resulting in an inversion of 728 pins
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3096.727 ; gain = 0.000 ; free physical = 19574 ; free virtual = 95581
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3096.727 ; gain = 0.000 ; free physical = 20336 ; free virtual = 96343
+Phase 8 Resynthesis | Checksum: 2cf3be3dd
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20318 ; free virtual = 96324
+Resynthesis | Checksum: 2cf3be3dd
+INFO: [Opt 31-389] Phase Resynthesis created 2865 cells and removed 2892 cells
+
+Phase 9 Post Processing Netlist
+Phase 9 Post Processing Netlist | Checksum: 2cf3be3dd
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20310 ; free virtual = 96316
+Post Processing Netlist | Checksum: 2cf3be3dd
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+
+Phase 10 Finalization
+
+Phase 10.1 Finalizing Design Cores and Updating Shapes
+Phase 10.1 Finalizing Design Cores and Updating Shapes | Checksum: 306c214db
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20246 ; free virtual = 96253
+
+Phase 10.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3096.727 ; gain = 0.000 ; free physical = 20242 ; free virtual = 96249
+Phase 10.2 Verifying Netlist Connectivity | Checksum: 306c214db
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20242 ; free virtual = 96249
+Phase 10 Finalization | Checksum: 306c214db
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20242 ; free virtual = 96249
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |               0  |              11  |                                              0  |
+|  Constant propagation         |               0  |               0  |                                              0  |
+|  Sweep                        |               0  |               0  |                                              0  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Resynthesis                  |            2865  |            2892  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                              0  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 306c214db
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:17 . Memory (MB): peak = 3096.727 ; gain = 39.844 ; free physical = 20242 ; free virtual = 96249
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3096.727 ; gain = 0.000 ; free physical = 20227 ; free virtual = 96234
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+31 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:00:33 ; elapsed = 00:00:20 . Memory (MB): peak = 3096.727 ; gain = 103.840 ; free physical = 20227 ; free virtual = 96234
+# report_utilization -hierarchical -file leaf_hier.rpt
+# report_utilization -file leaf_util.rpt
+# write_checkpoint -force leaf.dcp
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00 . Memory (MB): peak = 3096.727 ; gain = 0.000 ; free physical = 20142 ; free virtual = 96149
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/leaf-capture/legacy/leaf.dcp' has been generated.
+# quit
+INFO: [Common 17-206] Exiting Vivado at Mon Nov 23 23:18:06 2026...

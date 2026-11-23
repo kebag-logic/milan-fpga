@@ -1,0 +1,209 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version     : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date             : Mon Nov 23 23:40:33 2026
+| Host             : <bench-host> running 64-bit unknown
+| Command          : report_power -file alinx_ax7101_power.rpt
+| Design           : alinx_ax7101
+| Device           : xc7a100tfgg484-2
+| Design State     : routed
+| Grade            : commercial
+| Process          : typical
+| Characterization : Production
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Power Report
+
+Table of Contents
+-----------------
+1. Summary
+1.1 On-Chip Components
+1.2 Power Supply Summary
+1.3 Confidence Level
+2. Settings
+2.1 Environment
+2.2 Clock Constraints
+3. Detailed Reports
+3.1 By Hierarchy
+
+1. Summary
+----------
+
++--------------------------+--------------+
+| Total On-Chip Power (W)  | 1.096        |
+| Design Power Budget (W)  | Unspecified* |
+| Power Budget Margin (W)  | NA           |
+| Dynamic (W)              | 0.803        |
+| Device Static (W)        | 0.293        |
+| Effective TJA (C/W)      | 2.7          |
+| Max Ambient (C)          | 82.1         |
+| Junction Temperature (C) | 85.0         |
+| Confidence Level         | Low          |
+| Setting File             | ---          |
+| Simulation Activity File | ---          |
+| Design Nets Matched      | NA           |
++--------------------------+--------------+
+* Specify Design Power Budget using, set_operating_conditions -design_power_budget <value in Watts>
+
+
+1.1 On-Chip Components
+----------------------
+
++--------------------------+-----------+----------+-----------+-----------------+
+| On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
++--------------------------+-----------+----------+-----------+-----------------+
+| Clocks                   |     0.088 |       12 |       --- |             --- |
+| Slice Logic              |     0.049 |    86391 |       --- |             --- |
+|   LUT as Logic           |     0.042 |    31771 |     63400 |           50.11 |
+|   CARRY4                 |     0.004 |     2522 |     15850 |           15.91 |
+|   Register               |     0.002 |    42686 |    126800 |           33.66 |
+|   LUT as Distributed RAM |     0.001 |     1132 |     19000 |            5.96 |
+|   F7/F8 Muxes            |    <0.001 |      793 |     63400 |            1.25 |
+|   LUT as Shift Register  |    <0.001 |       68 |     19000 |            0.36 |
+|   Others                 |     0.000 |      249 |       --- |             --- |
+| Signals                  |     0.092 |    73687 |       --- |             --- |
+| Block RAM                |     0.168 |     81.5 |       135 |           60.37 |
+| MMCM                     |     0.108 |        1 |         6 |           16.67 |
+| PLL                      |     0.266 |        2 |         6 |           33.33 |
+| DSPs                     |     0.004 |       11 |       240 |            4.58 |
+| I/O                      |     0.028 |       38 |       285 |           13.33 |
+| Static Power             |     0.293 |          |           |                 |
+| Total                    |     1.096 |          |           |                 |
++--------------------------+-----------+----------+-----------+-----------------+
+
+
+1.2 Power Supply Summary
+------------------------
+
++-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+| Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
++-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+| Vccint    |       1.000 |     0.581 |       0.416 |      0.166 |       NA    | Unspecified | NA         |
+| Vccaux    |       1.800 |     0.231 |       0.195 |      0.036 |       NA    | Unspecified | NA         |
+| Vcco33    |       3.300 |     0.012 |       0.008 |      0.004 |       NA    | Unspecified | NA         |
+| Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco18    |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco15    |       1.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco135   |       1.350 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco12    |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vccaux_io |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vccbram   |       1.000 |     0.024 |       0.011 |      0.013 |       NA    | Unspecified | NA         |
+| MGTAVcc   |       1.000 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| MGTAVtt   |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vccadc    |       1.800 |     0.020 |       0.000 |      0.020 |       NA    | Unspecified | NA         |
++-----------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+
+
+1.3 Confidence Level
+--------------------
+
++-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| User Input Data             | Confidence | Details                                                | Action                                                                                                     |
++-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| Design implementation state | High       | Design is routed                                       |                                                                                                            |
+| Clock nodes activity        | High       | User specified more than 95% of clocks                 |                                                                                                            |
+| I/O nodes activity          | Low        | More than 75% of inputs are missing user specification | Provide missing input activity with simulation results or by editing the "By Resource Type -> I/Os" view   |
+| Internal nodes activity     | Medium     | User specified less than 25% of internal nodes         | Provide missing internal nodes activity with simulation results or by editing the "By Resource Type" views |
+| Device models               | High       | Device models are Production                           |                                                                                                            |
+|                             |            |                                                        |                                                                                                            |
+| Overall confidence level    | Low        |                                                        |                                                                                                            |
++-----------------------------+------------+--------------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+
+
+2. Settings
+-----------
+
+2.1 Environment
+---------------
+
++-----------------------+--------------------------+
+| Ambient Temp (C)      | 82.1                     |
+| ThetaJA (C/W)         | 2.7                      |
+| Airflow (LFM)         | 250                      |
+| Heat Sink             | medium (Medium Profile)  |
+| ThetaSA (C/W)         | 4.6                      |
+| Board Selection       | medium (10"x10")         |
+| # of Board Layers     | 12to15 (12 to 15 Layers) |
+| Board Temperature (C) | 25.0                     |
++-----------------------+--------------------------+
+
+
+2.2 Clock Constraints
+---------------------
+
++-----------------------------+-----------------------------+-----------------+
+| Clock                       | Domain                      | Constraint (ns) |
++-----------------------------+-----------------------------+-----------------+
+| clk200_p                    | clk200_p                    |             5.0 |
+| eth_clocks0_rx              | eth_clocks0_rx              |             8.0 |
+| milansoc_crg_audio_mclk_raw | milansoc_crg_audio_mclk_raw |            40.7 |
+| milansoc_crg_audio_ref_raw  | milansoc_crg_audio_ref_raw  |            32.2 |
+| milansoc_crg_clkout0        | milansoc_crg_clkout0        |            10.0 |
+| milansoc_crg_clkout1        | milansoc_crg_clkout1        |            20.0 |
+| milansoc_crg_clkout2        | milansoc_crg_clkout2        |             5.0 |
+| milansoc_crg_mmcm_audio_fb  | milansoc_crg_mmcm_audio_fb  |            32.2 |
+| milansoc_crg_pll_audio_fb   | milansoc_crg_pll_audio_fb   |            20.0 |
+| subfragments_pll_fb         | subfragments_pll_fb         |             5.0 |
++-----------------------------+-----------------------------+-----------------+
+
+
+3. Detailed Reports
+-------------------
+
+3.1 By Hierarchy
+----------------
+
++----------------------------------------------------+-----------+
+| Name                                               | Power (W) |
++----------------------------------------------------+-----------+
+| alinx_ax7101                                       |     0.803 |
+|   KL_gptp_gmii_launch                              |     0.003 |
+|   KL_mbx                                           |     0.041 |
+|     u_evt                                          |     0.006 |
+|     u_rx                                           |     0.009 |
+|     u_tx                                           |     0.003 |
+|   KL_mbx_cdc                                       |     0.011 |
+|     u_edit                                         |     0.002 |
+|     u_ev                                           |     0.001 |
+|     u_gsi                                          |     0.001 |
+|     u_pub                                          |     0.002 |
+|   KL_mbx_dma                                       |     0.010 |
+|   VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51 |     0.081 |
+|     dma_bridge_read_bridge                         |     0.001 |
+|     dma_bridge_write_bridge                        |     0.002 |
+|       aligner                                      |     0.002 |
+|     peripheral_clint_thread_core                   |     0.001 |
+|     peripheral_toAxiLite4_logic_bridge             |     0.009 |
+|     splited_wc_hub_hub_logic_hub                   |     0.009 |
+|     vexiis_0_logic_core                            |     0.052 |
+|       LsuL1Plugin_logic_banks_0_mem                |     0.004 |
+|       integer_RegFilePlugin_logic_regfile_fpga     |     0.006 |
+|   milan_datapath                                   |     0.107 |
+|     aaf_latency_tap_bank                           |     0.003 |
+|       g_ltap.aaf_latency_taps                      |     0.003 |
+|     aaf_packetizer                                 |     0.008 |
+|     aaf_rx_depkt                                   |     0.004 |
+|       frame_fifo                                   |     0.003 |
+|     avtp_rx_monitor                                |     0.006 |
+|     avtp_rx_parser                                 |     0.005 |
+|     chan_map_capture                               |     0.003 |
+|     crf_rx                                         |     0.001 |
+|     csr                                            |     0.006 |
+|     g_aif_tdm_master.g_solo.aaf_capture            |     0.001 |
+|     g_gptp_plane.u_gptp_shadow                     |     0.027 |
+|       u_engine                                     |     0.020 |
+|       u_txret                                      |     0.001 |
+|     g_mmcm_servo.mmcm_servo                        |     0.007 |
+|     g_pres_crf.pres_round                          |     0.001 |
+|     g_rx_filter.rx_filter                          |     0.004 |
+|       mac_cam                                      |     0.004 |
+|     g_sp_ctrl.ctrl_split                           |     0.002 |
+|     g_tdm_render_live.g_master.chan_tdm_render     |     0.002 |
+|     media_grid_align                               |     0.002 |
+|     media_nco                                      |     0.002 |
+|     ptp_sync                                       |     0.002 |
+|     render_queue                                   |     0.007 |
+|     ts_counter                                     |     0.003 |
++----------------------------------------------------+-----------+
+
+

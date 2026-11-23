@@ -1,0 +1,274 @@
+{
+  "head": "83b433f2688d48dffaf6fdb6a082f998c7ba9789",
+  "owner_ledger": {
+    "8x8-one-interface": {
+      "tiles": 57.0,
+      "symbols": [
+        [
+          "nvm_stage",
+          14250
+        ],
+        [
+          "image_allocation",
+          8
+        ]
+      ]
+    },
+    "8x8-two-interfaces": {
+      "tiles": 61.5,
+      "symbols": [
+        [
+          "nvm_stage",
+          14250
+        ],
+        [
+          "image_allocation",
+          16
+        ]
+      ]
+    },
+    "platform-8x8-two-interfaces": {
+      "tiles": 64.0,
+      "symbols": [
+        [
+          "nvm_stage",
+          14250
+        ],
+        [
+          "ctrl_plat",
+          21568
+        ]
+      ]
+    },
+    "platform-8x8-one-interface": {
+      "tiles": 59.0,
+      "symbols": [
+        [
+          "nvm_stage",
+          14250
+        ],
+        [
+          "ctrl_plat",
+          18944
+        ]
+      ]
+    }
+  },
+  "measurements": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "mode": "off",
+      "plan": {
+        "rom": {
+          "bytes": 126432,
+          "banks": [
+            65536,
+            32768,
+            16384,
+            8192,
+            4096
+          ],
+          "RAMB36": 31,
+          "RAMB18": 0
+        },
+        "sram": {
+          "bytes": 56736,
+          "banks": [
+            32768,
+            16384,
+            8192
+          ],
+          "RAMB36": 14,
+          "RAMB18": 0
+        },
+        "tiles": 45.0,
+        "budget_tiles": 56
+      },
+      "nvm_stage": 3454,
+      "ctrl_plat": 18048,
+      "product_plan": {
+        "rom": {
+          "bytes": 126432,
+          "banks": [
+            65536,
+            32768,
+            16384,
+            8192,
+            4096
+          ],
+          "RAMB36": 31,
+          "RAMB18": 0
+        },
+        "sram": {
+          "bytes": 56736,
+          "banks": [
+            32768,
+            16384,
+            8192
+          ],
+          "RAMB36": 14,
+          "RAMB18": 0
+        },
+        "tiles": 45.0,
+        "budget_tiles": 56
+      },
+      "product": "PASS"
+    },
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "mode": "on",
+      "plan": {
+        "rom": {
+          "bytes": 128992,
+          "banks": [
+            65536,
+            32768,
+            16384,
+            8192,
+            4096,
+            2048
+          ],
+          "RAMB36": 31,
+          "RAMB18": 1
+        },
+        "sram": {
+          "bytes": 60352,
+          "banks": [
+            32768,
+            16384,
+            8192,
+            4096
+          ],
+          "RAMB36": 15,
+          "RAMB18": 0
+        },
+        "tiles": 46.5,
+        "budget_tiles": 56
+      },
+      "nvm_stage": 4766,
+      "ctrl_plat": 18048,
+      "product_plan": {
+        "rom": {
+          "bytes": 128992,
+          "banks": [
+            65536,
+            32768,
+            16384,
+            8192,
+            4096,
+            2048
+          ],
+          "RAMB36": 31,
+          "RAMB18": 1
+        },
+        "sram": {
+          "bytes": 60352,
+          "banks": [
+            32768,
+            16384,
+            8192,
+            4096
+          ],
+          "RAMB36": 15,
+          "RAMB18": 0
+        },
+        "tiles": 46.5,
+        "budget_tiles": 56
+      },
+      "product": "PASS"
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "mode": "off",
+      "plan": {
+        "rom": {
+          "bytes": 140544,
+          "banks": [
+            131072,
+            8192,
+            2048
+          ],
+          "RAMB36": 34,
+          "RAMB18": 1
+        },
+        "sram": {
+          "bytes": 99904,
+          "banks": [
+            65536,
+            32768,
+            2048
+          ],
+          "RAMB36": 24,
+          "RAMB18": 1
+        },
+        "tiles": 59.0,
+        "budget_tiles": 56
+      },
+      "nvm_stage": 14250,
+      "ctrl_plat": 18944,
+      "product_plan": {
+        "rom": {
+          "bytes": 140544,
+          "banks": [
+            131072,
+            8192,
+            2048
+          ],
+          "RAMB36": 34,
+          "RAMB18": 1
+        },
+        "sram": {
+          "bytes": 99904,
+          "banks": [
+            65536,
+            32768,
+            2048
+          ],
+          "RAMB36": 24,
+          "RAMB18": 1
+        },
+        "tiles": 59.0,
+        "budget_tiles": 56,
+        "ledgered": "platform-8x8-one-interface",
+        "ledgered_tiles": 59.0
+      },
+      "product": "PASS"
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "mode": "on",
+      "plan": {
+        "rom": {
+          "bytes": 160016,
+          "banks": [
+            131072,
+            16384,
+            8192,
+            4096,
+            2048
+          ],
+          "RAMB36": 39,
+          "RAMB18": 1
+        },
+        "sram": {
+          "bytes": 125104,
+          "banks": [
+            65536,
+            32768,
+            16384,
+            8192,
+            4096
+          ],
+          "RAMB36": 31,
+          "RAMB18": 0
+        },
+        "tiles": 70.5,
+        "budget_tiles": 56
+      },
+      "nvm_stage": 23502,
+      "ctrl_plat": 18944,
+      "product": "REFUSED",
+      "reason": "allocation over budget: 70.5 RAMB36 (rom 160016 bytes in 161792, sram 125104 bytes in 126976) exceeds the 56-RAMB36 budget"
+    }
+  ]
+}

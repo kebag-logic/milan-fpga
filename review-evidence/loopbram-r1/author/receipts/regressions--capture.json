@@ -1,0 +1,14 @@
+{
+  "case": "capture",
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "$CHECKOUT/tb/verilator/chmap_capture",
+    "VERILATOR_JOBS=4",
+    "run",
+    "MDIR=$SCRATCH/regressions/capture"
+  ],
+  "exit": 0,
+  "seconds": 350.48508477211
+}

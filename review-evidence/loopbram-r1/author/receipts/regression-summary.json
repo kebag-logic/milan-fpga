@@ -1,0 +1,77 @@
+{
+  "current_head": "a765d48da576ec1d2e25fb839c106be2e44c8461",
+  "cases": [
+    {
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "tb/verilator/input_loopback",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/regressions/input-final"
+      ],
+      "exit": 0,
+      "log": "regressions/input-final.log"
+    },
+    {
+      "case": "capture",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/chmap_capture",
+        "VERILATOR_JOBS=4",
+        "run",
+        "MDIR=$SCRATCH/regressions/capture"
+      ],
+      "exit": 0,
+      "seconds": 350.48508477211,
+      "log": "regressions/capture.log"
+    },
+    {
+      "case": "queue",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/render_queue",
+        "VERILATOR_JOBS=4",
+        "all"
+      ],
+      "exit": 0,
+      "seconds": 387.1540846824646,
+      "log": "regressions/queue.log"
+    },
+    {
+      "case": "render",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/milan_dp_render",
+        "VERILATOR_JOBS=4",
+        "run",
+        "ship8"
+      ],
+      "exit": 0,
+      "seconds": 3638.977532148361,
+      "log": "regressions/render.log"
+    },
+    {
+      "case": "coherence",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/capture_coherence",
+        "VERILATOR_JOBS=4",
+        "run",
+        "dp"
+      ],
+      "exit": 0,
+      "seconds": 1630.5830101966858,
+      "log": "regressions/coherence.log"
+    }
+  ],
+  "scope": "Affected audio suites. Later commits only pin builder capacity fixtures and document the builder key; RTL and audio harness source hashes are unchanged."
+}

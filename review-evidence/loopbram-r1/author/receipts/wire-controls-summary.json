@@ -1,0 +1,136 @@
+{
+  "head": "83b433f2688d48dffaf6fdb6a082f998c7ba9789",
+  "cases": [
+    {
+      "plant": "control",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/control-rui9jie0/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/control-rui9jie0/KL_render_queue.sv"
+      ],
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "plant": "ignored_mapping",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/ignored_mapping-60pfu6zy/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/ignored_mapping-60pfu6zy/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "wrong_bank",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/wrong_bank-9_0jmrsg/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/wrong_bank-9_0jmrsg/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "skipped_copy",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/skipped_copy-cqjhadjd/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/skipped_copy-cqjhadjd/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "ignored_invalidation",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/ignored_invalidation-1reuugtm/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/ignored_invalidation-1reuugtm/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "retained_word",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/retained_word-tev60kua/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/retained_word-tev60kua/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "missing_clock_flush",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/missing_clock_flush-f63vj2hj/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/missing_clock_flush-f63vj2hj/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    },
+    {
+      "plant": "wrong_latency",
+      "command": [
+        "make",
+        "-s",
+        "-C",
+        "$CHECKOUT/tb/verilator/input_loopback",
+        "run",
+        "VERILATOR_JOBS=4",
+        "MDIR=$SCRATCH/mutants-head/wrong_latency-ut4idogv/obj",
+        "QUEUE_SRC=$SCRATCH/mutants-head/wrong_latency-ut4idogv/KL_render_queue.sv"
+      ],
+      "exit": 2,
+      "passed": true
+    }
+  ],
+  "source_hashes": {
+    "hdl/ieee1722/aaf/KL_chan_map_capture.sv": "b56b012746a324e4f7da7d8b03b2accbde6b47ff1483f39985333a2fef56ea14",
+    "hdl/ieee1722/aaf/KL_render_queue.sv": "361493762984543b55ae26fa05d979b6ba25864ffad741a12d0a6caf29b12bfd",
+    "hdl/ieee1722/aaf/README-parameters.md": "8551b0ff3fccedcaf648062d821289991998530dfb556bead21b72d91c34ca90",
+    "hdl/milan/milan_datapath.sv": "8b62fe389880c20b10e55c904fdb5001096f97ac9429462c41af88fc725d6f2c",
+    "tb/verilator/input_loopback/Makefile": "e035f5187ba6d0cb2898f74daacfae101482e2a2aa3f5db1c140935c6088196b",
+    "tb/verilator/input_loopback/README.md": "7f33b03de513dddda524190366eee38a90c937b77e5860bc028f54dbb61b4a57",
+    "tb/verilator/input_loopback/loopback_wrap.sv": "3fe5238537f1b95cc3c98b4b459cf5343ba662a0bb3b7b61135d4c0e7a68530f",
+    "tb/verilator/input_loopback/mutants.py": "a5c1fe98ebf275715a7970ae736e7f5631539f9c4c4220d351aa21a1e72a038d",
+    "tb/verilator/input_loopback/sim_main.cpp": "16a19e9a663367d041d70406a6ef35130e80be8f24af1a1612ef922ae16cc20b"
+  }
+}

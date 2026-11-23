@@ -1,0 +1,11 @@
+{
+  "command": [
+    "make",
+    "-s",
+    "-C",
+    "tb/verilator/input_loopback",
+    "VERILATOR_JOBS=4",
+    "MDIR=$SCRATCH/regressions/input-final"
+  ],
+  "exit": 0
+}

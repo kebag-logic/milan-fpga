@@ -1,0 +1,152 @@
+[
+  {
+    "shape": "endstation_ax7101_1x1_tdm8",
+    "artifacts": [
+      {
+        "file": "adp_shape_defaults.svh",
+        "sha256": "4ccb6d76b53e7a715b144cde84af66101d7a02cb399ab06cf7d5e27a176248cb"
+      },
+      {
+        "file": "aecp_aem_rom.svh",
+        "sha256": "95ed5ff10787ed596a7dcb0e2caaa265d4706ece67768ccbc36b90a6957daa7e"
+      },
+      {
+        "file": "aem_overlay.json",
+        "sha256": "1d24f59b7154a22dea8a98aa8f3fd65cff6373c187fdbbdde7ee485a980b3ae0"
+      },
+      {
+        "file": "build_plan.md",
+        "sha256": "5803b32f7673c0cc372d0e1897c9f7be9da2314f30c0d7d168c80c47590b259c"
+      },
+      {
+        "file": "gptp_ucode.hex",
+        "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+      },
+      {
+        "file": "lwsrp_csr_defaults.svh",
+        "sha256": "0e9df2d455d90782c87546dab4dd1fe7b5fb7f4bc81074e910ba71ddc7016d74"
+      },
+      {
+        "file": "lwsrp_table.json",
+        "sha256": "61b2e71d9a40c61bfb0eaf884af6257b1b030e441c5f507f99720d0c18dad47d"
+      },
+      {
+        "file": "lwsrp_table.svh",
+        "sha256": "8209fdee3cd744d24a066b76017f71f16d87f636c4470eb95e9f986dce550522"
+      },
+      {
+        "file": "nvm_split.json",
+        "sha256": "32fc4a3e0af8079af8de9f02bf4f4ef0a164b46e5d89087c2516f1ffc3acfb5f"
+      },
+      {
+        "file": "platform_shape.json",
+        "sha256": "0325a3cc988f7f97b34997ef3ac53c6624edfc62b0bd4b5ffb42dc72894ddae7"
+      },
+      {
+        "file": "soc_params.json",
+        "sha256": "f5a2382570765b882a4394bad1b42eb097f09ab3bb73bfaa8b555b5ad0dfa010"
+      },
+      {
+        "file": "sweep_opts.sh",
+        "sha256": "a88b373c63bc1dba8d6710818b5a6f97a25dcc4e882149a9f6eb0640683dada6"
+      }
+    ],
+    "aemi_sha256": "fb9841fc6bf6b815fc3639645ce28187404a05fbb29d3a6c052d24271061cb26",
+    "firmware_rom_bytes": 126432,
+    "firmware_rom_sha256": "330438617148bb2f2d53fb401b4248f2b7312c42cc965964ddeca9e8c65637bf",
+    "firmware_identity": "PASS",
+    "baseline_link_command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$SCRATCH/baseline_firmware.py",
+      "--config",
+      "$CHECKOUT/configs/endstation_ax7101_1x1_tdm8.yaml",
+      "--csr-csv",
+      "$SCRATCH/builds/endstation_ax7101_1x1_tdm8/split-soc/mapped/soc/csr.csv",
+      "--flash-map",
+      "$SCRATCH/builds/endstation_ax7101_1x1_tdm8/split-soc/flash-map",
+      "--output",
+      "$SCRATCH/builds/endstation_ax7101_1x1_tdm8-baseline",
+      "--libc",
+      "$SCRATCH/builds/runtime/libc.a",
+      "--compiler-runtime",
+      "$SCRATCH/builds/runtime/libcompiler_rt.a"
+    ]
+  },
+  {
+    "shape": "endstation_ax7101_8x8",
+    "artifacts": [
+      {
+        "file": "adp_shape_defaults.svh",
+        "sha256": "3f074fe93e6940828b0128e09e21c6a9a04e2494fb37bcce4b4cee151382e33a"
+      },
+      {
+        "file": "aecp_aem_rom.svh",
+        "sha256": "683043bb1fc2cdbc2d0942b20fd2de629a08199f512d86045dde2911299feb1d"
+      },
+      {
+        "file": "aem_overlay.json",
+        "sha256": "b0287ffb5cc23d41ce50e85e526947c6bd2dec994c45994d35f7ce9cd90d40c5"
+      },
+      {
+        "file": "build_plan.md",
+        "sha256": "20ecc2ab3d4b58e235b16bd8a230745d45cef0d4e639e3c2021e895cc17c8a36"
+      },
+      {
+        "file": "gptp_ucode.hex",
+        "sha256": "f21ce23b4b5a272cd3afa31021d0d29571c60765d03cfaed0a48ee1b500c6bd9"
+      },
+      {
+        "file": "lwsrp_csr_defaults.svh",
+        "sha256": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4"
+      },
+      {
+        "file": "lwsrp_table.json",
+        "sha256": "b525824ef9b4a7c52bc99946b08807708f5c7a0ac9087d20a0cc62f3b5e95266"
+      },
+      {
+        "file": "lwsrp_table.svh",
+        "sha256": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e"
+      },
+      {
+        "file": "nvm_split.json",
+        "sha256": "8c737b7b57bf04994f5ad2e5cbd67d0ea6356427da5ad7e6c455c4fcdf48c369"
+      },
+      {
+        "file": "platform_shape.json",
+        "sha256": "a08aef1e775ecd345a7f87157f4bf3eed28306250d49003d0c5231e714e6cf17"
+      },
+      {
+        "file": "soc_params.json",
+        "sha256": "c4740662cac44f4d6fc3567c839ddf6d7eaad3104c8218d4191964fc37df6cca"
+      },
+      {
+        "file": "sweep_opts.sh",
+        "sha256": "4a36a34da3c0c6a80a6bf5271d318e1d5ceec94610446b28a16a5879e5a64343"
+      }
+    ],
+    "aemi_sha256": "a34ea856596ff765fd1f34ab3ae85a1cfba564442cf5e0c582a144b3a4f45b5c",
+    "firmware_rom_bytes": 140544,
+    "firmware_rom_sha256": "a3a09cd27038ec0e2741268da8441cab3e61d3b58a5c9a776c546a3ab16e503e",
+    "firmware_identity": "PASS",
+    "baseline_link_command": [
+      "<home-path>/litex-milan/venv/bin/python3",
+      "-B",
+      "$SCRATCH/baseline_firmware.py",
+      "--config",
+      "$CHECKOUT/configs/endstation_ax7101_8x8.yaml",
+      "--csr-csv",
+      "$SCRATCH/builds/endstation_ax7101_8x8/split-soc/mapped/soc/csr.csv",
+      "--flash-map",
+      "$SCRATCH/builds/endstation_ax7101_8x8/split-soc/flash-map",
+      "--output",
+      "$SCRATCH/builds/endstation_ax7101_8x8-baseline",
+      "--libc",
+      "$SCRATCH/builds/runtime/libc.a",
+      "--compiler-runtime",
+      "$SCRATCH/builds/runtime/libcompiler_rt.a",
+      "--ledgered-point",
+      "platform-8x8-one-interface"
+    ]
+  }
+]
