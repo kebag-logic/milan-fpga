@@ -1,0 +1,777 @@
+[
+  {
+    "path": "gptp.priority1",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.priority1 is required on board.target 'host' (missing ['priority1']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.priority2 is required on board.target 'host' (missing ['priority2']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.clock_class is required on board.target 'host' (missing ['clock_class']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy is required on board.target 'host' (missing ['clock_accuracy']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance is required on board.target 'host' (missing ['offset_scaled_log_variance']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval is required on board.target 'host' (missing ['log_sync_interval']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval is required on board.target 'host' (missing ['log_announce_interval']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval is required on board.target 'host' (missing ['log_pdelay_interval']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": null,
+    "delete": true,
+    "outcome": "refused",
+    "reason": "gptp.port_number is required on board.target 'host' (missing ['port_number']): the AVB_INTERFACE descriptor repeats the dataset the board's own gPTP program announces (IEEE 1722.1-2021 7.2.8) and no engine here supplies it (#983)"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": 1,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.port_number",
+    "value": 65534,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.port_number",
+    "value": 0,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.port_number 0 outside 1..65534"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": 65535,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.port_number 65535 outside 1..65534"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.port_number True outside 1..65534"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.port_number '1' outside 1..65534"
+  },
+  {
+    "path": "gptp.port_number",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.port_number 1.5 outside 1..65534"
+  },
+  {
+    "path": "gptp.priority1",
+    "value": 0,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.priority1",
+    "value": 255,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.priority1",
+    "value": -1,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority1 -1 outside 0..255"
+  },
+  {
+    "path": "gptp.priority1",
+    "value": 256,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority1 256 outside 0..255"
+  },
+  {
+    "path": "gptp.priority1",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority1 True outside 0..255"
+  },
+  {
+    "path": "gptp.priority1",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority1 '1' outside 0..255"
+  },
+  {
+    "path": "gptp.priority1",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority1 1.5 outside 0..255"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": 0,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.priority2",
+    "value": 255,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.priority2",
+    "value": -1,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority2 -1 outside 0..255"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": 256,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority2 256 outside 0..255"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority2 True outside 0..255"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority2 '1' outside 0..255"
+  },
+  {
+    "path": "gptp.priority2",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.priority2 1.5 outside 0..255"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": 0,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": 255,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": -1,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_class -1 outside 0..255"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": 256,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_class 256 outside 0..255"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_class True outside 0..255"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_class '1' outside 0..255"
+  },
+  {
+    "path": "gptp.clock_class",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_class 1.5 outside 0..255"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": 0,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": 65535,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": -1,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance -1 outside 0..65535"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": 65536,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance 65536 outside 0..65535"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance True outside 0..65535"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance '1' outside 0..65535"
+  },
+  {
+    "path": "gptp.offset_scaled_log_variance",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.offset_scaled_log_variance 1.5 outside 0..65535"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": -128,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": 127,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": -129,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval -129 outside -128..127"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": 128,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval 128 outside -128..127"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval True outside -128..127"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval '1' outside -128..127"
+  },
+  {
+    "path": "gptp.log_sync_interval",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_sync_interval 1.5 outside -128..127"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": -128,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": 127,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": -129,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval -129 outside -128..127"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": 128,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval 128 outside -128..127"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval True outside -128..127"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval '1' outside -128..127"
+  },
+  {
+    "path": "gptp.log_announce_interval",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_announce_interval 1.5 outside -128..127"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": -128,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": 127,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": -129,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval -129 outside -128..127"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": 128,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval 128 outside -128..127"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval True outside -128..127"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": "1",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval '1' outside -128..127"
+  },
+  {
+    "path": "gptp.log_pdelay_interval",
+    "value": 1.5,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.log_pdelay_interval 1.5 outside -128..127"
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": 100,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": 1000,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": 0,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "board.constraints.link_mbps 0 not in [100, 1000]: the port's rate, which SRP's class A ceiling is computed against (Milan v1.2 5.6)"
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": 10,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "board.constraints.link_mbps 10 not in [100, 1000]: the port's rate, which SRP's class A ceiling is computed against (Milan v1.2 5.6)"
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": 10000,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "board.constraints.link_mbps 10000 not in [100, 1000]: the port's rate, which SRP's class A ceiling is computed against (Milan v1.2 5.6)"
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "board.constraints.link_mbps True not in [100, 1000]: the port's rate, which SRP's class A ceiling is computed against (Milan v1.2 5.6)"
+  },
+  {
+    "path": "board.constraints.link_mbps",
+    "value": "1000",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "board.constraints.link_mbps '1000' not in [100, 1000]: the port's rate, which SRP's class A ceiling is computed against (Milan v1.2 5.6)"
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": 5,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": 8,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": 0,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "num_queues 0 outside 1..8"
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": 9,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "num_queues 9 outside 1..8"
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "num_queues True outside 1..8"
+  },
+  {
+    "path": "board.constraints.num_queues",
+    "value": "5",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "num_queues 5 outside 1..8"
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": 1,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": 32,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": 0,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "audio_interface.channels 0 outside 1..32"
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": 33,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "audio_interface.channels 33 outside 1..32"
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": true,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "audio_interface.channels True outside 1..32"
+  },
+  {
+    "path": "audio_interface.channels",
+    "value": "8",
+    "delete": false,
+    "outcome": "refused",
+    "reason": "audio_interface.channels '8' outside 1..32"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 32,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 49,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 254,
+    "delete": false,
+    "outcome": "accepted",
+    "reason": ""
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 31,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0x1F is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 50,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0x32 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 127,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0x7F is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 128,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0x80 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 253,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0xFD is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "path": "gptp.clock_accuracy",
+    "value": 255,
+    "delete": false,
+    "outcome": "refused",
+    "reason": "gptp.clock_accuracy 0xFF is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)"
+  },
+  {
+    "mutation": "bypass required/valid host gptp_owner",
+    "killed": true,
+    "reason": "gate 42 no gptp_owner: accepted"
+  },
+  {
+    "image_lint_case": "one rate",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "eight rates",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "identity sources",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "one source",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "current rate last",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "current rate with pull",
+    "outcome": "accepted"
+  },
+  {
+    "image_lint_case": "empty rates",
+    "outcome": "L10 rate-empty"
+  },
+  {
+    "image_lint_case": "unlisted current rate",
+    "outcome": "L10 current-rate"
+  },
+  {
+    "image_lint_case": "current pull mismatch",
+    "outcome": "L10 current-rate"
+  },
+  {
+    "image_lint_case": "wrong offset",
+    "outcome": "L10 rate-offset"
+  },
+  {
+    "image_lint_case": "ninth rate",
+    "outcome": "L10 rate-count"
+  },
+  {
+    "image_lint_case": "count exceeds extent",
+    "outcome": "L10 rate-length"
+  },
+  {
+    "image_lint_case": "one byte short",
+    "outcome": "L10 rate-length"
+  },
+  {
+    "image_lint_case": "one word extra",
+    "outcome": "L10 rate-length"
+  },
+  {
+    "image_lint_case": "reversed sources",
+    "outcome": "L6 domain-source-identity"
+  },
+  {
+    "image_lint_case": "source gap",
+    "outcome": "L6 domain-source-identity"
+  },
+  {
+    "image_lint_case": "duplicate source",
+    "outcome": "L6 domain-source-identity"
+  },
+  {
+    "image_lint_case": "short audio header",
+    "outcome": "L10 rate-count"
+  },
+  {
+    "image_lint_case": "short domain header",
+    "outcome": "L6 domain-source-count"
+  },
+  {
+    "image_lint_case": "empty sources",
+    "outcome": "L6 domain-source-count"
+  },
+  {
+    "image_lint_case": "short source list",
+    "outcome": "L6 domain-source-length"
+  },
+  {
+    "image_lint_case": "source list in header",
+    "outcome": "L6 domain-source-offset"
+  },
+  {
+    "image_lint_case": "padded source offset",
+    "outcome": "L6 domain-source-offset"
+  },
+  {
+    "image_lint_presence": "missing AUDIO_UNIT and CLOCK_DOMAIN refused"
+  },
+  {
+    "image_bytes": 5784,
+    "configuration_bytes": 106,
+    "streams": [
+      {
+        "type": 5,
+        "index": 0,
+        "current_format": "0205022002006000",
+        "length": 154
+      },
+      {
+        "type": 5,
+        "index": 1,
+        "current_format": "041060010000bb80",
+        "length": 146
+      },
+      {
+        "type": 6,
+        "index": 0,
+        "current_format": "0205022002006000",
+        "length": 146
+      }
+    ]
+  }
+]

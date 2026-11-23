@@ -1,0 +1,30 @@
+{
+  "public_commit": "adeb1331026950e5c13c31debb44a225caa62ad1",
+  "published_files_hash_verified": 24,
+  "inventory": 115,
+  "function_pass_verdicts": 114,
+  "missing_functions": [
+    "test_baremetal_profile_contract"
+  ],
+  "not_run": [
+    {
+      "gate": "test_resource_calibration",
+      "rows": [
+        [
+          "gate 11",
+          "real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+          "row"
+        ]
+      ]
+    }
+  ],
+  "author_identity_artifacts": 170,
+  "author_identity_equal": true,
+  "binding": "Public packet and REVIEW READY attribute these receipts to the source head. Subset JSON itself has no head/tree binding.",
+  "limits": [
+    "Not a ci_builder_legs.py union proof.",
+    "No manager source bank.",
+    "Calibration NOT RUN is not a hardware pass.",
+    "Focused firmware arm logs are not four completed firmware shards."
+  ]
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$REVIEWS/linuxprof-r900-1-packet/boundary_probe.py", line 72, in <module>
+    check(key, value, True)
+    ~~~~~^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/linuxprof-r900-1-packet/boundary_probe.py", line 52, in check
+    assert (outcome == 'accepted') == accept, (path, value, outcome, reason)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('gptp.clock_accuracy', 128, 'refused', 'gptp.clock_accuracy 0x80 is not a clockAccuracy this profile announces: IEEE 1588-2008 7.6.2.5 takes the value from Table 6, 0x20..0x31 or 0xFE (unknown, 802.1AS-2011 8.6.2.3 b)); the others are reserved or for other PTP profiles (#843)')

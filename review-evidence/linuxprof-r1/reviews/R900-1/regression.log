@@ -1,0 +1,53 @@
+[
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "board": [],
+    "outcome": "ConfigError",
+    "reason": "board: missing required key 'target'"
+  },
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "board": "",
+    "outcome": "ConfigError",
+    "reason": "board: missing required key 'target'"
+  },
+  {
+    "revision": "854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "board": [
+      "ax7101"
+    ],
+    "outcome": "ConfigError",
+    "reason": "board: missing required key 'target'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "board": [],
+    "outcome": "AttributeError",
+    "reason": "'list' object has no attribute 'get'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "board": "",
+    "outcome": "AttributeError",
+    "reason": "'str' object has no attribute 'get'"
+  },
+  {
+    "revision": "677d605f37c3a80654df1dd2cde053b57242845b",
+    "board": [
+      "ax7101"
+    ],
+    "outcome": "AttributeError",
+    "reason": "'list' object has no attribute 'get'"
+  },
+  {
+    "case": "host current two channels, supported two/eight",
+    "formats": [
+      "0x0205022000806000",
+      "0x0205022002006000"
+    ],
+    "max_frame_bytes": 217,
+    "current_format_geometry": 73,
+    "widest_format_geometry": 217,
+    "image_bytes": 4784
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "board_revision": "cce8c9a4143548c80800b2def821431ff45e3698",
+  "inputs": [
+    {
+      "path": "milan-linux/tools/gen-entity-conf.sh",
+      "url": "https://github.com/kebag-logic/ti-sitara-am65x-bsp/blob/cce8c9a4143548c80800b2def821431ff45e3698/milan-linux/tools/gen-entity-conf.sh",
+      "sha256": "22830edd1b8cb0c6f16e70a50fe601557e6538e274759a2d3d16a512bd3f7e1b"
+    },
+    {
+      "path": "milan-linux/config/endstation_pb2_bridge.yaml",
+      "url": "https://github.com/kebag-logic/ti-sitara-am65x-bsp/blob/cce8c9a4143548c80800b2def821431ff45e3698/milan-linux/config/endstation_pb2_bridge.yaml",
+      "sha256": "55270fe0eb86a99f9e1229ca8f365b78b945f75583791edefe366c0510887f9e"
+    },
+    {
+      "path": "milan-linux/config/entity.conf",
+      "url": "https://github.com/kebag-logic/ti-sitara-am65x-bsp/blob/cce8c9a4143548c80800b2def821431ff45e3698/milan-linux/config/entity.conf",
+      "sha256": "551152235abbbd6eb3f2b8fb88aae49a50b063d27e1c8884e1550996c7b92a6e"
+    }
+  ],
+  "outputs": [
+    {
+      "config": "example",
+      "fields": {
+        "entity_model_id": "0x1BC5DD96399B2F",
+        "entity_capabilities": "0xC588",
+        "talker_stream_sources": "0x1",
+        "talker_capabilities": "0x4001",
+        "listener_stream_sinks": "0x2",
+        "listener_capabilities": "0x4801",
+        "identify_control_index": "0x0"
+      },
+      "sha256": "0872044372e47a51d4511bb6fb1ed1d8b235ecfea75171f9e238aad9e0028e77"
+    },
+    {
+      "config": "board",
+      "fields": {
+        "entity_model_id": "0x1BC50AC1000100",
+        "entity_capabilities": "0xC588",
+        "talker_stream_sources": "0x1",
+        "talker_capabilities": "0x4001",
+        "listener_stream_sinks": "0x2",
+        "listener_capabilities": "0x4801",
+        "identify_control_index": "0x0"
+      },
+      "sha256": "9e617657e5c26443cc1584e3630b1820a43c6cf888f30217db9b547140bdc31f"
+    }
+  ],
+  "limit": "Board daemon, runtime MAC substitution, media service and hardware not executed."
+}

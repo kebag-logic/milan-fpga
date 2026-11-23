@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/linuxprof-r900-1-packet/shape_probe.py", line 62, in <module>
+    assert compiled.returncode==0,compiled.stderr.decode()
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: In file included from $REVIEWS/r900-1-linuxprof/sw/firmware/ctrl/loop/ctrl_loop.c:11:
+$REVIEWS/r900-1-linuxprof/sw/firmware/ctrl/mbx/mbx_wire.h:23:10: fatal error: wire.h: No such file or directory
+   23 | #include "wire.h"
+      |          ^~~~~~~~
+compilation terminated.
+
