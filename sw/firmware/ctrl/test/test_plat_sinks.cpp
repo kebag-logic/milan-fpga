@@ -56,6 +56,20 @@
 //       persisted inventory; Milan v1.2 5.3.8.1, 5.3.13). At 1x1/1if that set
 //       maps input 0's channels; at 8x8/1if it maps none. The far model keeps
 //       the store and judges the verdict from it, as the datapath does
+//
+// The streams beside the contexts (Streams), at the same shapes:
+//   S13 at input 0 and at the CRF input, which have no context, a
+//       SET_STREAM_FORMAT waits and its input is bound meanwhile; acknowledged,
+//       its running check is made again and refuses it STREAM_IS_RUNNING at
+//       once, notifying no one (#950; IEEE 1722.1-2021 7.4.9, 8.2); unbound,
+//       the same change is taken
+//   S14 at every STREAM_OUTPUT, the same with the output started meanwhile (a
+//       Listener Ready for its stream, so SRP declares its Talker and licenses
+//       it; Milan v1.2 5.3.7.3); once it has stopped, the same change is taken
+//   T1  at every STREAM_OUTPUT, GET_TX_STATE carries REGISTERING_FAILED while a
+//       Listener Asking Failed is registered for its stream on its interface,
+//       not for Ready or Ready Failed nor at another output, and drops it once
+//       the registration goes (#954; Milan v1.2 Table 5.47)
 
 #include <gtest/gtest.h>
 
@@ -96,6 +110,7 @@ using plat_bus::bus;
 using plat_bus::kCsr;
 
 constexpr std::uint16_t kStreamInput = 5u;          // IEEE 1722.1-2021 Table 7-1
+constexpr std::uint16_t kStreamOutput = 6u;
 constexpr unsigned kFormatAt = 74u;                  // a STREAM_INPUT's current_format (7.2.6)
 constexpr unsigned kFormatsAt = 82u;                 // its formats_offset, then number_of_formats
 constexpr unsigned kInterfaceAt = 126u;              // its avb_interface_index
@@ -1056,6 +1071,252 @@ TEST_F(Sinks, S12ANarrowedInputFormatIsKeptAcrossAPowerCut) {
     ASSERT_TRUE(ready()) << "S12 the boot after the cut reaches READY";
     EXPECT_EQ(inputs().at(0).format, narrow) << "S12 input 0's narrowed format is restored after the cut";
     EXPECT_TRUE(input_rows(0).empty()) << "S12 the mappings removed before the cut stay removed";
+}
+
+// The platform's streams beside the contexts: every STREAM_INPUT with no context of its own and every STREAM_OUTPUT
+// (#950), and each output's Talker as ACMP reports it (#954).
+struct Streams : Sinks {
+    // The current configuration's STREAM_OUTPUTs, by index: their current formats.
+    std::map<unsigned, std::uint64_t> outputs() const {
+        std::map<unsigned, std::uint64_t> out;
+        const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+        for (std::size_t n = 0; n < model->count; ++n) {
+            const aecp_descriptor& d = model->descriptors[n];
+            if (d.type == kStreamOutput && d.configuration == ctrl_plat.aecp.core.configuration) {
+                out[d.index] = be(d.value + kFormatAt, 8);
+            }
+        }
+        return out;
+    }
+    // The current configuration's STREAM_INPUTs with no receive-monitor context: input 0 and the CRF input.
+    std::vector<unsigned> uncontexted() const {
+        std::vector<unsigned> out;
+        const auto with = contexts();
+        for (const auto& [n, in] : inputs()) {
+            (void)in;
+            if (std::find(with.begin(), with.end(), n) == with.end()) out.push_back(n);
+        }
+        return out;
+    }
+    // STREAM_OUTPUT n's Talker's stream_id: the entity's MAC and the output's unique ID (ctrl_plat.c, stream_id).
+    static std::uint64_t talker_stream(unsigned n) {
+        return ctrl_plat.config.entity->mac << 16 | kStreams[n].unique_id;
+    }
+    static unsigned home(unsigned n) { return ctrl_plat.acmp.source_interface[n]; }
+    // MAAP holds every interface's range, the clock moved until it does (Milan v1.2 5.5.4.1).
+    bool allocated() {
+        for (unsigned k = 0; k < 1000u; ++k) {
+            bool all = true;
+            for (unsigned i = 0; i < MBX_N_IF; ++i) all = all && ctrl_plat.allocation[i].valid;
+            if (all) return true;
+            mbx_model_advance_ms(&fabric, 10u);
+            steps(4);
+        }
+        return false;
+    }
+    // A bridge's MSRP Listener vector for STREAM_OUTPUT n's stream on its interface: one value, its event (1
+    // JoinIn, 5 Lv) and its declaration (1 Asking Failed, 2 Ready, 3 Ready Failed; IEEE 802.1Q-2018 35.2.2.7.2,
+    // 35.2.2.7.4), then the passes it takes.
+    bool listener(unsigned n, unsigned event, unsigned declaration) {
+        std::vector<std::uint8_t> f(60, 0);
+        const auto put = [&](std::size_t at, std::uint64_t v, unsigned bytes) {
+            for (unsigned k = 0; k < bytes; ++k) f[at + k] = static_cast<std::uint8_t>(v >> (8u * (bytes - 1u - k)));
+        };
+        put(0, 0x0180c200000eull, 6);
+        put(6, 0x020304010203ull, 6);
+        put(12, 0x22eau, 2);
+        f[15] = 3u;   // Listener
+        f[16] = 8u;   // its FirstValue, a StreamID
+        f[18] = 14u;  // the attribute list's length
+        f[20] = 1u;   // one value
+        put(21, talker_stream(n), 8);
+        f[29] = static_cast<std::uint8_t>(event * 36u);
+        f[30] = static_cast<std::uint8_t>(declaration * 64u);
+        // a refill of the SRP channel's receive rate first, so the frame is taken whatever came before it
+        mbx_model_advance_ms(&fabric, MBX_CH_SRP_RATE_REFILL_MS);
+        if (!mbx_model_rx(&fabric, f.data(), f.size(), home(n))) return false;
+        steps(20);
+        return true;
+    }
+    // STREAM_OUTPUT n streams: SRP's licence of its source, as the datapath holds it (aecp_face.c, stream; Milan
+    // v1.2 5.3.7.3).
+    bool streaming(unsigned n) {
+        mbx_model_pub v{};
+        mbx_model_pub_view(&fabric, home(n), &v);
+        return ((v.licence >> n) & 1u) != 0u;
+    }
+    // Stepped, the clock moved a millisecond a turn for at most `ms`, until output n streams as `on` says.
+    bool streams(unsigned n, bool on, unsigned ms) {
+        for (unsigned k = 0; k < ms && streaming(n) != on; ++k) {
+            mbx_model_advance_ms(&fabric, 1u);
+            steps(4);
+        }
+        return streaming(n) == on;
+    }
+    // A controller's GET_TX_STATE of the entity's talker n (IEEE 1722.1-2021 8.2.1; Milan v1.2 5.5.4.3), its
+    // response; status 0xff when none leaves within the turns.
+    acmp_test::Pdu tx_state(unsigned n, std::uint16_t seq) {
+        acmp_test::Pdu c;
+        c.msg = spec::MSG_GET_TX_STATE_COMMAND;
+        c.controller = acmp_test::kCtl1;
+        c.talker = ctrl_plat.config.entity->entity_id;
+        c.talker_uid = static_cast<std::uint16_t>(n);
+        c.listener = acmp_test::kTkA;
+        c.seq = seq;
+        const auto frame = acmp_test::acmpdu(c);
+        const std::uint32_t since = fabric.tx_sent;
+        // a refill of the ACMP channel's receive rate first, so the command is taken whatever came before it
+        mbx_model_advance_ms(&fabric, MBX_CH_ACMP_RATE_REFILL_MS);
+        if (mbx_model_rx(&fabric, frame.data(), frame.size(), home(n))) {
+            for (unsigned turn = 0; turn < 400u; ++turn) {
+                ctrl_plat_step();
+                for (std::uint32_t k = since; k < fabric.tx_sent; ++k) {
+                    const auto* t = mbx_model_tx_frame(&fabric, k);
+                    if (t != nullptr && t->len >= 68u && t->bytes[14] == 0xfcu &&
+                        (t->bytes[15] & 15u) == spec::MSG_GET_TX_STATE_RESPONSE && be(t->bytes + 62, 2) == seq) {
+                        return acmp_test::read(t->bytes);
+                    }
+                }
+            }
+        }
+        acmp_test::Pdu none;
+        none.status = 0xffu;
+        return none;
+    }
+    // The responses and notifications of SET_STREAM_FORMAT the entity sent from frame `since` on: {notices,
+    // responses}.
+    std::pair<unsigned, unsigned> format_frames(std::uint32_t since) const {
+        unsigned notices = 0, responses = 0;
+        for (std::uint32_t k = since; k < fabric.tx_sent; ++k) {
+            const auto* t = mbx_model_tx_frame(&fabric, k);
+            if (t == nullptr || t->len < 38u || t->bytes[14] != 0xfbu || (t->bytes[15] & 0xfu) != 1u) continue;
+            const auto cmd = be(t->bytes + 36, 2);
+            notices += cmd == (0x8000u | kSetStreamFormat);
+            responses += cmd == kSetStreamFormat;
+        }
+        return {notices, responses};
+    }
+};
+
+// S13 (#950; IEEE 1722.1-2021 7.4.9, 8.2): at input 0 and at the CRF input, which have no context, a SET_STREAM_FORMAT
+// waits for its acknowledgement; the input is bound meanwhile; acknowledged, the change makes its running check again
+// and is refused STREAM_IS_RUNNING at once, the input keeping its format and no one notified. Unbound, the same
+// change is taken.
+TEST_F(Streams, S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile) {
+    ASSERT_TRUE(ready());
+    const auto all = inputs();
+    const auto none = uncontexted();
+    ASSERT_GE(none.size(), 2u) << "S13 input 0 and the CRF input have no context (" PLAT_TEST_SHAPE ")";
+    EXPECT_EQ(none.front(), 0u) << "S13 input 0 has no context";
+    EXPECT_NE(all.at(none.back()).format >> 56, kAaf) << "S13 the CRF input has no context";
+    std::uint16_t seq = 0x0d01u;
+    for (const unsigned n : none) {
+        const std::uint64_t was = all.at(n).format;
+        const std::size_t from = bus().log.size();
+        const std::uint32_t frames = fabric.tx_sent;
+        ASSERT_TRUE(hold_format(n, was, seq)) << "S13 input " << n << "'s change waits, IN_PROGRESS";
+        ASSERT_TRUE(bind(n, true)) << "S13 input " << n << " is bound while its change waits";
+        acknowledge();
+        EXPECT_EQ(final_status(kSetStreamFormat, seq), static_cast<int>(kStreamIsRunning))
+            << "S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once "
+               "acknowledged: input "
+            << n;
+        steps(20);
+        EXPECT_EQ(format_frames(frames).first, 0u) << "S13 a refused change notifies no one: input " << n;
+        EXPECT_EQ(inputs().at(n).format, was) << "S13 input " << n << " keeps its format";
+        EXPECT_FALSE(ctrl_plat.aecp.core.waiting) << "S13 input " << n << ": the refusal ends the wait";
+        EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S13 input " << n << " writes no context";
+        ASSERT_TRUE(bind(n, false)) << "S13 input " << n << " is unbound";
+        EXPECT_EQ(set_format(n, was, static_cast<std::uint16_t>(seq + 1u)), static_cast<int>(kSuccess))
+            << "S13 unbound, input " << n << "'s change is taken";
+        seq = static_cast<std::uint16_t>(seq + 2u);
+    }
+    coherent("S13");
+}
+
+// S14 (#950; IEEE 1722.1-2021 7.4.9; Milan v1.2 5.3.7.3): at every STREAM_OUTPUT, a SET_STREAM_FORMAT waits for its
+// acknowledgement; the output starts streaming meanwhile (a Listener Ready for its stream, so SRP declares its Talker
+// and licenses its source); acknowledged, the change is refused STREAM_IS_RUNNING at once, no one notified. Once the
+// Listener has left and the output stopped, the same change is taken.
+TEST_F(Streams, S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile) {
+    ASSERT_TRUE(ready());
+    ASSERT_TRUE(allocated()) << "S14 MAAP holds every interface's range";
+    const auto all = outputs();
+    ASSERT_EQ(all.size(), static_cast<std::size_t>(CTRL_SRP_SOURCES)) << "S14 every STREAM_OUTPUT is a source";
+    std::uint16_t seq = 0x0e01u;
+    for (const auto& [n, format] : all) {
+        ASSERT_FALSE(streaming(n)) << "S14 output " << n << " is stopped";
+        const std::uint32_t frames = fabric.tx_sent;
+        far.ack = false;
+        ASSERT_TRUE(send(kSetStreamFormat, format_payload(kStreamOutput, n, format), seq))
+            << "S14 output " << n << "'s SET_STREAM_FORMAT reaches the mailbox";
+        ASSERT_TRUE(held(kSetStreamFormat, seq)) << "S14 output " << n << "'s change waits, IN_PROGRESS";
+        ASSERT_TRUE(listener(n, 1u, 2u)) << "S14 output " << n << "'s Listener Ready reaches the mailbox";
+        ASSERT_TRUE(streams(n, true, AECP_WAIT_MS / 2u)) << "S14 output " << n << " starts while its change waits";
+        ASSERT_TRUE(ctrl_plat.aecp.core.waiting) << "S14 output " << n << "'s change still waits";
+        acknowledge();
+        EXPECT_EQ(final_status(kSetStreamFormat, seq), static_cast<int>(kStreamIsRunning))
+            << "S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once "
+               "acknowledged: output "
+            << n;
+        steps(20);
+        EXPECT_EQ(format_frames(frames).first, 0u) << "S14 a refused change notifies no one: output " << n;
+        EXPECT_EQ(outputs().at(n), format) << "S14 output " << n << " keeps its format";
+        // the Listener leaves and the output stops: the same change is taken
+        ASSERT_TRUE(listener(n, 5u, 2u)) << "S14 output " << n << "'s Listener leaves";
+        ASSERT_TRUE(streams(n, false, 2000u)) << "S14 output " << n << " stops once its Listener has left";
+        EXPECT_EQ(set_format(kStreamOutput, n, format, static_cast<std::uint16_t>(seq + 1u)),
+                  static_cast<int>(kSuccess))
+            << "S14 stopped, output " << n << "'s change is taken";
+        seq = static_cast<std::uint16_t>(seq + 2u);
+    }
+    coherent("S14");
+}
+
+// T1 (#954; Milan v1.2 5.5.4.3, Table 5.47): at every STREAM_OUTPUT, GET_TX_STATE's flags carry REGISTERING_FAILED
+// while a Listener Asking Failed is registered for its Talker's stream on its interface, the registration SRP's
+// registrar holds (as GET_STREAM_INFO reads it, #943), and not for a Listener Ready or Ready Failed nor at another
+// output; it drops once the registration goes.
+TEST_F(Streams, T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered) {
+    constexpr std::uint16_t kRegisteringFailed = spec::FLAG_REGISTERING_FAILED;
+    ASSERT_TRUE(ready());
+    const auto all = outputs();
+    ASSERT_EQ(all.size(), static_cast<std::size_t>(CTRL_SRP_SOURCES)) << "T1 every STREAM_OUTPUT is a source";
+    std::uint16_t seq = 0x1001u;
+    const auto flags = [&](unsigned n) {
+        const acmp_test::Pdu r = tx_state(n, seq++);
+        EXPECT_EQ(r.status, 0u) << "T1 GET_TX_STATE of output " << n << " is answered SUCCESS";
+        EXPECT_EQ(r.stream_id, talker_stream(n)) << "T1 GET_TX_STATE of output " << n << " carries its stream";
+        return static_cast<std::uint16_t>(r.flags & kRegisteringFailed);
+    };
+    // every other output's GET_TX_STATE, with output n's Listener registered
+    const auto quiet = [&](unsigned n, const char* step) {
+        for (const auto& [m, format] : all) {
+            (void)format;
+            if (m == n) continue;
+            EXPECT_EQ(flags(m), 0u) << "T1 no other output carries output " << n << "'s Listener: output " << m << ", "
+                                    << step;
+        }
+    };
+    for (const auto& [n, format] : all) {
+        (void)format;
+        EXPECT_EQ(flags(n), 0u) << "T1 no REGISTERING_FAILED with no Listener registered: output " << n;
+        for (const auto& [declaration, failed] : {std::pair{1u, true}, std::pair{2u, false}, std::pair{3u, false},
+                                                  std::pair{1u, true}}) {
+            ASSERT_TRUE(listener(n, 1u, declaration)) << "T1 output " << n << "'s Listener reaches the mailbox";
+            EXPECT_EQ(flags(n), failed ? kRegisteringFailed : 0u)
+                << "T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for "
+                   "Ready or Ready Failed (Table 5.47): output "
+                << n << ", declaration " << declaration;
+            quiet(n, failed ? "Asking Failed" : "Ready or Ready Failed");
+        }
+        ASSERT_TRUE(listener(n, 5u, 1u)) << "T1 output " << n << "'s Listener leaves";
+        for (unsigned k = 0; k < 1500u; ++k) {
+            mbx_model_advance_ms(&fabric, 1u);
+            steps(1);
+        }
+        EXPECT_EQ(flags(n), 0u) << "T1 REGISTERING_FAILED drops once the Listener's registration goes: output " << n;
+    }
 }
 
 }  // namespace

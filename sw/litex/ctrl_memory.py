@@ -254,9 +254,10 @@ class Ledgered:
 #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
 #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
 #: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
-#: 58.5, its entry at 58.0 by the same rule: 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the
-#: composed train before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned
-#: on it (#665). The platform's image is linked at
+#: 59.0, its entry at 58.5 by the same rule with a waiting SET_STREAM_FORMAT's check made again and the source port's
+#: Asking Failed (#950, #954): 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the composed train
+#: before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned on it (#665).
+#: The platform's image is linked at
 #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
@@ -326,7 +327,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
                                             "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.0,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -345,7 +346,11 @@ LEDGERED: dict[str, Ledgered] = {
                                            "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
                                            "with each AAF Stream Input's current format written (#946), "
-                                           "138,432 B of rom, ctrl_plat unchanged"),
+                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with a waiting "
+                                           "SET_STREAM_FORMAT's running check made again (#950) and ACMP's "
+                                           "source port's Listener Asking Failed (#954), 139,304 B of rom, 40 B "
+                                           "past the 139,264 B 58.0 holds, ctrl_plat unchanged, by the same rule: "
+                                           "ROM debt of 2.5 RAMB36 owed to S14"),
 }
 
 
