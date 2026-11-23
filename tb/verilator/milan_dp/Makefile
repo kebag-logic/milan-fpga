@@ -37,6 +37,8 @@
 #   make twin   - #665: the two-placement simulation, one stimulus on the
 #                 all-fabric and the split datapath, compared protocol by
 #                 protocol (twin_compare.py); exit 1 on any difference
+#                 or a failed check of the Applicant grade's own
+#                 (twin_mrp.py --selftest, run first)
 #   make twin-plants - its sixteen plants, each refused by its own words
 #   make twin-maps - #923: the split image's audio maps reach the render
 #                 store, the format verdict follows them, a saved map is
@@ -1010,6 +1012,7 @@ build-twin: build-twin-af build-twin-sp
 # difference or any bound one half misses. The halves run once both are built,
 # in a make of their own, so a parallel make never runs a binary mid-link.
 twin: build-twin
+	python3 -B twin_mrp.py --selftest
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json
 
@@ -1032,6 +1035,7 @@ TWIN_CAPTURE_PLANTS = uncovered-field output-dest-mac-zero output-notice-dropped
 # none at this head: processor 801ef228 (#893) fixed the owed fabric defects (#857, #858, #860) they planted
 TWIN_FABRIC_PLANTS =
 twin-plants: build-twin
+	python3 -B twin_mrp.py --selftest
 	$(MAKE) --no-print-directory exec-twin-sp exec-twin-af
 	python3 -B twin_compare.py $(TWIN_OUT)/fabric.json $(TWIN_OUT)/split.json --report $(TWIN_OUT)/report.json \
 	  --report-only > $(TWIN_OUT)/unplanted.txt

@@ -13,11 +13,14 @@ declaration state (declared or not, and the value) at each half's LeaveAll bound
 derives; MVRP is graded in each half and not compared.
 
 What the grade reads, per attribute (its type and FirstValue):
-  * each frame the half sent of the application. A frame carrying a LeaveAll is a txLA! for every
-    attribute of the participant, and its sLA gives rise to rLA! against every one of them (10.7.6.6,
-    10.7.9), before or after the txLA! (10.7.6.6 does not order them). An attribute such a frame does not
-    carry sent nothing there, which only a state whose txLA! action is none or bracketed allows. Any other
-    frame is a tx! for each attribute it carries, sending the message the frame shows.
+  * each frame the half sent of the application. A frame carrying a LeaveAll is a txLA! (IEEE 802.1Q-2022
+    10.7.5.8) for every attribute it carries and no rLA! for its Applicant: the Applicant takes its own
+    LeaveAll as one event of Table 10-3, and the sLA's rLA! reaches only the Registrar (10.7.6.6, Table 10-4),
+    where it changes nothing txLA! has not. An attribute such a frame does not carry took either txLA!,
+    which sends nothing only from a state whose txLA! action is none or bracketed, or txLAF! (10.7.5.9), which
+    sends nothing from any state, but only where the frame is full: where the smallest vector the value could
+    add (MRPDU_ROOM, full()) would not fit. Any other frame is a tx! for each attribute it carries, sending
+    the message the frame shows.
   * each frame of the stimulus of the application, as received: its events (rNew! to rLv!), and rLA! for
     a LeaveAll of the attribute's type (10.7.5.13 to 10.7.5.20).
   * between them, periodic! and leavetimer!, which are not on the wire, as often as a trace needs.
@@ -28,8 +31,8 @@ What the grade reads, per attribute (its type and FirstValue):
     which nothing in the stimulus causes (Milan v1.2 4.2.7.2.1: a Domain is declared after startup or a
     Link Up, and changed for a received Domain).
 
-No frame here is near an MRPDU's capacity, so txLAF! and note 7 (a full MRPDU) do not arise. Re-declare!
-and Flush! are a Bridge's port-role events (10.7.5.2, 10.7.5.3) and do not arise at an end station. The
+A frame without a LeaveAll is a tx! only for the attributes it carries, so a value one leaves out, full or
+not, is graded at its next message. Re-declare! and Flush! are a Bridge's port-role events (10.7.5.2, 10.7.5.3) and do not arise at an end station. The
 Registrar reaches a message only through IN against MT or LV (10.7.6.3, 10.7.6.5; note 8), so Milan's cell
 changes no message an Applicant may send; it is applied as written all the same, to MSRP's Registrar only.
 """
@@ -75,6 +78,14 @@ TX = (_row("[s] sJ sN sN sJ [sJ] sL [s] [s] sJ [s] s"),
       _row("-   AA AN QA QA -    VO -   -   QA -   VO"))
 TXLA = (_row("[s] s  sN sN sJ sJ   [s] [s] [s] sJ sJ [s]"),
         _row("LO  AA AN QA QA -    LO  LO  LO  QA QA -"))
+#: Table 10-3's txLAF! row (IEEE 802.1Q-2022 10.7.5.9: a LeaveAll transmit opportunity whose MRPDU is full): no
+#: state sends, and each goes to its next state; Table 10-4 has no txLAF! row, so the Registrar takes only the
+#: sLA's rLA!
+TXLAF = _row("LO VP VN VN VP VP LO LO LO VP VP -")
+#: the octets an MRPDU may fill, ProtocolVersion to its last EndMark: the MAC client data of one frame, the
+#: split's lwSRP buffer (MBX_FRAME_BYTES_MAX less its 14-octet header) and no fabric MRPDU larger. The largest
+#: room makes the fewest frames full, so a full() frame is full in either half
+MRPDU_ROOM = 1500
 #: IEEE 802.1Q-2018 Table 10-4 as printed: rLv!, rLA! and txLA! take IN to LV and start the leavetimer
 TABLE_10_4 = {
     "Begin!": {"IN": "MT", "LV": "MT"},
@@ -93,6 +104,8 @@ REGISTRAR = {"MSRP": {**TABLE_10_4, "rLv!": {"IN": "MT"}}, "MVRP": TABLE_10_4}
 #: LeaveAll covers (10.8.2.6), an MVRP frame's, whose one attribute type (1, the VID) a LeaveAll covers
 APPLICATIONS = ("MSRP", "MVRP")
 MVRP_VID = 1
+#: each attribute type's FirstValue octets: MSRP's (Table 35-1 to 35-3, srp_wire_compare.MSRP), MVRP's VID
+WIDTH = {"MSRP": {kind: a.length for kind, a in td.srp_wire_compare.MSRP.items()}, "MVRP": {MVRP_VID: 2}}
 #: the events no frame shows, which may happen between any two (10.7.5.10, 10.7.5.21)
 UNSEEN = ("periodic!", "leavetimer!")
 #: operPointToPointMAC as each half configures it (notes 4 and 5), the port's for both its participants: the
@@ -163,12 +176,18 @@ def transmit(leave_all: bool, config: Config, part: Participant) -> list[tuple[s
     return [(sent, moved), (None, moved)] if actions[applicant].startswith("[") else [(sent, moved)]
 
 
-def opportunity(leave_all: bool, config: Config, part: Participant) -> list[tuple[str | None, Config]]:
-    """A transmit opportunity's outcomes: tx!, or txLA! with its sLA's rLA! after it or before it."""
-    if not leave_all:
-        return transmit(False, config, part)
-    return [(sent, step("rLA!", moved, part)) for sent, moved in transmit(True, config, part)] + \
-        transmit(True, step("rLA!", config, part), part)
+def opportunity(leave_all: bool, config: Config, part: Participant,
+                full: bool = False) -> list[tuple[str | None, Config]]:
+    """A transmit opportunity's outcomes: tx!, or txLA! alone, and where the MRPDU is full, txLAF! too.
+
+    The Applicant takes its own LeaveAll as one event of Table 10-3 and no rLA! (IEEE 802.1Q-2022 10.7.5.8,
+    10.7.5.9). The sLA's rLA! (10.7.6.6) reaches the Registrar alone: after txLA! it changes nothing (Table
+    10-4 takes IN to LV on both), after txLAF!, which Table 10-4 has no row for, it takes IN to LV."""
+    outcomes = transmit(leave_all, config, part)
+    if leave_all and full:
+        applicant, registrar = config
+        outcomes.append((None, (TXLAF.get(applicant, applicant), part.registrar["rLA!"].get(registrar, registrar))))
+    return outcomes
 
 
 def settle(configs: set[Config], part: Participant) -> set[Config]:
@@ -196,12 +215,14 @@ def requests(sent: str | None, before: str | None) -> tuple[str, ...]:
 @dataclass(frozen=True)
 class Seen:
     """One thing the grade reads of an attribute: a frame the half sent (`sent`, its message for the
-    attribute or None; `leave_all`, a LeaveAll frame), or an event the half received (`got`)."""
+    attribute or None; `leave_all`, a LeaveAll frame; `full`, one that leaves the attribute out and has no
+    room for it, full()), or an event the half received (`got`)."""
 
     ms: int
     sent: str | None = None
     leave_all: bool = False
     got: str = ""
+    full: bool = False
 
 
 @dataclass
@@ -225,7 +246,8 @@ def illegal(label: str, seen: Seen, pre: set[Config], trace: Trace, part: Partic
     """A message no configuration could send, as a finding names it."""
     what = seen.sent or "nothing"
     states = ", ".join(sorted({a + (" with the Registrar IN" if r == "IN" else "") for a, r in pre}))
-    could = " or ".join(sorted({s or "nothing" for c in pre for s, _ in opportunity(seen.leave_all, c, part)}))
+    could = " or ".join(sorted({s or "nothing" for c in pre
+                                for s, _ in opportunity(seen.leave_all, c, part, seen.full)}))
     row = "txLA!" if seen.leave_all else "tx!"
     after = f", after {trace.last[1]} at ms {trace.last[0]}" if trace.last else ""
     return (f"{part.application} {label}: {what} at ms {seen.ms}{' (a LeaveAll)' if seen.leave_all else ''} is "
@@ -239,11 +261,12 @@ def advance(label: str, seen: Seen, trace: Trace, part: Participant) -> None:
     pre = settle(trace.configs, part)
     for request in requests(seen.sent, trace.last[1] if trace.last else None):
         pre |= settle({step(request, c, part) for c in pre}, part)
-    after = {moved for c in pre for sent, moved in opportunity(seen.leave_all, c, part) if sent == seen.sent}
+    after = {moved for c in pre for sent, moved in opportunity(seen.leave_all, c, part, seen.full)
+             if sent == seen.sent}
     if not after:
         trace.findings.append(illegal(label, seen, pre, trace, part))
         anywhere = {(a, r) for a in STATES for r in REGISTRARS}
-        after = {moved for c in anywhere for sent, moved in opportunity(seen.leave_all, c, part)
+        after = {moved for c in anywhere for sent, moved in opportunity(seen.leave_all, c, part, seen.full)
                  if sent == seen.sent}
     trace.configs = after
     if seen.leave_all:
@@ -266,12 +289,38 @@ def grade_attribute(label: str, seen: list[Seen], part: Participant) -> Trace:
 Key = tuple[int, str]
 
 
+def mrpdu_octets(application: str, s: Sent) -> int:
+    """One frame's MRPDU, ProtocolVersion to the PDU's EndMark, the MAC's pad left out (IEEE 802.1Q-2022
+    10.8.1.2): an MSRP Message's AttributeListLength gives its end (35.2.2.6); an MVRP Message has none, so
+    its vectors are walked to the list's EndMark (11.2.3.1)."""
+    if application == "MSRP":
+        return len(td.unpad_mrp(s.data, s.at)) - s.at
+    offset = s.at + 1
+    while offset + 2 <= len(s.data) and s.data[offset:offset + 2] != b"\0\0":
+        length = s.data[offset + 1]
+        offset += 2
+        while offset + 2 <= len(s.data) and s.data[offset:offset + 2] != b"\0\0":
+            count = int.from_bytes(s.data[offset:offset + 2], "big") & 0x1FFF
+            offset += 2 + length + (count + 2) // 3
+        offset += 2
+    return offset + 2 - s.at
+
+
+def vector_octets(application: str, kind: int) -> int:
+    """The smallest VectorAttribute a value of `kind` adds to an MRPDU that already carries its type's Message,
+    as a LeaveAll MRPDU carries every type's: its VectorHeader, FirstValue and one ThreePackedEvents octet,
+    and for an MSRP Listener one FourPackedEvents octet (IEEE 802.1Q-2022 10.8.1.2, 35.2.2.7). Each value
+    has a vector of its own, as both halves encode it (README [ONEVEC]) and lwSRP counts room."""
+    return 2 + WIDTH[application][kind] + 1 + (1 if application == "MSRP" and kind == 3 else 0)
+
+
 def observations(cap: Capture, application: str = "MSRP") -> dict[Key, list[Seen]]:
     """What the grade reads of each attribute of one application in one half, in time order: a stimulus frame
     before the half's own frames of the same millisecond."""
-    own = [(s.ms, *frame_events(application, s)) for s in cap.frames.get(application, [])]
+    own = [(s.ms, *frame_events(application, s), MRPDU_ROOM - mrpdu_octets(application, s))
+           for s in cap.frames.get(application, [])]
     got = [(s.ms, *frame_events(application, s)) for s in td.received(cap, application)]
-    keys = sorted({(e.kind, e.value) for _, events, _ in own + got for e in events})
+    keys = sorted({(e.kind, e.value) for _, events, *_ in own + got for e in events})
     found: dict[Key, list[Seen]] = {}
     for key in keys:
         timeline: list[tuple[int, int, Seen]] = []
@@ -279,10 +328,11 @@ def observations(cap: Capture, application: str = "MSRP") -> dict[Key, list[Seen
             if key[0] in types:
                 timeline.append((ms, 0, Seen(ms, got="rLA!")))
             timeline += [(ms, 0, Seen(ms, got=f"r{e.event}!")) for e in events if (e.kind, e.value) == key]
-        for ms, events, types in own:
+        for ms, events, types, spare in own:
             mine = [e.event for e in events if (e.kind, e.value) == key]
             if types:
-                timeline.append((ms, 1, Seen(ms, mine[0] if mine else None, True)))
+                full = not mine and vector_octets(application, key[0]) > spare
+                timeline.append((ms, 1, Seen(ms, mine[0] if mine else None, True, full=full)))
                 mine = mine[1:]
             timeline += [(ms, 1, Seen(ms, sent)) for sent in mine]
         found[key] = [item for _, _, item in sorted(timeline, key=lambda t: (t[0], t[1]))]
@@ -342,3 +392,57 @@ def trace_shown(cap: Capture, application: str, key: Key) -> str:
     heard = (f"received {got} {application}DU(s)" if got
              else f"received no {application}DU, its Registrar MT throughout")
     return f"{application} {label_of(application, key)}: {messages}; {heard}"
+
+
+def selftest() -> list[str]:
+    """The own-LeaveAll grade on hand-made traces and frames; each failed check, by name.
+
+    A Domain value declared and sent JoinMt until QA (Table 10-3, the Registrar MT):
+      * at a LeaveAll MRPDU that carries it, its txLA! sends JoinMt and keeps QA, so a Lv! after it sends Lv
+        (LA, tx! sL): legal, as for MVRP's VID;
+      * Mt there is illegal: no rLA! takes the Applicant to VP before its txLA!;
+      * left out of a LeaveAll MRPDU with room for it, nothing is a finding naming JoinMt alone;
+      * left out of a full one, nothing is txLAF! (QA to VP), and its next tx! sends JoinMt.
+    Then each half's MRPDU octets and the smallest vector of each type."""
+    failed: list[str] = []
+    msrp = Participant("MSRP", REGISTRAR["MSRP"], True)
+    mvrp = Participant("MVRP", REGISTRAR["MVRP"], True)
+    joined = [Seen(0, "JoinMt"), Seen(100, "JoinMt")]
+
+    def check(name: str, ok: bool) -> None:
+        if not ok:
+            failed.append(name)
+
+    lv = grade_attribute("Domain", [*joined, Seen(1000, "JoinMt", True), Seen(1050, "Lv")], msrp)
+    check("msrp-lv-after-own-leaveall", not lv.findings and lv.boundaries == [(1000, True)])
+    vid = grade_attribute("VID 2", [*joined, Seen(1000, "JoinMt", True), Seen(1050, "Lv")], mvrp)
+    check("mvrp-lv-after-own-leaveall", not vid.findings)
+    mt = grade_attribute("Domain", [*joined, Seen(1000, "Mt", True)], msrp)
+    check("mt-at-own-leaveall", len(mt.findings) == 1)
+    fits = grade_attribute("Domain", [*joined, Seen(1000, None, True)], msrp)
+    check("omission-with-room", len(fits.findings) == 1 and "Table 10-3's txLA! sends JoinMt (" in fits.findings[0])
+    full = grade_attribute("Domain", [*joined, Seen(1000, None, True, full=True), Seen(1010, "JoinMt")], msrp)
+    check("omission-from-full", not full.findings and full.configs == {("AA", "MT")}
+          and full.boundaries == [(1000, True)])
+
+    header = bytes(14)
+    domains = 212   # 1 + 4 + 212 x 7 + 2 + 2 = 1493 octets: room for no Listener, room for one more Domain
+    msrp_pdu = bytes([0, 4, 4]) + (domains * 7 + 2).to_bytes(2, "big") + \
+        b"".join(bytes([0x00, 0x01, 6, 3, 0, k % 256, 0]) for k in range(domains)) + bytes(4)
+    spare = MRPDU_ROOM - mrpdu_octets("MSRP", Sent(0, header + msrp_pdu + bytes(9), 14))
+    check("msrp-octets", spare == 7)
+    check("msrp-full-for-a-listener", vector_octets("MSRP", 3) == 12 and vector_octets("MSRP", 3) > spare)
+    check("msrp-room-for-a-domain", vector_octets("MSRP", 4) == 7 and not vector_octets("MSRP", 4) > spare)
+    mvrp_pdu = bytes([0, 1, 2, 0x20, 0x01, 0, 2, 3 * 36, 0, 0, 0, 0])
+    check("mvrp-octets", mrpdu_octets("MVRP", Sent(0, header + mvrp_pdu + bytes(30), 14)) == len(mvrp_pdu)
+          and vector_octets("MVRP", MVRP_VID) == 5)
+    return failed
+
+
+if __name__ == "__main__":
+    import sys
+    if sys.argv[1:] != ["--selftest"]:
+        raise SystemExit("usage: twin_mrp.py --selftest")
+    missed = selftest()
+    print("twin_mrp selftest: " + (f"FAILED {', '.join(missed)}" if missed else "OK (10 checks)"))
+    raise SystemExit(1 if missed else 0)
