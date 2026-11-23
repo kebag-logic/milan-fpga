@@ -1,0 +1,40 @@
+Note: Google Test filter = *Probe*:SrpEarlyTalker.Review*
+[==========] Running 11 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (3 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (2 ms)
+[----------] 5 tests from SrpEarlyTalker (10 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (3 ms)
+[----------] 3 tests from SrpStaleCountProbe (6 ms total)
+
+[----------] 3 tests from RvProbe
+[ RUN      ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector
+[       OK ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector (1 ms)
+[ RUN      ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+[       OK ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (10 ms)
+[ RUN      ] RvProbe.OtherInterfaceResetKeepsThisCount
+[       OK ] RvProbe.OtherInterfaceResetKeepsThisCount (1 ms)
+[----------] 3 tests from RvProbe (14 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 3 test suites ran. (32 ms total)
+[  PASSED  ] 11 tests.
+== ctrl SRP mailbox: checks: 11   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (11 tests, 0 failures, exit 0)

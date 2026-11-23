@@ -1,0 +1,14 @@
+POINT endstation_ax7101_1x1_tdm8, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 20,000 CPU cycles, 210 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 20,000 CPU cycles, 210 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 20,000 CPU cycles, 210 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 25,000 CPU cycles, 265 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 20,000 against 25,000 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 20,000 against 25,000 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 20,000 against 25,000 CPU cycles
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 0 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+FINDING srp-kept: a work pass of 250,000 CPU cycles at bus cycle 5000000 over THE SHARE
+kept_grade: FAIL (1 finding(s), 0 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))

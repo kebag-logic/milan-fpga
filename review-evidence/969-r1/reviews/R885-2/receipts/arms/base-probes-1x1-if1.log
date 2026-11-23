@@ -1,0 +1,216 @@
+Note: Google Test filter = *Probe*:SrpEarlyTalker.Review*-RvProbe.OtherInterfaceResetKeepsThisCount
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 1
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 1
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: ACMP is told, input 1
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: ACMP is told, input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 1
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 1
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: ACMP is told, input 1
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: ACMP is told, input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (0 ms)
+[----------] 5 tests from SrpEarlyTalker (3 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: ACMP is told, input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: ACMP is told, input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: ACMP is told, input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: ACMP is told, input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (1 ms)
+[----------] 3 tests from SrpStaleCountProbe (3 ms total)
+
+[----------] 2 tests from RvProbe
+[ RUN      ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector
+[       OK ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector (0 ms)
+[ RUN      ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: input 1
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: input 1
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: ACMP is told, input 1
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: ACMP is told, input 1
+$REVIEWS/969-r885-2-packet/scratch/f863/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+aged out by LeaveAll, reclaimed: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 1
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 1
+[  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (5 ms)
+[----------] 2 tests from RvProbe (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (13 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+
+ 5 FAILED TESTS
+== ctrl SRP mailbox: checks: 10   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 10 checks, exit 1)

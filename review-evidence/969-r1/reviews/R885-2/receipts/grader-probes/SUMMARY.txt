@@ -1,0 +1,14 @@
+PASS repository selftest: records at the unit by the rule (27,142 cycles, 285 us), kept <= bound: nothing owed or found: ([], [])
+PASS repository selftest: records past the unit with kept <= bound are owed to #977, by name and link, and found nothing: (['srp.kept_advertise.if0: a record of 54,284 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)', 'srp.bound_advertise.if0: a record of 81,426 CPU cycles, 855 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)'], [])
+PASS repository selftest: a kept record one cycle dearer than the bound one breaks kept <= bound, its own probe's: (['srp.kept_advertise.if0: a record of 54,284 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)', 'srp.bound_advertise.if0: a record of 54,283 CPU cycles, 570 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)'], ["srp.kept_advertise.if0: kept <= bound broken, 54,284 CPU cycles against the bound record's 54,283"])
+PASS repository selftest: a probe with no record is a finding, the next probe's record not taken for it: ([], ['srp.kept_recount.if0: no SRP record follows its mark'])
+PASS repository selftest: a work pass of srp-kept over THE SHARE is a finding; srp-bound's is owed to #977: (["srp-bound: a work pass of 260,000 CPU cycles at bus cycle 6000 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"], ['srp-kept: a work pass of 250,000 CPU cycles at bus cycle 5000 over THE SHARE'])
+PASS build-one one cycle over cost: ['srp-kept: a build-one pass at bus cycle 5000000: 73,501 CPU cycles over its stated cost']
+PASS only one group graded: ['srp-kept and srp-bound are graded together on one image, this run graded srp-kept alone']
+PASS named and linked OWED disposition: ["srp-kept: an SRP record's apply of 40000 CPU cycles, over its stated 28500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)", 'srp-bound: a walk item of 15000 CPU cycles, over its stated 12000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)']
+FAIL valid idle-only over-share row: KeyError: 'start_sys'; idle rows use idle_run, not start_sys
+PASS complete-clean: expected rc=0, observed rc=0
+PASS complete-over-share: expected rc=1, observed rc=1
+PASS missing-json: expected rc=1, observed rc=1
+FAIL empty-json: expected rc=1, observed rc=0
+FAIL missing-share: expected rc=1, observed rc=0

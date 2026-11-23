@@ -1,0 +1,52 @@
+Note: Google Test filter = SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+$REVIEWS/r885-2-969/sw/firmware/ctrl/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\x1' (1)
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+$REVIEWS/r885-2-969/sw/firmware/ctrl/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\x1' (1)
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: input 0
+$REVIEWS/r885-2-969/sw/firmware/ctrl/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\x1' (1)
+  kind
+    Which is: 2
+the latest of two kinds registered before the binding: ACMP is told, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: ACMP is told, input 0
+$REVIEWS/r885-2-969/sw/firmware/ctrl/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+
+  [FAIL] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt: the latest of two kinds registered before the binding: in THE TRANSMIT's next MRPDU, input 0
+[  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt (1 ms)
+[----------] 1 test from SrpEarlyTalker (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

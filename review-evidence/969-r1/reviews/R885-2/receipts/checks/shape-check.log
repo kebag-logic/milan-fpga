@@ -1,0 +1,8 @@
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+RESULT: PASS

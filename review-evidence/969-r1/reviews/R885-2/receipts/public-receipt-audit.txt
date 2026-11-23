@@ -1,0 +1,95 @@
+f02d44cd..HEAD changed paths:
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+sw/firmware/ctrl/test/srp_mbx.cpp
+sw/firmware/gtest/coverage.ratchet
+sw/litex/ctrl_memory.py
+sw/litex/ctrl_memory_ledger.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/kept_grade.py
+tb/verilator/ctrl_service_budget/kept_window.py
+tb/verilator/ctrl_service_budget/run.py
+ecd5bf41..HEAD changed paths:
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/kept_grade.py
+tb/verilator/ctrl_service_budget/kept_window.py
+tb/verilator/ctrl_service_budget/run.py
+5dba2089..HEAD changed paths:
+tb/verilator/ctrl_service_budget/kept_grade.py
+Firmware production C/H inputs since f02d44cd: UNCHANGED
+PUBLIC firmware/early-plants-by-shape-ecd5bf41.txt
+PUBLIC firmware/firmware-gate-5dba2089-shard0.log
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+test_ctrl_firmware: PASS
+PUBLIC firmware/firmware-gate-ecd5bf41-shard0.log
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+    RESULT: PASS
+test_ctrl_firmware: PASS
+PUBLIC firmware/firmware-gate-ecd5bf41-shard3.log.gz
+test_ctrl_firmware: PASS
+Early plant results: 48
+endstation_ax7101_1x1_tdm8, 1 interface]: 16
+endstation_ax7101_1x1_tdm8, 2 interfaces]: 16
+endstation_ax7101_8x8, 1 interface]: 16
+PUBLIC firmware/firmware-gate-f02d44cd-shard1.log.gz
+mutants: 827 of 827 caught
+test_ctrl_firmware: PASS
+PUBLIC firmware/firmware-gate-f02d44cd-shard2.log.gz
+test_ctrl_firmware: PASS
+PUBLIC firmware/fw_coverage-check-ecd5bf41.log
+  RESULT: PASS
+sw/firmware/ctrl/srp/srp_mbx.c                   861/861     779/782     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (40 files)
+Docs commands 103; rc=0 99
+99-_I-installdiractcipysel   rc=2  /usr/bin/python3: can't open file '/act_ci.py': [Errno 2] No such file or directory
+100-ci_fail_fast-watch       rc=1  KeyError: 'GITHUB_EVENT_PATH'
+101-ci_fail_fast-cancel      rc=1  KeyError: 'GITHUB_EVENT_PATH'
+102-ci_fail_fast-tail        rc=1  KeyError: 'GITHUB_EVENT_PATH'
+PUBLIC ledger/fixture-stand-in-8x8-1if.txt
+# the size fixture's 8x8/1if stand-in (the split SoC's export plans it within 56 RAMB36), base dd163e41 against the final head f02d44cd, from each plat_ledger run's size.json
+dd163e41 rom 130032 of 131072 sram 96928 of 98304 tiles 56.0 budget 56
+f02d44cd rom 130960 of 131072 sram 97072 of 98304 tiles 56.0 budget 56
+
+PUBLIC budget/hot-section-f02d44cd.txt
+# the hot section (_ctrl_hot_start .. _ctrl_hot_end) of the platform images (plat_ledger's), base dd163e41 against the final head f02d44cd, every function by its offset in the section and its size (hotcmp.py), then every text symbol (symcmp.py)
+## 1x1/1if
+hot section: base 0x8c..0xde04 (56696 B, 261 functions); head 0x8c..0xde14 (56712 B, 261 functions)
+functions at a different offset or size: 152; the first: base (26852, 536, 'reset_interface') head (26852, 552, 'reset_interface')
+resized: [('reset_interface', 536, 552)]
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [380], [584]), ('reset_interface', [536], [552]), ('srp_mbx_bind', [912], [932]), ('talker_changed', [328], [520])]
+new: ['kept_visited'] gone: []
+moved: 409 of 497
+base .text ['  0 .text         0001b9c0  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bd70  00000000  00000000  00001000  2**2']
+## 8x8/1if
+hot section: base 0x8c..0xddb8 (56620 B, 261 functions); head 0x8c..0xddc8 (56636 B, 261 functions)
+functions at a different offset or size: 152; the first: base (26828, 552, 'reset_interface') head (26828, 568, 'reset_interface')
+resized: [('reset_interface', 552, 568)]
+size changed: [('apply_receive', [568], [712]), ('interested_msrp', [344], [576]), ('reset_interface', [552], [568]), ('srp_mbx_bind', [896], [916]), ('talker_changed', [348], [524])]
+new: ['kept_visited'] gone: []
+moved: 409 of 497
+base .text ['  0 .text         0001b97c  00000000  00000000  00001000  2**2']
+head .text ['  0 .text         0001bd20  00000000  00000000  00001000  2**2']
+## the shifted functions: every hot function after reset_interface in the section, each 16 B later; none resized but reset_interface (+16 B, its zeroing of the kept count)
+## for comparison, the round-1 head f863258d against the base: 0 hot functions at another offset or size
+
+PUBLIC budget/leaveall-build-with-the-kept.txt
+# the srp-kept group's LeaveAll and the build that carries the kept Talkers (results/srp-kept.log, its SRP TX
+# frames decoded vector by vector): the entity's LeaveAll MRPDU, then the next MRPDU, which answers it with In for
+# every kept Talker (an observed attribute in LO, IEEE 802.1Q-2018 Table 10-3), one value a vector
+1x1/1if  14.213 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+1x1/1if  14.404 s   92 B  type 1: 2 vectors (streams 1, 2: stream 0 left, stream 2 kept in its place), type 4: 1
+8x8/1if  14.253 s  127 B  messages 1, 2, 3, 4, each with LeaveAll
+8x8/1if  14.443 s  288 B  type 1: 9 vectors (streams 1 .. 9), type 4: 1
+# the heaviest pass given whole to a build of one MRPDU in the group (whole_grade.held, kept_grade.py's BUILD line):
+# 39,123 CPU cycles at 1x1/1if against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US 735 us), 82,768 at 8x8/1if
+# against 147,500 (1475 us); run.py: "LeaveAll timers' run-outs by their LeaveAll: 2 sent" at each point, no late,
+# skipped or absent run-out
+
+internal prior probe source: exact (include supplied by wrapper if needed)=True; published sha256=a64a4b8401b1aa6e05a499e65cf24193fae56bbf7a5bcdecb03cde0771aa68cc
+external prior probe source: exact (include supplied by wrapper if needed)=True; published sha256=5c8880716d5f094f45d98fffac2258612507fb2a789a0b0dec014c70ff2e38c1

@@ -1,0 +1,38 @@
+Note: Google Test filter = *Probe*:SrpEarlyTalker.Review*-RvProbe.OtherInterfaceResetKeepsThisCount
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (3 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[       OK ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (3 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (1 ms)
+[----------] 5 tests from SrpEarlyTalker (14 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+[----------] 3 tests from SrpStaleCountProbe (6 ms total)
+
+[----------] 2 tests from RvProbe
+[ RUN      ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector
+[       OK ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector (1 ms)
+[ RUN      ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+[       OK ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (6 ms)
+[----------] 2 tests from RvProbe (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (30 ms total)
+[  PASSED  ] 10 tests.
+== ctrl SRP mailbox: checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)

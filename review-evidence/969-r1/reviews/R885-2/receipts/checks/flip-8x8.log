@@ -1,0 +1,15 @@
+| Point | Load at the pin | Flip ceiling | Compute for the ceiling | Terms by share (at the pin) |
+|---|---:|---:|---:|---|
+| 8x8/1if | 0.744 | 0.75 | 1.00x | srp 0.225, rec.acmp 0.088, item.aecp 0.059, ticks 0.057, rec.aecp 0.053, item.reclaim 0.041, timers 0.037, steps 0.034, item.mrpdu 0.031, item.acmp 0.027, rec.adp 0.024, item.acmp_declined 0.020, builds 0.016, item.walk 0.013, rec.maap 0.009, notices 0.008, gm 0.001 |
+
+
+| Shape (interfaces, sources, sinks) | Slice, us | Build of both, us | Build of one, us | SRP record, us | THE RETRY: cold start, us | refused attempt, us | Last queued notice, ms | THE TRANSMIT's MRPDU, ms | Points |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| (1, 2, 2) | 950 | 1010 | 735 | 285 | 85 | 34 | 130 | 35 | 1x1/1if |
+| (1, 9, 9) | 1475 | 1795 | 1475 | 375 | 165 | 25 | 130 | 77 | 8x8/1if |
+| (2, 2, 2) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | none the model names |
+| (2, 9, 9) | 1300 | 1995 | 1215 | 365 | 185 | 34 | 62 | 105 | 8x8/2if |
+with no shape header: (2, 2) streams
+REPORTED 8x8/1if: its rows by every source are reported, not held, owed to #872; its measured rows are the CPU budget harness's on its built image (run.py --point 8x8-1if)
+HELD 8x8/1if: THE TRANSMIT's figure CTRL_LOOP_TX_MS 77 ms against its tx row by every source 76.81 ms (tx_held; the hold-off adds the figure)
+RESULT: PASS

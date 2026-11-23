@@ -1,0 +1,218 @@
+Note: Google Test filter = *Probe*:SrpEarlyTalker.Review*
+[==========] Running 11 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpEarlyTalker
+[ RUN      ] SrpEarlyTalker.ReviewFreshFullBatchControl
+[       OK ] SrpEarlyTalker.ReviewFreshFullBatchControl (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: ACMP is told, input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity: after reset, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: ACMP is told, input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity: after reclaim, the first full batch fits the empty registrar: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (1 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs
+[       OK ] SrpEarlyTalker.ReviewUnboundFloodDoesNotStarveBoundInputs (3 ms)
+[ RUN      ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput
+[       OK ] SrpEarlyTalker.ReviewUnbindRebindControlEveryInput (2 ms)
+[----------] 5 tests from SrpEarlyTalker (10 ms total)
+
+[----------] 3 tests from SrpStaleCountProbe
+[ RUN      ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput
+[       OK ] SrpStaleCountProbe.ZProbeFreshOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reset: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: ACMP is told, input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput: after a reset: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+[ RUN      ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+after a reclaim: one receive of every input: ACMP is told, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: ACMP is told, input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput: after a reclaim: one receive of every input: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (3 ms)
+[----------] 3 tests from SrpStaleCountProbe (6 ms total)
+
+[----------] 3 tests from RvProbe
+[ RUN      ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector
+[       OK ] RvProbe.AtTheBoundRefreshedThenResetThenFullVector (1 ms)
+[ RUN      ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2191: Failure
+Expected equality of these values:
+  sink(k).desired
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: input 8
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2192: Failure
+Expected equality of these values:
+  sink(k).declared
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: input 8
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2193: Failure
+Expected equality of these values:
+  sink(k).feedback_kind
+    Which is: '\0'
+  kind
+    Which is: 2
+aged out by LeaveAll, reclaimed: one vector of every input is kept: ACMP is told, input 8
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: ACMP is told, input 8
+$REVIEWS/969-r885-2-packet/scratch/arms/base-probes-8x8-if2/srp-$REVIEWS/969-r885-2-packet/scripts/probes-if2-endstation_ax7101_8x8/variant/test/srp_mbx.cpp:2198: Failure
+Value of: declared
+  Actual: false
+Expected: true
+aged out by LeaveAll, reclaimed: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+
+  [FAIL] RvProbe.KeptAgedOutByLeaveAllThenFullVector: aged out by LeaveAll, reclaimed: one vector of every input is kept: in THE TRANSMIT's next MRPDU, input 8
+[  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (10 ms)
+[ RUN      ] RvProbe.OtherInterfaceResetKeepsThisCount
+[       OK ] RvProbe.OtherInterfaceResetKeepsThisCount (1 ms)
+[----------] 3 tests from RvProbe (13 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 3 test suites ran. (30 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+[  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+[  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+[  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+[  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+
+ 5 FAILED TESTS
+== ctrl SRP mailbox: checks: 11   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 11 checks, exit 1)

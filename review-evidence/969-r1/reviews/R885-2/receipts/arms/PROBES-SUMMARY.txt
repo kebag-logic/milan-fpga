@@ -1,0 +1,60 @@
+ARM head-probes-1x1-if1 rc=0
+    [  PASSED  ] 10 tests.
+ARM head-probes-1x1-if2 rc=0
+    [  PASSED  ] 11 tests.
+ARM head-probes-8x8-if1 rc=0
+    [  PASSED  ] 10 tests.
+ARM head-probes-8x8-if2 rc=0
+    [  PASSED  ] 11 tests.
+ARM base-probes-1x1-if1 rc=1
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (0 ms)
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (1 ms)
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (5 ms)
+    [  PASSED  ] 5 tests.
+    [  FAILED  ] 5 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+ARM base-probes-1x1-if2 rc=1
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (0 ms)
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (0 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (0 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (7 ms)
+    [  PASSED  ] 6 tests.
+    [  FAILED  ] 5 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+ARM base-probes-8x8-if1 rc=1
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (2 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (2 ms)
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (6 ms)
+    [  PASSED  ] 5 tests.
+    [  FAILED  ] 5 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
+ARM base-probes-8x8-if2 rc=1
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity (1 ms)
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity (1 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput (1 ms)
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput (3 ms)
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector (10 ms)
+    [  PASSED  ] 6 tests.
+    [  FAILED  ] 5 tests, listed below:
+    [  FAILED  ] SrpEarlyTalker.ReviewResetRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpEarlyTalker.ReviewFreedBelowBoundRestoresFullAdmissionCapacity
+    [  FAILED  ] SrpStaleCountProbe.ZProbeResetThenOneReceiveOfEveryInput
+    [  FAILED  ] SrpStaleCountProbe.ZProbeReclaimThenOneReceiveOfEveryInput
+    [  FAILED  ] RvProbe.KeptAgedOutByLeaveAllThenFullVector
