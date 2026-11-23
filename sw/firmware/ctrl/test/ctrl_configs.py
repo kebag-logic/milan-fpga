@@ -159,6 +159,8 @@ OUTSIDE = {
     "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
     "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
                             "compile no control-stack source",
+    "sw/litex/mac_link_status.py": "the MAC link-status word's reset (#972), which milan_soc.py's MilanMAC reads and "
+                                  "a harness elaborates; it compiles nothing",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
