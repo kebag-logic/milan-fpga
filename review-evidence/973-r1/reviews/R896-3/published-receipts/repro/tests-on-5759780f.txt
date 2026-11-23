@@ -1,0 +1,83 @@
+=== srp-srp_link_pass-if1-endstation_ax7101_1x1_tdm8 rc=1
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:207: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:208: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:209: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:225: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP resets nothing
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:226: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP keeps the startup participants
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:207: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:209: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:240: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: a later UP resets the interface once
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (3 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+== ctrl SRP link inside a pass: checks: 9   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 9 checks, exit 1)
+=== srp-srp_link_pass-if1-endstation_ax7101_8x8 rc=1
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:207: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:208: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:209: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:225: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP resets nothing
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:226: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP keeps the startup participants
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:207: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:209: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<lane>/sw/firmware/ctrl/test/srp_link_pass.cpp:240: Failure
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: a later UP resets the interface once
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+== ctrl SRP link inside a pass: checks: 9   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 9 checks, exit 1)
+LINKARMS FAIL (2 failed)

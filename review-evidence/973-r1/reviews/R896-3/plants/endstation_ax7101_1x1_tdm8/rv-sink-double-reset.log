@@ -1,0 +1,36 @@
+Note: Google Test filter = SrpLinkPass.InTheEvents
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpLinkPass
+[ RUN      ] SrpLinkPass.InTheEvents
+<packet>/scratch/delta-tests/srp_link_pass.cpp:129: Failure
+Expected equality of these values:
+  resets - before
+    Which is: 2
+  1u
+    Which is: 1
+a DOWN resets the interface once
+
+  [FAIL] SrpLinkPass.InTheEvents: a DOWN resets the interface once
+<packet>/scratch/delta-tests/srp_link_pass.cpp:130: Failure
+Expected equality of these values:
+  up_at(phase)
+    Which is: 2
+  1u
+    Which is: 1
+a later UP resets the interface once
+
+  [FAIL] SrpLinkPass.InTheEvents: a later UP resets the interface once
+[  FAILED  ] SrpLinkPass.InTheEvents (0 ms)
+[----------] 1 test from SrpLinkPass (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpLinkPass.InTheEvents
+
+ 1 FAILED TEST
+== ctrl SRP link inside a pass: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

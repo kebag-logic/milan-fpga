@@ -1,0 +1,195 @@
+{
+  "observed": {
+    "current_time": "2026-11-23 06:36:15 UTC"
+  },
+  "head": "87b2fc0f2867ef132b9388e22ec262fc626cbb57",
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 45124291344,
+        "name": "rtl-full",
+        "status": "pending",
+        "conclusion": null,
+        "run_number": 2327,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291344/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291344/logs",
+        "workflow_id": 320750503
+      },
+      {
+        "id": 45124291121,
+        "name": "elaborate",
+        "status": "pending",
+        "conclusion": null,
+        "run_number": 1747,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291121/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291121/logs",
+        "workflow_id": 339283801
+      },
+      {
+        "id": 45124291599,
+        "name": "docs",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 2122,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291599/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291599/logs",
+        "workflow_id": 320168027
+      },
+      {
+        "id": 45124291359,
+        "name": "rtl-fast",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1871,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291359/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/45124291359/logs",
+        "workflow_id": 339150340
+      }
+    ]
+  },
+  "rtl_fast_jobs": {
+    "jobs": [
+      {
+        "id": 137526130060,
+        "name": "bdd-conformance",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 45124291359,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 137526130351,
+        "name": "Fail fast across this head",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 45124291359,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 137526130530,
+        "name": "changes",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 45124291359,
+        "logs_url": null,
+        "steps": null
+      }
+    ]
+  },
+  "other_jobs_previous": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "run_id": 45124291359,
+        "jobs": [
+          {
+            "id": 137526130060,
+            "name": "bdd-conformance",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291359,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137526130351,
+            "name": "Fail fast across this head",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291359,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137526130530,
+            "name": "changes",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291359,
+            "logs_url": null,
+            "steps": null
+          }
+        ]
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "run_id": 45124291344,
+        "jobs": []
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "run_id": 45124291121,
+        "jobs": []
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "run_id": 45124291599,
+        "jobs": [
+          {
+            "id": 137524982666,
+            "name": "docs-check-no-git",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137524982995,
+            "name": "docs-gates-2",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137524982998,
+            "name": "docs-gates-1",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137524983006,
+            "name": "Fail fast across this head",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137524983050,
+            "name": "wire-accountability",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          },
+          {
+            "id": 137524983072,
+            "name": "docs-gates-0",
+            "status": "queued",
+            "conclusion": null,
+            "run_id": 45124291599,
+            "logs_url": null,
+            "steps": null
+          }
+        ]
+      }
+    }
+  ],
+  "firmware_boundary": "pending; no emitted job at observation"
+}

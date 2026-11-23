@@ -1,0 +1,21 @@
+Head/tree:
+87b2fc0f2867ef132b9388e22ec262fc626cbb57
+82af93a508702104d01ea085c238cba30c636c38
+Delta history:
+87b2fc0f28 State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973)
+9509dbd365 Parenthesize the mark-survives-a-down plants so the warning-strict build compiles them and the tests kill them (#973)
+0338f66a82 Clear the mark of an UP no LINK carried on every DOWN SRP's poll reads, so an elided UP's observation authorizes no fresh UP after it, with three more planted defects (#973)
+d9f8929da4 Test that an UP elided behind a full event ring and a DOWN authorizes no fresh UP inside a pass, first or later; both fail at this head (#973)
+Delta paths:
+ CHANGELOG.md                              |  1 +
+ sw/firmware/ctrl/srp/README.md            |  7 ++-
+ sw/firmware/ctrl/srp/srp_mbx.c            | 32 +++++++------
+ sw/firmware/ctrl/srp/srp_mbx.h            |  4 +-
+ sw/firmware/ctrl/test/srp_link_mutants.py | 45 ++++++++++++------
+ sw/firmware/ctrl/test/srp_link_pass.cpp   | 76 ++++++++++++++++++++++++++++++-
+ sw/firmware/ctrl/test/srp_mutants.py      |  4 +-
+ 7 files changed, 137 insertions(+), 32 deletions(-)
+Protected artifacts unchanged from dd163e41: hdl, sw/firmware/ctrl/loop, sw/firmware/ctrl/mbx, tb/verilator/ctrl_service_budget, sw/firmware/gtest/coverage.ratchet
+Whitespace: PASS
+Added-source comment identity/round/lane-token scan: no matches; source comments also read manually.
+Final status:

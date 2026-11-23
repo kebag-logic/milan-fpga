@@ -1,0 +1,37 @@
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass
+[       OK ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass (0 ms)
+[----------] 6 tests from SrpLinkPass (0 ms total)
+
+[----------] 2 tests from SrpLinkPassElided
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[----------] 2 tests from SrpLinkPassElided (0 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+== ctrl SRP link inside a pass: checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)

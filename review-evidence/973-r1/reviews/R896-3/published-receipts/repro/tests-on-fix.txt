@@ -1,0 +1,45 @@
+=== srp-srp_link_pass-if1-endstation_ax7101_1x1_tdm8 rc=0
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (2 ms)
+== ctrl SRP link inside a pass: checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+=== srp-srp_link_pass-if1-endstation_ax7101_8x8 rc=0
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+[       OK ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (2 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+== ctrl SRP link inside a pass: checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+LINKARMS PASS (0 failed)

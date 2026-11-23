@@ -1,0 +1,153 @@
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from SrpLinkPass
+[ RUN      ] SrpLinkPass.BeforeAPass
+[       OK ] SrpLinkPass.BeforeAPass (0 ms)
+[ RUN      ] SrpLinkPass.InTheEvents
+[       OK ] SrpLinkPass.InTheEvents (0 ms)
+[ RUN      ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll
+[       OK ] SrpLinkPass.AfterTheEventsBeforeSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.AfterSrpsPoll
+[       OK ] SrpLinkPass.AfterSrpsPoll (0 ms)
+[ RUN      ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp
+[       OK ] SrpLinkPass.ALinkUpHeldBehindAFullEventRingIsTheFirstUp (0 ms)
+[ RUN      ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:97: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll took a level no LINK had carried
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:98: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll took a level no LINK had carried
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:99: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll reset the interface on a level no LINK had carried
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: SRP's poll reset the interface on a level no LINK had carried
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:312: Failure
+Expected equality of these values:
+  up_at(Phase::AfterTheEvents)
+    Which is: 2
+  0u
+    Which is: 0
+the first dispatched UP must keep startup participants
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass: the first dispatched UP must keep startup participants
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:313: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x5630cb90a570
+  startup
+    Which is: 0x5630cb90a530
+
+  [FAIL] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass:     Which is: 0x5630cb90a530
+[  FAILED  ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass (0 ms)
+[----------] 6 tests from SrpLinkPass (0 ms total)
+
+[----------] 2 tests from SrpLinkPassElided
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:207: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:208: Failure
+Expected equality of these values:
+  i.link_seen
+    Which is: true
+  seen
+    Which is: false
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:209: Failure
+Expected equality of these values:
+  resets
+    Which is: 1
+  before
+    Which is: 0
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: SRP's poll took a fresh UP on an elided UP's observation
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:225: Failure
+Expected equality of these values:
+  fresh_up()
+    Which is: 2
+  0u
+    Which is: 0
+a first UP resets nothing
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP resets nothing
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:226: Failure
+Expected equality of these values:
+  i.msrp
+    Which is: 0x5630cb90a570
+  startup
+    Which is: 0x5630cb90a530
+a first UP keeps the startup participants
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp: a first UP keeps the startup participants
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp (0 ms)
+[ RUN      ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:207: Failure
+Value of: i.link
+  Actual: true
+Expected: false
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:209: Failure
+Expected equality of these values:
+  resets
+    Which is: 2
+  before
+    Which is: 1
+SRP's poll took a fresh UP on an elided UP's observation
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: SRP's poll took a fresh UP on an elided UP's observation
+<packet>/scratch/delta-tests/probe_stale_mark.cpp:240: Failure
+Expected equality of these values:
+  fresh_up()
+    Which is: 2
+  1u
+    Which is: 1
+a later UP resets the interface once
+
+  [FAIL] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp: a later UP resets the interface once
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp (0 ms)
+[----------] 2 tests from SrpLinkPassElided (0 ms total)
+
+[----------] 2 tests from Srp
+[ RUN      ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp
+[       OK ] Srp.AReattachWhoseDownRecordIsElidedFollowsTheLinkThatIsUp (0 ms)
+[ RUN      ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp
+[       OK ] Srp.AReattachWithTheLinkDownFollowsItsLaterUp (0 ms)
+[----------] 2 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (1 ms total)
+[  PASSED  ] 7 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] SrpLinkPass.AnElidedUpDoesNotAuthorizeAFreshUpInsideAPass
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshFirstUp
+[  FAILED  ] SrpLinkPassElided.AnElidedUpAuthorizesNoFreshLaterUp
+
+ 3 FAILED TESTS
+== ctrl SRP link inside a pass: checks: 10   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 10 checks, exit 1)

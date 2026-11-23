@@ -1,0 +1,25 @@
+Published manifest: 890/890 SHA-256 values match
+Firmware shard 0: exact-head PASS; published summary # [ok] 90; escaped 0; suite PASS 77, FAIL 0
+Firmware shard 1: exact-head PASS; published summary # [ok] 826; escaped 0; suite PASS 0, FAIL 0
+Firmware shard 2: exact-head PASS; published summary # [ok] 385; escaped 0; suite PASS 0, FAIL 0
+Firmware shard 3: exact-head PASS; published summary # [ok] 585; escaped 0; suite PASS 0, FAIL 0
+probes-1x1: 88 paired probes, 0 misses/changed verdicts, max rounded difference 0.204 ms
+probes-r2-vs-r3-1x1: 88 paired probes, 0 misses/changed verdicts, max rounded difference 0.114 ms
+10 groups graded, 0 refusals, 0 budget misses (0 of 88 probe instances, 0 of 70 paths), 0 of 1524 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+probes-8x8-1if: 86 paired probes, 0 misses/changed verdicts, max rounded difference 0.146 ms
+probes-r2-vs-r3-8x8-1if: 86 paired probes, 0 misses/changed verdicts, max rounded difference 0.059 ms
+10 groups graded, 0 refusals, 0 budget misses (0 of 86 probe instances, 0 of 68 paths), 0 of 1529 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+Grader unchanged against source base: flip_grade.py_--check_--point_1x1_1if.txt
+Grader unchanged against source base: flip_grade.py_--check_--point_8x8_1if.txt
+Grader unchanged against source base: load_grade.py_--check.txt
+Grader unchanged against source base: shape_costs.py_--check.txt
+Image 1x1-if1: ROM 126488, SRAM 56736, tiles 45.0 <= 56
+Image 1x1-if2: ROM 128112, SRAM 59040, tiles 46.0 <= 56
+Image 8x8-if1: ROM 139256, SRAM 98160, tiles 58.0 <= 58.0
+Image 8x8-if2: ROM 140856, SRAM 115504, tiles 63.0 <= 63.0
+srp-if1-mutants: 14 named assertion failures, including all three new plants
+srp-8x8-if1-mutants: 14 named assertion failures, including all three new plants
+srp-mutants: 14 named assertion failures, including all three new plants
+Prior reviewer runners and probes: byte-identical to published originals
+Evidence commit signature status: N (N means unsigned; no signature verification claimed)
+PASS: published receipt audit; execution belongs to the author, no manager source bank inferred
