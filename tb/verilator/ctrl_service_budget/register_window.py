@@ -20,11 +20,12 @@ and an indication. Two groups, each after the link settles and every sink is bou
   LeaveAll (10.7.4.3, 10.8.2.5) on the kind registered then and its re-declaration of every input after it, the
   alternation resuming in the next. Each triple arrives LEAD_MS before one of ACMP's flood bursts, and the SRP flood
   burst after it carries three records fewer, so SRP's bucket admits every record as the flood alone does. Each
-  triple's first two records are probes of their own (srp.register_burst, each to its pass's end), and its third is
-  the start of our MRPDU's row (srp.register_tx: the Listener declarations the registrations change, sent at the
-  participant's next transmit opportunity, a JoinTime's wait). The last record of ACMP's and of AECP's first flood
-  burst at or after each triple are those channels' rows under it (acmp.register_burst, aecp.register_burst: a
-  channel's last record of its burst), each to its response.
+  triple's records are probes of their own (srp.register_burst, each to its pass's end within T_svc: the drain charges
+  a registering record its registrations, so it may wait for a slice that holds it, #977's ruling of 2026-11-23,
+  item 4), and its third is also the start of our MRPDU's row (srp.register_tx: the Listener declarations the
+  registrations change, sent at the participant's next transmit opportunity, a JoinTime's wait). The last record
+  of ACMP's and of AECP's first flood burst at or after each triple are those channels' rows under it
+  (acmp.register_burst, aecp.register_burst: a channel's last record of its burst), each to its response.
 """
 from __future__ import annotations
 
@@ -166,16 +167,16 @@ def burst_group(p: scenario.Point) -> scenario.Group:
         steps = [step]
         if channel == 'srp' and which is not None:
             t, r = which
-            if r < 2:
-                name = f'srp.register_burst.t{t}.r{r}.if0'
-                probe = scenario.Probe(name, 'a registering record of the burst', 'srp', f'rxc:{srp}',
-                                       [f'pass_end:{srp}'], until='burst_end')
-            else:
-                name = f'srp.register_tx.t{t}.if0'
-                probe = scenario.Probe(name, 'our MRPDU after a registering triple (JoinTime wait)', 'srp',
-                                       f'rxc:{srp}', [f'tx:{srp}'], wait_ms=JOIN_WAIT_MS, until='burst_end')
-            probes.append(probe)
+            name = f'srp.register_burst.t{t}.r{r}.if0'
+            probes.append(scenario.Probe(name, 'a registering record of the burst', 'srp', f'rxc:{srp}',
+                                         [f'pass_end:{srp}'], until='burst_end'))
             steps = [f'mark {name}', scenario.tagged(step, name)]
+            if r == 2:
+                tx = f'srp.register_tx.t{t}.if0'
+                probes.append(scenario.Probe(tx, 'our MRPDU after a registering triple (JoinTime wait)', 'srp',
+                                             f'rxc:{srp}:{name}', [f'tx:{srp}'], wait_ms=JOIN_WAIT_MS,
+                                             until='burst_end'))
+                steps = [f'mark {name}', f'mark {tx}', scenario.tagged(step, name)]
         elif which is not None:
             seq = int.from_bytes(bytes.fromhex(step.split()[2])[SEQ_AT[channel]:SEQ_AT[channel] + 2], 'big')
             name = f'{channel}.register_burst.t{which}.if0'

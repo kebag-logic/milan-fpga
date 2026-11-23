@@ -136,7 +136,9 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
              shape_costs.Shape(2, 9, 9): TWO}
 
 
-#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.
+#: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to THE DRAIN's charge of it, the last
+#: charge before it (srp_mbx.c rx_charge: the unit and the stated cost of each Talker value it can carry, #977), and
+#: to the retained item's stated cost, the unit, where no charge precedes it.
 RECORD = 'record'
 #: An aecp item that committed a notice longer than AECP_FAN_BYTES, held to its own stated cost.
 LONG = 'aecp_long'
@@ -288,6 +290,19 @@ def offered(traced: dict, sends: int, limits: dict) -> tuple[dict, list[dict]]:
     return heaviest, over
 
 
+def charges(log: grade.Log) -> list[tuple[int, int]]:
+    """Each of THE DRAIN's charges of SRP's next record, sorted: (CPU cycle it started, microseconds it returned)."""
+    return sorted((int(rest[1]), int(rest[3], 16)) for kind, *rest in log.traced
+                  if kind == 'SPAN' and len(rest) >= 5 and rest[4] == poll_items.CHARGE)
+
+
+def charged(of: list[tuple[int, int]], start: int, cpu_hz: int, unit: int) -> int:
+    """The stated cost in CPU cycles of the SRP record whose apply starts at start: its charge, the last before it,
+    or the unit where none is."""
+    k = bisect_left(of, (start, -1)) - 1
+    return of[k][1] * cpu_hz // 1_000_000 if k >= 0 else unit
+
+
 def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     """Each pass's base and each item against its stated cost in CPU cycles: the passes, the heaviest of each, every
     one over its cost, and each LONG item."""
@@ -313,14 +328,16 @@ def held(log: grade.Log, interfaces: int | shape_costs.Shape) -> dict:
     found, beyond = offered(traced, sends, limits)
     heaviest.update(found)
     over += beyond
-    # each SRP record's own apply: an apply_receive call in no pass's polls
+    # each SRP record's own apply: an apply_receive call in no pass's polls, held to its charge (#977)
     polls = [(start, end) for start, end, _ in every]
+    of = charges(log)
     for s, cycles, s_sys in traced.get(ITEMS['retained'][0], []):
         k = bisect_left(polls, (s + 1, -1)) - 1
         if k >= 0 and polls[k][0] <= s < polls[k][1]:
             continue
         heaviest[RECORD] = max(heaviest[RECORD], cycles)
-        if cycles > limits[RECORD]:
-            over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles))
+        limit = charged(of, s, log.cpu_hz, limits[RECORD])
+        if cycles > limit:
+            over.append(dict(kind=RECORD, start_sys=s_sys, cycles=cycles, limit=limit))
     # each LONG item, (the bus cycle its pass's polls began, CPU cycles): a long notice's polls, reported
     return dict(passes=len(every), heaviest=heaviest, limits=limits, over=over, long=sent)

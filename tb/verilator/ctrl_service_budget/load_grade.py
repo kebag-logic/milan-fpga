@@ -73,6 +73,12 @@ The terms (per millisecond):
                  delay exchange, each at its message interval (IEEE 802.1AS-2011 10.7.2.2, initialLogAnnounceInterval
                  0: 1 s; 11.5.2.2, initialLogPdelayReqInterval 0: 1 s), and one an announce receipt timeout (10.7.3.2,
                  announceReceiptTimeout 3 intervals).
+  registrations  a peer's Talker registrations at the MRP state machines' rate (#977, its ruling of 2026-11-23,
+                 option (a)): a participant transmits at most three MRPDUs in any 1.5 x JoinTime (IEEE 802.1Q-2018
+                 10.7.11), JoinTime at least JOIN_MIN_MS (Milan v1.2 Table 4.3), and each may declare every input's
+                 Talker in the kind that replaces the one registered (35.2.6; Milan v1.2 4.2.7.2.2), so every one
+                 registers anew; each at REGISTRATION_US, a Talker's share of its record's apply past the unit and of
+                 ACMP's completion of it (THE SETTLE), where the point measures it.
 
 Not terms, each with its reason: a LINK change has no arrival rate (a row's definition, R5, counts one an interface);
 THE RETRY's rounds otherwise drain a queue a datapath reset leaves, at most AECP_NOTICES_MOST, a burst and not a rate,
@@ -310,6 +316,14 @@ ADP_LEAST_VALID_MS = 2000
 #: (initialLogAnnounceInterval 0, IEEE 802.1AS-2011 10.7.2.2), a peer delay exchange (initialLogPdelayReqInterval
 #: 0, 11.5.2.2) and an announce receipt timeout (announceReceiptTimeout 3 intervals, 10.7.3.2).
 GM_INTERVALS_MS = (1000, 1000, 3000)
+#: The registrations term (#977): Milan v1.2 Table 4.3's least JoinTime, the three MRPDUs IEEE 802.1Q-2018 10.7.11
+#: admits in 1.5 of them, and each point's cost of one Talker registration, all in, in microseconds: the dearest over
+#: the CPU budget harness's registering groups (register_window.py) of a Talker's share of its record's apply past
+#: the SRP unit plus its share of THE SETTLE's run after it, plus 5 %, rounded up to 5 us. The points it is measured
+#: at; the two-interface points' registrations are not measured (#977's scope), so they count none.
+JOIN_MIN_MS = 180
+TX_PER_JOIN = 3
+REGISTRATION_US = {'1x1/1if': 160, '8x8/1if': 175}
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
@@ -517,6 +531,9 @@ def load(root: Path, point: str, table: dict | None = None) -> dict[str, float]:
     aecp = c['event.AECP'] * (n_if * s['registrations'] / probe + s['counter_descriptors'] / k['holdoff_ms'])
     out['timers'] = n_if * (adp + acmp + c['event.MAAP'] / maap_ms) + aecp
     out['gm'] = n_if * c['event.GM'] * sum(1 / ms for ms in GM_INTERVALS_MS)
+    if point in REGISTRATION_US:
+        # every input's Talker in each of TX_PER_JOIN MRPDUs a 1.5 x JoinTime, at the shape's sinks
+        out['registrations'] = REGISTRATION_US[point] * TX_PER_JOIN * shape(point, root).sinks / (1.5 * JOIN_MIN_MS)
     return {term: us / 1000 for term, us in out.items()}
 
 

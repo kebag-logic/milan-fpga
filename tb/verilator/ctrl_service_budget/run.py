@@ -207,7 +207,8 @@ def stated_misses(results: list[dict]) -> list[str]:
                                   "a declined ACMP offer of " if o['kind'] == poll_grade.DECLINED else
                                   "a kept ACMP command's accepted offer of " if o['kind'] == poll_grade.KEPT else
                                   f"a {o['kind']} item of ")
-             + f"{o['cycles']:,} CPU cycles, over its stated {g['passes']['polls']['limits'][o['kind']]:,}"
+             + f"{o['cycles']:,} CPU cycles, over its stated "
+               f"{o.get('limit', g['passes']['polls']['limits'][o['kind']]):,}"
              for g in results for o in g['passes'].get('polls', {}).get('over', []) if o['kind'] != poll_grade.DECLINES]
             + [f"{g['group']}: {o['cycles']} declined ACMP offers, over their bound of two a sent owed frame and one "
                f"({o['sends']} sent)" for g in results for o in g['passes'].get('polls', {}).get('over', [])

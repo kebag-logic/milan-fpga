@@ -371,9 +371,11 @@ class Grader:
         kind, *args = probe.start.split(':')
         if kind == 'rxc':
             ch = int(args[0])
-            # A probe's own frames carry its name; any other frame on the ring is not its input.
+            # A probe's own frames carry its name, or the name its start gives after the channel (rxc:<ch>:<name>: a
+            # frame another probe of the group also starts at, #977); any other frame on the ring is not its input.
+            own = args[1] if len(args) > 1 else probe.name
             hits = [c for c, k, i, tag, _ in self.log.rxc if after <= c < before and k == ch
-                    and i in (interface, -1) and tag == probe.name]
+                    and i in (interface, -1) and tag == own]
         elif kind == 'rxh':
             # the probe's own frame, held by its channel's bucket (#917): its path starts at the frame's last byte
             hits = held.starts(self.log, probe, int(args[0]), interface, after, before)
