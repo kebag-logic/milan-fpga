@@ -12,6 +12,7 @@ from pathlib import Path
 import aecp_again_mutants
 import aecp_arms
 import aecp_configuration_mutants
+import aecp_input_mutants
 import aecp_index_mutants
 import aecp_map_mutants
 import aecp_face_mutants
@@ -889,7 +890,8 @@ DEFECTS = (
     + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
     + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
-    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
+    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
+    + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

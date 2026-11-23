@@ -103,9 +103,9 @@ RAM = ctrl_memory.RAM.origin
 LARGEST_NEED = 112_208
 #: The words of the power-of-two window the SoC decodes for a 224 KiB region (adr[29:16] in the export).
 WINDOW = (1 << (ctrl_memory.BUDGET_BYTES - 1).bit_length()) // 4
-#: The shipping 1x1 shape, which stages 3,454 bytes; the 8x8 shape stages 13,594 (KLJ3, #823).
+#: The shipping 1x1 shape, which stages 3,454 bytes; the 8x8 shape stages 14,250 (KLJ3, #823; #584).
 SOC_CONFIG = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
-STAGE_1X1, STAGE_8X8 = 3454, 13594
+STAGE_1X1, STAGE_8X8 = 3454, 14250
 PAIRING = "--ctrl-mailbox and --ctrl-firmware go together"
 MODULES = {"ctrl_memory": ctrl_memory, "milan_soc": milan_soc}
 
@@ -223,12 +223,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with five tiles of .text more and of .bss less, still 56 RAMB36,
-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.5, half a tile past
-    the platform's 63.0 (four tiles reached 63.0 alone, past which .bss would run out of sram)."""
+    """A ledger case written: the good image with six tiles of .text more and of .bss less, still 56 RAMB36,
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 64.5, half a tile past
+    the platform's 64.0 (#584; five tiles reached 63.5, past which .bss would run out of sram)."""
     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 10 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 10) * GRANULE))
+                                  text=GOOD.text + 12 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 12) * GRANULE))
 
 
 def soc_plan(path: Path) -> object:
@@ -338,9 +338,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     point and image, an unknown name) are refusal_arms rows under `budget`.
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0 and the "
-                                          f"platform's 8x8 image with one at 58.5 ({held})")
+    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's 8x8 images at "
+                                          f"57.0 and 61.5 and the platform's at 59.0 and 64.0, with one and two "
+                                          f"interfaces ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):

@@ -630,8 +630,140 @@ def assert_header(header: str, n: int) -> None:
     assert re.findall(r"32'd(\d+)", match[2]) == ["2000000"] * n, "factory offset rows"
 
 
+def _zero_cluster_refused(direction: str) -> None:
+    """#584: a resolved layout whose `direction` port 0 owns no cluster is refused by name, whichever pool builder
+    produced it (the role pools are replaced by empty ones in that direction alone)."""
+    original = eb._role_pool
+
+    def _empty_pool(rules, actual: str, port_index: int, widths: tuple, render_from: int = 0) -> list:
+        """The role pools, empty in `direction` alone."""
+        if actual == direction:
+            return []
+        return original(rules, actual, port_index, widths, render_from)
+
+    cfg = eb.load_config(ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml")
+    rules = eb.ClusterRules("role-pools", 8, {"render": 8, "capture": 8}, {"pilot": True, "loopback": 8})
+    with patch.object(eb, "_role_pool", side_effect=_empty_pool):
+        try:
+            eb.cluster_layout(cfg["listeners"], cfg["talkers"], rules)
+        except eb.ConfigError as exc:
+            message = str(exc)
+            assert eb.CLUSTER_MINIMUM_CHECK in message, message
+            assert f"STREAM_PORT_{direction.upper()} 0" in message, message
+            assert "Milan v1.2 5.3.3.8" in message, message
+        else:
+            raise AssertionError(f"accepted zero-cluster {direction} port")
+
+
+def test_stream_port_cluster_minimum() -> None:
+    """#584, Milan v1.2 5.3.3.8: every STREAM_PORT_INPUT and STREAM_PORT_OUTPUT owns an AUDIO_CLUSTER, refused by
+    name (STREAM_PORT_CLUSTER_MINIMUM) after every policy resolves its pools; the guard's removal is caught."""
+    assert eb.CLUSTER_MINIMUM_CHECK == "STREAM_PORT_CLUSTER_MINIMUM"
+    for direction in ("input", "output"):
+        _zero_cluster_refused(direction)
+        with patch.object(eb, "validate_cluster_minimum", return_value=None):
+            try:
+                _zero_cluster_refused(direction)
+            except AssertionError as exc:
+                assert f"accepted zero-cluster {direction} port" in str(exc), exc
+            else:
+                raise AssertionError(f"the cluster-minimum guard's removal survived: {direction}")
+    # the check itself, on resolved layouts of each direction
+    one = dict(index=0, clusters=1, pool=[dict(role="physical", offset=0, width=1, first=0)])
+    for ins, outs, words in (([dict(one, clusters=0, pool=[])], [one], "STREAM_PORT_INPUT 0"),
+                             ([one], [one, dict(one, index=1, clusters=0, pool=[])], "STREAM_PORT_OUTPUT 1")):
+        try:
+            eb.validate_cluster_minimum(ins, outs)
+        except eb.ConfigError as exc:
+            assert words in str(exc) and eb.CLUSTER_MINIMUM_CHECK in str(exc), str(exc)
+        else:
+            raise AssertionError(f"accepted a resolved layout with an empty {words}")
+    eb.validate_cluster_minimum([one], [one])
+    # one-cluster positives under every policy
+    streams = [dict(channels=1, clusters=1)]
+    for policy in eb.CLUSTER_POLICIES:
+        rules = eb.ClusterRules(policy, 1, {"render": 1, "capture": 1})
+        inputs, outputs = eb.cluster_layout(streams, streams, rules)
+        assert [p["clusters"] for p in inputs + outputs] == [1, 1], policy
+    # the tracked 8x8 with no talker pool: its outputs are refused by name, its inputs never are
+    raw = yaml.safe_load((ROOT / "configs/endstation_ax7101_8x8.yaml").read_text())
+    raw["audio_interface"]["cluster_mapping"]["pools"] = {"pilot": False, "loopback": 0}
+    with tempfile.TemporaryDirectory(prefix="cluster-minimum.") as tmp:
+        _refused(raw, Path(tmp), "STREAM_PORT_OUTPUT 0", "STREAM_PORT_CLUSTER_MINIMUM")
+    print("[584] cluster minimum: two pool-builder refusals and their guard mutants, two resolved-layout refusals, "
+          f"{len(eb.CLUSTER_POLICIES)} one-cluster policies, the empty-output YAML refusal")
+
+
+def _input_pools(raw: dict) -> tuple[dict, str]:
+    """The loaded config and its shape header for `raw`."""
+    with tempfile.TemporaryDirectory(prefix="input-pools.") as tmp:
+        cfg = _load(raw, Path(tmp))
+    return cfg, eb.emit_adp_shape_svh(cfg, eb.emit_aem_overlay(cfg))
+
+
+def _rphys(header: str) -> list[int]:
+    """ADP_DMAP_IN_RPHYS_C's entries: {valid, render_crossbar_key[5:0]} per input cluster key."""
+    match = re.search(r"ADP_DMAP_IN_RPHYS_C[^=]*=\s*'\{([^}]+)\}", header, re.S)
+    assert match, "the shape header has no ADP_DMAP_IN_RPHYS_C"
+    return [int(v, 16) for v in re.findall(r"7'h([0-9A-Fa-f]+)", match[1])]
+
+
+def test_input_cluster_pools() -> None:
+    """#584 (owner decision of 2026-11-22): each STREAM_PORT_INPUT's pool is derived from the config. The physical
+    render channels bind in order across the input ports, so one render key is never the projection of two clusters;
+    a port they do not reach owns ONE `Unrouted S<p>` cluster with no projection, whatever its stream's width."""
+    import gen_aemi_image as join
+
+    raw = yaml.safe_load((ROOT / "configs/endstation_ax7101_8x8.yaml").read_text())
+    assert raw["audio_interface"]["physical_channels"]["render"] == 1, "the tracked 8x8 backs one render channel"
+    cfg, header = _input_pools(raw)
+    lane = eb.render_lane_base(cfg)
+    assert [p["clusters"] for p in cfg["ports_in"]] == [1] * 8
+    assert cfg["ports_in"][0]["pool"] == [dict(role="physical", offset=0, width=1, first=0)]
+    for index, port in enumerate(cfg["ports_in"]):
+        assert port["base_cluster"] == index and port["maps"] == 0 and port["map_page"] == 1, port
+        if index:
+            assert port["pool"] == [dict(role="unrouted", offset=0, width=1, first=index)], \
+                f"STREAM_PORT_INPUT {index} is not the unrouted port render_ports first leaves it: {port}"
+    assert [eb.cluster_names(cfg, p, "input")[0] for p in cfg["ports_in"]] == \
+        ["TDM32 Out 0"] + [f"Unrouted S{k}" for k in range(1, 8)]
+    assert _rphys(header) == [0x40 | lane] + [0] * 7, _rphys(header)
+    assert eb.render_slots(cfg) == 1 and lane == 2
+    # derived, never hardcoded: other render widths and stream widths, and configured channel names
+    widths = [1, 2, 4, 6, 8, 2, 1, 4]
+    for render, names in ((0, None), (2, ["Left", "Right"]), (8, None)):
+        case = copy.deepcopy(raw)
+        case["audio_interface"]["physical_channels"]["render"] = render
+        if names:
+            case["audio_interface"]["channel_names"] = names
+        for listener, width in zip(case["streams"]["listeners"], widths):
+            listener.update(channels=width)
+        cfg, header = _input_pools(case)
+        want = [render or 1] + [1] * 7
+        assert [p["clusters"] for p in cfg["ports_in"]] == want, (render, cfg["ports_in"])
+        assert _rphys(header) == [0x40 | (lane + k) for k in range(render)] + [0] * (sum(want) - render), render
+        port0 = eb.cluster_names(cfg, cfg["ports_in"][0], "input")
+        assert port0 == ([f"TDM32 Out {n}" for n in (names or range(render))] if render else ["Unrouted S0"]), port0
+        overlay = eb.emit_aem_overlay(cfg)
+        blob, _ = join.image.build(join.model_to_document(join.aem.build_model(join.aem.spec_from_overlay(overlay)),
+                                                         join.identity_from_overlay(overlay)), 576)
+        assert blob, render
+    # a render lane narrower than its bus is a MASTER's alone (KL_tdm_render_master BUS_SLOTS_P)
+    with patch.object(eb, "tdm_bus_master", return_value=False):
+        with tempfile.TemporaryDirectory(prefix="input-pools.") as tmp:
+            _refused(copy.deepcopy(raw), Path(tmp), "physical_channels.render 1", "slave TDM render lane")
+    # the shipping 1x1 is unchanged: its one port owns its eight TDM8 render clusters
+    cfg, header = _input_pools(yaml.safe_load((ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml").read_text()))
+    assert cfg["ports_in"][0]["pool"] == [dict(role="physical", offset=0, width=8, first=0)]
+    assert _rphys(header) == [0x40 | (lane + k) for k in range(8)]
+    print("[584] input pools: the 8x8's first render channel and seven unrouted ports, render widths 0/2/8 across "
+          "varying stream widths and names, the slave-lane refusal, the 1x1 unchanged; every image packs")
+
+
 def test_declaration_contracts() -> None:
     """Declaration refusals, generated rows, real bindings and mutation controls."""
+    test_stream_port_cluster_minimum()
+    test_input_cluster_pools()
     test_model_id_contract()
     test_model_id_resolution_contract()
     test_hex_scalar_contract()

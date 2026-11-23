@@ -130,13 +130,14 @@ The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
 Three images may plan past the budget, each only as its own point (#665 rulings 6412739248, 6425357821 and 6505997821, the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581), and the owner's rule of 2026-11-15 as [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024) applies it, which #665's [ruling of 2026-11-17](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6950343235) keeps for the composed flip train: the control memory's ROM may overflow as debt owed to S14).
-Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image, a shipping one. [Section 5](#5-fit) ledgers all three as owed to lane S14:
+Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with one interface, is a product image, a shipping one. Since #584 a fourth, the size fixture's 8x8 image with one interface, plans past the budget too. [Section 5](#5-fit) ledgers all four as owed to lane S14:
 
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.5 |
+| `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 57.0 |
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,568 B | 64.0 |
+| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 18,944 B | 59.0 |
 
 The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
 The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
@@ -242,8 +243,8 @@ The identity gate refuses a split image that carries a `main_ram` region, a `ddr
 ## 5. Fit
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
-It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` and the lwSRP pool.
-The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers.
+It holds the descriptor image (7,512 / 20,800 B since #584, 19,520 B before it), the shape's `nvm_stage` and the lwSRP pool.
+The stage was 3,344 / 13,264 B in KLJ2 and is 3,454 / 13,594 B in the split's KLJ3 (#823): ten-byte record headers. Since #584 the 8x8 stage is 14,250 B, its eight input ports' one-cluster maps and names.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
 It links the firmware of `e493dccd` against its base `e76a755a`, with one runtime for both:
@@ -300,7 +301,20 @@ At #923's head the entries are:
 - the target platform's 8x8 image with one interface, a product image, 56.5, a debt of 0.5 RAMB36, 1,280 B of `rom`, its own entry, which the product SoC build plans it at by its symbols;
 - every other point stays at or under 56.
 
-In the composed flip train (measured [below](#5-fit)) the entries are:
+**Since #584** each 8x8 STREAM_PORT_INPUT owns one AUDIO_CLUSTER (Milan v1.2 5.3.3.8): 8 more descriptors and writable names, a descriptor image 1,280 B larger (20,800 B) and a stage 656 B larger (14,250 B). Every 8x8 image was linked again at that head and at its base, the flip's reviewed head `dd163e41`, with one runtime for both; the 1x1 points are unchanged to the byte:
+
+| Point | Base `rom` / `sram`, B | #584 `rom` / `sram`, B | RAMB36, base to #584 | Entry |
+|---|---:|---:|---:|---|
+| the target platform's 8x8, one interface (product) | 139,208 / 98,160 | 140,544 / 99,904 | 58.0 to 59.0 | 59.0, a debt of 3.0 RAMB36 owed to S14 |
+| the target platform's 8x8, two interfaces | 140,784 / 115,504 | 142,120 / 117,312 | 63.0 to 64.0 | 64.0, a debt of 8.0 |
+| the size fixture's 8x8, one interface | 130,032 / 96,928 | 131,368 / 98,672 | 56.0 to 57.0 | 57.0, a new entry, a debt of 1.0 |
+| the size fixture's 8x8, two interfaces | 131,536 / 114,320 | 132,880 / 116,064 | 60.5 to 61.0 | 61.5, a debt of 5.5: its arms (answering-ports, declaring-outputs, the saved-state harness's guard probe) plan 61.5 |
+
+The growth is not uniform. `rom` grows 1,336 B at three points and 1,344 B at the size fixture's two-interface image; `sram` grows 1,744 B at three points and 1,808 B at the target platform's two-interface image. What grows is the descriptor image and its names (1,280 B), the stage (656 B) and the input ports' map rows; how each image's linker places them between `rom` and `sram` was not measured symbol by symbol, so no share is stated per section. Each entry is the most any image of its point plans: every labelled variant of the CPU budget harness, every arm of the split saved-state harness and every planted mutation was linked at both 8x8 points, at the head and at the base (56.0 and 60.5 at the base, 57.0 and 61.5 at the head).
+
+Each entry is the image's measured tiles by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the ROM may overflow as recorded debt, and the physical fit and the timing floor gate every built image.
+
+In the composed flip train (measured [below](#5-fit)) the entries were:
 
 - the target platform's 8x8 image with two interfaces, 63.0 RAMB36, a debt of 7.0, 28,672 B of cold code to move;
 - the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
@@ -724,7 +738,7 @@ Link the image with the fixture, then plan it:
 python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
   --interfaces 2 --with-aecp --layout split --ledgered-point 8x8-two-interfaces --output "$OUT" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
-python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13594 \
+python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 14250 \
   --ledgered-point 8x8-two-interfaces
 ```
 

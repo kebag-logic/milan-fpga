@@ -163,7 +163,7 @@ PIECE_SECONDS = {
     "milan_dp_mclk": (988, 742, 717, 488),
     "capture_coherence": (1436, 1108, 695, 642),
     "maap": (311, 425, 317, 327),
-    "milan_dp_render": (549, 83, 812),
+    "milan_dp_render": (549, 83, 812, 240),  # leg 3, #584's ship8: a scaled local run (TESTING.md)
     "pp_shadow": (268, 292, 337, 435),
 }
 

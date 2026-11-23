@@ -733,7 +733,7 @@ With the render lane pruned, the capture front end costs the same at 8, 16 and 3
 The bus width changes counters and the frame position, not the number of stored samples.
 The cost is the render lane: `render-0` below removes `KL_tdm_render_master`, 1,060 LUTs and 1,113 FFs in Yosys.
 The routed image places that block at 499 LUTs, 623 FFs, 3 RAMB36 and 141.7 slices.
-`tdm16` and `tdm32` must prune the render lane: a master render lane is the full bus width, and the crossbar's TDM key lane holds eight slots (`milan_datapath.sv:969-976`).
+`tdm16` and `tdm32` must prune the render lane: a master render lane is the full bus width, and the crossbar's TDM key lane holds eight slots (`milan_datapath.sv:969-976`). Since #584 a master lane may be narrower than its bus, so the 8x8 renders slot 0 of its TDM32 bus; these figures are from before that change.
 The stereo I2S front end (`i2s`) is 759 LUTs smaller than TDM8 in Yosys, almost all of it the same render lane.
 
 ### Optional blocks and options

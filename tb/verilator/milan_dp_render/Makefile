@@ -10,6 +10,12 @@
 #   make          - build and run both legs, then the leg's own defect arms
 #   make tdm8render        - the shipping-shape leg alone
 #   make tdm8render-multi  - the two-stream leg alone
+#   make ship8    - #584's 8x8/1if leg alone: the generated 8x8 shape at the
+#                   shipping render parameters, eight listeners, TDM32 pins
+#   make ship8-mutants
+#                 - its planted faults at the projection, the adapter and the
+#                   bus binding, each one elaboration; explicit, like the
+#                   campaign below
 #   make tdm8render-mutants
 #                 - THE FULL MUTATION CAMPAIGN. Explicit, not part of the
 #                   default target: it rebuilds the elaborated leg once per
@@ -133,8 +139,30 @@ $(VERILATOR) $(TDM8RM_SHAPE) $(DP_VFLAGS) --Mdir $(TDM8RM_MDIR) \
   $(SRCS) sim_tdm8_render.cpp -o Vmilan_dp_tdm8rm
 endef
 
+# #584: THE 8x8/1if RENDER LANE AS IT SHIPS. configs/endstation_ax7101_8x8.yaml
+# backs STREAM_PORT_INPUT 0's one cluster with the first TDM render channel,
+# slot 0 of a 32-slot master bus, and leaves ports 1-7 unrouted. The REAL
+# builder writes that config's entity image and its soc_params.json, and
+# ship8_params.py turns the argv there into the render-path -G flags and the
+# geometry header sim_ship8_render.cpp asserts against, so no shipping number
+# is restated here. The shape header is the tracked one, refused when the
+# builder's differs. SHIP8_SHAPE, SHIP8_MDIR, DP_SRC and TDMRM_SRC are
+# overridden by ship8_mutants.py, like the campaign's.
+SHIP8_CFG     = ../../../configs/endstation_ax7101_8x8.yaml
+SHIP8_GEN     = obj_ship8_aem/endstation_ax7101_8x8
+SHIP8_MDIR   ?= obj_ship8
+SHIP8_SHAPE  ?= +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+SHIP8_SHAPE_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+define SHIP8_BUILD
+$(VERILATOR) $(SHIP8_SHAPE) $(DP_VFLAGS) --Mdir $(SHIP8_MDIR) \
+  $$(cat $(SHIP8_GEN)/ship8.gflags) \
+  -CFLAGS "-I$(CURDIR)/$(SHIP8_GEN) -Wall -Wextra" \
+  $(SRCS) sim_ship8_render.cpp -o Vmilan_dp_ship8
+endef
+
 .PHONY: all run tdm8render tdm8render-build tdm8render-multi \
-        tdm8render-multi-build tdm8render-mutants tdm8render-pullin clean
+        tdm8render-multi-build tdm8render-mutants tdm8render-pullin \
+        ship8 ship8-build ship8-mutants clean
 .DEFAULT_GOAL := all
 all: run
 
@@ -172,6 +200,31 @@ tdm8rm_aemi.bin: gen_tdm8r_multi/endstation_tdm8r_multi.yaml \
 	python3 ../../../sw/builder/endstation_builder.py gen_tdm8r_multi/endstation_tdm8r_multi.yaml -o obj_tdm8rm_aem
 	python3 ../../../avdecc/gen_aemi_image.py --overlay $(TDM8RM_GEN)/aem_overlay.json --line-bytes 576 -o $@
 
+# ...and the 8x8's: one builder run writes the image, the argv and the shape
+# header compared against the tracked one, in one recipe so a parallel make
+# never runs it twice
+ship8_aemi.bin: $(SHIP8_CFG) ship8_params.py $(SHIP8_SHAPE_F) \
+                ../../../sw/builder/endstation_builder.py \
+                ../../../avdecc/gen_aemi_image.py
+	cd ../../.. && python3 sw/builder/endstation_builder.py configs/endstation_ax7101_8x8.yaml \
+	  -o $(CURDIR)/obj_ship8_aem
+	cmp $(SHIP8_GEN)/adp_shape_defaults.svh $(SHIP8_SHAPE_F)
+	python3 ship8_params.py $(SHIP8_GEN)/soc_params.json --overlay $(SHIP8_GEN)/aem_overlay.json \
+	  --header $(SHIP8_GEN)/ship8_geometry.hpp > $(SHIP8_GEN)/ship8.gflags
+	python3 ../../../avdecc/gen_aemi_image.py --overlay $(SHIP8_GEN)/aem_overlay.json --line-bytes 576 -o $@
+
+ship8: ltn_rom.hex ucode.hex ship8_aemi.bin $(GEN_CSR)
+	$(SHIP8_BUILD)
+	./$(SHIP8_MDIR)/Vmilan_dp_ship8
+
+ship8-build: ltn_rom.hex ucode.hex ship8_aemi.bin $(GEN_CSR)
+	$(SHIP8_BUILD)
+
+ship8-mutants: ship8-build
+	@echo "======================================================================"
+	@echo "---- #584 8x8 render lane: planted projection, adapter and bus-binding faults ----"
+	python3 ship8_mutants.py
+
 tdm8render: ltn_rom.hex ucode.hex tdm8r_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
 	$(TDM8R_BUILD)
 	./$(TDM8R_MDIR)/Vmilan_dp_tdm8r
@@ -194,15 +247,18 @@ tdm8render-multi-build: ltn_rom.hex ucode.hex tdm8rm_aemi.bin $(GEN_CSR)
 # selection that names INTERNAL) and requires the leg to fail by a named
 # check. That is an executable negative arm inside the sweep's wall clock; the
 # gateware and generated-shape mutants, which each need their own
-# elaboration, are the explicit tdm8render-mutants target below.
+# elaboration, are the explicit tdm8render-mutants target below. #584's 8x8
+# leg is a fourth case, after the three, so their CI pieces keep their
+# indices; its planted faults are the explicit ship8-mutants target.
 CLEAN_CASES = ship multi
-RUN_CASES = $(CLEAN_CASES) leg-defects
-run: $(addprefix run-,$(CLEAN_CASES))
+RUN_CASES = $(CLEAN_CASES) leg-defects ship8
+run: $(addprefix run-,$(CLEAN_CASES)) run-ship8
 	@echo "======================================================================"
 	python3 tdm8_render_mutants.py --leg-defects
 
 run-ship: tdm8render
 run-multi: tdm8render-multi
+run-ship8: ship8
 
 ci-list:
 	@printf '%s\n' $(RUN_CASES)
@@ -210,11 +266,12 @@ ci-list:
 ci-receipts:
 	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
 
-ci-prepare: ltn_rom.hex ucode.hex tdm8r_aemi.bin tdm8rm_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
+ci-prepare: ltn_rom.hex ucode.hex tdm8r_aemi.bin tdm8rm_aemi.bin ship8_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
 
 build-ship: tdm8render-build
 build-multi: tdm8render-multi-build
 build-leg-defects: tdm8render-build tdm8render-multi-build
+build-ship8: ship8-build
 
 exec-ship:
 	./$(TDM8R_MDIR)/Vmilan_dp_tdm8r
@@ -225,7 +282,10 @@ exec-multi:
 exec-leg-defects:
 	python3 tdm8_render_mutants.py --leg-defects
 
-.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(CLEAN_CASES)) \
+exec-ship8:
+	./$(SHIP8_MDIR)/Vmilan_dp_ship8
+
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(CLEAN_CASES)) run-ship8 \
         $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
 
 # THE FULL CAMPAIGN, explicit. The two build prerequisites put the clean
@@ -255,4 +315,5 @@ tdm8render-pullin: tdm8render-build
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex tdm8r_aemi.bin obj_tdm8r_aem tdm8rm_aemi.bin \
-	       obj_tdm8rm_aem gen_tdm8r_multi obj_tdm8r obj_tdm8rm __pycache__
+	       obj_tdm8rm_aem gen_tdm8r_multi obj_tdm8r obj_tdm8rm ship8_aemi.bin \
+	       obj_ship8_aem obj_ship8 obj_ship8_mut __pycache__

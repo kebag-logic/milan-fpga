@@ -196,36 +196,38 @@ audio_interface:
                                      # are tied to 0 in milan_soc.py and it
                                      # would yield no pairs at all.
   word_length_bits: 24               # 24-in-32 slots
-  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES, and on
-    capture: 0                       # the AX7101 that is NOTHING, in either
-    render: 0                        # direction. Measured 2026-07-28 by
-                                     # reading the platform and the SoC
-                                     # wrapper, not by guessing:
-                                     #   sw/litex/platforms/alinx_ax7101.py
-                                     #     ships `_connectors = []` - no Pmod
-                                     #     header exists on this board, so
-                                     #   sw/litex/milan_soc.py leaves
-                                     #     `self.i2s_pads = None` and wires
-                                     #     `i_i2s_sdout_i = 0`: the capture
-                                     #     front-end clocks in a CONSTANT
-                                     #     ZERO, and i2s_mclk/sclk/lrck go to
-                                     #     dangling Signal()s;
-                                     #   the TDM pins are tied off in the same
-                                     #     wrapper ("neither board has a TDM
-                                     #     header today": i_tdm_bclk_i = 0,
-                                     #     i_tdm_fsync_i = 0, i_tdm_data_i =
-                                     #     0), so `kind: tdm16` selects the
-                                     #     deserializer but there is no wire
-                                     #     behind it either.
-                                     # Declaring 16 physical channels here
-                                     # would be the roadmap-item-00 defect in
-                                     # miniature: an advertised capability the
-                                     # fabric cannot back. 0 is the truth, and
-                                     # it is WHY the loopback pool below is
-                                     # not a nicety - it is the only source on
-                                     # this board that can hand a talker
-                                     # per-channel-distinct audio.
+  physical_channels:                 # WHAT THIS BUILD BACKS ON THE BOARD'S PINS.
+    capture: 0                       # No capture cluster: nothing is wired to
+                                     # the J11 TDM header's data input on the
+                                     # bench, and the TDM32 master front end
+                                     # backs no AUDIO_CLUSTER of this model.
+    render: 1                        # #584 (owner decision 2026-11-22): the
+                                     # FIRST channel of the TDM render lane
+                                     # only, nothing more. The AX7101 routes
+                                     # the J11 TDM header (tdm.dout, J11.5;
+                                     # board_audio_routing.routes_tdm), and
+                                     # KL_tdm_render_master frames the bus's
+                                     # 32 slots while storing slot 0 alone
+                                     # (BUS_SLOTS_P), serializing zero in
+                                     # slots 1-31. It backs ONE input cluster,
+                                     # "TDM32 Out 0" on STREAM_PORT_INPUT 0:
+                                     # physical render channels bind in order
+                                     # across the input ports, so no render
+                                     # key is the projection of two clusters.
+                                     # Ports 1-7 own one "Unrouted S<p>"
+                                     # cluster each (Milan v1.2 5.3.3.8), with
+                                     # no projection. Was 0 (2026-07-28), when
+                                     # the board had no TDM header.
   cluster_mapping:
+    render_ports: first              # #584: every physical render channel
+                                     # binds to STREAM_PORT_INPUT 0's
+                                     # clusters, in order, so the one render
+                                     # channel above is STREAM_PORT_INPUT 0's
+                                     # cluster alone and its render key is
+                                     # never the projection of two clusters
+                                     # (D8's default, `every`, gives every
+                                     # port its own copy). A port it does not
+                                     # reach owns one "Unrouted S<p>" cluster.
     policy: role-pools               # D8: the port's cluster block is a
                                      # role-tagged POOL, not a copy of the
                                      # stream's channel count. Widths come
@@ -280,20 +282,6 @@ audio_interface:
                                      # returns to the loopback pool by
                                      # itself - one fact, both consumers.
 
-# protocol-processor descriptor model lint (hdl/aecp/desc/model_lint.py).
-# Milan v1.2 5.3.3.8 requires an AUDIO_CLUSTER in every Stream Port Input;
-# the D8 role-pool inputs below carry none until #584 lands. The waiver names
-# that one check on those eight ports, travels into the packed document, is
-# listed in the layout report, and is refused once any of them passes.
-model_lint_waivers:
-  - rule: L1
-    check: port-cluster-minimum
-    configuration: 0
-    type: STREAM_PORT_INPUT
-    first: 0
-    last: 7
-    reason: "kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER"
-
 streams:
   listeners:
     # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:
@@ -303,11 +291,10 @@ streams:
     # its static AUDIO_MAP and advertises number_of_maps=0 (1722.1-2021
     # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
     # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
-    # to min(clusters, 8) = 8 here, so each port is ONE fixed partition.
-    # 8 ports x 8 mono clusters = 64 store keys = the chmap64 render map
-    # address space exactly; keys past CHMAP_PHYS_C are model-only (the
-    # board renders 10 physical channels - milan_datapath drops the write
-    # rather than aliasing it).
+    # to min(clusters, 8) = 1 here, so each port is ONE fixed partition.
+    # 8 ports x 1 mono cluster = 8 store keys (#584): port 0's projects onto
+    # the TDM render lane's first key, the other seven onto none - stored,
+    # returned and saved, and milan_datapath writes no render key for them.
     - { name: "Stream In 0", channels: 8, map_mode: dynamic }
     - { name: "Stream In 1", channels: 8, map_mode: dynamic }
     - { name: "Stream In 2", channels: 8, map_mode: dynamic }
@@ -322,7 +309,8 @@ streams:
     # 0x0215022002006000. Milan 6.4 also wants the SAME rate in every Stream
     # Input that advertises a Base format in this Configuration, which is one
     # more reason the eight rows must not be able to drift apart by hand.
-    # clusters default = channels (8 mono clusters per stream port)
+    # `clusters` is unused under role-pools: each port owns the pool the
+    # builder derives (one cluster here, #584)
   talkers:
     # The declared and emitted AAF width is eight channels. The TDM32 capture
     # front end supplies 16 pair slots, enough to physically back four of the

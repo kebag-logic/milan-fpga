@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
 - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
 - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
 - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
@@ -57,6 +58,38 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - 8x8 input clusters
+
+- #584: every STREAM_PORT_INPUT owns an AUDIO_CLUSTER.
+- Milan clause 5.3.3.8 requires one.
+- The 8x8's port 0 owns the first TDM render channel.
+- `TDM32 Out 0` renders on slot 0 of `tdm.dout`.
+- The render master frames the bus, storing that slot alone.
+- `BUS_SLOTS_P` is the bus; later slots carry zero.
+- Ports 1 to 7 own one `Unrouted S<p>` cluster.
+- Their mappings are stored but route nothing.
+- `render_ports: first` binds it to STREAM_PORT_INPUT 0.
+- The builder refuses a port with no cluster.
+- Its refusal is named `STREAM_PORT_CLUSTER_MINIMUM`.
+- The 8x8 model ID becomes `0x001BC5CFD464421E`.
+- The 1x1 TDM8 and Arty artifacts are unchanged.
+- Each 8x8 control image plans one more tile.
+- That tile is recorded ROM debt owed to S14.
+- No input cluster is backed by the loopback lane.
+- The 8x8 builds no loopback lane, as before.
+- `TDM32 Out 0` stands for the decision's first TDM8 channel.
+- The owner approved all three points on #584 (2026-11-23).
+- `milan_dp_render` gains `ship8`, the 8x8 at its pins.
+- It elaborates the builder's own render parameters.
+- Eight listeners feed it; slot 0 renders port 0's source.
+- Slots 1-31 stay zero.
+- Ports 1-7's mappings reach no slot.
+- One record spans each fall or reset to its rebind.
+- Only post-loss or post-reset events may render in it.
+- `ship8-mutants` plants projection, adapter and bus faults.
+- It also replays stale events, which the record refuses.
+- The 8x8's build plan now lists `Unrouted S<p>`.
 
 ## Unreleased - the Mark II split ships
 
