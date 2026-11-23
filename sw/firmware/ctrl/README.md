@@ -168,7 +168,7 @@ The self-test's shard controls drop the first unit from the table and add it to 
 `--build-part` first proves, through the control gate's live dispatch, that its parts build every suite of the default build-only run once, and refuses a planted dropped and a planted duplicated suite.
 Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
-The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
+The boundary and Verilator paths partition the builders. Each recorded compile is judged whole; the boundary aggregate judges the shard captures.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
 Each must be a known builder, be listed in `PART_OF` with the builder it runs under, in `OUTSIDE` with the reason its compiles are none of the firmware's, or in `SUITES` with what it compiles only inside a suite; one that is no program (a Makefile, or a Python module with a `__main__` block, is one) may instead have compiled in the capture.
 So a builder dropped from the known set refuses the gate by name, even where another builder still runs it.

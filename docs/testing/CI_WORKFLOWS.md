@@ -3479,6 +3479,13 @@ evidence stays incomplete and can never compare as a valid build.
 The watcher and collector accept a skipped matrix's raw expression name only when the API
 reports that job completed and skipped. Its expansion comes from the generated
 matrix; expanded and unexpanded results cannot both cover the same leg.
+A raw name may never equal an expanded one, and the generator and the watcher both refuse that.
+The runner evaluates every expression in an env value, quoted or not, and the watcher has no matrix.
+So the generator writes the watcher's job lists with JSON's `\u0024` for each `$` that opens an expression.
+They then reach `json.loads` as the raw names, never as `firmware-boundary shard /` (#980).
+A fail-fast control evaluates the committed watcher env as a job with no matrix before watching.
+It skips each raw matrix, waits on a running job, then reports that job's failure with cancellation intact.
+Given the unescaped form, the same control finds the watcher stopped after one read.
 The collector records each covered leg as skipped, never successful.
 Controls retain the raw matrix names observed in run `38273578232`.
 Each first-failure conclusion has a separate control: failure, cancelled,
