@@ -116,6 +116,11 @@ ROWS = (
      'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) || (held & BARRED) != 0u ||',
      'if ((e.flags[n] & ILLEGAL) != 0u || (held & BARRED) != 0u || !idle(a, observed, e.input, &e.rows[n].r) ||',
      (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
+    # the running check before the geometry's: a stream the port has, mapped past its format's channels, is read
+    ('map-read-before-legal', 'aecp_maps.c',
+     'if ((e.flags[n] & ILLEGAL) != 0u || !idle(a, observed, e.input, &e.rows[n].r) ||',
+     'if (!idle(a, observed, e.input, &e.rows[n].r) || (e.flags[n] & ILLEGAL) != 0u ||',
+     (EDIT, 'the edit reads its port once for each output stream its definition reaches')),
     # #963: the running check observes each stream an edit maps once, at its first mapping to reach the check, from
     # a zero-initialized table of streams; the stale-cache plant supplies a previous edit's set bits rather than
     # reading indeterminate storage. One found running or unanswered refuses the edit at that mapping

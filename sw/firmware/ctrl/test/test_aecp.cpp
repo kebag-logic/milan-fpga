@@ -2863,13 +2863,17 @@ TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
 // map's room is NO_RESOURCES. Then each mapping in turn adds itself where its map does not hold it, or removes the
 // first row equal to it. Seeded edits of repeated and conflicting mappings against maps that hold repeated rows, rows
 // that conflict and keys spread over the command's table: each edit's status, its port's map row for row, its
-// CHANGE_MAP notice and the port's reads are the definition's.
+// CHANGE_MAP notice and the port's reads are the definition's. An illegal mapping names no stream, or a stream the
+// port has with the channel one past its format's: either is refused before its port is read, so the second, at a
+// stream the edit has not read yet, is not observed (#963).
 TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
 {
     constexpr uint16_t ILLEGAL=65535;   // no such stream: refused before its port is read
+    uint16_t past[2]={};                // an output's, an input's channel one past its streams' format's
+    auto illegal=[&](bool in,const aecp_mapping &r){return r.stream==ILLEGAL||r.channel==past[in];};
     auto same=[](const aecp_mapping &x,const aecp_mapping &y){
         return x.stream==y.stream&&x.channel==y.channel&&x.cluster==y.cluster&&x.cluster_channel==y.cluster_channel;};
-    struct Outcome { unsigned status=0; std::vector<aecp_mapping> rows; unsigned reads=0; };
+    struct Outcome { unsigned status=0; std::vector<aecp_mapping> rows; unsigned reads=0; bool unread=false; };
     auto definition=[&](bool in,bool add,const std::vector<aecp_mapping> &held,size_t room,
                         const std::vector<aecp_mapping> &owned,const std::vector<aecp_mapping> &edit,bool running){
         auto key=[in](const aecp_mapping &r){
@@ -2881,9 +2885,11 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         std::vector<uint16_t> observed; // the streams the edit has read its port for (#963)
         for(size_t n=0;n<edit.size();++n){
             const aecp_mapping &r=edit[n];
-            bool refused=r.stream==ILLEGAL;
+            bool refused=illegal(in,r);
+            const bool unread=std::find(observed.begin(),observed.end(),r.stream)==observed.end();
+            o.unread=refused&&!in&&r.stream!=ILLEGAL&&unread; // the stream exists and the edit has not read it
             if(!refused&&!in){
-                if(std::find(observed.begin(),observed.end(),r.stream)==observed.end()){
+                if(unread){
                     observed.push_back(r.stream);
                     ++o.reads;
                 }
@@ -2910,6 +2916,7 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
     for(unsigned type:{5u,6u})put(desc(type,1).value+74,get(desc(type).value+74,8),8);
     for(unsigned type:{14u,15u}){
         ASSERT_GE((get(desc(type==14u?5u:6u).value+74,8)>>22)&1023,4u);
+        past[type==14u]=uint16_t((get(desc(type==14u?5u:6u).value+74,8)>>22)&1023);
         ASSERT_GE(get(desc(type).value+12,2),4u);
         for(unsigned k=0;k<4;++k)ASSERT_GE(get(desc(20,get(desc(type).value+14,2)+k).value+84,2),1u);
     }
@@ -2925,7 +2932,10 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         ++reads;*v={};v->running=streaming;return observations;});
     ON_CALL(mock,Changed).WillByDefault([&](aecp_change kind,uint16_t,uint16_t){noted+=kind==AECP_CHANGE_MAP;});
     std::map<std::string,unsigned> seen;
-    for(unsigned c=0;c<4000&&!HasFailure();++c){
+    // The first ABSENT edits' illegal mapping names no stream; the rest's an existing stream's channel one past its
+    // format's (#963). The first ABSENT edits are drawn as they were before the second kind was added.
+    constexpr unsigned ABSENT=4000;
+    for(unsigned c=0;c<2*ABSENT&&!HasFailure();++c){
         const bool in=next()%2,add=next()%2;
         aecp_map &own=pools[in?0:1];
         std::vector<aecp_mapping> held,lawful,owned,edit;
@@ -2943,7 +2953,10 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
             else if(!lawful.empty()&&pick<(add?5u:8u))edit.push_back(lawful[next()%lawful.size()]);
             else edit.push_back(legal());
         }
-        if(!edit.empty()&&next()%8==0)edit[next()%edit.size()]={ILLEGAL,0,0,0};
+        if(!edit.empty()&&next()%8==0){
+            const size_t at=next()%edit.size();
+            edit[at]=c<ABSENT?aecp_mapping{ILLEGAL,0,0,0}:aecp_mapping{uint16_t(next()%2),past[in],0,0};
+        }
         const size_t room=next()%3;
         streaming=!in&&next()%10==0;
         std::copy(held.begin(),held.end(),own.rows);own.count=held.size();own.capacity=held.size()+room;
@@ -2968,10 +2981,12 @@ TEST_F(Core, MapEditsAreTheirDefinitionRowForRow)
         seen[std::string(add?"ADD ":"REMOVE ")+std::to_string(want.status)]++;
         seen["a REMOVE that keeps a row equal to one it removed"]+=!add&&want.status==0&&repeated;
         seen["an output edit refused after its port is read"]+=!in&&want.status==7&&want.reads!=0;
+        seen["an output edit refused at an illegal mapping of a stream it has not read"]+=want.unread;
     }
     streaming=false;
     for(auto name:{"ADD 0","ADD 7","ADD 8","REMOVE 0","REMOVE 7","a REMOVE that keeps a row equal to one it removed",
-                   "an output edit refused after its port is read"})
+                   "an output edit refused after its port is read",
+                   "an output edit refused at an illegal mapping of a stream it has not read"})
         EXPECT_GE(seen[name],20u)<<"the seeded edits include "<<name;
 }
 
