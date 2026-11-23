@@ -1,0 +1,170 @@
+[
+  {
+    "command": "python3 scripts/ci_gate_workflows.py --check",
+    "rc": 0,
+    "seconds": 1.02,
+    "log": "gates/01-ci_gate_workflows.py_--check.log"
+  },
+  {
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0,
+    "seconds": 1.27,
+    "log": "gates/02-ci_events.py_--check.log"
+  },
+  {
+    "command": "python3 scripts/ci_events.py --selftest",
+    "rc": 0,
+    "seconds": 408.21,
+    "log": "gates/03-ci_events.py_--selftest.log"
+  },
+  {
+    "command": "python3 scripts/ci_gate_workflows_selftest.py",
+    "rc": 0,
+    "seconds": 25.04,
+    "log": "gates/04-ci_gate_workflows_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_case_receipts_selftest.py",
+    "rc": 0,
+    "seconds": 0.97,
+    "log": "gates/05-ci_case_receipts_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_make_cases_selftest.py",
+    "rc": 0,
+    "seconds": 0.27,
+    "log": "gates/06-ci_make_cases_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_maap_cases_selftest.py",
+    "rc": 0,
+    "seconds": 0.17,
+    "log": "gates/07-ci_maap_cases_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_capture_cases_selftest.py",
+    "rc": 0,
+    "seconds": 0.16,
+    "log": "gates/08-ci_capture_cases_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_suite_pieces_selftest.py",
+    "rc": 0,
+    "seconds": 11.91,
+    "log": "gates/09-ci_suite_pieces_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_suite_collect_selftest.py",
+    "rc": 0,
+    "seconds": 4.68,
+    "log": "gates/10-ci_suite_collect_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_fail_fast_selftest.py",
+    "rc": 0,
+    "seconds": 1.67,
+    "log": "gates/11-ci_fail_fast_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+    "rc": 0,
+    "seconds": 8.74,
+    "log": "gates/12-ci_runtime_evidence_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_install_cache_selftest.py",
+    "rc": 0,
+    "seconds": 0.26,
+    "log": "gates/13-ci_install_cache_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/generate_ci_evidence_pins.py --check",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "gates/14-generate_ci_evidence_pins.py_--check.log"
+  },
+  {
+    "command": "python3 scripts/ci_workflow_plan_selftest.py",
+    "rc": 0,
+    "seconds": 0.32,
+    "log": "gates/15-ci_workflow_plan_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/ci_manifest_selftest.py",
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "gates/16-ci_manifest_selftest.py.log"
+  },
+  {
+    "command": "python3 scripts/check_wire_accountability.py --self-test",
+    "rc": 0,
+    "seconds": 0.42,
+    "log": "gates/17-check_wire_accountability.py_--self-test.log"
+  },
+  {
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 15.36,
+    "log": "gates/18-docs_check.py.log"
+  },
+  {
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.16,
+    "log": "gates/19-check_doc_paths.py.log"
+  },
+  {
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.11,
+    "log": "gates/20-check_doc_style.py.log"
+  },
+  {
+    "command": "python3 scripts/check_doc_style.py --selftest",
+    "rc": 0,
+    "seconds": 0.06,
+    "log": "gates/21-check_doc_style.py_--selftest.log"
+  },
+  {
+    "command": "python3 scripts/check_em_dash.py --base 854bd7236792ce1adbd10c43b13a6a5002ad3bb6",
+    "rc": 0,
+    "seconds": 3.93,
+    "log": "gates/22-check_em_dash.py_--base_854bd7236792ce1adbd10c43b13a6a5002ad3bb6.log"
+  },
+  {
+    "command": "python3 scripts/check_hygiene.py --check",
+    "rc": 0,
+    "seconds": 0.77,
+    "log": "gates/23-check_hygiene.py_--check.log"
+  },
+  {
+    "command": "python3 scripts/check_todo_ownership.py",
+    "rc": 0,
+    "seconds": 4.42,
+    "log": "gates/24-check_todo_ownership.py.log"
+  },
+  {
+    "command": "python3 scripts/check_sh_idiom.py",
+    "rc": 0,
+    "seconds": 0.37,
+    "log": "gates/25-check_sh_idiom.py.log"
+  },
+  {
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 11.69,
+    "log": "gates/26-check_py_idiom.py.log"
+  },
+  {
+    "command": "python3 scripts/check_py_idiom.py --selftest",
+    "rc": 0,
+    "seconds": 11.89,
+    "log": "gates/27-check_py_idiom.py_--selftest.log"
+  },
+  {
+    "command": "python3 scripts/docs_inventory.py --check",
+    "rc": 0,
+    "seconds": 3.27,
+    "log": "gates/28-docs_inventory.py_--check.log"
+  }
+]

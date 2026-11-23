@@ -1,0 +1,8 @@
+Unevaluated source-level fixture: complete success
+Declared skipped name: firmware-boundary shard ${{ matrix.shard }}/${{ matrix.total }}
+Runtime key under documented expression semantics: firmware-boundary shard /
+Observed refusal: API returned an unplanned job name
+Control with preserved literal: continues after pending work, detects the next-read failure, rc=1.
+Observer unavailable: ValueError
+Watcher returns rc=0 after one read with observer_error=true; later failures are no longer watched.
+REPRODUCED: newly added skipped matrix metadata is not literal at runtime.

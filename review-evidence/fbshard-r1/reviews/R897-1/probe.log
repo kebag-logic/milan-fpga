@@ -1,0 +1,73 @@
+PASS ordered baseline/head dispatch: 1843 calls, build-only=False
+PASS ordered baseline/head dispatch: 88 calls, build-only=True
+PASS AECP ordered calls and arguments, including output paths: 18, coverage=False
+PASS AECP ordered calls and arguments, including output paths: 9, coverage=True
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1843 live invocations in exactly one shard; shard sizes [88, 827, 386, 542]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+PASS: build parts refuse a dropped suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: build parts refuse a duplicated suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: 88 live build-only suite invocations in exactly one of 1 parts; part sizes [88]
+PASS: build parts refuse a dropped suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: build parts refuse a duplicated suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: 88 live build-only suite invocations in exactly one of 2 parts; part sizes [51, 37]
+PASS: build parts refuse a dropped suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: build parts refuse a duplicated suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: 88 live build-only suite invocations in exactly one of 3 parts; part sizes [26, 22, 40]
+PASS: build parts refuse a dropped suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: build parts refuse a duplicated suite: suite:["ctrl_arms.arm_service_bounds", ["firmware tree"], {}]
+PASS: 88 live build-only suite invocations in exactly one of 4 parts; part sizes [16, 21, 35, 16]
+PASS build-part unions independently equal the pre-change dispatch
+PASS live table dropped refusal before building: sw/firmware/gtest/fw_rv32_selftest.py
+PASS live table duplicated refusal before building: sw/firmware/gtest/fw_rv32_selftest.py
+PASS capture union dropped refusal: sw/firmware/gtest/fw_rv32_selftest.py
+PASS capture union duplicated refusal: sw/firmware/gtest/fw_rv32_selftest.py
+PASS live table dropped refusal before building: sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2
+PASS live table duplicated refusal before building: sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2
+PASS capture union dropped refusal: sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2
+PASS capture union duplicated refusal: sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2
+PASS live table dropped refusal before building: sw/firmware/ctrl/test/test_ctrl_firmware.py part 1/2
+PASS live table duplicated refusal before building: sw/firmware/ctrl/test/test_ctrl_firmware.py part 1/2
+PASS capture union dropped refusal: sw/firmware/ctrl/test/test_ctrl_firmware.py part 1/2
+PASS capture union duplicated refusal: sw/firmware/ctrl/test/test_ctrl_firmware.py part 1/2
+PASS live table dropped refusal before building: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+PASS live table duplicated refusal before building: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+PASS capture union dropped refusal: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+PASS capture union duplicated refusal: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+PASS live table dropped refusal before building: sw/firmware/gtest/fw_coverage.py
+PASS live table duplicated refusal before building: sw/firmware/gtest/fw_coverage.py
+PASS capture union dropped refusal: sw/firmware/gtest/fw_coverage.py
+PASS capture union duplicated refusal: sw/firmware/gtest/fw_coverage.py
+PASS live table dropped refusal before building: sw/litex/test_ctrl_memory.py
+PASS live table duplicated refusal before building: sw/litex/test_ctrl_memory.py
+PASS capture union dropped refusal: sw/litex/test_ctrl_memory.py
+PASS capture union duplicated refusal: sw/litex/test_ctrl_memory.py
+PASS live table dropped refusal before building: tb/verilator/milan_dp/stream_counter_f5.py run 1/2
+PASS live table duplicated refusal before building: tb/verilator/milan_dp/stream_counter_f5.py run 1/2
+PASS capture union dropped refusal: tb/verilator/milan_dp/stream_counter_f5.py run 1/2
+PASS capture union duplicated refusal: tb/verilator/milan_dp/stream_counter_f5.py run 1/2
+PASS live table dropped refusal before building: tb/verilator/milan_dp/stream_counter_f5.py run 2/2
+PASS live table duplicated refusal before building: tb/verilator/milan_dp/stream_counter_f5.py run 2/2
+PASS capture union dropped refusal: tb/verilator/milan_dp/stream_counter_f5.py run 2/2
+PASS capture union duplicated refusal: tb/verilator/milan_dp/stream_counter_f5.py run 2/2
+[ok] shard control, the unit sw/firmware/gtest/fw_rv32_selftest.py dropped from the shards' table: no shard builds sw/firmware/gtest/fw_rv32_selftest.py, a unit of the compile set (ctrl_configs.SHARDS)
+[ok] shard control, the unit sw/firmware/gtest/fw_rv32_selftest.py in a second shard of the table: sw/firmware/gtest/fw_rv32_selftest.py is built by shards 0, 2 (ctrl_configs.SHARDS), not by exactly one
+[ok] shard control, the shards' captures with the run of sw/firmware/gtest/fw_rv32_selftest.py dropped: no shard's capture holds a run of sw/firmware/gtest/fw_rv32_selftest.py, a unit of the compile set
+[ok] shard control, the shards' captures with the run of sw/firmware/gtest/fw_rv32_selftest.py twice: the shards' captures hold 2 runs of sw/firmware/gtest/fw_rv32_selftest.py, a unit of the compile set, not one
+PASS 9 invalid boundary argument combinations refused
+PASS required rtl-fast shell: shard result 'success', rc=0
+PASS required rtl-fast shell: shard result 'failure', rc=1
+PASS required rtl-fast shell: shard result 'cancelled', rc=1
+PASS required rtl-fast shell: shard result 'timed_out', rc=1
+PASS required rtl-fast shell: shard result '', rc=1
+PASS required rtl-fast shell: shard result 'in_progress', rc=1
+PASS required rtl-fast shell: shard result 'unknown', rc=1
+PASS successful shards with failed judgement cannot pass required rtl-fast
+PASS real compile capture survives records/manifest/text-only artifact roundtrip
+PASS failed builder manifest refused
+PASS incomplete artifact without records.jsonl refused
+PASS incomplete artifact without manifest.jsonl refused
+PASS incomplete artifact without text refused
+PASS all focused checks

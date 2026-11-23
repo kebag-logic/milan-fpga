@@ -1,0 +1,65 @@
+author/receipts/INDEX.md 706c4a6a7e4873dfd40667ca9ca5a7c622ba0e6bf8b3585182486fa0c56495f8
+author/receipts/final-shard-0of3.log b25a7ff2c3fd5b13fdce0ef71bfe7c6d1fa093bcaa491f454e4cc4d069481eea
+   367.7     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (358 s)
+   462.0     sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (94 s)
+   462.0 ctrl_boundary: shard 0/3 BUILT; the run given every shard's capture (--shards 3) judges it
+   462.0 WALL 462.01 s
+   462.0 RC 0
+author/receipts/final-shard-1of3.log aaa8e6f32435c4ed9c43db482b268ebb484bb0198890a8569ac03ac076bb7a99
+   392.5     sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (392 s)
+   393.0     sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+   393.0 ctrl_boundary: shard 1/3 BUILT; the run given every shard's capture (--shards 3) judges it
+   393.0 WALL 393.04 s
+   393.0 RC 0
+author/receipts/final-shard-2of3.log 294342893cbc9113d365f466dc6429f6befb495b134c0d14faff418d96fc68e2
+   415.6     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (34 s)
+   449.1     tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (34 s)
+   449.1 ctrl_boundary: shard 2/3 BUILT; the run given every shard's capture (--shards 3) judges it
+   449.2 WALL 449.20 s
+   449.2 RC 0
+author/receipts/final-judge-3-shards.log 019095d6165ad0a2a48114a27a060e72f5e31ad8ed161984b3ea9b5a175d7284
+   258.7     boundary: compiler dependencies and object symbols pass
+   258.8 ctrl_boundary: 3851 compiled sources of 4132 recorded invocations (2342 the firmware's, 413 the stack's, 1096 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census, the 3 shards' captures holding each of the 8 units once; 0 finding(s), 112 boundary, 185 pin, 4 figure and 4 shard controls, 0 misbehaved
+   258.8 ctrl_boundary: PASS
+   258.9 WALL 258.90 s
+   258.9 RC 0
+author/receipts/head-judge-3-shards.log 4fc552ccb5d5bdc0b9d5ef97af32308941be380e3b40717dd04c066573b31044
+   250.2     boundary: compiler dependencies and object symbols pass
+   250.3 ctrl_boundary: 3851 compiled sources of 4132 recorded invocations (2342 the firmware's, 413 the stack's, 1096 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census, the 3 shards' captures holding each of the 8 units once; 0 finding(s), 112 boundary, 185 pin, 4 figure and 4 shard controls, 0 misbehaved
+   250.3 ctrl_boundary: PASS
+   250.4 WALL 250.42 s
+   250.4 RC 0
+author/receipts/control-gate-union-proof.log 136d4aaa59f327605a2a0c6b44a393f0e6cb70bb35141fc48760a12247391cce
+whole: /tmp/a827/full-tcf at d7da99cf; parts: shard 0 and shard 1 captures at d7da99cf
+whole: 1708 invocations, 1262 distinct compiles; parts: 1712 invocations, 1262 distinct compiles
+in the whole, in no part: 0
+in a part, not in the whole: 0
+UNION PROOF: PASS
+author/receipts/plant-dropped-capture.log 64ea9b8c8c246dd131dda90c823eed0ba01163e8a68e593f3de485864fe3d22d
+plant: shard 2's capture dropped (captures 0 and 1 only)
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+REFUSED: the shards' captures are not the compile set: no shard's capture holds a run of sw/firmware/gtest/fw_coverage.py, a unit of the compile set; no shard's capture holds a run of tb/verilator/milan_dp/stream_counter_f5.py run 1/2, a unit of the compile set; no shard's capture holds a run of tb/verilator/milan_dp/stream_counter_f5.py run 2/2, a unit of the compile set
+RC 2
+author/receipts/plant-duplicated-capture.log 9e90a741b30a0dd2ca0533d28d47259f9736c74615a4b3940fdae92de5bd22d9
+plant: shard 0's capture given twice (captures 0, 1, 2 and a copy of 0)
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+REFUSED: the shards' captures are not the compile set: the shards' captures hold 2 runs of sw/firmware/gtest/fw_rv32_selftest.py, a unit of the compile set, not one; the shards' captures hold 2 runs of sw/firmware/ctrl/test/test_ctrl_firmware.py part 0/2, a unit of the compile set, not one; the shards' captures hold 2 runs of sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, a unit of the compile set, not one
+RC 2
+author/receipts/plant-table.log 1e5774b8731b73df14ae22338cc65ae3ac5e799a4b7383869845a48879c24cf9
+REFUSED: no shard builds sw/firmware/gtest/fw_coverage.py, a unit of the compile set (ctrl_configs.SHARDS)
+RC 2
+plant: a unit in two shards of the table (sw/firmware/gtest/fw_coverage.py); --shard 0/3 refuses before building:
+REFUSED: sw/firmware/gtest/fw_coverage.py is built by shards 1, 2 (ctrl_configs.SHARDS), not by exactly one
+RC 2
+author/receipts/head-ci-and-docs-gates.log fa8f8b326716c6260904a937e431295b2837c2edd148c33891ad233c10ff57f5
+54 checks: 54 PASS, 0 FAIL
+== rc=0 python3 scripts/docs_inventory.py --check
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+== rc=0 python3 scripts/act_ci.py --selftest
+selftest: PASS
+author/receipts/head-ci_events-selftest.log 5244acd57eab70fc4adbedbeb16842b139339d5e8d6dd84d257bdf0355f695d4
+b7b351935f65416c8632c21dd13e08fb2e9c1d9c
+selftest: PASS (2369 contract items, 5881 arms)
+WALL 238.40 s
+author/receipts/hosted-unsharded-45071981993.txt 2809a602e51b19c2e4ea28280414365b89811b2a1c8bc049a235f9a45f2ce290
+author/receipts/tools/compare_sets.py 201e2705af670b56388062240dfcc4b195537c4f037bb29710b4b34cb4504da6
