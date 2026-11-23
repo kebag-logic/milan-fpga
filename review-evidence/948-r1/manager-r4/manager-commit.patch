@@ -1,0 +1,19 @@
+commit 8aeb2f0bb9bfad9c486a0abf9dbeaf134d3de2fb
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Mon Nov 23 15:49:41 2026 +0100
+
+    Give the firmware README's pin-control count as 192, the self-test's count with this change's stack-building plants (#948)
+
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 2c7633f38c..27e5ae0f83 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -252,7 +252,7 @@ The datapath counter targets also require it before their recipes.
+ The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+ In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
+ [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
+-185 pin controls follow the boundary controls.
++192 pin controls follow the boundary controls.
+ A clean clone passes the check.
+ An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
+ An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
