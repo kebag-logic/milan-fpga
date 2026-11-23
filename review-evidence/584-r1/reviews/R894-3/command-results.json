@@ -1,0 +1,32 @@
+{
+  "check_receipts.py": {
+    "rc": 0,
+    "receipt": "receipt-audit.log"
+  },
+  "check_evidence.py": {
+    "rc": 0,
+    "receipt": "evidence-check.log"
+  },
+  "probe_recovery.py": {
+    "rc": 0,
+    "receipt": "recovery-probe.log"
+  },
+  "probe_plan.py": {
+    "rc": 0,
+    "receipt": "plan-probe.log"
+  },
+  "check_checkout.py (before/final)": {
+    "rc": 0,
+    "receipts": [
+      "checkout-before.log",
+      "checkout-final.log"
+    ]
+  },
+  "git diff --check 64d539f1 HEAD": {
+    "rc": 0
+  },
+  "git status --short (final)": {
+    "rc": 0,
+    "output": ""
+  }
+}

@@ -1,0 +1,72 @@
+ARTIFACT author-r3/receipts/rtl/ship8.log
+117:   [i]    B2..B3 record: 357 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 0 non-silent to the rebind; then 96 silent, the first rendered event 1218 against 1092 sent before the loss, 140 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+120:   [ ok ] B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1092 sent before the loss
+121:   [ ok ] B3 FRESHNESS: the first frame rendered after the rebind is a post-loss event
+122:   [ ok ] B3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+123:   [ ok ] B3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+150:   [i]    Z2..Z3 record: 492 frames; 0 pre-reset frame(s), silence from frame 0, 243 silent and 0 non-silent to the rebind; then 97 silent, the first rendered event 1812 against 1572 sent before the reset, 152 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+153:   [ ok ] Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past the 1572 sent before the reset
+154:   [ ok ] Z3 FRESHNESS: the first frame rendered after the rebind is a post-reset event
+155:   [ ok ] Z3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+156:   [ ok ] Z3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+166: == ship8_render: checks: 130   failures: 0 ==
+168: ship8_rc=0
+ARTIFACT author-r3/receipts/rtl/ship8-mutants.txt
+12: [PASS] leg defect caught (--defect-stale-rebind): stale: stream 0's pre-loss events replayed just after the rebind - breaks "B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past"
+13: [PASS] leg defect caught (--defect-stale-reset): stale: stream 0's pre-reset events replayed just after the post-reset bind - breaks "Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past"
+15: 11 checks: 11 PASS, 0 FAIL
+18: mutants_rc=0
+ARTIFACT author-r3/receipts/rtl/milan_dp_render-suite.txt
+103: == tdm8_render: checks: 263   failures: 0 ==
+124: == tdm8_render: checks: 79   failures: 0 ==
+238:   [i]    B2..B3 record: 357 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 0 non-silent to the rebind; then 96 silent, the first rendered event 1218 against 1092 sent before the loss, 140 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+241:   [ ok ] B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1092 sent before the loss
+242:   [ ok ] B3 FRESHNESS: the first frame rendered after the rebind is a post-loss event
+243:   [ ok ] B3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+244:   [ ok ] B3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+270:   [i]    Z2..Z3 record: 492 frames; 0 pre-reset frame(s), silence from frame 0, 243 silent and 0 non-silent to the rebind; then 97 silent, the first rendered event 1812 against 1572 sent before the reset, 152 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+273:   [ ok ] Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past the 1572 sent before the reset
+274:   [ ok ] Z3 FRESHNESS: the first frame rendered after the rebind is a post-reset event
+275:   [ ok ] Z3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+276:   [ ok ] Z3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+286: == ship8_render: checks: 130   failures: 0 ==
+291: [PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+292: [PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+293: [PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+294: 5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)
+296: suite_rc=0
+ARTIFACT author-r3/receipts/rtl/rebind1.log
+120:   [i]    B2..B3 record: 357 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 0 non-silent to the rebind; then 96 silent, the first rendered event 1080 against 1092 sent before the loss, 140 rendered (12 stale, 0 foreign, 0 gap(s), 0 reordered)
+123:   [FAIL] B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1092 sent before the loss
+124:   [FAIL] B3 FRESHNESS: the first frame rendered after the rebind is a post-loss event
+125:   [ ok ] B3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+126:   [ ok ] B3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+153:   [i]    Z2..Z3 record: 492 frames; 0 pre-reset frame(s), silence from frame 0, 243 silent and 0 non-silent to the rebind; then 97 silent, the first rendered event 1812 against 1572 sent before the reset, 152 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+156:   [ ok ] Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past the 1572 sent before the reset
+157:   [ ok ] Z3 FRESHNESS: the first frame rendered after the rebind is a post-reset event
+158:   [ ok ] Z3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+159:   [ ok ] Z3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+169: == ship8_render: checks: 130   failures: 2 ==
+171: rc=1
+ARTIFACT author-r3/receipts/rtl/reset1.log
+115:   [i]    B2..B3 record: 357 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 0 non-silent to the rebind; then 96 silent, the first rendered event 1218 against 1092 sent before the loss, 140 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+118:   [ ok ] B3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1092 sent before the loss
+119:   [ ok ] B3 FRESHNESS: the first frame rendered after the rebind is a post-loss event
+120:   [ ok ] B3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+121:   [ ok ] B3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+153:   [i]    Z2..Z3 record: 492 frames; 0 pre-reset frame(s), silence from frame 0, 243 silent and 0 non-silent to the rebind; then 97 silent, the first rendered event 1812 against 1572 sent before the reset, 152 rendered (12 stale, 0 foreign, 0 gap(s), 1 reordered)
+156:   [FAIL] Z3 FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 0 at an event past the 1572 sent before the reset
+157:   [ ok ] Z3 FRESHNESS: the first frame rendered after the rebind is a post-reset event
+158:   [ ok ] Z3 FRESHNESS: silence until that frame, none after it, at least 100 rendered
+159:   [FAIL] Z3 FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+169: == ship8_render: checks: 130   failures: 2 ==
+171: rc=1
+ARTIFACT-HASH COMPARISON: 153/155 identical; differences=[('endstation_ax7101_8x8/all-fabric', 'build_plan.md', 15205, 15222), ('endstation_ax7101_8x8/split', 'build_plan.md', 15286, 15303)]
+All recorded model IDs, descriptor counts, cluster counts and size metadata unchanged from round 1.
+Published docs commands: 99/103 rc=0; four hosted-environment failures, not passes.
+99-_I-installdiractcipysel   rc=2  /usr/bin/python3: can't open file '/act_ci.py': [Errno 2] No such file or directory
+100-ci_fail_fast-watch       rc=1  KeyError: 'GITHUB_EVENT_PATH'
+101-ci_fail_fast-cancel      rc=1  KeyError: 'GITHUB_EVENT_PATH'
+102-ci_fail_fast-tail        rc=1  KeyError: 'GITHUB_EVENT_PATH'
+Published builder union: exact head, 113 gates once, two recorded NOT RUN arms, rc=0.
+PASS: publication is internally consistent for these execution and artifact claims.

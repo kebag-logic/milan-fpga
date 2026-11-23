@@ -1,0 +1,32 @@
+Source SHA256: 60a10ca20720f5a68d3517029199f24bf450aeb6ad952ebfc0da071c723ce371
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the loss, 100 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+PASS probe: bind fall permits one pre-loss frame before closure; held=1 stale=0 first=1000
+  [i]    CLOSED..RECOVERY record: 244 frames; 0 pre-reset frame(s), silence from frame 0, 122 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the reset, 100 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+PASS probe: reset release starts silent; held=0 stale=0 first=1000
+  [i]    record frame 144 renders event 999, before the 1000 sent first
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 999 against 1000 sent before the loss, 100 rendered (1 stale, 0 foreign, 0 gap(s), 0 reordered)
+  rejected by: RECOVERY FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1000 sent before the loss
+  rejected by: RECOVERY FRESHNESS: the first frame rendered after the rebind is a post-loss event
+PASS probe: stale first word after rebind; held=1 stale=1 first=999
+  [i]    record frame 150 renders event 999, before the 1000 sent first
+  [i]    CLOSED..RECOVERY record: 244 frames; 0 pre-reset frame(s), silence from frame 0, 122 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the reset, 100 rendered (1 stale, 0 foreign, 0 gap(s), 1 reordered)
+  rejected by: RECOVERY FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1000 sent before the reset
+  rejected by: RECOVERY FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+PASS probe: stale later word during recovery; held=0 stale=1 first=1000
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 120 silent and 1 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the loss, 100 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+  rejected by: CLOSED: from then to the rebind all 32 slots are silent in every frame, at least 100
+PASS probe: leak while unbound; held=1 stale=0 first=1000
+  [i]    CLOSED..RECOVERY record: 244 frames; 0 pre-reset frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the reset, 100 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+  rejected by: CLOSED: the lane is silent from the reset's release
+PASS probe: stale frame after reset release; held=0 stale=0 first=1000
+  [i]    record frame 145 slot 0 carries A203E9, not stream 0 channel 1
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the loss, 100 rendered (0 stale, 1 foreign, 0 gap(s), 0 reordered)
+  rejected by: RECOVERY FRESHNESS: from the rebind, every rendered slot-0 word is stream 0 channel 1 at an event past the 1000 sent before the loss
+PASS probe: wrong stream during recovery; held=1 stale=0 first=1000
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the loss, 100 rendered (0 stale, 0 foreign, 0 gap(s), 0 reordered)
+  rejected by: RECOVERY FRESHNESS: events in order, slots 1-31 and the pad byte zero, the bus framed whole across the record
+PASS probe: nonzero tail during recovery; held=1 stale=0 first=1000
+  [i]    CLOSED..RECOVERY record: 244 frames; 1 pre-loss frame(s), silence from frame 1, 121 silent and 0 non-silent to the rebind; then 22 silent, the first rendered event 1000 against 1000 sent before the loss, 99 rendered (0 stale, 0 foreign, 1 gap(s), 0 reordered)
+  rejected by: RECOVERY FRESHNESS: silence until that frame, none after it, at least 100 rendered
+PASS probe: gap after rendering starts; held=1 stale=0 first=1000
+9/9 independent decoded-frame controls PASS
