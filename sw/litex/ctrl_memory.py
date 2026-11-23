@@ -243,8 +243,8 @@ class Ledgered:
 #: stays within 56. Each entry is its image's measured tiles, under the owner's rule of 2026-11-15 that the control
 #: memory's ROM may overflow as debt owed to the cold-code-to-flash work (S14), which supersedes the 60.5 cap of
 #: 2026-11-12 until that work lands (#923's ruling of 2026-11-16), and refuses its image half a tile past. The size
-#: fixture's is refused at 61.0, its entry at 60.5 with the largest legal record's cut on the composed train (#665),
-#: 60.0 with the map edits' commit through the EDIT window (#923) composed
+#: fixture's is refused at 61.5, its entry at 61.0 with the SRP drain's charge (#977), 60.5 with the largest legal
+#: record's cut on the composed train (#665), 60.0 with the map edits' commit through the EDIT window (#923) composed
 #: on GET_AS_PATH's read and SRP's Talker declarations, 59.5 with those alone (#897), 59.0 before them, the cap #894's
 #: ruling of 2026-11-13 raised the owner's 58.5 to for the composed image. The target platform's 8x8 two-interface
 #: image is refused at 64.0, its entry at 63.5 with the SRP drain's charge (#977), 63.0 with each AAF Stream Input's
@@ -259,12 +259,12 @@ class Ledgered:
 #: composed train before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned
 #: on it (#665), and 59.0 with lwSRP's one-interface options and the SRP drain's charge (#977), as the two-interface
 #: image's entry is 63.5 with that charge, refused at 64.0. The size fixture's 8x8 image with one interface is
-#: ledgered at 56.5 with them, refused at 57.0 (#977). The platform's image is linked at
+#: ledgered at 57.0 with them and the harness's arms on it, refused at 57.5 (#977). The platform's image is linked at
 #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
-                                   60.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   61.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -286,14 +286,21 @@ LEDGERED: dict[str, Ledgered] = {
                                          "the largest legal record's cut on that train (#665): the harness's "
                                          "answering-ports arm needs 131,128 B of rom, 56 B past the 131,072 B "
                                          "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
-                                         "ROM debt of 4.5 RAMB36 owed to S14"),
-    "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 13_594), ("image_allocation", 8)), 56.5,
+                                         "ROM debt of 4.5 RAMB36 owed to S14; 61.0 with the SRP drain's charge "
+                                         "(#977): the harness's declaring-outputs arm needs 133,688 B of rom, 568 B "
+                                         "past the 133,120 B 60.5 holds, by the same rule: ROM debt of 5.0 RAMB36 "
+                                         "owed to S14"),
+    "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 13_594), ("image_allocation", 8)), 57.0,
                                   "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, the size "
                                   "fixture with lwSRP's one-interface options at 8x8 (#977, its ruling of "
                                   "2026-11-23: the attribute lookup's buckets, no MAP work at one port, the lean "
                                   "validation pass and the merged Message build) and the drain's charge, 132,816 B "
                                   "of rom, 1,744 B past the 131,072 B 56.0 holds, by the owner's rule of 2026-11-15 "
-                                  "(#923's ruling of 2026-11-16): ROM debt of half a tile owed to S14"),
+                                  "(#923's ruling of 2026-11-16): ROM debt of half a tile owed to S14; 57.0 with "
+                                  "the CPU budget harness's arms on it, the size fixture with their test ports: "
+                                  "the declaring-outputs arm needs 133,600 B of rom, 480 B past the 133,120 B 56.5 "
+                                  "holds, by the same rule (an image past its entry raises it): ROM debt of one "
+                                  "tile owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
                                             ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_568)), 63.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "

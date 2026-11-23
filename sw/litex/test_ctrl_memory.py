@@ -15,12 +15,12 @@ block RAM the SoC builds from them. This file grades nine things:
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
      (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one) plans its 60.5, 63.0 or 58.0 by name, and through
+     interfaces and with one) plans its 61.0 and 63.5, or 57.0 and 59.0, by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
-     on an image with one of its two symbols. Ten planted ledgers, each widening an entry to another point or image or
-     past its tiles, must each turn the ledger red with its pin set aside.
+     on an image with one of its two symbols. Thirteen planted ledgers, each widening an entry to another point or
+     image or past its tiles, must each turn the ledger red with its pin set aside.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the largest image's sram banks (64, 32, 8, 4
      and 2 KiB). rom reads its image at the first and last word of every bank and drops a write; sram writes byte
      lanes and reads them back at every bank boundary. Addresses past the last bank, sampled to the top of the 256 KiB
@@ -339,7 +339,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the fixture's and the platform's 8x8 "
-                                          f"images with two interfaces at 60.5 and 63.5 and with one at 56.5 and 59.0 "
+                                          f"images with two interfaces at 61.0 and 63.5 and with one at 57.0 and 59.0 "
                                           f"({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)

@@ -18,7 +18,7 @@ import endstation_builder
 
 #: lwSRP's build options at each product shape (interfaces, sources, sinks), in the shape header every unit an image
 #: compiles force-includes first, so lwSRP's units and the adapter's agree on the layouts the options change (#977,
-#: its ruling of 2026-11-23, items 3 and 4): at both one-interface shapes the attribute lookup's buckets, no MAP work
+#: its ruling of 2026-11-23, item 3): at both one-interface shapes the attribute lookup's buckets, no MAP work
 #: at one port and no zeroing in the parser's validation pass (lwSRP doc/integrator.md), and at 8x8/1if alone the
 #: merged Message build, which costs 1x1/1if its build pass. Every other shape builds lwSRP's defaults.
 LWSRP_OPTIONS = {(1, 2, 2): (("LWSRP_ATTR_BUCKETS", "16u"), ("LWSRP_ONE_PORT_MAP", "1"), ("LWSRP_LEAN_VALIDATE", "1")),
