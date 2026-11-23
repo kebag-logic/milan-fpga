@@ -219,8 +219,8 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     port, l22, l23, l24 = ("port", "Loop.L22PassesGivenWholeStandApartAsInputWaits",
                            "Loop.L23TheDrainIsTierTwoInASlice",
                            "Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt")
-    limit = "start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US);"
-    drain = "work += service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,"
+    limit = "start + CTRL_LOOP_SLICE_US - CTRL_LOOP_SRP_UNIT_US, alone);"
+    drain = "l->drain_taken = service_rx(l, l->drain_ch - 1u, CTRL_LOOP_DRAIN_RECORDS,"
     l23s = "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting"
     return (
         kind("whole-row-unlimited", "loop/ctrl_loop.c", ROW, ROW.replace("l->whole < CTRL_LOOP_WHOLE_RUN && ", ""),
@@ -240,7 +240,7 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "L22 a pass that leaves a record marks the backlog"),
         kind("backlog-never-cleared", "loop/ctrl_loop.c", "\tl->backlog = false;\n", "", port, l22,
              "L22 the ring taken, the backlog is gone"),
-        kind("drain-past-its-time", "loop/ctrl_loop.c", limit, "start + CTRL_LOOP_SLICE_US);",
+        kind("drain-past-its-time", "loop/ctrl_loop.c", limit, "start + CTRL_LOOP_SLICE_US, alone);",
              port, l23, "L23 and starts none once its slice has no room for a record's stated cost"),
         kind("drain-to-the-cap-alone", "loop/ctrl_loop.c", drain,
              drain.replace("CTRL_LOOP_DRAIN_RECORDS", "CTRL_LOOP_RX_PER_PASS"), port, l23,
@@ -255,8 +255,8 @@ def row_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("drain-past-its-records", "loop/ctrl_loop.c", drain,
              drain.replace("CTRL_LOOP_DRAIN_RECORDS", "2u * CTRL_LOOP_DRAIN_RECORDS"), port, l23,
              "L23 and stops at CTRL_LOOP_DRAIN_RECORDS"),
-        kind("rx-held-ignored", "loop/ctrl_loop.c", "(l->clock == NULL || l->rx_held ||", "(l->clock == NULL ||", port,
-             "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting",
+        kind("rx-held-ignored", "loop/ctrl_loop.c", "if (l->clock == NULL || l->rx_held) {", "if (l->clock == NULL) {",
+             port, "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting",
              "L25 a pass whose poll owes a heavy step stops at its cap"),
         kind("rx-start-stays", "loop/ctrl_loop.c", "\tl->rx_from = (l->rx_from + 1u) % MBX_N_CH;\n", "", port,
              "Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting", "L25 each pass starts one channel on"),
@@ -284,8 +284,8 @@ def tier_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     l26, l27 = "Loop.L26TierOnesFirstChannelGoesFirst", "Loop.L27TierTwoRoundsComeAfterTheDrainInSlices"
     l28 = "Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone"
     sweep = "sweep = l->rx_left == 0u;"
-    first = "service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US)"
-    held = "\t\t\tl->rx_left &= ~(1u << ch);\n\t\t\tbreak;\n\t\t}\n\t\tenum mbx_status st"
+    first = "service_rx(l, l->first_ch - 1u, CTRL_LOOP_DRAIN_RECORDS, start + CTRL_LOOP_DRAIN_US,"
+    held = "\t\t\tl->rx_left &= ~(1u << ch);\n\t\t\tbreak;\n\t\t}\n\t\t// every record's charge is read"
     empty = "\t\tif (st == MBX_STATUS_EMPTY) {\n\t\t\tl->rx_left &= ~(1u << ch);\n"
     gate = "(l->retry == NULL && l->transmit == NULL) || !tier1_holds(l);"
     one = "l->round_one = !(l->run != 0u ? l->drained : tier2);"

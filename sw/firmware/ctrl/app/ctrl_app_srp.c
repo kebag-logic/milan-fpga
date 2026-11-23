@@ -47,6 +47,13 @@ static void request(void *ctx, unsigned sink, const struct acmp_stream *stream)
     app->acmp_owner->srp(app->acmp_owner->ctx,sink,stream);
 }
 
+// A binding SRP's registrations reach ACMP at: delivered and bound. SRP retained the event prefix before returning
+// from its poll, and an old binding's registration is never fed to a replacement awaiting delivery.
+static bool delivered(const struct ctrl_app_srp_request *r)
+{
+    return !r->parked && !r->pending && r->bound;
+}
+
 // ACMP's completion of SRP's registrations at a binding delivered (srp_requests), from the kind it holds now: a kind
 // registered the sink awaits or a changed kind, then a loss the binding latched (srp_mbx.c, capture).
 static void complete(struct ctrl_app *app, unsigned sink, struct srp_sink *s)
@@ -82,8 +89,7 @@ static bool settle(void *ctx)
         return true;
     }
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
-        const struct ctrl_app_srp_request *r = &app->srp_requests[sink];
-        if (!r->parked && !r->pending && r->bound) {
+        if (delivered(&app->srp_requests[sink])) {
             complete(app,sink,&app->srp->ifs[app->acmp.acmp.cfg.sink_interface[sink]].sinks[sink]);
         }
     }
@@ -152,9 +158,7 @@ static bool deliver(void *ctx)
                 s->withdrawn = false;
             }
         }
-        // SRP retained this event prefix before returning from its poll. Never
-        // feed an old binding's registration to a replacement awaiting delivery.
-        if (!r->pending && r->bound && !settles) {
+        if (delivered(r) && !settles) {
             complete(app,sink,s);
         }
         pending = r->pending || pending;

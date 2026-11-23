@@ -36,7 +36,7 @@ FREEABLE = "    if (t->reg_to == MRP_REG_STATE_MT && (SRP_FREED_APPL >> t->appl_
 FREED = "#define SRP_FREED_APPL ((1u << MRP_APPL_STATE_VO) | (1u << MRP_APPL_STATE_AO) | (1u << MRP_APPL_STATE_QO))\n"
 FRESH = "    if (t->appl_from == MRP_APPL_STATE_VO && t->reg_from == MRP_REG_STATE_MT) {\n"
 CREATION = "    if (room > attribute_room(pool) + i->fresh) {\n"
-SINKS = "    const unsigned sinks = i->stale ? CTRL_SRP_SINKS : 0u;\n"
+SINKS = "    const uint32_t touched = i->touched;\n"
 SAME_ID = "        if (s[7] == id[7] && same(s,id,8)) {\n"
 COPY = "            if (!i->sinks[k].withdrawn && i->sinks[k].desired) {\n"
 
@@ -52,10 +52,10 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
                                      "differs from source 0's in byte 0 alone"),
           SAME_ID, "        if (s[7] == id[7]) {\n", suite="srp_mbx.cpp"),
         # the filter's pass never made: a Talker's change earlier in the MRPDU is not closed before the next value
-        d("filter-pass-dropped", TWO_EVENTS, SINKS, "    const unsigned sinks = 0u;\n", suite="test_acmp_mbx.cpp"),
-        # the pass made only while the interface is not stale: the changes it closes are those it skips
-        d("filter-pass-inverted", TWO_EVENTS, SINKS, SINKS.replace("CTRL_SRP_SINKS : 0u", "0u : CTRL_SRP_SINKS"),
-          suite="test_acmp_mbx.cpp"),
+        d("filter-pass-dropped", TWO_EVENTS, SINKS, "    const uint32_t touched = 0u;\n", suite="test_acmp_mbx.cpp"),
+        # the pass made only for the sinks no indication touched: the changes it closes are those it skips
+        d("filter-pass-inverted", TWO_EVENTS, SINKS,
+          SINKS.replace("i->touched;", "~i->touched & ((1u << CTRL_SRP_SINKS) - 1u);"), suite="test_acmp_mbx.cpp"),
         # every change owes the reclaim, as before the cut
         d("reclaim-every-change", STEADY, FREEABLE, "    if (true) {\n"),
         # an Applicant's change owes it whatever its Registrar
