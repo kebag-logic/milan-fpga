@@ -1,6 +1,7 @@
 # TSN/Milan FPGA requirements
 
-This document is the normative product contract for VERSION `0x0002_0060`.
+This document is the normative product contract for VERSION `0x0003_0060`, the shipping split image,
+and for the all-fabric build at its major `0x0002` over the same minor.
 The supported product is an Artix-7 end station with RV32I bare-metal firmware,
 a memory-mapped CSR plane at `0x9000_0000`, fabric protocol processing, and a
 1-Gbit/s MAC datapath. Superseded platform briefs and campaign narratives are
@@ -25,9 +26,11 @@ kept in Git history rather than the tracked product tree (#259).
 - The control functions are ADP, ACMP, AECP, MAAP and SRP.
   AECP includes unsolicited notifications and counter serving.
 - Until the switch-over, each MUST have build-selectable placement.
-  The all-fabric build is the shipping default until then.
-- The switch-over needs F2 to F5 suites and bench acceptance.
-  Acceptance covers all streams, counters and audio soak.
+  The split build is the shipping default since the flip (#665 S13).
+- The flip followed the F2 to F5 suites and the bench gate (#665).
+  The all-fabric build stays built and gated until the switch-over.
+- The switch-over needs the full qualification (NFR-SCOUT-02).
+  It covers all streams, counters and the audio soak.
 - Requirement approval precedes the switch-over (#664, #665).
   Mark II then runs these functions as firmware only.
 - After the switch-over, no all-fabric build remains (#665).
@@ -110,10 +113,10 @@ The [mailbox design](docs/design/MAILBOX_SPLIT.md#the-ingress-filter) describes 
 Until the switch-over, the [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
 
 Major `0x0003` identifies only images running the split.
-The major changes with the default-flip implementation, not this document change.
+The default flip (#665 S13) set it: a split image reads VERSION `0x0003_0060`.
 MINOR remains flat and continuous across majors.
+The all-fabric build keeps major `0x0002` over the same minor.
 The [landing plan](docs/ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip) pins the simulations and firmware string.
-The current VERSION remains `0x0002_0060`.
 
 ## 2. Reference standards
 

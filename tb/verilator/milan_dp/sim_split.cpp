@@ -79,6 +79,9 @@ class Tb {
                 aw_take_ = d_->s_axi_awvalid && d_->s_axi_awready;
                 w_take_ = d_->s_axi_wvalid && d_->s_axi_wready;
                 b_take_ = d_->s_axi_bvalid && d_->s_axi_bready;
+                ar_take_ = d_->s_axi_arvalid && d_->s_axi_arready;
+                r_take_ = d_->s_axi_rvalid && d_->s_axi_rready;
+                r_data_ = d_->s_axi_rdata;
                 tx_take_ = d_->tx_tvalid && d_->tx_tready;
                 tx_data_ = d_->tx_tdata;
                 tx_keep_ = d_->tx_tkeep;
@@ -103,7 +106,7 @@ class Tb {
         d_->rx_tvalid = 0;
         d_->tx_tready = 1;
         d_->link_up = 1;
-        // the CSR window is idle but for csr_wr: no request, every response taken
+        // the CSR window is idle but for csr_wr and csr_rd: no request, every response taken
         d_->s_axi_awvalid = 0;
         d_->s_axi_wvalid = 0;
         d_->s_axi_arvalid = 0;
@@ -149,6 +152,19 @@ class Tb {
             std::printf("FAIL CSR write at 0x%x never answered\n", addr);
             ++fail_;
         }
+    }
+    //! One read of the datapath's CSR window (AXI4-Lite on dp_clk); returns the word once its response is taken.
+    //! The bound covers the defaults sweep after reset, during which the window takes no read.
+    std::uint32_t csr_rd(std::uint16_t addr) {
+        d_->s_axi_araddr = addr;
+        d_->s_axi_arvalid = 1;
+        const std::uint64_t r0 = r_count_;
+        for (int i = 0; i < 2000 && r_count_ == r0; ++i) sys(1);
+        if (r_count_ == r0) {
+            std::printf("FAIL CSR read at 0x%x never answered\n", addr);
+            ++fail_;
+        }
+        return r_word_;
     }
 
     //! Queue a frame for the MAC's receive side, little lane order.
@@ -227,6 +243,11 @@ class Tb {
         if (aw_take_) d_->s_axi_awvalid = 0;
         if (w_take_) d_->s_axi_wvalid = 0;
         if (b_take_) ++b_count_;
+        if (ar_take_) d_->s_axi_arvalid = 0;
+        if (r_take_) {
+            r_word_ = r_data_;
+            ++r_count_;
+        }
         if (tap_beat_ && !tap_q_.empty()) tap_q_.pop_front();
         if (tap_q_.empty()) {
             d_->tap_tvalid = 0;
@@ -274,6 +295,11 @@ class Tb {
     bool w_take_ = false;
     bool b_take_ = false;
     std::uint64_t b_count_ = 0;
+    bool ar_take_ = false;
+    bool r_take_ = false;
+    std::uint32_t r_data_ = 0;
+    std::uint32_t r_word_ = 0;
+    std::uint64_t r_count_ = 0;
     bool tx_take_ = false;
     bool tx_last_ = false;
     std::uint64_t tx_data_ = 0;
@@ -795,6 +821,16 @@ void check_dp_drops(Tb& tb) {
                 lost);
 }
 
+//! The split image's identity (#665, docs/ARCHITECTURE_HW_SW_SPLIT.md section 7): the datapath built with
+//! CTRL_SPLIT_P = 1 reads VERSION major 0x0003 over the one minor, where an all-fabric one reads 0x0002_0060
+//! (milan_dp's sim_main.cpp), and the ID word is the block's in both.
+void check_identity(Tb& tb) {
+    tb.check_eq("[ID] the split datapath's ID reads 'MILN'", tb.csr_rd(0x000), 0x4D494C4Eu);
+    const std::uint32_t version = tb.csr_rd(0x004);
+    tb.check_eq("[ID] the split datapath reads VERSION 0x0003_0060", version, 0x00030060u);
+    tb.check_eq("[ID] the split datapath reads VERSION major 0x0003 (VERSION >> 16)", version >> 16, 0x0003u);
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -814,6 +850,7 @@ int main(int argc, char** argv) {
     check_tap(tb);
     check_tap_drops(tb);
     check_dp_drops(tb);
+    check_identity(tb);
     std::printf("ran %llu mailbox cycles\n", static_cast<unsigned long long>(tb.sys_cycles()));
     dut->final();
     return tb.finish();

@@ -57,7 +57,7 @@ version in prose, so dropping the claim is a finding rather than a silence.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |

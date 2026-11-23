@@ -148,7 +148,7 @@ def read_tables(page: list[str]) -> dict[int, tuple[str, list[tuple[str, str]]]]
 
 
 def build_parameters(page: list[str]) -> dict[str, int]:
-    """The `Build parameters` table: the values the shipping build elaborates."""
+    """The `Build parameters` table: the values the recorded all-fabric build elaborates."""
     out: dict[str, int] = {}
     start = page.index("## Build parameters")
     for line in page[start:]:

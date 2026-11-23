@@ -36,21 +36,6 @@
  "judged": {},
  "findings": [
   {
-   "id": "D0-001",
-   "page": "README.md",
-   "quote": "ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.",
-   "source": "`sw/litex/milan_soc.py` lines 2854-2856 and line 4097: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default",
-   "correction": "Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric (`sw/litex/milan_soc.py` lines 2854-2856: `--ctrl-mailbox` is off by default and the default build carries no mailbox; line 4097: `store_true`). `REQUIREMENTS.md` is the normative page, so its copy goes to a maintainer decision on what \"Mark II default\" names, and every copy takes that one answer.",
-   "also": [
-    "The Mark II default places them on the bare-metal core.",
-    "Its default is bare-metal control through packet mailboxes.",
-    "Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.",
-    "Mark II defaults ADP, ACMP, AECP, MAAP and SRP to firmware.",
-    "Mark II defaults control protocols to the core through packet mailboxes.",
-    "Mark II defaults to firmware"
-   ]
-  },
-  {
    "id": "D0-002",
    "page": "README.md",
    "quote": "clock-source selection now reaches the media plane's wrapper but nothing there",
@@ -217,13 +202,6 @@
    "correction": "Say that the granted slope reaches only the two diagnostics and that no shaper consumes it in the shipping image; keep the TSpec half."
   },
   {
-   "id": "D0-033",
-   "page": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md",
-   "quote": "Its default is bare-metal control; all-fabric remains supported.",
-   "source": "Same as D0-001: `sw/litex/milan_soc.py` lines 2854-2856, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the page's next line says all-fabric is the shipping default",
-   "correction": "Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric."
-  },
-  {
    "id": "D0-034",
    "page": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md",
    "quote": "may cross clock domains only with a complete-packet asynchronous FIFO.",
@@ -358,13 +336,6 @@
    "quote": "Each accepted; no semantic refusal",
    "source": "`python3 scripts/audit_pp_descriptors.py` at this head: the packer probes for L10 (nine rate words, offset 143, count/extent mismatch, one byte short), L6 (source list reversed), L4 (buffer 2125999 ns, 47 formats) and L1, L2, L7, L8, L9 and ADP are all refused, by the processor's default model lint that #661 adopted (processor PR #144; the page's own lines 28 and 183 say so); the table records the earlier audit pin",
    "correction": "Regenerate the processor rows from the current receipt, or mark the table as the record of the earlier pin and drop the PP60 defence-in-depth sentence that the lint has discharged."
-  },
-  {
-   "id": "D0-056",
-   "page": "docs/reference/FR_NFR.md",
-   "quote": "Its default is bare-metal control over packet mailboxes.",
-   "source": "Same as D0-001 and D0-033: `sw/litex/milan_soc.py` lines 2854-2856, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default",
-   "correction": "Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric."
   },
   {
    "id": "D0-057",

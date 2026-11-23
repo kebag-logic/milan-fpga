@@ -24,11 +24,15 @@ parameters, define ``SYNTHESIS``, the all-fabric header), then one per
               puts both ahead of the tracked include directories
               (scripts/check_entity_shape.py arm D holds the header to what
               the builder generates)
-  parameters  ``endstation_builder.datapath_params()``: every integer
-              parameter the build binds on milan_datapath (test_builder gate
-              23m compares it with the Instance milan_soc.py builds for each
-              configuration); the three ROM image paths, which only the
-              processor and gPTP wrappers read, stay at their defaults
+  parameters  ``endstation_builder.datapath_params()`` of the
+              configuration's all-fabric build: every integer parameter the
+              build binds on milan_datapath (test_builder gate 23m compares it
+              with the Instance milan_soc.py builds for each configuration).
+              The census reads the processor's publication, so a config that
+              ships the split (#665) is censused at its all-fabric build;
+              the split population adds CTRL_SPLIT_P = 1 itself. The three ROM
+              image paths, which only the processor and gPTP wrappers read,
+              stay at their defaults
   defines     ``SYNTHESIS`` alone: milan_soc.py adds no define, and Vivado's
               synthesis defines that one, as run.sh's recipe does
 
@@ -187,12 +191,13 @@ def recipe() -> Recipe:
 
 def shapes() -> tuple[Shape, ...]:
     """The recipe's shape, then one per configs/*.yaml in name order: the builder's
-    generated header directory for it and the parameters the builder states."""
+    generated header directory for it and the parameters the builder states for its
+    all-fabric build (the AX7101 configs ship the split since the flip, #665)."""
     out = [RECIPE]
     for path in sorted((REPO / "configs").glob("*.yaml")) if live("shapes") else ():
         try:
             cfg = eb.load_config(str(path))
-            params = eb.datapath_params(cfg)
+            params = eb.datapath_params(eb.with_placement(cfg, "all-fabric"))
         except (eb.ConfigError, OSError, KeyError, ValueError) as exc:
             raise CensusError(f"the builder cannot state the shape of {rel(path)}: {exc}") from exc
         out.append(Shape(cfg["name"], GENERATED / cfg["name"], tuple(sorted(params.items()))))

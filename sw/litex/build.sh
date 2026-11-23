@@ -26,6 +26,15 @@
 #   BUILD_CFG=configs/endstation_ax7101_8x8.yaml ./build.sh ax7101
 #                                      # a named recipe's flow flags on another config
 #                                      # under configs/ (sweep.sh: SWEEP_CFG)
+#   BUILD_PLACEMENT=all-fabric ./build.sh ax7101
+#                                      # the config at another control placement: the
+#                                      # builder's --placement recipe, every other key
+#                                      # the config's (#665). The AX7101 configs
+#                                      # ship the split placement, whose launch reads
+#                                      # the platform image the builder's argv names
+#                                      # (sw/builder/out/<config>/ctrl_app.elf,
+#                                      # sw/firmware/ctrl/plat/README.md); the
+#                                      # all-fabric build stays built and gated here.
 #
 # Discipline encoded here (docs/integration/BUILDING.md):
 #   * every build: setsid nohup (harness task-kills must never reap Vivado),
@@ -315,7 +324,11 @@ regenerate() {
     SNAP=$(mktemp -d) || { echo "refusing to build: could not create the temporary directory that holds the tracked generated files while the builder runs (mktemp -d failed). Nothing was regenerated." >&2; return 1; }
     snapshot_tracked_generated || { rm -rf "$SNAP"; return 1; }
     rc=0
-    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" > /dev/null || rc=$?
+    # BUILD_PLACEMENT, when set, is the builder's placement recipe (#665): the config
+    # at that control placement, its shape unchanged; the builder refuses a name it lacks
+    placement=()
+    [ -n "${BUILD_PLACEMENT:-}" ] && placement=(--placement "$BUILD_PLACEMENT")
+    python3 "$REPO_ROOT/sw/builder/endstation_builder.py" "$REPO_ROOT/$cfg" "${placement[@]}" > /dev/null || rc=$?
     restore_tracked_generated
     if [ -n "$STUCK" ]; then
         echo "refusing to build: regenerating $cfg rewrote tracked generated file(s) and PUTTING THEM BACK FAILED (endstation_builder.py exited $rc). Put each one back by hand with a cp of the second path over the first, then remove $SNAP yourself - it is deliberately NOT deleted, because it holds the only copy of your bytes. STILL THIS RUN'S OUTPUT, not yours:$STUCK" >&2

@@ -1,6 +1,7 @@
 # Datapath integration contract
 
-This contract describes the current all-fabric shipping control plane.
+This contract describes the all-fabric control plane.
+The AX7101 builds ship the split since #665.
 
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
 It preserves media interfaces, and gPTP interfaces until F6.

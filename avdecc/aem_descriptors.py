@@ -45,10 +45,21 @@ MILAN_CSR_SV = ROOT / "hdl/common/csr/milan_csr.sv"
 
 _VERSION_RE = re.compile(
     r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h([0-9A-Fa-f_]+)")
+#: A split image's major (#665): milan_csr.sv's VERSION_SPLIT_MAJOR, which
+#: the VERSION register reads in a datapath built with CTRL_SPLIT_P = 1. The
+#: minor is VERSION's in both placements, one flat ordinal across majors
+#: (docs/ARCHITECTURE_HW_SW_SPLIT.md section 7).
+_SPLIT_MAJOR_RE = re.compile(
+    r"parameter\s+logic\s*\[15:0\]\s+VERSION_SPLIT_MAJOR\s*=\s*16'h([0-9A-Fa-f_]+)")
+#: The control placements a VERSION is read for, as the end-station builder's
+#: control.placement names them (all-fabric first, the RTL's own default).
+PLACEMENTS = ("all-fabric", "split")
 
 
-def rtl_version(path: str | Path | None = None) -> tuple[int, int]:
-    """`(major, minor)` as milan_csr.sv's VERSION parameter defines them.
+def rtl_version(path: str | Path | None = None,
+                placement: str = PLACEMENTS[0]) -> tuple[int, int]:
+    """`(major, minor)` as milan_csr.sv's VERSION parameter defines them, for
+    an image at `placement`: a split image's major is VERSION_SPLIT_MAJOR.
 
     The field split is the register map's, not this function's:
     docs/reference/REGISTER_MAP.md 0x004 documents `[31:16] major, [15:0]
@@ -59,19 +70,32 @@ def rtl_version(path: str | Path | None = None) -> tuple[int, int]:
     is a re-encoding of the documented field rather than a reinterpretation
     of it.  32'h0001_0016 -> (1, 22).
     """
+    if placement not in PLACEMENTS:
+        raise ValueError(f"placement {placement!r} is not one of {', '.join(PLACEMENTS)}")
     src = Path(path) if path else MILAN_CSR_SV
-    m = _VERSION_RE.search(src.read_text())
+    text = src.read_text()
+    m = _VERSION_RE.search(text)
     if not m:
         raise ValueError(
             f"{src}: no `parameter logic [31:0] VERSION = 32'h...` - the "
             "gateware version has no single source of truth any more")
     v = int(m.group(1).replace("_", ""), 16)
-    return (v >> 16) & 0xFFFF, v & 0xFFFF
+    major = (v >> 16) & 0xFFFF
+    if placement == "split":
+        s = _SPLIT_MAJOR_RE.search(text)
+        if not s:
+            raise ValueError(
+                f"{src}: no `parameter logic [15:0] VERSION_SPLIT_MAJOR = 16'h...` - "
+                "a split image's major has no single source of truth any more")
+        major = int(s.group(1).replace("_", ""), 16)
+    return major, v & 0xFFFF
 
 
 def firmware_version_string(rev: int = 0,
-                            path: str | Path | None = None) -> str:
-    """The ENTITY descriptor's firmware_version value: `major.minor.rev`.
+                            path: str | Path | None = None,
+                            placement: str = PLACEMENTS[0]) -> str:
+    """The ENTITY descriptor's firmware_version value: `major.minor.rev`, for
+    an image at `placement` (a split image's is `3.<minor>.<rev>`, #665).
 
     IEEE 1722.1-2021 7.2.1 Table 7-2 offset 116: "64-octet UTF-8 string
     containing the firmware version of the ATDECC Entity" - the standard
@@ -90,7 +114,7 @@ def firmware_version_string(rev: int = 0,
     (0x0002 = the scenario-B era); MINOR = compliance fixes, flat and
     continuous across majors; REV = the patch component, bug-fix respins.
     """
-    major, minor = rtl_version(path)
+    major, minor = rtl_version(path, placement)
     return f"{major}.{minor}.{int(rev)}"
 
 

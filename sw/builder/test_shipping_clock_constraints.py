@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """#607: inspect constraints emitted by real shipping AX7101 elaborations,
 including #395's timing-grade hooks and #817's servo reset synchronizer
-cut in the same build Tcl."""
+cut in the same build Tcl. Both AX7101 configs ship the split placement
+since the flip (#665), elaborated with a synthetic platform image the
+split control memory accepts; the all-fabric release build is elaborated
+too, so both placements' constraints stay gated."""
 
 import argparse
 import importlib.abc
@@ -45,8 +48,9 @@ def assert_timing_grade_hooks(commands: list[str]) -> None:
     assert route[-1] < reports[0] < written[0], "timing grade reports outside routed pre-bitstream"
 
 
-def elaborate_shipping(config: str, port: str, output: Path) -> None:
-    """Run the real main/Builder path without firmware inputs, observing its generated files."""
+def elaborate_shipping(config: str, port: str, output: Path, placement: str | None = None) -> None:
+    """Run the real main/Builder path without firmware inputs, observing its generated files, at the config's
+    own control placement or at `placement`."""
     # The hosted elaborate job installs only sw/litex/litex_pins.txt, so this
     # probe must not reach a firmware data package on any interpreter (#607 F2).
     sys.meta_path.insert(0, FirmwareDataRefused())
@@ -55,9 +59,16 @@ def elaborate_shipping(config: str, port: str, output: Path) -> None:
     from litex.build.xilinx.vivado import XilinxVivadoToolchain
 
     cfg = ROOT / "configs" / f"endstation_{config}.yaml"
-    eb.build(cfg, ROOT / "sw/builder/out")
+    eb.build(cfg, ROOT / "sw/builder/out", placement=placement)
     params = ROOT / "sw/builder/out" / cfg.stem / "soc_params.json"
     argv = json.loads(params.read_text())["argv"]
+    if "--ctrl-firmware" in argv:
+        # a split build reads its platform image: the synthetic one builder gate 23m
+        # gives the SoC stands in, so no firmware is built here either
+        import test_ctrl_memory as t
+        stage = {"ax7101_1x1_tdm8": t.STAGE_1X1, "ax7101_8x8": t.STAGE_8X8}[config]
+        output.parent.mkdir(parents=True, exist_ok=True)
+        argv[argv.index("--ctrl-firmware") + 1] = str(t.elf(output.parent, t.GOOD._replace(stage=stage)))
     argv += ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg.stem),
              "--eth-port", port, "--no-compile-software", "--no-compile-gateware",
              "--vivado-max-threads", "16", "--output-dir", str(output)]
@@ -118,25 +129,29 @@ def elaborate_shipping(config: str, port: str, output: Path) -> None:
          patch.object(sys, "argv", [str(ROOT / "sw/litex/milan_soc.py"), *argv]):
         milan_soc.main()
     assert len(observed) == 1, "shipping probe never inspected generated files"
-    print(f"[constraints] shipping {config} {port}: {observed[0]} PASS")
+    at = placement or eb.load_config(str(cfg))["control"]["placement"]
+    print(f"[constraints] shipping {config} {port} {at}: {observed[0]} PASS")
 
 
 def test_shipping_constraints() -> None:
-    """Both shipping shapes and either configured GMII port must emit the bound."""
+    """Both shipping shapes and either configured GMII port must emit the bound, and so must
+    the all-fabric release build (the 1x1 config at control.placement: all-fabric)."""
+    cases = [(config, port, None) for config in ("ax7101_1x1_tdm8", "ax7101_8x8") for port in ("e1", "e2")]
+    cases += [("ax7101_1x1_tdm8", port, "all-fabric") for port in ("e1", "e2")]
     with tempfile.TemporaryDirectory(prefix="shipping-constraints-") as tmp:
-        for config in ("ax7101_1x1_tdm8", "ax7101_8x8"):
-            for port in ("e1", "e2"):
-                command = [sys.executable, "-B", str(Path(__file__).resolve()),
-                           "--config", config, "--port", port,
-                           "--output-dir", str(Path(tmp) / f"{config}-{port}")]
-                result = subprocess.run(command, cwd=ROOT / "sw/litex",
-                                        env=dict(os.environ, PYTHONHASHSEED="0"),
-                                        text=True, capture_output=True, timeout=600)
-                assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
-                markers = [line for line in result.stdout.splitlines()
-                           if line.startswith("[constraints] shipping ")]
-                assert len(markers) == 1 and markers[0].endswith(" PASS"), result.stdout[-4000:]
-                print(markers[0])
+        for config, port, placement in cases:
+            command = [sys.executable, "-B", str(Path(__file__).resolve()),
+                       "--config", config, "--port", port,
+                       "--output-dir", str(Path(tmp) / f"{config}-{port}-{placement or 'own'}" / "soc")]
+            command += ["--placement", placement] if placement else []
+            result = subprocess.run(command, cwd=ROOT / "sw/litex",
+                                    env=dict(os.environ, PYTHONHASHSEED="0"),
+                                    text=True, capture_output=True, timeout=600)
+            assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+            markers = [line for line in result.stdout.splitlines()
+                       if line.startswith("[constraints] shipping ")]
+            assert len(markers) == 1 and markers[0].endswith(" PASS"), result.stdout[-4000:]
+            print(markers[0])
 
 
 if __name__ == "__main__":
@@ -144,10 +159,11 @@ if __name__ == "__main__":
     parser.add_argument("--config", choices=("ax7101_1x1_tdm8", "ax7101_8x8"))
     parser.add_argument("--port", choices=("e1", "e2"))
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--placement", choices=("all-fabric", "split"))
     args = parser.parse_args()
     if args.config or args.port or args.output_dir:
         if not (args.config and args.port and args.output_dir):
             parser.error("--config, --port and --output-dir are required together")
-        elaborate_shipping(args.config, args.port, args.output_dir)
+        elaborate_shipping(args.config, args.port, args.output_dir, args.placement)
     else:
         test_shipping_constraints()

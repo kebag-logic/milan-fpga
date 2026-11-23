@@ -3054,9 +3054,9 @@ _CTRL_CDC_NVM = ("fw_nvm_backed_o", "fw_nvm_alarm_o", "fw_nvm_dirty_o", "fw_nvm_
 
 
 def soc_ident(cpu_human: str, xlen: int, cpu_count: int, software_profile: str, split: bool) -> str:
-    """The SoC ident string. Until the flip (#665 S13) VERSION does not tell the placements apart, so
-    a split image's ident names its placement in its last word (decision D2); the all-fabric ident is
-    the one it always was, so its image is unchanged."""
+    """The SoC ident string. A split image's ident names its placement in its last word (decision D2),
+    beside its VERSION major 0x0003 since the flip (#665); the all-fabric ident is the one it always
+    was, so its image is unchanged."""
     ident = f"Milan TSN SoC - {cpu_human} RV{xlen} {cpu_count}-core {software_profile}"
     return f"{ident} {check_image_identity.SPLIT_WORD}" if split else ident
 
@@ -3068,7 +3068,7 @@ def write_image_manifest(soc: SoCCore, out_dir: Path, elf: Path, bitstream: Path
     gives, the control firmware ELF's sha256 and, after a Vivado build, the bitstream's binding.
     The build fails when the image it wrote disagrees with any of them."""
     contract = ctrl_mailbox_contract()
-    major, minor = check_image_identity.rtl_version()
+    major, minor = check_image_identity.rtl_version(placement="split")
     doc = check_image_identity.manifest(soc._ident, (major << 16) | minor, (contract.major, contract.minor),
                                         elf, bitstream)
     path = out_dir / check_image_identity.MANIFEST

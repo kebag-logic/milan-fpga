@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
 - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
 - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
 - **[Unreleased - processor pin 044cb25f](#unreleased---processor-pin-044cb25f)** -- Each MRPDU carries a value once.
@@ -56,6 +57,26 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - the Mark II split ships
+
+- #665 S13 flips the AX7101 configs to the split.
+- Firmware runs ADP, ACMP, AECP, MAAP and SRP.
+- The fabric keeps framing, timestamps, filters and media.
+- A split image reads VERSION `0x0003_0060`.
+- Its ENTITY firmware_version reads 3.96.0.
+- An all-fabric image keeps `0x0002_0060` and 2.96.0.
+- `milan_csr.sv` states `VERSION_SPLIT_MAJOR` beside `VERSION`.
+- The datapath's `CTRL_SPLIT_P` selects it.
+- Only the defaults ROM's word for `0x004` changes.
+- `control.placement: all-fabric` keeps the all-fabric build.
+- `BUILD_PLACEMENT=all-fabric ./build.sh ax7101` launches it.
+- The processor stays until the full qualification.
+- NFR-SCOUT-02 sets that order.
+- `sim_split.cpp` pins the split VERSION and its major.
+- `split_mutants.py` plants a split CSR at major 2.
+- The UART grader accepts major 2 or 3.
+- The bench gate is on #665.
 
 ## Unreleased - processor pin 801ef228
 

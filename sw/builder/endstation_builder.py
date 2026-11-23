@@ -3267,8 +3267,10 @@ def emit_adp_shape_svh(cfg: dict[str, Any],
     return "\n".join(ln)
 
 
-def rtl_firmware_version(rev: int = 0) -> str:
-    """This gateware's version string for the ENTITY descriptor.
+def rtl_firmware_version(rev: int = 0, placement: str = "all-fabric") -> str:
+    """This gateware's version string for the ENTITY descriptor of an image
+    at `placement`: a split image's major is milan_csr.sv's
+    VERSION_SPLIT_MAJOR, the one its VERSION register reads (#665).
 
     Delegates to avdecc/gen_aem_store.py, which parses `parameter logic
     [31:0] VERSION` out of hdl/common/csr/milan_csr.sv - the one place the
@@ -3282,15 +3284,16 @@ def rtl_firmware_version(rev: int = 0) -> str:
     truth lives in the RTL is read from the RTL, not copied beside it."""
     sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
-    return g.firmware_version_string(rev)
+    return g.firmware_version_string(rev, placement=placement)
 
 
-def rtl_version() -> tuple[int, int]:
-    """`(major, minor)` behind the read-only VERSION register - the raw pair
-    rtl_firmware_version() renders, for artifacts that want to show both."""
+def rtl_version(placement: str = "all-fabric") -> tuple[int, int]:
+    """`(major, minor)` behind the read-only VERSION register of an image at
+    `placement` - the raw pair rtl_firmware_version() renders, for artifacts
+    that want to show both."""
     sys.path.insert(0, str(ROOT / "avdecc"))
     import gen_aem_store as g
-    return g.rtl_version()
+    return g.rtl_version(placement=placement)
 
 
 def emit_aem_rom_svh(cfg: dict[str, Any],
@@ -3818,9 +3821,10 @@ def _load_document(path):
     return cfg
 
 
-def _load_entity(cfg, path):
+def _load_entity(cfg, path, placement):
     """The ENTITY descriptor facts the config owns. The firmware
-    version is NOT among them - it is derived from the gateware."""
+    version is NOT among them - it is derived from the gateware, at the
+    config's control placement (a split image reads major 0x0003, #665)."""
     # entity (entity_model_id resolved AFTER streams/interface: hash needs
     # the derived layout)
     ent = _req(cfg, "entity", path)
@@ -3838,7 +3842,7 @@ def _load_entity(cfg, path):
             f"entity.firmware_version: remove it. The firmware version is "
             f"derived from the gateware's VERSION parameter "
             f"(hdl/common/csr/milan_csr.sv), which is where it lives; this "
-            f"build derives {rtl_firmware_version()!r}. For a firmware "
+            f"build derives {rtl_firmware_version(0, placement)!r}. For a firmware "
             f"respin with no CSR-ABI change use entity.firmware_rev.")
     rev = ent.get("firmware_rev", 0)
     if isinstance(rev, bool) or not isinstance(rev, int) or rev < 0:
@@ -3847,7 +3851,7 @@ def _load_entity(cfg, path):
     n = dict(
         name=_req(ent, "name", "entity"),
         vendor_name=ent.get("vendor_name", "Kebag Logic"),
-        firmware_version=rtl_firmware_version(rev),
+        firmware_version=rtl_firmware_version(rev, placement),
         firmware_rev=rev,
         serial_number=_req(ent, "serial_number", "entity"),
         group_name=ent.get("group_name", ""),
@@ -4533,8 +4537,9 @@ def _load_soc(cfg, cons):
 
 
 #: control.placement (#665): who runs ADP, ACMP, AECP, MAAP and SRP.
-#: all-fabric, the default until the flip: the protocol processor and KL_maap
-#: in the datapath. split: the bare-metal control firmware through the
+#: all-fabric, the default when a config states none: the protocol processor
+#: and KL_maap in the datapath. split, which the AX7101 configs state since the
+#: flip (#665): the bare-metal control firmware through the
 #: mailbox (milan_soc.py --ctrl-mailbox), the datapath built with
 #: CTRL_SPLIT_P = 1. The two placements build from one tree, one recipe and one
 #: config file, differing in this key alone.
@@ -4570,10 +4575,14 @@ def with_placement(cfg: dict[str, Any], placement: str) -> dict[str, Any]:
     A split image is built from a shipped config file as it stands: the
     recipe sets control.placement and nothing else, so the result is what
     the same file stating `control: {placement: split}` loads to (gate 23o).
-    The shape, the identity and the argv's other flags are the config's."""
+    The shape, the identity and the argv's other flags are the config's.
+    The ENTITY's firmware_version follows the placement, as load_config
+    derives it, because VERSION's major does (#665)."""
     if placement not in CONTROL_PLACEMENTS:
         raise ConfigError(f"placement recipe '{placement}' is not one of {', '.join(CONTROL_PLACEMENTS)}")
-    return {**cfg, "control": {"placement": placement}}
+    entity = cfg["entity"]
+    entity = {**entity, "firmware_version": rtl_firmware_version(entity["firmware_rev"], placement)}
+    return {**cfg, "entity": entity, "control": {"placement": placement}}
 
 
 def load_config(path: str) -> dict[str, Any]:
@@ -4582,7 +4591,8 @@ def load_config(path: str) -> dict[str, Any]:
     cfg = _load_document(path)
     ent = _req(cfg, "entity", path)
     brd = _req(cfg, "board", path)
-    entity = _load_entity(cfg, path)
+    control = _load_control(cfg)
+    entity = _load_entity(cfg, path, control["placement"])
     target, cons = _load_board(cfg, path)
     clocking = _load_clocking(cfg, path)
     gptp = _load_gptp(cfg)
@@ -4592,7 +4602,6 @@ def load_config(path: str) -> dict[str, Any]:
     phys, pools = interface["physical_channels"], interface["cluster_pools"]
     listeners, talkers = _load_streams(cfg, path, clocking)
     soc = _load_soc(cfg, cons)
-    control = _load_control(cfg)
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
@@ -5837,7 +5846,7 @@ def _plan_identity(cfg):
     # fw carries the raw register beside it on purpose: this is the line a
     # bench engineer reads beside a UART CSR snapshot, and mapping 1.22 onto
     # 0x0001_0016 by eye IS the item-00 check.
-    _fwmaj, _fwmin = rtl_version()
+    _fwmaj, _fwmin = rtl_version(cfg["control"]["placement"])
     a(f"- name: {e['name']}  (serial {e['serial_number']}, "
       f"fw {e['firmware_version']} = milan_csr VERSION "
       f"0x{_fwmaj:04X}_{_fwmin:04X} . rev {e['firmware_rev']})")
@@ -6234,14 +6243,15 @@ def build(config_path: str, outdir: str | None = None,
     `placement` when one is given. Returns dict with the emitted paths +
     in-memory artifacts (for tests).
 
-    The split recipe writes its artifacts beside the config's own, under
-    OUTDIR/<config-stem>/, where its argv's --ctrl-firmware already points,
-    and takes no tracked ownership: the shape include and the sweep fragment
-    stay the all-fabric build's until the flip (#665 S13), so a sweep or a
-    named recipe never builds the split by accident (gate 23o)."""
-    if placement == "split" and (write_rtl or write_fragment):
-        raise ConfigError("the split recipe writes no tracked file: --write-rtl and --write-fragment "
-                          "stay with the config's all-fabric build until the flip (#665 S13)")
+    A placement recipe writes its artifacts beside the config's own, under
+    OUTDIR/<config-stem>/, where a split argv's --ctrl-firmware already
+    points, and takes no tracked ownership: the shape include and the sweep
+    fragment stay the build of the config's own control.placement (the AX7101
+    configs' split since the flip, #665), so a sweep or a named recipe
+    never builds the other placement by accident (gate 23o)."""
+    if placement is not None and (write_rtl or write_fragment):
+        raise ConfigError("the placement recipe writes no tracked file: --write-rtl and --write-fragment "
+                          "stay with the config's own control.placement (#665)")
     art = _derive_artifacts(config_path, placement)
     cfg = art.cfg
     d, out = _write_artifact_dir(art, outdir)

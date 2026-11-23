@@ -847,7 +847,7 @@ F0-F4 code is present at the assigned dev revision.
 Presence does not establish integrated, bench-qualified operation.
 The [SoC wiring](../../sw/litex/milan_soc.py) builds the split datapath when `--ctrl-mailbox` is given.
 At `CTRL_SPLIT_P = 1`, [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) builds neither `KL_pp_shadow` nor `KL_maap`, and `KL_mbx_cdc` joins it to the mailbox (#665).
-The default build is still all-fabric and keeps `KL_pp_shadow` until the flip.
+Since the flip (#665 S13) the AX7101 default build is split; the all-fabric build keeps `KL_pp_shadow` until the full qualification.
 
 **What leaves after qualification:** the selected protocol engines, their
 private tables, notification and descriptor serving, and fabric NVM serialization.
@@ -1858,8 +1858,8 @@ The manager assigns those implementation lanes against their chosen placement.
 
 The [Round 1c decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081534590) schedules M0s before the flip.
 The manager's resource bench owns its tooling and measurements.
-[The split program](https://github.com/kebag-logic/milan-fpga/issues/665) lands behind build switches, defaulting to all-fabric.
-M0s selects split placement explicitly; shipping defaults remain unchanged.
+[The split program](https://github.com/kebag-logic/milan-fpga/issues/665) lands behind build switches; the AX7101 default is split since the flip (S13).
+M0s selects split placement explicitly.
 
 M0s runs two steps, both before the week-4 checkpoint:
 
@@ -1980,8 +1980,8 @@ The [approved #664 text](https://github.com/kebag-logic/milan-fpga/issues/664#is
 [Product ownership](../../REQUIREMENTS.md#1-product-ownership) and [NFR-SCOUT-02/03](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) govern implementation.
 The project service budget is 10 ms, separately from normative deadlines.
 Its approval supersedes the register's retained proposal wording.
-F2-F5 acceptance still precedes the shipping default flip.
-VERSION stays major 2 until that implementation; split images identify major 3.
+F2-F5 acceptance preceded the shipping default flip (#665 S13).
+Since it, split images read VERSION major 3; all-fabric keeps major 2.
 See the [version landing contract](../ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip).
 
 ## Method and receipts

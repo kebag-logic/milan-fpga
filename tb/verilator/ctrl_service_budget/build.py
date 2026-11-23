@@ -352,6 +352,23 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', v
     return image / 'ctrl_app.elf'
 
 
+def split_argv(argv: list[str], elf: Path) -> list[str]:
+    """`argv` without the --ctrl-mailbox and --ctrl-firmware <image> it carries, then this image's pair once.
+    A split config's own argv names the builder's platform image (#665); the harness links its own, so the
+    export names exactly one image, and the result is the all-fabric config's argv with the pair appended."""
+    kept, skip = [], False
+    for k, arg in enumerate(argv):
+        if skip or arg == '--ctrl-mailbox':
+            skip = False
+            continue
+        if arg == '--ctrl-firmware' and k + 1 == len(argv):
+            raise RuntimeError('the config argv ends in --ctrl-firmware with no image')
+        skip = arg == '--ctrl-firmware'
+        if not skip:
+            kept.append(arg)
+    return [*kept, '--ctrl-mailbox', '--ctrl-firmware', str(elf)]
+
+
 def soc_export(out: Path, shape: str, elf: Path) -> Path:
     """The split SoC as milan_soc.py exports it for the shape's config with this image
     (--ctrl-mailbox --ctrl-firmware, no software, as test_ctrl_memory.py drives it): the directory
@@ -362,10 +379,11 @@ def soc_export(out: Path, shape: str, elf: Path) -> Path:
     config = ROOT / 'configs' / (shape + '.yaml')
     with contextlib.redirect_stdout(io.StringIO()):
         eb.build(str(config))
-    argv = [*eb.emit_soc_argv(eb.load_config(str(config))), '--entity-gen-dir', str(ROOT / eb.GEN_CONFIG_DIR / shape)]
+    argv = split_argv([*eb.emit_soc_argv(eb.load_config(str(config))), '--entity-gen-dir',
+                       str(ROOT / eb.GEN_CONFIG_DIR / shape)], elf)
     soc = out / 'soc'
-    run([sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv, '--ctrl-mailbox', '--ctrl-firmware',
-         str(elf), '--no-compile-software', '--output-dir', str(soc)], out / 'soc.log', cwd=ROOT / 'sw/litex')
+    run([sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv, '--no-compile-software',
+         '--output-dir', str(soc)], out / 'soc.log', cwd=ROOT / 'sw/litex')
     return soc
 
 

@@ -6,6 +6,8 @@ Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape;
 **reclassified 2026-08-13** against the protocol-processor substitution and
 refreshed at VERSION `0x0002_0060` for the sole fabric gPTP owner, the
 ownerless option-OFF elaboration and the media-boundary slip counters.
+That refresh is the all-fabric image's; since the flip (#665 S13) the shipping
+split image reads VERSION `0x0003_0060`.
 
 > **A FOURTH VERDICT NOW EXISTS: STRUCTURAL ZERO.** This repository's ADP,
 > ACMP, AECP/AEM and lwSRP RTL was deleted in favour of the pinned
@@ -73,7 +75,7 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0060` |
+| `gateware.current-version` | `implemented` | `0x0003_0060` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | VERSION 0x0058 truth | Rationale |
