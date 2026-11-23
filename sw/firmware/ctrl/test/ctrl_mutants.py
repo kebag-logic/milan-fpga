@@ -243,11 +243,9 @@ MUTANTS = (
            "port", "Loop.L4TickFanOut", "L4 every centisecond"),
     # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
     # CTRL_LOOP_RX_PER_PASS records (#665)
-    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
-           "for (unsigned k = 0; k < most; ++k) {\n\t\tuint32_t now = 0u;\n\t\tif (k >= l->rx_cap) {\n"
-           "\t\t\tif (l->clock == NULL || l->rx_held) {\n\t\t\t\tbreak;\n\t\t\t}\n"
-           "\t\t\tnow = l->clock(l->clock_ctx);\n\t\t\tif ((int32_t)(stop - now) < 0) {\n\t\t\t\tbreak;\n"
-           "\t\t\t}\n\t\t}\n",
+    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c", "for (unsigned k = 0; k < most; ++k) {\n\t\tuint32_t now = 0u;\n"
+           "\t\tif (k >= l->rx_cap) {\n\t\t\tif (l->clock == NULL || l->rx_held) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\t"
+           "now = l->clock(l->clock_ctx);\n\t\t\tif ((int32_t)(stop - now) < 0) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n",
            "(void)most;\n\t(void)stop;\n\tfor (unsigned k = 0; k < 64u; ++k) {\n\t\tuint32_t now = 0u;\n", "port",
            "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",

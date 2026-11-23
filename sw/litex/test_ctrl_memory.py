@@ -338,9 +338,8 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     point and image, an unknown name) are refusal_arms rows under `budget`.
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.5, the "
-                                          f"platform's 8x8 image with one at 59.0 and the size fixture's at 56.5 "
+    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the fixture's and the platform's 8x8 "
+                                          f"images with two interfaces at 60.5 and 63.5 and with one at 56.5 and 59.0 "
                                           f"({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
