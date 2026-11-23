@@ -432,7 +432,7 @@ extern "C" {
 // THE DRAIN's registration cost, in microseconds, and the registration's follow-ups each in a slice of its own, by
 // shape (THE SHAPES, the drain's charge): the two one-interface shapes', and at every other shape none.
 #if CTRL_LOOP_SHAPE(1u, 2u, 2u)
-#define CTRL_LOOP_SRP_REG_US 100u
+#define CTRL_LOOP_SRP_REG_US 110u
 #define CTRL_LOOP_SETTLE_ALONE 1u
 #define CTRL_LOOP_DECLARE_ALONE 0u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)
