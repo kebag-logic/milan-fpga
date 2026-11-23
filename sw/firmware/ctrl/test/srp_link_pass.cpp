@@ -8,7 +8,8 @@
 // which resets the interface again: so a first UP would lose the clean startup participants it keeps (on_event), and
 // any later UP would reset the interface twice. Four tests move interface 0's link at one phase each: before a pass,
 // from a sink ahead of SRP's while the pass takes its events, from a poll ahead of SRP's, after the events, and from a
-// poll after SRP's. Another raises it while the event ring is full, and two re-attach SRP, with the link's DOWN record
+// poll after SRP's. Another raises it while the event ring is full; two more raise it there and drop it before its
+// LINK posts, then raise a fresh UP, the first and a later one; and two re-attach SRP, with the link's DOWN record
 // elided and with a later UP. The arms run this suite in a process of its own, at 1x1/1if and 8x8/1if
 // (srp_arms.link_pass_arms).
 #include "srp_fixture.hpp"
@@ -165,6 +166,79 @@ TEST_F(SrpLinkPass, ALinkUpHeldBehindAFullEventRingIsTheFirstUp) {
     EXPECT_TRUE(i.link);
     EXPECT_EQ(resets, 0u) << "a first UP resets nothing";
     EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+}
+
+// An UP raised while the event ring is full, then a DOWN before any take makes room: the fabric owes no LINK for that
+// UP any more, since a record posts only when its level differs from the last one posted (KL_mbx_evt.sv), and the ring
+// drains while the link is down. A fresh UP raised after a later pass's events is owed a LINK of its own; the poll that
+// marked the elided UP, and that pass's empty take, observed the ring before the fresh UP rose, so they authorize
+// nothing for it, and SRP takes it from its LINK (#973; srp_mbx.c, carried_up).
+class SrpLinkPassElided : public SrpLinkPass {
+protected:
+    // Interface 0's link up after a pass's events while the ring is full, then down before a take makes room, then the
+    // passes until the loop settles
+    void elided_up() {
+        const srp_interface &i = adapter.ifs[0];
+        const bool seen = i.link_seen;
+        const unsigned before = resets;
+        for (uint16_t type : {uint16_t{MBX_CTRCHG_STREAM_INPUT_TYPE}, uint16_t{MBX_CTRCHG_STREAM_OUTPUT_TYPE}}) {
+            for (uint16_t n = 0; n < 16u; ++n) {
+                mbx_model_face_event(&model, 0, MBX_MODEL_EV_COUNTERS, type, n);
+            }
+        }
+        move_at(Phase::AfterTheEvents, true);
+        ASSERT_TRUE(loop.events_left) << "(the pass took all it may, the ring refilled behind it)";
+        ASSERT_FALSE(model.posted_up[0]) << "(the LINK is held behind the full ring)";
+        mbx_model_set_link(&model, 0, false);
+        settle();
+        ASSERT_FALSE(model.posted_up[0]) << "(the DOWN elided the UP: no LINK posted)";
+        ASSERT_FALSE(loop.events_left) << "(the ring drained while the link was down)";
+        EXPECT_FALSE(i.link);
+        EXPECT_EQ(i.link_seen, seen) << "SRP took the elided UP";
+        EXPECT_EQ(resets, before) << "SRP took the elided UP";
+    }
+    // A fresh UP after a pass's events: no poll takes it before its LINK, then the passes until the loop settles;
+    // returns the resets it made
+    unsigned fresh_up() {
+        const srp_interface &i = adapter.ifs[0];
+        const bool seen = i.link_seen;
+        const unsigned before = resets;
+        move_at(Phase::AfterTheEvents, true);
+        EXPECT_FALSE(i.link) << "SRP's poll took a fresh UP on an elided UP's observation";
+        EXPECT_EQ(i.link_seen, seen) << "SRP's poll took a fresh UP on an elided UP's observation";
+        EXPECT_EQ(resets, before) << "SRP's poll took a fresh UP on an elided UP's observation";
+        settle();
+        EXPECT_TRUE(i.link);
+        EXPECT_TRUE(i.link_seen);
+        return resets - before;
+    }
+};
+
+// The elided UP before any link: the fresh UP is the first, so it resets nothing and keeps the startup participants
+TEST_F(SrpLinkPassElided, AnElidedUpAuthorizesNoFreshFirstUp) {
+    srp_interface &i = adapter.ifs[0];
+    mrp_app *const startup = i.msrp;
+    ASSERT_NE(startup, nullptr) << "(the startup participants exist before any link)";
+    elided_up();
+    ASSERT_FALSE(HasFatalFailure());
+    EXPECT_FALSE(i.link_seen);
+    EXPECT_EQ(fresh_up(), 0u) << "a first UP resets nothing";
+    EXPECT_EQ(i.msrp, startup) << "a first UP keeps the startup participants";
+}
+
+// The elided UP after a carried UP and its DOWN: the fresh UP is a later one, so it resets the interface once
+TEST_F(SrpLinkPassElided, AnElidedUpAuthorizesNoFreshLaterUp) {
+    srp_interface &i = adapter.ifs[0];
+    mbx_model_set_link(&model, 0, true);
+    settle();
+    mbx_model_set_link(&model, 0, false);
+    settle();
+    ASSERT_TRUE(i.link_seen) << "(a LINK carried the first UP)";
+    ASSERT_FALSE(i.link);
+    elided_up();
+    ASSERT_FALSE(HasFatalFailure());
+    EXPECT_EQ(fresh_up(), 1u) << "a later UP resets the interface once";
+    EXPECT_NE(i.msrp, nullptr) << "(the interface rebuilt)";
 }
 
 // SRP re-attached while interface 0's link is momentarily down and its DOWN record is held, the level recovering
