@@ -1,0 +1,31 @@
+{
+  "issue": {
+    "id": 6476069107,
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/948",
+    "title": "8x8: two STREAM_INPUTs bound to one talker stream: the parser hands each PDU to one context only, so the first input stops receiving",
+    "issue_number": 948,
+    "body": "Found by the flip's gating bench run (#665) at 8x8/1if, next to #946.\n\n**Defect.** When two of the entity's STREAM_INPUTs are bound to the same talker stream (for example input 0 and input 1), input 0 stops receiving. It receives again once the other input is unbound. IEEE 1722.1-2021 ACMP lets each sink bind independently, so one stream_id can be the source of several of an entity's inputs.\n\n**Cause, by reading** (the #946 lane): the AVTP receive parser hands each PDU to one monitor context only, the highest-numbered matching input. A second binding to the same stream therefore takes the PDUs away from the first. Fixing it means a datapath (RTL) change that fans one PDU out to every context bound to that stream_id.\n\n**Open question for the ruling:** whether fan-out of one stream to two inputs of the same entity is required for the Mark II scope, or whether the entity should refuse the second bind (and with which ACMP status).\n\nRelates to #946\nRelates to #665\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 6,
+    "created_at": "2026-11-18T20:27:51Z",
+    "updated_at": "2026-11-22T22:04:10Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/948",
+    "display_title": "8x8: two STREAM_INPUTs bound to one talker stream: the parser hands each PDU to one context only, so the first input stops receiving"
+  },
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/948",
+  "title": "8x8: two STREAM_INPUTs bound to one talker stream: the parser hands each PDU to one context only, so the first input stops receiving",
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/948",
+  "display_title": "8x8: two STREAM_INPUTs bound to one talker stream: the parser hands each PDU to one context only, so the first input stops receiving"
+}

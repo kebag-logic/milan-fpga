@@ -1,0 +1,55 @@
+ARTIFACT review-evidence/948-r1/author-r3/receipts/gates/gates-64117b77.txt AT eea845dba7b561499de5cf537a5b665d72e278b1
+head 64117b77cb9e5c421717835b5be032b5905c447d
+lint rc=0 LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+xvlog rc=0 xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+yosys KL_avtp_rx_monitor_ctx rc=0   [PASS] KL_avtp_rx_monitor_ctx cells=12097 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+yosys KL_aaf_rx_depacketizer rc=0   [PASS] KL_aaf_rx_depacketizer cells=54392 TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones) TAP-PURITY RESULT: PASS 
+docs steps: 104 of 104 rc=0
+tsn_fuzz aaf rc=0 == AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps == campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+ARTIFACT review-evidence/948-r1/author-r3/receipts/rtl/avtp_rxmon-suite-64117b77.log.gz AT eea845dba7b561499de5cf537a5b665d72e278b1
+FANOUT N=8: 1253 checks, 0 failures
+[PASS] mutant caught: the pending DEPKT tallies are three bits again and drained only by an idle walker (the #948 drop-tally defect) - breaks "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"
+[PASS] mutant caught: a half-full DEPKT tally waits for an idle walker, which a dense burst never leaves - breaks "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"
+24 checks: 24 PASS, 0 FAIL
+DEPKT: 375 checks, 0 failures
+DEPKT: 375 checks, 0 failures
+ARTIFACT review-evidence/948-r1/author-r3/receipts/twin/twin-gate-64117b77.log.gz AT eea845dba7b561499de5cf537a5b665d72e278b1
+  echo "caught (shared): $w"; done
+caught (shared): [FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)
+caught (shared): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+  echo "caught (one-index): $w"; done
+caught (one-index): [FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)
+caught (one-index): [FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)
+END rc=0 16:26:54
+ARTIFACT review-evidence/948-r1/author-r3/receipts/rtl/dt5-plant/result.txt AT eea845dba7b561499de5cf537a5b665d72e278b1
+Head: 64117b77cb9e5c421717835b5be032b5905c447d
+Plant: tap-delay data stages shift only on an accepted input beat; valid still shifts every cycle.
+control build rc=0
+control executable: 355616 bytes sha256 446d1a09181b6dd7ef2cc5d5eb7ed552677ee38948a1bdb4aed8a20730ed4136
+control run rc=0
+  [ ok ] [DT5] cases whose every output frame is whole, in order, under its index = 584
+plant build rc=0
+plant executable: 355616 bytes sha256 37ed1619fdabddaa741b6f4c63488091d427cdc64c3960bb4cf90ee3fb965220
+plant run rc=1
+  [FAIL] [DT5] cases whose every output frame is whole, in order, under its index got=0 exp=584
+DT5 planted data-delay defect: caught by name; control passes.
+ARTIFACT review-evidence/948-r1/author-r3/receipts/fit/SUMMARY.txt AT eea845dba7b561499de5cf537a5b665d72e278b1
+Candidate 64117b77cb9e5c421717835b5be032b5905c447d
+Completed builds: 6 of 6.
+
+| Shape | Directive | Slow WNS / WHS ns | Fast WNS / WHS ns | LUTs | FFs | Slices | BRAM | DSP | Delta vs round 2b: LUT / FF / slice |
+|---|---|---|---|---:|---:|---:|---:|---:|---|
+| 8x8/1if | ExtraPostPlacementOpt | +0.272 / +0.044 | +1.526 / +0.013 | 44,103 | 51,272 | 15,691 | 94 | 13 | -1,058 / +57 / -15 |
+| 8x8/1if | ExtraTimingOpt | +0.152 / +0.102 | +1.660 / +0.036 | 44,099 | 51,270 | 15,708 | 94 | 13 | -1,014 / +57 / +577 |
+| 8x8/1if | AltSpreadLogic_high | +0.102 / +0.102 | +1.660 / +0.036 | 44,072 | 51,269 | 15,646 | 94 | 13 | -1,092 / +55 / +516 |
+| 1x1/1if | ExtraPostPlacementOpt | +0.193 / +0.102 | +1.636 / +0.036 | 32,768 | 42,805 | 13,989 | 79.5 | 13 | -102 / -33 / +243 |
+| 1x1/1if | ExtraTimingOpt | +0.054 / +0.102 | +1.687 / +0.036 | 32,765 | 42,804 | 14,297 | 79.5 | 13 | -155 / -38 / +80 |
+| 1x1/1if | AltSpreadLogic_high | +0.020 / +0.102 | +1.687 / +0.023 | 32,778 | 42,804 | 14,299 | 79.5 | 13 | -140 / -39 / +83 |
+
+8x8/1if selected among completed routes: ExtraPostPlacementOpt; worst WNS +0.272 ns; #818 floor PASS at all four corners.
+Selected total delta vs train ExtraPostPlacementOpt: Slice LUTs +1118, Slice Registers +279, Slice -7, Block RAM Tile -0.5, DSPs +2.
+1x1/1if selected among completed routes: ExtraPostPlacementOpt; worst WNS +0.193 ns; #818 floor PASS at all four corners.
+Selected total delta vs train ExtraPostPlacementOpt: Slice LUTs +54, Slice Registers +177, Slice +296, Block RAM Tile -0.5, DSPs +2.
+8x8 ExtraPostPlacementOpt: misses stricter both-+0.030 floor; original signoff rc=1 retained.
+1x1 AltSpreadLogic_high: misses #818 floor; retained as an alternative, not selected.
+1x1 AltSpreadLogic_high: misses stricter both-+0.030 floor; original signoff rc=1 retained.
