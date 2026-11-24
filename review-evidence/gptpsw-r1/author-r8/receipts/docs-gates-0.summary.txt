@@ -1,0 +1,90 @@
+docs_gates0.sh <clone at e05f800a> 59b09884 (merge-base with origin/dev-soft-core-optimisation; em-dash base)
+unit start 2026-11-24T16:20:57, rc file 2026-11-24 17:53:41, rc=0
+full log sha256 0760f1e8ee1d77fc889be978f9d177d7398e6aa3d05e5e02b0674fffd5346c09, 3351 lines
+
+Wrote: /data-2/milan/tmp/opt-a837-r3b/runner-temp/milan-hdl-reference/index.html
+STEP 0 Build the validated HDL reference
+docs_check: 0 finding(s) across 225 md files + 1938 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+STEP 0 Link health, wording, dead-reference and local-info gate
+check_em_dash: 0 finding(s) over 502 added line(s) in 20 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [59b09884..HEAD]
+STEP 0 Added-line em-dash gate
+gPTP documentation selftest: OK (30 controls)
+STEP 0 Concise audience documentation gate
+time-sync diagram selftest: OK (source, status, XML, raster)
+STEP 0 Audience diagram no-drift gate
+solution documentation selftest: OK (47 mutation controls)
+STEP 0 Product solution source-fact gate
+submodule documentation selftest: OK (table and diagram controls)
+STEP 0 Verified submodule documentation gate
+WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+STEP 0 HDL timing diagram no-drift gate
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+STEP 0 Published diagram PNG gate
+feature_status: 0 finding(s)
+STEP 0 Milan feature-status consistency gate
+traceability matrix up to date (85 modules, 0 untested <= ratchet 0, 0 archived)
+STEP 0 Traceability matrix no-drift gate
+make: Leaving directory '/data-2/milan/tmp/opt-a837-r3b/c-docs/gptp-processor'
+STEP 0 Imported gPTP documentation gate
+18 checks: 18 PASS, 0 FAIL
+STEP 0 Code-quality measurement self-tests
+=== Install the pinned sv2v release (version check only)
+STEP 0 Install the pinned sv2v release (version check only)
+baremetal-only selftest: PASS (867 arm(s))
+STEP 0 Bare-metal scope gate
+OK
+STEP 0 Install and verify the pinned RV32 SDK (installer self-test only)
+GATE 1b PASS; 1 NOT RUN; 0 actual firmware compiler invocations
+STEP 0 Compiler-absent firmware controls
+split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+STEP 0 NVM record-space gate
+PASS: capture census, clocks, both timing arms and receipt agree
+STEP 0 Capture measurement census and clock gate
+saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+STEP 0 Saved-state writer gate
+iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+STEP 0 SoC source-list gate
+50 checks: 50 PASS, 0 FAIL
+STEP 0 RTL source-list drift gate
+66 checks: 66 PASS, 0 FAIL
+STEP 0 Boundary-unit naming ratchet
+82 checks: 82 PASS, 0 FAIL
+STEP 0 Port contract gate
+106 checks: 106 PASS, 0 FAIL
+STEP 0 Fail-fast ratchet
+45 checks: 45 PASS, 0 FAIL
+STEP 0 TODO ownership gate
+105 checks: 105 PASS, 0 FAIL
+STEP 0 Test-evidence ratchet
+35 checks: 35 PASS, 0 FAIL
+STEP 0 Mechanical hygiene ratchet
+55 checks: 55 PASS, 0 FAIL
+STEP 0 SystemVerilog idiom gate
+83 checks: 83 PASS, 0 FAIL
+STEP 0 C and C++ idiom gate
+54 checks: 54 PASS, 0 FAIL
+STEP 0 Python idiom gate
+48 checks: 48 PASS, 0 FAIL
+STEP 0 Shell idiom gate
+doc path gate: OK (1773 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+STEP 0 Doc cited-path gate
+archive selftest: OK (24 controls)
+STEP 0 Archive integrity gate
+TOC gate: OK (161 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+STEP 0 Per-page contents gate
+documentation inventory selftest: OK (60 controls)
+STEP 0 Documentation inventory freshness gate
+gen_aem_store self-test: PASS
+STEP 0 AEM store generator self-test
+  [self-test] OK: 1 drift(s) reported
+STEP 0 Sweep/build shape gate
+  [selftest] OK: 1 drift(s) reported
+STEP 0 Deploy shape gate
+RESULT: PASS
+STEP 0 Entity shape gate
+memory map diagram: fresh
+STEP 0 Register reference freshness gate
+manifest comparison controls: PASS
+STEP 0 CI scheduling and evidence controls
+porcelain-after 0
+ALL-STEPS rc=0

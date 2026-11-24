@@ -1,0 +1,63 @@
+docs.yml job docs-gates-0 at the head: 60 steps, 40 run-gates (id gate_*). Local: 42 STEP lines, all rc 0: True
+id | kind | local | workflow step name
+ci_step_0 | uses | skipped (runner setup/cache/upload/record) | Run actions/checkout@v4
+ci_step_1 | run | skipped (runner setup/cache/upload/record) | Set CPU-derived job budgets
+ci_step_2 | uses | skipped (runner setup/cache/upload/record) | Cache exact Python downloads
+gate_1 | run | rc 0 | Build the validated HDL reference
+gate_2 | uses | skipped (runner setup/cache/upload/record) | Upload the HDL reference HTML
+ci_step_5 | run | skipped (runner setup/cache/upload/record) | Install the python gate dependencies
+ci_step_6 | uses | skipped (runner setup/cache/upload/record) | Cache the pinned Markdown renderer downloads
+ci_step_7 | run | skipped (runner setup/cache/upload/record) | Install the pinned Markdown renderer
+ci_packages_6 | run | skipped (runner setup/cache/upload/record) | Resolve exact package downloads 6
+ci_step_9 | uses | skipped (runner setup/cache/upload/record) | Cache exact package downloads 6
+ci_step_10 | run | skipped (runner setup/cache/upload/record) | Install diagram gate dependencies
+gate_7 | run | rc 0 | Link health, wording, dead-reference and local-info gate
+gate_8 | run | rc 0 | Added-line em-dash gate
+gate_9 | run | rc 0 | Concise audience documentation gate
+gate_10 | run | rc 0 | Audience diagram no-drift gate
+gate_11 | run | rc 0 | Product solution source-fact gate
+gate_12 | run | rc 0 | Verified submodule documentation gate
+gate_13 | run | rc 0 | HDL timing diagram no-drift gate
+gate_14 | run | rc 0 | Published diagram PNG gate
+gate_15 | run | rc 0 | Milan feature-status consistency gate
+gate_16 | run | rc 0 | Traceability matrix no-drift gate
+ci_step_21 | run | skipped (runner setup/cache/upload/record) | Fetch the builder source dependencies
+gate_18 | run | rc 0 | Imported gPTP documentation gate
+gate_19 | run | rc 0 | Code-quality measurement self-tests
+ci_step_24 | uses | skipped (runner setup/cache/upload/record) | Cache verified sv2v archive
+ci_step_25 | run | rc 0 [version check only] | Install the pinned sv2v release
+gate_21 | run | rc 0 | Bare-metal scope gate
+ci_step_27 | uses | skipped (runner setup/cache/upload/record) | Cache the pinned RV32 SDK
+ci_step_28 | run | rc 0 [installer self-test only] | Install and verify the pinned RV32 SDK
+gate_24 | run | rc 0 | Compiler-absent firmware controls
+gate_26 | run | rc 0 | NVM record-space gate
+gate_27 | run | rc 0 | Capture measurement census and clock gate
+gate_28 | run | rc 0 | Saved-state writer gate
+gate_29 | run | rc 0 | SoC source-list gate (Vivado would fail 40 min in without this)
+gate_30 | run | rc 0 | RTL source-list drift gate
+gate_31 | run | rc 0 | Boundary-unit naming ratchet
+gate_32 | run | rc 0 | Port contract gate
+gate_33 | run | rc 0 | Fail-fast ratchet
+gate_34 | run | rc 0 | TODO ownership gate
+gate_35 | run | rc 0 | Test-evidence ratchet
+gate_36 | run | rc 0 | Mechanical hygiene ratchet
+gate_37 | run | rc 0 | SystemVerilog idiom gate
+gate_38 | run | rc 0 | C and C++ idiom gate
+gate_39 | run | rc 0 | Python idiom gate
+gate_40 | run | rc 0 | Shell idiom gate
+gate_43 | run | rc 0 | Doc cited-path gate
+gate_44 | run | rc 0 | Archive integrity gate
+gate_45 | run | rc 0 | Per-page contents gate
+gate_46 | run | rc 0 | Documentation inventory freshness gate
+gate_47 | run | rc 0 | AEM store generator self-test
+gate_48 | run | rc 0 | Sweep/build shape gate
+gate_49 | run | rc 0 | Deploy shape gate
+gate_50 | run | rc 0 | Entity shape gate
+gate_51 | run | rc 0 | Register reference freshness gate
+ci_step_54 | run | skipped (runner setup/cache/upload/record) | Fetch inventory dependencies
+gate_52 | run | rc 0 | CI scheduling and evidence controls
+ci_step_56 | run | skipped (runner setup/cache/upload/record) | Record executed gate outcomes
+ci_step_57 | uses | skipped (runner setup/cache/upload/record) | Upload executed gate outcomes
+ci_record | run | skipped (runner setup/cache/upload/record) | Record actual job execution
+ci_upload | uses | skipped (runner setup/cache/upload/record) | Upload actual job execution
+run-gates not run locally: 0 (gate_2 is the HDL-reference artifact upload, a `uses` step; the build it uploads ran in gate_1 and index.html was checked present)

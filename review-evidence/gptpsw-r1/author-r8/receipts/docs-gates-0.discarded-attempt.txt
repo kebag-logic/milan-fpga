@@ -1,0 +1,18 @@
+Discarded first docs-gates-0 attempt (runner setup error, not a gate result): python3 was a symlink to the pinned venv's interpreter placed outside the venv, so the venv was not active (pyvenv.cfg is found next to the invoked path); and the sv2v check compared the whole version line to 'v0.0.12'. Stopped at 16:20, fixed in docs_gates0.sh (venv bin dir first on PATH; exact 'sv2v v0.0.12'), and re-run from the start; the counted run is docs-gates-0.summary.txt.
+gen_hdl_reference: REFUSED: the pinned parser is unavailable; install tools/hdl_reference/requirements.txt
+STEP 2 Build the validated HDL reference
+STEP 0 Link health, wording, dead-reference and local-info gate
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+STEP 2 Added-line em-dash gate
+STEP 0 Concise audience documentation gate
+STEP 0 Audience diagram no-drift gate
+STEP 0 Product solution source-fact gate
+STEP 0 Verified submodule documentation gate
+gen_wavedrom: the 'wavedrom' package is missing — python3 -m venv /tmp/wd && /tmp/wd/bin/pip install wavedrom, then run this script with /tmp/wd/bin/python3
+STEP 1 HDL timing diagram no-drift gate
+STEP 0 Published diagram PNG gate
+STEP 0 Milan feature-status consistency gate
+STEP 0 Traceability matrix no-drift gate
+STEP 0 Imported gPTP documentation gate
+STEP 0 Code-quality measurement self-tests
+STEP 1 Install the pinned sv2v release (version check only)

@@ -1,0 +1,17 @@
+## aecp_mutants.py --output <dir> --shard 0 2 (clone head e05f800a6ae3ae20ed616b58e4a36b1ceb6fd31d, CPUs 32-39)
+rc=0
+rows ok=194 escaped=0
+results.json rows 194 caught 194
+full log sha256 44b5e746277729f690483cdbcc5ef763a5129c62c1832d0f0c21e535d4d3a01f, 951 lines
+[ok] face-software-gptp-clears-link-flags: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-ignores-path-refusal: Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead
+
+## aecp_mutants.py --output <dir> --shard 1 2 (clone head e05f800a6ae3ae20ed616b58e4a36b1ceb6fd31d, CPUs 24-31)
+rc=0
+rows ok=194 escaped=0
+results.json rows 194 caught 194
+full log sha256 51cb15391bf2c833c782b7dacac56b525dc6a62c55a4dd5f988bc5e951a969ac, 951 lines
+[ok] face-software-gptp-keeps-datapath-capable: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+
+start/end: 2026-11-24T16:24:54 / 2026-11-24 17:20:41, 2026-11-24 17:24:30
+an earlier unsharded run (same table, 27 rows ok, 0 escaped) was stopped at 16:24 to shard it; not counted

@@ -1,0 +1,8 @@
+checkout /data-2/milan/tmp/opt-a837-r3b/c-aecp mode new; tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+rows: ['face-software-gptp-clears-link-flags', 'face-software-gptp-keeps-datapath-capable', 'face-software-gptp-ignores-path-refusal']
+[ok] face-software-gptp-clears-link-flags: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-keeps-datapath-capable: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-ignores-path-refusal: Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead
+baseline if1: rc=0 Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass ran=True ok=True
+baseline if2: rc=0 Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass ran=True ok=True
+rc=0

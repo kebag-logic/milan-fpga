@@ -1,0 +1,26 @@
+diff --git a/sw/firmware/ctrl/test/aecp_face_mutants.py b/sw/firmware/ctrl/test/aecp_face_mutants.py
+index 869f9c5d46..7eb50fa4c2 100644
+--- a/sw/firmware/ctrl/test/aecp_face_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_face_mutants.py
+@@ -28,7 +28,7 @@ ROWS = (
+     ('face-software-gptp-keeps-datapath-capable', 'aecp_face.c',
+      'out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));',
+      'out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));',
+-     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the software gPTP owner's")),
++     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the firmware gPTP owner's")),
+     ('face-software-gptp-ignores-path-refusal', 'aecp_face.c',
+      'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);',
+      'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count) || true;',
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index b81ae45d12..d503344a81 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -4678,7 +4678,7 @@ TEST_F(Face, SoftwareGptpAvbKeepsTheDatapathsLinkAndClass)
+                 EXPECT_EQ(result.domain,17u+i);
+                 EXPECT_EQ(result.flags&~1u,0x7au) << "software gPTP keeps the datapath's link flags";
+                 EXPECT_EQ(result.flags&1u,capable?1u:0u)
+-                    << "AS_CAPABLE is the software gPTP owner's, whatever the datapath's bit 0 ("<<(datapath&1u)<<")";
++                    << "AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 ("<<(datapath&1u)<<")";
+                 EXPECT_EQ(result.class_priority,3u);
+                 EXPECT_EQ(result.class_vlan,2u);
+             }

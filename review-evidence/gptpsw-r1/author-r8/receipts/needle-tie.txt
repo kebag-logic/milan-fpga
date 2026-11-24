@@ -1,0 +1,6 @@
+needle "AS_CAPABLE is the firmware gPTP owner's"
+needle is a substring of the test_aecp.cpp assertion: True
+needle distinct from the link-flag words: True
+grading the planted-leak log on "AS_CAPABLE is the firmware gPTP owner's" -> caught
+grading the planted-leak log on "AS_CAPABLE is the software gPTP owner's" -> not caught
+grading the planted-leak log on "software gPTP keeps the datapath's link flags" -> not caught

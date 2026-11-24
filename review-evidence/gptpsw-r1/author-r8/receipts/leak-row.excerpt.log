@@ -1,0 +1,36 @@
+1:Note: Google Test filter = Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+2:[==========] Running 1 test from 1 test suite.
+3:[----------] Global test environment set-up.
+4:[----------] 1 test from Face
+5:[ RUN      ] Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+6:/data-2/milan/tmp/opt-a837-r3b/c-aecp/sw/firmware/ctrl/test/test_aecp.cpp:4680: Failure
+7:Expected equality of these values:
+8:  result.flags&1u
+9:    Which is: 1
+10:  capable?1u:0u
+11:    Which is: 0
+12:AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 (1)
+13:
+14:  [FAIL] Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass: AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 (1)
+15:/data-2/milan/tmp/opt-a837-r3b/c-aecp/sw/firmware/ctrl/test/test_aecp.cpp:4680: Failure
+16:Expected equality of these values:
+17:  result.flags&1u
+18:    Which is: 1
+19:  capable?1u:0u
+20:    Which is: 0
+21:AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 (1)
+22:
+23:  [FAIL] Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass: AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 (1)
+24:[  FAILED  ] Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass (0 ms)
+25:[----------] 1 test from Face (0 ms total)
+26:
+27:[----------] Global test environment tear-down
+28:[==========] 1 test from 1 test suite ran. (0 ms total)
+29:[  PASSED  ] 0 tests.
+30:[  FAILED  ] 1 test, listed below:
+31:[  FAILED  ] Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+32:
+33: 1 FAILED TEST
+34:== AECP core: checks: 1   failures: 1 ==
+35:RESULT: FAIL
+36:  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,6 @@
+# grep -rn 'software gPTP owner' sw/ (expect none)
+(none)
+# existing wording the reword follows
+docs/design/GPTP_SOFTWARE.md:153:This is the image an SoC built `--sw-gptp` carries. An image without the flag excludes the firmware gPTP owner.
+sw/firmware/ctrl/test/aecp_face_mutants.py:31:     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the firmware gPTP owner's")),
+sw/firmware/ctrl/test/test_aecp.cpp:4681:                    << "AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 ("<<(datapath&1u)<<")";
