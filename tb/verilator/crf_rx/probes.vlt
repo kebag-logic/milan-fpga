@@ -1,0 +1,18 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// The internal signals the harnesses touch, and only those (in place of
+// --public-flat-rw, see the Makefile). sim_main.cpp's [G1] wrap cases preload
+// pdu_count_o and fmt_err_o, so those two are writable; every other entry is
+// read. A signal missing here still compiles (Verilator keeps it in the root
+// structure, unoptimised or not), so every rootp-> name in sim_main.cpp,
+// sim_discontinuity.cpp and sim_talker_step.cpp must be listed.
+`verilator_config
+public_flat_rw -module "KL_crf_rx" -var "pdu_count_o"
+public_flat_rw -module "KL_crf_rx" -var "fmt_err_o"
+public_flat_rd -module "KL_crf_rx" -var "tout_r"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_seq_r"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_run_r"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "win_valid_r"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_p_w"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_cnt_r"
+public_flat_rd -module "KL_mmcm_drp_servo" -var "integ_r"

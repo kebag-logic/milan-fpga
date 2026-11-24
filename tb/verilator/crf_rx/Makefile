@@ -31,12 +31,15 @@ VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 TOP        = KL_crf_rx
 
-# --public-flat-rw: the [G1] wrap cases preload the counter flops at their
-# old wrap/peg points (65534, 254) instead of simulating 18 h of soak; the
-# flag keeps every signal writable (and un-localized) from the harness.
+# probes.vlt: the [G1] wrap cases preload the counter flops at their
+# old wrap/peg points (65534, 254) instead of simulating 18 h of soak, and
+# the harnesses read a few internal registers; probes.vlt keeps exactly those
+# signals public and writable. --public-flat-rw did that for every signal and
+# so kept Verilator from optimising any of them (talker_step: twice the
+# instructions for a byte-identical log).
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
-         --public-flat-rw \
+         probes.vlt \
          -GCLK_FREQ_HZ_P=200000 \
          -GIVAL_CYC_P=$(IVAL_CYC) \
          -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \
@@ -73,7 +76,7 @@ discontinuity-build:
 	$(VERILATOR) $(VFLAGS) -Mdir $(DISC_MDIR) $(SRCS) sim_discontinuity.cpp -o Vdiscontinuity
 
 talker_step:
-	$(VERILATOR) --cc --exe --build -j 4 --public-flat-rw \
+	$(VERILATOR) --cc --exe --build -j 4 probes.vlt \
 	  --top-module crf_talker_wrap -Mdir obj_talker \
 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
 	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
