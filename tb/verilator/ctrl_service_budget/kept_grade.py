@@ -111,7 +111,8 @@ def records(log: grade.Log) -> list[tuple[str, int, int, int]]:
     return out
 
 
-def dearest(log: grade.Log, names: list[str], charge=None) -> dict[str, tuple[int, int] | None]:
+def dearest(log: grade.Log, names: list[str], charge: Callable[[int], int] | None = None
+            ) -> dict[str, tuple[int, int] | None]:
     """Each named probe marked in the log, its dearest record's CPU cycles and that record's charge (charge, from the
     CPU cycle it started; 0 without one), None for none."""
     found = records(log)

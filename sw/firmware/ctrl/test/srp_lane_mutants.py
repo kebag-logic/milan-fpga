@@ -23,8 +23,16 @@ COUNT = ("    for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n != 0u; 
          "        if (same(i->sinks[n - 1u].stream_id.bytes,id,8)) {\n")
 WALK = ("        for (unsigned n = i->lane_first[last % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {\n"
         "            struct srp_sink *sink = &i->sinks[n - 1u];\n")
-#: A Listener declaration's walk, owed only where a source talks its StreamID (prepare_declarations).
+#: A Listener declaration's walk, owed only where a source talks its StreamID (prepare_declarations), and the whole
+#: block that owes it, which srp_mutants.py's own-listener-declaration-not-copied removes.
 DECLARED = "            i->stale = i->stale || sources_of(i,s->stream_id.bytes) != 0u;\n"
+DECLARATION = ("        if (desired != s->declared) {\n"
+               "            // A declaration rewrites the value of the attribute a registration shares (#665), "
+               "which the walk copies\n"
+               "            // only for a source of its StreamID (registrations, sources_of): one of a StreamID "
+               "no source talks\n"
+               "            // changes nothing the walk copies and owes it none (#977, its ruling of 2026-11-23, "
+               "item 5).\n" + DECLARED + "        }\n")
 WALKLESS = "Srp.ADeclarationOfAStreamNoSourceTalksOwesNoWalk"
 #: A lane's head only: each visit stops at its lane's first sink.
 HEAD_ONLY = ("n = i->lane_next[n - 1u]) {", "n = 0u) {")
