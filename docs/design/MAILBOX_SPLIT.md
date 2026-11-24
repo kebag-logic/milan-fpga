@@ -452,7 +452,7 @@ flowchart TB
   implementation drives the mailbox model and counts every access.
 - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
   of lwSRP `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b`, unchanged at the pin
-  `9068153f9e03f7dab9ba67f51d1b8e97b6e21c15` (fetched from
+  `73007b4807977517045e8aa485c61ebb8f5ee843` (fetched from
   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
   the host test's lwSRP arm refuses another revision or an edited `src/`):
   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
