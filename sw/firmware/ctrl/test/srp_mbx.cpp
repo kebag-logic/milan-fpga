@@ -1725,6 +1725,22 @@ TEST_F(Srp, ARecordThatChangesNoRegistrationCostsNoWalk) {
     settle(); expect_held(adapter,"a Talker registered");
 }
 
+// A Listener declaration of a StreamID no source talks shares its attribute with no registration the walk copies
+// (#977, srp_mbx.c prepare_declarations): THE TRANSMIT's re-declaration after a registration owes no walk.
+TEST_F(Srp, ADeclarationOfAStreamNoSourceTalksOwesNoWalk) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2)); settle(); advance(400);
+    receive_before_poll(frame(1,talker_value(sid,da,2),1));
+    ASSERT_EQ(adapter.ifs[0].sinks[0].desired,2u) << "the registration asks for a Ready declaration";
+    const uint32_t before=adapter.walks;
+    settle(); advance(400);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "THE TRANSMIT declared it";
+    EXPECT_EQ(adapter.walks,before) << "a declaration of a StreamID no source talks owes no walk";
+    expect_held(adapter,"declared Ready");
+}
+
 // A sink bound to the entity's own stream shares each attribute with a source:
 // the adapter's own declarations then rewrite a value a registration holds,
 // with no Registrar change and no indication.

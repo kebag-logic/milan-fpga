@@ -938,8 +938,13 @@ DEFECTS = (
            'a record that changes nothing walks no registrar'),
     Defect('own-listener-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
            '        if (desired != s->declared) {\n'
-           '            // A declaration rewrites the value of the attribute a registration shares (#665).\n'
-           '            i->stale = true;\n        }\n', '',
+           '            // A declaration rewrites the value of the attribute a registration shares (#665), '
+           'which the walk copies\n'
+           '            // only for a source of its StreamID (registrations, sources_of): one of a StreamID no '
+           'source talks\n'
+           '            // changes nothing the walk copies and owes it none (#977, its ruling of 2026-11-23, '
+           'item 5).\n'
+           '            i->stale = i->stale || sources_of(i,s->stream_id.bytes) != 0u;\n        }\n', '',
            'the own Listener Ready declaration rewrote the registered Listener'),
     Defect('own-talker-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
            '    bool done = true;\n'

@@ -1379,8 +1379,10 @@ static bool prepare_declarations(struct srp_interface *i)
             continue;
         }
         if (desired != s->declared) {
-            // A declaration rewrites the value of the attribute a registration shares (#665).
-            i->stale = true;
+            // A declaration rewrites the value of the attribute a registration shares (#665), which the walk copies
+            // only for a source of its StreamID (registrations, sources_of): one of a StreamID no source talks
+            // changes nothing the walk copies and owes it none (#977, its ruling of 2026-11-23, item 5).
+            i->stale = i->stale || sources_of(i,s->stream_id.bytes) != 0u;
         }
         int result = desired == s->declared ? 0 : desired ? msrp_declare_listener(i->msrp,0,&s->stream_id,desired) :
                                msrp_withdraw_listener(i->msrp,0,&s->stream_id);
