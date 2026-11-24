@@ -1,0 +1,33 @@
+### crf_rx mutants: no ccache (ghead) vs ccache cold (head)
+base 46 compared lines, removed/rewritten {}
+head 46 compared lines, removed {}
+IDENTICAL
+### crf_rx mutants: no ccache (ghead) vs ccache warm (head)
+base 46 compared lines, removed/rewritten {}
+head 46 compared lines, removed {}
+IDENTICAL
+### times
+nocc: 424.99 s wall 516.75 s user 9.79 s sys
+cold: 278.28 s wall 269.13 s user 10.06 s sys
+warm: 276.46 s wall 253.98 s user 8.72 s sys
+### ccache stats after cold
+Cache directory:       <scratch>/ccache/ccache_dir
+Config file:           <scratch>/ccache/ccache_dir/ccache.conf
+Directory config file:
+System config file:    /etc/ccache.conf
+Stats updated:         Tue Nov 24 13:02:15 2026
+Cacheable calls:       115 / 115 (100.0%)
+  Hits:                 74 / 115 (64.35%)
+    Direct:             71 /  74 (95.95%)
+    Preprocessed:        3 /  74 ( 4.05%)
+  Misses:               41 / 115 (35.65%)
+Successful lookups:
+  Direct:               71 / 115 (61.74%)
+  Preprocessed:          3 /  44 ( 6.82%)
+Local storage:
+  Cache size (GiB):    0.0 / 5.0 ( 0.02%)
+  Files:                64
+  Hits:                 74 / 115 (64.35%)
+  Misses:               41 / 115 (35.65%)
+  Reads:               230
+  Writes:               85

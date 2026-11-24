@@ -1,0 +1,4 @@
+202c202
+<   wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, probe_fold(lfsr_next_w)};
+---
+>   wire [15:0] probe_iv_w    = 16'(PROBE_MIN_MS_C)    + {10'd0, probe_fold(lfsr_r)};

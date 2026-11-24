@@ -1,0 +1,4 @@
+516c516
+<           fmt_err_o <= fmt_err_o + 32'd1;
+---
+>           fmt_err_o <= (fmt_err_o == 32'd255) ? fmt_err_o : fmt_err_o + 32'd1;

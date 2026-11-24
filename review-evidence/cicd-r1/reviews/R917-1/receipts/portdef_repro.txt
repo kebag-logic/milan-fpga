@@ -1,0 +1,8 @@
+Independent reproduction of the #996 mechanism (author's internal.sv + tb3.cpp, pinned Verilator 5.050):
+plain build:            port 0 net 255 reg 0
+--public-flat-rw build: port 134 net 121 reg 134
+generated assignment in plain build:
+18:        vlSelfRef.pcm_chans_i = 0U;
+detector (scripts/topinput_writes.py) on the two builds:
+portdef/obj_plain: 2 top inputs; model writes to a top input: ['Vtop___024root__0__Slow.cpp:18: vlSelfRef.pcm_chans_i = 0U;']
+portdef/obj_flat: 2 top inputs; model writes to a top input: none

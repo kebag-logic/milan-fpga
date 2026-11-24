@@ -1,0 +1,34 @@
+hosted job 138410537279 (Verilator shard 9/19) at head fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f, started 2026-11-24T11:37:14Z completed 2026-11-24T11:51:23Z conclusion success; excerpt of the job log:
+2026-11-24T11:37:35.9452077Z   ok   reject '01/4'
+2026-11-24T11:37:35.9452356Z   ok   reject '4/4'
+2026-11-24T11:37:35.9452635Z   ok   reject '5/4'
+2026-11-24T11:37:35.9452935Z   ok   reject '0/0'
+2026-11-24T11:37:35.9453257Z   ok   reject 'a/4'
+2026-11-24T11:37:35.9453548Z selftest: PASS
+2026-11-24T11:37:36.0263521Z Shard 9 owns:
+2026-11-24T11:37:36.0273080Z   maap__2
+2026-11-24T11:37:36.0273504Z   aaf_clock_meter
+2026-11-24T11:37:36.0361129Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-11-24T11:37:36.0361551Z [36;1mscripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \[0m
+2026-11-24T11:37:36.0361890Z [36;1m  --ci-pieces --shard "9/19"[0m
+2026-11-24T11:37:36.0387227Z shell: /usr/bin/bash -e {0}
+2026-11-24T11:37:36.0387527Z env:
+2026-11-24T11:37:36.0387844Z   VERILATOR_VERSION: v5.050
+2026-11-24T11:37:36.0388106Z   YOSYS_VERSION: v0.66
+2026-11-24T11:37:36.0388414Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-24T11:37:36.0388704Z   CI_BUILD_JOBS: 4
+2026-11-24T11:37:36.0388925Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-24T11:37:36.0389169Z   CI_CAMPAIGN_JOBS: 4
+2026-11-24T11:37:36.0389411Z   VERILATOR_JOBS: 4
+2026-11-24T11:37:36.0389629Z   SIM_JOBS: 4
+2026-11-24T11:37:36.0389854Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-24T11:37:36.0390109Z ##[endgroup]
+2026-11-24T11:38:53.6989101Z shard: 9/19   selected suites: 2
+2026-11-24T11:42:35.4578561Z PASS     maap__2
+2026-11-24T11:51:10.5558981Z PASS     aaf_clock_meter
+2026-11-24T11:51:10.5559638Z ----------------------------------------------------------------
+2026-11-24T11:51:10.5560090Z suites: 2   passed: 2   failed: 0   timed out: 0
+2026-11-24T11:51:10.5793317Z checks: 487   in-suite failures: 0
+2026-11-24T11:51:10.5831403Z logs: <home-path>/work/_temp/suite-logs
+2026-11-24T11:51:10.6040470Z ##[group]Run actions/upload-artifact@v4
+2026-11-24T11:51:10.6041057Z with:

@@ -1,0 +1,7 @@
+10,12c10,11
+< public_flat_rw -module "KL_crf_rx" -var "pdu_count_o"
+< public_flat_rw -module "KL_crf_rx" -var "fmt_err_o"
+< public_flat_rd -module "KL_crf_rx" -var "tout_r"
+---
+> public_flat_rd -module "KL_crf_rx" -var "pdu_count_o"
+> public_flat_rd -module "KL_crf_rx" -var "fmt_err_o"

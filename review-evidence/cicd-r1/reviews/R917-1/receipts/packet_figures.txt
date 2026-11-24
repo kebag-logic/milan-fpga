@@ -1,0 +1,16 @@
+probes.vlt, whole suite task-clock (ab/base vs ab/pub):
+  crf_rx             1869.7 ->   1169.7 s  -37.4 %
+  mmcm_servo         1938.2 ->   1437.1 s  -25.9 %
+  aaf_clock_meter    1949.5 ->   1430.5 s  -26.6 %
+  maap               2273.6 ->   2050.6 s  -9.8 %
+  talker_step instructions:u             -49.10 %
+  talker_step L1-icache-load-misses:u    -99.56 %
+budget harness testbench -Os -> -O3, paired runs:
+  base   ->tbO3    task-clock -4.9 %  L1d misses 3.947 -> 3.374 G -14.5 %
+  base-2 ->tbO3-2  task-clock -2.6 %  L1d misses 3.742 -> 3.411 G -8.8 %
+  base-3 ->tbO3-3  task-clock -2.5 %  L1d misses 3.654 -> 3.457 G -5.4 %
+  L1d misses, mean of three vs three: -9.7 %
+ccache receipts as published:
+  ccache/nocc.time: 967.68 wall 1587.52 user 71.59 sys
+  ccache/cold.time: 782.82 wall 547.52 user 57.65 sys
+  ccache/warm.time: warm 219.48 wall 229.32 user 7.24 sys

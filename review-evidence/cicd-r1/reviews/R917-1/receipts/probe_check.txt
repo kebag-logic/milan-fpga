@@ -1,0 +1,110 @@
+######## head
+## crf_rx/obj_dir crf_rx/sim_main.cpp
+ok  KL_crf_rx__DOT__fmt_err_o                                              write      VLVF_PUB_RW
+ok  KL_crf_rx__DOT__pdu_count_o                                            write      VLVF_PUB_RW
+ok  KL_crf_rx__DOT__tout_r                                                 read       VLVF_PUB_RD
+obj_dir: 3 names, 0 uncovered
+rc=0
+## crf_rx/obj_discontinuity crf_rx/sim_discontinuity.cpp
+obj_discontinuity: 0 names, 0 uncovered
+rc=0
+## crf_rx/obj_talker crf_rx/sim_talker_step.cpp
+ok  crf_talker_wrap__DOT__servo__DOT__integ_r                              read       VLVF_PUB_RD
+ok  crf_talker_wrap__DOT__servo__DOT__pp_run_r                             read       VLVF_PUB_RD
+ok  crf_talker_wrap__DOT__servo__DOT__pp_seq_r                             read       VLVF_PUB_RD
+ok  crf_talker_wrap__DOT__servo__DOT__tick_cnt_r                           read       VLVF_PUB_RD
+ok  crf_talker_wrap__DOT__servo__DOT__tick_p_w                             read       VLVF_PUB_RD
+ok  crf_talker_wrap__DOT__servo__DOT__win_valid_r                          read       VLVF_PUB_RD
+obj_talker: 6 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_phc mmcm_servo/sim_phc_step.cpp
+ok  KL_mmcm_drp_servo__DOT__ew_r                                           read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__integ_r                                        read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__pp_run_r                                       read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__pp_seq_r                                       read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__ptp_jump_r                                     read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__tick_cnt_r                                     read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__u_cmd_r                                        read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__u_tick_cdc__DOT__sync                          read       VLVF_PUB_RD
+ok  KL_mmcm_drp_servo__DOT__win_valid_r                                    read       VLVF_PUB_RD
+obj_phc: 9 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_dir mmcm_servo/sim_main.cpp
+obj_dir: 0 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_rails mmcm_servo/sim_rails.cpp
+obj_rails: 0 names, 0 uncovered
+rc=0
+## aaf_clock_meter/obj_dir aaf_clock_meter/sim_main.cpp
+ok  meter_wrap__DOT__meter__DOT__g5_v_r                                    read       VLVF_PUB_RD
+obj_dir: 1 names, 0 uncovered
+rc=0
+## aaf_clock_meter/obj_servo aaf_clock_meter/sim_servo.cpp
+ok  meter_servo_wrap__DOT__servo__DOT__ew_r                                read       VLVF_PUB_RD
+ok  meter_servo_wrap__DOT__servo__DOT__pp_run_r                            read       VLVF_PUB_RD
+ok  meter_servo_wrap__DOT__servo__DOT__pp_seq_r                            read       VLVF_PUB_RD
+ok  meter_servo_wrap__DOT__servo__DOT__tick_div_r                          read       VLVF_PUB_RD
+obj_servo: 4 names, 0 uncovered
+rc=0
+## maap/obj_dir maap/sim_main.cpp
+ok  KL_maap__DOT__POOL_SIZE_C                                              static     static-member present
+ok  KL_maap__DOT__PROBE_MIN_MS_C                                           static     static-member present
+ok  KL_maap__DOT__lfsr_r                                                   read/write VLVF_PUB_RW
+ok  KL_maap__DOT__timer_ms_r                                               read       VLVF_PUB_RD
+obj_dir: 4 names, 0 uncovered
+rc=0
+######## base
+## crf_rx/obj_dir crf_rx/sim_main.cpp
+ok  KL_crf_rx__DOT__fmt_err_o                                              write      VLVF_PUB_RW
+ok  KL_crf_rx__DOT__pdu_count_o                                            write      VLVF_PUB_RW
+ok  KL_crf_rx__DOT__tout_r                                                 read       VLVF_PUB_RW
+obj_dir: 3 names, 0 uncovered
+rc=0
+## crf_rx/obj_discontinuity crf_rx/sim_discontinuity.cpp
+obj_discontinuity: 0 names, 0 uncovered
+rc=0
+## crf_rx/obj_talker crf_rx/sim_talker_step.cpp
+ok  crf_talker_wrap__DOT__servo__DOT__integ_r                              read       VLVF_PUB_RW
+ok  crf_talker_wrap__DOT__servo__DOT__pp_run_r                             read       VLVF_PUB_RW
+ok  crf_talker_wrap__DOT__servo__DOT__pp_seq_r                             read       VLVF_PUB_RW
+ok  crf_talker_wrap__DOT__servo__DOT__tick_cnt_r                           read       VLVF_PUB_RW
+ok  crf_talker_wrap__DOT__servo__DOT__tick_p_w                             read       VLVF_PUB_RW
+ok  crf_talker_wrap__DOT__servo__DOT__win_valid_r                          read       VLVF_PUB_RW
+obj_talker: 6 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_phc mmcm_servo/sim_phc_step.cpp
+ok  KL_mmcm_drp_servo__DOT__ew_r                                           read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__integ_r                                        read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__pp_run_r                                       read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__pp_seq_r                                       read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__ptp_jump_r                                     read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__tick_cnt_r                                     read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__u_cmd_r                                        read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__u_tick_cdc__DOT__sync                          read       VLVF_PUB_RW
+ok  KL_mmcm_drp_servo__DOT__win_valid_r                                    read       VLVF_PUB_RW
+obj_phc: 9 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_dir mmcm_servo/sim_main.cpp
+obj_dir: 0 names, 0 uncovered
+rc=0
+## mmcm_servo/obj_rails mmcm_servo/sim_rails.cpp
+obj_rails: 0 names, 0 uncovered
+rc=0
+## aaf_clock_meter/obj_dir aaf_clock_meter/sim_main.cpp
+ok  meter_wrap__DOT__meter__DOT__g5_v_r                                    read       VLVF_PUB_RD
+obj_dir: 1 names, 0 uncovered
+rc=0
+## aaf_clock_meter/obj_servo aaf_clock_meter/sim_servo.cpp
+ok  meter_servo_wrap__DOT__servo__DOT__ew_r                                read       VLVF_PUB_RW
+ok  meter_servo_wrap__DOT__servo__DOT__pp_run_r                            read       VLVF_PUB_RW
+ok  meter_servo_wrap__DOT__servo__DOT__pp_seq_r                            read       VLVF_PUB_RW
+ok  meter_servo_wrap__DOT__servo__DOT__tick_div_r                          read       VLVF_PUB_RW
+obj_servo: 4 names, 0 uncovered
+rc=0
+## maap/obj_dir maap/sim_main.cpp
+ok  KL_maap__DOT__POOL_SIZE_C                                              static     static-member present
+ok  KL_maap__DOT__PROBE_MIN_MS_C                                           static     static-member present
+ok  KL_maap__DOT__lfsr_r                                                   read/write VLVF_PUB_RW
+ok  KL_maap__DOT__timer_ms_r                                               read       VLVF_PUB_RW
+obj_dir: 4 names, 0 uncovered
+rc=0

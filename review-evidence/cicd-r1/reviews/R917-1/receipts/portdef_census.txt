@@ -1,0 +1,14 @@
+control_repro: 3 input ports in 2 modules ['sub', 'top']; defaulted: [('sub', 'chans_i')]
+rc=3
+crf_rx_unit: 16 input ports in 1 modules ['KL_crf_rx']; defaulted: none
+rc=0
+crf_rx_talker: 66 input ports in 5 modules ['KL_crf_rx', 'KL_mmcm_drp_servo', 'cdc_handshake__Wf', 'cdc_pulse', 'crf_talker_wrap']; defaulted: none
+rc=0
+mmcm_phc: 34 input ports in 3 modules ['KL_mmcm_drp_servo', 'cdc_handshake__Wf', 'cdc_pulse']; defaulted: none
+rc=0
+aaf_servo: 62 input ports in 5 modules ['KL_aaf_clock_meter__C124f80', 'KL_mmcm_drp_servo__pi1', 'cdc_handshake__Wf', 'cdc_pulse', 'meter_servo_wrap']; defaulted: none
+rc=0
+maap: 24 input ports in 1 modules ['KL_maap']; defaulted: none
+rc=0
+control_crf_tx: 16 input ports in 1 modules ['KL_crf_tx']; defaulted: [('KL_crf_tx', 'transit_c_i')]
+rc=3

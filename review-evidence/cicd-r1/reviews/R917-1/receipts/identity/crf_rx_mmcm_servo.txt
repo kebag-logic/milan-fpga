@@ -1,0 +1,45 @@
+### crf_rx
+base 2633 compared lines, removed/rewritten {'(rewritten) --public-flat-rw -> probes.vlt': 3, '- V e r i l a t i o n   R e p ': 3, '- Verilator: Built from': 3, '- Verilator: Walltime': 3}
+head 2633 compared lines, removed {'- V e r i l a t i o n   R e p ': 3, '- Verilator: Built from': 3, '- Verilator: Walltime': 3}
+IDENTICAL
+### mmcm_servo
+base 325 compared lines, removed/rewritten {'- V e r i l a t i o n   R e p ': 3, '- Verilator: Built from': 3, '- Verilator: Walltime': 3, '(rewritten) --public-flat-rw -> probes.vlt': 1}
+head 427 compared lines, removed {'- V e r i l a t i o n   R e p ': 3, '- Verilator: Built from': 3, '- Verilator: Walltime': 3}
+DIFFERENT
+--- base
++++ head
+@@ -325 +325,103 @@
+ ./obj_phc/Vphc_step +slew_suite
++[P0] lock at the silicon window scale (talker +20 ppm)
++  [ ok ] [P0] state LOCKED                        got=4 exp=4
++  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
++  [ ok ] [P0] the last window committed
++  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
++  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
++[S1] policy slew +100000 ns at 200 ppm
++  slew      ew=  +51239 ( +100.08 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
++  [ ok ] [S1] overlapped window is discarded
++  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
++  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
++  slew      ew=  +48861 (  +95.43 ppm) integ= +15680 ( +30.62 ppm) u_cmd= +15695 ( +30.65 ppm) trim= +490 discard state=4
++  [ ok ] [S1] overlapped window is discarded
++  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
++  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
++  [ ok ] [S1] tail window closes after deassertion
++  [ ok ] [S1] discards counted = 2 in [2, 2]
++  [ ok ] [S1] next window committed
++  [ ok ] [S1] next window error = 40 in [-1023, 1023]
++  [ ok ] [S1] integrator moved = 20 in [-512, 512]
++  [ ok ] [S1] written rate moved = 15 in [-1024, 1024]
++  [ ok ] [S1] LOCKED on every edge
++  [ ok ] [S1] first clean close within 1.536 seconds of start
++[S1] policy slew -100000 ns at 200 ppm
++  slew      ew=  -51159 (  -99.92 ppm) integ= +15700 ( +30.66 ppm) u_cmd= +15710 ( +30.68 ppm) trim= +490 discard state=4
++  [ ok ] [S1] overlapped window is discarded
++  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
++  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
++  slew      ew=  -48781 (  -95.28 ppm) integ= +15700 ( +30.66 ppm) u_cmd= +15710 ( +30.68 ppm) trim= +490 discard state=4
++  [ ok ] [S1] overlapped window is discarded
++  [ ok ] [S1] integrator held exactly = 0 in [0, 0]
++  [ ok ] [S1] written rate held exactly = 0 in [0, 0]
++  [ ok ] [S1] tail window closes after deassertion
