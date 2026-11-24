@@ -1,0 +1,23 @@
+## python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 7/7
+traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+## python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 226 md files + 1933 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+## python3 scripts/check_doc_paths.py
+doc path gate: OK (1760 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc=0
+## python3 scripts/measure_test_evidence_readers.py --check
+rc=0
+## python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+## python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+scripts/check_doc_style.py
+scripts/docs_inventory.py
+## python3 scripts/docs_inventory.py --check
+documentation inventory: OK (541 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0

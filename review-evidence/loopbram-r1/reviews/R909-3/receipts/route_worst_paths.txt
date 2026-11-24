@@ -1,0 +1,18 @@
+== ExtraPostPlacementOpt
+Slack (MET) :             0.008ns  (required time - arrival time)
+  Source:                 KL_mbx/u_evt/pend_r_reg[0]/C
+  Destination:            KL_mbx/u_evt/ctr_seen_r_reg[0][4]/D
+  Path Group:             milansoc_crg_clkout0
+  Data Path Delay:        9.680ns  (logic 2.289ns (23.647%)  route 7.391ns (76.353%))
+== AltSpreadLogic_high
+Slack (MET) :             0.223ns  (required time - arrival time)
+  Source:                 KL_mbx/u_rx/hrd_r_reg/C
+  Destination:            KL_mbx/reg_rdata_r_reg[21]/D
+  Path Group:             milansoc_crg_clkout0
+  Data Path Delay:        9.703ns  (logic 1.962ns (20.221%)  route 7.741ns (79.779%))
+== ExtraTimingOpt
+Slack (MET) :             0.003ns  (required time - arrival time)
+  Source:                 KL_mbx/u_evt/pend_r_reg[11]/C
+  Destination:            KL_mbx/u_evt/asp_cnt_r_reg[0][15]/R
+  Path Group:             milansoc_crg_clkout0
+  Data Path Delay:        9.375ns  (logic 1.744ns (18.604%)  route 7.631ns (81.397%))

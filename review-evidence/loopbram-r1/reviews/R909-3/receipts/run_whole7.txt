@@ -1,0 +1,27 @@
+# run whole7 exit=1 (reviewer probe at 9acb9b828b29aba71bd51303a4836f86c2278267, Verilator 5.050 pinned wrapper, VERILATOR_JOBS 3-4)
+# log sha256 eb1ec300e092d1f8a872daf12ef4d8107a533554055d3a955f6ab0eb8a7cdc4c, lines 504
+phase edits stream 0 captured=3096 delivered=3072 packets=64 tail=24 max_backlog=48
+phase edits stream 1 captured=3096 delivered=3072 packets=64 tail=24 max_backlog=48
+phase edits stream 2 captured=3092 delivered=3072 packets=64 tail=20 max_backlog=48
+phase edits stream 3 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 4 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 5 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 6 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+  [FAIL] WIRE_STREAM_DELIVERY edits stream 7
+  [FAIL] WIRE_STREAM_COMPLETE edits stream 7
+phase edits stream 7 captured=3088 delivered=0 packets=0 tail=3088 max_backlog=3088
+phase clipped stream 0 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 1 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 2 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 3 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 4 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 5 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 6 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+  [FAIL] WIRE_STREAM_DELIVERY clipped stream 7
+  [FAIL] WIRE_STREAM_COMPLETE clipped stream 7
+phase clipped stream 7 captured=1160 delivered=0 packets=0 tail=1160 max_backlog=1160
+parent loopback streams=8 words=34004 nonzero=30597 silence=3407 packets=616 walks=606 max_walk_cycles=873 first_eligible=5 max_backlog=3088
+== input_loopback_dp: checks: 113837   failures: 4 ==
+RESULT: FAIL
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['$PACKET/scratch/runs/w_whole7/obj/parent_loopback']' returned non-zero exit status 1.

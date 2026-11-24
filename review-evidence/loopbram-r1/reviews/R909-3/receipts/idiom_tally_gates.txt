@@ -1,0 +1,18 @@
+## python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+## python3 scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+## python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+## python3 scripts/check_em_dash.py --base 3cda030c174b325e36c26af6420487ff91346d15
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+## suite_tally --verdict leaf.log
+rc=0

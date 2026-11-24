@@ -1,0 +1,11 @@
+--- $CLONE/hdl/milan/milan_datapath.sv	2026-11-24 17:17:13.348405744 +0100
++++ $PACKET/scratch/runs/whole7.sv	2026-11-24 17:24:25.702143529 +0100
+@@ -1725,7 +1725,7 @@
+     //! t0 = the legacy admission gate bit-identically; t>0 = TCTX CTRL[0]
+     //! (window) & per-stream lwSRP gate & the engine-wide MAAP term (the
+     //! composed aaf_stream_en_w - see its comment for the honest gaps)
+-    .stream_en_i (aaf_stream_en_w),
++    .stream_en_i (aaf_stream_en_w & N_STREAMS'(8'h7f)),
+     .dest_mac_i (eff_aaf_dmac),
+     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],

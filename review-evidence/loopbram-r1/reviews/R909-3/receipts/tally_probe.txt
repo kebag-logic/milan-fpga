@@ -1,0 +1,23 @@
+## new: PASS input-loopback streams=8 channels=63 lead=1: 79587 checks, 0 failures, packets=468|PASS input-loopback streams=1 channels=8 lead=2: 76017 checks, 0 failures, packets=447|
+suite                        checks   failures  tallies
+input_loopback                 155604          0        2
+
+checks: 155604   in-suite failures: 0
+tally rc=0
+verdict rc=0
+## old: PASS input-loopback streams=8 channels=63 lead=1: checks=79587 packets=468 failures=0|PASS input-loopback streams=1 channels=8 lead=2: checks=76017 packets=447 failures=0|
+  Add the shape to SHAPES in scripts/suite_tally.py, or make the
+  suite print an existing one.
+
+The check total above is INCOMPLETE and must not be quoted.
+tally rc=1
+verdict rc=0
+## fail: FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 1 failures, packets=468|PASS input-loopback streams=1 channels=8 lead=2: 76017 checks, 0 failures, packets=447|
+suite                        checks   failures  tallies
+input_loopback                 155604          1        2
+
+checks: 155604   in-suite failures: 1
+tally rc=0
+  assertion that only logs is a masked verdict (Rule 6). Make the
+  harness return non-zero when a check fails.
+verdict rc=1

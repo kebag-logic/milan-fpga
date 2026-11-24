@@ -1,0 +1,17 @@
+--- $CLONE/hdl/milan/milan_datapath.sv	2026-11-24 17:17:13.348405744 +0100
++++ $PACKET/scratch/runs/phase8.sv	2026-11-24 17:24:25.855247039 +0100
+@@ -2458,7 +2458,13 @@
+   wire [N_STREAMS-1:0] aaf_stream_en_raw_w /* verilator public_flat_rd */;
+   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
+   assign aaf_stream_en_raw_w[0] = aaf_gate;
+-  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;
++  logic probe_rst_prev_r = 1'b1;
++  logic [1:0] probe_rst_n_r = 2'd0;
++  always_ff @(posedge axis_clk) begin
++    probe_rst_prev_r <= axis_resetn;
++    if (!axis_resetn && probe_rst_prev_r && probe_rst_n_r != 2'd3) probe_rst_n_r <= probe_rst_n_r + 2'd1;
++  end
++  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r & ~((N_STREAMS'(probe_rst_n_r == 2'd1) << 3) | (N_STREAMS'(probe_rst_n_r >= 2'd2) << 5));
+   generate
+     for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
+       assign aaf_stream_en_raw_w[gs] =

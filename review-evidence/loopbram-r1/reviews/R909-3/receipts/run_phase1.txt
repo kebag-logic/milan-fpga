@@ -1,0 +1,12 @@
+# run phase1 exit=1 (reviewer probe at 9acb9b828b29aba71bd51303a4836f86c2278267, Verilator 5.050 pinned wrapper, VERILATOR_JOBS 3-4)
+# log sha256 145b1c61f621c5002435661042adb6bba63af8cbd22e264821913d078b043951, lines 506
+phase edits stream 0 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+  [FAIL] CLIPPED_WIRE_TRANSMITS
+  [FAIL] WIRE_STREAM_DELIVERY clipped stream 0
+  [FAIL] WIRE_STREAM_COMPLETE clipped stream 0
+phase clipped stream 0 captured=1160 delivered=0 packets=0 tail=1160 max_backlog=1160
+parent loopback streams=1 words=4248 nonzero=3391 silence=857 packets=64 walks=604 max_walk_cycles=89 first_eligible=5 max_backlog=1160
+== input_loopback_dp: checks: 13797   failures: 3 ==
+RESULT: FAIL
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['$PACKET/scratch/runs/w_phase1/obj/parent_loopback']' returned non-zero exit status 1.
