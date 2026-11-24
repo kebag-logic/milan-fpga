@@ -1,0 +1,11 @@
+shard 0/4 rc=0 2026-11-23T23:40:10+01:00 -> 2026-11-23T23:54:41+01:00 head 402834acb1a13225999550f1907c99705fd56780
+shard 1/4 rc=0 2026-11-23T23:40:10+01:00 -> 2026-11-24T00:26:24+01:00 head 402834acb1a13225999550f1907c99705fd56780
+shard 2/4 rc=0 2026-11-23T23:40:10+01:00 -> 2026-11-24T00:08:16+01:00 head 402834acb1a13225999550f1907c99705fd56780
+shard 3/4 rc=0 2026-11-23T23:40:10+01:00 -> 2026-11-24T00:10:34+01:00 head 402834acb1a13225999550f1907c99705fd56780
+command: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard k/4 --jobs 4 --build-dir <scratch>/fw/build-k
+shard 0: 90 arms [ok], 2244 cases in PASS verdicts, 0 failing verdicts; own-LeaveAll arms 8x8/1if and 1x1/1if [ok]
+shard 1: mutants: 832 of 832 caught
+shard 2: 392 [ok] catches, 0 FAIL/MISSED/ESCAPED
+shard 3: 543 [ok] catches, 0 FAIL/MISSED/ESCAPED; pin controls name d1bb4f4e (edited src/ refused; 97677fcb refused)
+inventory: 1858 live invocations in exactly one shard; shard sizes [90, 833, 393, 542]
+SRP host arms in shard 0: 44, all [ok] (srpcmp, srp-* at 1x1 and 8x8, if1 and if2, own_leaveall x2)

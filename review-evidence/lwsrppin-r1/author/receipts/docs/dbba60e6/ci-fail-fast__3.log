@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/data-2/milan/lanes/lwsrp-pin/scripts/ci_fail_fast.py", line 237, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/data-2/milan/lanes/lwsrp-pin/scripts/ci_fail_fast.py", line 216, in main
+    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'GITHUB_EVENT_PATH'

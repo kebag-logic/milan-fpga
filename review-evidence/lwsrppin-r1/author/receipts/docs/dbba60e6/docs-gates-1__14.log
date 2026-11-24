@@ -1,0 +1,13 @@
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+
+[notice] A new release of pip is available: 26.1.2 -> 26.3
+[notice] To update, run: pip install --upgrade pip
+Traceback (most recent call last):
+  File "/data-2/milan/lanes/lwsrp-pin/sw/builder/test_builder.py", line 30709, in <module>
+    fn()
+    ~~^^
+  File "/data-2/milan/lanes/lwsrp-pin/sw/builder/test_builder.py", line 5133, in test_baremetal_profile_contract
+    assert census_used["compiler"] == census_compilers[0], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted

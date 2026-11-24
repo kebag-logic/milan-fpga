@@ -1,0 +1,8 @@
+python3 -B srptx_mutants.py
+FAIL control: the tracked sources must grade hold clean (rc 0)
+[TX] the MAC refused every beat from ms 22000 to 25000, and the adapter never saw the SRP transmit ring full
+[TIME] MSRP: a requested transmit opportunity at ms 1000, 430.001 ms after lwSRP last had nothing to send, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1; Milan v1.2 4.2.7.1.1: a point-to-point requested transmit opportunity occurs within JoinTime)
+[TIME] MSRP: a requested transmit opportunity at ms 2000, 810.001 ms after lwSRP last had nothing to send, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1; Milan v1.2 4.2.7.1.1: a point-to-point requested transmit opportunity occurs within JoinTime)
+[TIME] MSRP: a requested transmit opportunity at ms 3000, 810.001 ms after lwSRP last had nothing to send, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1; Milan v1.2 4.2.7.1.1: a point-to-point requested transmit opportunity occurs within JoinTime)
+[TIME] MSRP: a requested transmit opportunity at ms 4000, 810.001 ms after lwSRP last had nothing to send, past JoinTime + T_svc (220 ms; IEEE 802.1Q-2018 10.7.4.1; Milan v1.2 4.2.7.1.1: a point-to-point requested transmit opportunity occurs within JoinTime)
+make: *** [Makefile:1120: srptx-mutants] Error 1

@@ -1,0 +1,14 @@
+run-8x8-1if.log summary: 98 groups graded, 0 refusals, 7 budget misses (7 of 963 probe instances, 4 of 87 paths), 0 of 291836 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+  longest pass 163,158 cycles (THE SHARE 200,000)
+  MRPDU probes 12; worst 1.682 ms, budget 49 ms, ceiling 49 ms, fits (`save-burst.mrpdu.periodic.if0`)
+  own-LeaveAll MRPDU probe `save-burst.mrpdu.leaveall.if0`: 0.581 ms, budget 49 ms, fits
+  own-LeaveAll MRPDU probe `save-held.mrpdu.leaveall.if0`: 0.579 ms, budget 49 ms, fits
+  own-LeaveAll MRPDU probe `save-starved.mrpdu.leaveall.if0`: 0.492 ms, budget 49 ms, fits
+  probes 963; MISS 7
+    MISS `backlog.owed.if0`: 63.201 ms, budget 20, ceiling 20 (a response with 7 frames owed ahead of it)
+    MISS `backlog.owed_behind0.if0`: 63.408 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind1.if0`: 63.615 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind2.if0`: 63.821 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog.owed_behind3.if0`: 64.027 ms, budget 20, ceiling 20 (an ACMP command behind the owed input)
+    MISS `backlog-owed.service.acmp.last.if0`: 62.212 ms, budget 20, ceiling 20 (ACMP record released under the composed load, last)
+    MISS `backlog-owed.service.aecp.last.if0`: 61.567 ms, budget 20, ceiling 24 (AECP record released under the composed load, last)
