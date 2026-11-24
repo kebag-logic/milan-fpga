@@ -1,0 +1,15 @@
+### R883-4-F1 | MINOR | Tests | `sw/firmware/ctrl/test/test_aecp.cpp:4647-4685` (with `:4433` and `sw/firmware/ctrl/aecp/aecp_face.c:212`) | The software-gPTP AVB test cannot catch the datapath's AS_CAPABLE bit leaking through
+
+- **Authority/evidence:** `aecp_face.c:212` exists to replace bit 0 (AS_CAPABLE, IEEE 1722.1-2021 7.4.40.2) with
+  the firmware owner's asCapable: `(out->flags & ~1u) | (as_capable ? 1u : 0u)`. The datapath's bit 0 is a live
+  value, not a constant. `KL_ptp_clock_validity.sv:143` drives `GET_AVB_INFO flags[0]` from the active owner's
+  asCapable, and the fabric owner stays in the split image until a later phase. The fixture's datapath answers
+  flags `0x7a`, bit 0 clear (`test_aecp.cpp:4433`). So `capable ? 0x7b : 0x7a` (`:4675`) holds whether or not
+  the mask is applied.
+  - I planted `out->flags | (as_capable ? 1u : 0u)` (no mask). It escapes the new test. It also escapes the
+    whole AECP app suite at one and two interfaces, the debug suite at two interfaces, and the platform boot at
+    one and two interfaces, all rc 0 with no failure (`receipts/mutants-aecp.log`, `receipts/face-wide-probe.log`).
+  - AGENTS.md section 6, Tests: "Each new test can fail for the defect it claims to detect", and tests must not
+    merely reproduce implementation assumptions. The test is new in this delta and was added to cover this exact
+    line.
+- **Impact:** a regression that drops the mask would go unseen. GET_AVB_INFO would then report AS_CAPABLE set
