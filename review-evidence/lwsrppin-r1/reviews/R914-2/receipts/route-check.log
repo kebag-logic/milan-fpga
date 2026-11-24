@@ -1,0 +1,16 @@
+Live PR body matches author-r2/PR-BODY.md except the completed route section
+base raw post-route LUT/FF/RAMB36/RAMB18/DSP: (43145, 51005, 78, 33, 11)
+base Slow_85C WNS/WHS: 0.193 0.102 zero failing setup/hold endpoints
+base Slow_0C WNS/WHS: 0.193 0.102 zero failing setup/hold endpoints
+base Fast_85C WNS/WHS: 1.512 0.036 zero failing setup/hold endpoints
+base Fast_0C WNS/WHS: 1.512 0.036 zero failing setup/hold endpoints
+base worst WNS/WHS: 0.193 0.036
+head raw post-route LUT/FF/RAMB36/RAMB18/DSP: (43068, 51015, 78, 33, 11)
+head Slow_85C WNS/WHS: 0.194 0.061 zero failing setup/hold endpoints
+head Slow_0C WNS/WHS: 0.194 0.061 zero failing setup/hold endpoints
+head Fast_85C WNS/WHS: 1.636 0.032 zero failing setup/hold endpoints
+head Fast_0C WNS/WHS: 1.636 0.032 zero failing setup/hold endpoints
+head worst WNS/WHS: 0.194 0.032
+Route table: agrees; -77 LUT, +10 FF; memory and DSP unchanged
+Recipe: 8x8/1if, ExtraPostPlacementOpt, aa30d77f versus dbba60e6
+No new route execution or bitstream claim

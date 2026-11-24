@@ -1,0 +1,8 @@
+selftest failures: []
+actual named checks: 11 ['msrp-lv-after-own-leaveall', 'mvrp-lv-after-own-leaveall', 'mt-at-own-leaveall', 'omission-with-room', 'omission-from-full', 'omission-from-full-registrar-in', 'joinin-after-omission-from-full', 'msrp-octets', 'msrp-full-for-a-listener', 'msrp-room-for-a-domain', 'mvrp-octets']
+advertised success: []
+Traceback (most recent call last):
+  File "$REVIEWS/lwsrppin-r914-2-packet/scripts/probe_twin.py", line 22, in <module>
+    assert len(calls) == len(set(calls)) == 9
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

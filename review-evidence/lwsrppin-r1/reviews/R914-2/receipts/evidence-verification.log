@@ -1,0 +1,78 @@
+Published author receipt manifest: 346 entries verified, 0 mismatches
+Packet commit: a2a3c4d0cc3dc2b27aa74f1dddcaa3fe428742c4
+Packet tree: 7523043ad6107e533d69a1601991e6d4014e863f
+Commit signature present: False
+Verification establishes pinned content integrity; no cryptographic signer claim.
+Delta commits: 2
+Delta paths: sw/firmware/ctrl/test/test_ctrl_firmware.py, tb/verilator/milan_dp/README.md, tb/verilator/milan_dp/twin_mrp.py
+sw/firmware/ctrl/test/test_ctrl_firmware.py: identical executable AST after module docstring removal
+tb/verilator/milan_dp/twin_mrp.py: only selftest changed among functions/classes
+Published rebuild receipt: 28 unique identical ELF/bin/hex paths, 0 differences
+images/plat_ledger-dbba60e6.log last line: plat_ledger: PASS (0 finding(s))
+images/plat_ledger-ed7df79c.log last line: plat_ledger: PASS (0 finding(s))
+Published twin receipt: selftest 11; 0 findings
+Published plants receipt: 16 unique plants; 32 refusals
+  byte-flip: 2
+  command-byte: 2
+  command-sequence: 2
+  leave-all-declaration: 2
+  leave-all-omission: 2
+  missing-notification: 2
+  mvrp-join-in: 2
+  mvrp-received-join: 2
+  output-dest-mac-zero: 2
+  output-notice-dropped: 2
+  received-join: 2
+  response-sequence: 2
+  srp-plus-k: 2
+  table-10-3: 2
+  talker-failed-back: 2
+  uncovered-field: 2
+Published docs receipts: 44 steps, all rc 0
+twin/times.txt:
+head: ed7df79c6f87a4172c885f268ad67629bd56c4eb
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+rc-build: 0
+rc-plants-a: 0
+rc-plants-b: 0
+rc-plants-full: 0
+rc-twin: 0
+start-build: 2026-11-24T04:17:38+01:00
+start-plants-a: 2026-11-24T04:24:37+01:00
+start-plants-b: 2026-11-24T04:30:12+01:00
+start-plants-full: 2026-11-24T04:35:50+01:00
+start-twin: 2026-11-24T04:18:58+01:00
+end-build: 2026-11-24T04:18:52+01:00
+end-plants-a: 2026-11-24T04:30:04+01:00
+end-plants-b: 2026-11-24T04:35:39+01:00
+end-plants-full: 2026-11-24T04:41:39+01:00
+end-twin: 2026-11-24T04:24:18+01:00
+images/times.txt:
+base: head dbba60e68a6e4a46f80e381c30ff823ee4ff7484 rc 0 2026-11-24T05:11:15+01:00 -> 2026-11-24T05:12:02+01:00
+head: head ed7df79c6f87a4172c885f268ad67629bd56c4eb rc 0 2026-11-24T05:10:16+01:00 -> 2026-11-24T05:11:03+01:00
+docs/head:
+ed7df79c6f87a4172c885f268ad67629bd56c4eb
+selftest/head:
+ed7df79c6f87a4172c885f268ad67629bd56c4eb
+0
+author-route/receipts/base/summary.txt
+base alinx_ax7101_utilization_place.rpt (Physopt postPlace): LUT 43143, FF 51005, BRAM tile 94.5, RAMB36 78, RAMB18 33, DSP 11
+base baseline_utilization.rpt (Physopt postRoute): LUT 43145, FF 51005, BRAM tile 94.5, RAMB36 78, RAMB18 33, DSP 11
+base Slow_85C: WNS +0.193 TNS 0.000 (0 failing), WHS +0.102 THS 0.000 (0 failing)
+base Slow_0C: WNS +0.193 TNS 0.000 (0 failing), WHS +0.102 THS 0.000 (0 failing)
+base Fast_85C: WNS +1.512 TNS 0.000 (0 failing), WHS +0.036 THS 0.000 (0 failing)
+base Fast_0C: WNS +1.512 TNS 0.000 (0 failing), WHS +0.036 THS 0.000 (0 failing)
+base alinx_ax7101_place.dcp sha256 ebb857e858ff61d1ff913c9cd33b085029c8adfc59f5eb41962b79e9aefa83f3 85482369
+base alinx_ax7101_route.dcp sha256 36918aa090b7b1c9ec88293e76d5206066c363d141bb63e5ed4d1dfb7473367d 93550947
+base alinx_ax7101_synth.dcp sha256 d84ad171b628e7e5a412c76525ff13a010bf49005a0226693694ca10d3366a04 74959810
+author-route/receipts/head/summary.txt
+head alinx_ax7101_utilization_place.rpt (Physopt postPlace): LUT 43068, FF 51015, BRAM tile 94.5, RAMB36 78, RAMB18 33, DSP 11
+head baseline_utilization.rpt (Physopt postRoute): LUT 43068, FF 51015, BRAM tile 94.5, RAMB36 78, RAMB18 33, DSP 11
+head Slow_85C: WNS +0.194 TNS 0.000 (0 failing), WHS +0.061 THS 0.000 (0 failing)
+head Slow_0C: WNS +0.194 TNS 0.000 (0 failing), WHS +0.061 THS 0.000 (0 failing)
+head Fast_85C: WNS +1.636 TNS 0.000 (0 failing), WHS +0.032 THS 0.000 (0 failing)
+head Fast_0C: WNS +1.636 TNS 0.000 (0 failing), WHS +0.032 THS 0.000 (0 failing)
+head alinx_ax7101_place.dcp sha256 e2dbfdbce7e1aabfaa04c78faa87470b24cd7216df3e87a071e53fca9d482d85 85113238
+head alinx_ax7101_route.dcp sha256 814c294557ec379527624489f01e0edf37179225b7950118c8900604988ea4cc 92813174
+head alinx_ax7101_synth.dcp sha256 493fcf136da8bf45d61e4434437dcadd39395d31a4487bd6262be05accd10bf9 74712882
+PASS: receipt integrity, delta scope and published counts agree
