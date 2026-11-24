@@ -166,6 +166,8 @@ The directory inventory includes one environment-dependent measurement exception
 It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
 Its README provides measurement commands and the complete receipt.
 
+Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller set `OBJCACHE`.
+Mutant rebuilds then reuse the Verilator runtime and testbench objects.
 A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
 `--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
 A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
