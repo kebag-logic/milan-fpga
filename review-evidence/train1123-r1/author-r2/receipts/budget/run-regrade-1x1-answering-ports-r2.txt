@@ -1,0 +1,18 @@
+# run.py --point <p> --build-dir <the formal leg's build> --regrade --out <a fresh directory holding copies of that leg's srp-kept and srp-bound .txt and .log> --groups srp-kept,srp-bound --record-budget-findings --record-share-findings [--variant answering-ports], run from the measurement clone at c2b2ba1a (the build's own firmware tree, which the reuse check requires) with tb/verilator/ctrl_service_budget/ checked out from ce8454cb (kept_grade.py identical to the final head's), restored clean after
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 2427 passes carry the store's step; the longest 91,704 CPU cycles (0.917 ms), srp-bound; the longest step 78,187 (0.782 ms), srp-bound
+SLICES 195432 tier-2 slices; the longest SRP's records 43,202, THE TRANSMIT's build 53,605, THE RETRY's round 20,855 CPU cycles, against the stated slice 95,000 (THE TIERS)
+JOINS srp-kept: 9 join interval(s), the shortest 186.516 ms and the longest 190.041 ms, against 181.0 to 239.0; MRP timers' run-outs: 47 released, 39 empty; LeaveAll timers' run-outs by their LeaveAll: 2 sent
+JOINS srp-bound: 4 join interval(s), the shortest 188.923 ms and the longest 190.041 ms, against 181.0 to 239.0; MRP timers' run-outs: 13 released, 10 empty
+2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 2424 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+OWED srp.kept_advertise.if0: a record of 33,656 CPU cycles, 355 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 31,297 CPU cycles, 330 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 35,435 CPU cycles, 375 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 38,746 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 33,120 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 30,850 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-kept: an SRP record's apply of 34,889 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a walk item of 3,838 CPU cycles, over its stated 3,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: an SRP record's apply of 38,210 CPU cycles, over its stated 28,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+rc=0

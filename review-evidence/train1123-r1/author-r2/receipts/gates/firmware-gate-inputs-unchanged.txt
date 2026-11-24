@@ -1,0 +1,11 @@
+# The firmware gate (test_ctrl_firmware.py --require-rv32 --self-test, four shards) is not re-run at 43076d0f: no firmware or test input changed since f5a1585e, where it passed all four shards (round 1: 2,003 live invocations, 0 escaped)
+## git diff --stat f5a1585e 43076d0f
+ docs/design/SPLIT_CONTROL_MEMORY.md             |   2 +-
+ tb/verilator/ctrl_service_budget/README.md      |  27 +++---
+ tb/verilator/ctrl_service_budget/kept_grade.py  | 121 ++++++++++++++++++------
+ tb/verilator/ctrl_service_budget/kept_window.py |   5 +-
+ 4 files changed, 113 insertions(+), 42 deletions(-)
+## git diff --stat f5a1585e 43076d0f -- sw/ third_party/ configs/ hdl/ (empty)
+## references to kept_grade or kept_window under sw/ (none)
+(none)
+## submodules: external@-efeb541ae5f gptp-processor@1616fc8f062f protocol-processor@801ef2283ec7 third_party/lwSRP@08ee86e812a0 third_party/tsn-c-stack@715589c1db7c third_party/verilog-axis@48ff7a7e2ef7 

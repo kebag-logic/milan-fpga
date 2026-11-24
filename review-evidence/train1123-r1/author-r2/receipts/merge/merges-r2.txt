@@ -1,0 +1,45 @@
+# The round-2 merges on f5a1585e, fetched from the public repository
+git ls-remote: 8aeb2f0bb9bfad9c486a0abf9dbeaf134d3de2fb refs/heads/948-rx-fanout aa30d77f75cd97b3a29878ca0ed68010a7629266 refs/heads/dev-soft-core 
+
+commit 93c5ad844b01acbd6fd9ea16f4bc7a61026916f5
+parents f5a1585e601cc627824b590c7f50351e3c8da18f 8aeb2f0bb9bfad9c486a0abf9dbeaf134d3de2fb
+tree db8dd481f4ba08d99c8d9e5086269c93471767c8
+subject Merge PR #959's reviewed head 8aeb2f0b (#948): its README pin-control count 192, already the composed count
+
+commit 4df6751e29ad8a9bb8ed0803966b38df6451b8b5
+parents 93c5ad844b01acbd6fd9ea16f4bc7a61026916f5 aa30d77f75cd97b3a29878ca0ed68010a7629266
+tree db8dd481f4ba08d99c8d9e5086269c93471767c8
+subject Merge dev-soft-core aa30d77f (PR #961's merge, #950, #954): both parents already composed, the tree unchanged
+
+f5a1585e tree: db8dd481f4ba08d99c8d9e5086269c93471767c8
+## PR #959: 64117b77 (merged in round 1) .. 8aeb2f0b, README only
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 2c7633f38c..27e5ae0f83 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -252,7 +252,7 @@ The datapath counter targets also require it before their recipes.
+ The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+ In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
+ [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
+-185 pin controls follow the boundary controls.
++192 pin controls follow the boundary controls.
+ A clean clone passes the check.
+ An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
+ An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
+## git diff f5a1585e 93c5ad84 (empty: the 192 count already composed)
+## dev-soft-core aa30d77f: parents 854bd7236792ce1adbd10c43b13a6a5002ad3bb6 287ca1ee96e69f71a5036061d2bf33c564965755; 854bd723 and 287ca1ee each an ancestor of f5a1585e:
+  854bd7236792ce1adbd10c43b13a6a5002ad3bb6 ancestor of f5a1585e: yes
+  287ca1ee96e69f71a5036061d2bf33c564965755 ancestor of f5a1585e: yes
+## git diff 93c5ad84 4df6751e (empty: dev-soft-core aa30d77f adds nothing to the tree)
+## the round-2 delta: git diff --stat f5a1585e 43076d0f8c87b5118f6f4317d000a7eebdefc967
+ docs/design/SPLIT_CONTROL_MEMORY.md             |   2 +-
+ tb/verilator/ctrl_service_budget/README.md      |  27 +++---
+ tb/verilator/ctrl_service_budget/kept_grade.py  | 121 ++++++++++++++++++------
+ tb/verilator/ctrl_service_budget/kept_window.py |   5 +-
+ 4 files changed, 113 insertions(+), 42 deletions(-)
+43076d0f8c Record #969's amended conditions on the composed train: kept <= bound within the rule's 5 %, srp-bound's build of one owed to #977, the formal legs re-graded with 0 findings
+ce8454cb8a Grade kept <= bound within the measurement rule's 5 % and owe srp-bound's build of one, as a pass and as THE TRANSMIT's slice, to #977, by #969's 2026-11-23 amendment; srp-kept's builds and SHARE passes stay findings
+4df6751e29 Merge dev-soft-core aa30d77f (PR #961's merge, #950, #954): both parents already composed, the tree unchanged
+93c5ad844b Merge PR #959's reviewed head 8aeb2f0b (#948): its README pin-control count 192, already the composed count
+8aeb2f0bb9 Give the firmware README's pin-control count as 192, the self-test's count with this change's stack-building plants (#948)
+aa30d77f75 Merge PR #961: AECP waits for the transmit state (#950, #954)

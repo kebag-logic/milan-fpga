@@ -1,0 +1,86 @@
+# bin/docs_steps_r2.py 43076d0f <root>: every run: step of docs.yml's five gate jobs on a fresh clean clone of the final head, read from the clone's own workflow (round 1's docs_steps.py with the em-dash gate's base moved to live dev-soft-core aa30d77f, the PR's base); a summary line per step
+01-wire-accountability-Set_CPU_derived_job_budgets	rc=0	# head 43076d0f8c87b5118f6f4317d000a7eebdefc967 job wire-accountability step: Set CPU-derived job budgets
+02-wire-accountability-Fetch_the_engine_authority_the_builder_derives_f	rc=0	# origin restored: gptp-processor -> https://github.com/Mister-M-alt/FPGA-gPTP.git
+03-wire-accountability-Advertised_vs_emitted_gate_green_since_2026_07_2	rc=0	RESULT: PASS
+04-wire-accountability-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+05-docs-check-no-git-Retain_checkout_identity_before_removing_metadat	SKIP	a hosted evidence recorder
+06-docs-check-no-git-Set_CPU_derived_job_budgets	rc=0	# head 43076d0f8c87b5118f6f4317d000a7eebdefc967 job docs-check-no-git step: Set CPU-derived job budgets
+07-docs-check-no-git-Strip_git_metadata_then_run_the_docs_gate	rc=0	feature_status: 0 finding(s)
+08-docs-check-no-git-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+09-docs-gates-0-Set_CPU_derived_job_budgets	rc=0	# head 43076d0f8c87b5118f6f4317d000a7eebdefc967 job docs-gates-0 step: Set CPU-derived job budgets
+10-docs-gates-0-Build_the_validated_HDL_reference	rc=0	Wrote: <scratch>/docs-43076d0f/runner_temp/milan-hdl-reference/index.html
+11-docs-gates-0-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+12-docs-gates-0-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+13-docs-gates-0-Resolve_exact_package_downloads_6	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+14-docs-gates-0-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+15-docs-gates-0-Link_health_wording_dead_reference_and_local_inf	rc=0	docs_check: 0 finding(s) across 223 md files + 1937 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+16-docs-gates-0-Added_line_em_dash_gate	rc=0	check_em_dash: 0 finding(s) over 762 added line(s) in 33 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [aa30d77f..HEAD]
+17-docs-gates-0-Concise_audience_documentation_gate	rc=0	gPTP documentation selftest: OK (30 controls)
+18-docs-gates-0-Audience_diagram_no_drift_gate	rc=0	time-sync diagram selftest: OK (source, status, XML, raster)
+19-docs-gates-0-Product_solution_source_fact_gate	rc=0	solution documentation selftest: OK (47 mutation controls)
+20-docs-gates-0-Verified_submodule_documentation_gate	rc=0	submodule documentation selftest: OK (table and diagram controls)
+21-docs-gates-0-HDL_timing_diagram_no_drift_gate	rc=0	WaveDrom current: docs/diagrams/wd_gptp_pdelay.json
+22-docs-gates-0-Published_diagram_PNG_gate	rc=0	diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+23-docs-gates-0-Milan_feature_status_consistency_gate	rc=0	feature_status: 0 finding(s)
+24-docs-gates-0-Traceability_matrix_no_drift_gate	rc=0	traceability matrix up to date (84 modules, 0 untested <= ratchet 0, 0 archived)
+25-docs-gates-0-Fetch_the_builder_source_dependencies	rc=0	# origin restored: gptp-processor -> https://github.com/Mister-M-alt/FPGA-gPTP.git
+26-docs-gates-0-Imported_gPTP_documentation_gate	rc=0	source evidence selftest: PASS (7 arms)
+27-docs-gates-0-Code_quality_measurement_self_tests	rc=0	18 checks: 18 PASS, 0 FAIL
+28-docs-gates-0-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+29-docs-gates-0-Bare_metal_scope_gate	rc=0	baremetal-only selftest: PASS (867 arm(s))
+30-docs-gates-0-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+31-docs-gates-0-Compiler_absent_firmware_controls	rc=0	GATE 1b PASS; 2 NOT RUN; 0 actual firmware compiler invocations
+32-docs-gates-0-NVM_record_space_gate	rc=0	split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+33-docs-gates-0-Capture_measurement_census_and_clock_gate	rc=0	PASS: capture census, clocks, both timing arms and receipt agree
+34-docs-gates-0-Saved_state_writer_gate	rc=0	saved-state writer gate: OK across 5 shape(s), and every planted defect reddened
+35-docs-gates-0-SoC_source_list_gate_Vivado_would_fail_40_min_in	rc=0	iob_pack_selftest: 22 arms, 21 mutants, 0 failure(s)
+36-docs-gates-0-RTL_source_list_drift_gate	rc=0	50 checks: 50 PASS, 0 FAIL
+37-docs-gates-0-Boundary_unit_naming_ratchet	rc=0	66 checks: 66 PASS, 0 FAIL
+38-docs-gates-0-Port_contract_gate	rc=0	82 checks: 82 PASS, 0 FAIL
+39-docs-gates-0-Fail_fast_ratchet	rc=0	106 checks: 106 PASS, 0 FAIL
+40-docs-gates-0-TODO_ownership_gate	rc=0	45 checks: 45 PASS, 0 FAIL
+41-docs-gates-0-Test_evidence_ratchet	rc=0	105 checks: 105 PASS, 0 FAIL
+42-docs-gates-0-Mechanical_hygiene_ratchet	rc=0	35 checks: 35 PASS, 0 FAIL
+43-docs-gates-0-SystemVerilog_idiom_gate	rc=0	55 checks: 55 PASS, 0 FAIL
+44-docs-gates-0-C_and_C_idiom_gate	rc=0	83 checks: 83 PASS, 0 FAIL
+45-docs-gates-0-Python_idiom_gate	rc=0	54 checks: 54 PASS, 0 FAIL
+46-docs-gates-0-Shell_idiom_gate	rc=0	48 checks: 48 PASS, 0 FAIL
+47-docs-gates-0-Doc_cited_path_gate	rc=0	doc path gate: OK (1760 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+48-docs-gates-0-Archive_integrity_gate	rc=0	archive selftest: OK (24 controls)
+49-docs-gates-0-Per_page_contents_gate	rc=0	TOC gate: OK (160 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+50-docs-gates-0-Documentation_inventory_freshness_gate	rc=0	documentation inventory selftest: OK (60 controls)
+51-docs-gates-0-AEM_store_generator_self_test	rc=0	gen_aem_store self-test: PASS
+52-docs-gates-0-Sweep_build_shape_gate	rc=0	  [self-test] OK: 1 drift(s) reported
+53-docs-gates-0-Deploy_shape_gate	rc=0	  [selftest] OK: 1 drift(s) reported
+54-docs-gates-0-Entity_shape_gate	rc=0	RESULT: PASS
+55-docs-gates-0-Register_reference_freshness_gate	rc=0	memory map diagram: fresh
+56-docs-gates-0-Fetch_inventory_dependencies	rc=0	# origin restored: third_party/tsn-c-stack -> https://github.com/kebag-logic/tsn-c-stack.git
+57-docs-gates-0-CI_scheduling_and_evidence_controls	rc=0	manifest comparison controls: PASS
+58-docs-gates-0-Record_executed_gate_outcomes	SKIP	the hosted runner's evidence recorders need the run's artifacts
+59-docs-gates-0-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+60-docs-gates-1-Set_CPU_derived_job_budgets	rc=0	# head 43076d0f8c87b5118f6f4317d000a7eebdefc967 job docs-gates-1 step: Set CPU-derived job budgets
+61-docs-gates-1-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+62-docs-gates-1-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+63-docs-gates-1-Resolve_exact_package_downloads_4	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+64-docs-gates-1-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+65-docs-gates-1-Fetch_the_builder_source_dependencies	rc=0	# origin restored: third_party/tsn-c-stack -> https://github.com/kebag-logic/tsn-c-stack.git
+66-docs-gates-1-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+67-docs-gates-1-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+68-docs-gates-1-End_station_builder_gates_leg_0_of_2	rc=0	ALL GATES PASS EXCEPT 1 NOT RUN
+69-docs-gates-1-Record_executed_gate_outcomes	SKIP	the hosted runner's evidence recorders need the run's artifacts
+70-docs-gates-1-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+71-docs-gates-2-Set_CPU_derived_job_budgets	rc=0	# head 43076d0f8c87b5118f6f4317d000a7eebdefc967 job docs-gates-2 step: Set CPU-derived job budgets
+72-docs-gates-2-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+73-docs-gates-2-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+74-docs-gates-2-Resolve_exact_package_downloads_4	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+75-docs-gates-2-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+76-docs-gates-2-Fetch_the_builder_source_dependencies	rc=0	# origin restored: third_party/tsn-c-stack -> https://github.com/kebag-logic/tsn-c-stack.git
+77-docs-gates-2-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+78-docs-gates-2-Install_and_verify_the_pinned_RV32_SDK	rc=1	ValueError: missing regular SDK provenance receipt; incomplete install
+79-docs-gates-2-End_station_builder_gates_leg_1_of_2	rc=0	ALL GATES PASS EXCEPT 1 NOT RUN
+80-docs-gates-2-CI_event_and_SHA_contract_gate	rc=0	selftest: PASS (2287 contract items, 5723 arms)
+81-docs-gates-2-Local_act_runner_contract_gate	rc=0	selftest: PASS
+82-docs-gates-2-Record_executed_gate_outcomes	SKIP	the hosted runner's evidence recorders need the run's artifacts
+83-docs-gates-2-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+tree porcelain: 0
+DONE failed 3
