@@ -221,8 +221,9 @@ public:
         invalidate();d->flush_i=0;
         until(int(cycles/kPeriod)+1+24);
         check(packets>100,"WIRE_COVERAGE");
-        std::printf("%s input-loopback streams=%d channels=%d lead=%d: checks=%d packets=%d failures=%d\n",
-            failures?"FAIL":"PASS",NSTREAMS,CHANNELS,LEAD,checks,packets,failures);
+        // The count is in a shape the sweep's tally reads (scripts/suite_tally.py).
+        std::printf("%s input-loopback streams=%d channels=%d lead=%d: %d checks, %d failures, packets=%d\n",
+            failures?"FAIL":"PASS",NSTREAMS,CHANNELS,LEAD,checks,failures,packets);
         return failures?1:0;
     }
 };
