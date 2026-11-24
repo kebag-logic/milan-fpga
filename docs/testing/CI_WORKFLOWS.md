@@ -483,6 +483,24 @@ into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
 and 4 units, respectively. A unit can carry several original checks; it is never split by
 resetting a carried history. No test predicate or per-suite timeout changes.
 
+The sweep's eight preflight self-tests run once per head, in the
+`verilator-preflight` job ("Verilator preflight"), and not on every worker.
+They took 76 to 97 seconds of each of the nineteen workers in run 45326076983
+and were the same eight commands on the same tree each time. The job keeps the
+workers' checkout and SHA record and runs `scripts/run_all_suites.sh
+--preflight-only`; its self-tests read no submodule and need none of the
+workers' tools. It needs `full-ci-gate` only and runs beside the workers, so
+its own setup is not on their critical path. The workers run `--ci-pieces
+--no-preflight`. `verilator-suites` needs the job, downloads its
+`suite-preflight` artifact and runs `ci_events.py --require-target-sha
+--expect 1` over it, then is red unless the job's result is `success`. A
+failed, cancelled or skipped preflight, a record for another SHA and a missing
+record each fail it, as `scripts/ci_suite_pieces_selftest.py` shows by running
+the generated step. The job is one of the fail-fast watcher's expected jobs, so
+a failing preflight also cancels the run's workers. The 122-second setup
+allowance below still includes the preflight: it is re-measured from a hosted
+run before it is lowered.
+
 `scripts/suite_shards.py` assigns the longest measured pieces first. It pins
 `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
 installs. Worker 18 owns only media-clock leg A, whose continuous history is
@@ -3657,7 +3675,9 @@ A worker is not trusted merely because an aggregate job was able to download
 something. Both aggregate jobs refuse evidence recorded for any tree but the
 run's own (see [One authoritative SHA](#one-authoritative-sha)), compare
 artifacts with the live repository inventory, and separately require every
-worker result to be `success`.
+worker result to be `success`. `verilator-suites` requires the
+`verilator-preflight` result and its SHA record the same way, because the
+workers no longer run the preflight self-tests themselves.
 
 Workflow concurrency retains the PR number or branch ref.
 Push/PR runs share the default category; newer updates replace older runs.

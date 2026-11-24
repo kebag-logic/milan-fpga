@@ -136,6 +136,78 @@ jobs:
           retention-days: 3
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+  verilator-preflight:
+    name: Verilator preflight
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Record the tree this worker validates
+        env:
+          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/suite-preflight"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-preflight/TARGET_SHA"
+          echo "target_sha=$GITHUB_SHA"
+        id: ci_step_2
+      - name: Run the sweep's preflight self-tests once for this head
+        run: |
+          scripts/run_all_suites.sh "$RUNNER_TEMP/suite-preflight" --preflight-only
+        id: ci_step_3
+      - name: Upload this head's preflight logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-preflight
+          path: ${{ runner.temp }}/suite-preflight
+          if-no-files-found: error
+          retention-days: 3
+        id: ci_step_4
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-preflight --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-verilator-preflight-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
   verilator-shards:
     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
@@ -382,7 +454,7 @@ jobs:
       - name: Run this exhaustive suite shard
         run: |
           scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
-            --ci-pieces --shard "${{ matrix.shard }}/${{ matrix.total }}"
+            --ci-pieces --no-preflight --shard "${{ matrix.shard }}/${{ matrix.total }}"
         id: ci_step_21
       - name: Upload this shard's suite logs
         if: ${{ always() }}
@@ -571,6 +643,7 @@ jobs:
       - union-maap
       - union-milan_dp_render
       - union-pp_shadow
+      - verilator-preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
@@ -651,6 +724,28 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
         id: ci_step_8
+      - name: Download this head's preflight logs
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: suite-preflight
+          path: ${{ runner.temp }}/suite-preflight
+        id: ci_step_9
+      - name: Require the preflight to have passed for this run's SHA
+        if: ${{ always() }}
+        env:
+          GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+          PREFLIGHT_RESULT: ${{ needs.verilator-preflight.result }}
+        run: |
+          python3 scripts/ci_events.py --require-target-sha --expect 1 \
+            --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+            --sha checkout="$(git rev-parse HEAD)" -- "$RUNNER_TEMP/suite-preflight"
+          if [ "$PREFLIGHT_RESULT" != success ]; then
+            echo "the Verilator preflight ended: $PREFLIGHT_RESULT; no worker ran the self-tests" >&2
+            exit 1
+          fi
+          echo "verilator-suites: the preflight self-tests passed once at $GITHUB_SHA"
+        id: ci_step_10
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1472,6 +1567,7 @@ jobs:
     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs:
       - full-ci-gate
+      - verilator-preflight
       - verilator-shards
       - physical-gptp
       - verilator-suites
@@ -1582,12 +1678,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
             capture_coherence","Union maap","Union milan_dp","Union milan_dp_mclk","Union milan_dp_render","Union
-            pp_shadow","Verilator shard 0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator
-            shard 3/19","Verilator shard 4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator
-            shard 7/19","Verilator shard 8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator
-            shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator
-            shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator shard 18/19","verilator-suites","yosys-portability","Yosys
-            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+            pp_shadow","Verilator preflight","Verilator shard 0/19","Verilator shard 1/19","Verilator
+            shard 2/19","Verilator shard 3/19","Verilator shard 4/19","Verilator shard 5/19","Verilator
+            shard 6/19","Verilator shard 7/19","Verilator shard 8/19","Verilator shard 9/19","Verilator
+            shard 10/19","Verilator shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator
+            shard 14/19","Verilator shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator
+            shard 18/19","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys shard 1/4","Yosys
+            shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
             0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator shard
             4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator shard

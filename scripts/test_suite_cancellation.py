@@ -95,8 +95,7 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     write(probe.control / "real_selector.py", (source / "suite_shards.py").read_text())
     write(root / "scripts/suite_tally.py", TALLY)
     write(root / "scripts/suite_shards.py", SELECTOR)
-    for name in ("check_merge_containment", "check_results_fresh", "xvlog_gate",
-                 "check_merge_review_integrity"):
+    for name in ("check_merge_containment", "check_results_fresh", "xvlog_gate", "check_merge_review_integrity"):
         write(root / f"scripts/{name}.py", "print('bounded prerequisite fixture')\n")
     # The recursive test call is replaced only IN THIS disposable fixture.
     # Its marker and forced-red arm prove normal entry-point ownership.
@@ -161,9 +160,9 @@ def ordinary(parent: Path, mode: str) -> None:
     probe.save(dict(exit=status, mode=mode, next_suite=True, owner_ran=True))
 
 
-def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) -> None:
-    """Latch at selection/preflight/command/transition; reject a later suite."""
-    label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name
+def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False, options: tuple = ()) -> None:
+    """Latch at selection/preflight/command/transition, under `options` too; reject a later suite."""
+    label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name + "".join(options)
     root, probe = fixture(parent, label)
     probe.env["PROBE_MODE"] = phase
     for relative, text in PREVIOUS.items():
@@ -180,7 +179,7 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
     foreign = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True)
     foreign_identity = identity(foreign.pid)
     try:
-        start(probe)
+        start(probe, *options)
         data = probe.ready()
         probe.signal(signum)
         if unsafe:
@@ -965,6 +964,7 @@ def main() -> int:
             for phase in ("selection", "preflight", "command", "transition"):
                 for signum in (signal.SIGINT, signal.SIGTERM):
                     cancellation(parent, phase, signum)
+            __import__("suite_preflight_controls").run(parent, sys.modules[__name__])
             for signum in (signal.SIGINT, signal.SIGTERM):
                 lock_wait(parent, signum)
             with OwnedProcesses():

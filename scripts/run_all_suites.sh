@@ -7,6 +7,17 @@
 #
 #   scripts/run_all_suites.sh [outdir] [--wait] [--shard INDEX/TOTAL] [--physical-gptp]
 #   scripts/run_all_suites.sh [--shard INDEX/TOTAL] --list
+#   scripts/run_all_suites.sh [outdir] [--wait] --preflight-only
+#   scripts/run_all_suites.sh [outdir] [--wait] --ci-pieces --no-preflight --shard INDEX/TOTAL
+#
+# --preflight-only runs the preflight self-tests below, under the same lock,
+# log preparation and signal handling, and no suite: exit 0 when every one
+# holds, 2 when one fails. --no-preflight skips them, and is accepted only
+# with --ci-pieces: the hosted workers' run has a preflight job that runs them
+# once for the head, and the verilator-suites aggregate requires that job's
+# success for the same SHA (docs/testing/CI_WORKFLOWS.md, "Exhaustive
+# validation"). The serial sweep, --physical-gptp and every local run keep
+# their preflight.
 #
 # Each suite is a directory with its own Makefile; the default target builds
 # and runs every shape that suite owns (several own more than one - milan_dp
@@ -150,6 +161,9 @@ SHARD="0/1"
 LIST=0
 PHYSICAL_GPTP=0
 CI_PIECES=0
+PREFLIGHT_ONLY=0
+NO_PREFLIGHT=0
+SHARD_GIVEN=0
 
 #! the command line: [outdir] [--wait] [--shard INDEX/TOTAL] [--list]
 parse_args() {
@@ -159,16 +173,28 @@ parse_args() {
       --list) LIST=1; shift ;;
       --physical-gptp) PHYSICAL_GPTP=1; shift ;;
       --ci-pieces) CI_PIECES=1; shift ;;
+      --preflight-only) PREFLIGHT_ONLY=1; shift ;;
+      --no-preflight) NO_PREFLIGHT=1; shift ;;
       --shard)
         [ "$#" -ge 2 ] || { echo "--shard needs INDEX/TOTAL" >&2; exit 2; }
-        SHARD="$2"; shift 2 ;;
-      --shard=*) SHARD="${1#--shard=}"; shift ;;
+        SHARD="$2"; SHARD_GIVEN=1; shift 2 ;;
+      --shard=*) SHARD="${1#--shard=}"; SHARD_GIVEN=1; shift ;;
       -*)        echo "unknown option: $1" >&2; exit 2 ;;
       *)
         [ -z "$OUT" ] || { echo "more than one output directory" >&2; exit 2; }
         OUT="$1"; shift ;;
     esac
   done
+  if [ "$PREFLIGHT_ONLY" = 1 ] && \
+     [ "$LIST$PHYSICAL_GPTP$CI_PIECES$NO_PREFLIGHT$SHARD_GIVEN" != 00000 ]; then
+    echo "--preflight-only selects no suite: it takes only [outdir] and --wait" >&2
+    exit 2
+  fi
+  if [ "$NO_PREFLIGHT" = 1 ] && [ "$CI_PIECES" != 1 ]; then
+    echo "--no-preflight is only for --ci-pieces workers, whose run's preflight job" >&2
+    echo "runs the self-tests once for the head; every other sweep keeps them" >&2
+    exit 2
+  fi
   OUT="${OUT:-$ROOT/.suite-logs}"
   # Prerequisites may change directory. Keep every log in the caller's OUT.
   case "$OUT" in
@@ -476,10 +502,22 @@ summarise() {
 
 main() {
   parse_args "$@"
+  if [ "$PREFLIGHT_ONLY" = 1 ]; then
+    acquire_lock
+    prepare_logs
+    run_preflight_gates
+    echo "preflight: every self-test passed; no suite was selected"
+    echo "logs: $OUT/preflight"
+    exit 0
+  fi
   select_suites
   acquire_lock
   prepare_logs
-  run_preflight_gates
+  if [ "$NO_PREFLIGHT" = 1 ]; then
+    echo "preflight: not run here; this run's preflight job runs it once for the head"
+  else
+    run_preflight_gates
+  fi
   run_suites
   summarise
 }

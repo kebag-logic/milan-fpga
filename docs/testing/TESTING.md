@@ -245,6 +245,12 @@ A suite already running may finish, holding the lock until then.
 Partial suite logs remain under the requested output directory.
 Prerequisite logs remain within its `preflight/` directory.
 Old logs are cleared after locking, before preflight starts.
+`--preflight-only` runs those self-tests and no suite, under the same lock, log clearing and traps.
+It exits 0 when every self-test holds and 2 when one fails.
+`--no-preflight` skips them and is refused without `--ci-pieces`.
+Only the hosted workers use it; their run's preflight job runs the self-tests once for the head.
+The serial sweep, `--physical-gptp` and every local run keep the preflight.
+Both modes, their refusals and their INT/TERM boundaries are among the controls below.
 Relative output paths retain their caller's location.
 Cancellation before log preparation reports that boundary explicitly.
 The sweep's normal preflight owns these deterministic cancellation controls:
@@ -641,7 +647,7 @@ watching the printed total not move). Rerun the sweep for both figures.
 
 With no options the script remains the mandatory serial local sweep. Its
 preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
-worker before its suites. That self-test refuses to start until the selector's
+worker's ownership step before its suites. That self-test refuses to start until the selector's
 `SUITE_SECONDS` names every default suite, so a change that adds a suite first
 records a provisional figure for it, by the new-suite steps in the selector's
 docstring. GitHub runs nineteen isolated `--ci-pieces --shard INDEX/19`
