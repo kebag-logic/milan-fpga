@@ -1,0 +1,149 @@
+COMMAND python3 -B <packet>/grader_probes.py <checkout>
+[
+  {
+    "probe": "baseline",
+    "passed": true,
+    "checks": 24
+  },
+  {
+    "probe": "margin-removed",
+    "passed": true,
+    "caught_by": [
+      "a kept record 4 % dearer than the bound one holds kept <= bound within the rule's 5 %: no finding"
+    ],
+    "direct_checks": [
+      "104000/100000: expected True",
+      "105000/100000: expected True"
+    ]
+  },
+  {
+    "probe": "margin-too-wide",
+    "passed": true,
+    "caught_by": [
+      "a kept record 6 % dearer than the bound one breaks kept <= bound, its own probe's, never owed"
+    ],
+    "direct_checks": [
+      "106000/100000: expected False",
+      "105001/100000: expected False"
+    ]
+  },
+  {
+    "probe": "margin-too-narrow",
+    "passed": true,
+    "caught_by": [
+      "a kept record 4 % dearer than the bound one holds kept <= bound within the rule's 5 %: no finding"
+    ],
+    "direct_checks": [
+      "104000/100000: expected True",
+      "105000/100000: expected True"
+    ]
+  },
+  {
+    "probe": "strict-edge",
+    "passed": true,
+    "caught_by": [],
+    "direct_checks": [
+      "105000/100000: expected True"
+    ]
+  },
+  {
+    "probe": "bound-build-rejected",
+    "passed": true,
+    "caught_by": [
+      "srp-bound's build of one MRPDU one cycle over its stated cost is owed to #977 by name and link, its cost named and not restated, and found nothing"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "whole-build-waived",
+    "passed": true,
+    "caught_by": [
+      "a pass given whole to THE TRANSMIT's build one cycle over its stated cost is a finding in either group"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "kept-build-waived",
+    "passed": true,
+    "caught_by": [
+      "a build of one MRPDU one cycle over its stated cost is a finding in srp-kept, never owed"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "bound-line-not-owed",
+    "passed": true,
+    "caught_by": [
+      "both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "bound-slice-not-owed",
+    "passed": true,
+    "caught_by": [
+      "both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "kept-line-owed",
+    "passed": true,
+    "caught_by": [
+      "both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "kept-slice-owed",
+    "passed": true,
+    "caught_by": [
+      "both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures"
+    ],
+    "direct_checks": []
+  },
+  {
+    "probe": "cycles 142582/142137",
+    "passed": true,
+    "expected": true,
+    "line": "KEPT <= BOUND review: 142,582 against 142,137 CPU cycles, +445 (+0.31 %), within the rule's +5 % (149,243), margin +6,661"
+  },
+  {
+    "probe": "cycles 104000/100000",
+    "passed": true,
+    "expected": true,
+    "line": "KEPT <= BOUND review: 104,000 against 100,000 CPU cycles, +4,000 (+4.00 %), within the rule's +5 % (105,000), margin +1,000"
+  },
+  {
+    "probe": "cycles 106000/100000",
+    "passed": true,
+    "expected": false,
+    "line": "KEPT <= BOUND review: 106,000 against 100,000 CPU cycles, +6,000 (+6.00 %), past the rule's +5 % (105,000), margin -1,000"
+  },
+  {
+    "probe": "cycles 105000/100000",
+    "passed": true,
+    "expected": true,
+    "line": "KEPT <= BOUND review: 105,000 against 100,000 CPU cycles, +5,000 (+5.00 %), within the rule's +5 % (105,000), margin +0"
+  },
+  {
+    "probe": "cycles 105001/100000",
+    "passed": true,
+    "expected": false,
+    "line": "KEPT <= BOUND review: 105,001 against 100,000 CPU cycles, +5,001 (+5.00 %), past the rule's +5 % (105,000), margin -1"
+  },
+  {
+    "probe": "cycles 149243/142137",
+    "passed": true,
+    "expected": true,
+    "line": "KEPT <= BOUND review: 149,243 against 142,137 CPU cycles, +7,106 (+5.00 %), within the rule's +5 % (149,243), margin +0"
+  },
+  {
+    "probe": "cycles 149244/142137",
+    "passed": true,
+    "expected": false,
+    "line": "KEPT <= BOUND review: 149,244 against 142,137 CPU cycles, +7,107 (+5.00 %), past the rule's +5 % (149,243), margin -1"
+  }
+]
+
+EXIT 0

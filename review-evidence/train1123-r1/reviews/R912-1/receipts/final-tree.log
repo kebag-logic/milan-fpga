@@ -1,0 +1,60 @@
+COMMAND python3 -B <packet>/verify_tree.py <checkout>
+[
+  {
+    "repository": "superproject",
+    "head": "43076d0f8c87b5118f6f4317d000a7eebdefc967",
+    "blobs": 1962,
+    "index_entries": 1968,
+    "gitlinks": {
+      "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "gptp-processor": "1616fc8f062fbf58c35ad31674b5b233207bbdb8",
+      "protocol-processor": "801ef2283ec793e35a2590fc6593c90313a64041",
+      "third_party/lwSRP": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "third_party/tsn-c-stack": "715589c1db7cf67e2f3259fd7083ebc7f0923376",
+      "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    },
+    "errors": []
+  },
+  {
+    "repository": "protocol-processor",
+    "head": "801ef2283ec793e35a2590fc6593c90313a64041",
+    "blobs": 868,
+    "index_entries": 868,
+    "gitlinks": {},
+    "errors": []
+  },
+  {
+    "repository": "gptp-processor",
+    "head": "1616fc8f062fbf58c35ad31674b5b233207bbdb8",
+    "blobs": 115,
+    "index_entries": 115,
+    "gitlinks": {},
+    "errors": []
+  },
+  {
+    "repository": "third_party/lwSRP",
+    "head": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+    "blobs": 65,
+    "index_entries": 65,
+    "gitlinks": {},
+    "errors": []
+  },
+  {
+    "repository": "third_party/tsn-c-stack",
+    "head": "715589c1db7cf67e2f3259fd7083ebc7f0923376",
+    "blobs": 100,
+    "index_entries": 100,
+    "gitlinks": {},
+    "errors": []
+  },
+  {
+    "repository": "third_party/verilog-axis",
+    "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+    "blobs": 214,
+    "index_entries": 214,
+    "gitlinks": {},
+    "errors": []
+  }
+]
+
+EXIT 0

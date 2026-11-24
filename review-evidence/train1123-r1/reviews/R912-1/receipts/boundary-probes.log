@@ -1,0 +1,10 @@
+COMMAND python3 -B <packet>/boundary_probes.py <checkout>
+PASS: removing the no-compile module classification is refused: sw/litex/mac_link_status.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+PASS: pre-fix pin population refused: sw/firmware/ctrl/README.md gives the pin controls as 185, where the self-test has 192
+[ok] figure control, the page's defects in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the defects in the firmware builders' run as 104, where the self-test has 103
+[ok] figure control, the page's passing controls in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the passing controls in the firmware builders' run as 9, where the self-test has 8
+[ok] figure control, the page's defects in the Verilator builders' run one more: sw/firmware/ctrl/README.md gives the defects in the Verilator builders' run as 6, where the self-test has 5
+[ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 193, where the self-test has 192
+PASS: four figure controls; population 192 supplied from the published executed gate, not re-executed here
+
+EXIT 0

@@ -1,0 +1,455 @@
+COMMAND python3 -B <packet>/evidence_audit.py
+{
+  "1x1-1if": {
+    "artifact": "author/receipts/budget/cpu-1x1-1if-formal-c2b2ba1a.md",
+    "legs": [
+      [
+        "answering-every-port",
+        "part0",
+        "16",
+        "0",
+        "f2da49d038d80755",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-later",
+        "part0",
+        "8",
+        "0",
+        "3f0d27dc196e78b5",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-ports",
+        "part0",
+        "51",
+        "0",
+        "a71e34dfffabee4a",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-ports",
+        "part1",
+        "51",
+        "0",
+        "a71e34dfffabee4a",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "declaring-outputs",
+        "part0",
+        "5",
+        "0",
+        "3e379b89b35f2335",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part0",
+        "34",
+        "0",
+        "df247549305f0714",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part1",
+        "34",
+        "0",
+        "df247549305f0714",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part2",
+        "33",
+        "0",
+        "df247549305f0714",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "shutdown-entry",
+        "part0",
+        "2",
+        "0",
+        "16205279c90eaf97",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "talker-notices",
+        "part0",
+        "8",
+        "0",
+        "0947946387907de1",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "valid-destinations",
+        "part0",
+        "1",
+        "0",
+        "860304d4e98eebd5",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "valid-destinations",
+        "part1",
+        "2",
+        "0",
+        "860304d4e98eebd5",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ]
+    ],
+    "groups": 245,
+    "images": {
+      "answering-every-port": "f2da49d038d80755",
+      "answering-later": "3f0d27dc196e78b5",
+      "answering-ports": "a71e34dfffabee4a",
+      "declaring-outputs": "3e379b89b35f2335",
+      "none": "df247549305f0714",
+      "shutdown-entry": "16205279c90eaf97",
+      "talker-notices": "0947946387907de1",
+      "valid-destinations": "860304d4e98eebd5"
+    },
+    "summary": [
+      "- answering-every-port.part0: 16 groups graded, 0 refusals, 0 budget misses (0 of 280 probe instances, 0 of 7 paths), 0 of 27726 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-later.part0: 8 groups graded, 0 refusals, 0 budget misses (0 of 56 probe instances, 0 of 7 paths), 0 of 18074 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-ports.part0: 51 groups graded, 0 refusals, 0 budget misses (0 of 492 probe instances, 0 of 82 paths), 0 of 28526 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-ports.part1: 51 groups graded, 0 refusals, 7 budget misses (7 of 486 probe instances, 4 of 49 paths), 0 of 132524 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- declaring-outputs.part0: 5 groups graded, 0 refusals, 0 budget misses (0 of 57 probe instances, 0 of 54 paths), 0 of 832 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part0: 34 groups graded, 0 refusals, 0 budget misses (0 of 327 probe instances, 0 of 60 paths), 0 of 22874 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part1: 34 groups graded, 0 refusals, 7 budget misses (7 of 324 probe instances, 4 of 42 paths), 0 of 93169 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part2: 33 groups graded, 0 refusals, 0 budget misses (0 of 317 probe instances, 0 of 33 paths), 0 of 63068 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- shutdown-entry.part0: 2 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 1 paths), 0 of 532 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- talker-notices.part0: 8 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 2 paths), 0 of 17594 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- valid-destinations.part0: 1 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 2 paths), 0 of 9703 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- valid-destinations.part1: 2 groups graded, 0 refusals, 0 budget misses (0 of 14 probe instances, 0 of 11 paths), 0 of 5851 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)"
+    ],
+    "survey": [
+      "# 0 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)"
+    ]
+  },
+  "8x8-1if": {
+    "artifact": "author/receipts/budget/cpu-8x8-1if-formal-c2b2ba1a.md",
+    "legs": [
+      [
+        "answering-every-port",
+        "part0",
+        "16",
+        "0",
+        "a531bed5eee3db34",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-later",
+        "part0",
+        "8",
+        "0",
+        "2c61cd273cb7b752",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-ports",
+        "part0",
+        "50",
+        "1",
+        "6fc878502d988b52",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "answering-ports",
+        "part1",
+        "52",
+        "1",
+        "6fc878502d988b52",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "declaring-outputs",
+        "part0",
+        "5",
+        "0",
+        "2b93f111b0a6d311",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part0",
+        "33",
+        "0",
+        "0e263f659cc9a42e",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part1",
+        "34",
+        "1",
+        "0e263f659cc9a42e",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "none",
+        "part2",
+        "34",
+        "0",
+        "0e263f659cc9a42e",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "shutdown-entry",
+        "part0",
+        "2",
+        "0",
+        "553fa36f5ec2db74",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "talker-notices",
+        "part0",
+        "8",
+        "0",
+        "3cec7c1dc37b07fa",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "valid-destinations",
+        "part0",
+        "1",
+        "0",
+        "39f27ea39d7dbd20",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ],
+      [
+        "valid-destinations",
+        "part1",
+        "2",
+        "0",
+        "39f27ea39d7dbd20",
+        "c2b2ba1a4742335e0678ec1f00f9033d1913b1da"
+      ]
+    ],
+    "groups": 245,
+    "images": {
+      "answering-every-port": "a531bed5eee3db34",
+      "answering-later": "2c61cd273cb7b752",
+      "answering-ports": "6fc878502d988b52",
+      "declaring-outputs": "2b93f111b0a6d311",
+      "none": "0e263f659cc9a42e",
+      "shutdown-entry": "553fa36f5ec2db74",
+      "talker-notices": "3cec7c1dc37b07fa",
+      "valid-destinations": "39f27ea39d7dbd20"
+    },
+    "summary": [
+      "- answering-every-port.part0: 16 groups graded, 0 refusals, 0 budget misses (0 of 728 probe instances, 0 of 7 paths), 0 of 19516 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-later.part0: 8 groups graded, 0 refusals, 0 budget misses (0 of 56 probe instances, 0 of 7 paths), 0 of 13770 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-ports.part0: 50 groups graded, 0 refusals, 7 budget misses (7 of 483 probe instances, 4 of 49 paths), 1 of 196051 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- answering-ports.part1: 52 groups graded, 0 refusals, 0 budget misses (0 of 501 probe instances, 0 of 81 paths), 0 of 105242 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- declaring-outputs.part0: 5 groups graded, 0 refusals, 0 budget misses (0 of 64 probe instances, 0 of 54 paths), 0 of 847 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part0: 33 groups graded, 0 refusals, 0 budget misses (0 of 320 probe instances, 0 of 43 paths), 0 of 189005 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part1: 34 groups graded, 0 refusals, 0 budget misses (0 of 323 probe instances, 0 of 55 paths), 1 of 104942 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- none.part2: 34 groups graded, 0 refusals, 7 budget misses (7 of 331 probe instances, 4 of 43 paths), 0 of 29366 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- shutdown-entry.part0: 2 groups graded, 0 refusals, 0 budget misses (0 of 2 probe instances, 0 of 1 paths), 0 of 524 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- talker-notices.part0: 8 groups graded, 0 refusals, 0 budget misses (0 of 16 probe instances, 0 of 2 paths), 0 of 12741 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- valid-destinations.part0: 1 groups graded, 0 refusals, 0 budget misses (0 of 9 probe instances, 0 of 9 paths), 0 of 33117 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)",
+      "- valid-destinations.part1: 2 groups graded, 0 refusals, 0 budget misses (0 of 36 probe instances, 0 of 25 paths), 0 of 32561 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)"
+    ],
+    "survey": [
+      "# 2 statement(s) exceeded (OVER: by the rule; OVER-raw: cycles / 100 alone exceeds it)"
+    ]
+  },
+  "firmware-shard-0": {
+    "artifact": "author/receipts/firmware/fw-gate-f5a1585e-s0.txt",
+    "ok_lines": 96,
+    "ending": [
+      "test_ctrl_firmware: PASS",
+      "porcelain-after 0 END rc=0 22:47:14"
+    ]
+  },
+  "firmware-shard-1": {
+    "artifact": "author/receipts/firmware/fw-gate-f5a1585e-s1.txt",
+    "ok_lines": 844,
+    "ending": [
+      "test_ctrl_firmware: PASS",
+      "porcelain-after 0 END rc=0 23:12:13"
+    ]
+  },
+  "firmware-shard-2": {
+    "artifact": "author/receipts/firmware/fw-gate-f5a1585e-s2.txt",
+    "ok_lines": 398,
+    "ending": [
+      "test_ctrl_firmware: PASS",
+      "porcelain-after 0 END rc=0 22:56:56"
+    ]
+  },
+  "firmware-shard-3": {
+    "artifact": "author/receipts/firmware/fw-gate-f5a1585e-s3.txt",
+    "ok_lines": 664,
+    "ending": [
+      "test_ctrl_firmware: PASS",
+      "porcelain-after 0 END rc=0 23:03:17"
+    ]
+  },
+  "builder": {
+    "artifact": "author/receipts/firmware/builder-union-c2b2ba1a.json.txt",
+    "union": "pass",
+    "distinct_cases": 113,
+    "not_run": [
+      [
+        "gate 1b",
+        "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+        "row"
+      ],
+      [
+        "gate 11",
+        "real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+        "row"
+      ]
+    ]
+  },
+  "kept-1x1-arm-A": {
+    "artifact": "author-r2/receipts/budget/kept-grade-1x1-arm-A-r2.txt",
+    "lines": [
+      "KEPT <= BOUND srp.kept_advertise.if0: 34,322 against 38,739 CPU cycles, -4,417 (-11.40 %), within the rule's +5 % (40,675), margin +6,353",
+      "KEPT <= BOUND srp.kept_recount.if0: 31,141 against 38,739 CPU cycles, -7,598 (-19.61 %), within the rule's +5 % (40,675), margin +9,534",
+      "KEPT <= BOUND srp.kept_failed.if0: 36,631 against 38,739 CPU cycles, -2,108 (-5.44 %), within the rule's +5 % (40,675), margin +4,044",
+      "SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1911 work pass(es) and 1863 idle run(s) in its log",
+      "SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1224 work pass(es) and 832 idle run(s) in its log",
+      "BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-kept build-one: the heaviest pass 37,898 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-bound build-one: the heaviest pass 53,182 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "OWED srp.kept_advertise.if0: a record of 34,322 CPU cycles, 365 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_recount.if0: a record of 31,141 CPU cycles, 330 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_failed.if0: a record of 36,631 CPU cycles, 385 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.bound_advertise.if0: a record of 38,739 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))"
+    ]
+  },
+  "kept-1x1-answering-ports": {
+    "artifact": "author-r2/receipts/budget/kept-grade-1x1-answering-ports-r2.txt",
+    "lines": [
+      "KEPT <= BOUND srp.kept_advertise.if0: 33,656 against 38,746 CPU cycles, -5,090 (-13.14 %), within the rule's +5 % (40,683), margin +7,027",
+      "KEPT <= BOUND srp.kept_recount.if0: 31,297 against 38,746 CPU cycles, -7,449 (-19.23 %), within the rule's +5 % (40,683), margin +9,386",
+      "KEPT <= BOUND srp.kept_failed.if0: 35,435 against 38,746 CPU cycles, -3,311 (-8.55 %), within the rule's +5 % (40,683), margin +5,248",
+      "SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1909 work pass(es) and 1861 idle run(s) in its log",
+      "SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 515 work pass(es) and 500 idle run(s) in its log",
+      "BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-kept build-one: the heaviest pass 37,785 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-bound build-one: the heaviest pass 53,605 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "OWED srp.kept_advertise.if0: a record of 33,656 CPU cycles, 355 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_recount.if0: a record of 31,297 CPU cycles, 330 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_failed.if0: a record of 35,435 CPU cycles, 375 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.bound_advertise.if0: a record of 38,746 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))"
+    ]
+  },
+  "kept-8x8-1if-arm-A": {
+    "artifact": "author-r2/receipts/budget/kept-grade-8x8-1if-arm-A-r2.txt",
+    "lines": [
+      "KEPT <= BOUND srp.kept_advertise.if0: 138,467 against 142,137 CPU cycles, -3,670 (-2.58 %), within the rule's +5 % (149,243), margin +10,776",
+      "KEPT <= BOUND srp.kept_recount.if0: 71,791 against 142,137 CPU cycles, -70,346 (-49.49 %), within the rule's +5 % (149,243), margin +77,452",
+      "KEPT <= BOUND srp.kept_failed.if0: 142,582 against 142,137 CPU cycles, +445 (+0.31 %), within the rule's +5 % (149,243), margin +6,661",
+      "SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1908 work pass(es) and 1860 idle run(s) in its log",
+      "SHARE srp-bound: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 5789 work pass(es) and 1992 idle run(s) in its log",
+      "BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-kept build-one: the heaviest pass 81,655 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-bound build-one: the heaviest pass 103,782 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "OWED srp.kept_advertise.if0: a record of 138,467 CPU cycles, 1455 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_recount.if0: a record of 71,791 CPU cycles, 755 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_failed.if0: a record of 142,582 CPU cycles, 1500 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.bound_advertise.if0: a record of 142,137 CPU cycles, 1495 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp-bound: a work pass of 216,785 CPU cycles at bus cycle 617570490 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "kept_grade: PASS (0 finding(s), 5 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))"
+    ]
+  },
+  "kept-8x8-1if-answering-ports": {
+    "artifact": "author-r2/receipts/budget/kept-grade-8x8-1if-answering-ports-r2.txt",
+    "lines": [
+      "KEPT <= BOUND srp.kept_advertise.if0: 130,837 against 138,016 CPU cycles, -7,179 (-5.20 %), within the rule's +5 % (144,916), margin +14,079",
+      "KEPT <= BOUND srp.kept_recount.if0: 70,379 against 138,016 CPU cycles, -67,637 (-49.01 %), within the rule's +5 % (144,916), margin +74,537",
+      "KEPT <= BOUND srp.kept_failed.if0: 134,143 against 138,016 CPU cycles, -3,873 (-2.81 %), within the rule's +5 % (144,916), margin +10,773",
+      "SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1908 work pass(es) and 1860 idle run(s) in its log",
+      "SHARE srp-bound: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 765 work pass(es) and 739 idle run(s) in its log",
+      "BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-kept build-one: the heaviest pass 86,018 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)",
+      "BUILD srp-bound build-one: the heaviest pass 171,645 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)",
+      "OWED srp.kept_advertise.if0: a record of 130,837 CPU cycles, 1375 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_recount.if0: a record of 70,379 CPU cycles, 740 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.kept_failed.if0: a record of 134,143 CPU cycles, 1410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp.bound_advertise.if0: a record of 138,016 CPU cycles, 1450 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp-bound: a work pass of 203,961 CPU cycles at bus cycle 606456104 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "OWED srp-bound: a build-one pass at bus cycle 606660065: 171,645 CPU cycles over its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)",
+      "kept_grade: PASS (0 finding(s), 6 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))"
+    ]
+  },
+  "8x8-ExtraPostPlacementOpt": {
+    "artifact": "author/receipts/route/8x8-ExtraPostPlacementOpt",
+    "signoff": [
+      "Slow_85C: WNS +0.105 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Slow_0C: WNS +0.105 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "issue floors (WNS >= +0.030, WHS >= 0) met at every corner",
+      "ruling floors (WNS and WHS >= +0.030) met at every corner",
+      "rc=0"
+    ],
+    "utilization": "8x8/build_ExtraPostPlacementOpt/gateware Slice LUTs=46621 LUT as Logic=45401 LUT as Memory=1220 Slice Registers=53338 Slice=15570 Block RAM Tile=98.5 RAMB36/FIFO=? RAMB18=33 DSPs=13",
+    "identity": "image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3"
+  },
+  "1x1-ExtraTimingOpt": {
+    "artifact": "author/receipts/route/1x1-ExtraTimingOpt",
+    "signoff": [
+      "Slow_85C: WNS +0.384 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Slow_0C: WNS +0.384 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Fast_85C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "Fast_0C: WNS +1.636 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "issue floors (WNS >= +0.030, WHS >= 0) met at every corner",
+      "ruling floors (WNS and WHS >= +0.030) met at every corner",
+      "rc=0"
+    ],
+    "utilization": "1x1/build_ExtraTimingOpt/gateware Slice LUTs=32680 LUT as Logic=31384 LUT as Memory=1296 Slice Registers=42805 Slice=14297 Block RAM Tile=80.5 RAMB36/FIFO=? RAMB18=35 DSPs=13",
+    "identity": "image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3"
+  },
+  "1x1-ExtraPostPlacementOpt": {
+    "artifact": "author/receipts/route/1x1-ExtraPostPlacementOpt",
+    "signoff": [
+      "Slow_85C: WNS +0.019 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Slow_0C: WNS +0.019 ns (0 failing), WHS +0.102 ns (0 failing)",
+      "Fast_85C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "Fast_0C: WNS +1.660 ns (0 failing), WHS +0.036 ns (0 failing)",
+      "issue floors NOT met",
+      "ruling floors NOT met",
+      "rc=1"
+    ],
+    "utilization": "1x1/build_ExtraPostPlacementOpt/gateware Slice LUTs=32701 LUT as Logic=31404 LUT as Memory=1297 Slice Registers=42803 Slice=13731 Block RAM Tile=80.5 RAMB36/FIFO=? RAMB18=35 DSPs=13",
+    "identity": "image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3"
+  },
+  "docs": {
+    "artifact": "author-r2/receipts/docs/docs-workflow-steps-43076d0f.txt",
+    "passed": 56,
+    "refused": [
+      "30-docs-gates-0-Install_and_verify_the_pinned_RV32_SDK\trc=1\tValueError: missing regular SDK provenance receipt; incomplete install",
+      "67-docs-gates-1-Install_and_verify_the_pinned_RV32_SDK\trc=1\tValueError: missing regular SDK provenance receipt; incomplete install",
+      "78-docs-gates-2-Install_and_verify_the_pinned_RV32_SDK\trc=1\tValueError: missing regular SDK provenance receipt; incomplete install"
+    ],
+    "skipped": 24
+  },
+  "suites-A": {
+    "artifact": "author/receipts/rtl/suites-A-c2b2ba1a.txt",
+    "receipt": "# scripts/run_all_suites.sh's per-suite recipe (timeout, make -C tb/verilator/<suite>, suite_tally's verdict) on a clean clone of c2b2ba1a, the CI image's Verilator; one line per suite, then the tally\nmilan_dp rc=0 seconds=3066\nchecks: 14379   in-suite failures: 0\ntally rc=0\n"
+  },
+  "suites-B": {
+    "artifact": "author/receipts/rtl/suites-B-c2b2ba1a.txt",
+    "receipt": "# scripts/run_all_suites.sh's per-suite recipe (timeout, make -C tb/verilator/<suite>, suite_tally's verdict) on a clean clone of c2b2ba1a, the CI image's Verilator; one line per suite, then the tally\nmilan_dp_render rc=0 seconds=1024\ntdm_render rc=0 seconds=25\navtp_rxmon rc=0 seconds=548\nmilan_dp_mclk rc=0 seconds=806\naaf_audio_loop rc=0 seconds=6\nchecks: 3626   in-suite failures: 0\ntally rc=0\n"
+  },
+  "suites-C": {
+    "artifact": "author/receipts/rtl/suites-C-c2b2ba1a.txt",
+    "receipt": "# scripts/run_all_suites.sh's per-suite recipe (timeout, make -C tb/verilator/<suite>, suite_tally's verdict) on a clean clone of c2b2ba1a, the CI image's Verilator; one line per suite, then the tally\nctrl_split_boot rc=2 seconds=0\nnvm_backend rc=0 seconds=30\nnvm_capture_cpu rc=2 seconds=0\nnvm_split_target rc=2 seconds=0\nfw_service_budget rc=0 seconds=2\nchecks: 849   in-suite failures: 0\n\nACCOUNTING FAILURE -- nothing was measured by 3 suite log(s):\n  NOCOUNT  ctrl_split_boot: printed no tally line at all\n  NOCOUNT  nvm_capture_cpu: printed no tally line at all\n  NOCOUNT  nvm_split_target: printed no tally line at all\n  A suite that measured nothing is an UNKNOWN, not agreement.\n  If it printed no tally: make it print one of the shapes in\n  scripts/suite_tally.py. If it tallied zero: make it assert\n  something, or say why it ran nothing with a SUITE-SKIP: line\n  AND still report the checks it did run.\n\nThe check total above is INCOMPLETE and must not be quoted.\ntally rc=1\n"
+  }
+}
+
+EXIT 0
