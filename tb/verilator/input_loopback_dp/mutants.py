@@ -24,7 +24,11 @@ def main():
     plants = [("control1", 1, None, None), ("control8", 8, None, None),
               ("missing_edit_invalidation", 8, "dp", [(pulse, pulse.replace("1'b1", "1'b0"))]),
               ("disconnected_map", 8, "dp", [(".input_map_i (amap_in_store_r)", ".input_map_i ('0)")]),
-              ("overwritten_capture_page", 1, "queue", [("cons_w[2:0]", "{1'b0, cons_w[1:0]}")])]
+              ("overwritten_capture_page", 1, "queue", [
+                  ("cons_w[2:0]", "{1'b0, cons_w[1:0]}"),
+                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")]),
+              ("truncated_claim_page", 1, "queue", [
+                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")])]
     results = []
     for name, shape, kind, replacements in plants:
         work = out / name
@@ -34,7 +38,7 @@ def main():
             source = dp if kind == "dp" else queue
             for old, new in replacements:
                 count = source.count(old)
-                expected = 1 if kind == "dp" else 5
+                expected = 1
                 if count != expected:
                     raise RuntimeError((name, "anchor count", count, expected))
                 source = source.replace(old, new)

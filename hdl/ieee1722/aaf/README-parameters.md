@@ -78,6 +78,8 @@ physical rendering and before scrubbing the consumed source frame.
 `INPUT_KEYS_P`, `INPUT_FIRST_P`, and `INPUT_CH_P` describe that map slice.
 The two approved tuples are `(16,8,8)` and `(64,1,63)`.
 An eight-page, 512 by 24-bit sample RAM has one write port and one synchronous read port.
+Four metadata slots cover unclaimed frames at the supported leads.
+A claim saves the full RAM page before metadata reuse.
 Only a complete, current frame may publish; absent source words write zero.
 
 `KL_chan_map_capture` uses source bucket 6 for these destinations.

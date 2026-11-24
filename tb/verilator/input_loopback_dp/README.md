@@ -24,9 +24,10 @@ All 63 destinations and eight talkers run concurrently at 8x8.
 The final unused channel must remain silent.
 A walk deadline assertion covers the entire capture walk.
 
-`python3 mutants.py --output <scratch>` runs controls and three plants.
+`python3 mutants.py --output <scratch>` runs controls and four plants.
 Removing the edit invalidation or map connection must fail samples.
 Reducing retention to four pages must fail at 1x1.
+Dropping the claimed page's upper address bit must also fail.
 Compilation errors never count as successful detections.
 
 The [wire fixture](../input_loopback/README.md) adds isolated leaf coverage.

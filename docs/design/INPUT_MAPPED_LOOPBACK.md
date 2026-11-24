@@ -167,9 +167,15 @@ Distinct names must identify the new source pool.
 
 The buffer has eight pages of up to 64 words.
 
-Each word contains a 24-bit sample, for 6144 sample-storage bits.
+Each word contains a 24-bit sample, for 12288 sample-storage bits.
 
-Frame validity and capture timestamps are held separately for eight pages.
+Four metadata slots hold validity, frame tags, and capture timestamps.
+
+Those slots cover unclaimed frames at the supported leads.
+
+A claim saves all three bits of its RAM page.
+
+The active walk therefore survives reuse of its metadata slot.
 
 Simple-dual-port operation targets one RAMB18.
 

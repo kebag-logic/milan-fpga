@@ -1474,16 +1474,27 @@ module KL_chan_map_capture #(
         //! guard that covers exactly this for the front-end path - out of the
         //! packetizer's input. Milan v1.2 5.3.7.3 gives a bound Stream Output
         //! no way to be silent except by sending silence.
-        CM_STEP_S : if (INPUT_LOOPBACK_P == 0 || input_step_done_w) begin
+        CM_STEP_S : begin
           pair_valid_o <= 1'b1;
           pair_slot_o  <= 5'(slot_r);
-          pair_l_o     <= (INPUT_LOOPBACK_P != 0) ? input_pair_l_w : out_l_w;
-          pair_r_o     <= (INPUT_LOOPBACK_P != 0) ? input_pair_r_w : out_r_w;
+          pair_l_o     <= out_l_w;
+          pair_r_o     <= out_r_w;
           gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
           st_r         <= CM_GAP_S;
+          if (INPUT_LOOPBACK_P != 0) begin
+            if (input_step_done_w) begin
+              pair_l_o <= input_pair_l_w;
+              pair_r_o <= input_pair_r_w;
+            end else begin
+              pair_valid_o <= 1'b0;
+              pair_slot_o <= pair_slot_o;
+              pair_l_o <= pair_l_o;
+              pair_r_o <= pair_r_o;
+              gap_r <= gap_r;
+              st_r <= CM_STEP_S;
+            end
+          end
         end
-
-        // -------- settle gap between injects ------------------------------
         CM_GAP_S : begin
           pair_valid_o <= 1'b0;            //! the pulse was one cycle only
           if (gap_r == '0) begin
