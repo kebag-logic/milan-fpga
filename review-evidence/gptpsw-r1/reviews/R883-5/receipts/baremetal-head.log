@@ -1,0 +1,5 @@
+head 0acf24d9b5060a263f725c02026446dde64c2574
+  - sw/firmware/ctrl/test/aecp_face_mutants.py:31: [R] prohibited target runtime/service surface 'software gPTP owner': '(\'Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass\', "AS_CAPABLE is the software gPTP owner\'s")),' (#259: no target OS or retired helper-service plane)
+  - sw/firmware/ctrl/test/test_aecp.cpp:4681: [R] prohibited target runtime/service surface 'software gPTP owner': '<< "AS_CAPABLE is the software gPTP owner\'s, whatever the datapath\'s bit 0 ("<<(datapath&1u)<<")";' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (2 finding(s) across 1936 scanned file(s))
+rc=1

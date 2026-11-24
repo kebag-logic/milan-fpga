@@ -1,0 +1,106 @@
+[
+  {
+    "name": "rv-leak-datapath-wins",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)((out->flags & ~1u) | (out->flags & 1u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "rv-leak-override-removed",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)out->flags; (void)as_capable;",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "rv-leak-and",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)((out->flags & ~1u) | ((as_capable && (out->flags & 1u)) ? 1u : 0u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "rv-leak-or-spelled",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)((out->flags & ~1u) | ((as_capable || (out->flags & 1u)) ? 1u : 0u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "rv-owner-inverted",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 0u : 1u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-software-gptp-clears-link-flags",
+    "path": "aecp/aecp_face.c",
+    "old": "(out->flags & ~1u)",
+    "new": "0u",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "software gPTP keeps the datapath's link flags"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-software-gptp-keeps-datapath-capable",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-software-gptp-ignores-path-refusal",
+    "path": "aecp/aecp_face.c",
+    "old": "return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);",
+    "new": "return f->gptp.path(f->gptp.ctx, interface, out, capacity, count) || true;",
+    "checks": [
+      [
+        "Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead",
+        "software gPTP forwards the path owner's refusal"
+      ]
+    ],
+    "caught": true
+  }
+]

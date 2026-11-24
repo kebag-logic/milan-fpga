@@ -1,0 +1,11 @@
+2026-11-24T14:41:13.4392177Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+2026-11-24T14:41:13.4392776Z python3 scripts/check_baremetal_only.py --check
+2026-11-24T14:41:13.4393313Z python3 scripts/check_baremetal_only.py --selftest
+2026-11-24T14:41:13.4419948Z shell: /usr/bin/bash -e {0}
+2026-11-24T14:41:13.4420293Z env:
+2026-11-24T14:41:13.4423613Z ##[endgroup]
+2026-11-24T14:41:42.7277676Z   - sw/firmware/ctrl/test/aecp_face_mutants.py:31: [R] prohibited target runtime/service surface 'software gPTP owner': '(\'Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass\', "AS_CAPABLE is the software gPTP owner\'s")),' (#259: no target OS or retired helper-service plane)
+2026-11-24T14:41:42.7279950Z   - sw/firmware/ctrl/test/test_aecp.cpp:4681: [R] prohibited target runtime/service surface 'software gPTP owner': '<< "AS_CAPABLE is the software gPTP owner\'s, whatever the datapath\'s bit 0 ("<<(datapath&1u)<<")";' (#259: no target OS or retired helper-service plane)
+2026-11-24T14:41:42.7281243Z baremetal-only: FAIL (2 finding(s) across 1936 scanned file(s))
+2026-11-24T14:41:42.7376909Z ##[error]Process completed with exit code 1.
+hosted job 138520503292 (docs-gates-0, run 45415508824, head 0acf24d9) step 'Bare-metal scope gate' conclusion failure

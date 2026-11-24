@@ -1,0 +1,19 @@
+checkout <CLONE>; tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+controls: table drift and reader controls pass
+[ok] rv-leak-datapath-wins: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] rv-leak-override-removed: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] rv-leak-and: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] rv-leak-or-spelled: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] rv-owner-inverted: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-clears-link-flags: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-keeps-datapath-capable: Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass
+[ok] face-software-gptp-ignores-path-refusal: Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead
+PASS rv-leak-datapath-wins: caught=True new-words-failed=True link-words-failed=False
+PASS rv-leak-override-removed: caught=True new-words-failed=True link-words-failed=False
+PASS rv-leak-and: caught=True new-words-failed=True link-words-failed=False
+PASS rv-leak-or-spelled: caught=True new-words-failed=True link-words-failed=False
+PASS rv-owner-inverted: caught=True new-words-failed=True link-words-failed=False
+PASS face-software-gptp-clears-link-flags: caught=True new-words-failed=False link-words-failed=True
+PASS face-software-gptp-keeps-datapath-capable: caught=True new-words-failed=True link-words-failed=False
+PASS face-software-gptp-ignores-path-refusal: caught=True new-words-failed=False link-words-failed=False
+PASS baseline if1: rc=0 Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass ok=True
