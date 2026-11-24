@@ -1,0 +1,190 @@
+dependency=d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b shape=1x1/1if rc=0
+[==========] Running 44 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from OwnLeaveAll
+[ RUN      ] OwnLeaveAll.EveryListenerStaysRegisteredAcrossBothStationsLeaveAlls
+OWN-LA held inputs=2 span_ms=90190 board_frames=101 board_leavealls=5 peer_leavealls=2
+[       OK ] OwnLeaveAll.EveryListenerStaysRegisteredAcrossBothStationsLeaveAlls (15 ms)
+[----------] 1 test from OwnLeaveAll (15 ms total)
+
+[----------] 43 tests from FiveTo200Ms/OwnLeaveAllWithdrawal
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0
+OWN-LA input=0 offset_ms=5 leaveall_ms=14790 withdrawn_ms=14795 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=5 leaveall_ms=26680 withdrawn_ms=26685 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1
+OWN-LA input=0 offset_ms=10 leaveall_ms=14790 withdrawn_ms=14800 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=10 leaveall_ms=26680 withdrawn_ms=26690 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2
+OWN-LA input=0 offset_ms=15 leaveall_ms=14790 withdrawn_ms=14805 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=15 leaveall_ms=26680 withdrawn_ms=26695 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3
+OWN-LA input=0 offset_ms=20 leaveall_ms=14790 withdrawn_ms=14810 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=20 leaveall_ms=26680 withdrawn_ms=26700 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4
+OWN-LA input=0 offset_ms=25 leaveall_ms=14790 withdrawn_ms=14815 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=25 leaveall_ms=26680 withdrawn_ms=26705 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5
+OWN-LA input=0 offset_ms=30 leaveall_ms=14790 withdrawn_ms=14820 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=30 leaveall_ms=26680 withdrawn_ms=26710 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6
+OWN-LA input=0 offset_ms=35 leaveall_ms=14790 withdrawn_ms=14825 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=35 leaveall_ms=26680 withdrawn_ms=26715 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7
+OWN-LA input=0 offset_ms=40 leaveall_ms=14790 withdrawn_ms=14830 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=40 leaveall_ms=26680 withdrawn_ms=26720 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8
+OWN-LA input=0 offset_ms=45 leaveall_ms=14790 withdrawn_ms=14835 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=45 leaveall_ms=26680 withdrawn_ms=26725 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9
+OWN-LA input=0 offset_ms=50 leaveall_ms=14790 withdrawn_ms=14840 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=50 leaveall_ms=26680 withdrawn_ms=26730 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10
+OWN-LA input=0 offset_ms=55 leaveall_ms=14790 withdrawn_ms=14845 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=55 leaveall_ms=26680 withdrawn_ms=26735 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11
+OWN-LA input=0 offset_ms=60 leaveall_ms=14790 withdrawn_ms=14850 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=60 leaveall_ms=26680 withdrawn_ms=26740 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12
+OWN-LA input=0 offset_ms=65 leaveall_ms=14790 withdrawn_ms=14855 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=65 leaveall_ms=26680 withdrawn_ms=26745 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13
+OWN-LA input=0 offset_ms=70 leaveall_ms=14790 withdrawn_ms=14860 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=70 leaveall_ms=26680 withdrawn_ms=26750 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14
+OWN-LA input=0 offset_ms=75 leaveall_ms=14790 withdrawn_ms=14865 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=75 leaveall_ms=26680 withdrawn_ms=26755 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15
+OWN-LA input=0 offset_ms=80 leaveall_ms=14790 withdrawn_ms=14870 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=80 leaveall_ms=26680 withdrawn_ms=26760 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16
+OWN-LA input=0 offset_ms=85 leaveall_ms=14790 withdrawn_ms=14875 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=85 leaveall_ms=26680 withdrawn_ms=26765 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17
+OWN-LA input=0 offset_ms=90 leaveall_ms=14790 withdrawn_ms=14880 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=90 leaveall_ms=26680 withdrawn_ms=26770 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18
+OWN-LA input=0 offset_ms=95 leaveall_ms=14790 withdrawn_ms=14885 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=95 leaveall_ms=26680 withdrawn_ms=26775 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19
+OWN-LA input=0 offset_ms=100 leaveall_ms=14790 withdrawn_ms=14890 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=100 leaveall_ms=26680 withdrawn_ms=26780 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20
+OWN-LA input=0 offset_ms=105 leaveall_ms=14790 withdrawn_ms=14895 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=105 leaveall_ms=26680 withdrawn_ms=26785 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21
+OWN-LA input=0 offset_ms=110 leaveall_ms=14790 withdrawn_ms=14900 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=110 leaveall_ms=26680 withdrawn_ms=26790 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22
+OWN-LA input=0 offset_ms=115 leaveall_ms=14790 withdrawn_ms=14905 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=115 leaveall_ms=26680 withdrawn_ms=26795 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23
+OWN-LA input=0 offset_ms=120 leaveall_ms=14790 withdrawn_ms=14910 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=120 leaveall_ms=26680 withdrawn_ms=26800 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24
+OWN-LA input=0 offset_ms=125 leaveall_ms=14790 withdrawn_ms=14915 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=125 leaveall_ms=26680 withdrawn_ms=26805 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25
+OWN-LA input=0 offset_ms=130 leaveall_ms=14790 withdrawn_ms=14920 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=130 leaveall_ms=26680 withdrawn_ms=26810 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26
+OWN-LA input=0 offset_ms=135 leaveall_ms=14790 withdrawn_ms=14925 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=135 leaveall_ms=26680 withdrawn_ms=26815 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27
+OWN-LA input=0 offset_ms=140 leaveall_ms=14790 withdrawn_ms=14930 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=140 leaveall_ms=26680 withdrawn_ms=26820 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28
+OWN-LA input=0 offset_ms=145 leaveall_ms=14790 withdrawn_ms=14935 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=145 leaveall_ms=26680 withdrawn_ms=26825 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29
+OWN-LA input=0 offset_ms=150 leaveall_ms=14790 withdrawn_ms=14940 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=150 leaveall_ms=26680 withdrawn_ms=26830 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30
+OWN-LA input=0 offset_ms=155 leaveall_ms=14790 withdrawn_ms=14945 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=155 leaveall_ms=26680 withdrawn_ms=26835 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31
+OWN-LA input=0 offset_ms=160 leaveall_ms=14790 withdrawn_ms=14950 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=160 leaveall_ms=26680 withdrawn_ms=26840 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32
+OWN-LA input=0 offset_ms=165 leaveall_ms=14790 withdrawn_ms=14955 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=165 leaveall_ms=26680 withdrawn_ms=26845 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33
+OWN-LA input=0 offset_ms=170 leaveall_ms=14790 withdrawn_ms=14960 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=170 leaveall_ms=26680 withdrawn_ms=26850 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34
+OWN-LA input=0 offset_ms=175 leaveall_ms=14790 withdrawn_ms=14965 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=175 leaveall_ms=26680 withdrawn_ms=26855 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35
+OWN-LA input=0 offset_ms=180 leaveall_ms=14790 withdrawn_ms=14970 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=180 leaveall_ms=26680 withdrawn_ms=26860 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36
+OWN-LA input=0 offset_ms=185 leaveall_ms=14790 withdrawn_ms=14975 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=185 leaveall_ms=26680 withdrawn_ms=26865 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/37
+OWN-LA input=0 offset_ms=190 leaveall_ms=14790 withdrawn_ms=14980 lv_ms=14981 peer_left_ms=14981
+OWN-LA input=1 offset_ms=190 leaveall_ms=26680 withdrawn_ms=26870 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/37 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/38
+OWN-LA input=0 offset_ms=195 leaveall_ms=14790 withdrawn_ms=14985 lv_ms=14986 peer_left_ms=14986
+OWN-LA input=1 offset_ms=195 leaveall_ms=26680 withdrawn_ms=26875 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/38 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/39
+OWN-LA input=0 offset_ms=200 leaveall_ms=14790 withdrawn_ms=14990 lv_ms=14991 peer_left_ms=14991
+OWN-LA input=1 offset_ms=200 leaveall_ms=26680 withdrawn_ms=26880 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/39 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40
+OWN-LA input=0 offset_ms=129 leaveall_ms=14790 withdrawn_ms=14919 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=129 leaveall_ms=26680 withdrawn_ms=26809 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41
+OWN-LA input=0 offset_ms=189 leaveall_ms=14790 withdrawn_ms=14979 lv_ms=14980 peer_left_ms=14980
+OWN-LA input=1 offset_ms=189 leaveall_ms=26680 withdrawn_ms=26869 lv_ms=26870 peer_left_ms=26870
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/42
+OWN-LA input=0 offset_ms=191 leaveall_ms=14790 withdrawn_ms=14981 lv_ms=14982 peer_left_ms=14982
+OWN-LA input=1 offset_ms=191 leaveall_ms=26680 withdrawn_ms=26871 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/42 (5 ms)
+[----------] 43 tests from FiveTo200Ms/OwnLeaveAllWithdrawal (217 ms total)
+
+[----------] Global test environment tear-down
+[==========] 44 tests from 2 test suites ran. (233 ms total)
+[  PASSED  ] 44 tests.
+== ctrl SRP own LeaveAll: checks: 44   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (44 tests, 0 failures, exit 0)

@@ -1,0 +1,2494 @@
+dependency=08ee86e812a0eb5e1dc6cd61b494d8baf3491348 shape=1x1/1if rc=1
+[==========] Running 44 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from OwnLeaveAll
+[ RUN      ] OwnLeaveAll.EveryListenerStaysRegisteredAcrossBothStationsLeaveAlls
+OWN-LA held inputs=2 span_ms=90190 board_frames=108 board_leavealls=5 peer_leavealls=2
+[       OK ] OwnLeaveAll.EveryListenerStaysRegisteredAcrossBothStationsLeaveAlls (15 ms)
+[----------] 1 test from OwnLeaveAll (15 ms total)
+
+[----------] 43 tests from FiveTo200Ms/OwnLeaveAllWithdrawal
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 5 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 0: no Lv within 240 ms of a withdrawal 5 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=5 leaveall_ms=14790 withdrawn_ms=14795 lv_ms=none>15085 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 5 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 1: no Lv within 240 ms of a withdrawal 5 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=5 leaveall_ms=26680 withdrawn_ms=26685 lv_ms=none>26975 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0, where GetParam() = 5 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 10 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 0: no Lv within 240 ms of a withdrawal 10 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=10 leaveall_ms=14790 withdrawn_ms=14800 lv_ms=none>15090 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 10 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 1: no Lv within 240 ms of a withdrawal 10 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=10 leaveall_ms=26680 withdrawn_ms=26690 lv_ms=none>26980 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1, where GetParam() = 10 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 15 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 0: no Lv within 240 ms of a withdrawal 15 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=15 leaveall_ms=14790 withdrawn_ms=14805 lv_ms=none>15095 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 15 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 1: no Lv within 240 ms of a withdrawal 15 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=15 leaveall_ms=26680 withdrawn_ms=26695 lv_ms=none>26985 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2, where GetParam() = 15 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 20 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 0: no Lv within 240 ms of a withdrawal 20 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=20 leaveall_ms=14790 withdrawn_ms=14810 lv_ms=none>15100 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 20 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 1: no Lv within 240 ms of a withdrawal 20 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=20 leaveall_ms=26680 withdrawn_ms=26700 lv_ms=none>26990 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3, where GetParam() = 20 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 25 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 0: no Lv within 240 ms of a withdrawal 25 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=25 leaveall_ms=14790 withdrawn_ms=14815 lv_ms=none>15105 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 25 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 1: no Lv within 240 ms of a withdrawal 25 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=25 leaveall_ms=26680 withdrawn_ms=26705 lv_ms=none>26995 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4, where GetParam() = 25 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 30 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 0: no Lv within 240 ms of a withdrawal 30 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=30 leaveall_ms=14790 withdrawn_ms=14820 lv_ms=none>15110 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 30 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 1: no Lv within 240 ms of a withdrawal 30 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=30 leaveall_ms=26680 withdrawn_ms=26710 lv_ms=none>27000 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5, where GetParam() = 30 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 35 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 0: no Lv within 240 ms of a withdrawal 35 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=35 leaveall_ms=14790 withdrawn_ms=14825 lv_ms=none>15115 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 35 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 1: no Lv within 240 ms of a withdrawal 35 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=35 leaveall_ms=26680 withdrawn_ms=26715 lv_ms=none>27005 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6, where GetParam() = 35 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 40 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 0: no Lv within 240 ms of a withdrawal 40 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=40 leaveall_ms=14790 withdrawn_ms=14830 lv_ms=none>15120 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 40 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 1: no Lv within 240 ms of a withdrawal 40 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=40 leaveall_ms=26680 withdrawn_ms=26720 lv_ms=none>27010 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7, where GetParam() = 40 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 45 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 0: no Lv within 240 ms of a withdrawal 45 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=45 leaveall_ms=14790 withdrawn_ms=14835 lv_ms=none>15125 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 45 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 1: no Lv within 240 ms of a withdrawal 45 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=45 leaveall_ms=26680 withdrawn_ms=26725 lv_ms=none>27015 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8, where GetParam() = 45 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 50 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 0: no Lv within 240 ms of a withdrawal 50 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=50 leaveall_ms=14790 withdrawn_ms=14840 lv_ms=none>15130 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 50 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 1: no Lv within 240 ms of a withdrawal 50 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=50 leaveall_ms=26680 withdrawn_ms=26730 lv_ms=none>27020 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9, where GetParam() = 50 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 55 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 0: no Lv within 240 ms of a withdrawal 55 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=55 leaveall_ms=14790 withdrawn_ms=14845 lv_ms=none>15135 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 55 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 1: no Lv within 240 ms of a withdrawal 55 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=55 leaveall_ms=26680 withdrawn_ms=26735 lv_ms=none>27025 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10, where GetParam() = 55 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 60 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 0: no Lv within 240 ms of a withdrawal 60 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=60 leaveall_ms=14790 withdrawn_ms=14850 lv_ms=none>15140 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 60 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 1: no Lv within 240 ms of a withdrawal 60 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=60 leaveall_ms=26680 withdrawn_ms=26740 lv_ms=none>27030 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11, where GetParam() = 60 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 65 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 0: no Lv within 240 ms of a withdrawal 65 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=65 leaveall_ms=14790 withdrawn_ms=14855 lv_ms=none>15145 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 65 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 1: no Lv within 240 ms of a withdrawal 65 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=65 leaveall_ms=26680 withdrawn_ms=26745 lv_ms=none>27035 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12, where GetParam() = 65 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 70 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 0: no Lv within 240 ms of a withdrawal 70 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=70 leaveall_ms=14790 withdrawn_ms=14860 lv_ms=none>15150 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 70 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 1: no Lv within 240 ms of a withdrawal 70 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=70 leaveall_ms=26680 withdrawn_ms=26750 lv_ms=none>27040 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13, where GetParam() = 70 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 75 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 0: no Lv within 240 ms of a withdrawal 75 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=75 leaveall_ms=14790 withdrawn_ms=14865 lv_ms=none>15155 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 75 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 1: no Lv within 240 ms of a withdrawal 75 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=75 leaveall_ms=26680 withdrawn_ms=26755 lv_ms=none>27045 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14, where GetParam() = 75 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 80 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 0: no Lv within 240 ms of a withdrawal 80 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=80 leaveall_ms=14790 withdrawn_ms=14870 lv_ms=none>15160 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 80 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 1: no Lv within 240 ms of a withdrawal 80 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=80 leaveall_ms=26680 withdrawn_ms=26760 lv_ms=none>27050 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15, where GetParam() = 80 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 85 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 0: no Lv within 240 ms of a withdrawal 85 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=85 leaveall_ms=14790 withdrawn_ms=14875 lv_ms=none>15165 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 85 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 1: no Lv within 240 ms of a withdrawal 85 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=85 leaveall_ms=26680 withdrawn_ms=26765 lv_ms=none>27055 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16, where GetParam() = 85 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 90 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 0: no Lv within 240 ms of a withdrawal 90 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=90 leaveall_ms=14790 withdrawn_ms=14880 lv_ms=none>15170 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 90 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 1: no Lv within 240 ms of a withdrawal 90 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=90 leaveall_ms=26680 withdrawn_ms=26770 lv_ms=none>27060 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17, where GetParam() = 90 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 95 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 0: no Lv within 240 ms of a withdrawal 95 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=95 leaveall_ms=14790 withdrawn_ms=14885 lv_ms=none>15175 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 95 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 1: no Lv within 240 ms of a withdrawal 95 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=95 leaveall_ms=26680 withdrawn_ms=26775 lv_ms=none>27065 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18, where GetParam() = 95 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 100 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 0: no Lv within 240 ms of a withdrawal 100 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=100 leaveall_ms=14790 withdrawn_ms=14890 lv_ms=none>15180 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 100 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 1: no Lv within 240 ms of a withdrawal 100 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=100 leaveall_ms=26680 withdrawn_ms=26780 lv_ms=none>27070 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19, where GetParam() = 100 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 105 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 0: no Lv within 240 ms of a withdrawal 105 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=105 leaveall_ms=14790 withdrawn_ms=14895 lv_ms=none>15185 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 105 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 1: no Lv within 240 ms of a withdrawal 105 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=105 leaveall_ms=26680 withdrawn_ms=26785 lv_ms=none>27075 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20, where GetParam() = 105 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 110 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 0: no Lv within 240 ms of a withdrawal 110 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=110 leaveall_ms=14790 withdrawn_ms=14900 lv_ms=none>15190 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 110 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 1: no Lv within 240 ms of a withdrawal 110 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=110 leaveall_ms=26680 withdrawn_ms=26790 lv_ms=none>27080 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21, where GetParam() = 110 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 115 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 0: no Lv within 240 ms of a withdrawal 115 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=115 leaveall_ms=14790 withdrawn_ms=14905 lv_ms=none>15195 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 115 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 1: no Lv within 240 ms of a withdrawal 115 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=115 leaveall_ms=26680 withdrawn_ms=26795 lv_ms=none>27085 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22, where GetParam() = 115 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 120 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 0: no Lv within 240 ms of a withdrawal 120 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=120 leaveall_ms=14790 withdrawn_ms=14910 lv_ms=none>15200 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 120 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 1: no Lv within 240 ms of a withdrawal 120 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=120 leaveall_ms=26680 withdrawn_ms=26800 lv_ms=none>27090 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23, where GetParam() = 120 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 125 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 0: no Lv within 240 ms of a withdrawal 125 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=125 leaveall_ms=14790 withdrawn_ms=14915 lv_ms=none>15205 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 125 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 1: no Lv within 240 ms of a withdrawal 125 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=125 leaveall_ms=26680 withdrawn_ms=26805 lv_ms=none>27095 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24, where GetParam() = 125 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 130 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 0: no Lv within 240 ms of a withdrawal 130 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=130 leaveall_ms=14790 withdrawn_ms=14920 lv_ms=none>15210 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 130 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 1: no Lv within 240 ms of a withdrawal 130 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=130 leaveall_ms=26680 withdrawn_ms=26810 lv_ms=none>27100 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25, where GetParam() = 130 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 135 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 0: no Lv within 240 ms of a withdrawal 135 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=135 leaveall_ms=14790 withdrawn_ms=14925 lv_ms=none>15215 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 135 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 1: no Lv within 240 ms of a withdrawal 135 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=135 leaveall_ms=26680 withdrawn_ms=26815 lv_ms=none>27105 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26, where GetParam() = 135 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 140 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 0: no Lv within 240 ms of a withdrawal 140 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=140 leaveall_ms=14790 withdrawn_ms=14930 lv_ms=none>15220 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 140 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 1: no Lv within 240 ms of a withdrawal 140 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=140 leaveall_ms=26680 withdrawn_ms=26820 lv_ms=none>27110 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27, where GetParam() = 140 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 145 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 0: no Lv within 240 ms of a withdrawal 145 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=145 leaveall_ms=14790 withdrawn_ms=14935 lv_ms=none>15225 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 145 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 1: no Lv within 240 ms of a withdrawal 145 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=145 leaveall_ms=26680 withdrawn_ms=26825 lv_ms=none>27115 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28, where GetParam() = 145 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 150 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 0: no Lv within 240 ms of a withdrawal 150 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=150 leaveall_ms=14790 withdrawn_ms=14940 lv_ms=none>15230 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 150 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 1: no Lv within 240 ms of a withdrawal 150 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=150 leaveall_ms=26680 withdrawn_ms=26830 lv_ms=none>27120 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29, where GetParam() = 150 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 155 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 0: no Lv within 240 ms of a withdrawal 155 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=155 leaveall_ms=14790 withdrawn_ms=14945 lv_ms=none>15235 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 155 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 1: no Lv within 240 ms of a withdrawal 155 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=155 leaveall_ms=26680 withdrawn_ms=26835 lv_ms=none>27125 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30, where GetParam() = 155 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 160 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 0: no Lv within 240 ms of a withdrawal 160 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=160 leaveall_ms=14790 withdrawn_ms=14950 lv_ms=none>15240 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 160 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 1: no Lv within 240 ms of a withdrawal 160 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=160 leaveall_ms=26680 withdrawn_ms=26840 lv_ms=none>27130 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31, where GetParam() = 160 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 165 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 0: no Lv within 240 ms of a withdrawal 165 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=165 leaveall_ms=14790 withdrawn_ms=14955 lv_ms=none>15245 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 165 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 1: no Lv within 240 ms of a withdrawal 165 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=165 leaveall_ms=26680 withdrawn_ms=26845 lv_ms=none>27135 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32, where GetParam() = 165 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 170 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 0: no Lv within 240 ms of a withdrawal 170 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=170 leaveall_ms=14790 withdrawn_ms=14960 lv_ms=none>15250 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 170 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 1: no Lv within 240 ms of a withdrawal 170 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=170 leaveall_ms=26680 withdrawn_ms=26850 lv_ms=none>27140 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33, where GetParam() = 170 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 175 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 0: no Lv within 240 ms of a withdrawal 175 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=175 leaveall_ms=14790 withdrawn_ms=14965 lv_ms=none>15255 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 175 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 1: no Lv within 240 ms of a withdrawal 175 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=175 leaveall_ms=26680 withdrawn_ms=26855 lv_ms=none>27145 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34, where GetParam() = 175 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 180 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 0: no Lv within 240 ms of a withdrawal 180 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=180 leaveall_ms=14790 withdrawn_ms=14970 lv_ms=none>15260 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 180 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 1: no Lv within 240 ms of a withdrawal 180 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=180 leaveall_ms=26680 withdrawn_ms=26860 lv_ms=none>27150 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35, where GetParam() = 180 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 185 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 0: no Lv within 240 ms of a withdrawal 185 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=185 leaveall_ms=14790 withdrawn_ms=14975 lv_ms=none>15265 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 185 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 1: no Lv within 240 ms of a withdrawal 185 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=185 leaveall_ms=26680 withdrawn_ms=26865 lv_ms=none>27155 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36, where GetParam() = 185 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/37
+OWN-LA input=0 offset_ms=190 leaveall_ms=14790 withdrawn_ms=14980 lv_ms=15170 peer_left_ms=15170
+OWN-LA input=1 offset_ms=190 leaveall_ms=26680 withdrawn_ms=26870 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/37 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/38
+OWN-LA input=0 offset_ms=195 leaveall_ms=14790 withdrawn_ms=14985 lv_ms=15170 peer_left_ms=15170
+OWN-LA input=1 offset_ms=195 leaveall_ms=26680 withdrawn_ms=26875 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/38 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/39
+OWN-LA input=0 offset_ms=200 leaveall_ms=14790 withdrawn_ms=14990 lv_ms=15170 peer_left_ms=15170
+OWN-LA input=1 offset_ms=200 leaveall_ms=26680 withdrawn_ms=26880 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/39 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 129 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 0: no Lv within 240 ms of a withdrawal 129 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=129 leaveall_ms=14790 withdrawn_ms=14919 lv_ms=none>15209 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 129 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 1: no Lv within 240 ms of a withdrawal 129 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=129 leaveall_ms=26680 withdrawn_ms=26809 lv_ms=none>27099 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40, where GetParam() = 129 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 0: no Lv within 240 ms of a withdrawal 189 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 0: no Lv within 240 ms of a withdrawal 189 ms after the board's LeaveAll
+OWN-LA input=0 offset_ms=189 leaveall_ms=14790 withdrawn_ms=14979 lv_ms=none>15269 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 0 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 0 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:217: Failure
+Value of: sent
+  Actual: false
+Expected: true
+input 1: no Lv within 240 ms of a withdrawal 189 ms after the board's LeaveAll
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 1: no Lv within 240 ms of a withdrawal 189 ms after the board's LeaveAll
+OWN-LA input=1 offset_ms=189 leaveall_ms=26680 withdrawn_ms=26869 lv_ms=none>27159 peer_left_ms=0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:226: Failure
+Expected equality of these values:
+  peer_record.registered>>k & 1u
+    Which is: 1
+  0u
+    Which is: 0
+input 1 withdrawn at the peer
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 1 withdrawn at the peer
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 0
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:235: Failure
+Expected equality of these values:
+  peer_record.leaves[k]
+    Which is: 0
+  1u
+    Which is: 1
+input 1
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41: input 1
+$REVIEWS/r914-1-lwsrppin/sw/firmware/ctrl/test/srp_own_leaveall.cpp:237: Failure
+Expected equality of these values:
+  peer_record.registered
+    Which is: 3
+  0u
+    Which is: 0
+
+  [FAIL] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41:     Which is: 0
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41, where GetParam() = 189 (5 ms)
+[ RUN      ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/42
+OWN-LA input=0 offset_ms=191 leaveall_ms=14790 withdrawn_ms=14981 lv_ms=15170 peer_left_ms=15170
+OWN-LA input=1 offset_ms=191 leaveall_ms=26680 withdrawn_ms=26871 lv_ms=27060 peer_left_ms=27060
+[       OK ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/42 (5 ms)
+[----------] 43 tests from FiveTo200Ms/OwnLeaveAllWithdrawal (221 ms total)
+
+[----------] Global test environment tear-down
+[==========] 44 tests from 2 test suites ran. (237 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 39 tests, listed below:
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/0, where GetParam() = 5
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/1, where GetParam() = 10
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/2, where GetParam() = 15
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/3, where GetParam() = 20
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/4, where GetParam() = 25
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/5, where GetParam() = 30
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/6, where GetParam() = 35
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/7, where GetParam() = 40
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/8, where GetParam() = 45
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/9, where GetParam() = 50
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/10, where GetParam() = 55
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/11, where GetParam() = 60
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/12, where GetParam() = 65
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/13, where GetParam() = 70
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/14, where GetParam() = 75
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/15, where GetParam() = 80
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/16, where GetParam() = 85
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/17, where GetParam() = 90
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/18, where GetParam() = 95
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/19, where GetParam() = 100
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/20, where GetParam() = 105
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/21, where GetParam() = 110
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/22, where GetParam() = 115
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/23, where GetParam() = 120
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/24, where GetParam() = 125
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/25, where GetParam() = 130
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/26, where GetParam() = 135
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/27, where GetParam() = 140
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/28, where GetParam() = 145
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/29, where GetParam() = 150
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/30, where GetParam() = 155
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/31, where GetParam() = 160
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/32, where GetParam() = 165
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/33, where GetParam() = 170
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/34, where GetParam() = 175
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/35, where GetParam() = 180
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/36, where GetParam() = 185
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/40, where GetParam() = 129
+[  FAILED  ] FiveTo200Ms/OwnLeaveAllWithdrawal.TheLvGoesOutWithinJoinTimeOnEveryInput/41, where GetParam() = 189
+
+39 FAILED TESTS
+== ctrl SRP own LeaveAll: checks: 44   failures: 39 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 39 failure(s) across 44 checks, exit 1)
