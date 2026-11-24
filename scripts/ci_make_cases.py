@@ -86,6 +86,12 @@ CASE_SECONDS: dict[str, dict[str, int]] = {
         "ax1x1": 26, "base": 23, "nolpf": 22, "sidmove": 22, "maprec8": 15, "tspec8": 14, "maprec4": 9,
         "prune": 3, "split": 1,
     },
+    # 2026-11-24, at 45d5c35a: each case's log span in one `make -C tb/verilator/media_phase`, three cases at once on
+    # four CPUs, wall seconds of its one single-threaded simulation.
+    "media_phase": {
+        "ramp": 314, "edge": 221, "engage": 189, "step": 189, "phcstep": 180, "mr": 173, "internal": 143,
+        "holdover": 135, "burst": 131, "edge2": 118, "slew": 118, "engage2": 104, "carry": 51,
+    },
 }
 
 

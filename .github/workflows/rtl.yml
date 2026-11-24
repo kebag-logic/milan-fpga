@@ -213,7 +213,7 @@ jobs:
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ matrix.shard == 18 && 60 || 45 }}
+    timeout-minutes: ${{ matrix.shard == 25 && 60 || 45 }}
     strategy:
       fail-fast: true
       matrix:
@@ -237,8 +237,15 @@ jobs:
           - 16
           - 17
           - 18
-        total:
           - 19
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+          - 25
+        total:
+          - 26
     steps:
       - uses: actions/checkout@v4
         id: ci_step_0
@@ -643,6 +650,8 @@ jobs:
       - union-maap
       - union-milan_dp_render
       - union-pp_shadow
+      - union-follow_ring
+      - union-media_phase
       - verilator-preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 3
@@ -692,7 +701,7 @@ jobs:
         run: |
           shopt -s nullglob
           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
-          python3 scripts/ci_events.py --require-target-sha --expect 19 \
+          python3 scripts/ci_events.py --require-target-sha --expect 26 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
         id: ci_step_5
@@ -1560,6 +1569,158 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+  union-follow_ring:
+    name: Union follow_ring
+    needs:
+      - full-ci-gate
+      - verilator-shards
+    if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Fetch inventory dependencies
+        run: |
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+        id: ci_step_2
+      - name: Download executed case evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: suite-logs-*
+          path: ${{ runner.temp }}/piece-logs
+        id: ci_step_3
+      - name: Require successful owners and every case exactly once
+        env:
+          CASE_NEEDS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          needs = json.loads(os.environ['CASE_NEEDS'])
+          assert all(row['result'] == 'success' for row in needs.values()), needs
+          PY
+          python3 scripts/ci_suite_pieces.py union follow_ring   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
+        id: ci_step_4
+      - name: Upload verified suite union
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-union-follow_ring
+          path: ${{ runner.temp }}/union
+          if-no-files-found: error
+          retention-days: 3
+        id: ci_step_5
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-follow_ring --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-union-follow_ring-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+  union-media_phase:
+    name: Union media_phase
+    needs:
+      - full-ci-gate
+      - verilator-shards
+    if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Fetch inventory dependencies
+        run: |
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+        id: ci_step_2
+      - name: Download executed case evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: suite-logs-*
+          path: ${{ runner.temp }}/piece-logs
+        id: ci_step_3
+      - name: Require successful owners and every case exactly once
+        env:
+          CASE_NEEDS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          needs = json.loads(os.environ['CASE_NEEDS'])
+          assert all(row['result'] == 'success' for row in needs.values()), needs
+          PY
+          python3 scripts/ci_suite_pieces.py union media_phase   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
+        id: ci_step_4
+      - name: Upload verified suite union
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-union-media_phase
+          path: ${{ runner.temp }}/union
+          if-no-files-found: error
+          retention-days: 3
+        id: ci_step_5
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-media_phase --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-union-media_phase-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
   ci-manifest:
     name: Collect CI manifest
     runs-on: ubuntu-24.04
@@ -1580,6 +1741,8 @@ jobs:
       - union-maap
       - union-milan_dp_render
       - union-pp_shadow
+      - union-follow_ring
+      - union-media_phase
     permissions:
       contents: read
       actions: read
@@ -1677,22 +1840,25 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
-            capture_coherence","Union maap","Union milan_dp","Union milan_dp_mclk","Union milan_dp_render","Union
-            pp_shadow","Verilator preflight","Verilator shard 0/19","Verilator shard 1/19","Verilator
-            shard 2/19","Verilator shard 3/19","Verilator shard 4/19","Verilator shard 5/19","Verilator
-            shard 6/19","Verilator shard 7/19","Verilator shard 8/19","Verilator shard 9/19","Verilator
-            shard 10/19","Verilator shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator
-            shard 14/19","Verilator shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator
-            shard 18/19","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys shard 1/4","Yosys
-            shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+            capture_coherence","Union follow_ring","Union maap","Union media_phase","Union milan_dp","Union
+            milan_dp_mclk","Union milan_dp_render","Union pp_shadow","Verilator preflight","Verilator
+            shard 0/26","Verilator shard 1/26","Verilator shard 2/26","Verilator shard 3/26","Verilator
+            shard 4/26","Verilator shard 5/26","Verilator shard 6/26","Verilator shard 7/26","Verilator
+            shard 8/26","Verilator shard 9/26","Verilator shard 10/26","Verilator shard 11/26","Verilator
+            shard 12/26","Verilator shard 13/26","Verilator shard 14/26","Verilator shard 15/26","Verilator
+            shard 16/26","Verilator shard 17/26","Verilator shard 18/26","Verilator shard 19/26","Verilator
+            shard 20/26","Verilator shard 21/26","Verilator shard 22/26","Verilator shard 23/26","Verilator
+            shard 24/26","Verilator shard 25/26","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys
+            shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
-            0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator shard
-            4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator shard
-            8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator shard 11/19","Verilator shard
-            12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator shard 15/19","Verilator
-            shard 16/19","Verilator shard 17/19","Verilator shard 18/19"],"Yosys shard ${{ matrix.shard
-            }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard
-            3/4"]}'
+            0/26","Verilator shard 1/26","Verilator shard 2/26","Verilator shard 3/26","Verilator shard
+            4/26","Verilator shard 5/26","Verilator shard 6/26","Verilator shard 7/26","Verilator shard
+            8/26","Verilator shard 9/26","Verilator shard 10/26","Verilator shard 11/26","Verilator shard
+            12/26","Verilator shard 13/26","Verilator shard 14/26","Verilator shard 15/26","Verilator
+            shard 16/26","Verilator shard 17/26","Verilator shard 18/26","Verilator shard 19/26","Verilator
+            shard 20/26","Verilator shard 21/26","Verilator shard 22/26","Verilator shard 23/26","Verilator
+            shard 24/26","Verilator shard 25/26"],"Yosys shard ${{ matrix.shard }}/${{ matrix.total }}":["Yosys
+            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4"]}'
         run: |
           python3 scripts/ci_fail_fast.py watch
       - name: Cancel this run and sibling workflows

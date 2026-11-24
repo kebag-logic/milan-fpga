@@ -13,7 +13,7 @@ import tempfile
 
 from ci_case_receipts import canonical, partition
 from ci_suite_pieces import PIECE_SECONDS, expand_suites, inventory, piece_identity, union
-from suite_shards import ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
+from suite_shards import CI_BUDGET_SECONDS, ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
 from ci_gate_workflows import generate, load_template
 from ci_suite_workflows import PREFLIGHT_ARTIFACT, PREFLIGHT_JOB, inventory_dependencies
 
@@ -135,9 +135,10 @@ def main() -> int:
     assert "milan_dp_gptp" not in pieces
     owners, load = balance(pieces, len(WORKER_OVERHEAD_SECONDS))
     assert owners["tsn_fuzz"] == 1 and owners["chmap_capture"] == 3
-    assert max(load[:-1]) <= 1620 and load[-1] <= 2160
+    assert max(load[:-1]) <= CI_BUDGET_SECONDS and load[-1] <= 2160, load
     assert [name for name in pieces if owners[name] == len(load) - 1] == ["milan_dp_mclk__0"]
-    for bad in ("milan_dp", "milan_dp__04", "milan_dp__4", "other__0", "milan_dp__-1"):
+    legs = len(PIECE_SECONDS["milan_dp"])
+    for bad in ("milan_dp", "milan_dp__04", f"milan_dp__{legs}", "other__0", "milan_dp__-1"):
         try:
             piece_identity(bad)
         except ValueError:
