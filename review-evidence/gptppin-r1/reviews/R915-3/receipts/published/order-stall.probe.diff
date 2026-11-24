@@ -1,0 +1,16 @@
+diff --git a/tb/verilator/gptp_shadow/sim_main.cpp b/tb/verilator/gptp_shadow/sim_main.cpp
+index feccdf7547..06ef33f8af 100644
+--- a/tb/verilator/gptp_shadow/sim_main.cpp
++++ b/tb/verilator/gptp_shadow/sim_main.cpp
+@@ -2682,8 +2682,10 @@ class GptpShadowHarness {
+     for (;;) {
+       const bool pairs_on = next_pair < t0 + quiet_after;
+       if (a1_due && (!pairs_on || t0 + a1_after <= next_pair)) {
++        dut->tx_tready_i = 0;
+         run_to(t0 + a1_after);
+         announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
++        dut->tx_tready_i = 1;
+         a1_due = false;
+       } else if (pairs_on) {
+         run_to(next_pair);
+1213ac5b9e09b8759ba76cc70c53652b5e108996

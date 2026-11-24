@@ -1,0 +1,12 @@
+population: 13 ['abort_counts_as_completion', 'no_generation_check', 'no_tag_check', 'age_never_expires', 'observer_latency_off_by_one', 'crossing_latency_off_by_one', 'no_fence', 'unseal_without_echo', 'credit_never_withheld', 'first_master_announce_waits_for_a_beat', 'word3_applies_only_during_a_slew', 'announce_leg_ignores_the_credit', 'master_announce_reaches_the_lane_after_the_re_election']
+[ ok ] announce_leg_ignores_the_credit: caught by "#106 reserve: no master Announce reaches the lane without credit"
+[ ok ] master_announce_reaches_the_lane_after_the_re_election: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 2   failures: 0
+RESULT: PASS
+wall 279.63 s
