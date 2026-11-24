@@ -1403,9 +1403,13 @@ The grade reads, for each attribute:
   the frame is full: the frame plus the smallest vector the value could add
   exceeds 1500 octets (`MRPDU_ROOM`). That room is the split's lwSRP buffer
   and no fabric MRPDU is larger, so either half's full frame is full here.
-  The `leave-all-omission` plant holds the txLA! case, and
-  `twin_mrp.py --selftest` holds both, the Lv after the own LeaveAll and the
-  octet counts.
+  The sLA's rLA! still reaches the Registrar after txLAF!, so a Registrar
+  IN goes to LV, and the value's next Join is JoinMt. The
+  `leave-all-omission` plant holds the txLA! case. `twin_mrp.py --selftest`
+  holds the txLA! case with the Registrar MT, and the txLAF! case with the
+  Registrar MT and with it IN, as well as the Lv after the own LeaveAll and
+  the octet counts. It prints the number of checks it ran, counted as they
+  run.
 - **Any other frame.** It is a tx! for each attribute it carries.
 - **Each frame of the stimulus of the application, as received.** None
   reaches either half here, so the Registrar stays MT and
