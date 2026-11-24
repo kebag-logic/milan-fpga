@@ -733,7 +733,7 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is its branch `opt-exec-3` at `8211bd77`: public `main` at `d1bb4f4e`, which merges PR #21 (an Applicant
+The lwSRP pin is its branch `opt-exec-3` at `9068153f`: public `main` at `d1bb4f4e`, which merges PR #21 (an Applicant
 takes one event at its own LeaveAll, lwSRP #20), with the optimisation line's build options, every one off by default.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.

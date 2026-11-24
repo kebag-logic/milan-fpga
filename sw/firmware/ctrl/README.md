@@ -644,7 +644,7 @@ The CI firmware step also requires the control mutation campaign.
 
 Initialize `third_party/lwSRP` and `third_party/tsn-c-stack` at their recorded gitlinks before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
-`8211bd7751c8cafe3839f4f4438bef7b9b6fd6f6`, with every compiled source unchanged.
+`9068153f9e03f7dab9ba67f51d1b8e97b6e21c15`, with every compiled source unchanged.
 Moving either pin requires a reviewed change.
 The pin is lwSRP's branch `opt-exec-3`: public `main` with PR #12, PR #15, PR #18 and PR #21, the optimisation line's
 `opt-exec-1` (its build options, the attribute key and buckets, the timer wheel and the merged Message build), and the
