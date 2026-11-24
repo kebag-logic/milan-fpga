@@ -8478,13 +8478,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
   ) render_queue (
     .input_map_i (amap_in_store_r),
+    .clk_i (axis_clk), .rst_n (axis_resetn),
     .input_invalidate_i (input_loop_invalidate_r || !dom_live_w),
     .input_capture_i (input_loop_capture_w),
     .input_read_i (input_loop_read_w),
     .input_addr_i (input_loop_addr_w),
     .input_capture_ns_i (cmap_walk_ns_w),
     .input_sample_o (input_loop_sample_w),
-    .clk_i (axis_clk), .rst_n (axis_resetn),
     .hdr_p_i      (dpkt_hdr_p_w),
     .hdr_ts_ns_i  (dpkt_hdr_ts_w),
     .hdr_tv_i     (dpkt_hdr_tv_w),

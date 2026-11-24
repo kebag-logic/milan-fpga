@@ -63,11 +63,14 @@
                 clone format (lanes without a valid sample carry zero, tlast
                 on the last beat, streams in index order), then
                 render_tick_p_o[i] fires. Interfaces are read one after the
-                other on the one read port.
+                other on the one read port. With INPUT_LOOPBACK_P enabled,
+                mapped mono reads then fill a separate eight-page RAM before
+                the consumed rows are scrubbed.
 
                 CONSUMED ROWS. After the reads of event n, frame
                 R = n + K_min has been read by every interface: R advances to
-                it and its rows are invalidated (written invalid through the
+                it and, after the optional mapped copy, its rows are
+                invalidated (written invalid through the
                 write ports, the push first), and only then may the next
                 event's reads begin. A row therefore holds either invalid or
                 the one frame of the window that maps to it.
@@ -124,12 +127,16 @@
 
                 HOLD. A hold of the frame grid (a stopped serial clock, a
                 media-clock holdover) delays the frames already queued by the
-                hold: their rows keep their frame numbers. The stream's later
+                hold when INPUT_LOOPBACK_P is disabled: their rows keep
+                their frame numbers. With it enabled, two missing domain
+                periods invalidate loop pages and flush every source stream.
+                The stream's later
                 PDUs, placed against the moved grid, take over within the
                 queue's lead, and the snapping leaves one gap or overlap,
                 counted in slips_o.
 
-                FLUSH (bind loss) and reset invalidate every row of the
+                FLUSH (bind loss), enabled loopback clock loss, and reset
+                invalidate every row of the
                 stream (a walker on the write ports' idle cycles); its writes
                 are dropped and its reads present silence until the walk has
                 covered it.
@@ -754,9 +761,6 @@ module KL_render_queue #(
             beat_r <= beat_r + 1'b1;
           end
         end
-        S_COPY_S: begin
-          if (copy_done_w) sst_r <= S_SCRUB_S;
-        end
         S_SCRUB_S: begin
           if (scrub_go_w) begin
             if (last_beat_w) begin
@@ -773,30 +777,39 @@ module KL_render_queue #(
             end
           end
         end
+        S_COPY_S: if (copy_done_w) sst_r <= S_SCRUB_S;
         default: sst_r <= S_IDLE_S;
       endcase
     end
   end : schedule
 
-  //! Four pages retain complete mapped frames, never a prior sample hold.
+  //! Eight pages retain complete mapped frames, never a prior sample hold.
+  //! A claimed page stays readable through the entire capture walk.
+  //! Capture can overlap the next domain event at the two-frame lead.
+  //! Eight pages prevent that event from overwriting the claimed page.
   //! Expiry and invalidation clear metadata; the sample RAM has no reset.
+  if (INPUT_LOOPBACK_P != 0 && KMIN_C > 2) begin : g_input_loop_lead_refused
+    $error("input loopback eight-page retention requires KMIN_C <= 2");
+  end
   if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
     localparam int IDLE_CYC_C = 2 * (CLK_FREQ_HZ_P / FS_HZ_P);
     localparam int IDLE_W_C = $clog2(IDLE_CYC_C + 1);
-    (* ram_style = "block" *) logic [23:0] samples_r [0:255];
-    logic [3:0] page_valid_r;
-    logic [FW_C-1:0] page_frame_r [4];
-    logic [31:0] page_capture_ns_r [4];
+    (* ram_style = "block" *) logic [23:0] samples_r [0:511];
+    logic [7:0] page_valid_r;
+    logic [FW_C-1:0] page_frame_r [8];
+    logic [31:0] page_capture_ns_r [8];
     logic [IDLE_W_C-1:0] idle_cyc_r;
     logic [6:0] cursor_r;
     logic return_r, return_bank_r, return_valid_r, bad_r;
     logic [5:0] return_addr_r;
     logic [23:0] read_data_r;
     logic read_valid_r;
-    logic [1:0] read_page_w;
-    logic [1:0] active_page_r;
+    logic [2:0] read_page_w;
+    logic [2:0] active_page_r;
     logic active_valid_r;
-    localparam int STAMP_TOL_NS_C = 3 * ((1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P);
+    localparam int STAMP_CYCLE_NS_C = (1_000_000_000 + CLK_FREQ_HZ_P - 1) / CLK_FREQ_HZ_P;
+    localparam int STAMP_RATE_NS_C = int'(((64'(KMIN_C) + 1) * PS3_L + 2999) / 3000);
+    localparam int STAMP_TOL_NS_C = 4 * STAMP_CYCLE_NS_C + STAMP_RATE_NS_C + 1;
     logic signed [31:0] stamp_delta_w [4];
     logic read_valid_w;
     wire [7:0] entry_w = input_map_i[(INPUT_FIRST_P + 32'(cursor_r[5:0]))*8 +: 8];
@@ -815,15 +828,17 @@ module KL_render_queue #(
     assign input_sample_o = (read_valid_r && !invalidate_w) ? read_data_r : 24'd0;
 
     //! Match the actual capture instant, not the independently phased tick.
-    //! Clock-domain synchronizers and PHC sampling bound the stamp tolerance.
+    //! Four clock cycles cover marker synchronization and stamp quantization.
+    //! Add 1000 ppm across KMIN_C+1 periods, and one ns for rounding.
+    //! This window is below half a period: only one frame can match.
     always_comb begin : select_page
       read_page_w = '0;
       read_valid_w = 1'b0;
-      for (int p = 0; p < 4; p++) begin
+      for (int p = 0; p < 8; p++) begin
         stamp_delta_w[p] = $signed(input_capture_ns_i - page_capture_ns_r[p]);
         if (page_valid_r[p] && (stamp_delta_w[p] >= -STAMP_TOL_NS_C)
             && (stamp_delta_w[p] <= STAMP_TOL_NS_C)) begin
-          read_page_w = 2'(p);
+          read_page_w = 3'(p);
           read_valid_w = 1'b1;
         end
       end
@@ -831,7 +846,7 @@ module KL_render_queue #(
 
     always_ff @(posedge clk_i) begin : input_ram_write
       if (return_r)
-        samples_r[{cons_w[1:0], return_addr_r}] <=
+        samples_r[{cons_w[2:0], return_addr_r}] <=
             (return_valid_r && returned_w[24]) ? returned_w[23:0] : 24'd0;
     end : input_ram_write
     always_ff @(posedge clk_i) begin : input_ram_read
@@ -841,7 +856,7 @@ module KL_render_queue #(
     always_ff @(posedge clk_i) begin : input_metadata
       if (!rst_n) begin
         page_valid_r <= '0;
-        for (int p = 0; p < 4; p++) begin
+        for (int p = 0; p < 8; p++) begin
           page_frame_r[p] <= '0;
           page_capture_ns_r[p] <= '0;
         end
@@ -870,7 +885,7 @@ module KL_render_queue #(
                             && (32'(copy_channel_w) < N_CH_P);
         end
         //! Expire before the modulo page can alias a later frame.
-        for (int p = 0; p < 4; p++) begin
+        for (int p = 0; p < 8; p++) begin
           if (ev_p_i && ((n_now_w - page_frame_r[p]) == FW_C'(2)))
             page_valid_r[p] <= 1'b0;
         end
@@ -882,13 +897,13 @@ module KL_render_queue #(
         if (start_w) begin
           cursor_r <= '0;
           bad_r <= invalidate_w || (sn_r != n_r);
-          page_valid_r[cons_w[1:0]] <= 1'b0;
-          page_frame_r[cons_w[1:0]] <= cons_w;
-          page_capture_ns_r[cons_w[1:0]] <= target_ns_w;
+          page_valid_r[cons_w[2:0]] <= 1'b0;
+          page_frame_r[cons_w[2:0]] <= cons_w;
+          page_capture_ns_r[cons_w[2:0]] <= target_ns_w;
         end
         if (copy_done_w && !bad_r && !invalidate_w
             && (age_w[FW_C-1] || age_w == '0))
-          page_valid_r[cons_w[1:0]] <= 1'b1;
+          page_valid_r[cons_w[2:0]] <= 1'b1;
         if (invalidate_w) begin
           page_valid_r <= '0;
           bad_r <= 1'b1;
@@ -904,6 +919,8 @@ module KL_render_queue #(
     assign copy_done_w = 1'b0;
     assign input_sample_o = '0;
   end
+
+
 
 
   // ------------------------------------------------------------------ //
@@ -1098,6 +1115,7 @@ module KL_render_queue #(
       m_wire_chans_o[s*4 +: 4] = 4'(2 * PAIRS_C);
     end
   end : taps
+
 
 endmodule
 

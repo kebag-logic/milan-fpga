@@ -1,10 +1,10 @@
 # Input-mapped block-RAM loopback
 
-Status: implemented behind a default-off option; route and regression evidence belongs to the review packet.
+Status: implemented behind a default-off option; route and regression evidence belongs to [PR #987](https://github.com/kebag-logic/milan-fpga/pull/987).
 
 Issue: [#979](https://github.com/kebag-logic/milan-fpga/issues/979).
 
-Author: [A826]. Date: 2026-11-23.
+Date: 2026-11-23.
 
 Examined base: `3cda030c174b325e36c26af6420487ff91346d15`.
 
@@ -104,7 +104,7 @@ Its empty-queue behavior repeats samples; this proposal must not.
 
 The supplied +2303 LUT / +1542 FF comparison is historical.
 
-The current queued lane has not been remeasured.
+Fresh leaf measurements are recorded on PR #987.
 
 ## Memory-port finding
 
@@ -165,11 +165,11 @@ Names identify destinations; a remap must not invalidate their names.
 
 Distinct names must identify the new source pool.
 
-The buffer has four pages of up to 64 words.
+The buffer has eight pages of up to 64 words.
 
 Each word contains a 24-bit sample, for 6144 sample-storage bits.
 
-Frame validity and capture timestamps are held separately for four pages.
+Frame validity and capture timestamps are held separately for eight pages.
 
 Simple-dual-port operation targets one RAMB18.
 
@@ -375,3 +375,27 @@ Implementation must meet every validation and measurement obligation above.
 The topology ruling does not relax resource or timing ceilings.
 
 Overflow remains S14 debt; unmeasured behavior remains unclaimed.
+
+## Retention and capture-clock bounds
+
+The supported out-lead is at most two frames.
+Eight pages keep a claimed page throughout its capture walk.
+A concurrent domain event cannot overwrite that claimed page.
+Larger leads fail elaboration before synthesis.
+Expiry precedes page reuse; capture consumes each publication once.
+
+The capture timestamp window includes four datapath clock cycles.
+Two cover marker synchronization; two cover timestamp quantization.
+It also covers 1000 ppm across the prediction horizon.
+That horizon is the out-lead plus one media period.
+One additional nanosecond covers integer rounding.
+At 100 MHz, the maximum window is 104 ns.
+At 50 MHz, it is 144 ns.
+Both are below half the 48 kHz media period.
+Offsets outside this bound may yield silence.
+This bound does not claim sample-rate conversion.
+
+The wire scoreboard does not isolate five defensive guards.
+They are bind-only flush, one-shot claim, expiry, backlog, and age.
+Combined invalidation and steady scheduling currently mask their removal.
+They remain untested defence in depth, not mutation-proven guarantees.

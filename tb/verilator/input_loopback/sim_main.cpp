@@ -37,6 +37,17 @@ class Bench {
     Frame expected{};
     int valid_from = 1;
     bool events = true;
+    // Sweep the prediction-horizon rate error with worst-sign marker jitter.
+    // Environment controls leave the standard mutation oracle unchanged.
+    int stamp_ppm = std::getenv("STAMP_PPM") ? std::atoi(std::getenv("STAMP_PPM")) : 0;
+    int stamp_jitter = std::getenv("STAMP_JITTER_NS") ? std::atoi(std::getenv("STAMP_JITTER_NS")) : 0;
+    int capture_offset(int frame) const {
+        if (!stamp_ppm && !stamp_jitter) return 0;
+        int ramp = (frame % 65) - 32;
+        int ppm = stamp_ppm * ramp / 32;
+        int rate = int((int64_t(LEAD+1)*62500*std::abs(ppm)+2999999)/3000000);
+        return (ramp < 0 ? -1 : 1) * (rate + stamp_jitter);
+    }
     void check(bool ok, const char* label, uint32_t got=0, uint32_t want=0) {
         ++checks;
         if (!ok && failures++ < 12) {
@@ -109,7 +120,7 @@ public:
         if(phase==400 && frame%6==0)
             for(int s=0;s<NSTREAMS;++s) if(feed&(1u<<s)) packet(s,frame+12);
         d->ev_i=events && phase==0; d->close_i=events && phase==250; d->tick_i=phase==300;
-        if(events) d->frame_ns_i=stamp(frame);
+        if(events) d->frame_ns_i=stamp(frame)+uint32_t(phase>=250 ? capture_offset(frame) : 0);
         d->rx_valid_i=0; d->rx_last_i=0;
         if(cycles%8==0 && !incoming.empty()) {
             Beat b=incoming.front(); incoming.pop_front();
