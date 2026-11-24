@@ -581,6 +581,8 @@ margin sets each named entry:
 | Suite | Budget | Basis |
 |---|---|---|
 | every other default suite | 1800 s | retained; #673's near-limit survey appears below |
+| `input_loopback`, `input_loopback_dp` | 300 s each | provisional at their own arm under the new-suite steps in the selector's docstring (`scripts/suite_shards.py`), from cold local runs; their hosted windows are owed and replace these figures |
+| `reboot_ctrl` | 300 s | provisional at its own arm under the same new-suite steps |
 | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
 | `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
 | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |

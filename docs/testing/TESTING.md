@@ -439,7 +439,7 @@ That run built the case and ran it, with ci-prepare's three entity images.
 Its hosted window is owed by the first hosted run of a head that carries it.
 
 #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
-Both are provisional under the selftest's new-suite steps: each figure in `scripts/suite_shards.py` is 300 s.
+Both are provisional under the new-suite steps in the selector's docstring: each figure in `scripts/suite_shards.py` is 300 s.
 That is the `suite_timeout` arm `scripts/run_all_suites.sh` gives each suite, as for `reboot_ctrl`.
 The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within its 1620 s bound.
 The sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs, took at most 34.2 s and 98.0 s.
