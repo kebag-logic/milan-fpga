@@ -100,9 +100,11 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
 
 
 def talker_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
-    """The Talker declarations as their validity moves them (#895): srp_talker.cpp at 1x1/1if and 8x8/2if, and the
-    composition's (test_acmp_mbx.cpp's SrpGate, which its own arms run at the 1x1 entity) at 8x8/2if."""
+    """The Talker declarations as their validity moves them (#895): srp_talker.cpp at 1x1/1if, 8x8/1if and 8x8/2if (each
+    point's THE TRANSMIT term and slices, #956), and the composition's (test_acmp_mbx.cpp's SrpGate, which its own arms
+    run at the 1x1 entity) at 8x8/2if."""
     return [arm_srp(tree, lwsrp, 1, test="srp_talker.cpp"),
+            arm_srp(tree, lwsrp, 1, test="srp_talker.cpp", config=ENTITY_8X8),
             arm_srp(tree, lwsrp, 2, test="srp_talker.cpp", config=ROOT / "configs/endstation_ax7101_8x8.yaml"),
             arm_srp(tree, lwsrp, 2, test=("test_acmp_mbx.cpp", "SrpGate.*"),
                     config=ROOT / "configs/endstation_ax7101_8x8.yaml")]
@@ -112,6 +114,16 @@ def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
     """SRP's Listener copies against the reference walk (#930): srp_listeners.cpp at 1x1/1if and 8x8/1if."""
     return [arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp"),
             arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
+
+
+#: The suite of a link that comes up at each phase of a loop pass (#973).
+LINK_PASS = "srp_link_pass.cpp"
+
+
+def link_pass_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """A link that comes up at each phase of a loop pass is SRP's first UP (#973): srp_link_pass.cpp at 1x1/1if and
+    8x8/1if, each a process of its own, apart from every other SRP suite."""
+    return [arm_srp(tree, lwsrp, 1, test=LINK_PASS), arm_srp(tree, lwsrp, 1, test=LINK_PASS, config=ENTITY_8X8)]
 
 
 def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:

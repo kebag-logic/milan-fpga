@@ -57,7 +57,12 @@
                        media_locked[12], bound_q[13], wire_chans[21:14],
                        prev_mr[22], mr_seeded[23]}
                        w9 LAST_TS | w10 LAST_TSD
-                       w11 DEPKT_CNT {drops[31:16], pdus[15:0]}
+                       w11 DEPKT_CNT {drops[31:16], pdus[15:0]}: the
+                       input's depacketizer deliveries and drops, each
+                       half wrapping to zero (as Milan v1.2 Table 5.6's
+                       counters wrap); a vendor diagnostic of the 0x800
+                       window, no GET_COUNTERS quadlet (IEEE 1722.1-2021
+                       7.4.42.2)
                   CNT  w16..w25 in 1722.1-2021 Table 7-157 offset order:
                        MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED,
                        SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
@@ -96,8 +101,10 @@
                 not count a silence as STREAM_INTERRUPTED (#762), it does
                 not compare the channel count with the current format
                 (#765), and its format reject does not advance prev_seq
-                (#775). Wire bytes are unchanged, and so are the accept
-                verdicts for a PDU carrying the current format's count.
+                (#775), and it does not compare stream_data_length with
+                the current format's frame size (#948). Wire bytes are
+                unchanged, and so are the accept verdicts for a PDU
+                carrying the current format's count and frame size.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -112,8 +119,10 @@
 //! watchdog in flops, stream-0 legacy outputs via write-through shadows.
 //! PDU bundles wait and are served from one 4-entry ring, and GET_COUNTERS
 //! reads one write-through counter table by sink and column (#640 M6).
-//! `pdu_accept_p_o`+`pdu_accept_idx_o` = the depacketizer's per-stream
-//! commit verdict.
+//! A bundle names every context bound to its stream_id, and the walker
+//! serves the one bundle to each in turn (#948). `pdu_enq_p_o` tells the
+//! depacketizer a PDU was queued, and `pdu_done_p_o`+`pdu_done_mask_o`
+//! which of its contexts accepted it.
 
 `default_nettype none
 
@@ -131,7 +140,10 @@ module KL_avtp_rx_monitor_ctx #(
 
   //! --- per-frame pulse bundle from avtp_stream_parser -------------------
   input  wire         match_valid_i,     //! one-cycle pulse per matched frame
-  input  wire [3:0]   match_index_i,     //! matched stream index s
+  //! every table entry the frame's stream_id matched: IEEE 1722.1-2021 8.2
+  //! lets each sink bind on its own, so one stream may be the source of
+  //! several contexts, and each bound one is served the PDU (#948)
+  input  wire [N_LISTENERS_P-1:0] match_vec_i,
   input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
@@ -171,7 +183,7 @@ module KL_avtp_rx_monitor_ctx #(
   input  wire         depkt_pdu_p_i,     //! payload PDU emitted pulse
   input  wire [3:0]   depkt_pdu_idx_i,   //! its stream index
   input  wire         depkt_drop_p_i,    //! overflow-dropped frame pulse
-  input  wire [3:0]   depkt_drop_idx_i,  //! its stream index
+  input  wire [N_LISTENERS_P-1:0] depkt_drop_mask_i, //! the inputs that lost it
 
   //! --- LCTX window port (P11 CSR window / TB; engine-arbitrated) --------
   input  wire         lctx_wr_en_i,      //! write request (poll wr_rdy)
@@ -208,8 +220,14 @@ module KL_avtp_rx_monitor_ctx #(
   //! marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12).
   //! Coalescing and spacing of 1 second belong to the notification scheduler.
   output logic [N_LISTENERS_P-1:0] dirty_p_o,
-  output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
+  output logic        pdu_accept_p_o,    //! per-context accept verdict pulse
   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
+  //! the depacketizer's commit (#948): a PDU was queued, one cycle after its
+  //! match pulse, so its verdicts follow in queue order; each queued PDU's
+  //! verdicts end in one done pulse naming the contexts that accepted it
+  output logic        pdu_enq_p_o,
+  output logic        pdu_done_p_o,
+  output logic [N_LISTENERS_P-1:0] pdu_done_mask_o,
   output logic [7:0]  wire_chans_o,      //! RENDER stream's wire channels
   //! chmap follow-up 3: EVERY context's wire_chans as packed 4-bit fields
   //! (the render crossbar's per-stream de-interleave truth; 0 = stream
@@ -304,7 +322,11 @@ module KL_avtp_rx_monitor_ctx #(
   //! RAM): every read is of a slot written by its own pulse first.
   localparam int unsigned PQ_DEPTH_C = 4;
   pdu_evt_t          pq_ring_r [PQ_DEPTH_C];
-  logic [IDXW_C-1:0] pq_s_r    [PQ_DEPTH_C];   //! stream field, for the prefetch
+  //! the bundle's contexts: every bound one its stream_id matched (#948)
+  logic [N_LISTENERS_P-1:0] pq_v_r [PQ_DEPTH_C];
+  //! the in-service bundle's contexts not yet served, and those that
+  //! accepted it so far: the walker serves the one bundle to each (#948)
+  logic [N_LISTENERS_P-1:0] rem_r, acc_r;
   logic [1:0]        pq_wp_r, pq_rp_r, cur_idx_r;
   logic [1:0]        pq_cnt_r;
   //! Milan 1.3 5.3.8.10 tv tallies as per-context FLOPS - counted at the
@@ -315,6 +337,7 @@ module KL_avtp_rx_monitor_ctx #(
   pdu_evt_t          cur_w;                     //! = pq_ring_r[cur_idx_r]
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
+  logic [21:0]       flen_r;    //! the served context's frame size, octets
   logic [31:0]       monst_r;
   logic [3:0]        wrph_r;
   logic [11:0]       inc_list_r;
@@ -330,8 +353,15 @@ module KL_avtp_rx_monitor_ctx #(
   //! #762: the pending unlock is the silence watchdog's, not an unbind's,
   //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
   logic [N_LISTENERS_P-1:0] sil_si_r;
-  logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
-  logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+  //! the pending DEPKT tallies (LCTX w11) of each input (#948): the walker
+  //! drains them when idle, and once one reaches half its range its drain
+  //! goes before any PDU walk, bind or silence. A drain empties a tally in
+  //! a few cycles, and a tally gains at most one a frame, so under any
+  //! burst none saturates: every frame delivered to or dropped for an input
+  //! is counted on that input.
+  localparam int DEPKT_PEND_W_C = 6;
+  logic [DEPKT_PEND_W_C-1:0] dpdu_pend_r  [N_LISTENERS_P];
+  logic [DEPKT_PEND_W_C-1:0] ddrop_pend_r [N_LISTENERS_P];
 
   //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
   //! CNT-column format (only the six anomaly columns and FRAMES_RX are ever set, so
@@ -427,12 +457,20 @@ module KL_avtp_rx_monitor_ctx #(
   wire               late_w  = tsd_w < 0;
   wire               early_w = !late_w &&
                        (unsigned'(tsd_w) > (pres_ofs_i + EARLY_MARGIN_NS_C));
-  wire [IDXW_C-1:0]  midx_w  = match_index_i[IDXW_C-1:0];
-  wire               penq_w  = match_valid_i && bound_i[midx_w] &&
+  wire [N_LISTENERS_P-1:0] mvec_w = match_vec_i & bound_i;
+  wire               penq_w  = match_valid_i && (mvec_w != '0) &&
                                (pq_cnt_r != 2'd2);
+  //! the lowest context of a set, the walker's serving order
+  function automatic [IDXW_C-1:0] lowest(input [N_LISTENERS_P-1:0] v);
+    lowest = '0;
+    for (int k = N_LISTENERS_P-1; k >= 0; k--) if (v[k]) lowest = IDXW_C'(k);
+  endfunction
+  function automatic [N_LISTENERS_P-1:0] onehot(input [IDXW_C-1:0] k);
+    onehot = N_LISTENERS_P'(1) << k;
+  endfunction
   pdu_evt_t          new_evt_w;
   always_comb begin : new_evt_pack
-    new_evt_w = '{s: midx_w, subtype: subtype_i, seq: seq_num_i,
+    new_evt_w = '{s: lowest(mvec_w), subtype: subtype_i, seq: seq_num_i,
                   tu: ts_uncertain_i, tv: ts_valid_i, mr: media_restart_i,
                   ts: avtp_ts_i,
                   fsh: fsh_i, tsd: unsigned'(tsd_w), late: late_w,
@@ -446,21 +484,31 @@ module KL_avtp_rx_monitor_ctx #(
   //! remains for genuine stream loss only (100 ms silence, bind wipe).
 
   logic depkt_any_w;
+  logic depkt_urg_w;                      //! a tally is half full: drain first
   always_comb begin : pend_scans
     depkt_any_w = 1'b0;
-    for (int s = 0; s < N_LISTENERS_P; s++)
+    depkt_urg_w = 1'b0;
+    for (int s = 0; s < N_LISTENERS_P; s++) begin
       if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) depkt_any_w = 1'b1;
+      if (dpdu_pend_r[s][DEPKT_PEND_W_C-1] || ddrop_pend_r[s][DEPKT_PEND_W_C-1])
+        depkt_urg_w = 1'b1;
+    end
   end : pend_scans
 
-  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0);
+  //! the in-service bundle's next context comes first, so one bundle's
+  //! verdicts end before the next bundle's begin (#948)
+  wire pcont_w = (mst_r == M_IDLE_S) && (rem_r != '0) && !depkt_urg_w;
+  wire pdisp_w = (mst_r == M_IDLE_S) && (rem_r == '0) && (pq_cnt_r != '0) &&
+                 !depkt_urg_w;
   //! fresh-PDU fast dispatch: an idle walker takes the live pulse bundle
-  //! directly (skips the queue hop - the depacketizer commit window on
-  //! short PDUs is the reason: accept must land before the frame's tlast)
-  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0);
+  //! directly (skips the queue hop, so a single context's verdict lands as
+  //! early as it can)
+  wire pdisp_new_w = (mst_r == M_IDLE_S) && (rem_r == '0) && penq_w && !depkt_urg_w &&
+                     (pq_cnt_r == '0);
   //! interval-commit dispatch, same M_IDLE_S priority slot the FSM uses
   //! (below depkt, above the window read) - defined ONCE so the FSM branch
   //! and the flag-fold block can never disagree about the drain cycle
-  wire iv_go_w = (mst_r == M_IDLE_S) && !pdisp_w && !pdisp_new_w &&
+  wire iv_go_w = (mst_r == M_IDLE_S) && !pcont_w && !pdisp_w && !pdisp_new_w &&
                  (bind_pend_r == '0) && (sil_pend_r == '0) &&
                  !depkt_any_w &&
                  (iv_res_list_r == '0) && (iv_pend_r != '0);
@@ -472,12 +520,16 @@ module KL_avtp_rx_monitor_ctx #(
   end : iv_pick
   //! the window read gets the port only when the engine is fully idle
   wire ext_rd_go_w = lctx_rd_en_i && (mst_r == M_IDLE_S) && !penq_w &&
-                     (pq_cnt_r == '0) && (bind_pend_r == '0) &&
+                     (pq_cnt_r == '0) && (rem_r == '0) && (bind_pend_r == '0) &&
                      (sil_pend_r == '0) &&
                      (iv_pend_r == '0) && (iv_res_list_r == '0) &&
                      !depkt_any_w;
-  //! stream index being dispatched this idle cycle (drives the prefetch)
-  wire [IDXW_C-1:0] disp_s_w = pdisp_new_w ? midx_w : pq_s_r[pq_rp_r];
+  //! the contexts of the bundle being dispatched this idle cycle, and the
+  //! one served now, its lowest (drives the prefetch)
+  wire [N_LISTENERS_P-1:0] disp_v_w = pcont_w     ? rem_r
+                                    : pdisp_new_w ? mvec_w
+                                    :               pq_v_r[pq_rp_r];
+  wire [IDXW_C-1:0] disp_s_w = lowest(disp_v_w);
 
   //! the ring's one write port: EVERY accepted pulse lands at pq_wp_r, the
   //! fast-dispatched one too (it is served from there from the next cycle,
@@ -502,6 +554,7 @@ module KL_avtp_rx_monitor_ctx #(
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
   wire [9:0] f_cpf_w     = fmt_r[31:22];   //! channels_per_frame
+  wire [9:0] f_spf_w     = fmt_r[21:12];   //! samples_per_frame (I.2.4.1)
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_w.fsh[63:56];
@@ -510,7 +563,24 @@ module KL_avtp_rx_monitor_ctx #(
   //! the full 10-bit channels_per_frame (IEEE 1722-2016 7.3 Figure 26)
   wire [9:0] p_cpf_w    = cur_w.fsh[49:40];
   wire [7:0] p_depth_w  = cur_w.fsh[39:32];
+  wire [15:0] p_len_w   = cur_w.fsh[31:16]; //! stream_data_length
   wire       p_sp_w     = cur_w.fsh[12];
+
+  //! a format's frame size in octets: channels_per_frame x samples_per_frame
+  //! (IEEE 1722-2016 I.2.4.1) x the octets of one sample, which the format
+  //! field fixes (7.3.5, Table 9): two for INT_16BIT, three for INT_24BIT,
+  //! four for FLOAT_32BIT, INT_32BIT and AES3_32BIT. USER and the reserved
+  //! values fix no size; they are sized as four.
+  function automatic [21:0] frame_octets(input [9:0] cpf, input [9:0] spf,
+                                         input [7:0] format);
+    logic [19:0] n;
+    n = 20'(cpf) * 20'(spf);
+    unique case (format)
+      8'h03   : frame_octets = 22'(n) + 22'({n, 1'b0});
+      8'h04   : frame_octets = 22'({n, 1'b0});
+      default : frame_octets = 22'({n, 2'b00});
+    endcase
+  endfunction
 
   //! the PDU against the Stream Input's CURRENT format (#765, FR-STR-03):
   //! Milan v1.2 Table 5.6 counts UNSUPPORTED_FORMAT for a PDU whose format
@@ -522,12 +592,22 @@ module KL_avtp_rx_monitor_ctx #(
   //! A Base Listener advertising every count of a rate family (Milan v1.2
   //! 6.4) is served by SET_STREAM_FORMAT, which moves the current format.
   //! A zero count is no PCM format and is rejected even against itself.
+  //! The frame size is part of the format too (#948): every AAF PDU of a
+  //! stream carries the same number of samples (IEEE 1722-2016 7.3.5),
+  //! samples_per_frame of them per channel (I.2.4.1), and stream_data_length
+  //! counts the payload's octets (4.4.4.10). A PDU whose length is not the
+  //! input's frame size is off-format: that input counts it in
+  //! UNSUPPORTED_FORMAT and gives no accept verdict, so it receives none of
+  //! the PDU (Milan v1.2 4.4.2.2), while an input whose format it matches
+  //! receives all of it. A format of no samples is rejected like a zero count.
   wire fmt_ok_w = (cur_w.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
                   (p_cpf_w     == f_cpf_w)     &&
                   (p_cpf_w     != 10'd0)       &&
+                  (22'(p_len_w) == flen_r)     &&
+                  (flen_r      != 22'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
@@ -820,13 +900,16 @@ module KL_avtp_rx_monitor_ctx #(
       pq_wp_r     <= '0;
       pq_rp_r     <= '0;
       cur_idx_r   <= '0;
-      for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_s_r[q] <= '0;
+      for (int q = 0; q < int'(PQ_DEPTH_C); q++) pq_v_r[q] <= '0;
+      rem_r       <= '0;
+      acc_r       <= '0;
       for (int s2 = 0; s2 < N_LISTENERS_P; s2++) begin
         tv_cnt_r[s2]  <= '0;
         tnv_cnt_r[s2] <= '0;
       end
       ev_s_r      <= '0;
       fmt_r       <= '0;
+      flen_r      <= '0;
       monst_r     <= '0;
       wrph_r      <= '0;
       inc_list_r  <= '0;
@@ -867,6 +950,9 @@ module KL_avtp_rx_monitor_ctx #(
       dirty_p_o        <= '0;
       pdu_accept_p_o   <= 1'b0;
       pdu_accept_idx_o <= '0;
+      pdu_enq_p_o      <= 1'b0;
+      pdu_done_p_o     <= 1'b0;
+      pdu_done_mask_o  <= '0;
       wire_chans_o     <= '0;
       last_ts_o        <= '0;
       last_tsd_o       <= '0;
@@ -876,6 +962,8 @@ module KL_avtp_rx_monitor_ctx #(
     else begin
       dirty_p_o       <= '0;
       pdu_accept_p_o  <= 1'b0;
+      pdu_done_p_o    <= 1'b0;
+      pdu_enq_p_o     <= penq_w;
       lctx_rd_valid_o <= 1'b0;
 
       // ---- PDU bundle ring (enqueue/dispatch, race-free; a fast-
@@ -884,7 +972,7 @@ module KL_avtp_rx_monitor_ctx #(
       //! a dispatch serves the fresh slot (fast path) or the oldest waiting
       //! one, and the read pointer passes it either way
       if (penq_w) begin
-        pq_s_r[pq_wp_r] <= midx_w;
+        pq_v_r[pq_wp_r] <= mvec_w;
         pq_wp_r         <= pq_wp_r + 2'd1;
       end
       if (pdisp_new_w || pdisp_w) begin
@@ -910,10 +998,10 @@ module KL_avtp_rx_monitor_ctx #(
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
-          dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
-        if (depkt_drop_p_i && (32'(depkt_drop_idx_i) == s) &&
+          dpdu_pend_r[s] <= dpdu_pend_r[s] + DEPKT_PEND_W_C'(1);
+        if (depkt_drop_p_i && depkt_drop_mask_i[s] &&
             !(&ddrop_pend_r[s]))
-          ddrop_pend_r[s] <= ddrop_pend_r[s] + 3'd1;
+          ddrop_pend_r[s] <= ddrop_pend_r[s] + DEPKT_PEND_W_C'(1);
         //! silence watchdog: ms-tick flop scan (spec timer rule)
         if (ms_tick_r && locked_sh_r[s]) begin
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
@@ -940,16 +1028,32 @@ module KL_avtp_rx_monitor_ctx #(
           inc_rd_q_r  <= 1'b0;
           wrph_r      <= '0;
           zero_idx_r  <= '0;
-          if (pdisp_new_w || pdisp_w) begin
+          if (pcont_w || pdisp_new_w || pdisp_w) begin
             //! PDU first: a same-cycle bind still wins overall because its
             //! reset walk runs after the PDU walk (flat-monitor ordering)
-            //! the bundle itself is served from the ring (cur_idx_r above)
+            //! the bundle itself is served from the ring (cur_idx_r above),
+            //! to each of its contexts in turn, lowest first (#948)
             ev_s_r <= disp_s_w;
+            rem_r  <= disp_v_w & ~onehot(disp_s_w);
+            if (!pcont_w) acc_r <= '0;
             if (disp_s_w == '0) begin
               fmt_r <= fmt0_i;              //! stream-0 format alias
               mst_r <= M_PFRD3_S;           //! (covers the w8 read latency)
             end
             else mst_r <= M_PFRD2_S;        //! FMT_LO read already issued
+          end
+          //! a half-full DEPKT tally is drained before anything else; an
+          //! idle walker drains the others once no bind or silence waits
+          else if (depkt_urg_w ||
+                   ((bind_pend_r == '0) && (sil_pend_r == '0) && depkt_any_w)) begin
+            for (int s = N_LISTENERS_P-1; s >= 0; s--)
+              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
+                ev_s_r      <= IDXW_C'(s);
+                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
+                ddrop_add_r <= 16'(ddrop_pend_r[s]);
+              end
+            w11_mode_r <= 1'b1;
+            mst_r      <= M_INC_S;
           end
           else if (bind_pend_r != '0) begin
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
@@ -960,16 +1064,6 @@ module KL_avtp_rx_monitor_ctx #(
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (sil_pend_r[s]) ev_s_r <= IDXW_C'(s);
             sil_mode_r <= 1'b1;
-            mst_r      <= M_INC_S;
-          end
-          else if (depkt_any_w) begin
-            for (int s = N_LISTENERS_P-1; s >= 0; s--)
-              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
-                ev_s_r      <= IDXW_C'(s);
-                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
-                ddrop_add_r <= 16'(ddrop_pend_r[s]);
-              end
-            w11_mode_r <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (iv_res_list_r != '0) begin
@@ -1004,6 +1098,10 @@ module KL_avtp_rx_monitor_ctx #(
         end
         M_PFRD3_S : begin
           if (ev_s_r != '0) fmt_r[63:32] <= ram_q_r;
+          //! the context's frame size, from its FMT_LO (held since the pick or
+          //! M_PFRD2_S) and the PDU's sample format, which the verdict
+          //! requires to be the context's own
+          flen_r <= frame_octets(f_cpf_w, f_spf_w, p_format_w);
           mst_r <= M_PDEC_S;
         end
 
@@ -1019,10 +1117,20 @@ module KL_avtp_rx_monitor_ctx #(
             //! timestamp word is written.
             monst_r <= {ram_q_r[31:8], cur_w.seq};
             mst_r   <= M_PSEQ_S;
+            //! the bundle's last context: its verdicts are complete (#948)
+            if (rem_r == '0) begin
+              pdu_done_p_o    <= 1'b1;
+              pdu_done_mask_o <= acc_r;
+            end
           end
           else begin
             pdu_accept_p_o     <= 1'b1;
             pdu_accept_idx_o   <= 4'(ev_s_r);
+            acc_r              <= acc_r | onehot(ev_s_r);
+            if (rem_r == '0) begin
+              pdu_done_p_o    <= 1'b1;
+              pdu_done_mask_o <= acc_r | onehot(ev_s_r);
+            end
             chans_sh_r[ev_s_r] <= p_chans_w;
             sil_ms_r[ev_s_r]   <= '0;
             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
@@ -1067,15 +1175,15 @@ module KL_avtp_rx_monitor_ctx #(
             else begin
               //! drain exactly the latched amounts (new pulses survive)
               dpdu_pend_r[ev_s_r]  <= dpdu_pend_r[ev_s_r]
-                                      - 3'(dpdu_add_r)
+                                      - DEPKT_PEND_W_C'(dpdu_add_r)
                                       + ((depkt_pdu_p_i &&
                                           32'(depkt_pdu_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               ddrop_pend_r[ev_s_r] <= ddrop_pend_r[ev_s_r]
-                                      - 3'(ddrop_add_r)
+                                      - DEPKT_PEND_W_C'(ddrop_add_r)
                                       + ((depkt_drop_p_i &&
-                                          32'(depkt_drop_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                          depkt_drop_mask_i[ev_s_r])
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               inc_rd_q_r <= 1'b0;
               w11_mode_r <= 1'b0;
               mst_r      <= M_IDLE_S;

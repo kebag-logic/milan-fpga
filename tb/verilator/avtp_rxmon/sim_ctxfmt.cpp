@@ -97,9 +97,11 @@ class CtxFmt {
     void cyc(int n = 1) { for (int i = 0; i < n; i++) { lo(); hi(); } }
     void flush_iv() { cyc(kIval + 80); }
 
-    // an AAF PDU of stream s with `ch` channels, its own next sequence number
+    // an AAF PDU of stream s with `ch` channels, its own next sequence number; its payload is six four-octet
+    // samples per channel, the frame size of the format with that count (#948)
     std::vector<uint8_t> aaf(int s, unsigned ch) {
-        std::vector<uint8_t> f(120, 0);
+        const unsigned n = 24 * ch;
+        std::vector<uint8_t> f(n + 38 > 120 ? n + 38 : 120, 0);
         for (int i = 0; i < 6; i++) { f[i] = 0x91; f[6 + i] = 0x02; }
         f[12] = 0x22; f[13] = 0xF0;
         const int o = 14;
@@ -112,8 +114,9 @@ class CtxFmt {
         f[o + 17] = 0x05 << 4;                    // 48 kHz
         f[o + 18] = static_cast<uint8_t>(ch);
         f[o + 19] = 32;
-        f[o + 21] = 0x40;                         // 64 bytes
-        for (int i = 0; i < 64; i++) f[o + 24 + i] = static_cast<uint8_t>(0x30 + i);
+        f[o + 20] = static_cast<uint8_t>(n >> 8);
+        f[o + 21] = static_cast<uint8_t>(n);
+        for (unsigned i = 0; i < n; i++) f[o + 24 + i] = static_cast<uint8_t>(0x30 + i);
         return f;
     }
 

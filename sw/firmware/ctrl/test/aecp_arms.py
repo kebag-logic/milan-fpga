@@ -42,6 +42,17 @@ def key_arms(tree: Tree) -> list[Outcome]:
                      mode="work", selected=KEYS) for config in configs]
 
 
+#: The input-port tests run at every checked-in configuration (#584; Milan v1.2 5.3.3.8): each STREAM_PORT_INPUT owns a
+#: mono AUDIO_CLUSTER as a controller reads it, and takes a REMOVE_AUDIO_MAPPINGS of a non-empty list.
+INPUTS = "Inputs.*"
+
+
+def input_arms(tree: Tree) -> list[Outcome]:
+    """INPUTS at every checked-in configuration, each in its own output directory."""
+    return [core_arm(Tree(tree.src, tree.out / "inputs" / config.stem, tree.reuse, tree.build, tree.stack), config,
+                     selected=INPUTS) for config in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
+
+
 def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
     """Generate the F1 record geometry and bind its real host flash device."""
     sys.path.insert(0, str(ROOT / "sw/firmware/ctrl_nvm/test"))
@@ -180,6 +191,7 @@ def all_arms(tree: Tree) -> list[Outcome]:
     results.append(core_arm(Tree(tree.src, tree.out / "outputs", tree.reuse, tree.build, tree.stack), eight, 1,
                             mode="app", selected=OUTPUTS))
     results += [image_arm(tree, p) for p in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
+    results += input_arms(tree)
     if not tree.build.coverage:
         results.append(core_arm(Tree(tree.src, tree.out / "debug", tree.reuse, tree.build, tree.stack), shipping,
                                 mode="debug"))
@@ -204,6 +216,7 @@ if __name__ == "__main__":
     parser.add_argument("--app", action="store_true")
     parser.add_argument("--work", action="store_true")
     parser.add_argument("--keys", action="store_true", help="KEYS at every checked-in configuration and KEY_GEOMETRIES")
+    parser.add_argument("--inputs", action="store_true", help="INPUTS at every checked-in configuration (#584)")
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
     parser.add_argument("--stack", type=Path, default=STACK, help="the tsn-c-stack checkout (default: the submodule)")
     args = parser.parse_args()
@@ -214,8 +227,8 @@ if __name__ == "__main__":
         raise SystemExit(2) from exc
     build = fw_gtest.Build(coverage=args.coverage, address_sanitizer=args.asan, jobs=4)
     tree = Tree(CTRL, args.output, args.output / "reuse", build, args.stack.resolve())
-    if args.keys:
-        results = key_arms(tree)
+    if args.keys or args.inputs:
+        results = key_arms(tree) if args.keys else input_arms(tree)
         for outcome in results:
             print(f"{outcome.arm}: rc {outcome.rc}\n{outcome.log}")
         raise SystemExit(max(outcome.rc for outcome in results))

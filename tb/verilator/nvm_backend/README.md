@@ -40,7 +40,7 @@ so that the millisecond deadlines are reachable in simulation; the deadline
 VALUES are the design page's and are exercised as relations, not durations.
 
 The generated shapes determine every record length.
-At 8x8, input ports have zero clusters: eight framed bytes.
+At 8x8, each input port owns one cluster (#584): `8 + 8 = 16` framed bytes.
 Each output reserves `9 * 8 = 72` stream/channel keys.
 Its payload is `72 * 8 = 576` bytes.
 Its framed length is `8 + 576 = 584` bytes.

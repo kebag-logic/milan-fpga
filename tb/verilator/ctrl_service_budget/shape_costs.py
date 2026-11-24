@@ -51,7 +51,7 @@ NAMES = ('CTRL_LOOP_SLICE_US', 'CTRL_LOOP_BUILD_PASS_US', 'CTRL_LOOP_BUILD_ONE_P
 SLICE, BUILD, BUILD_ONE, SRP_UNIT, RETRY_COLD, RETRY_ATTEMPT = NAMES
 #: The bounds in milliseconds each listed shape states after NAMES, so that one shape's figure is never another's: the
 #: last queued notice's, which aecp_mbx.h's AECP_QUEUED_MS is, and THE TRANSMIT's MRPDU by every source at the built
-#: design, which rows_tiers.py holds and a withdrawn Talker's hold-off adds (srp_mbx.c, SRP_REDECLARE_CS).
+#: design, which rows_tiers.py holds and a withdrawn Talker's hold-off counts (srp_mbx.c, SRP_REDECLARE_CS).
 BOUNDS = ('CTRL_LOOP_QUEUED_MS', 'CTRL_LOOP_TX_MS')
 QUEUED, TX = BOUNDS
 #: THE RETRY's round costs AECP reads, each where it is defined and the name of the table's it must be: a round's cold

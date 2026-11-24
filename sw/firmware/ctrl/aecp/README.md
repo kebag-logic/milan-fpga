@@ -124,8 +124,8 @@ Its `stream_dest_mac` is the Talker's MAAP address, the ACMP source port's that 
 REGISTERING (`flags_ex`) is set while SRP registers a matching Listener on the output's interface, of any declaration.
 REGISTERING_FAILED (`0x00000040`) is set while that Listener is Asking Failed. Undeclared, all three read 0, as the fabric answers.
 A brief observation, a running check's, stays the face's, and an output map edit's check of its stream is one (`aecp_maps.c`, `idle`).
-A Listener's registration change raises no notice of its own yet; the next response or notice carries it.
-`AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) plants its defects.
+Each change of that Listener's registration, a Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going, is the output's GET_STREAM_INFO notice to every registered controller (#957; Milan v1.2 5.4.5.2, Table 5.22), raised from SRP's record as a Talker declaration's is ([SRP](../srp/README.md)).
+`AppOutputs` tests every output of the 1x1 and 8x8 shapes; [`aecp_output_mutants.py`](../test/aecp_output_mutants.py) and [`aecp_registration_mutants.py`](../test/aecp_registration_mutants.py) plant their defects.
 Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
@@ -385,7 +385,11 @@ No reserved message type is interpreted as an AEM command.
 
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
-guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
+guard. `Inputs.*` runs at every tracked configuration (#584; Milan v1.2
+5.3.3.8): each STREAM_PORT_INPUT its AUDIO_UNITs list owns a mono AUDIO_CLUSTER
+and no AUDIO_MAP as READ_DESCRIPTOR serves it, and takes a REMOVE_AUDIO_MAPPINGS
+of a non-empty list; [`aecp_input_mutants.py`](../test/aecp_input_mutants.py)
+plants a headless input port on the wire and a REMOVE that keeps its rows. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
 each source defect to fail its named assertion in a completed run; it appends the
 descriptor index's and the event and registration lists' defects from
 [`aecp_index_mutants.py`](../test/aecp_index_mutants.py), THE RETRY's from

@@ -20,7 +20,8 @@ aecp-reboot), so their records are the same commands, and aecp-outputs:
 - MAAP's ranges held, AECP_REGISTRATIONS controllers registered on every interface, then a PROBE_TX for source 0,
   answered SUCCESS: SRP declares its Talker and the bridge raises its STREAM_OUTPUT's GET_STREAM_INFO, which THE
   RETRY builds whole, completed, and sends to every registration (#936): a row (notify, its path DECLARED).
-- a bridge's Listener Ready for output 0's stream on its interface, which SRP registers: REGISTERING from then on.
+- a bridge's Listener Ready for output 0's stream on its interface, which SRP registers: REGISTERING from then on,
+  first in the Listener's own notice to every registration (#957).
 - GET_STREAM_INFO of every STREAM_OUTPUT, answered SUCCESS: each a row (aecp, GET).
 - SET_STREAM_INFO of output 0 refused after its whole observation: NOT_SUPPORTED, a sub-command Milan v1.2 5.4.2.9
   does not support, and ENTITY_LOCKED, under another controller's lock (7.4.2): each a row (aecp, REFUSED).
@@ -37,9 +38,11 @@ STREAM_OUTPUT ran one completion, each map edit's and each of the largest legal 
 brief), THE RETRY's rounds ran the declared Talker's, and every GET_STREAM_INFO of a STREAM_OUTPUT that left in
 aecp-outputs, response or notice, carries what the completion answers: STREAM_DEST_MAC_VALID, the output's MAAP
 address (the pool's, base + n on its interface), REGISTERING for output 0 alone once its Listener is registered, and
-no REGISTERING_FAILED (a Listener Ready). build.py's PLANTS put each of its findings there: the completion never run
-(none of the evidence), a brief observation completed (the map edits' records), and the completion dearer by a
-planted loop (the records record_classes.py holds, over their statement).
+no REGISTERING_FAILED (a Listener Ready). Before the first GET's response there are exactly the declared Talker's
+notice of output 0 to every registration (#936), then the Listener's, one to every registration too (#957).
+build.py's PLANTS put each of its findings there: the completion never run (none of the evidence), a brief
+observation completed (the map edits' records), and the completion dearer by a planted loop (the records
+record_classes.py holds, over their statement).
 """
 from __future__ import annotations
 
@@ -218,6 +221,17 @@ def answer_findings(infos: list[tuple[int, int, bool, int, int, int]], listened_
     return out
 
 
+def order_findings(infos: list[tuple[int, int, bool, int, int, int]], everyone: int) -> list[str]:
+    """What is wrong with the GET_STREAM_INFOs before the first GET's response: they must be the declared Talker's
+    notice of output LISTENED to each of `everyone` registrations (#936) and then its Listener's registration's, one to
+    each registration too (#957), and nothing else."""
+    first_get = next((k for k, info in enumerate(infos) if not info[2]), None)
+    if first_get != 2 * everyone or any(n != LISTENED for _, n, *_ in infos[:2 * everyone]):
+        return [f"before the first GET's response, not the declared Talker's notice of output {LISTENED} to each of "
+                f"{everyone} registrations and then its Listener's (#936, #957): {first_get} notice(s)"]
+    return []
+
+
 def records(log: object, sys_hz: int, cpu_hz: int, aecp: int) -> list[tuple[int | None, int | None, int, int]]:
     """Each AECP record (aecp_mbx.c, frame, a SPAN line) as record_classes.py names it, the first solicited response
     committed in it or before the next record: (command_type, descriptor_type, status, completions inside it)."""
@@ -279,8 +293,11 @@ def findings(spec: dict, out: Path, groups: list) -> list[str]:
         if not rounds_completing(log, spec['sys_hz'], spec['cpu_hz']):
             lines.append(f"{GROUP}: no round of THE RETRY ran the completion (the declared Talker's notice)")
         infos = stream_infos(log.tx, aecp)
-        listener = next((k for k, info in enumerate(infos) if not info[2]), None)  # the first GET's, after the MRPDU
-        lines += [f'{GROUP}: {line}' for line in answer_findings(infos, listener)]
+        # the declared Talker's notice to every registration (#936), then its Listener's registration's (#957), and
+        # then the first GET's response: REGISTERING from the Listener's notices on
+        everyone = spec['interfaces'] * scenario.registrations()
+        lines += [f'{GROUP}: {line}' for line in order_findings(infos, everyone)]
+        lines += [f'{GROUP}: {line}' for line in answer_findings(infos, everyone)]
         if not any(not info[2] for info in infos) or not any(info[2] for info in infos):
             lines.append(f'{GROUP}: no GET_STREAM_INFO of a STREAM_OUTPUT left as a response and as a notice')
         print(f'DECLARING {GROUP}: {sum(n for *_, n in named)} completion(s) in {sum(1 for *_, n in named if n)} '
@@ -333,6 +350,15 @@ def checks() -> list[tuple[str, bool, str]]:
         planted = [list(info) for info in sound]
         planted[k][column] = value
         check(f'the declaring answers refuse {name}', answer_findings([tuple(i) for i in planted], 1), True)
+    notice, get = (0, 0, True, DECLARING, base, 0), (0, 0, False, DECLARING, base, REGISTERING)
+    ordered = [notice, notice, (*notice[:5], REGISTERING), (*notice[:5], REGISTERING), get]
+    check("the declaring answers pass the Talker's and then the Listener's notice to each registration",
+          order_findings(ordered, 2), False)
+    for name, planted in (("the Listener's notices missing", ordered[:2] + ordered[4:]),
+                          ("a third notice to a registration", ordered[:1] + ordered),
+                          ("another output's notice among them", [ordered[0], (0, 1, True, DECLARING, base + 1, 0),
+                                                                   *ordered[2:]])):
+        check(f'the declaring answers refuse {name}', order_findings(planted, 2), True)
     good = [(GET_STREAM_INFO, 6, 0, 1), (SET_STREAM_INFO, 6, 11, 1), (0x002D, 15, 0, 0), (None, None, None, 1)]
     check('the declaring records pass a sound set', record_findings('g', good), False)
     for name, record in (('a GET_STREAM_INFO that ran no completion', (GET_STREAM_INFO, 6, 0, 0)),

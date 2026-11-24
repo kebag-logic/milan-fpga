@@ -54,7 +54,10 @@ protected:
     srp_source sources[MBX_N_IF][CTRL_SRP_SOURCES]{};
     srp_mbx_config config{};
     StrictMock<Licence> licence;
-    void SetUp() override {
+    void SetUp() override { boot(true,nullptr); }
+    // The fixture's boot: SRP attached to the loop, the loop opened and, when link_up, every link raised. `ahead`,
+    // when given, binds a test's own sinks and polls to the loop before SRP attaches, so each runs ahead of SRP's.
+    void boot(bool link_up,void (*ahead)(ctrl_loop *)) {
         calloc_before_failure=-1;
         mbx_model_reset(&model); mbx_model_bind(&model,nullptr,nullptr);
         ASSERT_TRUE(ctrl_pool_init(&pool,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES));
@@ -77,9 +80,10 @@ protected:
             }
         }
         ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+        if (ahead!=nullptr) ahead(&loop);
         ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
         ASSERT_TRUE(ctrl_loop_open(&loop,0x020304fffe050600ull,config.mac));
-        for (unsigned i=0;i<MBX_N_IF;++i) mbx_model_set_link(&model,i,true);
+        for (unsigned i=0;i<MBX_N_IF && link_up;++i) mbx_model_set_link(&model,i,true);
     }
     void TearDown() override {
         srp_mbx_destroy(&adapter);

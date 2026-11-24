@@ -533,7 +533,10 @@ One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
 - ENTITY_AVAILABLE on its schedule: a random TMR_DELAY (0 to 2 s at startup
   with the link up, 5.6.3.5.2; 0 to 4 s otherwise), the frame, then
   TMR_ADVERTISE (5 s, 5.6.3.5.9), with available_index incremented after each
-  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING);
+  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING); the first after
+  a link-up comes within the entity's declared 6.0 s discovery time, derived
+  term by term in [FR_NFR.md](../reference/FR_NFR.md#211-the-declared-discovery-time)
+  (#970), the draw its largest term and the boot path none (#972);
 - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
   (5.6.3.1, 5.6.3.5.4);
 - the re-advertise on a grandmaster change (5.6.3.5.7);
@@ -1287,9 +1290,10 @@ them:
   as the processor does (`KL_srp_talker_fsm.sv`, the record capture). A Leave
   lwSRP refuses (its participant holding an MRPDU the ring refused) keeps the
   bit set and the withdrawal owed until lwSRP takes it. A
-  changed destination is declared two nominal longest LeaveAll periods, 1.5
-  LeaveAllTime each, after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
-  #951); Milan v1.2 Table 4.3's further tolerance, a leavealltimer up to
+  changed destination reaches the wire within two nominal longest LeaveAll
+  periods, 1.5 LeaveAllTime each, of the Leave's request, its JoinTime and THE
+  TRANSMIT's terms counted inside them (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+  #951, #956); Milan v1.2 Table 4.3's further tolerance, a leavealltimer up to
   15.5 s, is not covered. The CRF talker's C-TAG reads this level. Its
   frames leave under the licence, which needs a declaration in both
   placements; with policing off (the AAF bypass or lwSRP disabled) both

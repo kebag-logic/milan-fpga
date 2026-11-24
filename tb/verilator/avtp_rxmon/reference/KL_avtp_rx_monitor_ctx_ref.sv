@@ -14,6 +14,9 @@
 //! it is graded by sim_main_nx.cpp's [UF] cases, never against this copy.
 //! #775's sequence advance on a discarded off-format PDU (M_PSEQ_S) is
 //! applied the same way; sim_main_nx.cpp's [SQ] cases grade it.
+//! #948's frame-size compare (flen_r, stream_data_length against the current
+//! format's frame size) is applied the same way; sim_fanout.cpp's [FO11]
+//! cases grade it.
 
 /*
 ------------------------------------------------------------------------------
@@ -303,6 +306,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
   pdu_evt_t          cur_r;
   logic [IDXW_C-1:0] ev_s_r;
   logic [63:0]       fmt_r;
+  logic [21:0]       flen_r;    //! #948
   logic [31:0]       monst_r;
   logic [3:0]        wrph_r;
   logic [11:0]       inc_list_r;
@@ -318,8 +322,11 @@ module KL_avtp_rx_monitor_ctx_ref #(
   //! #762: the pending unlock is the silence watchdog's, not an unbind's,
   //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
   logic [N_LISTENERS_P-1:0] sil_si_r;
-  logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
-  logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+  //! #948: the pending DEPKT tallies widened, and their drain put before
+  //! any PDU walk once one is half full, as in the shipping engine
+  localparam int DEPKT_PEND_W_C = 6;
+  logic [DEPKT_PEND_W_C-1:0] dpdu_pend_r  [N_LISTENERS_P];
+  logic [DEPKT_PEND_W_C-1:0] ddrop_pend_r [N_LISTENERS_P];
 
   //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
   //! CNT-column format (only the seven interval columns are ever set, so
@@ -436,17 +443,23 @@ module KL_avtp_rx_monitor_ctx_ref #(
   //! remains for genuine stream loss only (100 ms silence, bind wipe).
 
   logic depkt_any_w;
+  logic depkt_urg_w;                      //! a tally is half full: drain first
   always_comb begin : pend_scans
     depkt_any_w = 1'b0;
-    for (int s = 0; s < N_LISTENERS_P; s++)
+    depkt_urg_w = 1'b0;
+    for (int s = 0; s < N_LISTENERS_P; s++) begin
       if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) depkt_any_w = 1'b1;
+      if (dpdu_pend_r[s][DEPKT_PEND_W_C-1] || ddrop_pend_r[s][DEPKT_PEND_W_C-1])
+        depkt_urg_w = 1'b1;
+    end
   end : pend_scans
 
-  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0);
+  wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0) && !depkt_urg_w;   //! #948
   //! fresh-PDU fast dispatch: an idle walker takes the live pulse bundle
   //! directly (skips the queue hop - the depacketizer commit window on
   //! short PDUs is the reason: accept must land before the frame's tlast)
-  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0);
+  wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0) &&
+                     !depkt_urg_w;                                   //! #948
   //! interval-commit dispatch, same M_IDLE_S priority slot the FSM uses
   //! (below depkt, above the window read) - defined ONCE so the FSM branch
   //! and the flag-fold block can never disagree about the drain cycle
@@ -484,6 +497,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
   wire [9:0] f_cpf_w     = fmt_r[31:22];   //! #765
+  wire [9:0] f_spf_w     = fmt_r[21:12];   //! #948
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_r.fsh[63:56];
@@ -491,7 +505,20 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [7:0] p_chans_w  = cur_r.fsh[47:40];
   wire [9:0] p_cpf_w    = cur_r.fsh[49:40];  //! #765
   wire [7:0] p_depth_w  = cur_r.fsh[39:32];
+  wire [15:0] p_len_w   = cur_r.fsh[31:16]; //! #948
   wire       p_sp_w     = cur_r.fsh[12];
+
+  //! #948: the format's frame size in octets, as the shipping engine sizes it
+  function automatic [21:0] frame_octets(input [9:0] cpf, input [9:0] spf,
+                                         input [7:0] format);
+    logic [19:0] n;
+    n = 20'(cpf) * 20'(spf);
+    unique case (format)
+      8'h03   : frame_octets = 22'(n) + 22'({n, 1'b0});
+      8'h04   : frame_octets = 22'({n, 1'b0});
+      default : frame_octets = 22'({n, 2'b00});
+    endcase
+  endfunction
 
   //! reference current-format compare, the same terms as the shipping
   //! engine (#765; Milan v1.2 4.4.2.2, Table 5.6 UNSUPPORTED_FORMAT,
@@ -509,6 +536,9 @@ module KL_avtp_rx_monitor_ctx_ref #(
                   //! #765: the current format's channel count
                   (p_cpf_w     == f_cpf_w)     &&
                   (p_cpf_w     != 10'd0)       &&
+                  //! #948: the current format's frame size
+                  (22'(p_len_w) == flen_r)     &&
+                  (flen_r      != 22'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
@@ -799,6 +829,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
       cur_r       <= '0;
       ev_s_r      <= '0;
       fmt_r       <= '0;
+      flen_r      <= '0;
       monst_r     <= '0;
       wrph_r      <= '0;
       inc_list_r  <= '0;
@@ -884,10 +915,10 @@ module KL_avtp_rx_monitor_ctx_ref #(
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
-          dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
+          dpdu_pend_r[s] <= dpdu_pend_r[s] + DEPKT_PEND_W_C'(1);
         if (depkt_drop_p_i && (32'(depkt_drop_idx_i) == s) &&
             !(&ddrop_pend_r[s]))
-          ddrop_pend_r[s] <= ddrop_pend_r[s] + 3'd1;
+          ddrop_pend_r[s] <= ddrop_pend_r[s] + DEPKT_PEND_W_C'(1);
         //! silence watchdog: ms-tick flop scan (spec timer rule)
         if (ms_tick_r && locked_sh_r[s]) begin
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
@@ -925,6 +956,19 @@ module KL_avtp_rx_monitor_ctx_ref #(
             end
             else mst_r <= M_PFRD2_S;        //! FMT_LO read already issued
           end
+          //! a half-full DEPKT tally is drained before anything else; an
+          //! idle walker drains the others once no bind or silence waits
+          else if (depkt_urg_w ||
+                   ((bind_pend_r == '0) && (sil_pend_r == '0) && depkt_any_w)) begin
+            for (int s = N_LISTENERS_P-1; s >= 0; s--)
+              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
+                ev_s_r      <= IDXW_C'(s);
+                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
+                ddrop_add_r <= 16'(ddrop_pend_r[s]);
+              end
+            w11_mode_r <= 1'b1;
+            mst_r      <= M_INC_S;
+          end
           else if (bind_pend_r != '0) begin
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (bind_pend_r[s]) ev_s_r <= IDXW_C'(s);
@@ -934,16 +978,6 @@ module KL_avtp_rx_monitor_ctx_ref #(
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (sil_pend_r[s]) ev_s_r <= IDXW_C'(s);
             sil_mode_r <= 1'b1;
-            mst_r      <= M_INC_S;
-          end
-          else if (depkt_any_w) begin
-            for (int s = N_LISTENERS_P-1; s >= 0; s--)
-              if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
-                ev_s_r      <= IDXW_C'(s);
-                dpdu_add_r  <= 16'(dpdu_pend_r[s]);
-                ddrop_add_r <= 16'(ddrop_pend_r[s]);
-              end
-            w11_mode_r <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (iv_res_list_r != '0) begin
@@ -980,6 +1014,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
         end
         M_PFRD3_S : begin
           if (ev_s_r != '0) fmt_r[63:32] <= ram_q_r;
+          flen_r <= frame_octets(f_cpf_w, f_spf_w, p_format_w);   //! #948
           mst_r <= M_PDEC_S;
         end
 
@@ -1050,15 +1085,15 @@ module KL_avtp_rx_monitor_ctx_ref #(
             else begin
               //! drain exactly the latched amounts (new pulses survive)
               dpdu_pend_r[ev_s_r]  <= dpdu_pend_r[ev_s_r]
-                                      - 3'(dpdu_add_r)
+                                      - DEPKT_PEND_W_C'(dpdu_add_r)
                                       + ((depkt_pdu_p_i &&
                                           32'(depkt_pdu_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               ddrop_pend_r[ev_s_r] <= ddrop_pend_r[ev_s_r]
-                                      - 3'(ddrop_add_r)
+                                      - DEPKT_PEND_W_C'(ddrop_add_r)
                                       + ((depkt_drop_p_i &&
                                           32'(depkt_drop_idx_i) == 32'(ev_s_r))
-                                         ? 3'd1 : 3'd0);
+                                         ? DEPKT_PEND_W_C'(1) : '0);
               inc_rd_q_r <= 1'b0;
               w11_mode_r <= 1'b0;
               mst_r      <= M_IDLE_S;

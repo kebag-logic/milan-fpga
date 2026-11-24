@@ -26,6 +26,10 @@ The streams beside the contexts (Streams): a waiting SET_STREAM_FORMAT done agai
 shipped core's (#950), at input 0, the CRF input and every STREAM_OUTPUT at both shapes, or its check made of
 stream 0; and GET_TX_STATE's REGISTERING_FAILED from the platform's source port never reported, the shipped
 platform's (#954), reported for any Listener, with none, or from output 0's Listener.
+
+The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no
+binding holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a
+bind while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
 """
 from __future__ import annotations
 
@@ -60,6 +64,15 @@ AGAIN_CHECK = "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;"
 ASKING = "\tout->asking_failed = srp->listener_present[n] && !srp->registered[n];\n"
 T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or "
             "Ready Failed (Table 5.47): output ")
+#: #969's two tests (Early), named apart from the Streams fixture's S13 and S14 above, whose numbers they share.
+EARLY_S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+EARLY_S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+#: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
+KEEPS = "    return keep_talker(i,type,value);\n"
+POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
+            "TRANSMIT's next MRPDU, input 0")
+REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
+           "MRPDU, input 0")
 #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
 VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
 C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
@@ -182,6 +195,11 @@ def contexts(mutant: type) -> tuple:
         # reads the verdict's bit 1 against it refuses the saved format
         m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
+        # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
+        m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
+          EARLY_S13, POWER_ON,
+          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14, REBOUND),
+                ("platsinks1", EARLY_S14, REBOUND))),
     )
 
 
