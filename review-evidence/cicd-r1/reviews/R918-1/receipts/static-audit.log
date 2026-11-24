@@ -1,0 +1,55 @@
+{
+  "guard_cases": [
+    {
+      "installed": false,
+      "input": null,
+      "observed": "|",
+      "rc": 0
+    },
+    {
+      "installed": false,
+      "input": "",
+      "observed": "set|",
+      "rc": 0
+    },
+    {
+      "installed": false,
+      "input": "custom-cache",
+      "observed": "set|custom-cache",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": null,
+      "observed": "set|ccache",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": "",
+      "observed": "set|",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": "custom-cache",
+      "observed": "set|custom-cache",
+      "rc": 0
+    }
+  ]
+}
+{"pair": "1", "cpu_saving_pct": 4.865456689961656, "l1d_miss_saving_pct": 14.505384003217369}
+{"pair": "-2", "cpu_saving_pct": 2.613592289477995, "l1d_miss_saving_pct": 8.82961454581701}
+{"pair": "-3", "cpu_saving_pct": 2.5002043335886737, "l1d_miss_saving_pct": 5.384495986932758}
+ccache/nocc.time: 967.68 wall 1587.52 user 71.59 sys
+ccache/cold.time: 782.82 wall 547.52 user 57.65 sys
+ccache/warm.time: warm 219.48 wall 229.32 user 7.24 sys
+ccache/cold.stats: Cacheable calls:    528 / 528 (100.0%)
+  Hits:             378 / 528 (71.59%)
+    Direct:         372 / 378 (98.41%)
+    Preprocessed:     6 / 378 ( 1.59%)
+  Misses:           150 / 528 (28.41%)
+Local storage:
+  Cache size (GiB): 0.1 / 5.0 ( 2.16%)
+  Hits:             378 / 528 (71.59%)
+  Misses:           150 / 528 (28.41%)

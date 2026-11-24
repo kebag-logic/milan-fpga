@@ -1,0 +1,146 @@
+[
+  {
+    "variant": "base",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_dir/VKL_crf_rx__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -I$REVIEWS/cicd-r918-1-packet/scratch/base/tb/verilator/crf_rx -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra -Mdir obj_dir ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_main.cpp -o Vcrf_rx_sim"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_discontinuity/VKL_crf_rx__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_crf_rx --public-flat-rw -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -I$REVIEWS/cicd-r918-1-packet/scratch/base/tb/verilator/crf_rx -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra -Mdir obj_discontinuity ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_discontinuity.cpp -o Vdiscontinuity"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_talker/Vcrf_talker_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --public-flat-rw --top-module crf_talker_wrap -Mdir obj_talker -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv sim_talker_step.cpp -o Vtalker_step"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_dir/VKL_mmcm_drp_servo__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra --top-module KL_mmcm_drp_servo -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 -GNOM_WIN_NS_P=64'd4000000 -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 -GLOCK_THR_P=8192 -Mdir obj_dir ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_main.cpp -o Vservo_sim"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_phc/VKL_mmcm_drp_servo__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra --public-flat-rw --top-module KL_mmcm_drp_servo -Mdir obj_phc ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_phc_step.cpp -o Vphc_step"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_rails/Vrails_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra --top-module rails_wrap -Mdir obj_rails ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv rails_wrap.sv sim_rails.cpp -o Vrails_sim"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "aaf_clock_meter",
+    "artifact": "tb/verilator/aaf_clock_meter/obj_dir/Vmeter_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module meter_wrap -GCLK_HZ_P=200000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000 -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv meter_wrap.sv sim_main.cpp -o Vmeter_sim"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "aaf_clock_meter",
+    "artifact": "tb/verilator/aaf_clock_meter/obj_servo/Vmeter_servo_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module meter_servo_wrap --public-flat-rw -GTICK_CYC_P=768 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768 -Mdir obj_servo ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv meter_servo_wrap.sv sim_servo.cpp -o Vservo_sim"
+    ]
+  },
+  {
+    "variant": "base",
+    "suite": "maap",
+    "artifact": "tb/verilator/maap/obj_dir/VKL_maap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_maap -GCLK_FREQ_HZ_P=10000 --public-flat-rw -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -Mdir obj_dir ../../../hdl/ieee1722/maap/KL_maap.sv sim_main.cpp -o VKL_maap_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_dir/VKL_crf_rx__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_crf_rx probes.vlt -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -I$REVIEWS/cicd-r918-1-packet/scratch/head/tb/verilator/crf_rx -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra -Mdir obj_dir ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_main.cpp -o Vcrf_rx_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_discontinuity/VKL_crf_rx__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_crf_rx probes.vlt -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -GMAXTT_NS_P=2000000 -GEARLY_MARGIN_NS_P=10000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -I$REVIEWS/cicd-r918-1-packet/scratch/head/tb/verilator/crf_rx -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra -Mdir obj_discontinuity ../../../hdl/ieee1722/crf/KL_crf_rx.sv sim_discontinuity.cpp -o Vdiscontinuity"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "crf_rx",
+    "artifact": "tb/verilator/crf_rx/obj_talker/Vcrf_talker_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 probes.vlt --top-module crf_talker_wrap -Mdir obj_talker -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv sim_talker_step.cpp -o Vtalker_step"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_dir/VKL_mmcm_drp_servo__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra --top-module KL_mmcm_drp_servo -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 -GNOM_WIN_NS_P=64'd4000000 -GNORM_SHIFT_P=7 -GGAIN_NUM_P=7 -GRELOCK_TOUT_P=20000 -GLOCK_THR_P=8192 -Mdir obj_dir ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_main.cpp -o Vservo_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_phc/VKL_mmcm_drp_servo__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra probes.vlt --top-module KL_mmcm_drp_servo -Mdir obj_phc ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_phc_step.cpp -o Vphc_step"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "mmcm_servo",
+    "artifact": "tb/verilator/mmcm_servo/obj_rails/Vrails_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS -std=c++17 -O2 -Wall -Wextra --top-module rails_wrap -Mdir obj_rails ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv rails_wrap.sv sim_rails.cpp -o Vrails_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "aaf_clock_meter",
+    "artifact": "tb/verilator/aaf_clock_meter/obj_dir/Vmeter_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module meter_wrap -GCLK_HZ_P=200000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=200000 -Mdir obj_dir ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv meter_wrap.sv sim_main.cpp -o Vmeter_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "aaf_clock_meter",
+    "artifact": "tb/verilator/aaf_clock_meter/obj_servo/Vmeter_servo_wrap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module meter_servo_wrap probes.vlt -GTICK_CYC_P=768 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -DTICK_CYC_TB=768 -Mdir obj_servo ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv meter_servo_wrap.sv sim_servo.cpp -o Vservo_sim"
+    ]
+  },
+  {
+    "variant": "head",
+    "suite": "maap",
+    "artifact": "tb/verilator/maap/obj_dir/VKL_maap__verFiles.dat",
+    "commands": [
+      "--cc --exe --build -j 2 --top-module KL_maap -GCLK_FREQ_HZ_P=10000 probes.vlt -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS -std=c++17 -O2 -Wall -Wextra -Mdir obj_dir ../../../hdl/ieee1722/maap/KL_maap.sv sim_main.cpp -o VKL_maap_sim"
+    ]
+  }
+]

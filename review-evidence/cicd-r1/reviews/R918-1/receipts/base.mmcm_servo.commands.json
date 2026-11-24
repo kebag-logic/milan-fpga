@@ -1,0 +1,66 @@
+{
+  "revision": "300da99beed5bb1c77e4b04af0bb4f9369856e0d",
+  "status": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "make",
+        "-j16",
+        "unit-build",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "wall_seconds": 12.887
+    },
+    {
+      "argv": [
+        "./obj_dir/Vservo_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 91.832
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "$REVIEWS/cicd-r918-1-packet/scratch/simulator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS \"-std=c++17 -O2 -Wall -Wextra\" --top-module rails_wrap -Mdir obj_rails \\\n  ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/common/cdc_pair_fifo.sv \\\n  ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv rails_wrap.sv \\\n  sim_rails.cpp -o Vrails_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 9.757
+    },
+    {
+      "argv": [
+        "./obj_rails/Vrails_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 44.437
+    },
+    {
+      "argv": [
+        "make",
+        "-j16",
+        "phc_step_build",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "wall_seconds": 11.898
+    },
+    {
+      "argv": [
+        "./obj_phc/Vphc_step"
+      ],
+      "rc": 0,
+      "wall_seconds": 1233.737
+    },
+    {
+      "argv": [
+        "./obj_phc/Vphc_step",
+        "+slew_suite"
+      ],
+      "rc": 0,
+      "wall_seconds": 1061.335
+    }
+  ]
+}

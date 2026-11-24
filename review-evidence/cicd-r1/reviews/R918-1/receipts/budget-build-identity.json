@@ -1,0 +1,19 @@
+{
+  "point": "8x8-1if",
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "cpu_cd": "sys",
+  "cpu_hz": 100000000,
+  "sys_hz": 100000000,
+  "sha256": {
+    "fixture.txt": "a2e935edb9062205c66f087262c54f147df278a44e0e69a06fb7b70ee795848b",
+    "budget_config.hpp": "d9fba0069f35ef77717f210f62c69432ad822684f57666dbf944e1213cb6c581",
+    "native/sim_main.o": "0eb3b80407440d276f0212b81aa771326b97513501bc1119c4dc1aa8febeaa4f",
+    "native/Vsim-Os": "c28edfc2b81c6510d466fbf1cca5161fe71070d9e3a2cc14a04b3660c072eb5f",
+    "native/Vsim-O3": "13c33e9a4e0ad1391e171fb333d08bb0c76aa167bfe12d52252dd892142405ab"
+  },
+  "build_jobs": 2,
+  "simulation_jobs": 2,
+  "original_model_flags": "-O3 -std=c++17 -Wall -Wextra",
+  "Os_recompile_scope": "sim_main.o and final link only"
+}

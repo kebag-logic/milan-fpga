@@ -1,0 +1,20 @@
+{
+  "issue": {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/998",
+    "body": "## Objective and observed evidence\n\nHosted CI jobs must stay within 30 minutes. On the composed flip head (run 45326076983) the slowest Verilator shard took 28.6 min (11/19), several others 23-26 min, and two shards lost a suite to the 1800 s guard on a 4-core local replica. The local merge candidate's native bank took ~6 h (the gPTP engine mutant campaign). The rtl-fast `firmware-boundary` job took 25.8 min and once hit the 30-min timeout, which cancelled the whole run.\n\n## Scope\n\nIn scope: measured, verdict-identical speed-ups of the Verilator suites, the preflight self-tests, the firmware-boundary job, the merge candidate's native bank and the CPU budget harness: what each simulation spends its cycles on (profiles), build reuse (ccache), suite and shard balance.\n\nOut of scope: any change to RTL, firmware, owner bounds, test expectations or graded figures.\n\n## Acceptance criteria\n\n1. Every adopted change has measured CPU/wall evidence and byte-identical suite output (host-dependent text excepted) against its base.\n2. Every hosted job stays within 30 minutes with margin.\n",
+    "updated_at": "2026-11-24T11:23:57Z"
+  },
+  "issue_comments": [],
+  "pr_comments": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/1001#issuecomment-7130102484",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R917-1\n\nR917 (internal reviewer) reconstructs issue kebag-logic/milan-fpga#998 / PR #1001 at exact head `fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f`, tree `6aa4a42135fc7615a344aba1935eac8133bdf54b`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "updated_at": "2026-11-24T11:26:34Z"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/1001#issuecomment-7130112822",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R918-1\n\nR918 (external reviewer) reconstructs issue kebag-logic/milan-fpga#998 / PR #1001 at exact head `fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f`, tree `6aa4a42135fc7615a344aba1935eac8133bdf54b`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "updated_at": "2026-11-24T11:27:02Z"
+    }
+  ]
+}

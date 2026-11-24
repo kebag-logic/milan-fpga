@@ -1,0 +1,63 @@
+{
+  "scope": "The MAAP datapath integration target is unchanged by the probe-list flag substitutions; its larger hierarchy was additionally inspected for the eleven known defaults.",
+  "connections": [
+    {
+      "module": "KL_chan_map_capture",
+      "ports": [
+        "tdm_close_ns_i",
+        "lb_tdata_i",
+        "lb_tvalid_i",
+        "lb_tlast_i",
+        "lb_tuser_i",
+        "lb_wire_chans_i",
+        "lb_flush_i",
+        "lb_recentre_i"
+      ],
+      "connections": "Internal time-domain marker, depacketizer/monitor outputs, stream-table bind-fall output, registered recentre pulse",
+      "artifacts": [
+        "hdl/milan/milan_datapath.sv:1542",
+        "hdl/milan/milan_datapath.sv:1549",
+        "hdl/milan/milan_datapath.sv:1551",
+        "hdl/milan/milan_datapath.sv:1555",
+        "hdl/milan/milan_datapath.sv:1558",
+        "hdl/milan/milan_datapath.sv:7299",
+        "hdl/milan/milan_datapath.sv:7593",
+        "hdl/milan/milan_datapath.sv:7960",
+        "hdl/milan/milan_datapath.sv:8028",
+        "hdl/milan/milan_datapath.sv:8063",
+        "hdl/milan/milan_datapath.sv:8274"
+      ]
+    },
+    {
+      "module": "KL_crf_tx",
+      "port": "transit_c_i",
+      "connection": "pres_crf_c_w: presentation-clock output or explicit zero tie-off",
+      "artifacts": [
+        "hdl/milan/milan_datapath.sv:7836",
+        "hdl/milan/milan_datapath.sv:3871",
+        "hdl/milan/milan_datapath.sv:3880"
+      ]
+    },
+    {
+      "module": "KL_aaf_packetizer",
+      "port": "stream_id_i",
+      "connection": "aaf_tx_sid_w: continuous assignments from control-plane source stream-ID outputs",
+      "artifacts": [
+        "hdl/milan/milan_datapath.sv:1736",
+        "hdl/milan/milan_datapath.sv:2752",
+        "hdl/milan/milan_datapath.sv:2754"
+      ]
+    },
+    {
+      "module": "protocol_processor_top",
+      "port": "rx_if_index_i",
+      "connection": "Omitted at KL_pp_shadow.u_pp: unconnected-port default is intentional interface zero, not a connected top-level input or undriven net",
+      "artifacts": [
+        "hdl/milan/KL_pp_shadow.sv:1224",
+        "hdl/milan/KL_pp_shadow.sv:1324",
+        "protocol-processor/hdl/top/protocol_processor_top.sv:317"
+      ]
+    }
+  ],
+  "finding": "No hazardous connected top-level input or undriven net found for these known defaults in the examined MAAP integration path."
+}

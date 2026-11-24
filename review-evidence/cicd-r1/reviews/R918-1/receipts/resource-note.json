@@ -1,0 +1,12 @@
+{
+  "first_cpu_generator_attempt": "stopped by reviewer and restarted",
+  "reason": "bound generator heap and worker concurrency",
+  "restart_java_options": "-XX:ActiveProcessorCount=2 -Xmx2g",
+  "native_build_jobs": 2,
+  "suite_build_jobs_initial": 2,
+  "suite_build_jobs_after_budget_start": 1,
+  "maximum_suite_tasks": 8,
+  "unit_memory_peak_bytes": 13985181696,
+  "requested_memory_cap_bytes": 12000000000,
+  "note": "The observed unit peak during initial dependency/generator setup exceeded the requested cap. The attempt was stopped; clean dependency file cache was released; subsequent build uses the bounded options."
+}

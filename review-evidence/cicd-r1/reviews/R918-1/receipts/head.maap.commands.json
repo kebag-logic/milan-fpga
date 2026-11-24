@@ -1,0 +1,32 @@
+{
+  "revision": "fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f",
+  "status": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "make",
+        "-j16",
+        "build",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "wall_seconds": 11.874
+    },
+    {
+      "argv": [
+        "./obj_dir/VKL_maap_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 4.825
+    },
+    {
+      "argv": [
+        "python3",
+        "mutants.py"
+      ],
+      "rc": 0,
+      "wall_seconds": 1609.214
+    }
+  ]
+}

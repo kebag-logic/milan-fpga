@@ -1,0 +1,74 @@
+{
+  "identical": true,
+  "sha256": "b8544048a65052da46911f4f36dad75674d246b4aa5625354a0de5ed2683dba7",
+  "commands": [
+    {
+      "name": "cache-uncached-output",
+      "argv": [
+        "$REVIEWS/cicd-r918-1-packet/scratch/head/tb/verilator/crf_rx/obj_dir/Vcrf_rx_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.1380585510050878
+    },
+    {
+      "name": "cache-cold-build",
+      "argv": [
+        "make",
+        "-j16",
+        "unit-build",
+        "UNIT_MDIR=$REVIEWS/cicd-r918-1-packet/scratch/cache-unit",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "OBJCACHE=ccache"
+      ],
+      "rc": 0,
+      "wall_seconds": 11.707096172991442
+    },
+    {
+      "name": "cache-cold-output",
+      "argv": [
+        "$REVIEWS/cicd-r918-1-packet/scratch/cache-unit/Vcrf_rx_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.06019379499775823
+    },
+    {
+      "name": "cache-cold-stats",
+      "argv": [
+        "ccache",
+        "--show-stats"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.06438204000005499
+    },
+    {
+      "name": "cache-warm-build",
+      "argv": [
+        "make",
+        "-j2",
+        "-f",
+        "VKL_crf_rx.mk",
+        "Vcrf_rx_sim",
+        "OBJCACHE=ccache"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.5016396040009568
+    },
+    {
+      "name": "cache-warm-output",
+      "argv": [
+        "$REVIEWS/cicd-r918-1-packet/scratch/cache-unit/Vcrf_rx_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.09455397100828122
+    },
+    {
+      "name": "cache-warm-stats",
+      "argv": [
+        "ccache",
+        "--show-stats"
+      ],
+      "rc": 0,
+      "wall_seconds": 0.066158268993604
+    }
+  ]
+}

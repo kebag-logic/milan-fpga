@@ -1,0 +1,50 @@
+{
+  "revision": "fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f",
+  "status": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "make",
+        "-j16",
+        "build",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "wall_seconds": 13.214
+    },
+    {
+      "argv": [
+        "./obj_dir/Vmeter_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 55.63
+    },
+    {
+      "argv": [
+        "make",
+        "-j16",
+        "servo-build",
+        "VERILATOR=$REVIEWS/cicd-r918-1-packet/scratch/simulator",
+        "VERILATOR_JOBS=2"
+      ],
+      "rc": 0,
+      "wall_seconds": 11.095
+    },
+    {
+      "argv": [
+        "./obj_servo/Vservo_sim"
+      ],
+      "rc": 0,
+      "wall_seconds": 135.944
+    },
+    {
+      "argv": [
+        "python3",
+        "mutants.py"
+      ],
+      "rc": 0,
+      "wall_seconds": 1523.941
+    }
+  ]
+}

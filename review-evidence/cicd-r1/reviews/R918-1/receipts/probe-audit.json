@@ -1,0 +1,362 @@
+[
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_main.cpp:1394",
+    "name": "KL_crf_rx__DOT__pdu_count_o",
+    "probe": [
+      "KL_crf_rx",
+      "public_flat_rw"
+    ],
+    "line": "dut->rootp->KL_crf_rx__DOT__pdu_count_o = 65534; m.pdu = 65534;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_main.cpp:1412",
+    "name": "KL_crf_rx__DOT__fmt_err_o",
+    "probe": [
+      "KL_crf_rx",
+      "public_flat_rw"
+    ],
+    "line": "dut->rootp->KL_crf_rx__DOT__fmt_err_o = 254; m.fmt_e = 254;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_main.cpp:1765",
+    "name": "KL_crf_rx__DOT__tout_r",
+    "probe": [
+      "KL_crf_rx",
+      "public_flat_rd"
+    ],
+    "line": "const uint32_t tout_max = dut->rootp->KL_crf_rx__DOT__tout_r;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_main.cpp:1770",
+    "name": "KL_crf_rx__DOT__tout_r",
+    "probe": [
+      "KL_crf_rx",
+      "public_flat_rd"
+    ],
+    "line": "for (int i = 0; i < kSilenceCyc && dut->rootp->KL_crf_rx__DOT__tout_r != tout_max; i++)"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_main.cpp:1775",
+    "name": "KL_crf_rx__DOT__tout_r",
+    "probe": [
+      "KL_crf_rx",
+      "public_flat_rd"
+    ],
+    "line": "&& dut->rootp->KL_crf_rx__DOT__tout_r == tout_max), 1);"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:72",
+    "name": "crf_talker_wrap__DOT__servo__DOT__integ_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "dut->rootp->crf_talker_wrap__DOT__servo__DOT__integ_r << 8) >> 8;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:91",
+    "name": "crf_talker_wrap__DOT__servo__DOT__pp_run_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "if (dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_run_r)"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:127",
+    "name": "crf_talker_wrap__DOT__servo__DOT__tick_p_w",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "boundary = root->crf_talker_wrap__DOT__servo__DOT__tick_p_w &&"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:128",
+    "name": "crf_talker_wrap__DOT__servo__DOT__win_valid_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "root->crf_talker_wrap__DOT__servo__DOT__win_valid_r &&"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:129",
+    "name": "crf_talker_wrap__DOT__servo__DOT__tick_cnt_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "root->crf_talker_wrap__DOT__servo__DOT__tick_cnt_r == 511;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:130",
+    "name": "crf_talker_wrap__DOT__servo__DOT__pp_seq_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "writeback = root->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 7;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:140",
+    "name": "crf_talker_wrap__DOT__servo__DOT__pp_seq_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "boundary &= dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 1;"
+  },
+  {
+    "suite": "crf_rx",
+    "source": "tb/verilator/crf_rx/sim_talker_step.cpp:166",
+    "name": "crf_talker_wrap__DOT__servo__DOT__pp_seq_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r != 1 &&"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:162",
+    "name": "KL_mmcm_drp_servo__DOT__integ_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "int32_t integ() const { return sext24(root()->KL_mmcm_drp_servo__DOT__integ_r); }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:163",
+    "name": "KL_mmcm_drp_servo__DOT__u_cmd_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "int32_t ucmd() const { return sext24(root()->KL_mmcm_drp_servo__DOT__u_cmd_r); }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:164",
+    "name": "KL_mmcm_drp_servo__DOT__ew_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "int32_t ew() const { return static_cast<int32_t>(root()->KL_mmcm_drp_servo__DOT__ew_r); }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:165",
+    "name": "KL_mmcm_drp_servo__DOT__pp_seq_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "int pp_seq() const { return root()->KL_mmcm_drp_servo__DOT__pp_seq_r; }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:166",
+    "name": "KL_mmcm_drp_servo__DOT__pp_run_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "bool pp_run() const { return root()->KL_mmcm_drp_servo__DOT__pp_run_r != 0; }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:167",
+    "name": "KL_mmcm_drp_servo__DOT__win_valid_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "bool win_valid() const { return root()->KL_mmcm_drp_servo__DOT__win_valid_r != 0; }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:168",
+    "name": "KL_mmcm_drp_servo__DOT__ptp_jump_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "bool ptp_jump() const { return root()->KL_mmcm_drp_servo__DOT__ptp_jump_r != 0; }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:169",
+    "name": "KL_mmcm_drp_servo__DOT__tick_cnt_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "int tick_cnt() const { return root()->KL_mmcm_drp_servo__DOT__tick_cnt_r; }"
+  },
+  {
+    "suite": "mmcm_servo",
+    "source": "tb/verilator/mmcm_servo/sim_phc_step.cpp:180",
+    "name": "KL_mmcm_drp_servo__DOT__u_tick_cdc__DOT__sync",
+    "probe": [
+      "cdc_pulse",
+      "public_flat_rd"
+    ],
+    "line": "return root()->KL_mmcm_drp_servo__DOT__u_tick_cdc__DOT__sync;"
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "source": "tb/verilator/aaf_clock_meter/sim_main.cpp:226",
+    "name": "meter_wrap__DOT__meter__DOT__g5_v_r",
+    "probe": [
+      "KL_aaf_clock_meter",
+      "public_flat_rd"
+    ],
+    "line": "if (dut->rootp->meter_wrap__DOT__meter__DOT__g5_v_r) rate_pending_ = true;"
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "source": "tb/verilator/aaf_clock_meter/sim_servo.cpp:160",
+    "name": "meter_servo_wrap__DOT__servo__DOT__tick_div_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "const auto div = dut->rootp->meter_servo_wrap__DOT__servo__DOT__tick_div_r;"
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "source": "tb/verilator/aaf_clock_meter/sim_servo.cpp:225",
+    "name": "meter_servo_wrap__DOT__servo__DOT__pp_seq_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "const uint8_t seq = dut->rootp->meter_servo_wrap__DOT__servo__DOT__pp_seq_r;"
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "source": "tb/verilator/aaf_clock_meter/sim_servo.cpp:227",
+    "name": "meter_servo_wrap__DOT__servo__DOT__pp_run_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "dut->rootp->meter_servo_wrap__DOT__servo__DOT__pp_run_r) {"
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "source": "tb/verilator/aaf_clock_meter/sim_servo.cpp:228",
+    "name": "meter_servo_wrap__DOT__servo__DOT__ew_r",
+    "probe": [
+      "KL_mmcm_drp_servo",
+      "public_flat_rd"
+    ],
+    "line": "const int32_t e = dut->rootp->meter_servo_wrap__DOT__servo__DOT__ew_r;"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:967",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "dut->rootp->KL_maap__DOT__lfsr_r=state;"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:969",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "return dut->rootp->KL_maap__DOT__lfsr_r;"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1006",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "uint32_t observed=dut->rootp->KL_maap__DOT__lfsr_r;"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1015",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1016",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "observed=dut->rootp->KL_maap__DOT__lfsr_r;"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1019",
+    "name": "KL_maap__DOT__lfsr_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rw"
+    ],
+    "line": "continuous &= dut->rootp->KL_maap__DOT__lfsr_r==apply_generator_map(map,observed);"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1155",
+    "name": "KL_maap__DOT__timer_ms_r",
+    "probe": [
+      "KL_maap",
+      "public_flat_rd"
+    ],
+    "line": "return static_cast<long>(dut->rootp->KL_maap__DOT__timer_ms_r)"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1156",
+    "name": "KL_maap__DOT__PROBE_MIN_MS_C",
+    "probe": [
+      "KL_maap",
+      "public_flat_rd"
+    ],
+    "line": "- static_cast<long>(VKL_maap___024root::KL_maap__DOT__PROBE_MIN_MS_C);"
+  },
+  {
+    "suite": "maap",
+    "source": "tb/verilator/maap/sim_main.cpp:1192",
+    "name": "KL_maap__DOT__POOL_SIZE_C",
+    "probe": [
+      "KL_maap",
+      "public_flat_rd"
+    ],
+    "line": "constexpr long kUnfolded=0x10000L-VKL_maap___024root::KL_maap__DOT__POOL_SIZE_C;"
+  }
+]

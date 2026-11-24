@@ -1,0 +1,41 @@
+{
+  "exact_guard": "if [ -z \"${OBJCACHE+set}\" ] && command -v ccache > /dev/null 2>&1; then\n  export OBJCACHE=ccache\nfi\n",
+  "cases": [
+    {
+      "installed": false,
+      "input": null,
+      "observed": "|",
+      "rc": 0
+    },
+    {
+      "installed": false,
+      "input": "",
+      "observed": "set|",
+      "rc": 0
+    },
+    {
+      "installed": false,
+      "input": "custom-cache",
+      "observed": "set|custom-cache",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": null,
+      "observed": "set|ccache",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": "",
+      "observed": "set|",
+      "rc": 0
+    },
+    {
+      "installed": true,
+      "input": "custom-cache",
+      "observed": "set|custom-cache",
+      "rc": 0
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+[
+  {
+    "suite": "crf_rx",
+    "build": "obj_dir",
+    "dependencies": [
+      {
+        "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+        "sha256": "03fd04be322525fe3fc1a8b9e1c8452bf5cd6e6d590aaf4edd8ac19af9df35bb",
+        "defaulted_inputs": []
+      }
+    ]
+  },
+  {
+    "suite": "crf_rx",
+    "build": "obj_discontinuity",
+    "dependencies": [
+      {
+        "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+        "sha256": "03fd04be322525fe3fc1a8b9e1c8452bf5cd6e6d590aaf4edd8ac19af9df35bb",
+        "defaulted_inputs": []
+      }
+    ]
+  },
+  {
+    "suite": "crf_rx",
+    "build": "obj_talker",
+    "dependencies": [
+      {
+        "path": "hdl/common/cdc_handshake.sv",
+        "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/common/cdc_pulse.sv",
+        "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_crf_rx.sv",
+        "sha256": "03fd04be322525fe3fc1a8b9e1c8452bf5cd6e6d590aaf4edd8ac19af9df35bb",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+        "sha256": "1284052ae9618a3f3f52cfa1f0af4fad0ecfde531a3be554b040ac4f3a25cc70",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "tb/verilator/crf_rx/crf_talker_wrap.sv",
+        "sha256": "3d2548e3ea30feb429dbf9b61acfdd6eab34d3cfa91b4835561e25eb72de2477",
+        "defaulted_inputs": []
+      }
+    ]
+  },
+  {
+    "suite": "mmcm_servo",
+    "build": "obj_phc",
+    "dependencies": [
+      {
+        "path": "hdl/common/cdc_handshake.sv",
+        "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/common/cdc_pulse.sv",
+        "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+        "sha256": "1284052ae9618a3f3f52cfa1f0af4fad0ecfde531a3be554b040ac4f3a25cc70",
+        "defaulted_inputs": []
+      }
+    ]
+  },
+  {
+    "suite": "aaf_clock_meter",
+    "build": "obj_servo",
+    "dependencies": [
+      {
+        "path": "hdl/common/cdc_handshake.sv",
+        "sha256": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/common/cdc_pulse.sv",
+        "sha256": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+        "sha256": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
+        "sha256": "66d5c1feca8bfdf86c2b48ddc5da8c8340d4d1015b78932974c6613178b2f001",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+        "sha256": "1284052ae9618a3f3f52cfa1f0af4fad0ecfde531a3be554b040ac4f3a25cc70",
+        "defaulted_inputs": []
+      },
+      {
+        "path": "tb/verilator/aaf_clock_meter/meter_servo_wrap.sv",
+        "sha256": "7eebcf95fdf1bbb246f181e28c44eeed73b7adf2f37be05f790206edc0599c71",
+        "defaulted_inputs": []
+      }
+    ]
+  },
+  {
+    "suite": "maap",
+    "build": "obj_dir",
+    "dependencies": [
+      {
+        "path": "hdl/ieee1722/maap/KL_maap.sv",
+        "sha256": "f013203b1b8020c237f828c66fff6406c27fd01df2e0ce482b18db3fff656dda",
+        "defaulted_inputs": []
+      }
+    ]
+  }
+]
