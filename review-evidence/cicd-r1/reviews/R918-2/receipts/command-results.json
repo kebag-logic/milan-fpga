@@ -1,0 +1,15 @@
+{
+  "commands": [
+    {
+      "command": "python3 scripts/check_corrections.py",
+      "exit_code": 0,
+      "output": "receipts/corrections-check.json"
+    },
+    {
+      "command": "python3 scripts/verify_tree.py SOURCE_CLONE",
+      "exit_code": 0,
+      "output": "receipts/tree-integrity.json"
+    }
+  ],
+  "execution": "foreground; no builds or campaigns launched"
+}

@@ -1,0 +1,183 @@
+{
+  "result": "PASS",
+  "metric": "user CPU for ccache; L1-dcache-load-misses:u for budget",
+  "formula": "100 * (1 - optimized / baseline)",
+  "crf_times_seconds": {
+    "nocc": {
+      "wall": 376.75,
+      "user": 497.96,
+      "sys": 9.73
+    },
+    "cold": {
+      "wall": 247.31,
+      "user": 262.0,
+      "sys": 8.56
+    },
+    "warm": {
+      "wall": 219.48,
+      "user": 229.32,
+      "sys": 7.24
+    }
+  },
+  "crf_reduction_percent": {
+    "cold": {
+      "user": 47.38533215519318,
+      "wall": 34.357000663570005
+    },
+    "warm": {
+      "user": 53.94810828178971,
+      "wall": 41.74386197743863
+    }
+  },
+  "crf_full_logs_identical": true,
+  "crf_log_bytes": 2167,
+  "crf_log_sha256": "fb31108c8b99bdb2364aa1ce41f4bb772da6b9f66dd7733d61df51f458941f5b",
+  "crf_verdict_lines": [
+    "[PASS] clean: rc=0",
+    "[PASS] validation_error_unlocks: rc=1",
+    "[PASS] validation_error_refreshes_timeout: rc=1",
+    "[PASS] tu_ignored: rc=1",
+    "[PASS] jump_removed: rc=1",
+    "[PASS] refill_short: rc=1",
+    "[PASS] accept_edge_late: rc=1",
+    "[PASS] unit_clean: rc=0",
+    "[PASS] silence_not_interrupted: rc=1",
+    "[PASS] gap_not_interrupted: rc=1",
+    "[PASS] unbind_interrupts: rc=1",
+    "[PASS] unbind_edge_timeout_interrupts: rc=1",
+    "[PASS] stopped_silence_interrupts: rc=1",
+    "[PASS] aaf_ignored: rc=1",
+    "[PASS] aaf_accepted: rc=1",
+    "[PASS] crf_rejected: rc=1",
+    "[PASS] offformat_no_advance: rc=1",
+    "[PASS] offformat_seeds_sequence: rc=1",
+    "[PASS] stopped_gap_interrupts: rc=1",
+    "[PASS] sticky_stop_gap: rc=1",
+    "[PASS] servo_clean: rc=0",
+    "[PASS] servo_ignores_valid: rc=1",
+    "[PASS] servo_never_resumes: rc=1"
+  ],
+  "crf_clean_controls": 3,
+  "crf_named_rejections": 20,
+  "avtp_times_seconds": {
+    "nocc": {
+      "wall": 967.68,
+      "user": 1587.52,
+      "sys": 71.59
+    },
+    "cold": {
+      "wall": 782.82,
+      "user": 547.52,
+      "sys": 57.65
+    }
+  },
+  "avtp_reduction_percent": {
+    "user": 65.51098568836929,
+    "wall": 19.103422619047606
+  },
+  "avtp_pr_precision": "65% is a conservative integer summary; nearest integer is 66%",
+  "avtp_original_timing_bytes_preserved": true,
+  "budget_pairs": [
+    {
+      "pair": "unsuffixed",
+      "base_l1d": 3946517051,
+      "optimized_l1d": 3374059598,
+      "l1d_reduction_percent": 14.505384003217369,
+      "task_clock_reduction_percent": 4.865456689961656
+    },
+    {
+      "pair": "-2",
+      "base_l1d": 3741671160,
+      "optimized_l1d": 3411296019,
+      "l1d_reduction_percent": 8.82961454581701,
+      "task_clock_reduction_percent": 2.613592289477995
+    },
+    {
+      "pair": "-3",
+      "base_l1d": 3654245643,
+      "optimized_l1d": 3457482933,
+      "l1d_reduction_percent": 5.384495986932758,
+      "task_clock_reduction_percent": 2.5002043335886737
+    }
+  ],
+  "pr_claims_match": true,
+  "manifest_checks": [
+    {
+      "path": "author-r1b/CORRECTIONS.md",
+      "sha256": "99e5c6ceb6a4178ee08ec51fa921f3af2a4a8522599ec077b935ce30f81fc123"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/nocc.time",
+      "sha256": "7245b70c717dd53db44e0298612fdc2f0ed31a1591a47ce7d13532d9a4dc7b64"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/cold.time",
+      "sha256": "ebee6be5f45164da163375aca99cd5c5e05d83791587f48adbbebbc095282ffa"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/warm.time",
+      "sha256": "873f5e54a9bfe422f8f4a8e01fe09f33a833bed700a36498ade4f8e6e4d82675"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/nocc.log",
+      "sha256": "fb31108c8b99bdb2364aa1ce41f4bb772da6b9f66dd7733d61df51f458941f5b"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/cold.log",
+      "sha256": "fb31108c8b99bdb2364aa1ce41f4bb772da6b9f66dd7733d61df51f458941f5b"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/crf_rx-mutants/warm.log",
+      "sha256": "fb31108c8b99bdb2364aa1ce41f4bb772da6b9f66dd7733d61df51f458941f5b"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/avtp_rxmon/nocc.time",
+      "sha256": "2c13194354478f0bbca1beb2a981c0a4d5d732beb5bf083ccc105b500b88e459"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/avtp_rxmon/cold.time",
+      "sha256": "7fa247fe028c40b36f119f91dc6920b02479881d3e8addfae5207bcc25701f89"
+    },
+    {
+      "path": "author-r1b/receipts/ccache/avtp_rxmon/cold.stats",
+      "sha256": "fe9636aae2c8e1c278be869dd35eea8d14fd809451d8fd5084755907c0bc223f"
+    },
+    {
+      "path": "author/receipts/ccache/nocc.time",
+      "sha256": "2c13194354478f0bbca1beb2a981c0a4d5d732beb5bf083ccc105b500b88e459"
+    },
+    {
+      "path": "author/receipts/ccache/cold.time",
+      "sha256": "7fa247fe028c40b36f119f91dc6920b02479881d3e8addfae5207bcc25701f89"
+    },
+    {
+      "path": "author/receipts/budget/base.perf",
+      "sha256": "55b734b549d74c16adb48284cc171f8fca71a62c5600e3ba13c9bfb1b177e0e9"
+    },
+    {
+      "path": "author/receipts/budget/tbO3.perf",
+      "sha256": "ffba8d4a76fc78152745d7a14a45502466230eb09a3d4619c9e24b567db4cb8c"
+    },
+    {
+      "path": "author/receipts/budget/base-2.perf",
+      "sha256": "7269b18c7cbd10f6e91308d00dac9ac188d69955e1bae78a05ff833ff5232ea8"
+    },
+    {
+      "path": "author/receipts/budget/tbO3-2.perf",
+      "sha256": "55d1214084bddc7d20cd3c2433320ed2c542efccbed695ae6cb9aaaaffac0d78"
+    },
+    {
+      "path": "author/receipts/budget/base-3.perf",
+      "sha256": "c513f1105589561a9df6e9679294939ea851d8ba0aeffc9241fe90b32dd912cd"
+    },
+    {
+      "path": "author/receipts/budget/tbO3-3.perf",
+      "sha256": "2aa06ba0f582911d61b74ea9281ce5c4624c6e35b15d4e3f33883961946e4ad5"
+    }
+  ],
+  "limits": [
+    "Checks retained receipts; no performance rerun.",
+    "AVTP full logs are not published; their identity is not re-proved here.",
+    "SHA-256 matches are integrity checks, not digital signature verification."
+  ]
+}

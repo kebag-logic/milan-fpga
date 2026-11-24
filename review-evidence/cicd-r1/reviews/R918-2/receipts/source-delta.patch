@@ -1,0 +1,295 @@
+diff --git a/ci/image/command-table.json b/ci/image/command-table.json
+index fe47f594dc..247cc03bcc 100644
+--- a/ci/image/command-table.json
++++ b/ci/image/command-table.json
+@@ -9958,7 +9958,7 @@
+           "0",
+           "--top-module",
+           "KL_crf_rx",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "-GCLK_FREQ_HZ_P=200000",
+           "-GIVAL_CYC_P=200",
+           "-GMAXTT_NS_P=2000000",
+@@ -9989,7 +9989,7 @@
+           "0",
+           "--top-module",
+           "KL_crf_rx",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "-GCLK_FREQ_HZ_P=200000",
+           "-GIVAL_CYC_P=200",
+           "-GMAXTT_NS_P=2000000",
+@@ -10120,7 +10120,7 @@
+           "--top-module",
+           "KL_maap",
+           "-GCLK_FREQ_HZ_P=10000",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "-Wall",
+           "-Wno-fatal",
+           "-Wno-DECLFILENAME",
+@@ -10150,7 +10150,7 @@
+           "--top-module",
+           "KL_maap",
+           "-GCLK_FREQ_HZ_P=10000",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "-Wall",
+           "-Wno-fatal",
+           "-Wno-DECLFILENAME",
+@@ -11454,7 +11454,7 @@
+           "0",
+           "--top-module",
+           "meter_servo_wrap",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "-GTICK_CYC_P=768",
+           "-Wall",
+           "-Wno-fatal",
+@@ -12157,7 +12157,7 @@
+           "-Wno-PINCONNECTEMPTY",
+           "-CFLAGS",
+           "-std=c++17 -O2 -Wall -Wextra",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "--top-module",
+           "KL_mmcm_drp_servo",
+           "-Mdir",
+@@ -12538,7 +12538,7 @@
+           "--build",
+           "-j",
+           "4",
+-          "--public-flat-rw",
++          "probes.vlt",
+           "--top-module",
+           "crf_talker_wrap",
+           "-Mdir",
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 9318b6a773..8d257de8da 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -166,6 +166,16 @@ The directory inventory includes one environment-dependent measurement exception
+ It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+ Its README provides measurement commands and the complete receipt.
+ 
++Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller set `OBJCACHE`.
++Mutant rebuilds then reuse the Verilator runtime and testbench objects.
++A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
++`--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
++A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
++Use `probes.vlt` only where no simulated module has an input port with a default value.
++Once such a port is optimised, Verilator 5.050 initialises the connected net to the default.
++That overwrites a top-level input the harness set before its first `eval()`.
++`--public-flat-rw` prevents it, so `follow_ring` and `media_phase` keep that flag.
++
+ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
+ [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index 179ce4253a..0184a10fec 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -121,6 +121,16 @@ if [ "${1:-}" != "--owned-sweep" ]; then
+   exec python3 "$ROOT/scripts/owned_process.py" -- bash "$0" --owned-sweep "$@"
+ fi
+ shift
++
++# Every build and every mutant rebuild compiles the same Verilator runtime
++# (verilated.cpp alone is most of a small model's compile) and, for a mutant,
++# the same testbench. verilated.mk prefixes each compile with $(OBJCACHE), so
++# where ccache is installed the sweep uses it: crf_rx's 23 mutants take 47 %
++# less CPU on a cold cache, with byte-identical results. A caller's OBJCACHE,
++# empty included, is kept; with no ccache nothing changes.
++if [ -z "${OBJCACHE+set}" ] && command -v ccache > /dev/null 2>&1; then
++  export OBJCACHE=ccache
++fi
+ LOGS_READY=0
+ cancelled() {
+   echo "CANCELLED: $1; no completed sweep result" >&2
+diff --git a/tb/verilator/aaf_clock_meter/Makefile b/tb/verilator/aaf_clock_meter/Makefile
+index 043811ac11..e297ecaf20 100644
+--- a/tb/verilator/aaf_clock_meter/Makefile
++++ b/tb/verilator/aaf_clock_meter/Makefile
+@@ -35,13 +35,15 @@ SRCS = $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv $(METER_RTL) \
+ # The servo with the meter in front of it (sim_servo.cpp): the servo at its
+ # silicon loop parameters, TICK_CYC the one value for the RTL's 1 ms tick at
+ # the harness's 24.576 MHz / 32 audio clock and for the harness itself.
+-# --public-flat-rw: the harness reads the servo's tick divider (to run clk_i
++# probes.vlt: the harness reads the servo's tick divider (to run clk_i
+ # fine around each tick) and its window error; it writes nothing through it.
++# probes.vlt keeps exactly those signals public, in place of --public-flat-rw,
++# which kept every signal unoptimised.
+ TICK_CYC   ?= 768
+ SERVO_RTL  ?= $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv
+ SERVO_MDIR ?= obj_servo
+ SERVO_FLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module meter_servo_wrap \
+-         --public-flat-rw -GTICK_CYC_P=$(TICK_CYC) \
++         probes.vlt -GTICK_CYC_P=$(TICK_CYC) \
+          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
+          -Wno-EOFNEWLINE \
+diff --git a/tb/verilator/aaf_clock_meter/probes.vlt b/tb/verilator/aaf_clock_meter/probes.vlt
+new file mode 100644
+index 0000000000..f3931d8091
+--- /dev/null
++++ b/tb/verilator/aaf_clock_meter/probes.vlt
+@@ -0,0 +1,13 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// The internal signals the harnesses touch, and only those (in place of
++// --public-flat-rw, see the Makefile). sim_main.cpp and sim_servo.cpp read them; nothing is driven.
++// A signal missing here still compiles (Verilator keeps it in the root
++// structure, unoptimised or not), so every internal name the harnesses use
++// must be listed.
++`verilator_config
++public_flat_rd -module "KL_aaf_clock_meter" -var "g5_v_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_div_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_seq_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_run_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "ew_r"
+diff --git a/tb/verilator/crf_rx/Makefile b/tb/verilator/crf_rx/Makefile
+index ffeb2497c4..e233f3afe3 100644
+--- a/tb/verilator/crf_rx/Makefile
++++ b/tb/verilator/crf_rx/Makefile
+@@ -31,12 +31,15 @@ VERILATOR ?= verilator
+ RTL_DIR    = ../../../hdl
+ TOP        = KL_crf_rx
+ 
+-# --public-flat-rw: the [G1] wrap cases preload the counter flops at their
+-# old wrap/peg points (65534, 254) instead of simulating 18 h of soak; the
+-# flag keeps every signal writable (and un-localized) from the harness.
++# probes.vlt: the [G1] wrap cases preload the counter flops at their
++# old wrap/peg points (65534, 254) instead of simulating 18 h of soak, and
++# the harnesses read a few internal registers; probes.vlt keeps exactly those
++# signals public and writable. --public-flat-rw did that for every signal and
++# so kept Verilator from optimising any of them (talker_step: twice the
++# instructions for a byte-identical log).
+ VFLAGS = --cc --exe --build -j 0 \
+          --top-module $(TOP) \
+-         --public-flat-rw \
++         probes.vlt \
+          -GCLK_FREQ_HZ_P=200000 \
+          -GIVAL_CYC_P=$(IVAL_CYC) \
+          -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \
+@@ -73,7 +76,7 @@ discontinuity-build:
+ 	$(VERILATOR) $(VFLAGS) -Mdir $(DISC_MDIR) $(SRCS) sim_discontinuity.cpp -o Vdiscontinuity
+ 
+ talker_step:
+-	$(VERILATOR) --cc --exe --build -j 4 --public-flat-rw \
++	$(VERILATOR) --cc --exe --build -j 4 probes.vlt \
+ 	  --top-module crf_talker_wrap -Mdir obj_talker \
+ 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
+ 	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+diff --git a/tb/verilator/crf_rx/probes.vlt b/tb/verilator/crf_rx/probes.vlt
+new file mode 100644
+index 0000000000..3fdd26fda6
+--- /dev/null
++++ b/tb/verilator/crf_rx/probes.vlt
+@@ -0,0 +1,18 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// The internal signals the harnesses touch, and only those (in place of
++// --public-flat-rw, see the Makefile). sim_main.cpp's [G1] wrap cases preload
++// pdu_count_o and fmt_err_o, so those two are writable; every other entry is
++// read. A signal missing here still compiles (Verilator keeps it in the root
++// structure, unoptimised or not), so every rootp-> name in sim_main.cpp,
++// sim_discontinuity.cpp and sim_talker_step.cpp must be listed.
++`verilator_config
++public_flat_rw -module "KL_crf_rx" -var "pdu_count_o"
++public_flat_rw -module "KL_crf_rx" -var "fmt_err_o"
++public_flat_rd -module "KL_crf_rx" -var "tout_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_seq_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_run_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "win_valid_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_p_w"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_cnt_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "integ_r"
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 3ccb71e4a3..a85c7f81c6 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -775,7 +775,9 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
+         raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
+     config_header(build_dir, spec, table, observers.member_paths(native),
+                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
+-    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
++    # OPT_FAST: Verilator's rule for sim_main.cpp puts OPT_FAST (default -Os) after -CFLAGS, so without it the
++    # testbench compiles for size; -O3 as the model (2.5-5 % less CPU on the 8x8/1if fixture, the same output).
++    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim', 'OPT_FAST=-O3'], build_dir / 'make.log')
+ 
+ 
+ #: The source trees the image is compiled from (ctrl_srp_image.py: the control firmware and
+diff --git a/tb/verilator/maap/Makefile b/tb/verilator/maap/Makefile
+index 6779ead42c..1f933f8c23 100644
+--- a/tb/verilator/maap/Makefile
++++ b/tb/verilator/maap/Makefile
+@@ -15,7 +15,7 @@ MAAP_RTL  ?= $(RTL_DIR)/ieee1722/maap/KL_maap.sv
+ MDIR      ?= obj_dir
+ COV_MDIR  ?= obj_cov
+ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) \
+-         -GCLK_FREQ_HZ_P=10000 --public-flat-rw \
++         -GCLK_FREQ_HZ_P=10000 probes.vlt \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
+          -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+diff --git a/tb/verilator/maap/probes.vlt b/tb/verilator/maap/probes.vlt
+new file mode 100644
+index 0000000000..d9cda004b2
+--- /dev/null
++++ b/tb/verilator/maap/probes.vlt
+@@ -0,0 +1,12 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// The internal signals the harnesses touch, and only those (in place of
++// --public-flat-rw, see the Makefile). sim_main.cpp preloads the LFSR, so lfsr_r is writable; the rest are read.
++// A signal missing here still compiles (Verilator keeps it in the root
++// structure, unoptimised or not), so every internal name the harnesses use
++// must be listed.
++`verilator_config
++public_flat_rw -module "KL_maap" -var "lfsr_r"
++public_flat_rd -module "KL_maap" -var "timer_ms_r"
++public_flat_rd -module "KL_maap" -var "PROBE_MIN_MS_C"
++public_flat_rd -module "KL_maap" -var "POOL_SIZE_C"
+diff --git a/tb/verilator/mmcm_servo/Makefile b/tb/verilator/mmcm_servo/Makefile
+index 82304ed08b..1aaf18c615 100644
+--- a/tb/verilator/mmcm_servo/Makefile
++++ b/tb/verilator/mmcm_servo/Makefile
+@@ -50,10 +50,12 @@ UNIT_G = -GTICK_CYC_P=3072 -GWIN_LOG2_P=5 "-GNOM_WIN_NS_P=64'd4000000" \
+ all: run
+ 
+ # the step harness reads integ_r / u_cmd_r / ew_r / pp_seq_r / pp_run_r, so it
+-# is built with --public-flat-rw at the servo's DEFAULT (silicon) parameters
++# is built with probes.vlt (exactly those signals public, in place of
++# --public-flat-rw, which kept every signal unoptimised) at the servo's
++# DEFAULT (silicon) parameters
+ STEP_NS ?= 150000
+ phc_step_build:
+-	$(VERILATOR) $(VFLAGS) --public-flat-rw --top-module KL_mmcm_drp_servo \
++	$(VERILATOR) $(VFLAGS) probes.vlt --top-module KL_mmcm_drp_servo \
+ 	  -Mdir $(PHC_MDIR) $(COMMON) sim_phc_step.cpp -o Vphc_step
+ 
+ trace: phc_step_build
+diff --git a/tb/verilator/mmcm_servo/probes.vlt b/tb/verilator/mmcm_servo/probes.vlt
+new file mode 100644
+index 0000000000..4fdd60587c
+--- /dev/null
++++ b/tb/verilator/mmcm_servo/probes.vlt
+@@ -0,0 +1,17 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// The internal signals the harnesses touch, and only those (in place of
++// --public-flat-rw, see the Makefile). sim_phc_step.cpp reads them; nothing is driven.
++// A signal missing here still compiles (Verilator keeps it in the root
++// structure, unoptimised or not), so every internal name the harnesses use
++// must be listed.
++`verilator_config
++public_flat_rd -module "KL_mmcm_drp_servo" -var "integ_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "u_cmd_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "ew_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_seq_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "pp_run_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "win_valid_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "tick_cnt_r"
++public_flat_rd -module "KL_mmcm_drp_servo" -var "ptp_jump_r"
++public_flat_rd -module "cdc_pulse" -var "sync"

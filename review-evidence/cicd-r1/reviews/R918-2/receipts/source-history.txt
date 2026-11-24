@@ -1,0 +1,3 @@
+fcbc31f3807a2a7353ab19bfe5aa7f3e56e58c0f Compile the CPU budget harness's testbench at -O3 with its model, past Verilator's -Os default for it: 2.5-5 % less CPU on the 8x8/1if fixture, the same output
+f09c9a0fc99098cb48aa9d2386399ceb079a278b Let the suite sweep compile through ccache where it is installed, so mutant rebuilds reuse the Verilator runtime and the testbench: crf_rx's mutants 47 % less CPU, the same results
+427b7f4fe3117a830523f30dfd680e385ad7b56c Make only the probed signals public in crf_rx, mmcm_servo, aaf_clock_meter and maap, in place of --public-flat-rw: the same logs for 10-37 % less CPU
