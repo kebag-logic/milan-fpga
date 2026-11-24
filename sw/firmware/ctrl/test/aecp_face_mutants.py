@@ -28,7 +28,7 @@ ROWS = (
     ('face-software-gptp-keeps-datapath-capable', 'aecp_face.c',
      'out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));',
      'out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));',
-     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the software gPTP owner's")),
+     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the firmware gPTP owner's")),
     ('face-software-gptp-ignores-path-refusal', 'aecp_face.c',
      'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);',
      'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count) || true;',

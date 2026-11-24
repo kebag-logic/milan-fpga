@@ -4678,7 +4678,7 @@ TEST_F(Face, SoftwareGptpAvbKeepsTheDatapathsLinkAndClass)
                 EXPECT_EQ(result.domain,17u+i);
                 EXPECT_EQ(result.flags&~1u,0x7au) << "software gPTP keeps the datapath's link flags";
                 EXPECT_EQ(result.flags&1u,capable?1u:0u)
-                    << "AS_CAPABLE is the software gPTP owner's, whatever the datapath's bit 0 ("<<(datapath&1u)<<")";
+                    << "AS_CAPABLE is the firmware gPTP owner's, whatever the datapath's bit 0 ("<<(datapath&1u)<<")";
                 EXPECT_EQ(result.class_priority,3u);
                 EXPECT_EQ(result.class_vlan,2u);
             }
