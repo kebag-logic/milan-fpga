@@ -3,7 +3,8 @@
 """The sink index (#977, its ruling of 2026-11-23, item 5; srp_mbx.c index_sinks): every bound sink in the lane of its
 StreamID's last byte, rebuilt by every binding, which a Talker's indication, the receive filter, the kept count and the
 walk look a StreamID's sinks up in, the walk a Listener declaration owes only where a source talks its StreamID, and
-the kept list's and the held table's searches, each comparing a StreamID's last octet before the rest.
+the kept list's and the held table's searches, each scanning only where a StreamID listed or held ends in the same
+octet and comparing the last octet before the rest, and the copy of a StreamID kept or held.
 Each defect and the test whose words must fail on it; both hold at every shape, so test_ctrl_firmware.py plants them
 in every SRP campaign."""
 from __future__ import annotations
@@ -43,6 +44,19 @@ KEPT_SAME = "            same(kept[n].stream_id.bytes,stream_id,8)) {\n"
 HELD_SAME = "same(held,stream_id,8)"
 KEPT_TWIN = "SrpEarlyTalker.AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound"
 HELD_TWIN = "SrpEarlyTalker.ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt"
+#: Each list's last octets (srp_mbx.h kept_octets, held_octets): set where a Talker is kept, where the count lists one,
+#: where a registration or a final unbinding holds one, and the held table's kept until it holds none; and the copy of
+#: a kept or held StreamID, an octet at a time.
+KEPT_OCTET = "    octet_add(m->kept_octets[i->index],stream_id[7]);\n"
+LISTED_OCTET = "            octet_add(m->kept_octets[i->index],id[7]);\n"
+HELD_OCTET = "        octet_add(m->held_octets,v->stream_id.bytes[7]);\n"
+STORED_OCTET = "                octet_add(m->held_octets,old.stream_id.bytes[7]);\n"
+EMPTIED = "    if (m->held_count == 0u) {\n        memset(m->held_octets,0,sizeof(m->held_octets));\n"
+REFRESHED = "SrpEarlyTalker.AKeptRegistrationRefreshedIsCountedOnce"
+RECOUNTED = "SrpEarlyTalker.AKeptRegistrationRefreshedAfterACountIsCountedOnce"
+LATEST = "SrpEarlyTalker.ABindingTakesTheLatestOfTwoKindsRegisteredBeforeIt"
+STORED = "SrpTalkerKinds.AFinalUnbindingKeepsTheLatestWhileBothStayRegistered"
+ANOTHER = "SrpEarlyTalker.ABindingThatTakesOneHeldStreamLeavesAnotherHeld"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -68,4 +82,16 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "stream 0's twin is kept as its own"),
         kind(PREFIX + "held-last-octet-only", HELD_TWIN, HELD_SAME, "true",
              "stream 0 keeps its latest Advertise past its twin's binding"),
+        kind(PREFIX + "kept-octet-unset", REFRESHED, KEPT_OCTET, "",
+             "a kept registration refreshed in one receive, the rest kept beside it"),
+        kind(PREFIX + "listed-octet-unset", RECOUNTED, LISTED_OCTET, "",
+             "a kept registration refreshed after a count is counted once"),
+        kind(PREFIX + "held-octet-unset", LATEST, HELD_OCTET, "",
+             "the latest of two kinds registered before the binding"),
+        kind(PREFIX + "stored-octet-unset", STORED, STORED_OCTET, "",
+             "a final unbinding keeps the latest registration"),
+        kind(PREFIX + "held-octets-emptied-early", ANOTHER, EMPTIED, EMPTIED.replace("== 0u", "!= 255u"),
+             "stream 1 keeps its latest Advertise past stream 0's binding"),
+        kind(PREFIX + "copy-first-octet", REFRESHED, "    to[0] = from[0];\n", "    to[0] = 0u;\n",
+             "a kept registration refreshed in one receive, the rest kept beside it"),
     )

@@ -242,6 +242,11 @@ struct srp_mbx {
     uint8_t kept_count[MBX_N_IF];
     uint8_t kept_due[MBX_N_IF];
     struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
+    // The last octets of the StreamIDs each interface's kept list lists and of those held, bit b of word b / 32 for an
+    // octet b, which each list's search reads first (#977, srp_mbx.c keep_talker, held_stream): a bit is set with each
+    // one listed or held; the kept list's are zeroed with its count, the held table's once it holds none.
+    uint32_t kept_octets[MBX_N_IF][8];
+    uint32_t held_octets[8];
     // After them, as it is read only through a scan from its start (#925).
     struct srp_held held[SRP_HELD_STREAMS];
 };

@@ -2723,6 +2723,36 @@ TEST_F(SrpEarlyTalker, ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt) {
     expect_bound_declares(1,0,kAdvertise,"stream 0 keeps its latest Advertise past its twin's binding");
 }
 
+// A kept registration refreshed after the count a returned block owes is counted once: the count lists it again with
+// its last octet, which the kept list's search reads first (#977, kept_octets), so its refresh finds it.
+TEST_F(SrpEarlyTalker, AKeptRegistrationRefreshedAfterACountIsCountedOnce) {
+    settle(); advance(400);
+    offer(talker(0,kAdvertise,kJoinIn));
+    return_block();
+    receive_before_poll(talker(0,kAdvertise,kJoinIn));
+    EXPECT_EQ(adapter.kept_count[0],1u)<<"a kept registration refreshed after a count is counted once";
+}
+
+// A binding that takes one held StreamID's latest leaves every other one held (#925): the held table's last octets
+// stay while it holds any (#977, held_octets), so a binding made later of another still takes its latest. Each is held
+// by its final unbinding with both kinds registered, and each hold ends by a binding, which no receive filter refuses,
+// so the kept bound decides nothing at any shape.
+TEST_F(SrpEarlyTalker, ABindingThatTakesOneHeldStreamLeavesAnotherHeld) {
+    settle(); advance(400);
+    for (unsigned k : {0u,1u}) {
+        bind_stream(k,k); settle();
+        offer(talker(k,kFailed,kJoinIn)); offer(talker(k,kAdvertise,kNew)); advance(kJoinMs);
+    }
+    for (unsigned k : {0u,1u}) {
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,nullptr,nullptr,0)); settle();
+    }
+    advance(kJoinMs);
+    ASSERT_EQ(adapter.held_count,2u)<<"each final unbinding holds its StreamID";
+    expect_bound_declares(0,0,kAdvertise,"stream 0's binding takes its latest Advertise");
+    ASSERT_EQ(adapter.held_count,1u)<<"stream 0's binding releases its hold";
+    expect_bound_declares(1,1,kAdvertise,"stream 1 keeps its latest Advertise past stream 0's binding");
+}
+
 // Past the held table's bound, a registration kept for a StreamID no binding has holds nothing: a binding made later
 // of both kinds with no latest known takes Failed (#925's fallback, AFullHeldTableHoldsNothingMore).
 TEST_F(SrpEarlyTalker, AFullHeldTableHoldsNoKeptRegistration) {
