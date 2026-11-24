@@ -15,7 +15,7 @@ block RAM the SoC builds from them. This file grades nine things:
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point (LEDGERED,
      ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images, two interfaces then one) plans its
-     61.5, 64.5, 57.5 or 59.5 by name, and through
+     62.0, 64.5, 58.0 or 60.5 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
@@ -339,7 +339,7 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's 8x8 images at "
-                                          f"57.5 and 61.5 and the platform's at 59.5 and 64.5, with one and two "
+                                          f"58.0 and 62.0 and the platform's at 60.5 and 64.5, with one and two "
                                           f"interfaces ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)

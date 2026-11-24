@@ -267,7 +267,7 @@ class Ledgered:
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-one-interface": Ledgered("8x8, one interface", ((STAGE_SYMBOL, 14_250), ("image_allocation", 8)),
-                                  57.5, "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 57.0 since "
+                                  58.0, "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 57.0 since "
                                         "#584 gave each 8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (Milan v1.2 5.3.3.8): "
                                         "131,368 B of rom and 98,672 B of sram, its arms up to 132,152 B of rom "
                                         "(declaring-outputs), past the 56 it held within, by the "
@@ -275,9 +275,13 @@ LEDGERED: dict[str, Ledgered] = {
                                         "RAMB36 owed to S14; 57.5 on the post-flip composition train (#956, #957, "
                                         "#950, #954, #948, #584, #969, #973, #972): its declaring-outputs arm "
                                         "plans 133,128 B of rom and 98,848 B of sram at 57.5, the other arms and "
-                                        "plants 57.0, by the same rule: ROM debt of 1.5 RAMB36 owed to S14"),
+                                        "plants 57.0, by the same rule: ROM debt of 1.5 RAMB36 owed to S14; 58.0 "
+                                        "with #977's drain charge, sink index and lwSRP's end-station options "
+                                        "composed on that train: every arm plans 136,168 to 136,952 B of rom "
+                                        "within 137,216 and 98,880 to 98,944 B of sram at 58.0, by the same "
+                                        "rule: ROM debt of 2.0 RAMB36 owed to S14"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 14_250), ("image_allocation", 16)),
-                                   61.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                   62.0, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
                                          "+112 to 120 B an image, with tsn-c-stack 715589c; 58.5, the cap of the "
                                          "owner's decision of 2026-11-12, since the KLJ3 stage's sram takes a 56th "
@@ -306,7 +310,7 @@ LEDGERED: dict[str, Ledgered] = {
                                          "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
                                          "5.5 RAMB36 owed to S14"),
     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
-                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_888)), 64.5,
+                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_952)), 64.5,
                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
@@ -356,9 +360,11 @@ LEDGERED: dict[str, Ledgered] = {
                                             "S14; and 64.5 on the post-flip composition train (#956, #957, #950, "
                                             "#954, #948, #584, #969, #973, #972), 143,368 B of rom and 117,632 B "
                                             "of sram, ctrl_plat at its measured 21,888 B, by the same rule: debt "
-                                            "of 8.5 RAMB36 owed to S14"),
+                                            "of 8.5 RAMB36 owed to S14; still 64.5 with #977's drain charge and "
+                                            "sink index composed on that train, 145,048 B of rom and 117,696 B of "
+                                            "sram, ctrl_plat at its measured 21,952 B"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_136)), 59.5,
+                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_200)), 60.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -392,7 +398,11 @@ LEDGERED: dict[str, Ledgered] = {
                                            "S14; and 59.5 on the post-flip composition train (#956, #957, #950, "
                                            "#954, #948, #584, #969, #973, #972), 141,616 B of rom and 100,096 B "
                                            "of sram, ctrl_plat at its measured 19,136 B, by the same rule: ROM "
-                                           "debt of 3.5 RAMB36 owed to S14"),
+                                           "debt of 3.5 RAMB36 owed to S14; and 60.5 with #977's drain charge, "
+                                           "sink index and lwSRP's end-station options composed on that train, "
+                                           "145,448 B of rom, 1,064 B past the 144,384 B 59.5 holds, and 100,160 "
+                                           "B of sram, ctrl_plat at its measured 19,200 B, by the same rule: ROM "
+                                           "debt of 4.5 RAMB36 owed to S14"),
 }
 
 
