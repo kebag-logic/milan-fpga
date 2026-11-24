@@ -1,0 +1,238 @@
+[
+ {
+  "driver": "tb/verilator/capture_coherence/mga_keepoff.py",
+  "base_anchors": 4,
+  "head_anchors": 4,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/capture_coherence/mutants.py",
+  "base_anchors": 32,
+  "head_anchors": 32,
+  "base_anchor_lost_at_head": 2,
+  "head_new_anchors": [
+   "  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w[31:0]} : ptp_now_w;",
+   "        tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;\n      end"
+  ],
+  "base_only_anchors": [
+   "  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;",
+   "        tdm_walk_ns_o <= tdm_frame_ns_r;\n      end"
+  ]
+ },
+ {
+  "driver": "tb/verilator/chmap_capture/lockstep_mutants.py",
+  "base_anchors": 3,
+  "head_anchors": 3,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/follow_ring/mutants.py",
+  "base_anchors": 13,
+  "head_anchors": 13,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/follow_ring/settle_control.py",
+  "base_anchors": 4,
+  "head_anchors": 4,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/input_loopback_dp/mutants.py",
+  "base_anchors": 0,
+  "head_anchors": 8,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [
+   "else invalidate_r <= edit_change_w || direct_change_w || restore_change_w;",
+   "hdl/milan/milan_datapath.sv",
+   "{(INPUT_LOOPBACK_P != 0){amap_in_store_r,",
+   "page_frame_r[read_page_w][2:0]",
+   "page_frame_r[read_page_w][2:0]",
+   "milan_datapath.sv",
+   "KL_render_queue.sv",
+   "edit_change_w"
+  ],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/input_loopback/mutants.py",
+  "base_anchors": 0,
+  "head_anchors": 9,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [
+   "assign copy_stream_w = {1'b0, entry_w[5:3]};",
+   "return_bank_r <= copy_channel_w[0] ^ cons_w[0];",
+   "copy_active_r <= 1'b1;",
+   "copy_active_r <= 1'b0;",
+   "wire invalidate_w = input_invalidate_i || (|flush_i)",
+   "if (return_r)\n        samples_r",
+   "assign input_clock_flush_w = (32'(idle_cyc_r) == IDLE_CYC_C);",
+   "assign input_clock_flush_w = 1'b0;",
+   "64'(KMIN_C + 1) * PS3_L"
+  ],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/media_phase/phase_mutants.py",
+  "base_anchors": 46,
+  "head_anchors": 46,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/bootsa_mutants.py",
+  "base_anchors": 10,
+  "head_anchors": 10,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/crflic_mutants.py",
+  "base_anchors": 11,
+  "head_anchors": 11,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/dynmap_mutants.py",
+  "base_anchors": 74,
+  "head_anchors": 74,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/gen_boot_fw.py",
+  "base_anchors": 6,
+  "head_anchors": 6,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py",
+  "base_anchors": 17,
+  "head_anchors": 17,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/gsi_mutants.py",
+  "base_anchors": 8,
+  "head_anchors": 8,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp_mclk/mclk_mutants.py",
+  "base_anchors": 26,
+  "head_anchors": 26,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/render_csr_controls.py",
+  "base_anchors": 10,
+  "head_anchors": 10,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/render_mutants.py",
+  "base_anchors": 4,
+  "head_anchors": 4,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp_render/ship8_mutants.py",
+  "base_anchors": 11,
+  "head_anchors": 11,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp_render/tdm8_render_mutants.py",
+  "base_anchors": 44,
+  "head_anchors": 44,
+  "base_anchor_lost_at_head": 1,
+  "head_new_anchors": [
+   "    .s_tdata_i  (rq_tdata_w[63:0]),"
+  ],
+  "base_only_anchors": [
+   "    .s_tdata_i  (rq_tdata_w),"
+  ]
+ },
+ {
+  "driver": "tb/verilator/milan_dp/split_mutants.py",
+  "base_anchors": 35,
+  "head_anchors": 35,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/srptx_mutants.py",
+  "base_anchors": 2,
+  "head_anchors": 2,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/milan_dp/stream_counters.py",
+  "base_anchors": 20,
+  "head_anchors": 20,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/pp_shadow/drops_mutant.py",
+  "base_anchors": 10,
+  "head_anchors": 10,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/pp_shadow/reboot_mutant.py",
+  "base_anchors": 9,
+  "head_anchors": 9,
+  "base_anchor_lost_at_head": 0,
+  "head_new_anchors": [],
+  "base_only_anchors": []
+ },
+ {
+  "driver": "tb/verilator/render_queue/mutants.py",
+  "base_anchors": 30,
+  "head_anchors": 30,
+  "base_anchor_lost_at_head": 2,
+  "head_new_anchors": [
+   "        if (flush_w[s]) begin\n          flpend_r[s]    <= 1'b1;",
+   "        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n          lwv_r[s] <= 1'b0;"
+  ],
+  "base_only_anchors": [
+   "        if (flush_i[s]) begin\n          flpend_r[s]    <= 1'b1;",
+   "        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n          lwv_r[s] <= 1'b0;"
+  ]
+ }
+]
+ANCHOR-DRIVERS-WITH-FEWER-ANCHORS 0

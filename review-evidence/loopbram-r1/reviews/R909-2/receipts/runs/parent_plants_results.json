@@ -1,0 +1,100 @@
+[
+  {
+    "name": "control1",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/control1"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "9c5b2a461f8a66303eecdc9cedc878ec6e79a78d08f69b73f822716f4c00a838"
+  },
+  {
+    "name": "control8",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/control8"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "log_sha256": "a95a383938f02b58594e3051b2a344961947f00eb7053c05ef184d0373e3b0fd"
+  },
+  {
+    "name": "missing_edit_invalidation",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/missing_edit_invalidation",
+      "--dp-source",
+      "$PACKET/scratch/runs/parent-plants/missing_edit_invalidation/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "ddaf2a2a8d7d5868c234240265c297e2e0070752cac1d62a44c620a51e4f2651"
+  },
+  {
+    "name": "disconnected_map",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/disconnected_map",
+      "--dp-source",
+      "$PACKET/scratch/runs/parent-plants/disconnected_map/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "565154905536b7c4636ef6ed1e56f22a40c7f5116b97ac9ef2840fc3cfc4dcfd"
+  },
+  {
+    "name": "overwritten_capture_page",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/overwritten_capture_page",
+      "--queue-source",
+      "$PACKET/scratch/runs/parent-plants/overwritten_capture_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "ad9ad494c92846fdbc4d40b174939fc4bf542d8c14677206a0e475ac0c04231a"
+  },
+  {
+    "name": "truncated_claim_page",
+    "command": [
+      "$HOME/litex-milan/venv/bin/python3",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$PACKET/scratch/runs/parent-plants/truncated_claim_page",
+      "--queue-source",
+      "$PACKET/scratch/runs/parent-plants/truncated_claim_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "log_sha256": "2a49fb01fb3256284338fff2665d5f86c870467a8dc96d7b7b98a45c6d2bccb1"
+  }
+]

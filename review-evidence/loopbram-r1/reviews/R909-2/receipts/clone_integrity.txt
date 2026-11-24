@@ -1,0 +1,21 @@
+Review clone integrity after all probes (no probe wrote to the clone):
+HEAD dc78aedae34c25a97125ecd6816a1f645db5575f tree 41223b89427673df91715a56a7e8a647d9a339e4
+worktree and index clean against HEAD
+untracked/ignored entries: 0
+index (mode blob path) sha256 8c41b1c91d7e26186d32fbd9424b51bda268d6e09c4b7449799160d6b0098873
+HEAD tree (mode blob path) sha256 8c41b1c91d7e26186d32fbd9424b51bda268d6e09c4b7449799160d6b0098873
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 1616fc8f062fbf58c35ad31674b5b233207bbdb8 0	gptp-processor
+160000 801ef2283ec793e35a2590fc6593c90313a64041 0	protocol-processor
+160000 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0	third_party/lwSRP
+160000 715589c1db7cf67e2f3259fd7083ebc7f0923376 0	third_party/tsn-c-stack
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule checkouts:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+pinned verilator: Verilator 5.050 2026-07-01 rev v5.050

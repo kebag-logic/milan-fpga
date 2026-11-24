@@ -1,0 +1,136 @@
+[
+  {
+    "shape": 1,
+    "case": "control",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=1",
+      "FIRST=8",
+      "CHANNELS=8",
+      "MDIR=$PACKET/scratch/runs/bounds/1",
+      "LEAD=2"
+    ],
+    "environment": {},
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "inside",
+    "command": [
+      "$PACKET/scratch/runs/bounds/1/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "84"
+    },
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "outside",
+    "command": [
+      "$PACKET/scratch/runs/bounds/1/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "87"
+    },
+    "exit": 1,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "lead3",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=1",
+      "FIRST=8",
+      "CHANNELS=8",
+      "MDIR=$PACKET/scratch/runs/bounds/1",
+      "LEAD=3",
+      "MDIR=$PACKET/scratch/runs/bounds/1-lead3"
+    ],
+    "environment": {},
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "control",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=8",
+      "FIRST=1",
+      "CHANNELS=63",
+      "MDIR=$PACKET/scratch/runs/bounds/8",
+      "LEAD=1"
+    ],
+    "environment": {},
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "inside",
+    "command": [
+      "$PACKET/scratch/runs/bounds/8/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "84"
+    },
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "outside",
+    "command": [
+      "$PACKET/scratch/runs/bounds/8/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "87"
+    },
+    "exit": 1,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "lead3",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$PACKET/scratch/gh/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=8",
+      "FIRST=1",
+      "CHANNELS=63",
+      "MDIR=$PACKET/scratch/runs/bounds/8",
+      "LEAD=3",
+      "MDIR=$PACKET/scratch/runs/bounds/8-lead3"
+    ],
+    "environment": {},
+    "exit": 2,
+    "passed": true
+  }
+]
