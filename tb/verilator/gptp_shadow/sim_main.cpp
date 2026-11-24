@@ -210,6 +210,9 @@ class GptpShadowHarness {
     check_recovery_demand_survives_an_unaccepted_request();
     check_phc_trajectory_qualification();
     check_an_aged_head_is_not_retired();
+    check_each_mastership_runs_on_this_oscillator();
+    check_the_first_master_announce_leaves_at_once();
+    check_withheld_credit_postpones_the_first_announce();
 
     milan::tb::GptpTxFlags tx_flags;
     for (const auto& frame : txf) tx_flags.observe(frame);
@@ -253,7 +256,14 @@ class GptpShadowHarness {
   //! reconstruction under test never touches it.
   std::vector<uint64_t> launch_ns;
   std::vector<std::vector<uint8_t>> txf;   // unpacked lane frames
+  std::vector<uint64_t> txf_cyc;           // bench cycle of each frame's last beat
   std::vector<uint64_t> tx_sof_phc;        // phc at each frame's beat0
+  //! every adjtime the counter took, the whole run (the #107 phases' step law)
+  uint64_t phc_steps = 0;
+  //! the clocks the published master bit rose and fell at, the whole run
+  std::vector<uint64_t> gm_rise_cyc;
+  std::vector<uint64_t> gm_fall_cyc;
+  bool gm_published = false;
   //! A root reset erases the ledger's transaction epoch: entries are
   //! dropped and no result is returned for them, which is the documented
   //! exception to one-result-per-frame. The run therefore checks that law
@@ -360,6 +370,7 @@ class GptpShadowHarness {
           cur.push_back((dut->tx_tdata_o >> (kByteBits * i)) & 0xFF);
       if (dut->tx_tlast_o) {
         txf.push_back(cur);
+        txf_cyc.push_back(cyc);
         in_tx = false;
         tx_first = true;
       } else {
@@ -423,6 +434,13 @@ class GptpShadowHarness {
     if (dut->dbg_dut_rec_v_o && !dut->dbg_dut_rec_kind_o)
       rec_delayed.push_back(
           static_cast<uint8_t>(dut->dbg_dut_rec_delayed_o));
+    if (dut->dbg_phc_step_v_o) phc_steps++;
+    //! every published role change, to the clock (the #106 phases' instants)
+    const bool gm_now_published = (dut->pub_flags_o & FL_AMGM) != 0;
+    if (gm_now_published != gm_published) {
+      (gm_now_published ? gm_rise_cyc : gm_fall_cyc).push_back(cyc);
+      gm_published = gm_now_published;
+    }
     cyc++;
   }
 
@@ -549,11 +567,19 @@ class GptpShadowHarness {
       return f;
   }
 
+  //! An Announce's logMessageInterval, frame octet 47 (802.1AS-2011 10.5.2.2.11).
+  //! The bench's frames carry 0x7F, which the engine watches for 2^19
+  //! intervals (FPGA-gPTP #100), so their port ages by the sync receipt
+  //! timeout. The #106 phases send 0, a one-second interval, whose receipt
+  //! watch is three intervals, 3 s (10.3.9.1).
+  static constexpr size_t kLogIntervalOctet = 47;
+
   void announce(uint16_t seq, uint8_t p1, uint64_t gmid,
-                uint64_t src = PEER_CID) {
+                uint64_t src = PEER_CID, uint8_t log_interval = 0x7F) {
     //! Present-PathTrace control: use three identities so this wide-face
     //! integration bench proves more than a reconstructed `{GM,parent}` path.
     Frame a = ptp(0xB, seq, 0, 0x0008, 58, src);
+    a.b[kLogIntervalOctet] = log_interval;
     for (int i = 0; i < 10; i++) a.u8(0);
     a.u16(0xFFC4); a.u8(0);
     a.u8(p1); a.u32(OUR_CQ); a.u8(248);
@@ -1925,10 +1951,13 @@ class GptpShadowHarness {
     expect("aged head: an expiry is not a barrier",
            dut->dbg_txts_barr_o, barr0);
     const size_t res0 = stamps.size();
+    //! disarm before the release, as every other hold does: a release with
+    //! the enable still high re-arms the gate, which would then hold the
+    //! next Pdelay_Req record for good and starve the phases after this one
+    dut->rechold_en_i = 0;
     dut->rechold_release_i = 1;
     idle(64);
     dut->rechold_release_i = 0;
-    dut->rechold_en_i = 0;
     idle(200000);
     //! a MEASUREMENT, not a loss: a plane that retired the head on age
     //! would close this very entry with an explicit loss carrying the same
@@ -2334,6 +2363,459 @@ class GptpShadowHarness {
            dut->dbg_phc_dirtcyc_o, kReconGuardCyc);
     idle(4000);
     expect("phc: and it clears again afterwards", dut->dbg_phc_dirtcyc_o, 0);
+  }
+
+  // ---- 18-20: FPGA-gPTP #107 and #106 through this slice and the real PHC
+  // The adopted engine changes two platform behaviours. Each mastership runs
+  // on this oscillator (#107): BECOME writes rate 0 and the engine always
+  // applies it. And the first master Announce leaves at once (#106), before
+  // an Announce queued at the receipt timeout instant can re-elect. The
+  // donor grades both against its counter model. These phases grade them
+  // where the product sees them: the addend this slice latches into the
+  // real counter, the counter's own advance, the Follow_Up information TLV
+  // and the frames on the wide lane. Each arm starts and ends in mastership.
+
+  //! The bench's timescale: a 2 MHz clock (the Makefile's -GCLK_HZ_P), so a
+  //! millisecond of the plane's timer is 2,000 clocks, a sync interval
+  //! (125 ms) 250,000 and an announceInterval (1 s) 2,000,000.
+  static constexpr uint64_t kBenchClkHz = 2000000;
+  static constexpr uint64_t kMsTicks = kBenchClkHz / 1000;
+  static constexpr uint64_t kSyncTicks = 125 * kMsTicks;
+  static constexpr uint64_t kAnnTicks = 1000 * kMsTicks;
+  //! A grandmaster 100 ppm from this oscillator: 13,421 Q8.24 units of the
+  //! 8 ns tick, accepted within 15 % as phase 4 does.
+  static constexpr int32_t kTrimMinQ824 = 11408;
+  static constexpr int32_t kTrimMaxQ824 = 15434;
+  //! The Follow_Up TLV counts frequency in 2^-41 (11.4.4.3.9), and one trim
+  //! unit is CLK_HZ * 2^17 / 1e9 of it: the engine's TLV_K_C over 2^16.
+  static constexpr int64_t kTlvK = ((kBenchClkHz << 33) + 500000000) / 1000000000;
+  //! A slave offset a slew must correct: outside the 100 ns settled band.
+  static constexpr int64_t kSlewNs = 1500;
+  //! take_mastership's tolerance for a TLV graded only as present
+  static constexpr int kTlvNonzero = -1;
+  uint16_t tk_seq = 0x5000;
+
+  //! A grandmaster's clock as the bench models it, from the bench clock:
+  //! `sign` +1 runs 100 ppm fast against this oscillator, -1 100 ppm slow
+  //! and 0 at its rate (100 ppm of 8 ns is 1 ns in 1,250 clocks).
+  struct ModelGm { uint64_t base; int sign; };
+  uint64_t gm_time(const ModelGm &m) const {
+    const uint64_t drift = cyc / 1250ull;
+    return m.base + cyc * 8ull + (m.sign > 0 ? drift : 0) -
+           (m.sign < 0 ? drift : 0);
+  }
+  //! That grandmaster, `ahead_ns` ahead of the real counter now.
+  ModelGm model_gm(int sign, uint64_t ahead_ns) {
+    const ModelGm origin{0, sign};
+    return ModelGm{phc() + ahead_ns - gm_time(origin), sign};
+  }
+
+  //! One Sync/Follow_Up pair from `m`. `extra_ns` moves this pair's origin
+  //! alone, which is a slave offset of that size; D_NOM cancels the delay.
+  void gm_pair(const ModelGm &m, int64_t extra_ns = 0) {
+    const uint64_t origin = gm_time(m);
+    const uint16_t seq = tk_seq++;
+    Frame f = ptp(0x0, seq, 0, 0x0208, 10);
+    f.ts(0);
+    send_wide(f.b);
+    run(30);
+    Frame g = follow_up(seq, origin + static_cast<uint64_t>(D_NOM + extra_ns));
+    send_wide(g.b);
+    run(4000);
+  }
+
+  //! Run to bench clock `at`, answering the peer except in the last 10,000
+  //! clocks, so the receive path is idle when a timed frame is sent there.
+  void run_to(uint64_t at) {
+    while (cyc + 10000 < at) {
+      tick();
+      if ((cyc & 255) == 0) service_pdelay();
+    }
+    while (cyc < at) tick();
+  }
+
+  //! From mastership: a usable pair clears the port's sync receipt mark
+  //! (#89; a master trims nothing from it), then GMID's better Announce
+  //! elects it. The Announce is sent at the returned clock.
+  uint64_t elect_gm(const ModelGm &m, uint8_t log_interval = 0x7F) {
+    gm_pair(m);
+    const uint64_t sent = cyc;
+    announce(tk_seq++, 100, GMID, PEER_CID, log_interval);
+    return sent;
+  }
+
+  //! Follow `m` for `pairs` sync intervals, refreshing GMID every sixth.
+  void follow_gm(const ModelGm &m, int pairs) {
+    for (int k = 0; k < pairs; k++) {
+      if (k % 6 == 5) announce(tk_seq++, 100, GMID);
+      run_svc(kSyncTicks);
+      gm_pair(m);
+    }
+  }
+
+  //! The information TLV of a master Follow_Up (802.1AS-2011 11.4.4.3):
+  //! frame octets 58 on, after the 10-octet preciseOriginTimestamp.
+  struct MasterTlv {
+    bool whole;
+    uint16_t tbi;
+    int64_t phase_ns;   // lastGmPhaseChange's nanoseconds
+    int32_t freq;
+  };
+  static MasterTlv master_tlv(const std::vector<uint8_t> &fu) {
+    MasterTlv t{false, 0, 0, 0};
+    if (fu.size() < 90 || fld16(fu, 58) != 0x0003 || fld16(fu, 60) != 28)
+      return t;
+    t.whole = true;
+    t.tbi = fld16(fu, 72);
+    //! lastGmPhaseChange is ScaledNs, 2^-16 ns in 96 bits: octets 76..83
+    //! carry the nanoseconds and 84..85 the fraction, here always zero
+    t.phase_ns = static_cast<int64_t>(fld64(fu, 76));
+    t.freq = static_cast<int32_t>(fld32(fu, 86));
+    return t;
+  }
+  //! The TLV of the last master Follow_Up the lane carried before `mark`.
+  bool last_master_tlv(size_t mark, MasterTlv *out) const {
+    for (size_t i = mark; i-- > 0;)
+      if (txf[i].size() > 14 && (txf[i][14] & 0xF) == 0x8) {
+        *out = master_tlv(txf[i]);
+        return out->whole;
+      }
+    return false;
+  }
+
+  //! Master Announces naming this clock grandmaster whose last beat left
+  //! the lane at or after clock `from`: grandmasterIdentity is message
+  //! offset 53 (Table 10-7), frame octet 67.
+  std::vector<size_t> master_announces(uint64_t from) const {
+    std::vector<size_t> found;
+    for (size_t i = 0; i < txf.size(); i++)
+      if (txf_cyc[i] >= from && txf[i].size() >= 75 &&
+          (txf[i][14] & 0xF) == 0xB && fld64(txf[i], 67) == OUR_CID)
+        found.push_back(i);
+    return found;
+  }
+  //! The first clock at or after `from` the published master bit rose or
+  //! fell at, or 0 for none.
+  static uint64_t first_at_or_after(const std::vector<uint64_t> &v,
+                                    uint64_t from) {
+    for (uint64_t c : v) if (c >= from) return c;
+    return 0;
+  }
+
+  //! Let GMID fall silent, so the sync receipt timeout (375 ms, #89) makes
+  //! the plane master, and grade that mastership where the product sees it
+  //! (FPGA-gPTP #107; 802.1AS-2020 10.1.2.1, 10.2.4.14). `trim` is the
+  //! settled rate the slave held, in trim units. The TLV's frequency change
+  //! is rate 0 less it (11.4.4.3.9), within `tol_pct`, and `phase_ns` is
+  //! the last slave offset, which the TLV carries as lastGmPhaseChange.
+  void take_mastership_on_this_oscillator(const char *tag, int64_t trim,
+                                          int tol_pct, int64_t phase_ns) {
+    char n[160];
+    const auto say = [&](const char *tail) {
+      std::snprintf(n, sizeof n, "#107 %s: %s", tag, tail);
+      return n;
+    };
+    MasterTlv before{};
+    const bool had = last_master_tlv(txf.size(), &before);
+    const uint64_t steps0 = phc_steps;
+    const size_t mark = txf.size();
+    expect(say("the sync receipt timeout makes the plane master"),
+           wait_flags(FL_AMGM, FL_AMGM, 4 * kSyncTicks), 1);
+    run(64);
+    expect(say("the mastership's PHC rate is this oscillator's, 0"),
+           dut->dbg_phc_adj_o, 0);
+    expect(say("the mastership retires the slew"), dut->dbg_phc_slew_o, 0);
+    //! with a zero addend the Q8.24 accumulator adds exactly 8 ns a clock,
+    //! so the real counter's advance is exact, and any trim left shows
+    const uint64_t p0 = phc();
+    const uint64_t c0 = cyc;
+    run_svc(4 * kSyncTicks);
+    expect(say("the real counter advances 8 ns a clock, this oscillator"),
+           phc() - p0, (cyc - c0) * 8ull);
+    expect(say("the takeover steps no phase"), phc_steps - steps0, 0);
+    tx_seen = mark;
+    const MasterTlv t = master_tlv(wait_tx(0x8, 2 * kSyncTicks));
+    expect(say("its Follow_Up carries the information TLV"), t.whole, 1);
+    expect(say("gmTimeBaseIndicator counts this mastership"),
+           had && t.tbi == static_cast<uint16_t>(before.tbi + 1u), 1);
+    expect(say("lastGmPhaseChange is the last slave offset"),
+           static_cast<uint64_t>(t.phase_ns), static_cast<uint64_t>(phase_ns));
+    const int64_t want = -trim * kTlvK / 65536;
+    const int64_t slack = (want < 0 ? -want : want) * tol_pct / 100 + 1;
+    std::printf("INFO #107 %s: trim %lld units, TLV frequency change %d",
+                tag, static_cast<long long>(trim), t.freq);
+    if (tol_pct != kTlvNonzero)
+      std::printf(", expected %lld +- %lld", static_cast<long long>(want),
+                  static_cast<long long>(slack));
+    std::printf("\n");
+    if (trim == 0)
+      expect(say("scaledLastGmFreqChange is 0: the time base never moved"),
+             static_cast<uint32_t>(t.freq), 0);
+    else if (tol_pct == kTlvNonzero)
+      expect(say("scaledLastGmFreqChange is present: a slave rate was written"),
+             t.freq != 0, 1);
+    else
+      expect(say("scaledLastGmFreqChange is rate 0 less the settled trim"),
+             t.freq >= want - slack && t.freq <= want + slack, 1);
+  }
+
+  //! Each of these phases starts from a quiet master: unsealed, capable,
+  //! master, and with no egress result owed. A plane that is not is
+  //! already broken by something earlier, so this records why, and the
+  //! phase grades nothing further rather than drive that plane until one
+  //! of its own simulation assertions stops the run before its tally.
+  bool start_from_a_quiet_master(const char *tag) {
+    char n[160];
+    const auto say = [&](const char *tail) {
+      std::snprintf(n, sizeof n, "%s: %s", tag, tail);
+      return n;
+    };
+    const bool unsealed = wait_unsealed(4000000);
+    expect(say("the plane starts unsealed"), unsealed ? 1 : 0, 1);
+    const bool master =
+        wait_flags(FL_AMGM | FL_ASCAP, FL_AMGM | FL_ASCAP, 12000000ull);
+    expect(say("the plane starts master"), master ? 1 : 0, 1);
+    bool quiet = false;
+    for (uint64_t k = 0; k < 2 * kSyncTicks && !quiet; k += 16) {
+      run_svc(16);
+      quiet = (dut->dbg_txts_state_o & 0xF) == 0;
+    }
+    expect(say("the plane starts with no egress result owed"), quiet ? 1 : 0, 1);
+    return unsealed && master && quiet;
+  }
+
+  //! #107 (phase 18): four masterships, each from a different slave. A
+  //! grandmaster 100 ppm fast, then one 100 ppm slow, each followed until
+  //! settled; the slow one again, left while a slew corrects a 1,500 ns
+  //! offset; and one elected and lost before any pair, so no slave rate is
+  //! written between two masterships. Each must run on this oscillator,
+  //! with no phase step, and its Follow_Up TLV must say what changed.
+  void check_each_mastership_runs_on_this_oscillator() {
+    drop_epoch();
+    pd_on = true;
+    pd_seen = txf.size();
+    if (!start_from_a_quiet_master("#107")) return;
+    follow_until_settled("settled +100 ppm", +1, 20);
+    follow_until_settled("settled -100 ppm", -1, 20);
+    {
+      //! the integrator kept the -100 ppm estimate through the mastership,
+      //! so a few pairs settle again before the slewing one
+      const char *tag = "slewing -100 ppm";
+      const ModelGm m = model_gm(-1, 0);
+      elect_gm(m);
+      expect("#107 slewing -100 ppm: GMID is elected", dut->pub_gm_id_o, GMID);
+      follow_gm(m, 8);
+      run_svc(kSyncTicks);
+      gm_pair(m, kSlewNs);
+      const int32_t off = static_cast<int32_t>(dut->pub_offset_o);
+      const int32_t trim = static_cast<int32_t>(dut->dbg_phc_adj_o);
+      std::printf("INFO #107 %s: offset %d, trim %d, slew %d\n", tag, off,
+                  trim, dut->dbg_phc_slew_o);
+      expect("#107 slewing -100 ppm: the last pair is 1,500 ns off",
+             near(off, -kSlewNs, 200), 1);
+      expect("#107 slewing -100 ppm: a slew is running", dut->dbg_phc_slew_o, 1);
+      expect("#107 slewing -100 ppm: the slewing trim is not 0", trim != 0, 1);
+      //! the slewing pair moves the integrator itself, so the TLV's change
+      //! is graded as present here and against the trim in the settled arms
+      take_mastership_on_this_oscillator(tag, trim, kTlvNonzero, off);
+    }
+    {
+      const char *tag = "repeated, no slave rate";
+      const ModelGm m = model_gm(+1, 0);
+      const int32_t off = static_cast<int32_t>(dut->pub_offset_o);
+      elect_gm(m);
+      expect("#107 repeated, no slave rate: GMID is elected",
+             dut->pub_gm_id_o, GMID);
+      expect("#107 repeated, no slave rate: the slave writes no rate",
+             dut->dbg_phc_adj_o, 0);
+      take_mastership_on_this_oscillator(tag, 0, 0, off);
+    }
+  }
+
+  //! One settled arm: elect a grandmaster 100 ppm from this oscillator,
+  //! 1 ms ahead, follow it for `pairs` sync intervals, and take mastership.
+  void follow_until_settled(const char *tag, int sign, int pairs) {
+    char n[160];
+    const auto say = [&](const char *tail) {
+      std::snprintf(n, sizeof n, "#107 %s: %s", tag, tail);
+      return n;
+    };
+    const ModelGm m = model_gm(sign, 1000000);
+    elect_gm(m);
+    expect(say("GMID is elected"), dut->pub_gm_id_o, GMID);
+    const uint64_t steps0 = phc_steps;
+    follow_gm(m, pairs);
+    expect(say("one step, at the first pair"), phc_steps - steps0, 1);
+    const int32_t trim = static_cast<int32_t>(dut->dbg_phc_adj_o);
+    const int32_t off = static_cast<int32_t>(dut->pub_offset_o);
+    std::printf("INFO #107 %s: trim %d, offset %d, slew %d\n", tag, trim, off,
+                dut->dbg_phc_slew_o);
+    const int32_t lo = sign > 0 ? kTrimMinQ824 : -kTrimMaxQ824;
+    const int32_t hi = sign > 0 ? kTrimMaxQ824 : -kTrimMinQ824;
+    expect(say("the slave trims the grandmaster's 100 ppm"),
+           trim >= lo && trim <= hi, 1);
+    expect(say("no slew is running"), dut->dbg_phc_slew_o, 0);
+    take_mastership_on_this_oscillator(tag, trim, 5, off);
+  }
+
+  //! #106 (phase 19) scaffold, from mastership: GMID's Announce at a
+  //! one-second interval elects it, its pairs keep coming each sync
+  //! interval and its Announces stop, so the announce receipt timeout (3 s,
+  //! 10.3.9.1) ages the port. `a1_after`, when nonzero, sends GMID's next
+  //! Announce that many clocks after the elect. The pairs stop
+  //! `quiet_after` clocks after it, so the sync receipt timeout returns the
+  //! plane to mastership. A nonzero `align` sends the elect at that clock's
+  //! phase of the plane's millisecond, so an instant measured once applies.
+  //! Returns the elect's send clock.
+  uint64_t silence_gm_announces(uint64_t align, uint64_t a1_after,
+                                uint64_t quiet_after) {
+    const ModelGm m = model_gm(0, 0);
+    gm_pair(m);
+    if (align) {
+      const uint64_t phase = (cyc + kMsTicks - align % kMsTicks) % kMsTicks;
+      run_to(cyc + 2 * kMsTicks - phase);
+    }
+    const uint64_t t0 = cyc;
+    announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
+    uint64_t next_pair = t0 + kSyncTicks / 2;
+    bool a1_due = a1_after != 0;
+    for (;;) {
+      const bool pairs_on = next_pair < t0 + quiet_after;
+      if (a1_due && (!pairs_on || t0 + a1_after <= next_pair)) {
+        run_to(t0 + a1_after);
+        announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
+        a1_due = false;
+      } else if (pairs_on) {
+        run_to(next_pair);
+        gm_pair(m);
+        next_pair += kSyncTicks;
+      } else {
+        break;
+      }
+    }
+    return t0;
+  }
+
+  void check_the_first_master_announce_leaves_at_once() {
+    //! the instant with no Announce behind it: the first master Announce
+    //! leaves at once, and the 1 s cadence counts from it (802.1AS-2011
+    //! Figure 10-15). The pairs stop a sync interval before the instant,
+    //! so only the announce receipt timeout can age the port by then.
+    if (!start_from_a_quiet_master("#106")) return;
+    const uint64_t t0 = silence_gm_announces(0, 0, 3 * kAnnTicks - kSyncTicks);
+    expect("#106: the one-second Announce elects GMID", dut->pub_gm_id_o, GMID);
+    expect("#106: the announce receipt timeout makes the plane master",
+           wait_flags(FL_AMGM, FL_AMGM, kAnnTicks), 1);
+    const uint64_t inst = first_at_or_after(gm_rise_cyc, t0);
+    const uint64_t lat = inst ? inst - t0 : 0;
+    std::printf("INFO #106: the instant is %llu clocks after the Announce\n",
+                static_cast<unsigned long long>(lat));
+    expect("#106: the port ages three announceIntervals after its Announce",
+           lat >= 3 * kAnnTicks - 2 * kMsTicks &&
+               lat <= 3 * kAnnTicks + 2 * kMsTicks, 1);
+    run_svc(2 * kAnnTicks + 2 * kMsTicks);
+    const std::vector<size_t> ann = master_announces(inst);
+    expect("#106: three master Announces follow the instant", ann.size(), 3);
+    if (!ann.empty()) {
+      const uint64_t first = txf_cyc[ann[0]] - inst;
+      std::printf("INFO #106: the first master Announce ends %llu clocks after "
+                  "the instant\n", static_cast<unsigned long long>(first));
+      expect("#106: the first master Announce leaves at once",
+             first < kMsTicks, 1);
+    }
+    bool cadence = ann.size() == 3;
+    for (size_t k = 1; k < ann.size(); k++)
+      cadence &= near(static_cast<int64_t>(txf_cyc[ann[k]] - txf_cyc[ann[k - 1]]),
+                      static_cast<int64_t>(kAnnTicks), kMsTicks);
+    expect("#106: two more master Announces, each 1 s after the one before",
+           cadence, 1);
+
+    //! An Announce queued at the instant: GMID's next, exactly three
+    //! intervals after the elect, so it arrives in the deadline's own
+    //! millisecond and cannot refresh the watch (#100), whichever order the
+    //! queue takes it and the expiry in. The master Announce must reach the
+    //! lane first, and the queued Announce then re-elects GMID.
+    if (!start_from_a_quiet_master("#106 race")) return;
+    const uint64_t r0 = silence_gm_announces(t0, 3 * kAnnTicks,
+                                             3 * kAnnTicks + kSyncTicks);
+    const uint64_t rise = first_at_or_after(gm_rise_cyc, r0 + kAnnTicks);
+    const uint64_t fall = rise ? first_at_or_after(gm_fall_cyc, rise) : 0;
+    std::printf("INFO #106 race: master at +%llu, re-elected at +%llu\n",
+                static_cast<unsigned long long>(rise ? rise - r0 : 0),
+                static_cast<unsigned long long>(fall ? fall - r0 : 0));
+    expect("#106 race: the receipt timeout makes the plane master at the instant",
+           rise != 0 && near(static_cast<int64_t>(rise - r0),
+                             static_cast<int64_t>(lat), kMsTicks), 1);
+    expect("#106 race: the Announce queued at 3.000 s then re-elects GMID",
+           fall != 0 && fall - rise <= 2 * kMsTicks, 1);
+    size_t between = 0;
+    for (size_t i : master_announces(rise ? rise : cyc))
+      if (txf_cyc[i] < rise + 2 * kSyncTicks) between++;
+    expect("#106 race: one master Announce reaches the lane before the "
+           "re-election", between, 1);
+    expect("#106 race: the sync receipt timeout restores mastership",
+           wait_flags(FL_AMGM, FL_AMGM, 6 * kSyncTicks), 1);
+  }
+
+  //! #106 (phase 20): the first master Announce leaves at once only with
+  //! transmit credit, and a withheld one is retried a whole announceInterval
+  //! later, because ANNTX re-arms its cadence ahead of its gates. The
+  //! credit is withheld the way the product withholds it, by the ledger's
+  //! seal: a refused record raises a barrier, and the observer is held in
+  //! reset so the seal outlasts the recovery episode until released.
+  void check_withheld_credit_postpones_the_first_announce() {
+    if (!start_from_a_quiet_master("#106 credit")) return;
+    drop_epoch();
+    const ModelGm m = model_gm(0, 0);
+    elect_gm(m);
+    expect("#106 credit: GMID is elected", dut->pub_gm_id_o, GMID);
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    dut->recfault_mode_i = 1;
+    dut->recfault_en_i = 1;
+    bool fired = false;
+    for (int k = 0; k < 16 && !fired; k++) {
+      for (uint64_t t = 0; t < kSyncTicks && !fired; t += 4) {
+        idle(4);
+        fired = dut->dbg_recfault_fired_o != 0;
+      }
+      if (!fired) gm_pair(m);
+    }
+    dut->obs_rst_i = 1;
+    dut->recfault_en_i = 0;
+    dut->recfault_mode_i = 0;
+    expect("#106 credit: a refused record raises a barrier",
+           fired && wait_barrier(barr0, 400000) ? 1 : 0, 1);
+    expect("#106 credit: the barrier seals the plane", sealed() ? 1 : 0, 1);
+    const uint64_t c0 = cyc;
+    expect("#106 credit: the sync receipt timeout makes it master, sealed",
+           wait_flags(FL_AMGM, FL_AMGM, 4 * kSyncTicks), 1);
+    const uint64_t inst = first_at_or_after(gm_rise_cyc, c0);
+    expect("#106 credit: the plane is sealed at the instant", sealed() ? 1 : 0, 1);
+    idle(2 * kSyncTicks);
+    expect("#106 credit: no master Announce while the credit is withheld",
+           master_announces(inst).size(), 0);
+    dut->obs_rst_i = 0;
+    expect("#106 credit: releasing the observer unseals the plane",
+           wait_unsealed(kAnnTicks / 2) ? 1 : 0, 1);
+    std::printf("INFO #106 credit: unsealed %llu clocks after the instant\n",
+                static_cast<unsigned long long>(cyc - inst));
+    if (cyc < inst + 2 * kAnnTicks + kMsTicks)
+      run_svc(inst + 2 * kAnnTicks + kMsTicks - cyc);
+    const std::vector<size_t> ann = master_announces(inst);
+    expect("#106 credit: two master Announces once the credit returns",
+           ann.size(), 2);
+    if (!ann.empty()) {
+      const uint64_t first = txf_cyc[ann[0]] - inst;
+      std::printf("INFO #106 credit: the first master Announce ends %llu clocks "
+                  "after the instant\n", static_cast<unsigned long long>(first));
+      expect("#106 credit: the withheld Announce leaves 1 s after the instant",
+             first >= kAnnTicks && first < kAnnTicks + kMsTicks, 1);
+    }
+    if (ann.size() >= 2)
+      expect("#106 credit: and the cadence runs 1 s on from it",
+             near(static_cast<int64_t>(txf_cyc[ann[1]] - txf_cyc[ann[0]]),
+                  static_cast<int64_t>(kAnnTicks), kMsTicks), 1);
+    drop_epoch();
   }
 
   //! Measurements delivered since the PHC-loss count was `pl0`. Every

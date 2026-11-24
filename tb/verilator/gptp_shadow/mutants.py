@@ -17,7 +17,9 @@ recovery demand, and which measured terms the egress reconstruction is made
 of. The defects that need the SHIPPING MAC and the two real seams - the
 observation point itself and the register stages between the launch and the
 capture - live with `tb/verilator/gptp_txts`, which pays for a converted MAC
-to carry them.
+to carry them. Two more restore defects of the pinned engine the parent
+adopted a repair for: the first master Announce waiting for a beat
+(FPGA-gPTP #106), and a mastership keeping a settled slave's rate (#107).
 
 Each control names the check it must break, and the run prints whether that
 check really failed rather than only that something did.
@@ -47,8 +49,25 @@ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 RET = PLANE / "KL_gptp_txret.sv"
 OBS = PLANE / "KL_gptp_gmii_launch.sv"
 TIC = PLANE / "KL_gptp_txticket.sv"
+#: The pinned engine and its micro-code generator. The two controls on them
+#: restore the defects FPGA-gPTP #106 and #107 repaired, with the donor's
+#: own anchors (its p106_mutants.py and p107_mutants.py), so this platform
+#: suite is shown to notice the adopted behaviour, not only the donor's.
+ENGINE = REPO / "gptp-processor" / "hdl" / "top" / "KL_gptp_engine.sv"
+GENERATOR = REPO / "gptp-processor" / "hdl" / "ucode" / "gen_gptp_ucode.py"
+#: SELF's tail, which continues into ANNTX since #106
+SELF_TAIL = ("    p.emit(\"COMMIT\")\n"
+             "    p.emit(\"BR\", label=LB[\"ANNTX\"])\n")
+#: BECOME's Sync arm, behind which the old engine also armed the Announce beat
+BECOME_SYNC = ("    p.emit(\"WRST\", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)"
+               "  # sync now\n")
+#: the engine's PHC word-3 rate write
+WORD3 = ("                phc_addend_we_o <= 1'b1;\n"
+         "                phc_addend_o    <= st_wdata_w[31:0];\n"
+         "                phc_slew_left_r   <= 2'd0;\n")
 
-#: (name, file, old text, new text, the check this must break)
+#: (name, file, old text, new text, the check this must break). A control
+#: that edits two places gives a tuple of old texts and one of new texts.
 MUTATIONS = [
     (
         "abort_counts_as_completion",
@@ -126,6 +145,31 @@ MUTATIONS = [
         "assign tx_credit_o = ~credit_hold_i &",
         "assign tx_credit_o = 1'b1 | ~credit_hold_i &",
         "credit: the engine is held off at the reserve",
+    ),
+    (
+        #: #106's defect: the first master Announce waits 2 ms for a beat,
+        #: so an Announce queued at the receipt timeout instant re-elects
+        #: first and disarms it
+        "first_master_announce_waits_for_a_beat",
+        GENERATOR,
+        (SELF_TAIL, BECOME_SYNC),
+        ("    p.emit(\"COMMIT\")\n    p.emit(\"END\")\n",
+         BECOME_SYNC + "    p.emit(\"MOVE\", rd=RT, ra=0, imm=2)\n"
+                       "    p.emit(\"WRST\", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)\n"),
+        "#106 race: one master Announce reaches the lane before the re-election",
+    ),
+    (
+        #: #107's defect: word 3 applies only while a slew is active, so a
+        #: settled slave's trim outlives its mastership
+        "word3_applies_only_during_a_slew",
+        ENGINE,
+        WORD3,
+        "                if (phc_slew_active_o) begin\n"
+        "                  phc_addend_we_o <= 1'b1;\n"
+        "                  phc_addend_o    <= st_wdata_w[31:0];\n"
+        "                end\n"
+        "                phc_slew_left_r   <= 2'd0;\n",
+        "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0",
     ),
 ]
 
@@ -225,13 +269,26 @@ def suite_failed(status: int, output: str) -> bool:
     return False
 
 
-def apply_control(path: Path, old: str, new: str) -> bool:
-    """Plant one defect. False when its anchor is no longer in the source,
+def planted(text: str, old: str | tuple[str, ...],
+            new: str | tuple[str, ...]) -> str | None:
+    """The text with one control's edits made, each anchor's first
+    occurrence; None when an anchor is no longer in it."""
+    pairs = zip(old, new, strict=True) if isinstance(old, tuple) else [(old, new)]
+    for anchor, replacement in pairs:
+        if anchor not in text:
+            return None
+        text = text.replace(anchor, replacement, 1)
+    return text
+
+
+def apply_control(path: Path, old: str | tuple[str, ...],
+                  new: str | tuple[str, ...]) -> bool:
+    """Plant one defect. False when an anchor is no longer in the source,
     which is a finding about this file and not a passing control."""
-    text = path.read_text(encoding="utf-8")
-    if old not in text:
+    text = planted(path.read_text(encoding="utf-8"), old, new)
+    if text is None:
         return False
-    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    path.write_text(text, encoding="utf-8")
     return True
 
 
