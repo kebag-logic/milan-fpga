@@ -1,0 +1,2093 @@
+diff --git a/.github/ci-templates/docs.yml b/.github/ci-templates/docs.yml
+index 9a61d67613..73dcd3a0c4 100644
+--- a/.github/ci-templates/docs.yml
++++ b/.github/ci-templates/docs.yml
+@@ -508,6 +508,7 @@ jobs:
+           python3 scripts/generate_ci_evidence_pins.py --check
+           python3 scripts/ci_workflow_plan_selftest.py
+           python3 scripts/ci_manifest_selftest.py
++          python3 scripts/mutant_stage.py --selftest
+ 
+ 
+   # ==========================================================================
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index 420857bd86..cec896f948 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -462,6 +462,7 @@ jobs:
+           python3 scripts/generate_ci_evidence_pins.py --check
+           python3 scripts/ci_workflow_plan_selftest.py
+           python3 scripts/ci_manifest_selftest.py
++          python3 scripts/mutant_stage.py --selftest
+         id: gate_52
+       - name: Record executed gate outcomes
+         if: ${{ always() }}
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index cad065b135..5d2f59436c 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -136,6 +136,78 @@ jobs:
+           retention-days: 3
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
++  verilator-preflight:
++    name: Verilator preflight
++    needs: full-ci-gate
++    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
++    runs-on: ubuntu-24.04
++    timeout-minutes: 15
++    steps:
++      - uses: actions/checkout@v4
++        id: ci_step_0
++        name: Run actions/checkout@v4
++      - name: Set CPU-derived job budgets
++        run: |
++          set -euo pipefail
++          cpus="$(nproc)"
++          test "$cpus" -gt 0
++          campaign=$(( cpus < 4 ? cpus : 4 ))
++          simulations=$(( cpus < 4 ? cpus : 4 ))
++          tool_build=$(( cpus < 8 ? cpus : 8 ))
++          {
++            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
++            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
++            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
++            printf 'VERILATOR_JOBS=%s\n' "$cpus"
++            printf 'SIM_JOBS=%s\n' "$simulations"
++            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
++          } >> "$GITHUB_ENV"
++        id: ci_step_1
++      - name: Record the tree this worker validates
++        env:
++          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
++        run: |
++          set -euo pipefail
++          head="$(git rev-parse HEAD)"
++          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
++            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
++            exit 1
++          fi
++          mkdir -p "$RUNNER_TEMP/suite-preflight"
++          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-preflight/TARGET_SHA"
++          echo "target_sha=$GITHUB_SHA"
++        id: ci_step_2
++      - name: Run the sweep's preflight self-tests once for this head
++        run: |
++          scripts/run_all_suites.sh "$RUNNER_TEMP/suite-preflight" --preflight-only
++        id: ci_step_3
++      - name: Upload this head's preflight logs
++        if: ${{ always() }}
++        uses: actions/upload-artifact@v4
++        with:
++          name: suite-preflight
++          path: ${{ runner.temp }}/suite-preflight
++          if-no-files-found: error
++          retention-days: 3
++        id: ci_step_4
++      - name: Record actual job execution
++        id: ci_record
++        if: ${{ always() }}
++        env:
++          CI_STEP_RESULTS: ${{ toJSON(steps) }}
++          CI_JOB_RESULT: ${{ job.status }}
++          CI_MATRIX: ${{ toJSON(matrix) }}
++        run: |
++          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-preflight --output "$RUNNER_TEMP/job-evidence.json"
++      - name: Upload actual job execution
++        id: ci_upload
++        if: ${{ always() }}
++        uses: actions/upload-artifact@v4
++        with:
++          name: job-evidence-rtl-verilator-preflight-${{ strategy.job-index }}-${{ github.sha }}
++          path: ${{ runner.temp }}/job-evidence.json
++          if-no-files-found: error
++          retention-days: 3
+   verilator-shards:
+     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+     needs: full-ci-gate
+@@ -382,7 +454,7 @@ jobs:
+       - name: Run this exhaustive suite shard
+         run: |
+           scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+-            --ci-pieces --shard "${{ matrix.shard }}/${{ matrix.total }}"
++            --ci-pieces --no-preflight --shard "${{ matrix.shard }}/${{ matrix.total }}"
+         id: ci_step_21
+       - name: Upload this shard's suite logs
+         if: ${{ always() }}
+@@ -571,6 +643,7 @@ jobs:
+       - union-maap
+       - union-milan_dp_render
+       - union-pp_shadow
++      - verilator-preflight
+     runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     steps:
+@@ -651,6 +724,28 @@ jobs:
+           assert all(row['result'] == 'success' for row in needs.values()), needs
+           PY
+         id: ci_step_8
++      - name: Download this head's preflight logs
++        uses: actions/download-artifact@v4
++        continue-on-error: true
++        with:
++          name: suite-preflight
++          path: ${{ runner.temp }}/suite-preflight
++        id: ci_step_9
++      - name: Require the preflight to have passed for this run's SHA
++        if: ${{ always() }}
++        env:
++          GATE_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
++          PREFLIGHT_RESULT: ${{ needs.verilator-preflight.result }}
++        run: |
++          python3 scripts/ci_events.py --require-target-sha --expect 1 \
++            --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
++            --sha checkout="$(git rev-parse HEAD)" -- "$RUNNER_TEMP/suite-preflight"
++          if [ "$PREFLIGHT_RESULT" != success ]; then
++            echo "the Verilator preflight ended: $PREFLIGHT_RESULT; no worker ran the self-tests" >&2
++            exit 1
++          fi
++          echo "verilator-suites: the preflight self-tests passed once at $GITHUB_SHA"
++        id: ci_step_10
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+@@ -1472,6 +1567,7 @@ jobs:
+     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
+     needs:
+       - full-ci-gate
++      - verilator-preflight
+       - verilator-shards
+       - physical-gptp
+       - verilator-suites
+@@ -1582,12 +1678,13 @@ jobs:
+           GH_TOKEN: ${{ github.token }}
+           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
+             capture_coherence","Union maap","Union milan_dp","Union milan_dp_mclk","Union milan_dp_render","Union
+-            pp_shadow","Verilator shard 0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator
+-            shard 3/19","Verilator shard 4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator
+-            shard 7/19","Verilator shard 8/19","Verilator shard 9/19","Verilator shard 10/19","Verilator
+-            shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator shard 14/19","Verilator
+-            shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator shard 18/19","verilator-suites","yosys-portability","Yosys
+-            shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
++            pp_shadow","Verilator preflight","Verilator shard 0/19","Verilator shard 1/19","Verilator
++            shard 2/19","Verilator shard 3/19","Verilator shard 4/19","Verilator shard 5/19","Verilator
++            shard 6/19","Verilator shard 7/19","Verilator shard 8/19","Verilator shard 9/19","Verilator
++            shard 10/19","Verilator shard 11/19","Verilator shard 12/19","Verilator shard 13/19","Verilator
++            shard 14/19","Verilator shard 15/19","Verilator shard 16/19","Verilator shard 17/19","Verilator
++            shard 18/19","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys shard 1/4","Yosys
++            shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
+             0/19","Verilator shard 1/19","Verilator shard 2/19","Verilator shard 3/19","Verilator shard
+             4/19","Verilator shard 5/19","Verilator shard 6/19","Verilator shard 7/19","Verilator shard
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 163558b5e9..fca5e7c2c8 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -483,6 +483,24 @@ into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
+ and 4 units, respectively. A unit can carry several original checks; it is never split by
+ resetting a carried history. No test predicate or per-suite timeout changes.
+ 
++The sweep's eight preflight self-tests run once per head, in the
++`verilator-preflight` job ("Verilator preflight"), and not on every worker.
++They took 76 to 97 seconds of each of the nineteen workers in run 45326076983
++and were the same eight commands on the same tree each time. The job keeps the
++workers' checkout and SHA record and runs `scripts/run_all_suites.sh
++--preflight-only`; its self-tests read no submodule and need none of the
++workers' tools. It needs `full-ci-gate` only and runs beside the workers, so
++its own setup is not on their critical path. The workers run `--ci-pieces
++--no-preflight`. `verilator-suites` needs the job, downloads its
++`suite-preflight` artifact and runs `ci_events.py --require-target-sha
++--expect 1` over it, then is red unless the job's result is `success`. A
++failed, cancelled or skipped preflight, a record for another SHA and a missing
++record each fail it, as `scripts/ci_suite_pieces_selftest.py` shows by running
++the generated step. The job is one of the fail-fast watcher's expected jobs, so
++a failing preflight also cancels the run's workers. The 122-second setup
++allowance below still includes the preflight: it is re-measured from a hosted
++run before it is lowered.
++
+ `scripts/suite_shards.py` assigns the longest measured pieces first. It pins
+ `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
+ installs. Worker 18 owns only media-clock leg A, whose continuous history is
+@@ -3657,7 +3675,9 @@ A worker is not trusted merely because an aggregate job was able to download
+ something. Both aggregate jobs refuse evidence recorded for any tree but the
+ run's own (see [One authoritative SHA](#one-authoritative-sha)), compare
+ artifacts with the live repository inventory, and separately require every
+-worker result to be `success`.
++worker result to be `success`. `verilator-suites` requires the
++`verilator-preflight` result and its SHA record the same way, because the
++workers no longer run the preflight self-tests themselves.
+ 
+ Workflow concurrency retains the PR number or branch ref.
+ Push/PR runs share the default category; newer updates replace older runs.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 8d257de8da..fc7d85037f 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -168,6 +168,12 @@ Its README provides measurement commands and the complete receipt.
+ 
+ Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller set `OBJCACHE`.
+ Mutant rebuilds then reuse the Verilator runtime and testbench objects.
++Verilator writes each source's path into the model's C++, so a mutant staged at a random path misses in every run.
++Every mutation driver therefore stages through [`scripts/mutant_stage.py`](../../scripts/mutant_stage.py).
++Its directory is `$TMPDIR/milan-mutant-stage-<uid>/<prefix><slot>`, the same from any checkout and in every run.
++A slot is locked while in use and emptied when taken; with every slot held a driver stages at a random path.
++A later run's mutant models are then answered by the warm cache; the mutants and their verdicts are unchanged.
++Run `python3 scripts/mutant_stage.py --selftest` to see the slot, cleanup and fallback controls.
+ A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
+ `--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
+ A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
+@@ -245,6 +251,12 @@ A suite already running may finish, holding the lock until then.
+ Partial suite logs remain under the requested output directory.
+ Prerequisite logs remain within its `preflight/` directory.
+ Old logs are cleared after locking, before preflight starts.
++`--preflight-only` runs those self-tests and no suite, under the same lock, log clearing and traps.
++It exits 0 when every self-test holds and 2 when one fails.
++`--no-preflight` skips them and is refused without `--ci-pieces`.
++Only the hosted workers use it; their run's preflight job runs the self-tests once for the head.
++The serial sweep, `--physical-gptp` and every local run keep the preflight.
++Both modes, their refusals and their INT/TERM boundaries are among the controls below.
+ Relative output paths retain their caller's location.
+ Cancellation before log preparation reports that boundary explicitly.
+ The sweep's normal preflight owns these deterministic cancellation controls:
+@@ -641,7 +653,7 @@ watching the printed total not move). Rerun the sweep for both figures.
+ 
+ With no options the script remains the mandatory serial local sweep. Its
+ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+-worker before its suites. That self-test refuses to start until the selector's
++worker's ownership step before its suites. That self-test refuses to start until the selector's
+ `SUITE_SECONDS` names every default suite, so a change that adds a suite first
+ records a provisional figure for it, by the new-suite steps in the selector's
+ docstring. GitHub runs nineteen isolated `--ci-pieces --shard INDEX/19`
+@@ -659,6 +671,19 @@ multiply-owned suite before trusting the combined tally.
+ deterministic selection without building it; sharding is a scheduling detail,
+ not permission to validate only one nineteenth locally.
+ 
++**Case start order in a piece.** `scripts/ci_make_cases.py` runs a piece's
++cases on two workers. It starts them longest first by its `CASE_SECONDS`
++table, and prints and records every result in driver order. So a piece's
++transcript and receipt do not depend on the table, and a stale figure can only
++slow a piece, never change a verdict. A case missing from the table starts
++last, in driver order. The figures are each case's `exec-<case>` alone on one
++core of its own, in CPU seconds; only their order is used. Retake them after a
++change that moves a case's cost by more than its neighbours': build every case
++(`make -C tb/verilator/milan_dp ci-prepare build-<case>...`), then time each
++`make -s -C tb/verilator/milan_dp exec-<case>` pinned to one core.
++`scripts/ci_make_cases_selftest.py` refuses a table entry that names no live
++case.
++
+ > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
+ > The standing rule was that every round grows it. Thirteen suites — `aecp`,
+ > `aempatch`, `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`,
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 18a23b5875..f457460f3c 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -1196,6 +1196,7 @@ CARRIER_STEP_LISTS = {
+              'python3 scripts/generate_ci_evidence_pins.py --check',
+              'python3 scripts/ci_workflow_plan_selftest.py',
+              'python3 scripts/ci_manifest_selftest.py',
++             'python3 scripts/mutant_stage.py --selftest',
+          )},
+     ),
+     (DOCS, "wire-accountability"): (
+diff --git a/scripts/ci_make_cases.py b/scripts/ci_make_cases.py
+index be5d02ddb4..cade10650a 100644
+--- a/scripts/ci_make_cases.py
++++ b/scripts/ci_make_cases.py
+@@ -68,6 +68,44 @@ def execute(directory: Path, name: str, form: str = "tally") -> tuple[str, int,
+     return "pass" if passed else "failed", ran.returncode, output
+ 
+ 
++#: Measured execution cost per case, in seconds, for the suites whose pieces
++#: run more than one case. Only the START order reads it: a piece's cases are
++#: submitted longest first, so its longest case no longer waits behind the
++#: short ones for a free worker, and every result is still printed and
++#: recorded in driver order, so the transcript and the receipt do not change.
++#: A case absent here costs 0 and keeps its driver order behind the measured
++#: ones; a stale figure can only make a piece slower, never change a verdict.
++#: How the figures were taken, and how to retake them: TESTING.md, "Case
++#: start order in a piece".
++CASE_SECONDS: dict[str, dict[str, int]] = {
++    # 2026-11-24, at fcbc31f3: each case's `exec-<case>` alone on one core of its own, CPU seconds.
++    "milan_dp": {
++        "aclk": 1558, "render-mutants": 1375, "gptp": 862, "gptp-lat": 838, "dynmap": 617, "notify": 366,
++        "counters-8": 300, "counters-8-frames": 296, "crflic": 247, "nxn8": 242, "counters-1": 144,
++        "counters-1-frames": 142, "nxn": 101, "nxn4c": 99, "bootsa": 96, "nxndv": 92, "sidmove8": 45,
++        "ax1x1": 26, "base": 23, "nolpf": 22, "sidmove": 22, "maprec8": 15, "tspec8": 14, "maprec4": 9,
++        "prune": 3, "split": 1,
++    },
++}
++
++
++def start_order(suite: str, selected: list[str]) -> list[str]:
++    """The selected cases longest first by CASE_SECONDS; ties keep driver order."""
++    cost = CASE_SECONDS.get(suite, {})
++    return sorted(selected, key=lambda name: -cost.get(name, 0))
++
++
++def execute_all(directory: Path, suite: str, selected: list[str], forms: dict[str, str],
++                jobs: int) -> list[tuple[str, int, str]]:
++    """Execute every selected case on `jobs` workers, started longest first, with the
++    results returned in driver order."""
++    with ThreadPoolExecutor(max_workers=jobs) as pool:
++        # The pool starts submitted work first-in first-out.
++        futures = {name: pool.submit(execute, directory, name, forms[name])
++                   for name in start_order(suite, selected)}
++        return [futures[name].result() for name in selected]
++
++
+ def build(directory: Path, name: str) -> int:
+     """Build a selected case; shared outputs have one sequential owner."""
+     return subprocess.run(["make", "-s", "--no-print-directory", "-C", str(directory),
+@@ -105,8 +143,7 @@ def main() -> int:
+                 return 1
+         # Frame dumps deliberately share an output path; presence serializes.
+         jobs = 1 if "MILAN_COUNTER_FRAME_OUT" in os.environ else args.jobs
+-        with ThreadPoolExecutor(max_workers=jobs) as pool:
+-            results = list(pool.map(lambda name: execute(directory, name, forms[name]), selected))
++        results = execute_all(directory, args.suite, selected, forms, jobs)
+         for name, (outcome, rc, output) in zip(selected, results):
+             print(f"======== {args.suite}/{name} ========", flush=True)
+             sys.stdout.write(output)
+diff --git a/scripts/ci_make_cases_selftest.py b/scripts/ci_make_cases_selftest.py
+index 69366d089d..5ac3048798 100644
+--- a/scripts/ci_make_cases_selftest.py
++++ b/scripts/ci_make_cases_selftest.py
+@@ -6,7 +6,41 @@
+ from pathlib import Path
+ import tempfile
+ 
+-from ci_make_cases import build, execute, inventory, receipt_forms
++import ci_make_cases
++from ci_make_cases import build, execute, execute_all, inventory, receipt_forms
++
++
++def start_order_controls(root: Path) -> None:
++    """Cases start longest first by measured cost, ties and unmeasured cases in driver
++    order, and their results come back in driver order whatever the start order."""
++    names = ["short", "long", "tie_a", "unmeasured", "tie_b", "longest"]
++    recipe = "".join(f"exec-{name}:\n\t@echo {name} >> started\n"
++                     f"\t@printf '{name} checks: 1   failures: 0\\n'\n" for name in names)
++    (root / "Makefile").write_text(recipe)
++    saved = dict(ci_make_cases.CASE_SECONDS)
++    ci_make_cases.CASE_SECONDS.clear()
++    ci_make_cases.CASE_SECONDS["controls"] = {"short": 5, "long": 50, "tie_a": 20, "tie_b": 20,
++                                              "longest": 90}
++    try:
++        for jobs in (1, 3):
++            (root / "started").unlink(missing_ok=True)
++            results = execute_all(root, "controls", names, dict.fromkeys(names, "tally"), jobs)
++            assert [output.split()[0] for _, _, output in results] == names, results
++            assert all(outcome == "pass" for outcome, _, _ in results), results
++            started = (root / "started").read_text().split()
++            assert sorted(started) == sorted(names), started
++            if jobs == 1:
++                # One worker starts each case only after the previous one ends.
++                assert started == ["longest", "long", "tie_a", "tie_b", "short", "unmeasured"], started
++            print(f"make case start order control, {jobs} job(s): results in driver order")
++        ci_make_cases.CASE_SECONDS.clear()
++        (root / "started").unlink()
++        execute_all(root, "controls", names, dict.fromkeys(names, "tally"), 1)
++        assert (root / "started").read_text().split() == names
++        print("make case start order control: an unmeasured suite keeps driver order")
++    finally:
++        ci_make_cases.CASE_SECONDS.clear()
++        ci_make_cases.CASE_SECONDS.update(saved)
+ 
+ 
+ def main() -> int:
+@@ -71,6 +105,12 @@ exec-buildfail:
+                 print(f"make inventory control: {changed!r} refused")
+             else:
+                 raise AssertionError(f"invalid inventory accepted: {changed!r}")
++        start_order_controls(root)
++    for suite, cost in ci_make_cases.CASE_SECONDS.items():
++        # A misspelt case would silently cost 0; every measured name is a live case.
++        live = inventory(ci_make_cases.ROOT / "tb/verilator" / suite)
++        assert set(cost) <= set(live), (suite, sorted(set(cost) - set(live)))
++        print(f"make case start order: {suite}'s {len(cost)} measured costs name live cases")
+     print("make case runner: all controls pass")
+     return 0
+ 
+diff --git a/scripts/ci_suite_pieces_selftest.py b/scripts/ci_suite_pieces_selftest.py
+index ef7feeb27a..cdac369a77 100644
+--- a/scripts/ci_suite_pieces_selftest.py
++++ b/scripts/ci_suite_pieces_selftest.py
+@@ -6,14 +6,16 @@
+ import copy
+ import hashlib
+ import json
++import os
+ from pathlib import Path
++import subprocess
+ import tempfile
+ 
+ from ci_case_receipts import canonical, partition
+ from ci_suite_pieces import PIECE_SECONDS, expand_suites, inventory, piece_identity, union
+ from suite_shards import ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
+ from ci_gate_workflows import generate, load_template
+-from ci_suite_workflows import inventory_dependencies
++from ci_suite_workflows import PREFLIGHT_ARTIFACT, PREFLIGHT_JOB, inventory_dependencies
+ 
+ 
+ def write_leg(root: Path, suite: str, leg: int, names: list[str]) -> Path:
+@@ -76,6 +78,44 @@ def suite_controls(suite: str, root: Path) -> None:
+     refused("missing executed log", roots)
+ 
+ 
++def preflight_controls(workflow: dict) -> None:
++    """The workers skip the self-tests only because one job runs them for the head, and
++    verilator-suites is red unless that job succeeded and recorded this run's SHA."""
++    jobs = workflow["jobs"]
++    shards, preflight, aggregate = jobs["verilator-shards"], jobs[PREFLIGHT_JOB], jobs["verilator-suites"]
++    assert preflight["needs"] == shards["needs"] and preflight["if"] == shards["if"], preflight
++    runs = [step["run"] for step in preflight["steps"] if "scripts/run_all_suites.sh" in step.get("run", "")]
++    assert len(runs) == 1 and "--preflight-only" in runs[0] and "--shard" not in runs[0], runs
++    worker = [step["run"] for step in shards["steps"] if step.get("name") == "Run this exhaustive suite shard"]
++    assert len(worker) == 1 and "--ci-pieces --no-preflight --shard" in worker[0], worker
++    assert PREFLIGHT_JOB in aggregate["needs"], aggregate["needs"]
++    [check] = [step for step in aggregate["steps"] if PREFLIGHT_JOB in json.dumps(step.get("env", {}))]
++    assert check["if"] == "${{ always() }}" and "continue-on-error" not in check, check
++    [watcher] = [step["env"]["EXPECTED_JOBS"] for step in jobs["ci-fail-fast"]["steps"]
++                 if step.get("name") == "Observe the first failed job"]
++    assert preflight["name"] in json.loads(watcher), "fail-fast does not watch the preflight"
++    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
++                          check=True).stdout.strip()
++    other = "0" * 40 if head != "0" * 40 else "1" * 40
++    with tempfile.TemporaryDirectory(prefix="preflight-binding-") as directory:
++        temp = Path(directory)
++        for label, result, recorded, expect in (
++                ("passed for this SHA", "success", head, 0), ("failed", "failure", head, 1),
++                ("cancelled", "cancelled", head, 1), ("skipped", "skipped", head, 1),
++                ("passed for another SHA", "success", other, 1), ("left no record", "success", None, 1)):
++            root = temp / label.replace(" ", "-")
++            (root / PREFLIGHT_ARTIFACT).mkdir(parents=True)
++            if recorded is not None:
++                (root / PREFLIGHT_ARTIFACT / "TARGET_SHA").write_text(recorded + "\n")
++            env = dict(os.environ, RUNNER_TEMP=str(root), GITHUB_SHA=head, GATE_SHA=head,
++                       PREFLIGHT_RESULT=result)
++            ran = subprocess.run(["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", check["run"]],
++                                 cwd=ROOT, env=env, capture_output=True, text=True)
++            assert (ran.returncode == 0) == (expect == 0), (label, ran.returncode, ran.stdout, ran.stderr)
++            print(f"preflight binding control: a preflight that {label}: "
++                  + ("verilator-suites passes" if expect == 0 else "verilator-suites fails"))
++
++
+ def main() -> int:
+     """Cover complete ownership, source inventories and each fail-closed union."""
+     physical = sweep_suites(ROOT / "tb/verilator")
+@@ -89,6 +129,7 @@ def main() -> int:
+         readers = [index for index, step in enumerate(steps)
+                    if any(name in step.get("run", "") for name in ("ci_suite_pieces.py", "ci_suite_collect.py"))]
+         assert readers and matches[0] < min(readers)
++    preflight_controls(workflow)
+     pieces = expand_suites(physical)
+     assert set(SUITE_SECONDS) == set(pieces)
+     assert "milan_dp_gptp" not in pieces
+diff --git a/scripts/ci_suite_workflows.py b/scripts/ci_suite_workflows.py
+index 8bc8140fd1..94e3d75668 100644
+--- a/scripts/ci_suite_workflows.py
++++ b/scripts/ci_suite_workflows.py
+@@ -65,6 +65,64 @@ python3 scripts/ci_suite_pieces.py union """ + suite + """ \
+     }
+ 
+ 
++PREFLIGHT_JOB = "verilator-preflight"
++PREFLIGHT_ARTIFACT = "suite-preflight"
++#: The worker setup the preflight keeps: the same checkout and SHA record. Its
++#: self-tests read no submodule and need no Verilator, Yosys, sv2v or tsn-gen:
++#: `--preflight-only` passes in a tree exported without submodules.
++PREFLIGHT_SETUP = ("Record the tree this worker validates",)
++
++
++def preflight_job(worker: dict) -> dict:
++    """The sweep's preflight self-tests once per head, beside the workers, which skip them.
++
++    Every worker ran the same eight self-tests on the same tree before its suites. This job
++    runs them once, in parallel with the workers so that its own setup is not on their
++    critical path, and verilator-suites requires its success and its SHA record."""
++    steps = [{"uses": "actions/checkout@v4"}]
++    for step in worker["steps"]:
++        if step.get("name") in PREFLIGHT_SETUP:
++            kept = copy.deepcopy(step)
++            if kept["name"] == "Record the tree this worker validates":
++                if kept["run"].count("/suite-logs") != 2:
++                    raise ValueError("template worker's SHA record lacks its two suite-logs paths")
++                kept["run"] = kept["run"].replace("/suite-logs", "/" + PREFLIGHT_ARTIFACT)
++            steps.append(kept)
++    if [step.get("name") for step in steps[1:]] != list(PREFLIGHT_SETUP):
++        raise ValueError("template worker lacks the preflight's setup steps")
++    steps += [
++        {"name": "Run the sweep's preflight self-tests once for this head",
++         "run": 'scripts/run_all_suites.sh "$RUNNER_TEMP/' + PREFLIGHT_ARTIFACT + '" --preflight-only\n'},
++        {"name": "Upload this head's preflight logs", "if": "${{ always() }}",
++         "uses": "actions/upload-artifact@v4",
++         "with": {"name": PREFLIGHT_ARTIFACT, "path": "${{ runner.temp }}/" + PREFLIGHT_ARTIFACT,
++                  "if-no-files-found": "error", "retention-days": 3}},
++    ]
++    return {"name": "Verilator preflight", "needs": worker["needs"], "if": worker["if"],
++            "runs-on": worker["runs-on"], "timeout-minutes": 15, "steps": steps}
++
++
++def preflight_checks() -> list[dict]:
++    """verilator-suites' binding of the preflight: its artifact for this SHA, and its success."""
++    return [
++        {"name": "Download this head's preflight logs", "uses": "actions/download-artifact@v4",
++         "continue-on-error": True,
++         "with": {"name": PREFLIGHT_ARTIFACT, "path": "${{ runner.temp }}/" + PREFLIGHT_ARTIFACT}},
++        {"name": "Require the preflight to have passed for this run's SHA", "if": "${{ always() }}",
++         "env": {"GATE_SHA": "${{ needs.full-ci-gate.outputs.target_sha }}",
++                 "PREFLIGHT_RESULT": "${{ needs." + PREFLIGHT_JOB + ".result }}"},
++         "run": """python3 scripts/ci_events.py --require-target-sha --expect 1 \\
++  --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \\
++  --sha checkout="$(git rev-parse HEAD)" -- "$RUNNER_TEMP/""" + PREFLIGHT_ARTIFACT + """"
++if [ "$PREFLIGHT_RESULT" != success ]; then
++  echo "the Verilator preflight ended: $PREFLIGHT_RESULT; no worker ran the self-tests" >&2
++  exit 1
++fi
++echo "verilator-suites: the preflight self-tests passed once at $GITHUB_SHA"
++"""},
++    ]
++
++
+ def separate_yosys_build(source: dict) -> None:
+     """Build the unchanged pinned tool once before the timed synthesis workers."""
+     worker = source["jobs"]["yosys-shards"]
+@@ -111,8 +169,14 @@ def generate(source: dict) -> dict:
+             step["run"] = step["run"].replace("--shard", "--ci-pieces --shard").replace(
+                 "  " + dedicated_arm, "")
+         if step.get("name") == "Run this exhaustive suite shard":
+-            step["run"] = step["run"].replace("--shard", "--ci-pieces --shard")
++            step["run"] = step["run"].replace("--shard", "--ci-pieces --no-preflight --shard")
+     worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 45 }}"
++    jobs = {}
++    for job_id, job in source["jobs"].items():
++        if job_id == "verilator-shards":
++            jobs[PREFLIGHT_JOB] = preflight_job(worker)
++        jobs[job_id] = job
++    source["jobs"] = jobs
+     source["jobs"]["yosys-shards"]["timeout-minutes"] = 29
+     separate_yosys_build(source)
+     for suite in PIECE_SECONDS:
+@@ -120,6 +184,7 @@ def generate(source: dict) -> dict:
+     aggregate = source["jobs"]["verilator-suites"]
+     aggregate["timeout-minutes"] = 3
+     aggregate["needs"].extend("union-" + suite for suite in PIECE_SECONDS)
++    aggregate["needs"].append(PREFLIGHT_JOB)
+     # The original aggregate still verifies every worker's target SHA first.
+     for step in aggregate["steps"]:
+         if step.get("name") == "Require every shard to have validated this run's SHA":
+@@ -149,4 +214,5 @@ PY
+ """,
+     })
+     aggregate["steps"].insert(1, inventory_dependencies())
++    aggregate["steps"].extend(preflight_checks())
+     return source
+diff --git a/scripts/mutant_stage.py b/scripts/mutant_stage.py
+new file mode 100644
+index 0000000000..0c6c7d4165
+--- /dev/null
++++ b/scripts/mutant_stage.py
+@@ -0,0 +1,180 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Stable staging directories for the mutation drivers, so a warm compiler cache answers
++their model compiles.
++
++A driver plants each mutant in a copy of the RTL and builds a model from it. Verilator
++writes the path it was given for every source into the model's C++ (the file name of each
++VL_FATAL_MT and $stop site), so a model staged under tempfile's random directory differs
++from the same model staged in any other run, and ccache misses every one of them in every
++run: crf_rx missed 36 of its 115 compiles on a warm cache, all of them mutant models and
++staged harness copies. `directory()` and `mkdtemp()` stand in for tempfile's two calls and
++return the same path in every run, `<TMPDIR>/milan-mutant-stage-<uid>/<prefix><slot>`,
++from any checkout, so the model's C++ is the same and the warm cache answers it. The
++mutant, its build and its verdict are untouched: only the directory's name changes.
++
++Each slot is held under an exclusive lock for as long as its caller uses it, and is
++emptied when it is taken, so a run never sees another run's files. A second concurrent
++run of the same driver takes the next slot; when every slot is held it falls back to a
++random directory, which is correct and merely cold. While a slot is held the driver's
++builds see CCACHE_BASEDIR at the stage root, so a planted harness compiled in one slot
++hits the same harness compiled in another, and CCACHE_NOHASHDIR keeps the build
++directory out of the key (FPGA-gPTP #104); a CCACHE_* setting of the caller's own wins.
++With no compiler cache (OBJCACHE empty) none of this changes a compile.
++
++    python3 scripts/mutant_stage.py --selftest
++"""
++
++from __future__ import annotations
++
++import argparse
++from collections.abc import Iterator
++from contextlib import contextmanager
++import fcntl
++import hashlib
++import os
++from pathlib import Path
++import shutil
++import tempfile
++
++#: Concurrent runs of one driver that each get a stable directory; a further one is cold.
++SLOTS = 8
++#: Locks a mkdtemp() caller holds until it exits: it removes the directory itself.
++_HELD: list[int] = []
++
++
++def stage_root() -> Path:
++    """The per-user root every stable directory and every slot lock lives under."""
++    return Path(tempfile.gettempdir()) / f"milan-mutant-stage-{os.getuid()}"
++
++
++def _take(prefix: str, parent: str | os.PathLike | None) -> tuple[Path, int | None]:
++    """The first free slot's emptied directory and its held lock, or a random directory."""
++    locks = stage_root() / "locks"
++    locks.mkdir(parents=True, exist_ok=True, mode=0o700)
++    base = Path(parent).resolve() if parent is not None else stage_root()
++    if "/" in prefix or prefix in ("", ".", ".."):
++        raise ValueError(f"a staging prefix names one directory: {prefix!r}")
++    for slot in range(SLOTS):
++        path = base / f"{prefix}{slot}"
++        lock = locks / (hashlib.sha256(str(path).encode()).hexdigest()[:24] + ".lock")
++        fd = os.open(lock, os.O_RDWR | os.O_CREAT, 0o600)
++        try:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            os.close(fd)
++            continue
++        if path.is_symlink() or path.is_file():
++            path.unlink()
++        elif path.exists():
++            shutil.rmtree(path)
++        path.mkdir(parents=True, mode=0o700)
++        return path, fd
++    return Path(tempfile.mkdtemp(prefix=prefix, dir=parent)), None
++
++
++def _cache_env(root: Path) -> dict[str, str | None]:
++    """Point ccache at the stage root, keeping a caller's own settings; the previous values."""
++    previous = {name: os.environ.get(name) for name in ("CCACHE_BASEDIR", "CCACHE_NOHASHDIR")}
++    os.environ.setdefault("CCACHE_BASEDIR", str(root))
++    os.environ.setdefault("CCACHE_NOHASHDIR", "1")
++    return previous
++
++
++@contextmanager
++def directory(prefix: str, parent: str | os.PathLike | None = None) -> Iterator[str]:
++    """tempfile.TemporaryDirectory's stand-in: a stable, empty, exclusively held directory,
++    removed with its lock released at exit. `parent` places it under that directory instead."""
++    path, fd = _take(prefix, parent)
++    previous = _cache_env(stage_root() if parent is None else Path(parent).resolve())
++    try:
++        yield str(path)
++    finally:
++        for name, value in previous.items():
++            if value is None:
++                os.environ.pop(name, None)
++            else:
++                os.environ[name] = value
++        shutil.rmtree(path, ignore_errors=True)
++        if fd is not None:
++            os.close(fd)
++
++
++def mkdtemp(prefix: str, parent: str | os.PathLike | None = None) -> str:
++    """tempfile.mkdtemp's stand-in: a stable, empty directory whose slot stays held until
++    this process exits. The caller removes the directory, as it removed mkdtemp's."""
++    path, fd = _take(prefix, parent)
++    _cache_env(stage_root() if parent is None else Path(parent).resolve())
++    if fd is not None:
++        _HELD.append(fd)
++    return str(path)
++
++
++def selftest() -> int:
++    """Stable across uses, exclusive while held, emptied when taken, caller's cache wins."""
++    saved = {name: os.environ.pop(name, None) for name in ("TMPDIR", "CCACHE_BASEDIR", "CCACHE_NOHASHDIR")}
++    with tempfile.TemporaryDirectory(prefix="mutant-stage-selftest-") as scratch:
++        os.environ["TMPDIR"] = scratch
++        tempfile.tempdir = None
++        try:
++            with directory("ctl-") as first:
++                Path(first, "planted.sv").write_text("module m; endmodule\n")
++                assert os.environ["CCACHE_BASEDIR"] == str(stage_root())
++                assert os.environ["CCACHE_NOHASHDIR"] == "1"
++                with directory("ctl-") as second:
++                    assert second != first and second.endswith("ctl-1"), (first, second)
++            assert "CCACHE_BASEDIR" not in os.environ and not Path(first).exists()
++            print("mutant stage control: a held slot is never handed out twice")
++            with directory("ctl-") as again:
++                assert again == first and list(Path(again).iterdir()) == [], again
++            print("mutant stage control: the same path in every run, and empty")
++            stale = Path(first)
++            stale.mkdir()
++            (stale / "left-by-a-killed-run.o").write_text("stale\n")
++            with directory("ctl-") as taken:
++                assert taken == first and list(Path(taken).iterdir()) == [], taken
++            print("mutant stage control: a killed run's leftovers are cleared when the slot is taken")
++            held = [_take("full-", None) for _ in range(SLOTS)]
++            with directory("full-") as cold:
++                assert Path(cold).name.startswith("full-") and Path(cold).name not in {
++                    f"full-{slot}" for slot in range(SLOTS)}, cold
++            for _, fd in held:
++                os.close(fd)
++            print("mutant stage control: with every slot held, a random directory, still correct")
++            os.environ["CCACHE_BASEDIR"] = "/caller"
++            with directory("ctl-"):
++                assert os.environ["CCACHE_BASEDIR"] == "/caller"
++            assert os.environ.pop("CCACHE_BASEDIR") == "/caller"
++            print("mutant stage control: a caller's CCACHE_BASEDIR wins")
++            tree = Path(scratch, "tree")
++            tree.mkdir()
++            kept = mkdtemp("in-tree-", parent=tree)
++            assert kept == str(tree.resolve() / "in-tree-0") and sorted(os.listdir(tree)) == ["in-tree-0"]
++            shutil.rmtree(kept)
++            print("mutant stage control: an in-tree directory leaves nothing else in the tree")
++            for bad in ("a/b", "", ".."):
++                try:
++                    _take(bad, None)
++                except ValueError:
++                    continue
++                raise AssertionError(f"accepted prefix {bad!r}")
++            print("mutant stage control: a prefix naming more than one directory is refused")
++        finally:
++            for fd in _HELD:
++                os.close(fd)
++            _HELD.clear()
++            for name, value in saved.items():
++                os.environ.pop(name, None)
++                if value is not None:
++                    os.environ[name] = value
++            tempfile.tempdir = None
++    print("mutant stage: all controls PASS")
++    return 0
++
++
++if __name__ == "__main__":
++    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    parser.add_argument("--selftest", action="store_true", required=True)
++    parser.parse_args()
++    raise SystemExit(selftest())
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index 0184a10fec..b2ff9dda14 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -7,6 +7,17 @@
+ #
+ #   scripts/run_all_suites.sh [outdir] [--wait] [--shard INDEX/TOTAL] [--physical-gptp]
+ #   scripts/run_all_suites.sh [--shard INDEX/TOTAL] --list
++#   scripts/run_all_suites.sh [outdir] [--wait] --preflight-only
++#   scripts/run_all_suites.sh [outdir] [--wait] --ci-pieces --no-preflight --shard INDEX/TOTAL
++#
++# --preflight-only runs the preflight self-tests below, under the same lock,
++# log preparation and signal handling, and no suite: exit 0 when every one
++# holds, 2 when one fails. --no-preflight skips them, and is accepted only
++# with --ci-pieces: the hosted workers' run has a preflight job that runs them
++# once for the head, and the verilator-suites aggregate requires that job's
++# success for the same SHA (docs/testing/CI_WORKFLOWS.md, "Exhaustive
++# validation"). The serial sweep, --physical-gptp and every local run keep
++# their preflight.
+ #
+ # Each suite is a directory with its own Makefile; the default target builds
+ # and runs every shape that suite owns (several own more than one - milan_dp
+@@ -150,6 +161,9 @@ SHARD="0/1"
+ LIST=0
+ PHYSICAL_GPTP=0
+ CI_PIECES=0
++PREFLIGHT_ONLY=0
++NO_PREFLIGHT=0
++SHARD_GIVEN=0
+ 
+ #! the command line: [outdir] [--wait] [--shard INDEX/TOTAL] [--list]
+ parse_args() {
+@@ -159,16 +173,28 @@ parse_args() {
+       --list) LIST=1; shift ;;
+       --physical-gptp) PHYSICAL_GPTP=1; shift ;;
+       --ci-pieces) CI_PIECES=1; shift ;;
++      --preflight-only) PREFLIGHT_ONLY=1; shift ;;
++      --no-preflight) NO_PREFLIGHT=1; shift ;;
+       --shard)
+         [ "$#" -ge 2 ] || { echo "--shard needs INDEX/TOTAL" >&2; exit 2; }
+-        SHARD="$2"; shift 2 ;;
+-      --shard=*) SHARD="${1#--shard=}"; shift ;;
++        SHARD="$2"; SHARD_GIVEN=1; shift 2 ;;
++      --shard=*) SHARD="${1#--shard=}"; SHARD_GIVEN=1; shift ;;
+       -*)        echo "unknown option: $1" >&2; exit 2 ;;
+       *)
+         [ -z "$OUT" ] || { echo "more than one output directory" >&2; exit 2; }
+         OUT="$1"; shift ;;
+     esac
+   done
++  if [ "$PREFLIGHT_ONLY" = 1 ] && \
++     [ "$LIST$PHYSICAL_GPTP$CI_PIECES$NO_PREFLIGHT$SHARD_GIVEN" != 00000 ]; then
++    echo "--preflight-only selects no suite: it takes only [outdir] and --wait" >&2
++    exit 2
++  fi
++  if [ "$NO_PREFLIGHT" = 1 ] && [ "$CI_PIECES" != 1 ]; then
++    echo "--no-preflight is only for --ci-pieces workers, whose run's preflight job" >&2
++    echo "runs the self-tests once for the head; every other sweep keeps them" >&2
++    exit 2
++  fi
+   OUT="${OUT:-$ROOT/.suite-logs}"
+   # Prerequisites may change directory. Keep every log in the caller's OUT.
+   case "$OUT" in
+@@ -476,10 +502,22 @@ summarise() {
+ 
+ main() {
+   parse_args "$@"
++  if [ "$PREFLIGHT_ONLY" = 1 ]; then
++    acquire_lock
++    prepare_logs
++    run_preflight_gates
++    echo "preflight: every self-test passed; no suite was selected"
++    echo "logs: $OUT/preflight"
++    exit 0
++  fi
+   select_suites
+   acquire_lock
+   prepare_logs
+-  run_preflight_gates
++  if [ "$NO_PREFLIGHT" = 1 ]; then
++    echo "preflight: not run here; this run's preflight job runs it once for the head"
++  else
++    run_preflight_gates
++  fi
+   run_suites
+   summarise
+ }
+diff --git a/scripts/suite_preflight_controls.py b/scripts/suite_preflight_controls.py
+new file mode 100644
+index 0000000000..48ac11d1b4
+--- /dev/null
++++ b/scripts/suite_preflight_controls.py
+@@ -0,0 +1,84 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The sweep's preflight-only and no-preflight modes, run by test_suite_cancellation.py's main.
++
++The hosted run's preflight job runs the sweep with --preflight-only, and its workers with
++--ci-pieces --no-preflight. Each control here starts the production driver in
++test_suite_cancellation.py's disposable fixture, which `harness` is."""
++
++import signal
++from pathlib import Path
++from types import ModuleType
++
++#: Every log the preflight writes, one per self-test, in run_preflight_gates order.
++PREFLIGHT_LOGS = ("test_suite_cancellation", "suite_tally", "suite_shards", "check_merge_containment",
++                  "check_results_fresh", "check_list_hermetic", "xvlog_gate", "check_merge_review_integrity")
++
++
++def preflight_only(harness: ModuleType, parent: Path, fail: bool) -> None:
++    """--preflight-only runs every self-test and no suite, and a failing one still aborts (exit 2)."""
++    root, probe = harness.fixture(parent, "preflight-only" + ("-fail" if fail else ""))
++    for relative, text in harness.PREVIOUS.items():
++        harness.write(root / "logs" / relative, text)
++    if fail:
++        probe.env["PROBE_OWNER_FAIL"] = "1"
++    harness.start(probe, "--preflight-only")
++    status, output = probe.finish()
++    assert (probe.control / "owner-ran").exists(), output
++    assert not (root / "logs/alpha.log").exists() and not (probe.control / "next-suite").exists(), output
++    assert not (root / "logs/omega.log").exists(), "stale suite log survived"
++    assert not (root / "logs/preflight/old.log").exists(), "stale prerequisite log survived"
++    assert "\nsuites:" not in output, output
++    if fail:
++        assert status == 2 and "ABORTING: sweep cancellation controls failed" in output, output
++        assert "preflight: every self-test passed" not in output, output
++    else:
++        assert status == 0 and "preflight: every self-test passed; no suite was selected" in output, output
++        logs = sorted(path.stem for path in (root / "logs/preflight").iterdir())
++        assert logs == sorted(PREFLIGHT_LOGS), logs
++    assert not (root / ".run_all_suites.lock.owner").exists()
++    probe.save(dict(exit=status, preflight_only=True, failing_selftest=fail, suite_started=False))
++
++
++def no_preflight(harness: ModuleType, parent: Path) -> None:
++    """A --ci-pieces --no-preflight worker runs its suites and none of the self-tests."""
++    root, probe = harness.fixture(parent, "no-preflight")
++    for relative, text in harness.PREVIOUS.items():
++        harness.write(root / "logs" / relative, text)
++    harness.start(probe, "--ci-pieces", "--no-preflight")
++    status, output = probe.finish()
++    assert status == 0 and "PASS     omega" in output and "suites: 2" in output, output
++    assert "preflight: not run here" in output, output
++    assert not (probe.control / "owner-ran").exists(), "a no-preflight worker ran the self-tests"
++    assert list((root / "logs/preflight").iterdir()) == [], "a no-preflight worker kept or wrote preflight logs"
++    probe.save(dict(exit=status, no_preflight=True, owner_ran=False))
++
++
++def preflight_refusals(harness: ModuleType, parent: Path) -> None:
++    """The serial sweep, the physical leg and a selected shard cannot drop or isolate the preflight."""
++    for options in (("--no-preflight",), ("--no-preflight", "--physical-gptp"),
++                    ("--preflight-only", "--shard", "0/1"), ("--preflight-only", "--list"),
++                    ("--preflight-only", "--ci-pieces"), ("--preflight-only", "--physical-gptp"),
++                    ("--preflight-only", "--no-preflight")):
++        label = "refused" + "".join(option.replace("--", "-").replace("/", "_") for option in options)
++        root, probe = harness.fixture(parent, label)
++        harness.start(probe, *options)
++        status, output = probe.finish()
++        assert status == 2 and not (root / "logs").exists(), (options, output)
++        assert not (probe.control / "owner-ran").exists(), (options, output)
++        probe.save(dict(exit=status, refused=list(options)))
++
++
++def run(parent: Path, harness: ModuleType) -> None:
++    """Both modes, their refusals, and their INT/TERM boundaries through the shared traps."""
++    preflight_only(harness, parent, fail=False)
++    preflight_only(harness, parent, fail=True)
++    no_preflight(harness, parent)
++    preflight_refusals(harness, parent)
++    for signum in (signal.SIGINT, signal.SIGTERM):
++        harness.cancellation(parent, "preflight", signum, options=("--preflight-only",))
++    for phase in ("selection", "command", "transition"):
++        harness.cancellation(parent, phase, signal.SIGTERM, options=("--ci-pieces", "--no-preflight"))
++    print("suite preflight modes: PASS (preflight-only and no-preflight sweeps, their refusals, "
++          "INT/TERM in each)", flush=True)
+diff --git a/scripts/test_suite_cancellation.py b/scripts/test_suite_cancellation.py
+index 537058eb22..ec996b9810 100644
+--- a/scripts/test_suite_cancellation.py
++++ b/scripts/test_suite_cancellation.py
+@@ -95,8 +95,7 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
+     write(probe.control / "real_selector.py", (source / "suite_shards.py").read_text())
+     write(root / "scripts/suite_tally.py", TALLY)
+     write(root / "scripts/suite_shards.py", SELECTOR)
+-    for name in ("check_merge_containment", "check_results_fresh", "xvlog_gate",
+-                 "check_merge_review_integrity"):
++    for name in ("check_merge_containment", "check_results_fresh", "xvlog_gate", "check_merge_review_integrity"):
+         write(root / f"scripts/{name}.py", "print('bounded prerequisite fixture')\n")
+     # The recursive test call is replaced only IN THIS disposable fixture.
+     # Its marker and forced-red arm prove normal entry-point ownership.
+@@ -161,9 +160,9 @@ def ordinary(parent: Path, mode: str) -> None:
+     probe.save(dict(exit=status, mode=mode, next_suite=True, owner_ran=True))
+ 
+ 
+-def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) -> None:
+-    """Latch at selection/preflight/command/transition; reject a later suite."""
+-    label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name
++def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False, options: tuple = ()) -> None:
++    """Latch at selection/preflight/command/transition, under `options` too; reject a later suite."""
++    label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name + "".join(options)
+     root, probe = fixture(parent, label)
+     probe.env["PROBE_MODE"] = phase
+     for relative, text in PREVIOUS.items():
+@@ -180,7 +179,7 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
+     foreign = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True)
+     foreign_identity = identity(foreign.pid)
+     try:
+-        start(probe)
++        start(probe, *options)
+         data = probe.ready()
+         probe.signal(signum)
+         if unsafe:
+@@ -965,6 +964,7 @@ def main() -> int:
+             for phase in ("selection", "preflight", "command", "transition"):
+                 for signum in (signal.SIGINT, signal.SIGTERM):
+                     cancellation(parent, phase, signum)
++            __import__("suite_preflight_controls").run(parent, sys.modules[__name__])
+             for signum in (signal.SIGINT, signal.SIGTERM):
+                 lock_wait(parent, signum)
+             with OwnedProcesses():
+diff --git a/tb/verilator/aaf/start_mutants.py b/tb/verilator/aaf/start_mutants.py
+index b1c7a986f9..e95ff84239 100644
+--- a/tb/verilator/aaf/start_mutants.py
++++ b/tb/verilator/aaf/start_mutants.py
+@@ -12,11 +12,13 @@ are bounded by sample counts, independently of DUT progress.
+ import argparse
+ import os
+ import subprocess
+-import tempfile
++import sys
+ from concurrent.futures import ThreadPoolExecutor
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE / "../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
+ # name, unique source text, replacement, required failed assertion
+ MUTATIONS = (
+@@ -87,7 +89,7 @@ def main() -> int:
+     if args.jobs < 1:
+         parser.error("--jobs must be positive")
+     # TMPDIR selects physical scratch storage for the entire campaign.
+-    with tempfile.TemporaryDirectory(prefix="aaf-start-", dir=os.environ.get("TMPDIR")) as temp:
++    with mutant_stage.directory("aaf-start-") as temp:
+         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+             results = list(pool.map(lambda arm: run_arm(arm, Path(temp)), MUTATIONS))
+     print(f"startup mutants: {sum(results)}/{len(results)} caught")
+diff --git a/tb/verilator/aaf_clock_meter/mutants.py b/tb/verilator/aaf_clock_meter/mutants.py
+index af0e903d56..1bc1c1250a 100644
+--- a/tb/verilator/aaf_clock_meter/mutants.py
++++ b/tb/verilator/aaf_clock_meter/mutants.py
+@@ -20,10 +20,12 @@ control; the suite's own run is the clean control of the other two harnesses.
+ import os
+ import signal
+ import subprocess
+-import tempfile
++import sys
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = {
+     "meter": HERE / "../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
+     "servo": HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+@@ -299,7 +301,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, interrupted)
+     sources = {key: path.read_text() for key, path in RTL.items()}
+     results = []
+-    with tempfile.TemporaryDirectory(prefix="aaf-meter-mutants-") as directory:
++    with mutant_stage.directory("aaf-meter-mutants-") as directory:
+         work = Path(directory)
+         clean = build(work, "clean", "meter", sources["meter"], "cases:selection")
+         results.append(clean is not None and run_case(clean, "clean", "cases:selection", None))
+diff --git a/tb/verilator/avtp_rxmon/ctxfmt_mutants.py b/tb/verilator/avtp_rxmon/ctxfmt_mutants.py
+index 22a77f80e2..bbd5af0632 100644
+--- a/tb/verilator/avtp_rxmon/ctxfmt_mutants.py
++++ b/tb/verilator/avtp_rxmon/ctxfmt_mutants.py
+@@ -24,10 +24,11 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ sys.path.insert(0, str(HERE))
+ from lockstep_mutants import failed_checks, verdict  # noqa: E402
+ 
+@@ -113,7 +114,7 @@ def main() -> int:
+     src = RTL.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="rxmon-ctxfmt-mutants-") as td:
++    with mutant_stage.directory("rxmon-ctxfmt-mutants-") as td:
+         work = Path(td)
+         exe = build(RTL.resolve(), work / "obj_clean")
+         answer = verdict(*run_harness(exe), None) if exe else "did not compile"
+diff --git a/tb/verilator/avtp_rxmon/depkt_mutants.py b/tb/verilator/avtp_rxmon/depkt_mutants.py
+index 28e790ffb6..f8e962dced 100644
+--- a/tb/verilator/avtp_rxmon/depkt_mutants.py
++++ b/tb/verilator/avtp_rxmon/depkt_mutants.py
+@@ -24,10 +24,11 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ sys.path.insert(0, str(HERE))
+ from lockstep_mutants import failed_checks, plant, verdict  # noqa: E402
+ 
+@@ -144,7 +145,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="rxmon-depkt-mutants-") as td:
++    with mutant_stage.directory("rxmon-depkt-mutants-") as td:
+         work = Path(td)
+         exe = build(SRC.resolve(), work / "obj_clean")
+         answer = verdict(*run_harness(exe), None) if exe else "did not compile"
+diff --git a/tb/verilator/avtp_rxmon/fanout_mutants.py b/tb/verilator/avtp_rxmon/fanout_mutants.py
+index 80c89e711d..a6250faa67 100644
+--- a/tb/verilator/avtp_rxmon/fanout_mutants.py
++++ b/tb/verilator/avtp_rxmon/fanout_mutants.py
+@@ -26,10 +26,11 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ sys.path.insert(0, str(HERE))
+ from lockstep_mutants import failed_checks, plant, verdict  # noqa: E402
+ 
+@@ -215,7 +216,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="rxmon-fanout-mutants-") as td:
++    with mutant_stage.directory("rxmon-fanout-mutants-") as td:
+         work = Path(td)
+         exe = build({}, work / "obj_clean")
+         answer = verdict(*run_harness(exe), None) if exe else "did not compile"
+diff --git a/tb/verilator/avtp_rxmon/format_mutants.py b/tb/verilator/avtp_rxmon/format_mutants.py
+index dfb9182379..6f19c5c339 100644
+--- a/tb/verilator/avtp_rxmon/format_mutants.py
++++ b/tb/verilator/avtp_rxmon/format_mutants.py
+@@ -47,10 +47,11 @@ import re
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ sys.path.insert(0, str(HERE))
+ from lockstep_mutants import build as build_lockstep  # noqa: E402
+ from lockstep_mutants import failed_checks, verdict  # noqa: E402
+@@ -232,7 +233,7 @@ def main() -> int:
+     ref_src = REF.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="rxmon-format-mutants-") as td:
++    with mutant_stage.directory("rxmon-format-mutants-") as td:
+         work = Path(td)
+         exe = build(RTL, work / "obj_clean")
+         answer = verdict(*run_harness(exe), None) if exe else "did not compile"
+diff --git a/tb/verilator/avtp_rxmon/lockstep_mutants.py b/tb/verilator/avtp_rxmon/lockstep_mutants.py
+index fae128a1ad..1c85cb1294 100644
+--- a/tb/verilator/avtp_rxmon/lockstep_mutants.py
++++ b/tb/verilator/avtp_rxmon/lockstep_mutants.py
+@@ -43,7 +43,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -59,6 +58,7 @@ EXE_NAME = "Vavtp_rxmon_lockstep"
+ SHAPES = ("1", "8")
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the GET_COUNTERS mirror's write port, as the engine writes it
+ MIRROR_WRITE = """  always_ff @(posedge clk_i) begin : mirror_wr
+@@ -266,7 +266,7 @@ def main() -> int:
+     ref = REF.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="rxmon-lockstep-mutants-") as td:
++    with mutant_stage.directory("rxmon-lockstep-mutants-") as td:
+         work = Path(td)
+         exes: list[Path] | None = [Path(f"{CLEAN_MDIR}{shape}") / EXE_NAME for shape in SHAPES]
+         if not is_fresh(exes):
+diff --git a/tb/verilator/capture_coherence/mutants.py b/tb/verilator/capture_coherence/mutants.py
+index dcdb3ca7b4..c41642fae6 100644
+--- a/tb/verilator/capture_coherence/mutants.py
++++ b/tb/verilator/capture_coherence/mutants.py
+@@ -96,7 +96,6 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ import threading
+ from collections.abc import Callable
+ from concurrent.futures import ThreadPoolExecutor, as_completed
+@@ -114,6 +113,7 @@ NCO = HERE / "../../../hdl/ieee1722/crf/KL_media_nco.sv"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
+ from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ TORN = "[A] AAF columns mixing two TDM frames"
+ MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
+@@ -714,7 +714,7 @@ def main() -> int:
+         parser.error(str(exc))
+     for sig in (signal.SIGTERM, signal.SIGINT):
+         signal.signal(sig, stop)
+-    with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
++    with mutant_stage.directory("capture-coherence-mutants-") as td:
+         made, lines = rom_images_result(Path(td))
+         if not made:
+             emit(lines)
+diff --git a/tb/verilator/chmap_capture/lockstep_mutants.py b/tb/verilator/chmap_capture/lockstep_mutants.py
+index d28dc46d82..f9759ffc5b 100644
+--- a/tb/verilator/chmap_capture/lockstep_mutants.py
++++ b/tb/verilator/chmap_capture/lockstep_mutants.py
+@@ -36,7 +36,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -51,6 +50,7 @@ EXE_NAME = "Vchmap_lockstep"
+ SHAPES = ("1", "8")
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ # (name, the ONE text it replaces, its replacement, the check it must fail)
+ MUTATIONS = [
+@@ -169,7 +169,7 @@ def main() -> int:
+     src = RTL.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="chmap-lockstep-mutants-") as td:
++    with mutant_stage.directory("chmap-lockstep-mutants-") as td:
+         work = Path(td)
+         exes: list[Path] | None = [Path(f"{CLEAN_MDIR}{shape}") / EXE_NAME for shape in SHAPES]
+         if not is_fresh(exes):
+diff --git a/tb/verilator/crf_rx/mutants.py b/tb/verilator/crf_rx/mutants.py
+index 4801126886..615fbfd575 100644
+--- a/tb/verilator/crf_rx/mutants.py
++++ b/tb/verilator/crf_rx/mutants.py
+@@ -21,10 +21,12 @@ is rebuilt from this invocation's source. The harness has bounded loops.
+ import os
+ import signal
+ import subprocess
+-import tempfile
++import sys
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE / "../../../hdl/ieee1722/crf/KL_crf_rx.sv"
+ SERVO = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
+ MUTANTS = (
+@@ -185,7 +187,7 @@ def main() -> int:
+ 
+     signal.signal(signal.SIGTERM, interrupted)
+     source = RTL.read_text()
+-    with tempfile.TemporaryDirectory(prefix="crf-step-mutants-") as directory:
++    with mutant_stage.directory("crf-step-mutants-") as directory:
+         work = Path(directory)
+         if not run_case(work, "clean", source, None):
+             return 1
+diff --git a/tb/verilator/csr/lock_mutants.py b/tb/verilator/csr/lock_mutants.py
+index e1e515be3a..1b1d4a42d1 100644
+--- a/tb/verilator/csr/lock_mutants.py
++++ b/tb/verilator/csr/lock_mutants.py
+@@ -31,7 +31,6 @@ Exit 0 = every mutant was caught and the clean leg still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -44,6 +43,7 @@ CLEAN_INPUTS = [CSR_RTL, HERE / "milan_csr_ref.sv", HERE / "gen_lockstep.py",
+                 HERE / "../../common/verilator_harness.hpp"]
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ # (name, the ONE text it replaces, its replacement, the check it must fail,
+ #  the leg that can reach it)
+@@ -171,7 +171,7 @@ def main() -> int:
+     src = CSR_RTL.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="csr-lock-mutants-") as td:
++    with mutant_stage.directory("csr-lock-mutants-") as td:
+         work = Path(td)
+         exe = CLEAN_MDIR / EXE_NAME
+         if not is_fresh(exe):
+diff --git a/tb/verilator/gptp_shadow/mutants.py b/tb/verilator/gptp_shadow/mutants.py
+index 3087dbb4df..207c67c5d9 100644
+--- a/tb/verilator/gptp_shadow/mutants.py
++++ b/tb/verilator/gptp_shadow/mutants.py
+@@ -34,7 +34,6 @@ KILL can leave private scratch/children, but cannot modify caller source.
+ import argparse
+ import re
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -42,6 +41,7 @@ REPO = HERE.parent.parent.parent
+ sys.path.insert(0, str(REPO / "scripts"))
+ from owned_process import Cancelled, OwnedProcesses  # noqa: E402
+ from private_inputs import InputRefused, copy_inputs  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
+ RET = PLANE / "KL_gptp_txret.sv"
+@@ -252,7 +252,7 @@ def main() -> int:
+ 
+     try:
+         with OwnedProcesses() as owner:
+-            with tempfile.TemporaryDirectory(prefix="gptp-shadow-mutants-") as scratch:
++            with mutant_stage.directory("gptp-shadow-mutants-") as scratch:
+                 private = Path(scratch)
+                 targets = {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}
+                 copy_inputs(REPO, HERE, private, owner, targets)
+diff --git a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+index a4baf97225..4f32e07170 100644
+--- a/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
++++ b/tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+@@ -112,7 +112,8 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
+     population = declared()
+     first_party = {name for name in population if not name.startswith(DEPENDENCIES)}
+     for relative in sorted(first_party | set(UNRELATED) | {
+-            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
++            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py",
++            "scripts/mutant_stage.py"}):
+         install(root, relative)
+     git(root, "init", "-q")
+     for name in DEPENDENCIES:
+@@ -308,6 +309,12 @@ def prepare_refusal(root: Path, probe: Probe, kind: str) -> str:
+     return "Git environment redirects the checkout: " + variable
+ 
+ 
++def scratch_left(control: Path) -> list[Path]:
++    """The driver's staging directories under the probe's TMPDIR: tempfile's name, or a
++    scripts/mutant_stage.py slot."""
++    return [*control.glob("gptp-shadow-mutants-*"), *control.glob("milan-mutant-stage-*/gptp-shadow-mutants-*")]
++
++
+ def refusal(parent: Path, kind: str) -> None:
+     """Dirty, index-hidden, linked, redirected or unreadable input fails before make."""
+     root, probe = fixture(parent, kind)
+@@ -318,7 +325,7 @@ def refusal(parent: Path, kind: str) -> None:
+     assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+     assert "Traceback" not in output, output
+     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
+-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
++    assert not scratch_left(probe.control), "refusal left scratch"
+     probe.save(dict(exit=status, refusal=kind, reason=reason, input_unchanged=True, make_started=False))
+ 
+ 
+@@ -332,7 +339,7 @@ def unsupported(parent: Path, mode: str) -> None:
+     status, output = probe.finish()
+     assert status == 2 and "REFUSED:" in output and "Traceback" not in output, output
+     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
+-    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
++    assert not scratch_left(probe.control), "refusal left scratch"
+     probe.save(dict(exit=status, facility=mode, refused=True, make_started=False))
+ 
+ 
+@@ -360,6 +367,7 @@ def outer_cancellation(parent: Path, signum: int) -> None:
+     for relative in ("hdl", "tb/common", "tb/verilator/gptp_shadow", "gptp-processor",
+                      "third_party/verilog-axis"):
+         shutil.copytree(original / relative, root / relative, dirs_exist_ok=True)
++    shutil.copy2(original / "scripts/mutant_stage.py", root / "scripts/mutant_stage.py")
+     git(root, "init", "-q")
+     commit(root)
+     for name in ("mutation.json", "private-writes.json"):
+diff --git a/tb/verilator/gptp_tables/mutants.py b/tb/verilator/gptp_tables/mutants.py
+index cf9a0f65c5..f5e1f516c9 100644
+--- a/tb/verilator/gptp_tables/mutants.py
++++ b/tb/verilator/gptp_tables/mutants.py
+@@ -36,12 +36,12 @@ cleaned; 1 = a control was not caught; 2 = input or cleanup refusal;
+ import argparse
+ import re
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ REPO = HERE.parent.parent.parent
+ sys.path.insert(0, str(REPO / "scripts"))
++import mutant_stage  # noqa: E402
+ sys.path.insert(0, str(HERE.parent / "gptp_shadow"))
+ from owned_process import Cancelled, OwnedProcesses  # noqa: E402
+ from private_inputs import InputRefused, copy_inputs  # noqa: E402
+@@ -299,7 +299,7 @@ def main() -> int:
+ 
+     try:
+         with OwnedProcesses() as owner:
+-            with tempfile.TemporaryDirectory(prefix="gptp-tables-mutants-") as scratch:
++            with mutant_stage.directory("gptp-tables-mutants-") as scratch:
+                 private = Path(scratch)
+                 targets = {row[1] for row in MUTATIONS}
+                 copy_inputs(REPO, HERE, private, owner, targets)
+diff --git a/tb/verilator/maap/mutants.py b/tb/verilator/maap/mutants.py
+index 494c4f52d8..87be62663c 100644
+--- a/tb/verilator/maap/mutants.py
++++ b/tb/verilator/maap/mutants.py
+@@ -25,12 +25,12 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
+ sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ from ci_case_receipts import Receipt, partition
+ 
+ 
+@@ -335,7 +335,7 @@ def main() -> int:
+     if items != {1, 2, 3, 4}:
+         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
+         return 1
+-    with tempfile.TemporaryDirectory(prefix="maap-mutants-") as directory:
++    with mutant_stage.directory("maap-mutants-") as directory:
+         results = campaign(Path(directory), selected, receipt)
+     failures = sum(not passed for passed in results)
+     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
+diff --git a/tb/verilator/mbx/dma_mutants.py b/tb/verilator/mbx/dma_mutants.py
+index 38adf3058b..228b80ba43 100644
+--- a/tb/verilator/mbx/dma_mutants.py
++++ b/tb/verilator/mbx/dma_mutants.py
+@@ -24,12 +24,13 @@ import argparse
+ import shutil
+ import subprocess
+ import sys
+-import tempfile
+ from concurrent.futures import ThreadPoolExecutor
+ from dataclasses import dataclass
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
+ RTL_FILES = ("KL_mbx_pkg.sv", "KL_mbx_dma.sv")
+ 
+@@ -146,7 +147,7 @@ def main() -> int:
+     parser.add_argument("--keep", type=Path, help="keep the scratch builds here")
+     args = parser.parse_args()
+     flags = vflags()
+-    with tempfile.TemporaryDirectory(prefix="mbx-dma-mutants-") as tmp:
++    with mutant_stage.directory("mbx-dma-mutants-") as tmp:
+         root = args.keep or Path(tmp)
+         root.mkdir(parents=True, exist_ok=True)
+         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+diff --git a/tb/verilator/mbx/mutants.py b/tb/verilator/mbx/mutants.py
+index 9964b3f90c..457305a25c 100644
+--- a/tb/verilator/mbx/mutants.py
++++ b/tb/verilator/mbx/mutants.py
+@@ -32,12 +32,13 @@ import argparse
+ import shutil
+ import subprocess
+ import sys
+-import tempfile
+ from concurrent.futures import ThreadPoolExecutor
+ from dataclasses import dataclass
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
+ GEN = HERE.parents[2] / "sw" / "mailbox" / "gen_mailbox.py"
+ CONTRACT_INC = HERE.parents[2] / "sw" / "firmware" / "ctrl" / "mbx"   # the Makefile's CONTRACT_INC
+@@ -769,7 +770,7 @@ def main(argv: list[str] | None = None) -> int:
+     ap.add_argument("--quick", action="store_true", help="QUICK arms only, no controls (the default make)")
+     args = ap.parse_args(argv)
+     arms = tuple(a for a in ARMS if a.name in QUICK) if args.quick else ARMS
+-    with tempfile.TemporaryDirectory(prefix="mbx-mutants-") as tmp:
++    with mutant_stage.directory("mbx-mutants-") as tmp:
+         root = args.keep.resolve() if args.keep else Path(tmp)
+         bad = 0
+         try:
+diff --git a/tb/verilator/media_phase/phase_mutants.py b/tb/verilator/media_phase/phase_mutants.py
+index 7fdb9e7f67..8b9735dfac 100644
+--- a/tb/verilator/media_phase/phase_mutants.py
++++ b/tb/verilator/media_phase/phase_mutants.py
+@@ -19,12 +19,13 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ import threading
+ from concurrent.futures import ThreadPoolExecutor
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ HDL = HERE / "../../../hdl/ieee1722/crf"
+ SERVO = "KL_mmcm_drp_servo.sv"
+ DOMEV = "KL_media_domain_event.sv"
+@@ -383,7 +384,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, interrupted)
+     originals = {f: path.read_text() for f, path in SOURCES.items()}
+     results = []
+-    with tempfile.TemporaryDirectory(prefix="media-phase-mutants-") as directory:
++    with mutant_stage.directory("media-phase-mutants-") as directory:
+         work = Path(directory)
+         clean = {h: build(work, "clean", {}, h) for h in sorted({harness_of(c) for c in cases})}
+         if any(b is None for b in clean.values()):
+diff --git a/tb/verilator/milan_dp/bootsa_mutants.py b/tb/verilator/milan_dp/bootsa_mutants.py
+index 8945a1e627..af5d142ad0 100644
+--- a/tb/verilator/milan_dp/bootsa_mutants.py
++++ b/tb/verilator/milan_dp/bootsa_mutants.py
+@@ -42,7 +42,6 @@ import re
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -50,6 +49,7 @@ RTL = {"DP_SRC": HERE / "../../../hdl/milan/milan_datapath.sv"}
+ EXE = "Vmilan_dp_bootsa"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the transmit gate: both halves of the pair
+ PAIR = "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;"
+@@ -217,7 +217,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="bootsa-mutants-") as td:
++    with mutant_stage.directory("bootsa-mutants-") as td:
+         work = Path(td)
+         clean = HERE / "obj_bootsa" / EXE
+         exe = clean if clean.is_file() else build({}, work / "obj_clean")
+diff --git a/tb/verilator/milan_dp/crflic_mutants.py b/tb/verilator/milan_dp/crflic_mutants.py
+index 65cb1a53bf..777efe806a 100644
+--- a/tb/verilator/milan_dp/crflic_mutants.py
++++ b/tb/verilator/milan_dp/crflic_mutants.py
+@@ -72,7 +72,6 @@ import shutil
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -85,6 +84,7 @@ LEGS = {
+ }
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ # (name, the exact source fragment, its replacement, the check it must fail)
+ MUTATIONS = [
+@@ -295,7 +295,7 @@ def main() -> int:
+     src = DP_RTL.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="crflic-mutants-") as td:
++    with mutant_stage.directory("crflic-mutants-") as td:
+         work = Path(td)
+         for leg, (_, _, clean_mdir, exe_name) in LEGS.items():
+             clean = clean_mdir / exe_name
+diff --git a/tb/verilator/milan_dp/dynmap_mutants.py b/tb/verilator/milan_dp/dynmap_mutants.py
+index 915fae02cd..775e83633f 100644
+--- a/tb/verilator/milan_dp/dynmap_mutants.py
++++ b/tb/verilator/milan_dp/dynmap_mutants.py
+@@ -95,7 +95,6 @@ import shutil
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ import threading
+ from pathlib import Path
+ 
+@@ -124,6 +123,7 @@ LEGS = {
+ }
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: at most two mutant elaborations at once, whatever --jobs says: a build is
+ #: the larger share of a mutant's memory and of its CPU
+@@ -637,7 +637,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="dynmap-mutants-") as td:
++    with mutant_stage.directory("dynmap-mutants-") as td:
+         work = Path(td)
+         for leg in dict.fromkeys(m[0] for m in mutations):
+             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
+diff --git a/tb/verilator/milan_dp/gsi_mutants.py b/tb/verilator/milan_dp/gsi_mutants.py
+index 5517465f89..da1061ab9f 100644
+--- a/tb/verilator/milan_dp/gsi_mutants.py
++++ b/tb/verilator/milan_dp/gsi_mutants.py
+@@ -97,6 +97,7 @@ CLEAN_MDIR = HERE / "obj_notify"
+ EXE_NAME = "Vmilan_dp_notify"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the processor's STREAM_INPUT answer arms, verbatim at the pin
+ PP_SEL4 = "        4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};"
+@@ -398,7 +399,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="gsi-mutants-") as td:
++    with mutant_stage.directory("gsi-mutants-") as td:
+         work = Path(td)
+         clean = CLEAN_MDIR / EXE_NAME
+         exe = clean if clean.is_file() else build(DP_RTL, PP_HDL, work / "obj_clean")
+diff --git a/tb/verilator/milan_dp/render_mutants.py b/tb/verilator/milan_dp/render_mutants.py
+index 86d5bcfccf..2892b0f7bd 100644
+--- a/tb/verilator/milan_dp/render_mutants.py
++++ b/tb/verilator/milan_dp/render_mutants.py
+@@ -67,7 +67,6 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ import time
+ from collections.abc import Callable
+ from pathlib import Path
+@@ -79,6 +78,7 @@ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+ CLEAN_EXE = HERE / "obj_aclk/Vmilan_dp_aclk"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the two sources a mutant may plant into: (path, the Makefile override)
+ SOURCES = {
+@@ -345,7 +345,7 @@ def main(log: PhaseLog | None = None) -> int:
+     sources = {key: path.read_text() for key, (path, _) in SOURCES.items()}
+     passes = fails = 0
+     signal.signal(signal.SIGTERM, on_sigterm)
+-    with tempfile.TemporaryDirectory(prefix="render-mutants-") as td:
++    with mutant_stage.directory("render-mutants-") as td:
+         work = Path(td)
+         reused = CLEAN_EXE.is_file()
+         log.baseline("prebuilt" if reused else "fallback-build")
+diff --git a/tb/verilator/milan_dp/split_mutants.py b/tb/verilator/milan_dp/split_mutants.py
+index 64be7c7edc..bbf310723f 100644
+--- a/tb/verilator/milan_dp/split_mutants.py
++++ b/tb/verilator/milan_dp/split_mutants.py
+@@ -23,10 +23,11 @@ import os
+ import shutil
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE.parents[2] / "hdl"
+ DP = RTL / "milan/milan_datapath.sv"
+ CDC = RTL / "milan/mailbox/KL_mbx_cdc.sv"
+@@ -202,7 +203,7 @@ def main() -> int:
+     if not arms:
+         print(f"no arm named {args.only!r}")
+         return 2
+-    work = Path(tempfile.mkdtemp(prefix="split-mutants-", dir=HERE))
++    work = Path(mutant_stage.mkdtemp("split-mutants-", parent=HERE))
+     bad = 0
+     try:
+         rc, out = build_and_run(work / "clean", {})
+diff --git a/tb/verilator/milan_dp/srptx_mutants.py b/tb/verilator/milan_dp/srptx_mutants.py
+index 964456e1bb..d912badeb2 100644
+--- a/tb/verilator/milan_dp/srptx_mutants.py
++++ b/tb/verilator/milan_dp/srptx_mutants.py
+@@ -18,12 +18,13 @@ import os
+ import shutil
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ import srptx_grade as g
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ ROOT = HERE.parents[2]
+ MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
+ ADAPTER = ROOT / "sw/firmware/ctrl/srp/srp_mbx.c"
+@@ -126,7 +127,7 @@ def main() -> int:
+     if not arms:
+         print(f"no arm named {args.only!r}")
+         return 2
+-    work = Path(tempfile.mkdtemp(prefix="srptx-mutants-", dir=HERE))
++    work = Path(mutant_stage.mkdtemp("srptx-mutants-", parent=HERE))
+     bad = 0
+     try:
+         ok, out = build(work / "clean", None, None)
+diff --git a/tb/verilator/milan_dp/unb_mutants.py b/tb/verilator/milan_dp/unb_mutants.py
+index 590b1463c9..8d18298924 100644
+--- a/tb/verilator/milan_dp/unb_mutants.py
++++ b/tb/verilator/milan_dp/unb_mutants.py
+@@ -46,7 +46,6 @@ import shutil
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ from typing import NamedTuple
+ 
+@@ -59,6 +58,7 @@ CLEAN_MDIR = HERE / "obj_notify"
+ EXE_NAME = "Vmilan_dp_notify"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the ACMP lane's request, which arb_req_w passes to the TX arbiter, verbatim at the pin
+ PP_ACMP_REQ = "  assign arb_want_w[LANE_ACMP_C]     = laneq_acmp_cnt_r != 4'd0;"
+@@ -260,7 +260,7 @@ def main() -> int:
+     signal.signal(signal.SIGTERM, on_sigterm)
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="unb-mutants-") as td:
++    with mutant_stage.directory("unb-mutants-") as td:
+         work = Path(td)
+         clean = CLEAN_MDIR / EXE_NAME
+         exe = clean if clean.is_file() else build(CRF_RTL, PP_HDL, work / "obj_clean")
+diff --git a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+index 76180de9c5..d18062422d 100755
+--- a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
++++ b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+@@ -50,7 +50,6 @@ import argparse
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ from typing import NamedTuple
+ 
+@@ -68,6 +67,7 @@ SOURCES = {
+ MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RQ_SRC", "restart": "MCR_SRC"}
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the render presentation stage's flush: the bind wipe, and nothing else
+ #: (#632). The render controls OR a re-base cause into it.
+@@ -394,7 +394,7 @@ def main() -> int:
+                 (c.name.startswith("the policy level") if args.slew else args.all or c.acceptance)]
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="gmstep-mutants-") as td:
++    with mutant_stage.directory("gmstep-mutants-") as td:
+         work = Path(td)
+         for key in dict.fromkeys(c.leg for c in selected):
+             leg = LEGS[key]
+diff --git a/tb/verilator/milan_dp_mclk/mclk_mutants.py b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+index 0936dafe8d..d86baaa93a 100644
+--- a/tb/verilator/milan_dp_mclk/mclk_mutants.py
++++ b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+@@ -41,7 +41,6 @@ import json
+ import os
+ import subprocess
+ import sys
+-import tempfile
+ from concurrent.futures import ThreadPoolExecutor
+ from dataclasses import dataclass
+ from pathlib import Path
+@@ -52,6 +51,7 @@ CLEAN_EXE = HERE / "obj_mclk/Vmilan_dp_mclk"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
+ from ci_case_receipts import Receipt, partition  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the three files the schemata plant into: (path, the Makefile override)
+ SOURCES = {
+@@ -298,7 +298,7 @@ def main() -> int:
+     if not CLEAN_EXE.is_file():
+         print(f"[FAIL] the clean leg {CLEAN_EXE.name} is not built (make mclk-build)")
+         return 1
+-    with tempfile.TemporaryDirectory(prefix="mclk-mutants-") as td:
++    with mutant_stage.directory("mclk-mutants-") as td:
+         work = Path(td)
+         copies = plant(work)
+         if isinstance(copies, str):
+diff --git a/tb/verilator/milan_dp_render/ship8_mutants.py b/tb/verilator/milan_dp_render/ship8_mutants.py
+index 4c9728a80f..781a259bd7 100644
+--- a/tb/verilator/milan_dp_render/ship8_mutants.py
++++ b/tb/verilator/milan_dp_render/ship8_mutants.py
+@@ -36,7 +36,6 @@ Exit 0 = the clean leg passed and every plant was caught.
+ import argparse
+ import subprocess
+ import sys
+-import tempfile
+ from concurrent.futures import ThreadPoolExecutor
+ from pathlib import Path
+ 
+@@ -45,6 +44,7 @@ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+ SHAPE_SVH = HERE / "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the source a plant edits, and the recipe variable that selects its copy
+ RENDER_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv"
+@@ -210,7 +210,7 @@ def main() -> int:
+     control = verdict(clean, ())
+     lines.append("[PASS] the unplanted leg passes" if control == "pass"
+                  else f"[FAIL] the unplanted leg does not pass ({control}): no plant below is evidence")
+-    with tempfile.TemporaryDirectory(prefix="ship8-mutants-") as td:
++    with mutant_stage.directory("ship8-mutants-") as td:
+         work = Path(td)
+         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+             jobs = [pool.submit(run_plant, work, *p) for p in PLANTS]
+diff --git a/tb/verilator/milan_dp_render/tdm8_render_mutants.py b/tb/verilator/milan_dp_render/tdm8_render_mutants.py
+index b682fd734a..e48de430dd 100644
+--- a/tb/verilator/milan_dp_render/tdm8_render_mutants.py
++++ b/tb/verilator/milan_dp_render/tdm8_render_mutants.py
+@@ -89,7 +89,6 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -100,6 +99,7 @@ SHAPE_SVH = (HERE / "../../../configs/generated/endstation_ax7101_1x1_tdm8"
+              / "gen/adp_shape_defaults.svh")
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the two ELABORATIONS this leg has, each with the Makefile target that
+ #: builds it, the object-directory override that target reads, the executable
+@@ -718,7 +718,7 @@ def main() -> int:
+     leg_defects_only = mode == "--leg-defects"
+     signal.signal(signal.SIGTERM, on_sigterm)
+     rounds = []
+-    with tempfile.TemporaryDirectory(prefix="tdm8-render-mutants-") as td:
++    with mutant_stage.directory("tdm8-render-mutants-") as td:
+         work = Path(td)
+         clean = clean_legs(work, leg_defects_only)
+         rounds.append(run_positive_controls(
+diff --git a/tb/verilator/mmcm_servo/slew_mutants.py b/tb/verilator/mmcm_servo/slew_mutants.py
+index 61bba54a05..032a4e4f99 100755
+--- a/tb/verilator/mmcm_servo/slew_mutants.py
++++ b/tb/verilator/mmcm_servo/slew_mutants.py
+@@ -10,10 +10,12 @@ Run explicitly with make slew-mutants; the default retains every clean case.
+ import os
+ import signal
+ import subprocess
+-import tempfile
++import sys
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ RTL = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
+ MUTANTS = (
+     ("discard_removed", "&& !slew_window_w", "&& 1'b1",
+@@ -87,7 +89,7 @@ def main() -> int:
+ 
+     signal.signal(signal.SIGTERM, interrupted)
+     source = RTL.read_text()
+-    with tempfile.TemporaryDirectory(prefix="servo-slew-mutants-") as directory:
++    with mutant_stage.directory("servo-slew-mutants-") as directory:
+         work = Path(directory)
+         if not run_case(work, "clean", source, None):
+             return 1
+diff --git a/tb/verilator/pp_shadow/drops_mutant.py b/tb/verilator/pp_shadow/drops_mutant.py
+index b0d61e4712..d22f7b3908 100644
+--- a/tb/verilator/pp_shadow/drops_mutant.py
++++ b/tb/verilator/pp_shadow/drops_mutant.py
+@@ -29,10 +29,11 @@ and every arm was caught by its named check; 1 = otherwise.
+ import os
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ ROOT = HERE.parents[2]
+ SHADOW = (ROOT / "hdl" / "milan" / "KL_pp_shadow.sv").resolve()
+ DATAPATH = (ROOT / "hdl" / "milan" / "milan_datapath.sv").resolve()
+@@ -125,7 +126,7 @@ def main() -> int:
+             print(f"REFUSED: expected exactly one {path.name} in the datapath source list")
+             return 1
+     missed = []
+-    with tempfile.TemporaryDirectory(prefix="pp-drops-") as temporary:
++    with mutant_stage.directory("pp-drops-") as temporary:
+         directory = Path(temporary)
+         for leg, label in ((BASE, "control"), (PRUNED, "control-rxfilt0")):
+             status, text = run_leg(directory, label, leg)
+diff --git a/tb/verilator/pp_shadow/pending_mutant.py b/tb/verilator/pp_shadow/pending_mutant.py
+index 12ce77db06..6b976e70b2 100644
+--- a/tb/verilator/pp_shadow/pending_mutant.py
++++ b/tb/verilator/pp_shadow/pending_mutant.py
+@@ -5,10 +5,12 @@
+ 
+ from pathlib import Path
+ import subprocess
+-import tempfile
++import sys
+ 
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ ROOT = HERE.parents[2]
+ 
+ 
+@@ -43,7 +45,7 @@ def main() -> None:
+                             || (aecp_nvm_mark_w == 8'd7));"""
+     if original.count(live) != 1:
+         raise SystemExit("REFUSED: live-trigger mutation anchor changed")
+-    with tempfile.TemporaryDirectory(prefix="pp-pending-") as temporary:
++    with mutant_stage.directory("pp-pending-") as temporary:
+         directory = Path(temporary)
+         rc, text = run_build(directory, "control")
+         if rc != 0 or "RESULT: PASS" not in text:
+diff --git a/tb/verilator/pp_shadow/reboot_mutant.py b/tb/verilator/pp_shadow/reboot_mutant.py
+index 97d49f712e..52e0b5ffec 100644
+--- a/tb/verilator/pp_shadow/reboot_mutant.py
++++ b/tb/verilator/pp_shadow/reboot_mutant.py
+@@ -26,10 +26,11 @@ and every arm was caught by its named check; 1 = otherwise.
+ import os
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ ROOT = HERE.parents[2]
+ DATAPATH = (ROOT / "hdl" / "milan" / "milan_datapath.sv").resolve()
+ CTRL = (ROOT / "hdl" / "milan" / "KL_reboot_ctrl.sv").resolve()
+@@ -101,7 +102,7 @@ def main() -> int:
+             print(f"REFUSED: expected exactly one {path.name} in the datapath source list")
+             return 1
+     missed = []
+-    with tempfile.TemporaryDirectory(prefix="pp-reboot-") as temporary:
++    with mutant_stage.directory("pp-reboot-") as temporary:
+         directory = Path(temporary)
+         status, text = run_leg(directory, "control")
+         if status != 0 or "RESULT: PASS" not in text:
+diff --git a/tb/verilator/reboot_ctrl/mutants.py b/tb/verilator/reboot_ctrl/mutants.py
+index 2528a92760..8a1916272b 100644
+--- a/tb/verilator/reboot_ctrl/mutants.py
++++ b/tb/verilator/reboot_ctrl/mutants.py
+@@ -25,10 +25,11 @@ Exit 0 = the golden run passed and every control was caught by its check;
+ import argparse
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ SOURCE = HERE.parents[2] / "hdl" / "milan" / "KL_reboot_ctrl.sv"
+ 
+ REQ = "U1 no writer, nothing in the MAC: from the request the PHY hold rises more than one tick later"
+@@ -197,7 +198,7 @@ def main() -> int:
+ 
+     original = SOURCE.read_text()
+     missed = []
+-    with tempfile.TemporaryDirectory(prefix="reboot_ctrl_mut_") as scratch:
++    with mutant_stage.directory("reboot_ctrl_mut_") as scratch:
+         root = Path(scratch)
+         golden = root / "golden"
+         golden.mkdir()
+diff --git a/tb/verilator/render_queue/mutants.py b/tb/verilator/render_queue/mutants.py
+index a646e562a2..013e507575 100644
+--- a/tb/verilator/render_queue/mutants.py
++++ b/tb/verilator/render_queue/mutants.py
+@@ -43,13 +43,13 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the shipping shape (`make odd`): one stream, one interface, 7 lanes
+ ODD_SHAPE = ("N_STREAMS=1", "N_CH=7", "N_IF=1", "LEAD1=0")
+@@ -262,7 +262,7 @@ def main() -> int:
+     src = RTL.read_text()
+     passes = fails = 0
+     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+-    with tempfile.TemporaryDirectory(prefix="render-queue-mutants-") as td:
++    with mutant_stage.directory("render-queue-mutants-") as td:
+         work = Path(td)
+         clean = work / "KL_render_queue.sv"
+         clean.write_text(src)
+diff --git a/tb/verilator/rx_filter/binding_mutant.py b/tb/verilator/rx_filter/binding_mutant.py
+index c24aba03e5..4d5a1677ec 100644
+--- a/tb/verilator/rx_filter/binding_mutant.py
++++ b/tb/verilator/rx_filter/binding_mutant.py
+@@ -32,10 +32,11 @@ nothing lands in the tree.
+ import re
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE.parents[2] / "scripts"))
++import mutant_stage  # noqa: E402
+ FILTER = HERE / "../../../hdl/ieee8021q/filtering/rx_mac_filter.sv"
+ TCAM = HERE / "../../../hdl/ieee8021q/filtering/tcam.sv"
+ HARNESS = HERE / "sim_main.cpp"
+@@ -83,7 +84,7 @@ def run_arm(recipe: list[str], path: Path, old: str, new: str,
+     if sources[path].count(old) != 1:
+         return False, "the anchor text was not found exactly once"
+     sources[path] = sources[path].replace(old, new)
+-    with tempfile.TemporaryDirectory(prefix="rx-filter-binding-") as tmp:
++    with mutant_stage.directory("rx-filter-binding-") as tmp:
+         work = Path(tmp)
+         for src, text in sources.items():
+             (work / src.name).write_text(text)
+diff --git a/tb/verilator/tcam/mutants.py b/tb/verilator/tcam/mutants.py
+index 27a5a2f54e..c7aebe5162 100644
+--- a/tb/verilator/tcam/mutants.py
++++ b/tb/verilator/tcam/mutants.py
+@@ -36,13 +36,13 @@ import os
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ RTL = HERE / "../../../hdl/ieee8021q/filtering/tcam.sv"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: The harness runs in well under a second; a mutant still running after this
+ #: many seconds is livelocked (a loop that no longer advances), not slow.
+@@ -139,7 +139,7 @@ def main() -> int:
+     #: SIGTERM handler turns the sweep's `timeout` kill into one, so a killed
+     #: run leaves no tcam-mutants-* directory behind either.
+     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+-    with tempfile.TemporaryDirectory(prefix="tcam-mutants-") as td:
++    with mutant_stage.directory("tcam-mutants-") as td:
+         work = Path(td)
+ 
+         # -- positive control: the real RTL must still pass -------------------
+diff --git a/tb/verilator/tkdiag/mcr_mutants.py b/tb/verilator/tkdiag/mcr_mutants.py
+index 2df55712c6..0d8e20e0b1 100755
+--- a/tb/verilator/tkdiag/mcr_mutants.py
++++ b/tb/verilator/tkdiag/mcr_mutants.py
+@@ -35,7 +35,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
+ import signal
+ import subprocess
+ import sys
+-import tempfile
+ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+@@ -48,6 +47,7 @@ CLEAN_INPUTS = [MCR_RTL, HERE / "../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.s
+ EXE_NAME = "Vtkdiag_sim"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++import mutant_stage  # noqa: E402
+ 
+ #: the one line the merge lives on
+ MERGE_LINE = "      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;"
+@@ -171,7 +171,7 @@ def main() -> int:
+     src = MCR_RTL.read_text()
+     passes = 0
+     fails = 0
+-    with tempfile.TemporaryDirectory(prefix="mcr-mutants-") as td:
++    with mutant_stage.directory("mcr-mutants-") as td:
+         work = Path(td)
+         clean = CLEAN_MDIR / EXE_NAME
+         exe = clean

@@ -1,0 +1,95 @@
+[
+  {
+    "name": "workflow-generation",
+    "command": [
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.471
+  },
+  {
+    "name": "event-contract",
+    "command": [
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.476
+  },
+  {
+    "name": "workflow-controls",
+    "command": [
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 33.62
+  },
+  {
+    "name": "pieces-controls",
+    "command": [
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 22.04
+  },
+  {
+    "name": "case-controls",
+    "command": [
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.966
+  },
+  {
+    "name": "stage-controls",
+    "command": [
+      "scripts/mutant_stage.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.116
+  },
+  {
+    "name": "fail-fast-controls",
+    "command": [
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.826
+  },
+  {
+    "name": "lifecycle-controls",
+    "command": [
+      "tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 83.659
+  },
+  {
+    "name": "receipt-controls",
+    "command": [
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 1.771
+  },
+  {
+    "name": "runtime-controls",
+    "command": [
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "returncode": 0,
+    "wall_seconds": 13.012
+  },
+  {
+    "name": "preflight",
+    "command": [
+      "scripts/run_all_suites.sh",
+      "$REVIEWS/cicd3-r924-1-packet/scratch/preflight",
+      "--preflight-only"
+    ],
+    "returncode": 0,
+    "wall_seconds": 252.386
+  }
+]

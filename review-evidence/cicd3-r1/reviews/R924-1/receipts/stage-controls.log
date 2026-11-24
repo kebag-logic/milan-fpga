@@ -1,0 +1,8 @@
+mutant stage control: a held slot is never handed out twice
+mutant stage control: the same path in every run, and empty
+mutant stage control: a killed run's leftovers are cleared when the slot is taken
+mutant stage control: with every slot held, a random directory, still correct
+mutant stage control: a caller's CCACHE_BASEDIR wins
+mutant stage control: an in-tree directory leaves nothing else in the tree
+mutant stage control: a prefix naming more than one directory is refused
+mutant stage: all controls PASS
