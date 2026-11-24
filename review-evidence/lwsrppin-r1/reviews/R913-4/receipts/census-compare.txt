@@ -1,0 +1,6 @@
+sizes head=2005 first=1858 second=2003 (unique 2005 1858 2003)
+head - second: ['suite:["srp_arms.arm_srp", ["firmware tree", "lwSRP", 1], {"config": "endstation_ax7101_8x8.yaml", "test": "srp_own_leaveall.cpp"}]', 'suite:["srp_arms.arm_srp", ["firmware tree", "lwSRP", 1], {"test": "srp_own_leaveall.cpp"}]']
+second - head: []
+first - head: ['control:plat-phy-boot-restart-dropped']
+first - second (pin-side or base-side differences): 3
+head - (first|second): []

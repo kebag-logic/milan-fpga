@@ -1,0 +1,92 @@
+merge 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698 tree bb8ac51a1ab36184c9e0fddd6a335473c16a0b4a
+first parent 30796098256670c76115610498a3cdad4d8281ba; second parent 2509db684b58b920e215b0d5d327b4a845bac3f4; merge base aa30d77f75cd97b3a29878ca0ed68010a7629266
+message: 1 non-empty line(s): Merge dev-soft-core 2509db68 (the flip train, PR #988) into the lwSRP d1bb4f4e pin
+paths: first 18, second 145, both 8
+one-sided paths equal to their own side: yes
+paths changed by the merge that neither side changed: none
+git merge-tree (git 2.56.1) tree with conflict markers: 18dcfcd7efc2403e0df4dd0d55f263fbf3d79288
+both-changed docs/design/MAILBOX_SPLIT.md: identical to git's automatic merge
+both-changed docs/reference/SUBMODULES.md: identical to git's automatic merge
+both-changed sw/firmware/ctrl/README.md: identical to git's automatic merge
+both-changed sw/firmware/ctrl/srp/README.md: identical to git's automatic merge
+both-changed sw/firmware/ctrl/test/srp_arms.py: HAND-RESOLVED (diff from the conflicted merge below)
+both-changed sw/firmware/ctrl/test/test_ctrl_firmware.py: HAND-RESOLVED (diff from the conflicted merge below)
+both-changed tb/verilator/milan_dp/Makefile: identical to git's automatic merge
+both-changed tb/verilator/milan_dp/README.md: identical to git's automatic merge
+--- resolution of every conflicted path (merge-tree's conflicted text -> merge)
+diff --git a/sw/firmware/ctrl/test/srp_arms.py b/sw/firmware/ctrl/test/srp_arms.py
+index 2de5ea17f9..e55501b759 100644
+--- a/sw/firmware/ctrl/test/srp_arms.py
++++ b/sw/firmware/ctrl/test/srp_arms.py
+@@ -116,14 +116,14 @@ def listener_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+             arm_srp(tree, lwsrp, 1, test="srp_listeners.cpp", config=ENTITY_8X8)]
+ 
+ 
+-<<<<<<< 30796098256670c76115610498a3cdad4d8281ba
+ def own_leaveall_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+     """lwSRP #20 at the board: a Listener withdrawn 5 to 200 ms after the board's own LeaveAll is sent as Lv within
+     240 ms, and no Listener is deregistered across LeaveAlls (srp_own_leaveall.cpp), at 8x8/1if on every input and at
+     1x1/1if."""
+     return [arm_srp(tree, lwsrp, 1, test="srp_own_leaveall.cpp", config=ENTITY_8X8),
+             arm_srp(tree, lwsrp, 1, test="srp_own_leaveall.cpp")]
+-=======
++
++
+ #: The suite of a link that comes up at each phase of a loop pass (#973).
+ LINK_PASS = "srp_link_pass.cpp"
+ 
+@@ -132,7 +132,6 @@ def link_pass_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+     """A link that comes up at each phase of a loop pass is SRP's first UP (#973): srp_link_pass.cpp at 1x1/1if and
+     8x8/1if, each a process of its own, apart from every other SRP suite."""
+     return [arm_srp(tree, lwsrp, 1, test=LINK_PASS), arm_srp(tree, lwsrp, 1, test=LINK_PASS, config=ENTITY_8X8)]
+->>>>>>> 2509db684b58b920e215b0d5d327b4a845bac3f4
+ 
+ 
+ def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 732618ccef..215d99e23e 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -77,19 +77,14 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
+            against the reference walk over random record sequences (#930,
+            srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
+            reclaim and receive filter against the adapter before it
+-<<<<<<< 30796098256670c76115610498a3cdad4d8281ba
+            (#665's ruling of 2026-11-20, item 3) in the same suite; a
+            Listener withdrawn 5 to 200 ms after the board's own LeaveAll
+            sent as Lv within 240 ms, and none deregistered across
+            LeaveAlls when none is withdrawn, against an lwSRP MSRP peer
+            (lwSRP #20, srp_own_leaveall.cpp) at 8x8/1if on every input
+-           and at 1x1/1if;
+-=======
+-           (#665's ruling of 2026-11-20, item 3) in the same suite; a link
+-           that comes up at each phase of a loop pass as SRP's first UP
+-           (#973, srp_link_pass.cpp) at 1x1/1if and 8x8/1if, each run a
+-           process of its own;
+->>>>>>> 2509db684b58b920e215b0d5d327b4a845bac3f4
++           and at 1x1/1if; a link that comes up at each phase of a loop
++           pass as SRP's first UP (#973, srp_link_pass.cpp) at 1x1/1if
++           and 8x8/1if, each run a process of its own;
+   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
+            decoder and transmit-opportunity comparator the placement switch
+            compares the two placements' SRP frames with (#665, ruling
+@@ -222,11 +217,8 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
+         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+-<<<<<<< 30796098256670c76115610498a3cdad4d8281ba
+         outcomes.extend(srp_arms.own_leaveall_arms(tree, args.lwsrp.resolve()))
+-=======
+         outcomes.extend(srp_arms.link_pass_arms(tree, args.lwsrp.resolve()))
+->>>>>>> 2509db684b58b920e215b0d5d327b4a845bac3f4
+         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
+         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+     outcomes.extend(aecp_arms.all_arms(tree))
+--- gitlinks: merge vs first parent, then merge vs second parent
+gitlinks == first parent
+4c4
+< 160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+---
+> 160000 commit d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b	third_party/lwSRP
+RESULT: PASS
+rc=0
