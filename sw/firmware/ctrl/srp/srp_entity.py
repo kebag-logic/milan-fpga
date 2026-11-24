@@ -21,11 +21,12 @@ import endstation_builder
 #: its ruling of 2026-11-23, item 3): at both one-interface shapes the attribute lookup's buckets, no MAP work
 #: at one port and no zeroing in the parser's validation pass (lwSRP doc/integrator.md), and at 8x8/1if alone the
 #: merged Message build, which costs 1x1/1if its build pass; at both, no leave timer event for a replaced Talker
-#: the Milan rapid leave took to MT (item 5). Every other shape builds lwSRP's defaults.
+#: the Milan rapid leave took to MT, and no copy past what is used (item 5). Every other shape builds lwSRP's
+#: defaults.
 LWSRP_OPTIONS = {(1, 2, 2): (("LWSRP_ATTR_BUCKETS", "16u"), ("LWSRP_ONE_PORT_MAP", "1"), ("LWSRP_LEAN_VALIDATE", "1"),
-                             ("LWSRP_RAPID_REPLACE", "1")),
+                             ("LWSRP_RAPID_REPLACE", "1"), ("LWSRP_LEAN_COPY", "1")),
                  (1, 9, 9): (("LWSRP_ATTR_BUCKETS", "16u"), ("LWSRP_ONE_PORT_MAP", "1"), ("LWSRP_LEAN_VALIDATE", "1"),
-                             ("LWSRP_TX_MERGE", "1"), ("LWSRP_RAPID_REPLACE", "1"))}
+                             ("LWSRP_TX_MERGE", "1"), ("LWSRP_RAPID_REPLACE", "1"), ("LWSRP_LEAN_COPY", "1"))}
 
 #: The AEM descriptors a change notice is kept for (aecp.c, aecp_changed), each the shape header's name.
 NOTICE_DESCRIPTORS = {"STREAM_INPUT": "CTRL_AEM_STREAM_INPUTS", "STREAM_OUTPUT": "CTRL_AEM_STREAM_OUTPUTS",

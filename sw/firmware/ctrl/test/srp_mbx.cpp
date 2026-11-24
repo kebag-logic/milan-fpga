@@ -587,9 +587,9 @@ TEST_F(Srp, EveryBindingInASinkLaneTakesItsOwnStreamsTalkersAlone) {
     EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "and for no ended binding";
 }
 // lwSRP's build options by shape (#977; srp_entity.py, LWSRP_OPTIONS, the shape header every unit force-includes): the
-// one-interface shapes build the lookup buckets, no MAP work at one port, the lean validation pass and no leave timer
-// event for a replaced Talker the rapid leave took to MT, 8x8/1if alone the merged Message build; every other shape
-// lwSRP's defaults.
+// one-interface shapes build the lookup buckets, no MAP work at one port, the lean validation pass, no leave timer
+// event for a replaced Talker the rapid leave took to MT and no copy past what is used, 8x8/1if alone the merged
+// Message build; every other shape lwSRP's defaults.
 #ifdef LWSRP_ONE_PORT_MAP
 #define SRP_TEST_ONE_PORT LWSRP_ONE_PORT_MAP
 #else
@@ -615,6 +615,11 @@ TEST_F(Srp, EveryBindingInASinkLaneTakesItsOwnStreamsTalkersAlone) {
 #else
 #define SRP_TEST_RAPID 0
 #endif
+#ifdef LWSRP_LEAN_COPY
+#define SRP_TEST_COPY LWSRP_LEAN_COPY
+#else
+#define SRP_TEST_COPY 0
+#endif
 TEST_F(Srp, TheShapeHeaderSetsLwsrpsEndStationOptions) {
     const bool one=MBX_N_IF==1u;
     const bool eight=CTRL_SRP_SINKS==9u;
@@ -623,6 +628,7 @@ TEST_F(Srp, TheShapeHeaderSetsLwsrpsEndStationOptions) {
     EXPECT_EQ(SRP_TEST_BUCKETS,one ? 16u : 0u) << "the lookup buckets at a one-interface shape";
     EXPECT_EQ(SRP_TEST_MERGE,one && eight ? 1 : 0) << "the merged Message build at 8x8/1if alone";
     EXPECT_EQ(SRP_TEST_RAPID,one ? 1 : 0) << "no leave timer event for a rapid replacement at a one-interface shape";
+    EXPECT_EQ(SRP_TEST_COPY,one ? 1 : 0) << "no copy past what is used at a one-interface shape";
 }
 // THE TRANSMIT's re-declarations in a slice of their own (#977, its ruling of 2026-11-23, item 3; CTRL_LOOP_DECLARE_ALONE
 // at 8x8/1if): a call whose declarations re-declared a Listener ends after them and the next call builds the MRPDU, no
