@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# legs.sh <clone> <outdir> <suite:target>...: each named make target of a suite on a clean clone, the pinned
+# Verilator 5.050 first on PATH, under timeout LEG_TIMEOUT (default 7200 s) and scripts/suite_tally.py's verdict; one line per target in
+# <outdir>/SUMMARY.txt.
+set -u
+C=$1; O=$2; shift 2
+. <scratch>/bin/env.sh
+mkdir -p "$O" "$O/tmp"; export TMPDIR="$O/tmp"
+echo "head $(git -C "$C" rev-parse HEAD) porcelain $(git -C "$C" status --porcelain --untracked-files=no | wc -l) cpus $(taskset -cp $$ | sed 's/.*: //')" > "$O/SUMMARY.txt"
+for st in "$@"; do
+  s=${st%%:*}; t=${st#*:}; [ "$t" = "$st" ] && t=""
+  n=$s${t:+-$t}; t0=$(date +%s)
+  timeout ${LEG_TIMEOUT:-7200} make -C "$C/tb/verilator/$s" $t > "$O/$n.log" 2>&1; rc=$?
+  if [ "$rc" -eq 0 ] && ! python3 "$C/scripts/suite_tally.py" --verdict "$O/$n.log" > "$O/$n.verdict" 2>&1; then rc=93; fi
+  echo "$n rc=$rc seconds=$(( $(date +%s) - t0 ))" >> "$O/SUMMARY.txt"
+done
+echo "porcelain-after $(git -C "$C" status --porcelain --untracked-files=no | wc -l)" >> "$O/SUMMARY.txt"
+echo DONE >> "$O/SUMMARY.txt"

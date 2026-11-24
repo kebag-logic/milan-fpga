@@ -1,0 +1,20 @@
+# head 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 job docs-gates-0 step: Concise audience documentation gate
+CHANGELOG.md:72: sentence has 12 words; maximum is 10: A mastership runs on this oscillator (802.1AS-2020 10.1.2.1).
+CHANGELOG.md:74: sentence has 12 words; maximum is 10: Before, it kept the slave's last trim unless a slew was active.
+docs/design/GPTP_PLANE.md:95: sentence has 16 words; maximum is 10: So a mastership runs on this oscillator, the LocalClock (IEEE 802.1AS-2020 10.1.2.1).
+docs/design/GPTP_PLANE.md:96: sentence has 14 words; maximum is 10: The time base keeps its phase; its frequency steps by the departed grandmaster's rate.
+docs/design/GPTP_PLANE.md:97: sentence has 15 words; maximum is 10: scaledLastGmFreqChange is the negated slave estimate; 0 if none since reset or the last mastership.
+docs/design/GM_LOSS_RECOVERY.md:46: sentence has 16 words; maximum is 10: When this station takes the grandmaster role, its first Announce leaves in that handler (FPGA-gPTP #106).
+docs/design/GM_LOSS_RECOVERY.md:48: sentence has 16 words; maximum is 10: With transmit credit, it leaves before an Announce queued at the timeout instant re-elects a grandmaster.
+docs/design/GM_LOSS_RECOVERY.md:52: sentence has 15 words; maximum is 10: The mastership then runs on this oscillator, not on the departed grandmaster's rate (FPGA-gPTP #107).
+docs/reference/SUBMODULES.md:972: sentence has 11 words; maximum is 10: The release images were routed at lane commit , the gitlink move.
+docs/reference/SUBMODULES.md:978: sentence has 13 words; maximum is 10: Both use the release recipe: the split image, one interface, Vivado 2026.1.
+docs/reference/SUBMODULES.md:980: sentence has 14 words; maximum is 10: Each takes the first directive that meets the build floor, in the recipe's order.
+docs/reference/SUBMODULES.md:982: sentence has 14 words; maximum is 10: At 1x1 the first missed, as on the base, so all three were routed.
+docs/reference/SUBMODULES.md:993: sentence has 11 words; maximum is 10: Every route completes with no routing error and no failing endpoint.
+docs/reference/SUBMODULES.md:997: sentence has 16 words; maximum is 10: The 8x8/1if image is 375 LUTs smaller, with 43 more FFs and 52 more slices.
+docs/reference/SUBMODULES.md:999: sentence has 15 words; maximum is 10: The 1x1/1if image is 41 LUTs smaller, with equal FFs and 150 fewer slices.
+docs/reference/SUBMODULES.md:1003: sentence has 12 words; maximum is 10: The donor measured +455 LUTs at 8x8/1if against an older parent.
+docs/reference/SUBMODULES.md:1011: sentence has 13 words; maximum is 10: The selected 1x1 image's is the SoC bus bridge into the UART FIFO.
+docs/reference/STRICTER_READINGS.md:102: sentence has 13 words; maximum is 10: FPGA-gPTP #106 puts the aged port's mastership on the wire at that instant.
+documentation style: FAIL (18 findings)

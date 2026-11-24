@@ -1,0 +1,26 @@
+# sweep.sh 2: scripts/run_all_suites.sh --wait --shard 2/4 on a clean clone at 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0, pinned Verilator 5.050, booked 8-CPU range, MemoryMax 24G (the first attempt, MemoryMax 12G, was OOM-killed in capture_coherence at 08:14; peak 16.9 GB)
+sw2 at 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 porcelain 0
+HEAD 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 porcelain 0 shard 2/4 cpus 48-55 start 2026-11-24T08:21:51+01:00
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+PASS     capture_coherence
+PASS     chmap_render
+PASS     clkvalid
+PASS     controller_rate
+PASS     datapath
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     lat_history_ring
+PASS     maap
+PASS     media_grid_align
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 286399   in-suite failures: 0
+logs: <scratch>/sweep-2/logs
+porcelain-after 0 END rc=0 2026-11-24T10:10:09+01:00

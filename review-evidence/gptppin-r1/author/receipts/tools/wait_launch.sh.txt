@@ -1,0 +1,4 @@
+#!/bin/bash
+# wait_launch.sh NAME WIDTH CMD...: retry launch.sh every 60 s until cpu_ranges.py books a free range
+S=<scratch>
+until bash $S/bin/launch.sh "$@"; do sleep 60; done

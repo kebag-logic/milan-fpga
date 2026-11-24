@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# collect_fit.sh <point 8x8|1x1> <directive>: one build's fit and timing receipts into the round's receipts/route/:
+# the signoff floors at every corner, the per-clock WNS/WHS, the placed utilization against the base 300da99b's images (the train
+# lane's routes of c2b2ba1a, the same RTL, firmware and configuration inputs) at the same directive (same recipe), the image identity, the build's rc and its artifacts' sha256. No
+# report is copied whole.
+set -u
+P=$1; D=$2
+S=<scratch>/viv; W=$S/work/$P/build_$D; G=$W/gateware
+O=<home>/milan-fpga-management/2026-09-23/gptppin-a835/round1/receipts/route/$P-$D; mkdir -p "$O"
+BASE=<data>/tmp/train1123-a828/viv/work/$P/build_$D/gateware
+cp "$S/q/build-$P-$D.rc" "$O/build.rc"; cp "$S/q/signoff-$P-$D.txt" "$O/signoff.txt"; cp "$S/q/identity-$P-$D.log" "$O/identity.log"
+grep -m4 "^vivado-slot\|^cpus\|^head \|python3 milan_soc.py" "$S/q/build-$P-$D.log" | sed 's#<scratch>#<scratch>#g' > "$O/recipe.txt"
+for c in Slow_85C Slow_0C Fast_85C Fast_0C; do
+  echo "== $c"; grep -A14 "Intra Clock Table" "$G/alinx_ax7101_signoff_${c}_timing.rpt" | grep -E "^\s*(milansoc|clk|eth)" | awk '{print $1, "WNS", $2, "WHS", $6}'
+done > "$O/per-clock.txt"
+python3 "$S/tools/util.py" "$G" | sed 's#^.*/work/#work/#' > "$O/utilization.txt"
+[ -d "$BASE" ] && python3 "$S/tools/util.py" "$BASE" | sed 's#^.*/work/#base-300da99b/#' > "$O/utilization-base-300da99b.txt"
+( cd "$W" && sha256sum gateware/alinx_ax7101.bit gateware/alinx_ax7101.bin image_manifest.json csr.csv 2>/dev/null ) > "$O/artifacts.sha256"
+ls "$O"

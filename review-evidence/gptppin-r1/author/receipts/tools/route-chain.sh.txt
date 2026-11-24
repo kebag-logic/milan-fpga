@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# chain.sh <head> <points...>: fit and timing of <head> at each point (8x8 or 1x1, one interface) by the gating
+# recipe (the train lane's boot.sh, gprep.sh, gbuild.sh, the scratch path changed): a clean clone per point, the split
+# boot simulation, gprep.sh, then gbuild.sh per placement directive in the recipe's order, at most TWO Vivados host-wide through
+# vivado-slot.sh (VIVADO_SLOTS=2, one chain per point run side by side), stopping at the first that meets #818's floor (WNS >= +0.030 ns, WHS >= 0 at every corner). After
+# each build: signoff.py and the image identity gate. Every step's rc in <S>/q/.
+set -u
+H=$1; shift; S=<scratch>/viv; X=$S/tools; Q=$S/q
+V=<home>/milan-fpga-management/2026-09-23/vivado-slot.sh
+mkdir -p "$Q" "$S/clones" "$S/work"
+export MAKEFLAGS="-j8 --no-print-directory"
+log() { echo "$(date -Iseconds) $*" | tee -a "$Q/chain.log"; }
+log "chain head $H cpus $(taskset -cp $$ | sed 's/.*: //')"
+for P in "$@"; do
+  if [ "$P" = 1x1 ]; then STEM=endstation_ax7101_1x1_tdm8; else STEM=endstation_ax7101_8x8; fi
+  C=<scratch>/clones/viv$P; B=$S/tmp/boot-$P; W=$S/work/$P
+  bash <scratch>/bin/mkclone.sh viv$P "$H" > "$Q/clone-$P.log" 2>&1; echo $? > "$Q/clone-$P.rc"
+  log "boot $P"; bash "$X/boot.sh" "$C" "$B" "$STEM" > "$Q/boot-$P.log" 2>&1; echo $? > "$Q/boot-$P.rc"
+  [ "$(cat "$Q/boot-$P.rc")" = 0 ] || { log "boot $P failed"; continue; }
+  log "prep $P"; bash "$X/gprep.sh" "$C" "$STEM" "$B" "$W" > "$Q/prep-$P.log" 2>&1; echo $? > "$Q/prep-$P.rc"
+  [ "$(cat "$Q/prep-$P.rc")" = 0 ] || { log "prep $P failed"; continue; }
+  for D in ExtraPostPlacementOpt ExtraTimingOpt AltSpreadLogic_high; do
+    while [ "$(awk '/MemAvailable/{print int($2/1048576)}' /proc/meminfo)" -lt 20 ]; do sleep 60; done
+    log "build $P $D"
+    VIVADO_SLOTS=2 "$V" bash "$X/gbuild.sh" "$C" "$STEM" "$D" "$W" > "$Q/build-$P-$D.log" 2>&1; echo $? > "$Q/build-$P-$D.rc"
+    O=$W/build_$D
+    python3 -I "$X/signoff.py" "$O/gateware" > "$Q/signoff-$P-$D.txt" 2>&1; echo "rc=$?" >> "$Q/signoff-$P-$D.txt"
+    <home>/litex-milan/venv/bin/python3 "$C/sw/litex/check_image_identity.py" "$O" > "$Q/identity-$P-$D.log" 2>&1
+    log "done $P $D build rc=$(cat "$Q/build-$P-$D.rc") $(grep -h 'floors' "$Q/signoff-$P-$D.txt" | tr '\n' ' ')"
+    grep -q '^issue floors (WNS >= +0.030, WHS >= 0) met at every corner' "$Q/signoff-$P-$D.txt" && break
+  done
+done
+log "CHAIN_DONE $*"; echo 0 > "$Q/chain-$(echo $* | tr " " _).rc"

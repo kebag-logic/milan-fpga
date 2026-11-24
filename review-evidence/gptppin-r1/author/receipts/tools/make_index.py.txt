@@ -1,0 +1,13 @@
+"""make_index.py DIR: INDEX.md from the files present: path, size, sha256 (16 hex) and each file's first line."""
+import hashlib, sys
+from pathlib import Path
+root = Path(sys.argv[1])
+rows = []
+for p in sorted(root.rglob('*')):
+    if p.is_file() and p.name != 'INDEX.md':
+        b = p.read_bytes()
+        first = b.decode(errors='replace').splitlines()[0][:160].replace('|', '\\|') if b else ''
+        rows.append(f'| `{p.relative_to(root)}` | {len(b):,} | `{hashlib.sha256(b).hexdigest()[:16]}` | {first} |')
+(root / 'INDEX.md').write_text('# Receipts (generated from the files present)\n\n| File | Bytes | sha256 | First line |\n|---|---:|---|---|\n'
+                               + '\n'.join(rows) + '\n')
+print(len(rows), 'files')

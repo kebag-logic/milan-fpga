@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+"""hierdiff.py <base-gateware> <head-gateware> [N]: the N instances of the placed hierarchical utilization whose Total
+LUTs (and FFs) moved most between two builds, with their depth (the report's indentation), largest first."""
+import sys
+from pathlib import Path
+
+
+def rows(d: Path) -> dict:
+    lines = (d / "alinx_ax7101_utilization_hierarchical_place.rpt").read_text(errors="replace").splitlines()
+    head = next(i for i, l in enumerate(lines) if "Instance" in l and "Total LUTs" in l)
+    cols = [c.strip() for c in lines[head].split("|")]
+    out, path = {}, []
+    for line in lines[head + 1:]:
+        cells = line.split("|")
+        if len(cells) != len(cols):
+            continue
+        raw = cells[1]
+        depth = (len(raw) - len(raw.lstrip(" "))) // 2
+        name = raw.strip().split(" ")[0]
+        path = path[:depth] + [name]
+        key = "/".join(path)
+        vals = dict(zip(cols, [c.strip() for c in cells]))
+        try:
+            out[key] = (depth, int(vals["Total LUTs"]), int(vals["FFs"]))
+        except ValueError:
+            continue
+    return out
+
+
+def main() -> int:
+    a, b = rows(Path(sys.argv[1])), rows(Path(sys.argv[2]))
+    n = int(sys.argv[3]) if len(sys.argv) > 3 else 25
+    keys = set(a) | set(b)
+    deltas = []
+    for k in keys:
+        da = a.get(k, (k.count("/"), 0, 0))
+        db = b.get(k, (k.count("/"), 0, 0))
+        deltas.append((db[1] - da[1], db[2] - da[2], da[0], k, da[1], db[1]))
+    for dl, df, depth, k, la, lb in sorted(deltas, key=lambda t: -abs(t[0]))[:n]:
+        print(f"{dl:+6d} LUT {df:+6d} FF  depth {depth}  {la:6d} -> {lb:6d}  {k}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

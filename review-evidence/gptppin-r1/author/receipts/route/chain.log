@@ -1,0 +1,17 @@
+# the route chains' log: 8x8 and 1x1 side by side (VIVADO_SLOTS=2), each through the slot script, then the third 1x1 directive by one.sh (best of three after the first missed)
+2026-11-24T05:42:37+01:00 chain head 973f2f20ab4e4dbb329a7fce224f86d19ce395ac cpus 8-15
+2026-11-24T05:42:38+01:00 boot 8x8
+2026-11-24T05:46:11+01:00 prep 8x8
+2026-11-24T05:46:19+01:00 build 8x8 ExtraPostPlacementOpt
+2026-11-24T06:08:53+01:00 chain head 973f2f20ab4e4dbb329a7fce224f86d19ce395ac cpus 24-31
+2026-11-24T06:08:54+01:00 boot 1x1
+2026-11-24T06:12:26+01:00 prep 1x1
+2026-11-24T06:12:33+01:00 build 1x1 ExtraPostPlacementOpt
+2026-11-24T06:25:37+01:00 done 8x8 ExtraPostPlacementOpt build rc=0 issue floors (WNS >= +0.030, WHS >= 0) met at every corner ruling floors (WNS and WHS >= +0.030) met at every corner 
+2026-11-24T06:25:37+01:00 CHAIN_DONE 8x8
+2026-11-24T06:47:54+01:00 done 1x1 ExtraPostPlacementOpt build rc=0 issue floors NOT met ruling floors NOT met 
+2026-11-24T06:47:54+01:00 build 1x1 ExtraTimingOpt
+2026-11-24T07:04:33+01:00 done 1x1 ExtraTimingOpt build rc=0 issue floors (WNS >= +0.030, WHS >= 0) met at every corner ruling floors NOT met 
+2026-11-24T07:04:33+01:00 CHAIN_DONE 1x1
+2026-11-24T07:05:54+01:00 build 1x1 AltSpreadLogic_high (best of three: the first directive missed)
+2026-11-24T07:22:09+01:00 done 1x1 AltSpreadLogic_high build rc=0 issue floors (WNS >= +0.030, WHS >= 0) met at every corner ruling floors NOT met 

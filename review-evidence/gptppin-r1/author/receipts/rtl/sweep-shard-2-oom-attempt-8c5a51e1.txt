@@ -1,0 +1,12 @@
+# shard 2's first attempt: the unit was OOM-killed at its 12 GB cap during capture_coherence (systemd: 'The kernel OOM killer killed some processes in this unit', 12G memory peak); re-run whole with a 24 GB cap
+sw2 at 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 porcelain 0
+HEAD 8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 porcelain 0 shard 2/4 cpus 24-31 start 2026-11-24T07:35:42+01:00
+shard: 2/4   selected suites: 17
+PASS     aaf
+PASS     aaf_clock_meter
+PASS     aaf_latency_taps
+PASS     avtp_rxmon
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: <scratch>/sweep-2/logs
+CANCELLED: signal 15; no completed sweep result

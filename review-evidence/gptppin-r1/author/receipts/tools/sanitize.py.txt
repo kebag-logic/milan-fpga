@@ -1,0 +1,12 @@
+"""sanitize.py SRC DST [header]: copy a log with host paths replaced by placeholders; DST refused over 200 KB."""
+import sys
+from pathlib import Path
+src, dst = Path(sys.argv[1]), Path(sys.argv[2])
+head = sys.argv[3] + '\n' if len(sys.argv) > 3 else ''
+t = src.read_text(errors='replace')
+for a, b in (('<scratch>', '<scratch>'), ('<lane>', '<lane>'),
+             ('<tools>', '<tools>'), ('<tools>', '<tools>'), ('<home>', '<home>'),
+             ('<data>', '<data>'), ('<data>', '<data>')):
+    t = t.replace(a, b)
+dst.write_text(head + t)
+assert dst.stat().st_size < 200_000, f'{dst} is {dst.stat().st_size} B'

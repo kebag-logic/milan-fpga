@@ -1,0 +1,131 @@
+# gprep.sh for 8x8 at 973f2f20 (builder split placement, stand-in export, flash map, platform image at one interface)
+head 973f2f20ab4e4dbb329a7fce224f86d19ce395ac status: 
+2026-11-24T05:46:12+01:00
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 80 clusters (role-pools), model_id 0x001BC5CFD464421E (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote sw/builder/out/endstation_ax7101_8x8/soc_params.json
+  wrote sw/builder/out/endstation_ax7101_8x8/aem_overlay.json
+  wrote sw/builder/out/endstation_ax7101_8x8/build_plan.md
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.json
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote sw/builder/out/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote sw/builder/out/endstation_ax7101_8x8/nvm_split.json
+  wrote sw/builder/out/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote sw/builder/out/endstation_ax7101_8x8/aecp_aem_rom.svh
+recipe argv: --board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-latency-taps --no-i2s-playback --no-render-lpf --no-datapath-probes --num-streams 8 --audio-interface tdm32 --audio-interface-master --audio-interface-render 1 --talker-wire-chans 8 --fabric-gptp --gptp-ingress-lat-ns 656 --gptp-egress-lat-ns 219 --cpu vexiiriscv --software-profile baremetal --xlen 32 --full --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --cpu-count 1 --ctrl-mailbox --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+recipe argv names --ctrl-firmware sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+standin export rc=0
+WROTE <scratch>/viv/work/8x8/flash-map/generated/csr.h, <scratch>/viv/work/8x8/flash-map/generated/mem.h, <scratch>/viv/work/8x8/flash-map/flash_port.json
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 114088,
+    ".rodata": 27006,
+    ".data": 520,
+    ".bss": 91328,
+    ".stack": 8192,
+    ".riscv.attributes": 42
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 24032
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 14250
+    },
+    {
+      "symbol": "values",
+      "bytes": 12473
+    },
+    {
+      "symbol": "owed",
+      "bytes": 9216
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 9184
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3584,
+    "aecp_config": 64,
+    "app": 9184,
+    "binding": 40,
+    "bridge": 144,
+    "config": 56,
+    "console": 588,
+    "face": 100,
+    "maap_csr": 32,
+    "sources": 288,
+    "srp": 4408,
+    "srp_config": 32,
+    "state": 200
+  },
+  "split": {
+    "rom": {
+      "bytes": 141616,
+      "banks": [
+        131072,
+        8192,
+        4096
+      ],
+      "RAMB36": 35,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 100096,
+      "banks": [
+        65536,
+        32768,
+        2048
+      ],
+      "RAMB36": 24,
+      "RAMB18": 1
+    },
+    "tiles": 59.5,
+    "budget_tiles": 56,
+    "ledgered": "platform-8x8-one-interface",
+    "ledgered_tiles": 59.5
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "62e1aad0c52e420feece8c93b9363af55403c2070c3ae4fba09d12c4abff8e2c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "7aea17ecdc4a2ea7d8d2b4ad619800d641db0d7db69dc1a21d21fa669279f02d"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 176348,
+      "sha256": "ed33a71f9cade8c761c191cdab575a82c6d43eed06fddb329964e87b7cd89716"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 140850,
+      "sha256": "67b91de052cb5eb94c98812e217717ceda33ed8abb757d79a915125171d08fa8"
+    }
+  ]
+}
+ed33a71f9cade8c761c191cdab575a82c6d43eed06fddb329964e87b7cd89716  <scratch>/viv/work/8x8/image/ctrl_app.elf
+ed33a71f9cade8c761c191cdab575a82c6d43eed06fddb329964e87b7cd89716  sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+704e477576a4f8c0ee6691e9ac8a9070f92a64c1948d9d64771355dc04f2104e  configs/endstation_ax7101_8x8.yaml
+c4740662cac44f4d6fc3567c839ddf6d7eaad3104c8218d4191964fc37df6cca  sw/builder/out/endstation_ax7101_8x8/soc_params.json
+62e1aad0c52e420feece8c93b9363af55403c2070c3ae4fba09d12c4abff8e2c  <scratch>/viv/tmp/boot-8x8/runtime/libc.a
+7aea17ecdc4a2ea7d8d2b4ad619800d641db0d7db69dc1a21d21fa669279f02d  <scratch>/viv/tmp/boot-8x8/runtime/libcompiler_rt.a
+status after prep: 
+2026-11-24T05:46:19+01:00
+PREP_DONE

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# sweep.sh K HEAD: scripts/run_all_suites.sh --wait --shard K/4 on its own clean clone sw<K> of HEAD (the obj_*
+# collision domain is the clone), the pinned Verilator 5.050 first on PATH; the summary and rc under <scratch>/sweep-<K>.
+set -u
+K=$1; H=$2; S=<scratch>; C=$S/clones/sw$K; O=$S/sweep-$K
+. $S/bin/env.sh
+bash $S/bin/mkclone.sh sw$K "$H" || exit 3
+rm -rf "$O"; mkdir -p "$O/tmp"; export TMPDIR="$O/tmp"
+cd "$C" || exit 3
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) shard $K/4 cpus $(taskset -cp $$ | sed 's/.*: //') start $(date -Iseconds)"
+bash scripts/run_all_suites.sh "$O/logs" --wait --shard "$K/4"; rc=$?
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date -Iseconds)"
+exit $rc

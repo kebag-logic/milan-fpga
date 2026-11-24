@@ -1,0 +1,13 @@
+#!/bin/bash
+# launch.sh NAME WIDTH(8|16|-) CMD...: a systemd user unit milan-gptppin-a835-NAME, MemoryMax 10G, on a CPU range booked
+# through cpu_ranges.py pick (WIDTH '-' runs on the session pool 64-95, for light work); log and rc under units/
+set -u
+S=<scratch>; N=$1 W=$2; shift 2
+if [ "$W" = "-" ]; then R=64-95; else
+  R=$(python3 <home>/milan-fpga-management/2026-09-23/cpu_ranges.py pick --width $W) || { echo "NO RANGE width $W"; exit 9; }
+fi
+L=$S/units/$N.log; rm -f $L $S/units/$N.rc
+printf '%q ' "$@" > $S/units/$N.cmd
+systemd-run --user --quiet --unit milan-gptppin-a835-$N -p MemoryMax=${MEM:-10G} -p MemorySwapMax=0 --working-directory=$S \
+  /usr/bin/taskset -c $R /bin/bash -c ". $S/bin/env.sh; export JOBS_CPUS=$R; \"\$@\" >> $L 2>&1; echo \$? > $S/units/$N.rc" bash "$@"
+[ $? = 0 ] && echo "started milan-gptppin-a835-$N on $R" || echo "FAILED to start $N"

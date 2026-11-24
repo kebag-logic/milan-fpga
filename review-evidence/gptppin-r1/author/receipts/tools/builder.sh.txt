@@ -1,0 +1,14 @@
+#!/bin/bash
+# builder.sh: the docs workflow's builder legs 0 and 1 (test_builder.py --require-rv32) and their union, on the clean clone bld
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/bld; cd $C || exit 3; R=$S/builder; mkdir -p $R
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+rc=0
+for k in 0 1; do
+  echo "== leg $k $(date +%T)"
+  python3 scripts/ci_builder_legs.py run $k --receipt $R/builder-leg-$k.json -- python3 sw/builder/test_builder.py --require-rv32; r=$?
+  echo "== leg $k rc=$r $(date +%T)"; [ $r = 0 ] || rc=1
+done
+echo "== union $(date +%T)"
+python3 scripts/ci_builder_legs.py union --workflow docs --head $(git rev-parse HEAD) --tree $(git rev-parse 'HEAD^{tree}') --output $R/union.json $R/builder-leg-0.json $R/builder-leg-1.json; r=$?
+echo "== union rc=$r"; [ $r = 0 ] || rc=1
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date +%T)"; exit $rc
