@@ -788,16 +788,22 @@ the measurement rule's 5 % (`record_classes.rule`; kept <= bound x 1.05), that r
 figures and the margin; no work pass of `srp-kept` is over THE SHARE, nor any idle run's longest pass in either group
 (an idle pass makes no registration, so none is owed); every pass of both given whole to THE TRANSMIT's build, and
 every build of one of `srp-kept`, is within its stated cost. A tier-2 slice of THE TRANSMIT's build over the slice is
-owed only where its pass is `srp-bound`'s build of one, which the amendment owes; a pass either group gives whole to the
-build (both MRPDUs) stays a failure over the slice as over its stated cost. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP
-unit are not restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
+owed only where `whole_grade.held` itself classes its pass, by the pass's start, as `srp-bound`'s build of one over its
+stated cost, the pass the amendment owes (its round idle, not an aged step, at most one SRP frame). Every other such
+slice stays a failure: a pass either group gives whole to the build (both MRPDUs), as over its stated cost, and a
+`srp-bound` build of one whose round did work or that is an aged step's. A build of one and a pass given whole of the
+same length make the slice line ambiguous, so both fail. Every shape's slice is at least its build of one's stated
+cost, so a build of one over the slice is over that cost too. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP unit are not
+restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
 `<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the same disposition
 (`kept_grade.Disposition`), and one of the two groups graded alone is a finding. `--selftest` breaks each condition in
-synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (29 checks), and each must be
+synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (32 checks), and each must be
 the finding it names: kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against
 100,000) holds and one cycle more breaks, a kept pass over THE SHARE and a kept build of one over its slice are
 findings, and the bound path's are owed, while a `srp-bound` pass given whole to THE TRANSMIT's build, over the slice
-and within `CTRL_LOOP_BUILD_PASS_US`, stays a failure (`run.py`'s own STATED lines).
+and within `CTRL_LOOP_BUILD_PASS_US`, a bound build of one over the slice whose round did work or that is an aged
+step's, and a build of one as long as a pass given whole each keep their slice lines failing (`run.py`'s own STATED
+lines).
 
 ### Backlog rows
 
