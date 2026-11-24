@@ -92,9 +92,13 @@ Reset is synchronous and active-low.
 
 - Engine rate writes become the PHC adjustment level.
 - Taking the grandmaster role always writes rate 0 (FPGA-gPTP #107).
-- So a mastership runs on this oscillator, the LocalClock (IEEE 802.1AS-2020 10.1.2.1).
-- The time base keeps its phase; its frequency steps by the departed grandmaster's rate.
-- scaledLastGmFreqChange is the negated slave estimate; 0 if none since reset or the last mastership.
+- So a mastership runs on this oscillator.
+- That is the LocalClock (802.1AS-2020 10.1.2.1).
+- The time base keeps its phase.
+- Its frequency steps by the departed grandmaster's rate.
+- scaledLastGmFreqChange is the negated slave estimate.
+- It is 0 without a slave rate since reset.
+- It is 0 without one since the last mastership.
 - Engine phase writes remain single-cycle pulses.
 - `pub_commit_o` exposes one complete state generation.
 - `pub_disc_o` exposes pre-commit health discontinuities.

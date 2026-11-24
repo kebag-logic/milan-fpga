@@ -99,7 +99,7 @@ Its items 1 and 2 are defects, tracked there.
 
 They merged in FPGA-gPTP main `1616fc8f`, PR #101, which [#843](https://github.com/kebag-logic/milan-fpga/issues/843) pinned.
 
-[FPGA-gPTP #106](https://github.com/Mister-M-alt/FPGA-gPTP/issues/106) puts the aged port's mastership on the wire at that instant.
+[FPGA-gPTP #106](https://github.com/Mister-M-alt/FPGA-gPTP/issues/106) sends the aged port's mastership at that instant.
 
 It merged in FPGA-gPTP main `1213ac5b`, PR #108, which [#994](https://github.com/kebag-logic/milan-fpga/issues/994) pins.
 

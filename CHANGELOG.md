@@ -69,9 +69,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Taking the grandmaster role sends the first Announce at once.
 - Before, an Announce at the timeout instant could pre-empt it.
 - The 1 s cadence counts from that Announce (Figure 10-15).
-- A mastership runs on this oscillator (802.1AS-2020 10.1.2.1).
+- A mastership runs on this oscillator.
+- That is its LocalClock (802.1AS-2020 10.1.2.1).
 - Taking the role always writes rate 0 to the PHC.
-- Before, it kept the slave's last trim unless a slew was active.
+- Before, it kept the slave's last trim.
+- Only an active slew applied the write.
 - scaledLastGmFreqChange is the negated slave estimate.
 - No engine or top-level port, parameter or register changes.
 - The ROM ledger adds the row; `gptp_ucode.hex` changes.

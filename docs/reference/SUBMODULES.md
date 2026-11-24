@@ -969,17 +969,23 @@ The generator's options are unchanged, so the builder is too.
 
 The donor's reviewed head `331e27de` has the merged tree, `7b579e33`.
 
-The release images were routed at lane commit `973f2f20`, the gitlink move.
+The release images were routed at lane commit `973f2f20`.
+
+That commit is the gitlink move.
 
 Later commits change no synthesis input.
 
 The base is `300da99b`, whose image inputs were routed at `c2b2ba1a`.
 
-Both use the release recipe: the split image, one interface, Vivado 2026.1.
+Both use the release recipe: the split image, one interface.
 
-Each takes the first directive that meets the build floor, in the recipe's order.
+Directives run in the recipe's order.
 
-At 1x1 the first missed, as on the base, so all three were routed.
+Each image takes the first that meets the build floor.
+
+At 1x1 the first missed, as on the base.
+
+So all three were routed there.
 
 | Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | BRAM tiles | DSP |
 |---|---|---:|---:|---:|---:|---:|
@@ -990,17 +996,25 @@ At 1x1 the first missed, as on the base, so all three were routed.
 | 1x1/1if, ExtraTimingOpt, selected | +0.170 / +0.024 ns | 32,639 | 42,805 | 14,147 | 80.5 | 13 |
 | 1x1/1if, AltSpreadLogic_high | +0.072 / +0.024 ns | 32,633 | 42,803 | 14,142 | 80.5 | 13 |
 
-Every route completes with no routing error and no failing endpoint.
+Every route completes with no routing error.
+
+No route has a failing endpoint.
 
 Each selected image meets the build floor at every corner.
 
-The 8x8/1if image is 375 LUTs smaller, with 43 more FFs and 52 more slices.
+The 8x8/1if image is 375 LUTs smaller.
 
-The 1x1/1if image is 41 LUTs smaller, with equal FFs and 150 fewer slices.
+It has 43 more FFs and 52 more slices.
+
+The 1x1/1if image is 41 LUTs smaller.
+
+It has equal FFs and 150 fewer slices.
 
 BRAM and DSP are equal at both shapes.
 
-The donor measured +455 LUTs at 8x8/1if against an older parent.
+The donor measured +455 LUTs at 8x8/1if.
+
+Its base was an older parent.
 
 The [owner accepted that growth](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108#issuecomment-7121892317) as a recorded exception.
 
@@ -1008,7 +1022,7 @@ On this base the growth does not appear.
 
 The 8x8 worst setup path is `KL_mbx` read data.
 
-The selected 1x1 image's is the SoC bus bridge into the UART FIFO.
+At 1x1 it ends at the SoC's UART FIFO.
 
 Its worst hold path is in `chan_map_render`.
 
