@@ -35,7 +35,8 @@ usage: python3 -I kept_grade.py <build-dir> [--results DIR] | --selftest
 Exit 0 = every condition held; 1 = a finding, or a group's log missing.
 --selftest grades synthetic logs at 1x1/1if, through held, Disposition and the standalone entry point: each
 condition's breach is a finding of its own, by name, a record over its charge and the bound path's build of one and
-passes over THE SHARE among them, nothing is owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly
+passes over THE SHARE among them, a record whose tagged frame carries Talker values charged them (held at that charge,
+one cycle more a finding), nothing is owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly
 holds and one cycle more breaks, a pass given whole to THE TRANSMIT's build over the slice stays a failure, and a
 record is its own probe's, never an earlier mark's.
 """
@@ -129,12 +130,13 @@ def dearest(log: grade.Log, names: list[str], charge: Callable[[int], int] | Non
 def charges(log: grade.Log, shape: shape_costs.Shape, name: str) -> Callable[[int], int]:
     """The drain's charge of the group's SRP record that starts at a CPU cycle, in CPU cycles: CTRL_LOOP_SRP_UNIT_US
     plus CTRL_LOOP_SRP_REG_US for each Talker value its own tagged frame carries (poll_grade.record_limits), from the
-    group's steps at the shape (#977)."""
+    group's steps at the shape (#977). A record here is its handler's own span, starting on the handler's cycle, so its
+    charge is the last handler's to start at or before it (charged takes the last strictly before)."""
     unit = shape_costs.at(shape, scenario.ROOT)[UNIT] * log.cpu_hz // 1_000_000
     point = scenario.Point('', '', shape.interfaces, 0, 0, shape.sources, shape.sinks)
     steps = next(g.steps for g in kept_window.groups(point) if g.name == name)
     limits = poll_grade.record_limits(log, poll_grade.spans(log), shape, unit, list(steps))
-    return lambda start: poll_grade.charged(limits, start, unit)
+    return lambda start: poll_grade.charged(limits, start + 1, unit)
 
 
 def over_share(log: grade.Log) -> tuple[list[tuple[int, int]], list[tuple[int, int]]]:
@@ -327,6 +329,10 @@ class Synthetic:
                            f'TXC 9500020 {srp} 0', f'TXC 9500030 {srp} 0')   # each at the head, so no record to read
         self.slice = slice_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limit']
         self.limits = limits
+        #: the drain's charge of srp.bound_advertise's record (and srp.kept_advertise's), its tagged frame's Talker
+        #: values, one a sink, each CTRL_LOOP_SRP_REG_US past the unit
+        self.values = poll_grade.talker_values(kept_window.declared(0, self.shape.sinks), self.shape.sinks)
+        self.charge = (self.unit + self.values * poll_grade.registration_us(self.shape)) * self.hz // 1_000_000
         #: a build of one MRPDU one cycle over the slice (and so over its stated cost, below the slice), and a pass
         #: given whole to THE TRANSMIT's build over the slice and within CTRL_LOOP_BUILD_PASS_US (above the slice)
         self.one_cycles, self.whole_cycles = self.slice + 1, (self.slice + limits['build']) // 2
@@ -335,23 +341,31 @@ class Synthetic:
         self.slice_whole = (f'PASS 2 9700000 9700000 {self.whole_cycles}', 'ENTRY 9700010 build_mrpdu',
                             f'TXC 9700020 {srp} 0', f'TXC 9700030 {srp} 0')
         self.spec = dict(sys_hz=self.hz, cpu_hz=self.hz, interfaces=1)
+        #: whether each record's frame is committed to SRP carrying its probe's name (text)
+        self.tagged = False
 
     @staticmethod
-    def text(probes: list[tuple[str, int | None]], extra: tuple[str, ...] = (), result: str = 'PASS') -> str:
-        """A log of the probes' marks, each followed by a record of those cycles, or none, then the extra lines."""
+    def text(probes: list[tuple[str, int | None]], extra: tuple[str, ...] = (), result: str = 'PASS',
+             tagged: bool = False) -> str:
+        """A log of the probes' marks, each followed by a record of those cycles, or none, then the extra lines;
+        tagged, each record's frame is committed to SRP carrying its probe's name first, so the record is charged that
+        frame's Talker values."""
         lines = []
         for k, (probe, c) in enumerate(probes):
             at = 1_000_000 * (k + 1)
             lines.append(f'MARK {at} {probe}')
+            if c is not None and tagged:
+                lines += [f'RXS {at + 1} 0 60 {probe}', f'RXE {at + 50}', f'RXC {at + 60} {scenario.CH["srp"]}']
             if c is not None:
                 lines.append(f'SPAN {at + 100} {at + 100} {c} 00002000 {RECORD}')
         return '\n'.join([*lines, *extra, 'SUMMARY passes=1', f'RESULT: {result}']) + '\n'
 
     def texts(self, kept: list[int | None], bound: list[tuple[str, int | None]], kept_extra: tuple[str, ...] = (),
               bound_extra: tuple[str, ...] = (), kept_result: str = 'PASS') -> dict[str, str]:
-        """srp-kept's three probes, those cycles each, and srp-bound's probes, each log with its extra lines."""
-        return {kept_window.NAME: self.text(list(zip(self.KEPT, kept)), kept_extra, kept_result),
-                kept_window.BOUND: self.text(bound, bound_extra)}
+        """srp-kept's three probes, those cycles each, and srp-bound's probes, each log with its extra lines, their
+        frames tagged where self.tagged is set."""
+        return {kept_window.NAME: self.text(list(zip(self.KEPT, kept)), kept_extra, kept_result, self.tagged),
+                kept_window.BOUND: self.text(bound, bound_extra, tagged=self.tagged)}
 
     def graded(self, *args, **kwargs) -> tuple[list[str], list[str]]:
         """The owed lines and the findings of held on those logs; an exception is a finding of its own."""
@@ -393,8 +407,17 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
     unfinished = s.graded(*s.clean, kept_result='FAIL')
     unmarked = s.graded([1_000, 1_000], [('srp.bound_advertise.if0', s.edge)])
     unmated = s.graded(s.clean[0], [('srp.bound_advertise.if1', s.edge)])
+    s.tagged = True
+    charged = {name: s.graded([s.charge, s.edge, 1_000], [('srp.bound_advertise.if0', s.charge + extra)])
+               for name, extra in (('at', 0), ('past', 1))}
+    s.tagged = False
     return [(f'records at the unit by the rule ({s.edge:,} cycles, {s.unit} us), kept <= bound: nothing owed or found',
              within == ([], []), str(within)),
+            (f'records whose tagged frames carry Talker values are charged them: at the unit and CTRL_LOOP_SRP_REG_US '
+             f'for each of {s.values} ({s.charge:,} cycles, past the unit) they hold, one cycle more is its own '
+             f'probe\'s finding', s.values == s.shape.sinks > 0 and charged['at'] == ([], []) and
+             charged['past'][0] == [] and only(charged['past'][1], 'srp.bound_advertise.if0', 'over its charge',
+                                                f'{s.charge:,}'), str(charged)),
             ('records past their charge with kept <= bound are findings, each its own probe\'s, and nothing is owed',
              owed[0] == [] and len(owed[1]) == 2 and all('over its charge' in f for f in owed[1]) and
              any(f.startswith('srp.kept_advertise') for f in owed[1]) and
