@@ -439,10 +439,12 @@ That run built the case and ran it, with ci-prepare's three entity images.
 Its hosted window is owed by the first hosted run of a head that carries it.
 
 #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
-Their `scripts/suite_shards.py` figures, 38 s and 107 s, are not hosted windows.
-Each is the sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs.
-The longer of two such runs took 23.8 s and 67.7 s, each scaled by 1.58 and rounded up.
-Their hosted windows are owed by the first hosted run of a head that carries them.
+Both are provisional under the selftest's new-suite steps: each figure in `scripts/suite_shards.py` is 300 s.
+That is the `suite_timeout` arm `scripts/run_all_suites.sh` gives each suite, as for `reboot_ctrl`.
+The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within its 1620 s bound.
+The sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs, took at most 34.2 s and 98.0 s.
+Those runs were at a host load average near 206, so each arm keeps at least three times its slowest run.
+Measured hosted windows replace both figures after the first hosted run of a head that carries them.
 
 #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
 added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.

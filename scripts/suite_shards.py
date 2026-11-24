@@ -108,8 +108,8 @@ SUITE_SECONDS = {
     "gptp_txts": 72,
     "i2spb": 6,
     "ifg": 6,
-    "input_loopback": 38,
-    "input_loopback_dp": 107,
+    "input_loopback": 300,
+    "input_loopback_dp": 300,
     "lat_history_ring": 6,
     "link_guard": 7,
     "maap": 1375,
@@ -147,8 +147,8 @@ SUITE_SECONDS = {
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps): reboot_ctrl.
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"reboot_ctrl"})
+#: measures it (step 3 of the module docstring's new-suite steps).
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"input_loopback", "input_loopback_dp", "reboot_ctrl"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
