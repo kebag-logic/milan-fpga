@@ -1,0 +1,29 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from ArtyPhy
+[ RUN      ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters
+[       OK ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters (0 ms)
+[ RUN      ] ArtyPhy.TenOnlyPartnerNeverPublishesUp
+[       OK ] ArtyPhy.TenOnlyPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp
+[       OK ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart
+[       OK ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart (0 ms)
+[ RUN      ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated
+[       OK ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated (0 ms)
+[ RUN      ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback
+[       OK ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback (0 ms)
+[ RUN      ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing
+[       OK ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing (0 ms)
+[ RUN      ] ArtyPhy.NoFrameWithoutStepBudget
+[       OK ] ArtyPhy.NoFrameWithoutStepBudget (0 ms)
+[----------] 8 tests from ArtyPhy (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 8 tests.
+== platboot-mii: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
+MODE noguard ARM platboot RC 0

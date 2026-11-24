@@ -1,0 +1,34 @@
+base endstation_ax7101_1x1_tdm8 all-fabric rc=0
+base endstation_ax7101_1x1_tdm8 split rc=0
+base endstation_ax7101_8x8 all-fabric rc=0
+base endstation_ax7101_8x8 split rc=0
+base endstation_arty_current all-fabric rc=0
+base endstation_arty_current split rc=0
+base endstation_arty_4x4 all-fabric rc=0
+base endstation_arty_4x4 split rc=0
+base endstation_arty_8ch all-fabric rc=0
+base endstation_arty_8ch split rc=0
+base endstation_arty_split ABSENT
+head endstation_ax7101_1x1_tdm8 all-fabric rc=0
+head endstation_ax7101_1x1_tdm8 split rc=0
+head endstation_ax7101_8x8 all-fabric rc=0
+head endstation_ax7101_8x8 split rc=0
+head endstation_arty_current all-fabric rc=0
+head endstation_arty_current split rc=0
+head endstation_arty_4x4 all-fabric rc=0
+head endstation_arty_4x4 split rc=0
+head endstation_arty_8ch all-fabric rc=0
+head endstation_arty_8ch split rc=0
+head endstation_arty_split all-fabric rc=0
+head endstation_arty_split split rc=0
+== compare (AX7101 rows must be identical)
+DIFFERS endstation_arty_4x4-all-fabric 14 diff lines
+DIFFERS endstation_arty_4x4-split 14 diff lines
+DIFFERS endstation_arty_8ch-all-fabric 14 diff lines
+DIFFERS endstation_arty_8ch-split 14 diff lines
+DIFFERS endstation_arty_current-all-fabric 14 diff lines
+DIFFERS endstation_arty_current-split 14 diff lines
+IDENTICAL endstation_ax7101_1x1_tdm8-all-fabric 11 files
+IDENTICAL endstation_ax7101_1x1_tdm8-split 11 files
+IDENTICAL endstation_ax7101_8x8-all-fabric 11 files
+IDENTICAL endstation_ax7101_8x8-split 11 files

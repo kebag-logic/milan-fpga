@@ -1,0 +1,28 @@
+FAIL: long module 14 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: over-long line 16 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+gptp-processor/hdl/ucode/gen_gptp_ucode.py                  long module=1
+protocol-processor/hdl/aecp/ucode/gen_ucode.py              long module=1
+scripts/act_ci.py                                           long module=1
+scripts/check_baremetal_only.py                             long module=1
+scripts/ci_events.py                                        long module=1
+scripts/png_artifact.py                                     too many parameters=1
+scripts/xvlog_gate.py                                       long module=1
+sw/builder/endstation_builder.py                            long module=1
+sw/builder/test_builder.py                                  long function=4  long module=1
+sw/firmware/ctrl/test/ctrl_mutants.py                       long module=1
+sw/firmware/ctrl/test/plat_mutants.py                       over-long line=1
+sw/litex/milan_soc.py                                       long function=5  long module=1  too many parameters=6
+sw/trace/trace_segment.py                                   os.path use=1
+tb/tools/torture_campaign.py                                long module=1
+tb/verilator/ctrl_region_decode/region_soc.py               over-long line=2
+tb/verilator/ctrl_region_decode/run.py                      over-long line=1
+tb/verilator/ctrl_service_budget/edit_rows.py               over-long line=1
+tb/verilator/ctrl_service_budget/egress_ledger.py           over-long line=2
+tb/verilator/ctrl_service_budget/load_grade.py              over-long line=4
+tb/verilator/ctrl_service_budget/poll_grade.py              over-long line=1
+tb/verilator/ctrl_service_budget/record_classes.py          over-long line=1
+tb/verilator/ctrl_service_budget/rows_grade.py              over-long line=1
+tb/verilator/ctrl_service_budget/rows_tiers.py              long module=1  over-long line=2
+tb/verilator/ctrl_service_budget/scenario.py                long module=1
+tb/verilator/ctrl_service_budget/selftest.py                long module=1
+

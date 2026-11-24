@@ -1,0 +1,13 @@
+PASS test_gptp_latency_writable_key
+PASS test_gptp_latency_corrections_are_declared_and_carried
+  6 configs: decided identity, no zero octet, one U/L-bit warning each
+  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn
+  CLI: warning on stderr, exit 0, outputs written
+PASS test_station_mac_ul_bit_warns
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+PASS test_audio_unit_rates_loader_contract
+  [gate 23n] 6 configs, 3 shipping the split, each split variant differing from its all-fabric one in CTRL_SPLIT_P = 1 and --ctrl-mailbox --ctrl-firmware <its split image> alone; 3 bad keys refused by name; a split key naming the fabric firmware refused; the flip reverted at 8x8 refused
+PASS test_control_placement_key
+  [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 42 with build.sh unedited; the other 34 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+PASS test_build_sh_argv_follows_the_config
+RESULT PASS 0
