@@ -137,7 +137,14 @@
 `default_nettype none
 
 module KL_tdm_render_master #(
-  parameter int unsigned SLOTS_P       = 8,   //! TDM slots per frame (8/16/32)
+  //! RENDERED slots: the first SLOTS_P slots of the bus frame carry the bank
+  //! (8/16/32 for a full-width lane, or fewer on a wider bus, #584)
+  parameter int unsigned SLOTS_P       = 8,
+  //! THE BUS FRAME'S slots (#584). The frame is the timing owner's, so its
+  //! length is BUS_SLOTS_P * SLOT_BITS_P bit clocks whatever SLOTS_P is;
+  //! slots SLOTS_P..BUS_SLOTS_P-1 serialize zero and have no storage. The
+  //! default is a full-width lane, which elaborates exactly as before.
+  parameter int unsigned BUS_SLOTS_P   = SLOTS_P,
   //! bit clocks per slot. A POWER OF TWO: the bit schedule is a slice of the
   //! exported frame position rather than a divider of its own, which is what
   //! keeps this module free of a second frame counter. The guard below
@@ -145,7 +152,8 @@ module KL_tdm_render_master #(
   parameter int unsigned SLOT_BITS_P   = 32,
   parameter int unsigned FIFO_LOG2_P   = 2,   //! frame CDC depth = 2^N (>= 2
                                               //! for the active/next pair)
-  //! width of frame_pos_i = $clog2(SLOTS_P * SLOT_BITS_P) at the timing owner
+  //! width of frame_pos_i = $clog2(BUS_SLOTS_P * SLOT_BITS_P) at the timing
+  //! owner
   parameter int unsigned FRAME_POS_W_P = 8
 )(
   input  wire         clk_i,             //! datapath clock (producer domain)
@@ -153,7 +161,8 @@ module KL_tdm_render_master #(
 
   // ---- producer side (clk_i domain; slot-indexed writes) ---------------
   input  wire         smp_wr_en_i,       //! one-cycle per-slot write strobe
-  input  wire [$clog2(SLOTS_P)-1:0] smp_wr_slot_i, //! target slot index
+  //! target slot index; one bit wide for a one-slot lane
+  input  wire [((SLOTS_P <= 1) ? 1 : $clog2(SLOTS_P))-1:0] smp_wr_slot_i,
   input  wire [23:0]  smp_wr_data_i,     //! 24-bit sample (MSB-justified)
   input  wire         tick_i,            //! one-cycle frame commit: latch the
                                          //! bank as written up to the prior
@@ -197,12 +206,14 @@ module KL_tdm_render_master #(
   output wire  [15:0] epochs_o           //! completed epoch reopenings
 );
 
-  localparam int unsigned SW_C    = $clog2(SLOTS_P);       //! slot-index width
+  //! the BUS slot index sliced out of frame_pos_i (#584: the bus's, not the
+  //! lane's, so a narrower lane still frames the whole bus)
+  localparam int unsigned SW_C    = $clog2(BUS_SLOTS_P);
   localparam int unsigned SBW_C   = $clog2(SLOT_BITS_P);   //! bit-index width
   localparam int unsigned DBITS_C =
       (SLOT_BITS_P < 24) ? SLOT_BITS_P : 24;               //! data bits/slot
   localparam int unsigned FRAME_BITS_C = SLOTS_P * 24;     //! packed frame
-  localparam int unsigned FRAME_C = SLOTS_P * SLOT_BITS_P; //! bclks per frame
+  localparam int unsigned FRAME_C = BUS_SLOTS_P * SLOT_BITS_P; //! bclks/frame
 
   //! The bit schedule is a SLICE of frame_pos_i (slot = pos / SLOT_BITS_P,
   //! bit = pos % SLOT_BITS_P), which is only a slice when SLOT_BITS_P is a
@@ -214,9 +225,16 @@ module KL_tdm_render_master #(
            SLOT_BITS_P);
   end : g_slot_bits_guard
   if (32'(FRAME_POS_W_P) != $clog2(FRAME_C)) begin : g_frame_pos_guard
-    $error("KL_tdm_render_master: FRAME_POS_W_P=%0d does not match $clog2(SLOTS_P*SLOT_BITS_P)=%0d, so the exported frame position is not the one this schedule slices.",
+    $error("KL_tdm_render_master: FRAME_POS_W_P=%0d does not match $clog2(BUS_SLOTS_P*SLOT_BITS_P)=%0d, so the exported frame position is not the one this schedule slices.",
            FRAME_POS_W_P, $clog2(FRAME_C));
   end : g_frame_pos_guard
+  //! #584: the slot index is a slice of frame_pos_i only when the bus's slot
+  //! count is a power of two, and a lane cannot render slots its bus lacks
+  if ((BUS_SLOTS_P != (1 << SW_C)) || (SLOTS_P < 1)
+      || (SLOTS_P > BUS_SLOTS_P)) begin : g_bus_slots_guard
+    $error("KL_tdm_render_master: SLOTS_P=%0d, BUS_SLOTS_P=%0d. The bus slot count must be a power of two and the rendered slots 1..BUS_SLOTS_P (the first SLOTS_P slots of the bus frame).",
+           SLOTS_P, BUS_SLOTS_P);
+  end : g_bus_slots_guard
 
   // ======================================================================
   //  Cross-domain level synchronisers (2-FF, the blessed idiom).
@@ -412,7 +430,17 @@ module KL_tdm_render_master #(
   //! bit period p + 1 is slot p[.. : SBW_C], bit p[SBW_C-1 : 0]
   wire [SW_C-1:0]  bit_slot_w = frame_pos_i[FRAME_POS_W_P-1 -: SW_C];
   wire [SBW_C-1:0] bit_idx_w  = frame_pos_i[SBW_C-1 : 0];
-  wire [23:0]      bit_smp_w  = frame_sel_w[24*bit_slot_w +: 24];
+  wire [23:0]      bit_smp_w;
+  //! a full-width lane (BUS_SLOTS_P == SLOTS_P) indexes its frame exactly as
+  //! before #584; a narrower one serializes zero past its last stored slot
+  if (BUS_SLOTS_P == SLOTS_P) begin : g_full_lane
+    assign bit_smp_w = frame_sel_w[24*bit_slot_w +: 24];
+  end : g_full_lane
+  else begin : g_narrow_lane
+    assign bit_smp_w = (32'(bit_slot_w) < SLOTS_P)
+                     ? frame_sel_w[24*32'(bit_slot_w) % FRAME_BITS_C +: 24]
+                     : 24'd0;
+  end : g_narrow_lane
   //! MSB first, the top DBITS_C bits of the slot are data, the rest pad ZERO
   wire [4:0]       didx_w     = 5'd23 - 5'(bit_idx_w);
   wire             dbit_w     = (32'(bit_idx_w) < DBITS_C) ? bit_smp_w[didx_w]

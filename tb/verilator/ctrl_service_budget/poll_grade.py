@@ -134,13 +134,17 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: 8x8/1if's reclaim is 3,446 cycles in srp-talker-held, 40 us by the rule.
 #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if base
 #: 28,417 CPU cycles (the valid-destinations arm, srp-talker-held), 300 us; 8x8/1if retained 35,350 CPU cycles (the
-#: valid-destinations arm, srp-talker-held), 375 us, each by the rule. With #977's round 2 (the drain's charge, THE
-#: SETTLE, lwSRP's one-interface options), measured over every group of every arm on its image (f7d07720, the image
-#: 3de17804 links unchanged there), the walk is 18,004 cycles in arm A's srp-register-burst, a registrar walk
-#: after a record that replaced every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other
-#: item is within this table's.
+#: valid-destinations arm, srp-talker-held), 375 us, each by the rule.
+#: On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972), measured over every
+#: arm and group: 8x8/1if a notice longer than AECP_FAN_BYTES 30,948 CPU cycles (the declaring-outputs arm's
+#: aecp-largest-notice; arm A's 30,912), 325 us by the rule (record_classes.rule), raised with every owner bound
+#: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
+#: rule while every owner bound holds). With #977's round 2 (the drain's charge, THE SETTLE, lwSRP's one-interface
+#: options), measured over every group of every arm on its image (f7d07720, the image 3de17804 links unchanged
+#: there), the walk is 18,004 cycles in arm A's srp-register-burst, a registrar walk after a record that replaced
+#: every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within this table's.
 EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=190, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
-                 aecp_long=320, acmp_declined=30)
+                 aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}
 

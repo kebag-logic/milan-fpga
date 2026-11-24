@@ -131,6 +131,17 @@ static unsigned running(struct aecp *a, uint16_t type, uint16_t index)
 	return (type == 5u ? info.bound : info.running) ? AECP_STREAM_IS_RUNNING : AECP_SUCCESS;
 }
 
+// The checks a waiting command makes again once the platform applied it, before it is done again (#950): a
+// SET_STREAM_FORMAT's running check, since its STREAM_INPUT may have been bound or its STREAM_OUTPUT started while
+// it waited, refusing it with the status its dispatch gives (IEEE 1722.1-2021 7.4.9, 8.2). The change the waiting
+// command noted names it: SET_STREAM_FORMAT alone notes a format, and nothing notes while one waits (aecp_rx refuses
+// every change and aecp_poll's expiry waits for it). The other commands of AECP_WAITS are done again as they were
+// taken.
+unsigned aecp_again(struct aecp *a)
+{
+	return a->noted == AECP_CHANGE_FORMAT ? running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;
+}
+
 static unsigned any_running(struct aecp *a)
 {
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {

@@ -59,10 +59,18 @@ struct srp_interface {
     bool listener_present[CTRL_SRP_SOURCES];
     bool active[CTRL_SRP_SOURCES];
     bool stop_owed[CTRL_SRP_SOURCES];
+    // The Listener declaration registered for each source's stream on this interface as its indication last copied it
+    // (IEEE 802.1Q-2018 35.2.2.7.2: 1 Asking Failed, 2 Ready, 3 Ready Failed; 0, Ignore, at a registration's end), what
+    // its STREAM_OUTPUT shows while the source's DA gate is open: a change there is noticed too (#957, listener).
+    uint8_t declaration[CTRL_SRP_SOURCES];
     uint16_t rx_mark;
     bool discard_prefix;
     bool link_seen;
     bool link;
+    // Bit 0 the level the last LINK the loop dispatched carried, the register's at attach; bit 1 set by a poll that
+    // read an UP no LINK carried, cleared by one that reads a DOWN. The poll takes an UP only while bit 0 is set, or
+    // once no LINK is owed after bit 1 was set (#973; srp_mbx.c, carried_up)
+    uint8_t link_carried;
     bool vlan_sent;
     bool domain_owed;
     // A Talker's indication, a declaration or a binding changed what snapshot
@@ -98,8 +106,9 @@ struct srp_interface {
     // What a source's STREAM_OUTPUT GET_STREAM_INFO shows of its declaration (#936; Milan v1.2 5.4.5.2, Table 5.22:
     // the Talker declaration state, the failure code, the stream VLAN ID), bit s source s: shown and shown_advertise
     // hold talkers and its Talker Advertises as declare_sources last published them, shown_vid the VID they carry,
-    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID
-    // since the composition last took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
+    // and noticed the sources declared, withdrawn, swapped between Advertise and Failed or carrying another VID, or
+    // whose Listener's declaration changed while their DA gate is open (#957, listener), since the composition last
+    // took it (ctrl_app_srp.c), which AECP notifies. A reset keeps them, as talkers.
     uint32_t shown;
     uint32_t shown_advertise;
     uint32_t noticed;
@@ -129,23 +138,39 @@ struct srp_mbx_config {
     // srp_mbx_gate (#895).
     bool sources_valid;
 };
+// The Talker attributes an interface keeps for StreamIDs none of its bindings holds, so a binding made later takes
+// their registration (#969; Milan v1.2 5.3.8.5, 5.5.3.5.18 step 4; IEEE 802.1Q-2018 10.7.8's NOTE, a likely future
+// Member): one for each STREAM_INPUT of the shape, as the release processor's listener keeps (KL_srp_listener_fsm.sv,
+// its port registrars), each an lwSRP attribute and so a medium block of the pool. The pool's fixed 16 an interface
+// funds them: beside its sources' three and its sinks' four, an interface's attributes are its Domain's and its
+// default VID's, at most four while a Domain is adopted (srp_mbx.c change_domain: the old and the new of each), so
+// up to 12 kept leave the rest the pool held before.
+#define SRP_KEPT_TALKERS CTRL_SRP_SINKS
+#define SRP_POOL_FIXED_BLOCKS 16u
+#define SRP_POOL_DOMAIN_BLOCKS 4u
+struct srp_kept {
+    struct msrp_stream_id stream_id;
+    uint8_t kind;   // the attribute's: 1 Talker Failed, 2 Talker Advertise (srp_sink.registered_kinds' bits)
+};
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.
 #define SRP_POOL_SMALL_BLOCKS (2u * MBX_N_IF)
-#define SRP_POOL_MEDIUM_BLOCKS ((16u + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
+#define SRP_POOL_MEDIUM_BLOCKS ((SRP_POOL_FIXED_BLOCKS + 3u * CTRL_SRP_SOURCES + 4u * CTRL_SRP_SINKS) * MBX_N_IF)
 #define SRP_POOL_LARGE_BLOCKS (2u * MBX_N_IF)
 #define SRP_POOL_N_CLASSES 3u
 #define SRP_POOL_ARENA_BYTES (SRP_POOL_SMALL_BLOCKS * 96u + SRP_POOL_MEDIUM_BLOCKS * 288u + SRP_POOL_LARGE_BLOCKS * 544u)
-// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, and
-// the kind registered latest, which its next binding takes (#925, srp_mbx_bind). Each registration is an lwSRP
-// attribute, whose instance takes a medium or large block (it is over the small class's 64 bytes), and a StreamID is
-// held only while both of its own are, so half the pool's medium and large blocks bound the StreamIDs held.
+// A StreamID no binding of its interface holds while its Talker Advertise and Talker Failed both stay registered, or
+// since a registration it was kept for (#969, talker_changed), and the kind registered latest, which its next binding
+// takes (#925, srp_mbx_bind). Each registration is an lwSRP attribute, whose instance takes a medium or large block (it
+// is over the small class's 64 bytes). A StreamID held with both kinds has both of its own, and one held with one kind
+// has a kept one, at most SRP_KEPT_TALKERS an interface: so half the pool's medium and large blocks and half the kept
+// bound bound the StreamIDs held.
 struct srp_held {
     struct msrp_stream_id stream_id;
     uint8_t interface;
     uint8_t latest_kind;
 };
-#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS) / 2u)
+#define SRP_HELD_STREAMS ((SRP_POOL_MEDIUM_BLOCKS + SRP_POOL_LARGE_BLOCKS + SRP_KEPT_TALKERS * MBX_N_IF) / 2u)
 struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
@@ -167,9 +192,17 @@ struct srp_mbx {
     uint32_t transmitted;
     uint32_t stops;
     uint32_t walks;        // registrar walks snapshot made (#665)
-    uint8_t tx_due;        // the interfaces that owe an MRPDU now: bit n, interface n (THE TRANSMIT's pass)
+    // What THE TRANSMIT owes, read whole (tx_owed) by its due and the poll: the interfaces that owe an MRPDU now, bit n
+    // interface n (THE TRANSMIT's pass), and the participant + 1 a build resumes at in the next slice, 0 none (THE
+    // TIERS). A build's pause takes its interface's due, so a due set again before the build ends is owed after it.
+    union {
+        struct {
+            uint8_t tx_due;
+            uint8_t tx_resume;
+        };
+        uint16_t tx_owed;
+    };
     uint8_t join_left[2u * MBX_N_IF];  // each participant's join timer: centiseconds left, 0 idle (tick)
-    uint8_t tx_resume;     // the participant + 1 a build resumes at in the next slice, 0 none (THE TIERS)
     // The retained receive's retry (#665): the blocks the pools had returned at its last refusal (ctrl_pool_returned),
     // and whether a retry was made since the last centisecond (tick).
     uint32_t pending_freed;
@@ -189,6 +222,17 @@ struct srp_mbx {
     // Ethernet header before it, so a frame is never copied (#665).
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
+    // Each interface's Talker attributes kept for StreamIDs none of its bindings holds (#969, srp_mbx.c keep_talker),
+    // after the frames, as only a Talker no binding holds reads them, and before held, which stays last so that the
+    // code reading the rest compiles as it did (a trailing array's bound is not assumed): kept_count is those its
+    // participant held at the last count of them (count_kept) and each one the filter kept since, at most the pool's
+    // attribute blocks, under 256, and kept lists the first SRP_KEPT_TALKERS of them; kept_due, what owes the next
+    // receive a count (srp_mbx.c SRP_KEPT_BOUND, SRP_KEPT_PENDING), and kept_returned, the blocks the pools had
+    // returned at that count (ctrl_pool_returned). A reset zeroes the count with the participants (reset_interface).
+    uint32_t kept_returned[MBX_N_IF];
+    uint8_t kept_count[MBX_N_IF];
+    uint8_t kept_due[MBX_N_IF];
+    struct srp_kept kept[MBX_N_IF][SRP_KEPT_TALKERS];
     // After them, as it is read only through a scan from its start (#925).
     struct srp_held held[SRP_HELD_STREAMS];
 };

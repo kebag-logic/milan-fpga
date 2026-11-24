@@ -74,7 +74,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | CSR, fabric protocol/media RX/TX, PHC, CLKV, CRF, RMON, and link guard |
 | `obj_nxn` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4 | the 0x800 window → real engines, per-stream routing, TRAP-1 |
 | `obj_nxndv` | `sim_nxn.cpp` | arty_4x4 with a GENERATED divergent header (input row 1 declares the 96 kHz base) | the per-row format facts: every tracked config is row-uniform, so only this leg can prove the verdict base and reset GET answer are the ADDRESSED row's and not row 0's -- same channel count on both rows, so the base is the one discriminator. `gen_divergent_shape.py` emits the header and the bench expectations at build time, like `ltn_rom.hex` |
-| `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target, retired input-pool posture, dynamic output maps, and loopback lane |
+| `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target, one mono cluster per input port (#584), dynamic output maps, and loopback lane: the loopback-on control beside `milan_dp_render`'s `ship8`, the shipping lane-off render parameters at the pins |
 | `obj_nxn4c` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4, 4 wire channels | the shipping Arty shape (framer width ≠ shadow reset) |
 | `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
 | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
@@ -112,7 +112,9 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, fifteen plants and what it finds
 - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
 - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
+- **[One stream bound to several Stream Inputs on the split half (obj_twin8_\*, #948)](#one-stream-bound-to-several-stream-inputs-on-the-split-half-obj_twin8_-948)** -- The split half at the 8x8 shape with its own firmware: a controller binds two, then three Stream Inputs to one peer talker's stream over ACMP and unbinds one, each bound input counting and receiving every PDU, and the planted defect #948 found
 - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
+- **[The #972 link from reset (obj_linkreset_\*)](#the-972-link-from-reset-obj_linkreset_)** -- The split datapath at 1x1/1if and 8x8/1if from reset with the PHY's link retained: no frame before the firmware's publication, the gPTP plane's frames after it, a refused boot that sends nothing, and a planted reset at link up caught
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1846,6 +1848,59 @@ must exit 1 and print the `MAPS-STORE`, `MAPS-FORMAT` (4 channels) and
 `srptx`, these targets are this leg's own, outside the suite's `run` inventory.
 
 
+## One stream bound to several Stream Inputs on the split half (`obj_twin8_*`, #948)
+
+`make twin-fanout` builds the split half at the 8x8 shape with one interface:
+`tb_split_top` at `N_STREAMS_P = 8`, with the 8x8 split image's platform
+firmware (`twin_fw.py` on `configs/endstation_ax7101_8x8.yaml`). It runs the
+binary with `--fanout` ([`twin_split.cpp`](twin_split.cpp), `fanout_main`).
+The twin's own shape, 1x1, has one AAF Stream Input. Its comparison is also
+between two placements of one datapath, so a defect inside that datapath is
+no difference between them. This leg grades the split half on its own.
+
+After the boot, a controller binds STREAM_INPUT 0 and 1 to one peer talker's
+stream over ACMP. The talker answers each PROBE_TX_COMMAND with the stream's
+stream_id (IEEE 1722.1-2021 8.2.1.5). The controller then binds STREAM_INPUT 2
+as well, and unbinds 1. Four AAF PDUs of the stream follow each step. Each
+check prints PASS or FAIL with its label and words, and the binary exits 1 on
+any FAIL:
+
+| Label | What it holds |
+|---|---|
+| `FAN-TWO` | inputs 0 and 1 each count every PDU in GET_COUNTERS (TIMESTAMP_VALID, Table 7-157 @24, counted on receipt); input 1 receives each (its DEPKT tally, the `0x800` window's PDUS word); input 2 counts and receives nothing; the depacketizer's shared total grows by one PDU per receiving input |
+| `FAN-THREE` | the same for inputs 0, 1 and 2 |
+| `FAN-UNBIND` | with input 1 unbound, inputs 0 and 2 go on counting and receiving, and input 1 counts and receives nothing |
+
+Input 0's PDUS word is the flat alias of the depacketizer's shared total
+(`milan_csr`'s index-0 snapshot of `PCMRX_CNT`). So input 0's share is graded
+through that total and the other inputs' tallies. FRAMES_RX commits at the end
+of Milan's observation interval, one second of datapath cycles, which this
+leg's short milliseconds do not reach. So it reads TIMESTAMP_VALID, and
+`sim_nxn`'s `[FAN]` section reads FRAMES_RX on the 8x8 datapath at its short
+interval.
+
+`make twin-fanout-plants` builds the same binary on a parser planted with the
+defect #948 found (`twin_fanout_plant.py`: each PDU to the highest matching
+table entry alone). The run must exit 1 and print the four failures
+`TWIN8_PLANT_WORDS` names, among them input 0 starved beside input 1. Like the
+twin, these targets are this leg's own, outside the suite's `run` inventory.
+
+`sim_nxn`'s `[FAN]` section also stops one of the two inputs bound to the
+stream (Milan v1.2 5.3.8.7, STOP_STREAMING over AECP), input 4 and then 6,
+and starts each again. While one is stopped, the other receives every PDU
+(its DEPKT tally) and the stopped input receives none, while its FRAMES_RX
+still counts each, a PDU received on this Stream Input (Table 5.6). After
+START both receive. Last, inputs 6 and 7 take the shortest Base format, one
+channel at 48 kHz (Milan v1.2 Table 6.1: 24 octets, 62-octet frames, 66
+behind a C-VLAN tag), and each counts and receives every PDU. Such a frame
+ends before the monitor's enqueue pulse. `make fan-stop-plants` builds
+`obj_nxn8` on a datapath whose stop gate is not per input
+(`fan_stop_plant.py`): `shared`, a stopped input among a PDU's accepting
+inputs discarding the PDU for all of them, and `one-index`, the accept
+pulse's one-index stop applied to every input's share.
+Each run must exit 1 and print the failures `FAN_STOP_WORDS_<plant>` names.
+This target is outside the suite's `run` inventory too.
+
 ## The #839 station MAC from reset (`obj_bootsa`)
 
 The defect: the processor's SRP engine runs from reset. The firmware writes
@@ -1972,6 +2027,56 @@ frame's source. The others:
   own check.
 
 What it does not grade: `nvm_boot()`'s own CSR traffic.
+
+## The #972 link from reset (`obj_linkreset_*`)
+
+The question: from reset, does the split datapath send anything before the
+firmware publishes the PHY's verified link? The datapath's effective link
+(`eff_link_w`) is the SoC's link-status word AND `LINK_CTRL[0]` AND the link
+guard's estimate. The gPTP plane's port enable, the mailbox's LINK level and
+the AVB_INTERFACE counters all read it. With the PHY's link retained, as after
+a reload that kept it, `LINK_CTRL[0]` resets to 1 and the guard's estimate
+qualifies, so the word's reset decides. The split's word resets to link down
+(`sw/litex/mac_link_status.py`, which `milan_soc.py`'s MilanMAC resets the
+word from). Before #972 it reset to link up.
+
+`sim_link_reset.cpp` elaborates `milan_datapath` at `CTRL_SPLIT_P = 1`, the
+gPTP plane at its product default, with each shape's parameters as the split
+SoC's export hands them (`LINKRESET_1X1_G`, `LINKRESET_8X8_G`). The fabric
+clock is 10 MHz and the plane's image is generated for it. The word is a sys
+register at the reset the Makefile reads from `mac_link_status.py`, crossed
+by two flops into the datapath clock, as MilanMAC's MultiReg crosses it. The
+bench is the MAC behind the boundary through the shared launch observer.
+The firmware's boot before its PHY poll arms is its own code:
+`ctrl_plat_csr.c`'s identity check and CSR policy, built for the host with the
+shape's generated policy, each access an AXI4-Lite transaction, at 3 ms. Two
+arms run from a fresh model at each shape:
+
+- **published**: the firmware's publication at 1,500 ms, after the plane's
+  boot cadence (1,200 ms), whose Pdelay_Req a link qualified from reset sends.
+  No frame crosses the MAC boundary before it; the plane's first Pdelay_Req
+  (`INITIAL_SEND_PDELAY_REQ` at the port's rise) follows it.
+- **refused**: no policy and no publication, as on a boot refused at the CSR
+  identity check. No frame in 1,600 ms.
+
+Each arm also checks that `LINK_CTRL[0]` and the guard's estimate qualify
+throughout, so only the word holds the link down, and that `o_ctl_link_up`,
+the mailbox's LINK level, stays down before the publication.
+
+`make linkreset` builds both shapes and runs the four arms;
+`make linkreset-plants` runs `linkreset_plants.py`. Its plant is made at the
+cause: a copy of `mac_link_status.py` whose link_up reset is 1 whatever owns
+the PHY. Under it the published arm must fail at each shape with "no frame
+crosses the MAC boundary before the firmware's publication". The leg is outside
+the hosted case inventory (`ORDINARY_CASES`), which takes a case only with a
+hosted measurement; run it by name.
+
+At the #972 head:
+
+| Shape | published | refused | plant |
+|---|---|---|---|
+| 1x1/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
+| 8x8/1if | PASS, 0 frames before; first Pdelay_Req 0.032 ms after the publication | PASS, 0 frames | caught: a Pdelay_Req before the publication |
 
 ## GM step re-base leg (#387)
 

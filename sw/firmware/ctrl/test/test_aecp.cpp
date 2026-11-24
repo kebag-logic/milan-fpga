@@ -283,6 +283,87 @@ struct Core : testing::Test {
 };
 }
 
+namespace {
+//! #584: the core with every dynamic map pool the image's shape generates, so each STREAM_PORT_INPUT can be
+//! enumerated and edited as a controller sees it (the platform composes the same pools, plat/ctrl_plat.c).
+struct Inputs : Core {
+    aecp_mapping rows[AECP_ENTITY_MAP_ROWS]{};
+    aecp_map pools[AECP_ENTITY_MAPS]=AECP_ENTITY_MAPS_INIT(rows);
+    void SetUp() override {
+        Core::SetUp();cfg.maps=pools;cfg.map_count=AECP_ENTITY_MAPS;
+        ASSERT_TRUE(aecp_init(&a,&cfg,&ports));aecp_open(&a);
+    }
+    //! READ_DESCRIPTOR of configuration 0's (type, index): the descriptor's bytes as they leave on the wire.
+    Bytes read(unsigned type,unsigned index) {
+        Bytes b(8);put(b,4,type,2);put(b,6,index,2);auto out=ask(4,b);
+        return out.size()>42?Bytes(out.begin()+42,out.end()):Bytes{};
+    }
+    //! The CONFIGURATION descriptor's count of `type` (IEEE 1722.1-2021 7.2.2: descriptor_counts).
+    unsigned count(unsigned type) {
+        auto c=read(1,0);unsigned n=get(c.data()+70,2),at=get(c.data()+72,2);
+        for(unsigned k=0;k<n;++k)if(get(c.data()+at+4*k,2)==type)return get(c.data()+at+4*k+2,2);
+        return 0;
+    }
+    //! Every STREAM_PORT_INPUT index, as a controller enumerates them: CONFIGURATION, then each AUDIO_UNIT's
+    //! number_of_stream_input_ports and base_stream_input_port (IEEE 1722.1-2021 7.2.3, Table 7-6).
+    std::vector<unsigned> input_ports() {
+        std::vector<unsigned> out;
+        for(unsigned u=0;u<count(2);++u){
+            auto unit=read(2,u);if(unit.size()<76)continue;
+            for(unsigned k=0;k<get(unit.data()+72,2);++k)out.push_back(get(unit.data()+74,2)+k);
+        }
+        return out;
+    }
+    Bytes page(unsigned index) { return ask(43,target(14,index,8)); }
+    Bytes rows_of(unsigned index,const Bytes &from,unsigned n) {
+        Bytes b=target(14,index,8+8*n);put(b,4,n,2);
+        std::copy(from.begin()+50,from.begin()+50+8*n,b.begin()+8);return b;
+    }
+};
+}
+
+// #584 (Milan v1.2 5.3.3.8 and 5.3.3.9; IEEE 1722.1-2021 7.2.13 and 7.2.16): the entity-model check a controller
+// makes. Every STREAM_PORT_INPUT the CONFIGURATION advertises, read over AECP, owns at least one AUDIO_CLUSTER and no
+// AUDIO_MAP, and each of its clusters is served and carries one channel.
+TEST_F(Inputs, EveryStreamPortInputOwnsAMonoCluster)
+{
+    const auto ports=input_ports();
+    ASSERT_GT(count(5),0u)<<"every tracked configuration has a STREAM_INPUT";
+    ASSERT_FALSE(ports.empty())<<"its AUDIO_UNIT lists a STREAM_PORT_INPUT";
+    for(unsigned p:ports){
+        auto port=read(14,p);ASSERT_GE(port.size(),20u)<<"STREAM_PORT_INPUT "<<p<<" is served";
+        unsigned clusters=get(port.data()+12,2),base=get(port.data()+14,2);
+        EXPECT_GE(clusters,1u)<<"STREAM_PORT_INPUT "<<p<<" owns an AUDIO_CLUSTER (Milan v1.2 5.3.3.8)";
+        EXPECT_EQ(get(port.data()+16,2),0u)<<"STREAM_PORT_INPUT "<<p<<" owns no AUDIO_MAP (Milan v1.2 5.3.3.9)";
+        for(unsigned k=0;k<clusters;++k){
+            auto c=read(20,base+k);ASSERT_GE(c.size(),86u)<<"AUDIO_CLUSTER "<<base+k<<" is served";
+            EXPECT_EQ(get(c.data()+84,2),1u)<<"AUDIO_CLUSTER "<<base+k<<" carries one channel";
+        }
+    }
+}
+
+// #584 (Milan v1.2 5.4.2.26 to 5.4.2.28): on every STREAM_PORT_INPUT, REMOVE_AUDIO_MAPPINGS of a non-empty list - the
+// mappings GET_AUDIO_MAP returns, one added first where the port holds none - succeeds, leaves the port's page empty,
+// and the same list is added back.
+TEST_F(Inputs, EveryStreamPortInputRemovesANonEmptyList)
+{
+    const auto ports=input_ports();
+    ASSERT_FALSE(ports.empty())<<"its AUDIO_UNIT lists a STREAM_PORT_INPUT";
+    for(unsigned p:ports){
+        auto out=page(p);unsigned n=get(out,46,2);
+        if(n==0){
+            Bytes add=target(14,p,16);put(add,4,1,2);put(add,8,p,2);ask(44,add);
+            out=page(p);n=get(out,46,2);
+        }
+        ASSERT_GE(n,1u)<<"STREAM_PORT_INPUT "<<p<<" holds a mapping to remove";
+        const Bytes list=rows_of(p,out,n);
+        ask(45,list);
+        EXPECT_EQ(get(page(p),46,2),0u)<<"STREAM_PORT_INPUT "<<p<<": the removed list leaves the page empty";
+        ask(44,Bytes(list));
+        EXPECT_EQ(get(page(p),46,2),n)<<"STREAM_PORT_INPUT "<<p<<": the same list is added back";
+    }
+}
+
 #ifdef AECP_TEST_NVM
 namespace {
 struct Nvm : Core {
@@ -824,6 +905,8 @@ struct AppOutputs : App {
     void connecting() override {
         static_assert(OUTPUTS==CTRL_SRP_SOURCES,"SRP declares every STREAM_OUTPUT's Talker");
         connection.n_sources=CTRL_SRP_SOURCES+1u;
+        // MAAP claims an address of every output, so each output's DA gate can open (#957)
+        entity.talker_stream_sources=uint16_t(OUTPUTS);
         for(unsigned n=0;n<connection.n_sources;++n)connection.source_interface[n]=uint8_t(n%MBX_N_IF);
         for(unsigned i=0;i<MBX_N_IF;++i){
             for(unsigned n=0;n<CTRL_SRP_SOURCES;++n)put(sources[i][n].value.stream_id.bytes,sid(n),8);
@@ -950,6 +1033,226 @@ TEST_F(AppOutputs, OutputInfoCarriesItsTalkersAddressAndItsListenersRegistration
     declaring[connection.n_sources]=true;
     EXPECT_FALSE(bridge.ports.stream(&bridge,0,6,uint16_t(connection.n_sources),&v))
         <<"an output ACMP holds no source for is not answered";
+}
+
+// #957 (Milan v1.2 5.4.5.2, Table 5.22: a Stream Output's MSRP Listener attribute registration state; IEEE 1722.1-2021
+// 7.5.2): at every STREAM_OUTPUT, while its DA gate is open, each change of the Listener registered for its
+// stream_id on its own interface, a Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going,
+// is one unsolicited GET_STREAM_INFO response of that output to every registered controller, carrying the new flags
+// (#943's REGISTERING and REGISTERING_FAILED). A Listener declared again unchanged, one on another interface and a pass
+// with no change notify nothing, and no other output is notified. Each output's DA gate, what the face reports as its
+// declaring, is held open, so its Talker declaration stays as it is across its Listener's changes: MAAP claims an
+// address of every output and a PROBE_TX_COMMAND every output's turn holds each gate's 15 s window (Milan v1.2
+// 4.3.3.1), so the Listener alone changes what an output shows.
+TEST_F(AppOutputs, ListenerRegistrationChangeIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);
+    unsigned cursor=fabric.tx_sent;
+    //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
+    struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
+    auto take=[&]{
+        std::vector<Seen> seen(OUTPUTS);
+        for(;cursor<fabric.tx_sent;++cursor){auto p=mbx_model_tx_frame(&fabric,cursor);
+            EXPECT_NE(p,nullptr)<<"each step's frames are read before the capture drops them";
+            if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x800fu||get(p->bytes+38,2)!=6u)continue;
+            const unsigned n=unsigned(get(p->bytes+40,2));
+            const uint64_t controller=get(p->bytes+26,8);
+            if(n>=OUTPUTS||(controller!=CTLR&&controller!=CTLR+1))continue;
+            ++seen[n].count[controller==CTLR?0:1];
+            seen[n].flags=uint32_t(get(p->bytes+42,4));seen[n].flags_ex=uint32_t(get(p->bytes+86,4));
+        }
+        return seen;
+    };
+    //! One notice of output n to each controller with `ex` and `failed`, and none of any other output.
+    auto once=[&](unsigned n,uint32_t ex,bool failed,const char *step){
+        const auto seen=take();
+        for(unsigned m=0;m<OUTPUTS;++m){
+            for(unsigned c=0;c<2u;++c){
+                EXPECT_EQ(seen[m].count[c],m==n?1u:0u)
+                    <<(m==n?"a Listener registration change is one notice of its STREAM_OUTPUT to every registered "
+                            "controller":"no other STREAM_OUTPUT is notified")<<": output "<<n<<", "<<step
+                    <<", output "<<m<<", controller "<<c;
+            }
+        }
+        EXPECT_EQ(seen[n].flags_ex,ex)<<"the notice carries the new REGISTERING: output "<<n<<", "<<step;
+        EXPECT_EQ(seen[n].flags&0x40u,failed?0x40u:0u)<<"the notice carries the new REGISTERING_FAILED: output "<<n
+                                                      <<", "<<step;
+    };
+    //! No notice of any output.
+    auto none=[&](const char *words,unsigned n,const char *step){
+        const auto seen=take();
+        for(unsigned m=0;m<OUTPUTS;++m)
+            EXPECT_EQ(seen[m].count[0]+seen[m].count[1],0u)<<words<<": output "<<n<<", "<<step<<", output "<<m;
+    };
+    //! A PROBE_TX_COMMAND of every output on its own interface (IEEE 1722.1-2021 8.2.1), so each DA gate is open.
+    auto probe=[&]{
+        for(unsigned m=0;m<OUTPUTS;++m){
+            acmp_test::Pdu p{};p.msg=0;p.controller=CTLR;p.talker=ENTITY;p.listener=0x0303cafef00d0001;
+            p.talker_uid=uint16_t(m);p.seq=uint16_t(0x700+m);
+            auto bytes=acmp_test::acmpdu(p);
+            ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),connection.source_interface[m]));settle(2);
+            take();
+        }
+    };
+    for(unsigned k=0;k<100u;++k){
+        bool held=true;
+        for(unsigned i=0;i<MBX_N_IF;++i)held=held&&application.maap.ifs[i].core.valid;
+        if(held)break;
+        settle(100);take();
+    }
+    probe();settle(400);take();
+    for(unsigned n=0;n<OUTPUTS;++n){
+        ASSERT_NE(reservation.ifs[connection.source_interface[n]].gate>>n&1u,0u)<<"every output's DA gate is open: "<<n;
+    }
+    for(unsigned n=0;n<OUTPUTS;++n){
+        const unsigned interface=connection.source_interface[n];
+        probe();
+        const uint32_t talker=reservation.ifs[interface].talkers>>n&1u;
+        declaring[n]=true;
+        listener(interface,sid(n),1u,2u);
+        once(n,1u,false,"Ready appears");
+        listener(interface,sid(n),1u,2u);
+        none("a Listener declared again unchanged notifies nothing",n,"Ready again");
+        listener(interface,sid(n),0u,2u);
+        none("a Listener declared New again unchanged notifies nothing",n,"Ready's New again");
+        listener(interface,sid(n),1u,3u);
+        once(n,1u,false,"Ready Failed replaces Ready");
+        listener(interface,sid(n),1u,1u);
+        once(n,1u,true,"Asking Failed replaces Ready Failed");
+        listener(interface,sid(n),1u,2u);
+        once(n,1u,false,"Ready replaces Asking Failed");
+        settle(1000);
+        none("a pass with no change notifies nothing",n,"its Listener kept");
+        listener(interface,sid(n),5u,2u);
+        settle(1100);
+        once(n,0u,false,"its Listener goes");
+        if(MBX_N_IF>1u){
+            listener((interface+1u)%MBX_N_IF,sid(n),1u,1u);
+            none("a Listener on another interface notifies nothing",n,"Asking Failed on the other interface");
+            listener((interface+1u)%MBX_N_IF,sid(n),5u,1u);
+            settle(1100);
+            none("a Listener on another interface notifies nothing",n,"its leave on the other interface");
+        }
+        EXPECT_EQ(reservation.ifs[interface].talkers>>n&1u,talker)
+            <<"its Talker's declaration stays as it is across its Listener's changes: output "<<n;
+        declaring[n]=false;
+    }
+}
+
+// #957 across a link reset of an output's interface (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2): the reset
+// destroys the interface's SRP participants and the Listener registrations they hold, so once MAAP holds the output's
+// address again and its Talker is declared again its answer shows no Listener, and the Listener's return, the bridge
+// declaring it again once it registers that Talker, is one unsolicited GET_STREAM_INFO response of the output to every
+// registered controller with the new flags, whatever the Listener declares (Asking Failed, Ready or Ready Failed) and
+// whatever it declared before the reset, the same included; declared again unchanged it notifies nothing, and no other
+// output is notified. The link's edges come apart and coalesced into one service. Where an output is on another
+// interface, its Listener, which the reset kept and the bridge keeps declaring, notifies nothing. The reset holds the
+// output's new MAAP address the hold-off (#956), longer than a registration's monitor (Milan v1.2 5.4.5.1), so each
+// controller registers again before the Listener returns.
+TEST_F(AppOutputs, ListenerRegistrationAfterALinkResetIsItsStreamOutputsNotice)
+{
+    aem(36);aem(36,{},CTLR+1);
+    unsigned cursor=fabric.tx_sent;
+    const unsigned n=0,interface=connection.source_interface[n];
+    // an output on another interface, OUTPUTS if there is none
+    unsigned other=OUTPUTS;
+    for(unsigned m=OUTPUTS;m-->0u;)other=connection.source_interface[m]!=interface?m:other;
+    //! Each output's GET_STREAM_INFO notices to each controller since the last call, and the last one's flags.
+    struct Seen { unsigned count[2]{};uint32_t flags=0;uint32_t flags_ex=~0u; };
+    auto take=[&]{
+        std::vector<Seen> seen(OUTPUTS);
+        for(;cursor<fabric.tx_sent;++cursor){auto p=mbx_model_tx_frame(&fabric,cursor);
+            EXPECT_NE(p,nullptr)<<"each step's frames are read before the capture drops them";
+            if(p==nullptr||p->bytes[14]!=0xfb||get(p->bytes+36,2)!=0x800fu||get(p->bytes+38,2)!=6u)continue;
+            const unsigned n=unsigned(get(p->bytes+40,2));
+            const uint64_t controller=get(p->bytes+26,8);
+            if(n>=OUTPUTS||(controller!=CTLR&&controller!=CTLR+1))continue;
+            ++seen[n].count[controller==CTLR?0:1];
+            seen[n].flags=uint32_t(get(p->bytes+42,4));seen[n].flags_ex=uint32_t(get(p->bytes+86,4));
+        }
+        return seen;
+    };
+    //! A PROBE_TX_COMMAND of every output on its own interface (IEEE 1722.1-2021 8.2.1), so each DA gate is open.
+    auto probe=[&]{
+        for(unsigned m=0;m<OUTPUTS;++m){
+            acmp_test::Pdu p{};p.msg=0;p.controller=CTLR;p.talker=ENTITY;p.listener=0x0303cafef00d0001;
+            p.talker_uid=uint16_t(m);p.seq=uint16_t(0x700+m);
+            auto bytes=acmp_test::acmpdu(p);
+            ASSERT_TRUE(mbx_model_rx(&fabric,bytes.data(),bytes.size(),connection.source_interface[m]));settle(2);
+            take();
+        }
+    };
+    //! Every interface's MAAP holds its range (an announce after its probes, IEEE 1722-2016 B.3).
+    auto valid=[&]{
+        for(unsigned k=0;k<200u;++k){
+            bool held=true;
+            for(unsigned i=0;i<MBX_N_IF;++i)held=held&&application.maap.ifs[i].core.valid;
+            if(held)return true;
+            settle(100);take();
+            if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
+        }
+        return false;
+    };
+    auto gate=[&](unsigned m){return (reservation.ifs[connection.source_interface[m]].gate>>m&1u)!=0u;};
+    auto declared=[&]{return (reservation.ifs[interface].talkers>>n&1u)!=0u;};
+    ASSERT_TRUE(valid())<<"(MAAP holds every interface's range)";
+    probe();settle(400);take();
+    ASSERT_TRUE(gate(n)&&declared())<<"(output 0's DA gate is open and its Talker declared)";
+    for(unsigned declaration=1u;declaration<=3u;++declaration){
+        for(unsigned coalesced=0u;coalesced<2u;++coalesced){
+            const std::string step=std::string(declaration==1u?"Asking Failed":declaration==2u?"Ready":"Ready Failed")+
+                                   (coalesced!=0u?", the link's edges coalesced":", the link's edges apart");
+            declaring[n]=true;
+            listener(interface,sid(n),1u,declaration);
+            if(other<OUTPUTS){
+                declaring[other]=true;
+                listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            take();
+            ASSERT_EQ(info(n).flags_ex,1u)<<"(its Listener registers): "<<step;
+            mbx_model_set_link(&fabric,interface,false);
+            if(coalesced==0u){
+                settle(50);
+                declaring[n]=gate(n);
+            }
+            mbx_model_set_link(&fabric,interface,true);settle(50);
+            ASSERT_TRUE(valid())<<"(MAAP holds the range again): "<<step;
+            for(unsigned k=0;k<450u&&!(gate(n)&&declared());++k){
+                probe();settle(100);
+                if(other<OUTPUTS)listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            ASSERT_TRUE(gate(n)&&declared())<<"(output 0's Talker is declared again): "<<step;
+            declaring[n]=true;
+            aem(36);aem(36,{},CTLR+1);
+            probe();settle(400);take();
+            EXPECT_EQ(info(n).flags_ex,0u)<<"the answer shows no Listener once a reset destroyed its registration: "<<step;
+            listener(interface,sid(n),1u,declaration);
+            const auto seen=take();
+            for(unsigned m=0;m<OUTPUTS;++m){
+                for(unsigned c=0;c<2u;++c){
+                    EXPECT_EQ(seen[m].count[c],m==n?1u:0u)
+                        <<(m==n?"a Listener's return after a link reset is one notice of its STREAM_OUTPUT to every "
+                                "registered controller":"no other STREAM_OUTPUT is notified")
+                        <<": "<<step<<", output "<<m<<", controller "<<c;
+                }
+            }
+            EXPECT_EQ(seen[n].flags_ex,1u)<<"the notice carries the new REGISTERING: "<<step;
+            EXPECT_EQ(seen[n].flags&0x40u,declaration==1u?0x40u:0u)<<"the notice carries the new REGISTERING_FAILED: "
+                                                                    <<step;
+            listener(interface,sid(n),1u,declaration);
+            if(other<OUTPUTS){
+                listener(connection.source_interface[other],sid(other),1u,2u);
+            }
+            const auto again=take();
+            for(unsigned m=0;m<OUTPUTS;++m){
+                EXPECT_EQ(again[m].count[0]+again[m].count[1],0u)
+                    <<"a Listener declared again unchanged, or kept on another interface, notifies nothing: "<<step
+                    <<", output "<<m;
+            }
+        }
+    }
+    declaring[n]=false;
+    if(other<OUTPUTS)declaring[other]=false;
 }
 
 namespace {
@@ -1676,6 +1979,70 @@ TEST_F(Core, AWaitingChangeIsAnsweredOnTheInterfaceItCameIn)
         EXPECT_EQ(get(out,26,8),CTLR);
     }
     EXPECT_EQ(a.identify,255u);
+}
+
+// #950 (IEEE 1722.1-2021 7.4.9, 8.2): a SET_STREAM_FORMAT that waits for the platform makes its running check again
+// once applied, before it is done again. At every stream of the configuration in force (input 0, the CRF input and
+// every STREAM_OUTPUT among them), a STREAM_INPUT bound or a STREAM_OUTPUT streaming meanwhile keeps its format in
+// force and is answered STREAM_IS_RUNNING, the status its dispatch gives, notifying no one and giving the platform
+// the values in force again; a stream the check cannot observe is answered ENTITY_MISBEHAVING. An input is judged by
+// its binding alone and an output by its streaming alone, as at the dispatch, and the check is brief (#894).
+TEST_F(Core, AWaitingFormatChangeMakesItsRunningCheckAgainOnceApplied)
+{
+    bool face=true,late=true;unsigned noted=0;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){++noted;face=face&&!late;});
+    register_controller();register_controller(CTLR+1);
+    struct Case{bool own,other,observable;unsigned status;const char *why;};
+    unsigned inputs=0,outputs=0;
+    for(auto &d:descriptors){
+        if((d.type!=5&&d.type!=6)||d.configuration!=a.configuration)continue;
+        const bool input=d.type==5;
+        (input?inputs:outputs)+=1;
+        const std::string what=std::string(input?"STREAM_INPUT ":"STREAM_OUTPUT ")+std::to_string(d.index);
+        Bytes format=target(d.type,d.index,12);put(format,4,get(d.value+74,8),8);
+        auto state=[&]{Bytes b(d.value,d.value+d.length);b.push_back(events[&d-descriptors.data()].overrides);
+                       return b;};
+        // the refusals first: each leaves the change undone, so the same command waits again
+        const Case cases[]={
+            {true,false,true,AECP_STREAM_IS_RUNNING,input?"bound meanwhile":"streaming meanwhile"},
+            {false,false,false,AECP_ENTITY_MISBEHAVING,"not observable once applied"},
+            {false,true,true,AECP_SUCCESS,input?"streaming but not bound":"bound but not streaming"}};
+        for(const Case &c:cases){
+            late=true;face=true;noted=0;bound=false;streaming=false;observations=true;
+            const auto before=state();
+            auto in=ask(8,format,AECP_IN_PROGRESS);
+            ASSERT_TRUE(a.waiting)<<what<<": the change waits";
+            EXPECT_EQ(state(),before)<<what<<": the change waits undone";
+            // settled while it waits, then applied
+            (input?bound:streaming)=c.own;(input?streaming:bound)=c.other;observations=c.observable;
+            late=false;face=true;briefs.clear();sent.clear();drain();
+            ASSERT_FALSE(sent.empty())<<what<<", "<<c.why<<": the final response";
+            const auto out=sent[0].second;
+            EXPECT_EQ(get(out,16,2)>>11,c.status)
+                <<"a waiting SET_STREAM_FORMAT makes its running check again once applied: "<<what<<", "<<c.why;
+            EXPECT_EQ(get(out,36,2),8u);EXPECT_EQ(get(out,26,8),CTLR);
+            EXPECT_EQ(get(out,34,2),0x1234u)<<"the command's own sequence";
+            EXPECT_FALSE(briefs.empty())<<what<<": the check is made again";
+            EXPECT_EQ(briefs,std::vector<bool>(briefs.size(),true))<<what<<": the check made again is brief";
+            if(c.status==AECP_SUCCESS){
+                EXPECT_EQ(sent.size(),2u)<<what<<", "<<c.why<<": SUCCESS, then its notification";
+                EXPECT_NE(state(),before)<<what<<", "<<c.why<<": done again";
+                continue;
+            }
+            EXPECT_EQ(sent.size(),1u)<<what<<", "<<c.why<<": one final response, no notification";
+            EXPECT_EQ(Bytes(out.begin()+38,out.end()),Bytes(in.begin()+38,in.end()))
+                <<what<<", "<<c.why<<": the format in force, as IN_PROGRESS reported it";
+            EXPECT_EQ(state(),before)<<"a refused waiting SET_STREAM_FORMAT stays undone: "<<what<<", "<<c.why;
+            EXPECT_EQ(noted,2u)<<what<<", "<<c.why<<": the platform is given the values in force again";
+            EXPECT_FALSE(a.waiting);
+        }
+    }
+    bound=false;streaming=false;observations=true;
+    EXPECT_GE(inputs,2u)<<"input 0 and the CRF input at least";EXPECT_GE(outputs,2u);
+    // the refusal ends with the wait: another change is taken at once
+    late=false;face=true;Bytes identify=target(26,0,5);identify[4]=255;ask(24,identify);
+    EXPECT_EQ(a.identify,255u)<<"the refusal ends with the wait";
 }
 
 TEST_F(Core, NamesAndDescriptorOverlay)

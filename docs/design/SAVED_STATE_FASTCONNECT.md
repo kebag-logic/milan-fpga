@@ -280,12 +280,13 @@ exist follows from the shape, never from what the bytes happen to be.
 | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
 | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
 | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
-| **records** | | | | **54** | **164** |
-| **highest id** | | | | `0xA6` | `0xEA` |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **115** |
+| **records** | | | | **54** | **172** |
+| **highest id** | | | | `0xA6` | `0xF2` |
 
 The 1x1 column is `endstation_ax7101_1x1_tdm8` and the 8x8 column is
-`endstation_ax7101_8x8`. `scripts/check_nvm_record_space.py` checks every
+`endstation_ax7101_8x8`, whose eight input ports own one cluster each since
+#584 (eight more names and one-cluster input maps). `scripts/check_nvm_record_space.py` checks every
 figure in both against the inventory it derives from their generated shapes,
 so a count here moves with the shape or reddens the gate (#652).
 
@@ -340,13 +341,13 @@ Derived by `scripts/check_nvm_record_space.py` from the generated shapes:
 | Output payload bytes | `17 * 8 = 136` | `72 * 8 = 576` |
 | Output framed bytes | `8 + 136 = 144` | `8 + 576 = 584` |
 | Output group bytes | `1 * 144 = 144` | `8 * 584 = 4672` |
-| Input group bytes | `1 * (8 + 8 * 8) = 72` | `8 * (8 + 0 * 8) = 64` |
+| Input group bytes | `1 * (8 + 8 * 8) = 72` | `8 * (8 + 1 * 8) = 128` |
 | Other fixed groups | `10 + 16 + 12 + 10 + 74 + 2 * (28 + 16 + 16 + 12) = 266` | `10 + 16 + 12 + 10 + 74 + 9 * (28 + 16 + 16 + 12) = 770` |
-| Names, from AEMI | `39 * (8 + 64) = 2808` | `107 * (8 + 64) = 7704` |
-| Raw record area | `266 + 72 + 144 + 2808 = 3290` | `770 + 64 + 4672 + 7704 = 13210` |
-| KLJ2 image | `40 + align4(3290) + 4 = 3336` | `40 + align4(13210) + 4 = 13256` |
-| Record IDs used | `5 + 2 * 4 + 2 + 39 = 54` | `5 + 9 * 4 + 16 + 107 = 164` |
-| Highest ID | `0x80 + 39 - 1 = 0xA6` | `0x80 + 107 - 1 = 0xEA` |
+| Names, from AEMI | `39 * (8 + 64) = 2808` | `115 * (8 + 64) = 8280` |
+| Raw record area | `266 + 72 + 144 + 2808 = 3290` | `770 + 128 + 4672 + 8280 = 13850` |
+| KLJ2 image | `40 + align4(3290) + 4 = 3336` | `40 + align4(13850) + 4 = 13896` |
+| Record IDs used | `5 + 2 * 4 + 2 + 39 = 54` | `5 + 9 * 4 + 16 + 115 = 172` |
+| Highest ID | `0x80 + 39 - 1 = 0xA6` | `0x80 + 115 - 1 = 0xF2` |
 | Image growth | `0` | `8 * (72 - 9) * 8 = 4032` |
 
 The deadline is re-derived from the larger image:

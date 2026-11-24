@@ -451,8 +451,14 @@ def phy_mutants(mutant: type) -> tuple:
 ANAR_MASK = "(uint32_t)phy->local & ~(CTRL_PLAT_PHY_ANAR_BELOW_GIGABIT | CTRL_PLAT_PHY_ANAR_RESERVED)"
 GCTRL_SET = "((uint32_t)phy->gig & CTRL_PLAT_PHY_GCTRL_MASTER_SLAVE) | CTRL_PLAT_PHY_GCTRL_1000_FULL :"
 RESTART_BITS = "| CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_AN_RESTART) &"
-HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u &&\n"
+HELD = ("(phy->adv & CTRL_PLAT_PHY_ADV_RENEGOTIATE) == 0u && negotiating((uint32_t)phy->control) &&\n"
         "\t\t    gigabit_only((uint32_t)phy->local, (uint32_t)phy->gig)")
+#: BMCR negotiating as the restart leaves it (#840): autonegotiation enabled, reset and isolate clear.
+NEGOTIATING = "(bmcr & (CTRL_PLAT_PHY_BMCR_AN_ENABLE | CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE))"
+#: CONTROL's rule (#840): on a PHY the advertisement is for, BMCR not negotiating is link down, renegotiated.
+FORCED = "if (v >= 0 && phy->adv != CTRL_PLAT_PHY_ADV_NONE && !negotiating(u)) {"
+P22 = "PlatPhy.P22TheBootRestartsAPhyNotNegotiating"
+P23 = "PlatPhy.P23AForcedModeIsNeverPublishedUp"
 #: The repair's restart, as ctrl_plat_phy.c's take() decides it and takes it, and the defect of a restart marked
 #: taken before the read-back verifies, so the repair of a dropped write restarts nothing (#919).
 REPAIR = ("\t\tif (" + HELD + ") {\n\t\t\tnext = CTRL_PLAT_PHY_ADV_CHECK_LOCAL;\n\t\t}\n\t\tbreak;\n"
@@ -461,13 +467,15 @@ RESTARTED_EARLY = ("\t\tif ((phy->adv & 0x8u) != 0u || (" + HELD + ")) {\n\t\t\t
                    "\t\t}\n\t\tbreak;\n\tcase CTRL_PLAT_PHY_ADV_RESTART:\n\t\tphy->adv |= 0x8u;\n")
 #: THE OUTCOME's judgement (#919): a completed negotiation sharing no 1000BASE-T mode, the advertisement verified.
 OUTCOME = "if (next != CTRL_PLAT_PHY_IDLE && phy->adv == 0u) {"
-OUTCOME_OWED = ("\t\t\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
-                "\t\t\t\tif (phy->renegotiations")
+OUTCOME_OWED = ("\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n"
+                "\tif (phy->renegotiations")
 P18 = "PlatPhy.P18TheRestartIsVerifiedByItsOutcome"
 P18_PACED = ("platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes", "P18 one restart a poll, paced like the poll")
 READ_DRIVEN = "uint32_t driven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;"
 P6 = "P6 every frame a Clause-22 read or write, driven as 22.2.4.5 drives it"
 P11 = "PlatPhy.P11TheBootAdvertisesGigabitOnly"
+#: The arm's link-down publication and its advertisement owed with no restart of its own (#972).
+ARM_OWED = "\tctrl_plat_io_write32(bus->link_status, 0u);\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n"
 
 
 def step_yield_mutants(mutant: type) -> tuple:
@@ -516,10 +524,14 @@ def advertisement_mutants(mutant: type) -> tuple:
           "platboot1", P11, "P11 autonegotiation restarted"),
         m("plat-phy-reset-kept", PHY, "~(CTRL_PLAT_PHY_BMCR_RESET | CTRL_PLAT_PHY_BMCR_ISOLATE)",
           "~CTRL_PLAT_PHY_BMCR_ISOLATE", "platboot1", P11, "P11 reset cleared"),
-        m("plat-phy-boot-restart-dropped", PHY,
-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n",
-          "\tphy->ctx = ctx;\n\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1", P11,
-          "P11 the boot restarts negotiation whatever the PHY holds"),
+        # #972: the boot forms the link once, and the datapath sees no link before a poll publishes the PHY's
+        m("plat-phy-boot-restarts-whatever-held", PHY, ARM_OWED,
+          ARM_OWED.replace("CTRL_PLAT_PHY_ADV_OWED;", "CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;"),
+          "platboot1", "PlatPhy.P19TheBootFormsTheLinkOnce",
+          "P19 the boot restarts no negotiation the PHY already holds",
+          also=(("platboot1", P11, "P11 a PHY that holds the advertisement at boot is not restarted"),)),
+        m("plat-phy-arm-publishes-nothing", PHY, ARM_OWED, "\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "platboot1",
+          "PlatPhy.P20TheArmPublishesLinkDownFirst", "P20 arming publishes link down"),
         m("plat-phy-write-released", PHY, "\t\tdriven = CTRL_PLAT_PHY_FRAME_BITS;\n",
           "\t\tdriven = CTRL_PLAT_PHY_PREAMBLE_BITS + CTRL_PLAT_PHY_COMMAND_BITS;\n", "platboot1",
           "PlatPhy.P6FramesAreClause22Reads", P6),
@@ -561,14 +573,17 @@ def advertisement_mutants(mutant: type) -> tuple:
           "platboot1", "PlatPhy.P16AnUnacknowledgedReadWritesNothing", "P16 no write before its read"),
         # THE OUTCOME: a restart the PHY lost, seen by what it negotiates
         m("plat-phy-outcome-unchecked", PHY, OUTCOME, "if (false) {", "platboot1", P18,
-          "P18 no link at 100 after recovery", also=(P18_PACED,)),
+          "P18 no link at 100 after recovery",
+          also=(P18_PACED, ("platboot1", "PlatPhy.P21TheOutcomeStandsBehindTheBoot",
+                            "P21 THE OUTCOME owes the restart the boot did not take"))),
         m("plat-phy-outcome-not-renegotiated", PHY, OUTCOME_OWED,
           OUTCOME_OWED.replace(" | CTRL_PLAT_PHY_ADV_RENEGOTIATE", ""), "platboot1", P18, "P18 one extra restart",
           also=(P18_PACED,)),
-        m("plat-phy-outcome-uncounted", PHY, "\t\t\t\t\t++phy->renegotiations;\n", "", "platboot1", P18,
-          "P18 the outcome's restart is counted"),
-        m("plat-phy-outcome-count-wraps", PHY, "\t\t\t\tif (phy->renegotiations != 0xffffu) {\n",
-          "\t\t\t\tif (true) {\n", "platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes",
+        m("plat-phy-outcome-uncounted", PHY, "\t\t++phy->renegotiations;\n", "", "platboot1", P18,
+          "P18 the outcome's restart is counted",
+          also=(("platboot1", P23, "P23 its renegotiation is counted"),)),
+        m("plat-phy-outcome-count-wraps", PHY, "\tif (phy->renegotiations != 0xffffu) {\n",
+          "\tif (true) {\n", "platboot1", "PlatPhy.P18OneRestartAPollUntilOneTakes",
           "P18 the count saturates at 0xffff"),
         m("plat-phy-outcome-at-gigabit", PHY, OUTCOME, "if (phy->adv == 0u) {", "platboot1",
           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a negotiation at 1000BASE-T owes no restart"),
@@ -577,4 +592,25 @@ def advertisement_mutants(mutant: type) -> tuple:
         m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
           OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
+    ) + bmcr_mutants(mutant)
+
+
+def bmcr_mutants(mutant: type) -> tuple:
+    """#840 on BMCR: the boot's (and a loss's) no-restart path only where BMCR negotiates, autonegotiation enabled
+    with isolate and reset clear, and a forced mode never published up on a PHY the advertisement is for."""
+    m = mutant
+    return (
+        m("plat-phy-held-ignores-bmcr", PHY, HELD, HELD.replace(" negotiating((uint32_t)phy->control) &&", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a forced PHY",
+          also=(("platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3"),)),
+        m("plat-phy-isolate-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_ISOLATE", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 3",
+          also=(("platboot1", P23, "P23 an isolated PHY is published down"),)),
+        m("plat-phy-reset-negotiates", PHY, NEGOTIATING, NEGOTIATING.replace(" | CTRL_PLAT_PHY_BMCR_RESET", ""),
+          "platboot1", P22, "P22 the boot's first poll restarts a PHY not negotiating, case 4"),
+        m("plat-phy-forced-published", PHY, FORCED, "if (false) {", "platboot1", P23,
+          "P23 a forced mode on a PHY the advertisement is for is published down",
+          also=(("platboot1", P23, "P23 the forced link a lost restart left is published down"),)),
+        m("plat-phy-forced-on-unadvertised", PHY, FORCED, FORCED.replace("phy->adv != CTRL_PLAT_PHY_ADV_NONE && ", ""),
+          "platboot1", P23, "P23 a PHY the advertisement is not for: the forced mode BMCR names"),
     )

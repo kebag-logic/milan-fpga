@@ -206,11 +206,13 @@ struct aecp_ports {
 	// where another controller holds the lock in force), before it changes
 	// anything. A change of face state (AECP_WAITS) after which it is
 	// false is undone and answered IN_PROGRESS; it is done again, answered and
-	// notified once this is true within AECP_WAIT_MS, else it stays undone and
-	// answers ENTITY_MISBEHAVING. A lock released at its expiry holds, by its
-	// owner, for every response and read until this is true, and is then
-	// notified (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
-	// 5.4.2.2, 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
+	// notified once this is true within AECP_WAIT_MS and the checks it makes
+	// again pass (a SET_STREAM_FORMAT's running check, the stream port's next
+	// call; #950), else it stays undone and answers the check's status, or
+	// ENTITY_MISBEHAVING when not applied in time. A lock released at its
+	// expiry holds, by its owner, for every response and read until this is
+	// true, and is then notified (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1;
+	// Milan v1.2 5.4.2.2, 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
 	bool (*applied)(void *);
 	// A notice's frame with no completion of its own, or NULL, when send takes
 	// every frame: the same delivery, committed by the next fan or by fan_end at

@@ -97,8 +97,8 @@ MUTATIONS = {
                       'answering-later'),
     # #665's planted age on the build: an MRPDU owed waits 300 passes before THE TRANSMIT's pass, so an MRPDU a
     # timer owes is committed past its bound, CTRL_LOOP_TX_BOUND_MS (mrpdu_grade.BUDGET_MS, 49 ms; FR_NFR.md 3.4.1).
-    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_due != 0u && !m->owed_len;\n',
-                      '    static unsigned held;\n    held = m->tx_due != 0u ? held + 1u : 0u;\n'
+    'transmit-aged': ('srp/srp_mbx.c', '    return m->tx_owed != 0u && !m->owed_len;\n',
+                      '    static unsigned held;\n    held = m->tx_owed != 0u ? held + 1u : 0u;\n'
                       '    return held > 300u && !m->owed_len;\n', ','.join(notice_window.names()), 'answering-later'),
     **poll_items.PLANTS, **save_window.PLANTS, **talker_notice.PLANTS, **declaring_outputs.PLANTS,
 }
@@ -314,6 +314,7 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
 #: by its name, which this harness gives only its measurement of that point: the image
 #: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
 #: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
+#: #584: the 8x8 image with one interface is a ledgered point too, since each STREAM_PORT_INPUT owns an AUDIO_CLUSTER.
 LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces',
                    ('endstation_ax7101_8x8', 1): '8x8-one-interface'}
 

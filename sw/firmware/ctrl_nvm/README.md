@@ -439,7 +439,7 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   - The 24.5 ms bound covers the current flash writer's capture only: the
     product firmware's, half its guaranteed 49 ms hold floor.
     `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of
-    13.861 ms stays gated.
+    14.533 ms stays gated (#584's census).
 - **CPU time, measured on the split CPU.** The split placement's size
   fixture links the store, and
   [`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md#results)
@@ -458,7 +458,7 @@ access to the command master costs 40 ns, and CPU work costs none of it.
     Both are recorded, not bounded (above). A capture step costs about 11,066
     cycles at 1x1 and 16,533 at 8x8 before its record, mostly the port's
     64-bit clock conversion, and about 266 and 206 cycles a payload byte. The
-    current flash writer copies 13,210 bytes at 8x8 in 13.86 ms, holding its
+    current flash writer copies 13,850 bytes at 8x8 in 14.53 ms, holding its
     owners while it does;
   - a port call on chip is held to its own deadline, which is `timer0` time
     and so real time. A call still waiting on the master 2,000 us after it

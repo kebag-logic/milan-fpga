@@ -77,7 +77,10 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            against the reference walk over random record sequences (#930,
            srp_listeners.cpp) at 1x1/1if and 8x8/1if, and the SRP cut's
            reclaim and receive filter against the adapter before it
-           (#665's ruling of 2026-11-20, item 3) in the same suite;
+           (#665's ruling of 2026-11-20, item 3) in the same suite; a link
+           that comes up at each phase of a loop pass as SRP's first UP
+           (#973, srp_link_pass.cpp) at 1x1/1if and 8x8/1if, each run a
+           process of its own;
   srpcmp   srp_wire_compare.py's own self-test: the independent Clause 10.8
            decoder and transmit-opportunity comparator the placement switch
            compares the two placements' SRP frames with (#665, ruling
@@ -102,7 +105,10 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            each AAF Stream Input above 0 holds its current format in its
            receive-monitor context on the CSR window, at 8x8/1if and the
            shipping 1x1/1if (plat_arms.arm_platsinks, test_plat_sinks.cpp;
-           #946).
+           #946); beside them, a waiting SET_STREAM_FORMAT refused once
+           applied onto an input with no context bound, or an output started,
+           meanwhile (#950), and GET_TX_STATE's REGISTERING_FAILED at every
+           output (#954).
 
 Every arm but rv32, srpcmp, hot and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.
@@ -160,6 +166,8 @@ import srp_pub_mutants  # noqa: E402
 import srp_drain_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
 import srp_reclaim_mutants  # noqa: E402
+import srp_early_mutants  # noqa: E402
+import srp_link_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import plat_arms  # noqa: E402
@@ -206,6 +214,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
                 outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
         outcomes.extend(srp_arms.talker_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.listener_arms(tree, args.lwsrp.resolve()))
+        outcomes.extend(srp_arms.link_pass_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.mbx_entity_arms(tree, args.lwsrp.resolve()))
         outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
     outcomes.extend(aecp_arms.all_arms(tree))
@@ -229,13 +238,17 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
                                                         "p11-", "srp-bound-", "srp-term-",
                                                         "srp-poll-extra", "srp-send-extra", "talker-",
                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                        srp_drain_mutants.PREFIX, *srp_pub_mutants.ROUND5))
+                                                        srp_drain_mutants.PREFIX, srp_link_mutants.PREFIX,
+                                                        *srp_pub_mutants.ROUND5))
                                   and not d.name.startswith(srp_drain_mutants.PREFIX_8X8))
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
-        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3) and #977's
+        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
+        # Talkers kept for StreamIDs no binding holds (#969), the link level in a loop pass (#973) and #977's
+        # drain charge, THE SETTLE and the re-declarations' pass
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
-                                                          srp_drain_mutants.PREFIX)))
+                                                          srp_drain_mutants.PREFIX, srp_early_mutants.PREFIX,
+                                                          srp_link_mutants.PREFIX)))
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

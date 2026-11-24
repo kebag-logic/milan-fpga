@@ -954,23 +954,25 @@ bool aecp_poll(struct aecp *a)
 		if (!taken && !due(a->now, a->wait_deadline)) {
 			return true;
 		}
-		// Taken by every interface: done again, then answered and notified. Not
-		// taken in time: it stays undone and the command fails, notifying no
-		// one. Either way the face is given the values in force.
+		// Taken by every interface and its checks made again (#950): done again,
+		// then answered and notified. Not taken in time, or refused by them: it
+		// stays undone and the command fails, notifying no one. Either way the
+		// face is given the values in force.
+		unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;
 		a->waiting = false;
-		if (taken) {
+		if (status == AECP_SUCCESS) {
 			swap(a);
 		}
 		aecp_note(a, a->noted, a->noted_type, a->noted_index);
-		a->notify = taken;
+		a->notify = status == AECP_SUCCESS;
 		// the held response; every response since set the rest as header() does
 		memcpy(a->response, a->held, a->held_bytes);
 		a->response_bytes = a->held_bytes;
 		a->response_interface = a->held_interface;
 		a->requester = a->held_requester;
 		a->response_owed = true;
-		if (!taken) {
-			refuse(a, AECP_ENTITY_MISBEHAVING);
+		if (status != AECP_SUCCESS) {
+			refuse(a, status);
 		}
 		return true;
 	}

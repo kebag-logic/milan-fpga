@@ -118,6 +118,13 @@ cluster pool, so the width the entity advertises and the width the fabric backs
 come from one place, and it is withheld unless the board routes the header the
 serializer drives.
 
+A master lane may be narrower than its bus (#584). `KL_tdm_render_master`
+frames the bus's `AUDIO_IF_SLOTS_P` slots (`BUS_SLOTS_P`), stores only the first
+`AUDIO_IF_RENDER_SLOTS_P` of them and serializes zero in the rest, so the 8x8's
+TDM32 bus renders its slot 0 alone, the first key of the TDM window (key 2).
+That one key is STREAM_PORT_INPUT 0's cluster (`render_ports: first`); the 8x8's
+other input clusters project onto no key. A slave lane stays the full bus width.
+
 There is exactly ONE TDM bus: `bclk` and `fsync` are shared pins, so the render
 half does not generate a second frame phase. `KL_tdm_capture_master` stays the
 sole timing owner and exports `bclk_rise_o`, `bclk_fall_o` and `frame_pos_o`;

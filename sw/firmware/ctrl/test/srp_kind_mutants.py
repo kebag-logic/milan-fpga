@@ -99,8 +99,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("feedback-latest-held-with-one-kind", ENDS, "old.stream_kinds == 3u &&", "old.stream_kinds != 0u &&",
              "one kind registered holds nothing"),
         kind("feedback-latest-held-past-a-leave", ENDS,
-             "    struct srp_held *h = registered ? NULL : held_stream(i->owner,i->index,v->stream_id.bytes);",
-             "    struct srp_held *h = NULL;", "a registration's end or a reset ends the hold"),
+             "    } else if (h != NULL) {\n        release_held(m,h);\n    }\n", "    }\n",
+             "a registration's end or a reset ends the hold"),
         kind("feedback-latest-held-past-a-reset", ENDS, "        if (m->held[n].interface == i->index) {",
              "        if (false) {", "a registration's end or a reset ends the hold"),
         # held whatever the interface, at two interfaces (no "feedback-" name: the two-interface campaign alone)

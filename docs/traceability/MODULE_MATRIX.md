@@ -80,9 +80,9 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_render_queue` | `ieee1722/aaf/KL_render_queue.sv` | `follow_ring` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `media_phase` · `milan_dp` · `milan_dp_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `media_phase` · `milan_dp` · `milan_dp_render` · `tdm_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
 | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | -- |

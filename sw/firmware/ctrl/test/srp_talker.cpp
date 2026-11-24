@@ -5,11 +5,13 @@
 // Advertise with base + n and its TSpec, or Talker Failed, code 1, when its bandwidth does not fit (IEEE 802.1Q-2018
 // 35.2.2.8.7, Table 35-6); a source not valid declares nothing; a lapse withdraws, its licence and TALKER_DECL bit
 // first. MSRP does not support a changed FirstValue on a StreamID (35.2.2.8): an unchanged destination may be declared
-// again at once, a changed one no sooner than two nominal longest LeaveAll periods after the Leave (10.7.4.3, #951), a
-// type swaps in place, and a reset holds a moved source as its Leave would. Run at 1x1/1if and 8x8/2if
-// (test_ctrl_firmware.py).
+// again at once, a changed one reaches the wire within two nominal longest LeaveAll periods of the Leave's request,
+// its JoinTime and THE TRANSMIT's terms counted inside them (10.7.4.3; #951, #956), a type swaps in place, and a reset
+// holds a moved source as its Leave would. Run at 1x1/1if, 8x8/1if and 8x8/2if (test_ctrl_firmware.py).
 #include "srp_fixture.hpp"
 #include <algorithm>
+#include <string>
+#include <tuple>
 FW_TALLY_LABEL("ctrl SRP Talker declarations");
 namespace {
 
@@ -49,14 +51,19 @@ constexpr uint32_t kAdmittedBps=17024000u;
 // Two ranges MAAP may hold (IEEE 1722-2016 Table B.9's pool), base + n each source's destination.
 constexpr uint64_t kBaseA=0x91e0f000aa00ull;
 constexpr uint64_t kBaseB=0x91e0f000bb00ull;
-// The withdrawal's hold-off in ms (#951): two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
-// 802.1Q-2018 10.7.4.3 draws every leavealltimer below it) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30,000 ms,
-// and the hold-off as srp_mbx.c counts it from the Leave's request, with a JoinTime and THE TRANSMIT's MRPDU by every
-// source added in whole centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS): 30,230 ms at 1x1/1if,
-// 30,270 at 8x8/1if and 30,300 at two interfaces. Two LeaveAllTime periods, 20,000 ms, is the hold-off before #951.
+// The withdrawal's hold-off in ms (#951, #956): two nominal longest LeaveAll periods, each 1.5 x LeaveAllTime (IEEE
+// 802.1Q-2018 10.7.4.3 draws every leavealltimer below it) of 10 s (Table 10-7; Milan v1.2 Table 4.3), 30,000 ms, the
+// latest a changed destination reaches the wire after its Leave's request. srp_mbx.c counts the hold-off from that
+// request with a JoinTime and THE TRANSMIT's MRPDU by every source counted inside the two periods in whole
+// centiseconds (ctrl_loop.h, CTRL_LOOP_JOIN_CS and CTRL_LOOP_TX_MS), the owner's decision of 2026-11-21: 29,770 ms at
+// 1x1/1if, 29,730 at 8x8/1if and 29,700 at two interfaces. #951's added both terms past the two periods, 30,230 ms at
+// 1x1/1if; two LeaveAllTime periods and both terms, 20,230 ms there, is the hold-off before #951.
 constexpr uint32_t kLeaveAllTimeMs=10000u;
 constexpr uint32_t kTwoLongestLeaveAllMs=2u*(kLeaveAllTimeMs+kLeaveAllTimeMs/2u);
-constexpr uint32_t kHoldOffMs=kTwoLongestLeaveAllMs+10u*(CTRL_LOOP_JOIN_CS+(CTRL_LOOP_TX_MS+9u)/10u);
+constexpr uint32_t kHoldOffMs=kTwoLongestLeaveAllMs-10u*(CTRL_LOOP_JOIN_CS+(CTRL_LOOP_TX_MS+9u)/10u);
+// The latest a declaration reaches the model's wire after the centisecond that owes it: lwSRP's join timer may hold it
+// a JoinTime, and THE TRANSMIT commits its MRPDU within CTRL_LOOP_TX_MS of the centisecond that owes it (ctrl_loop.h).
+constexpr uint32_t kLatestMs=10u*CTRL_LOOP_JOIN_CS+CTRL_LOOP_TX_MS;
 
 bool declares(unsigned event) { return event==0u || event==1u || event==3u; }
 
@@ -126,6 +133,63 @@ protected:
         while (model.now_ms<ms) {
             advance(1);
             if (model.now_ms%100u==0u) collect();
+        }
+    }
+    // Source 0 withdrawn `phase` ms into a second of the participants' periodic transmissions, the request on a
+    // centisecond, and valid again at another destination 2 s later (#956), every frame traced from the withdrawal on.
+    // Held: the loop runs to the centisecond before the one whose tick ends the count, then is held from that tick for
+    // a JoinTime and THE TRANSMIT's figure, so the ticks it owes come together as it resumes; `busy` counts the
+    // interfaces whose join timer runs as the count ends. Serviced: the loop runs throughout.
+    struct Lapse {
+        uint32_t first=0;
+        uint32_t at=0;
+        uint32_t end=0;
+        unsigned busy=0;
+    };
+    void lapse(unsigned phase, bool held, Lapse &l) {
+        settle(); gate(1u,kBaseA); advance(phase);
+        while (model.tick_div!=0u) advance(1);
+        trace();
+        l.first=model.tx_sent;
+        l.at=model.now_ms;
+        gate(0u,kBaseA); settle();
+        advance(2000);
+        gate(1u,kBaseB);
+        if (!held) {
+            advance_to(l.at+kTwoLongestLeaveAllMs+1000u);
+            return;
+        }
+        advance_to(l.at+kHoldOffMs-100u);
+        for (unsigned k=0;k<1000u && adapter.held_cs[0]>1u;++k) advance_to(model.now_ms+1u);
+        ASSERT_EQ(adapter.held_cs[0],1u) << "the hold-off counts down a centisecond at a time";
+        while (model.tick_div!=9u) advance(1);
+        for (unsigned i=0;i<MBX_N_IF;++i) l.busy+=adapter.join_left[2u*i]!=0u;
+        l.end=model.now_ms+1u;
+        mbx_model_advance_ms(&model,1u+kLatestMs);
+        settle();
+        advance(1000);
+    }
+    // Each interface's changed destination after `l`'s Leave: declared at kBaseB no sooner than the hold-off and on the
+    // wire no later than two of the longest LeaveAll periods after the request; held, as the loop resumes.
+    void reaches_the_wire(const Lapse &l, bool held) {
+        untrace();
+        for (unsigned i=0;i<MBX_N_IF;++i) {
+            const auto ds=talker(i,0,l.first);
+            const auto *lv=leave(ds,1);
+            ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
+            const auto *adv=declared(ds,1,lv->time_ms+1u);
+            ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
+            EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
+            if (held) {
+                EXPECT_EQ(adv->time_ms,l.end+kLatestMs)
+                    << "the changed destination leaves as late as a JoinTime and THE TRANSMIT's stated figure allow";
+            }
+            EXPECT_GE(adv->time_ms,l.at+kHoldOffMs)
+                << "the changed destination comes no sooner than two of the longest LeaveAll periods less a JoinTime "
+                   "and THE TRANSMIT's term after the withdrawal";
+            EXPECT_LE(adv->time_ms,l.at+kTwoLongestLeaveAllMs)
+                << "the changed destination reaches the wire no later than two of the longest LeaveAll periods after "
+                   "the withdrawal, at the latest";
         }
     }
     // An MSRP frame of two Domain messages, each one value (IEEE 802.1Q-2018 10.8), the first with a LeaveAll if `la`.
@@ -288,25 +352,37 @@ TEST_F(Talker, UnchangedDestinationIsDeclaredAgainAtOnce) {
     }
 }
 
-// Change and re-allocation: a source valid again at another destination (MAAP's new range after a conflict) declares
-// it no sooner than two of the longest LeaveAll periods after its Leave, and nothing in between; once that has
-// passed, a further change is declared at once.
+// Change and re-allocation: a source valid again at another destination (MAAP's new range after a conflict) is held
+// from its Leave's request for two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's MRPDU (#956):
+// nothing of it is declared and TALKER_DECL holds it withdrawn until then, it is declared as the count ends, and it
+// reaches the wire no later than the two periods after the request. Once the hold-off has passed, a further change is
+// declared at once.
 TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriods) {
     settle(); gate(1u,kBaseA); advance(400);
+    while (model.tick_div!=0u) advance(1);
     trace();
     const uint32_t first=model.tx_sent;
+    // the Leave's request on a centisecond, so the count ends on one, kHoldOffMs later
     const uint32_t at=model.now_ms;
-    gate(0u,kBaseA); advance(2000);
+    gate(0u,kBaseA); settle();
+    advance(2000);
     gate(1u,kBaseB);
-    advance_to(at+kTwoLongestLeaveAllMs);
+    advance_to(at+kHoldOffMs-1u);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
         const auto *lv=leave(ds,1);
         ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
         EXPECT_EQ(declared(ds,1,lv->time_ms+1u),nullptr)
             << "no Talker of a changed destination is declared before the hold-off ends";
+        EXPECT_EQ(pub_of(model,i).talker_decl&1u,0u) << "TALKER_DECL holds a changed destination withdrawn while it waits";
     }
-    advance_to(at+kHoldOffMs+400u);
+    advance_to(at+kHoldOffMs);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_EQ(pub_of(model,i).talker_decl&1u,1u)
+            << "a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE "
+               "TRANSMIT's term after its Leave's request";
+    }
+    advance_to(at+kTwoLongestLeaveAllMs+400u);
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
         const auto *lv=leave(ds,1);
@@ -314,8 +390,12 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriods) {
         const auto *adv=declared(ds,1,lv->time_ms+1u);
         ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
         EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
-            << "the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave";
+        EXPECT_GE(adv->time_ms,at+kHoldOffMs)
+            << "the changed destination comes no sooner than two of the longest LeaveAll periods less a JoinTime and "
+               "THE TRANSMIT's term after the withdrawal";
+        EXPECT_LE(adv->time_ms,at+kTwoLongestLeaveAllMs)
+            << "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+               "withdrawal";
     }
     // a lapse, then a re-allocation more than the hold-off later: declared at once
     gate(0u,kBaseB); advance_to(model.now_ms+kHoldOffMs+1000u);
@@ -332,47 +412,67 @@ TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriods) {
     }
 }
 
-// The hold-off counts from the Leave's request, so it must cover the latest the Leave can leave: lwSRP's join timer
-// runs out within a JoinTime of the request, and THE TRANSMIT commits its MRPDU within CTRL_LOOP_TX_MS of that
-// centisecond (ctrl_loop.h). With the request on a centisecond and the loop held that long after it, the changed
-// destination still comes no sooner than two of the longest LeaveAll periods after the Leave on the wire (IEEE
-// 802.1Q-2018 35.2.2.8, 10.7.4.3); a hold-off without THE TRANSMIT's term, or with it rounded down, comes sooner.
-TEST_F(Talker, ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave) {
-    settle(); gate(1u,kBaseA); advance(400);
-    while (model.tick_div!=0u) advance(1);
-    trace();
-    const uint32_t first=model.tx_sent;
-    const uint32_t at=model.now_ms;
-    constexpr uint32_t kLatestLeaveMs=10u*CTRL_LOOP_JOIN_CS+CTRL_LOOP_TX_MS;
-    gate(0u,kBaseA); settle();
-    mbx_model_advance_ms(&model,kLatestLeaveMs);
-    settle();
-    advance(2000);
-    gate(1u,kBaseB);
-    advance_to(at+kHoldOffMs+400u);
-    untrace();
-    for (unsigned i=0;i<MBX_N_IF;++i) {
-        const auto ds=talker(i,0,first);
-        const auto *lv=leave(ds,1);
-        ASSERT_NE(lv,nullptr) << "the lapse withdraws the Advertise";
-        EXPECT_EQ(lv->time_ms,at+kLatestLeaveMs) << "the Leave leaves as late as THE TRANSMIT's stated figure allows";
-        const auto *adv=declared(ds,1,lv->time_ms+1u);
-        ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
-        EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
-            << "the changed destination comes no sooner than two of the longest LeaveAll periods after the "
-               "latest Leave";
-    }
+// The hold-off counts from the Leave's request, so the two periods must hold the latest the declaration its end owes
+// can leave: lwSRP's join timer runs out within a JoinTime of the centisecond the count ends in, and THE TRANSMIT
+// commits its MRPDU within CTRL_LOOP_TX_MS of the centisecond that owes it (ctrl_loop.h). With the request on a
+// centisecond and the loop held that long from the tick that ends the count, the changed destination still reaches the
+// wire no later than two of the longest LeaveAll periods after the request (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3;
+// #956); a hold-off that adds the terms (#951's), drops THE TRANSMIT's term or rounds it down reaches it later.
+TEST_F(Talker, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest) {
+    // the withdrawal 700 ms into a second of the participants' periodic transmissions, so the count ends with no MRPDU
+    // of theirs in the JoinTime before it: lwSRP's join timer is idle there, and the held loop stands in for its wait
+    Lapse l;
+    lapse(700u,true,l);
+    if (HasFatalFailure()) return;
+    EXPECT_EQ(l.busy,0u) << "the join timer is idle as the count ends, so the hold stands in for it";
+    reaches_the_wire(l,true);
 }
+
+// The same with lwSRP's join timer running as the count ends: the withdrawal 340 ms into the second, so a periodic
+// MRPDU of the participants' leaves within the JoinTime before it, at every point. The pass the count's end owes
+// declares the changed destination and builds the interface's MSRP MRPDU, which the join timer holds; the timer's end,
+// among the ticks the held loop owes before the build's next slice, owes the interface that pass again, and the build
+// it resumes keeps it owed (THE TIERS), so the declaration leaves in the next pass, as the loop resumes.
+TEST_F(Talker, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning) {
+    Lapse l;
+    lapse(340u,true,l);
+    if (HasFatalFailure()) return;
+    EXPECT_EQ(l.busy,MBX_N_IF) << "every interface's join timer runs as the count ends";
+    reaches_the_wire(l,true);
+}
+
+// Every withdrawal phase (#956): the request on each centisecond of a second of the participants' periodic
+// transmissions, so the count's end finds each interface's join timer idle at some and running at others, with the
+// loop held a JoinTime and THE TRANSMIT's figure from the tick that ends the count or serviced throughout. At each the
+// changed destination comes no sooner than the hold-off and reaches the wire no later than two of the longest LeaveAll
+// periods after the request, as late as the held loop allows and no later.
+class TalkerPhase : public Talker, public ::testing::WithParamInterface<std::tuple<unsigned,bool>> {};
+
+TEST_P(TalkerPhase, ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods) {
+    const unsigned phase=std::get<0>(GetParam());
+    const bool held=std::get<1>(GetParam());
+    Lapse l;
+    lapse(phase,held,l);
+    if (HasFatalFailure()) return;
+    reaches_the_wire(l,held);
+}
+
+INSTANTIATE_TEST_SUITE_P(EveryPhase, TalkerPhase, ::testing::Combine(::testing::Range(10u,1010u,10u),::testing::Bool()),
+                         [](const ::testing::TestParamInfo<std::tuple<unsigned,bool>> &info) {
+                             return std::string(std::get<1>(info.param) ? "Held" : "Serviced") +
+                                    std::to_string(std::get<0>(info.param));
+                         });
 
 // A destination that changes while the source stays valid withdraws the old destination's Advertise and declares the
 // new one only once the hold-off ends; no Talker carries the old destination after its Leave.
 TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
     settle(); gate(1u,kBaseA); advance(400);
+    while (model.tick_div!=0u) advance(1);
     trace();
     const uint32_t first=model.tx_sent;
-    gate(1u,kBaseB);
-    advance_to(model.now_ms+kHoldOffMs+400u);
+    const uint32_t at=model.now_ms;
+    gate(1u,kBaseB); settle();
+    advance_to(at+kTwoLongestLeaveAllMs+400u);
     untrace();
     for (unsigned i=0;i<MBX_N_IF;++i) {
         const auto ds=talker(i,0,first);
@@ -382,8 +482,12 @@ TEST_F(Talker, DestinationChangeWhileValidWithdrawsTheOld) {
         const auto *adv=declared(ds,1,lv->time_ms+1u);
         ASSERT_NE(adv,nullptr) << "a changed destination is declared once the hold-off ends";
         EXPECT_EQ(dest(*adv),kBaseB) << "a changed destination is declared once the hold-off ends";
-        EXPECT_GE(adv->time_ms,lv->time_ms+kTwoLongestLeaveAllMs)
-            << "the new destination comes no sooner than two of the longest LeaveAll periods after the Leave";
+        EXPECT_GE(adv->time_ms,at+kHoldOffMs)
+            << "the new destination comes no sooner than two of the longest LeaveAll periods less a JoinTime and THE "
+               "TRANSMIT's term after the withdrawal";
+        EXPECT_LE(adv->time_ms,at+kTwoLongestLeaveAllMs)
+            << "the new destination reaches the wire no later than two of the longest LeaveAll periods after the "
+               "withdrawal";
         for (const auto &d:ds) {
             if (d.time_ms>lv->time_ms && declares(d.event)) {
                 EXPECT_EQ(dest(d),kBaseB) << "no Talker carries the old destination after its Leave";
@@ -478,15 +582,18 @@ TEST_F(Talker, ResetKeepsAnUnchangedSourceAndHoldsAMovedOne) {
     settle();
     mbx_model_set_link(&model,last,true); settle();
     first=model.tx_sent;
-    advance_to(at+kTwoLongestLeaveAllMs);
+    // the new participants' creation is the hold-off's start, in the centisecond `at` is in
+    advance_to(at+kHoldOffMs-10u);
     EXPECT_EQ(declared(talker(last,0,first),1),nullptr)
         << "the new participants hold a source that moved before the reset";
     EXPECT_EQ(pub_of(model,last).talker_decl&1u,0u) << "TALKER_DECL holds it withdrawn while it waits";
-    advance_to(at+kHoldOffMs+400u);
+    advance_to(at+kTwoLongestLeaveAllMs);
     const auto held=talker(last,0,first);
     const auto *adv=declared(held,1);
     ASSERT_NE(adv,nullptr) << "and declare it once the hold-off ends";
     EXPECT_EQ(dest(*adv),kBaseB) << "and declare it once the hold-off ends";
+    EXPECT_LE(adv->time_ms,at+kTwoLongestLeaveAllMs)
+        << "and the moved source reaches the wire no later than two of the longest LeaveAll periods after the reset";
 }
 
 // The entry: a mask bit past the sources is no source, and before attach, after destroy, for an interface out of
@@ -734,4 +841,118 @@ TEST_F(Talker, ResetNoticesNothingUnchanged) {
     advance(400);
     ASSERT_NE(newly(talker(last,0,first),1),nullptr) << "the reset declares the source again";
     EXPECT_EQ(adapter.ifs[last].noticed,0u) << "a source a reset declares again unchanged is not noticed";
+}
+
+// #957: a source's STREAM_OUTPUT shows the Listener registered for its stream (#943's REGISTERING and
+// REGISTERING_FAILED) while its DA gate is open, the face's declaring, so each change of that registration there, a
+// Listener Ready, Ready Failed or Asking Failed appearing, replacing another or going, is noticed on that interface for
+// the output's GET_STREAM_INFO notice (Milan v1.2 5.4.5.2, Table 5.22; IEEE 1722.1-2021 7.5.2), in the record a
+// declaration's change is (#936). A Listener declared again unchanged, JoinIn or New, its registration kept over a
+// LeaveAll, and any change while the source's gate is closed on the interface, where the face shows neither flag,
+// notice nothing; another stream's Listener notices its own source.
+TEST_F(Talker, ListenerRegistrationChangeIsNoticed) {
+    // a registered Listener licenses its declared source, and its leave closes the licence: not what this test reads
+    EXPECT_CALL(licence,Change(::testing::_,::testing::_,::testing::_)).Times(::testing::AnyNumber());
+    settle(); advance(400);
+    const unsigned n=CTRL_SRP_SOURCES-1u;
+    // the record since it was last taken, taken as the composition takes it (ctrl_app_srp.c)
+    auto taken=[&](unsigned i){
+        const uint32_t r=adapter.ifs[i].noticed;
+        adapter.ifs[i].noticed=0u;
+        return r;
+    };
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        offer(frame(3,identity(i,n),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),0u) << "a Listener of a source whose DA gate is closed is not noticed";
+        offer(frame(3,identity(i,n),5,2),i); advance(1200);
+        EXPECT_EQ(taken(i),0u) << "a Listener of a source whose DA gate is closed is not noticed";
+    }
+    const uint32_t valid=1u<<n|1u;
+    if (MBX_N_IF>1u) {
+        // the gate open on interface 0 alone, as MAAP opens it on the source's own interface only (maap_mbx.c)
+        ASSERT_TRUE(srp_mbx_gate(&adapter,0,valid,kBaseA)); advance(400);
+        for (unsigned i=0;i<MBX_N_IF;++i) taken(i);
+        const unsigned last=MBX_N_IF-1u;
+        offer(frame(3,identity(last,n),1,2),last); advance(20);
+        EXPECT_EQ(taken(last),0u) << "a Listener on an interface whose gate is closed for the source is not noticed";
+        offer(frame(3,identity(last,n),5,2),last); advance(1200);
+        EXPECT_EQ(taken(last),0u) << "a Listener on an interface whose gate is closed for the source is not noticed";
+    }
+    gate(valid,kBaseA); advance(400);
+    for (unsigned i=0;i<MBX_N_IF;++i) taken(i);
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        offer(frame(3,identity(i,n),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Ready appearing is noticed";
+        for (unsigned k=0;k<MBX_N_IF;++k) {
+            if (k!=i) {
+                EXPECT_EQ(taken(k),0u) << "a Listener is noticed on its own interface";
+            }
+        }
+        offer(frame(3,identity(i,n),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),0u) << "a Listener declared again unchanged is not noticed";
+        offer(frame(3,identity(i,n),0,2),i); advance(20);
+        EXPECT_EQ(taken(i),0u) << "a Listener declared New again unchanged is not noticed";
+        // a LeaveAll of the Listener attribute type with the Listener's JoinIn after it in its message (IEEE 802.1Q-2018
+        // 10.8.2.2): its Registrar leaves IN and registers again
+        offer(frame(3,identity(i,n),1,2,true),i); advance(1200);
+        EXPECT_EQ(taken(i),0u) << "a Listener registered again after a LeaveAll is not noticed";
+        offer(frame(3,identity(i,n),1,3),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Ready Failed replacing a Ready is noticed";
+        offer(frame(3,identity(i,n),1,1),i); advance(20);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener Asking Failed replacing a Ready Failed is noticed";
+        offer(frame(3,identity(i,0),1,2),i); advance(20);
+        EXPECT_EQ(taken(i),1u) << "another stream's Listener notices its own source";
+        offer(frame(3,identity(i,0),5,2),i); advance(1200);
+        EXPECT_EQ(taken(i),1u) << "another stream's Listener notices its own source";
+        offer(frame(3,identity(i,n),5,1),i); advance(1200);
+        EXPECT_EQ(taken(i),1u<<n) << "a Listener going is noticed";
+    }
+}
+
+// #957 across a reset of the interface (its link down and up, apart, coalesced into one service or twice over in one):
+// the reset destroys the interface's participants and the Listener registrations they hold, with no indication, so
+// the output shows no Listener there, and the reset itself notices nothing. The first registration after it changes
+// what the output shows, whatever it declares (Asking Failed, Ready or Ready Failed) and whatever the destroyed
+// registration declared, the same included, and is noticed once on its interface; declared again unchanged it notices
+// nothing, and another interface's registration, which the reset kept, notices nothing.
+TEST_F(Talker, ListenerRegistrationAfterAResetIsNoticed) {
+    EXPECT_CALL(licence,Change(::testing::_,::testing::_,::testing::_)).Times(::testing::AnyNumber());
+    settle(); gate(1u,kBaseA); advance(400);
+    auto taken=[&](unsigned i){
+        const uint32_t r=adapter.ifs[i].noticed;
+        adapter.ifs[i].noticed=0u;
+        return r;
+    };
+    for (unsigned declaration=1u;declaration<=3u;++declaration) {
+        for (unsigned how=0u;how<3u;++how) {
+            for (unsigned i=0;i<MBX_N_IF;++i) {
+                for (unsigned k=0;k<MBX_N_IF;++k) {
+                    offer(frame(3,identity(k,0),1,declaration),k); advance(20);
+                    ASSERT_TRUE(adapter.ifs[k].listener_present[0]) << "(the Listener registers)";
+                    taken(k);
+                }
+                for (unsigned edges=0;edges<(how==2u?2u:1u);++edges) {
+                    mbx_model_set_link(&model,i,false);
+                    if (how==0u) settle();
+                    mbx_model_set_link(&model,i,true);
+                }
+                settle(); advance(20);
+                ASSERT_FALSE(adapter.ifs[i].listener_present[0]) << "(the reset destroyed the Listener's registration)";
+                for (unsigned k=0;k<MBX_N_IF;++k) {
+                    EXPECT_EQ(taken(k),0u) << "a reset notices no Listener change";
+                }
+                offer(frame(3,identity(i,0),1,declaration),i); advance(20);
+                EXPECT_EQ(taken(i),1u) << "the first Listener registration after a reset is noticed, whatever the one "
+                                          "before it declared";
+                offer(frame(3,identity(i,0),1,declaration),i); advance(20);
+                EXPECT_EQ(taken(i),0u) << "a Listener declared again unchanged after a reset is not noticed";
+                for (unsigned k=0;k<MBX_N_IF;++k) {
+                    if (k!=i) {
+                        offer(frame(3,identity(k,0),1,declaration),k); advance(20);
+                        EXPECT_EQ(taken(k),0u) << "a reset of another interface keeps this one's Listener record";
+                    }
+                }
+            }
+        }
+    }
 }

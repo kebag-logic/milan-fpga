@@ -151,9 +151,12 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
 #: record.adp 12,779 CPU cycles (arm A, backlog-adp-refill, on the image that carries the unit at 375 us), 135 us,
 #: each by the rule.
-OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 180, 'record.srp': 375}}
+#: With a STREAM_OUTPUT's Listener registration notice (#957): 8x8/1if record.maap 17,259 CPU cycles (the
+#: valid-destinations arm, srp-talker-loss; 16,176 on the flip train's head in the same group), 185 us by the rule. The
+#: record runs none of the change's code: the 8 bytes each 8x8 interface's SRP state grew move the data after it.
+OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 185, 'record.srp': 375}}
 OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, unit 375 us'),
-                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss'),
+                            'record.maap': (17_259, 'the valid-destinations arm, srp-talker-loss'),
                             'record.srp': (35_547, 'the valid-destinations arm, srp-talker-held')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and
@@ -225,10 +228,12 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
 #: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
-#: arm's aecp-fanout; 210 before). With #977's round 2, over every arm at 1x1/1if (3de17804), the walk 80 (7,289 in
-#: srp-register-burst), in both columns, as poll_grade.py's ONE states it; the notice item's 14,370 is within its 150.
+#: arm's aecp-fanout; 210 before). With a waiting SET_STREAM_FORMAT's running check made again (#950), whose code
+#: moves AECP's, measured over every arm and group, 1x1/1if's AECP record raised by the rule in both columns: 255 us
+#: (23,858 CPU cycles, the same SET_STREAM_INFO). With #977's round 2, over every arm at 1x1/1if (3de17804), the walk
+#: 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it.
 STATED_US = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60},
@@ -278,9 +283,10 @@ STATED_US = {
 #: polls' base 325 to 345 (poll_grade.py; #895, reported). On the merge of dev-soft-core 70f4056f each cost is the
 #: one of the side that moved it from the merge base 234bc149: an AECP record at 1x1/1if #897's 245 (#897). On the SRP
 #: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
-#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
+#: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill). With a waiting
+#: SET_STREAM_FORMAT's running check made again (#950), the AECP record as STATED_US states it, 255 us.
 STATED_US_DONOR = {
-    '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
+    '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,

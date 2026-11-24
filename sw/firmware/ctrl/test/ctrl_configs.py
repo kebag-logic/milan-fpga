@@ -159,6 +159,8 @@ OUTSIDE = {
     "sw/litex/ctrl_memory.py": "reads linked ELF bytes and plans memory banks; it compiles nothing",
     "sw/litex/milan_soc.py": "loads a prelinked control image; its optional BIOS and milan_baremetal builds "
                             "compile no control-stack source",
+    "sw/litex/mac_link_status.py": "the MAC link-status word's reset (#972), which milan_soc.py's MilanMAC reads and "
+                                  "a harness elaborates; it compiles nothing",
     "docs/diagrams/submodule_boundaries.gen.py": "draws the submodule diagram; it compiles nothing",
     "scripts/ci_events.py": "models the CI workflows; it compiles nothing",
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
@@ -177,6 +179,8 @@ OUTSIDE = {
     "sw/firmware/ctrl/test/srp_reclaim_mutants.py": "the SRP cut's planted defects (#665's ruling of 2026-11-20, "
                                                     "item 3), which the SRP campaign (srp_mutants.py) plants; it "
                                                     "compiles nothing",
+    "sw/firmware/ctrl/test/srp_link_mutants.py": "SRP's link level's planted defects (#973), which the SRP campaign "
+                                                 "(srp_mutants.py) plants; it compiles nothing",
     "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
                                               "compiles nothing",
     "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "

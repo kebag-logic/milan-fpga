@@ -32,9 +32,9 @@ NXFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \
          -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
-       $(A)/avtp_stream_parser.sv $(A)/KL_stream_table.sv \
+       $(PARSER_SRC) $(A)/KL_stream_table.sv \
        $(RXMON_SRC) \
-       $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
+       $(DEPKT_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_nx_wrap.sv
@@ -48,6 +48,8 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
 # and the N=4 stack (#765), which for #775's two-copy defects also builds this
 # leg from a mutated engine and reference.
 RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv
+PARSER_SRC ?= $(A)/avtp_stream_parser.sv
+DEPKT_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv
 REF_SRC   ?= reference/KL_avtp_rx_monitor_ctx_ref.sv
 LS_MDIR   ?= obj_ls
 NX_MDIR   ?= obj_nx
@@ -57,7 +59,7 @@ LSFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
 LSSRCS = $(REF_SRC) $(RXMON_SRC) \
          avtp_rxmon_lockstep_wrap.sv
-.PHONY: all run clean coverage lockstep-build lockstep nx-build ctxfmt-build ctxfmt
+.PHONY: all run clean coverage lockstep-build lockstep nx-build ctxfmt-build ctxfmt fanout-build fanout depkt-build depkt
 all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vavtp_rxmon_wrap_sim
@@ -69,6 +71,10 @@ run:
 	python3 format_mutants.py
 	$(MAKE) ctxfmt
 	python3 ctxfmt_mutants.py
+	$(MAKE) fanout
+	python3 fanout_mutants.py
+	$(MAKE) depkt
+	python3 depkt_mutants.py
 nx-build:
 	$(VERILATOR) $(NXFLAGS) --Mdir $(NX_MDIR) $(NXSRCS) sim_main_nx.cpp -o Vavtp_rxmon_nx_sim
 # #946: each Stream Input's format in its LCTX context at the 8x8 shape's eight
@@ -80,6 +86,37 @@ ctxfmt-build:
 	$(VERILATOR) $(NXFLAGS) -GN_STREAMS_P=8 --Mdir $(CF_MDIR) $(NXSRCS) sim_ctxfmt.cpp -o Vavtp_rxmon_ctxfmt
 ctxfmt: ctxfmt-build
 	$(CF_MDIR)/Vavtp_rxmon_ctxfmt
+# #948: one talker stream bound to several Stream Inputs at the 8x8 shape's
+# eight contexts (sim_fanout.cpp), the N=4 stack's recipe at N_STREAMS_P=8.
+# FO_MDIR, with RXMON_SRC, PARSER_SRC and DEPKT_SRC, is overridable so
+# fanout_mutants.py builds a mutated parser, engine or depacketizer through
+# this exact recipe.
+FO_MDIR ?= obj_fo
+fanout-build:
+	$(VERILATOR) $(NXFLAGS) -GN_STREAMS_P=8 --Mdir $(FO_MDIR) $(NXSRCS) sim_fanout.cpp -o Vavtp_rxmon_fanout
+fanout: fanout-build
+	$(FO_MDIR)/Vavtp_rxmon_fanout
+# #948: the depacketizer on its own (sim_depkt.cpp) at four inputs: every
+# payload length's frame boundaries, each frame read out once per accepting
+# input, under consumer stalls; built with no payload lead (DT_LEAD=0) and
+# with the datapath's (16). DT_MDIR and DT_LEAD, with DEPKT_SRC, are
+# overridable so depkt_mutants.py builds a mutated depacketizer through this
+# exact recipe.
+DTFLAGS = --cc --exe --build -j 0 --top-module KL_aaf_rx_depacketizer --prefix Vdepkt_top \
+         -GN_STREAMS_P=4 \
+         -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+DT_MDIR ?= obj_dt0
+DT_LEAD ?= 0
+depkt-build:
+	$(VERILATOR) $(DTFLAGS) -GPAY_LEAD_CYC_P=$(DT_LEAD) --Mdir $(DT_MDIR) -CFLAGS "-DLEAD_TB=$(DT_LEAD) -Wall -Wextra" \
+	  $(DEPKT_SRC) sim_depkt.cpp -o Vdepkt
+depkt:
+	$(MAKE) depkt-build DT_LEAD=0 DT_MDIR=obj_dt0
+	./obj_dt0/Vdepkt
+	$(MAKE) depkt-build DT_LEAD=16 DT_MDIR=obj_dt16
+	./obj_dt16/Vdepkt
 lockstep-build:
 	$(VERILATOR) $(LSFLAGS) --Mdir $(LS_MDIR)1 -GN_LISTENERS_P=1 \
 	  -CFLAGS "-DN_TB=1 -Wall -Wextra" $(LSSRCS) sim_lockstep.cpp -o Vavtp_rxmon_lockstep
@@ -100,4 +137,4 @@ coverage:
 	    | tail -2
 	@python3 cov_gate.py cov_annotated 95
 clean:
-	rm -rf obj_dir obj_ls1 obj_ls8 obj_cf obj_cov coverage.dat cov_annotated
+	rm -rf obj_dir obj_ls1 obj_ls8 obj_cf obj_fo obj_dt0 obj_dt16 obj_cov coverage.dat cov_annotated
