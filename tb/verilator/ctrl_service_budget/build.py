@@ -775,7 +775,9 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
         raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
     config_header(build_dir, spec, table, observers.member_paths(native),
                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
-    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
+    # OPT_FAST: Verilator's rule for sim_main.cpp puts OPT_FAST (default -Os) after -CFLAGS, so without it the
+    # testbench compiles for size; -O3 as the model (2.5-5 % less CPU on the 8x8/1if fixture, the same output).
+    run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim', 'OPT_FAST=-O3'], build_dir / 'make.log')
 
 
 #: The source trees the image is compiled from (ctrl_srp_image.py: the control firmware and
