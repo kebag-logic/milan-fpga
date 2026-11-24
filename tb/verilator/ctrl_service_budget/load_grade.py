@@ -337,8 +337,10 @@ TX_PER_JOIN = 3
 #: 14,131 cycles. Measured again over every arm on round 2's final image: at 8x8/1if 145,803 cycles, 108,303 past the
 #: unit, and its settle, 50,075, over nine values, 17,598 cycles, 185 us by the rule (f7d07720, the image 3de17804 links
 #: unchanged there); at 1x1/1if 48,672 cycles, 20,172 past the unit, and its settle, 9,649, over two values, 14,910
-#: cycles, 160 us by the rule (3de17804).
-REGISTRATION_US = {'1x1/1if': 160, '8x8/1if': 185}
+#: cycles, 160 us by the rule (3de17804). Measured on round 3's image (8b4a79d5): at 8x8/1if a record of the burst,
+#: 115,159 cycles, 77,659 past the unit, and its settle, 47,231, over nine values, 13,877 cycles, 150 us by the rule; at
+#: 1x1/1if 43,169 cycles, 14,669 past the unit, and its settle, 10,347, over two values, 12,508 cycles, 135 us.
+REGISTRATION_US = {'1x1/1if': 135, '8x8/1if': 150}
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.
