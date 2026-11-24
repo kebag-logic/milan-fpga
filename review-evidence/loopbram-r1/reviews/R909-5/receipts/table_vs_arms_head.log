@@ -1,0 +1,23 @@
+driver named arms: [('capture_coherence', 2400), ('input_loopback', 300), ('input_loopback_dp', 300), ('media_phase', 1400), ('milan_dp', 4800), ('milan_dp_gptp', 6900), ('milan_dp_mclk', 3600), ('reboot_ctrl', 300)]; '*' arm 1800 s
+table rows: [('capture_coherence', 2400), ('input_loopback', 300), ('input_loopback_dp', 300), ('media_phase', 1400), ('milan_dp', 4800), ('milan_dp_gptp', 6900), ('milan_dp_mclk', 3600), ('mmcm_servo', 1800), ('reboot_ctrl', 300)]; 'every other' 1800 s
+arm capture_coherence 2400 s -> table 2400 : OK
+arm input_loopback 300 s -> table 300 : OK
+arm input_loopback_dp 300 s -> table 300 : OK
+arm media_phase 1400 s -> table 1400 : OK
+arm milan_dp 4800 s -> table 4800 : OK
+arm milan_dp_gptp 6900 s -> table 6900 : OK
+arm milan_dp_mclk 3600 s -> table 3600 : OK
+arm reboot_ctrl 300 s -> table 300 : OK
+row capture_coherence 2400 s -> driver gives 2400 s : OK
+row input_loopback 300 s -> driver gives 300 s : OK
+row input_loopback_dp 300 s -> driver gives 300 s : OK
+row media_phase 1400 s -> driver gives 1400 s : OK
+row milan_dp 4800 s -> driver gives 4800 s : OK
+row milan_dp_gptp 6900 s -> driver gives 6900 s : OK
+row milan_dp_mclk 3600 s -> driver gives 3600 s : OK
+row mmcm_servo 1800 s -> driver gives 1800 s : OK
+row reboot_ctrl 300 s -> driver gives 300 s : OK
+'every other default suite' 1800 s vs '*' 1800 s : OK
+discovered suites 68; without a row 59; of those not at 1800 s: []
+PROVISIONAL_SUITES ['input_loopback', 'input_loopback_dp', 'reboot_ctrl'] vs provisional rows ['input_loopback', 'input_loopback_dp', 'reboot_ctrl'] : OK
+RESULT PASS
