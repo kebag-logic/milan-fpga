@@ -108,6 +108,8 @@ SUITE_SECONDS = {
     "gptp_txts": 72,
     "i2spb": 6,
     "ifg": 6,
+    "input_loopback": 38,
+    "input_loopback_dp": 107,
     "lat_history_ring": 6,
     "link_guard": 7,
     "maap": 1375,
@@ -186,7 +188,6 @@ def concrete_job_limits(workflow: str) -> tuple[int, ...] | None:
     if set(workers) != set(range(len(workers))):
         raise ValueError("materialized worker inventory or timeouts differ")
     return tuple(workers[index] for index in range(len(workers)))
-
 
 
 def expand_suites(suites: list[str]) -> list[str]:
@@ -343,8 +344,6 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
     """Fixture range only; production enforcement reads each worker limit separately."""
     limits = verilator_worker_limits(workflow)
     return max(limits), len(limits)
-
-
 
 
 SUITE_TIMEOUT_ARM_RE = re.compile(

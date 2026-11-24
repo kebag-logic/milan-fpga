@@ -351,6 +351,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 |---|---|---|
 | #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
 | #979 mapped input loopback | `make -C tb/verilator/input_loopback`; `python3 tb/verilator/input_loopback/mutants.py --output <scratch-directory>` | Authors and reviewers changing the optional mapped copy, synchronous bucket 6, or invalidation; [coverage](../../tb/verilator/input_loopback/README.md) |
+| #979 enabled parent loopback, its connection, retention and missing-output plants | `make -C tb/verilator/input_loopback_dp`; `python3 tb/verilator/input_loopback_dp/mutants.py --output <scratch-directory>` | Authors and reviewers changing the `milan_datapath.sv` map writers, `g_input_invalidation`, the talker enable, the queue or capture packed loopback fields, `tb/verilator/input_loopback_dp` or this campaign; [coverage](../../tb/verilator/input_loopback_dp/README.md) |
 | #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_queue.sv`, `sim_aclk.cpp` or this campaign |
 | #645/#647 settle recentre, sixteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
 | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
@@ -436,6 +437,12 @@ Its leg figure in `scripts/suite_shards.py`, 240 s, is not a hosted window.
 It is the case's cold run through `ci_make_cases.py` on four CPUs, 147.9 s, scaled by 1.58 and rounded up.
 That run built the case and ran it, with ci-prepare's three entity images.
 Its hosted window is owed by the first hosted run of a head that carries it.
+
+#979 adds two default suites, `input_loopback` and `input_loopback_dp`.
+Their `scripts/suite_shards.py` figures, 38 s and 107 s, are not hosted windows.
+Each is the sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs.
+Those runs took 23.8 s and 67.7 s, each scaled by 1.58 and rounded up.
+Their hosted windows are owed by the first hosted run of a head that carries them.
 
 #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
 added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.
