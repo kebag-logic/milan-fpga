@@ -1,0 +1,202 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index f05bcdb549..0a067de021 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -3310 +3310 @@ The seven post-flip lab-fix PRs composed on `dev-soft-core` `854bd723` (#956, #9
+-- **One statement is raised by the rule** (#665's ruling item 4 of 2026-11-20, every owner bound still held): at 8x8/1if a notice longer than `AECP_FAN_BYTES`, `poll_grade.EIGHT_ONE`'s `aecp_long`, 320 to 325 us, 30,948 cycles in `declaring-outputs`' `aecp-largest-notice` (arm A's 30,912). At 1x1/1if no statement is exceeded.
++- **One statement is raised by the rule** (`record_classes.rule`, by #665's ruling of 2026-11-23 on the #958 sync's STOP, every owner bound still held): at 8x8/1if a notice longer than `AECP_FAN_BYTES`, `poll_grade.EIGHT_ONE`'s `aecp_long`, 320 to 325 us, 30,948 cycles in `declaring-outputs`' `aecp-largest-notice` (arm A's 30,912). At 1x1/1if no statement is exceeded.
+@@ -3312 +3312 @@ The seven post-flip lab-fix PRs composed on `dev-soft-core` `854bd723` (#956, #9
+-- **#969's conditions hold at both points under the owner's amendment** ([2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252), amending the ruling of 2026-11-22 that owes the kept Talkers' records to #977 while they hold). Two of the conditions as first stated broke at 8x8/1if, and the composition could restate neither. In arm A the kept Talker Failed's record is 142,582 cycles against the bound record's 142,137, over by 445 (0.31 %). At #969's head they were 142,909 and 153,208, so the bound path is the one that got about 11,000 cycles cheaper on the composed image. In `answering-ports`, `srp-bound`'s build of one MRPDU is a pass of 171,645 cycles, past `CTRL_LOOP_BUILD_ONE_PASS_US`'s 147,500 (1,475 us, tier 2's slice at that shape). The amendment holds kept <= bound within the measurement rule's 5 % on the same image, so the kept Failed record's limit is 149,243 cycles and its margin 6,661. It also owes the bound path's build of one and its passes over THE SHARE to #977 with the rest of the registration cost, neither restated. `kept_grade.py` re-graded the same legs' logs, with no simulation run again, and passes in all four, 0 findings: at 8x8/1if 5 owed in arm A and 6 in `answering-ports`, at 1x1/1if 4 in each. `run.py --regrade` of both groups at each leg exits 0, with srp-bound's build of one printed OWED as a pass and as THE TRANSMIT's slice. The kept path stays inside: 0 passes over THE SHARE at either point, and its heaviest build of one is 86,018 cycles at 8x8/1if (`answering-ports`; 81,655 in arm A). At 1x1/1if the kept Failed record is 36,631 against the bound record's 38,739 in arm A.
++- **#969's conditions hold at both points under the owner's amendment** ([2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252), amending the ruling of 2026-11-22 that owes the kept Talkers' records to #977 while they hold). Two of the conditions as first stated broke at 8x8/1if, and the composition could restate neither. In arm A the kept Talker Failed's record is 142,582 cycles against the bound record's 142,137, over by 445 (0.31 %). At #969's head they were 142,909 and 153,208, so the bound path is the one that got about 11,000 cycles cheaper on the composed image. In `answering-ports`, `srp-bound`'s build of one MRPDU is a pass of 171,645 cycles, past `CTRL_LOOP_BUILD_ONE_PASS_US`'s 147,500 (1,475 us, tier 2's slice at that shape). The amendment holds kept <= bound within the measurement rule's 5 % on the same image, so the kept Failed record's limit is 149,243 cycles and its margin 6,661. It also owes the bound path's build of one and its passes over THE SHARE to #977 with the rest of the registration cost, neither restated. `kept_grade.py` re-graded the same legs' logs, with no simulation run again, and passes in all four, 0 findings: at 8x8/1if 5 owed in arm A and 6 in `answering-ports`, at 1x1/1if 4 in each. `run.py --regrade` of both groups at each leg exits 0, with srp-bound's build of one printed OWED as a pass and as THE TRANSMIT's slice. Only the build of one's slice is owed: a pass `srp-bound` gives whole to THE TRANSMIT's build (both MRPDUs) over the slice stays a failure, and none arises at either point. The kept path stays inside: 0 passes over THE SHARE at either point, and its heaviest build of one is 86,018 cycles at 8x8/1if (`answering-ports`; 81,655 in arm A). At 1x1/1if the kept Failed record is 36,631 against the bound record's 38,739 in arm A.
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 36da6e8edf..1d2b1ac62e 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -787 +787 @@ has its record; every kept record costs no more than the bound record of its own
+-the measurement rule's 5 % (#665's ruling item 4: kept <= bound x 1.05), that record present, printed with both
++the measurement rule's 5 % (`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both
+@@ -790,2 +790,4 @@ figures and the margin; no work pass of `srp-kept` is over THE SHARE, nor any id
+-every build of one of `srp-kept`, is within its stated cost. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP unit are not
+-restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
++every build of one of `srp-kept`, is within its stated cost. A tier-2 slice of THE TRANSMIT's build over the slice is
++owed only where its pass is `srp-bound`'s build of one, which the amendment owes; a pass either group gives whole to the
++build (both MRPDUs) stays a failure over the slice as over its stated cost. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP
++unit are not restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
+@@ -794,3 +796,5 @@ restated. THE SHARE is read from the logs graded, never from a result file besid
+-synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (24 checks), and each must be
+-the finding it names: kept 4 % over bound holds and 6 % over breaks, a kept pass over THE SHARE and a kept build of
+-one over its slice are findings, and the bound path's are owed.
++synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (29 checks), and each must be
++the finding it names: kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against
++100,000) holds and one cycle more breaks, a kept pass over THE SHARE and a kept build of one over its slice are
++findings, and the bound path's are owed, while a `srp-bound` pass given whole to THE TRANSMIT's build, over the slice
++and within `CTRL_LOOP_BUILD_PASS_US`, stays a failure (`run.py`'s own STATED lines).
+diff --git a/tb/verilator/ctrl_service_budget/kept_grade.py b/tb/verilator/ctrl_service_budget/kept_grade.py
+index 75c6afca79..6a81cad030 100644
+--- a/tb/verilator/ctrl_service_budget/kept_grade.py
++++ b/tb/verilator/ctrl_service_budget/kept_grade.py
+@@ -14 +14,3 @@ of one MRPDU (as passes and as THE TRANSMIT's slices) and work passes over THE S
+-each named OWED #977, never a pass, while all of these hold, each a finding otherwise:
++each named OWED #977, never a pass, while all of these hold, each a finding otherwise. A tier-2 slice of THE
++TRANSMIT's build over the slice is owed only where its pass is the bound group's build of one; a pass either group
++gives whole to the build (both MRPDUs) stays a failure over the slice, as it does over its stated cost:
+@@ -22,2 +24,2 @@ each named OWED #977, never a pass, while all of these hold, each a finding othe
+-                  held within the measurement rule's 5 % (record_classes.rule, #665's ruling item 4): kept <= bound
+-                  x 1.05 (#969's 2026-11-23 amendment), printed with both figures and the margin;
++                  held within the measurement rule's 5 % (record_classes.rule): kept <= bound x 1.05 (#969's
++                  2026-11-23 amendment), printed with both figures and the margin;
+@@ -40,2 +42,3 @@ condition's breach is a finding of its own, by name, the unit's overrun and the
+-over THE SHARE alone are owed, kept 4 % over bound holds and 6 % over breaks, and a record is its own probe's, never an
+-earlier mark's.
++over THE SHARE alone are owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly holds and one cycle
++more breaks, a bound pass given whole to THE TRANSMIT's build over the slice stays a failure, and a record is its own
++probe's, never an earlier mark's.
+@@ -59,0 +63 @@ import shape_costs  # noqa: E402
++import slice_grade  # noqa: E402
+@@ -67,2 +71,2 @@ DISPOSITION = '#977 (https://github.com/kebag-logic/milan-fpga/issues/977)'
+-AMENDED = 'https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252'
+-#: kept <= bound is held within the measurement rule's 5 % (record_classes.rule; #665's ruling item 4), per AMENDED.
++AMENDED = "#969's ruling of 2026-11-23"
++#: kept <= bound is held within the measurement rule's 5 % (record_classes.rule), per AMENDED.
+@@ -69,0 +74,3 @@ KEPT_MARGIN_PERCENT = 5
++#: run.py's STATED line of a tier-2 slice of THE TRANSMIT's build (run.stated_misses' words). AMENDED owes srp-bound's
++#: only where its pass is a build of one (Disposition.owes), never a pass given whole to the build, never srp-kept's.
++TRANSMIT_SLICE = "a tier-2 slice of THE TRANSMIT's build of "
+@@ -75 +82 @@ OWED_KINDS = {kept_window.NAME: ("an SRP record's apply of ", "a tier-2 slice of
+-                                  "a tier-2 slice of THE TRANSMIT's build of ")}
++                                  TRANSMIT_SLICE)}
+@@ -198,0 +206,21 @@ def held(kept: grade.Log, bound: grade.Log, shape: shape_costs.Shape, interfaces
++def transmit_slices(log: grade.Log, shape: shape_costs.Shape) -> dict[str, set[int]]:
++    """The CPU cycles of each tier-2 slice of THE TRANSMIT's build over the stated slice (slice_grade.held), by the
++    pass's kind as whole_grade.held tells it: 'build-one' where the pass makes at most one SRP frame, 'build' where it
++    is given whole to the build (both MRPDUs)."""
++    srp = scenario.CH['srp']
++    frames = sorted(cycle for cycle, ch, _ in log.commits if ch == srp)
++    out: dict[str, set[int]] = {'build': set(), 'build-one': set()}
++    for o in slice_grade.held(log, shape)['over']:
++        if o['kind'] == 'build':
++            end = o['start_sys'] + o['cycles'] * log.sys_hz // log.cpu_hz
++            out['build' if whole_grade.within(frames, o['start_sys'], end) > 1 else 'build-one'].add(o['cycles'])
++    return out
++
++
++def stated_cycles(line: str) -> int | None:
++    """The CPU cycles a STATED line names first, None for none."""
++    head = line.split(' CPU cycles', 1)
++    figure = head[0].rpartition(' ')[2].replace(',', '') if len(head) == 2 else ''
++    return int(figure) if figure.isdigit() else None
++
++
+@@ -213,0 +242 @@ class Disposition:
++        self.slices: dict[str, set[int]] = {'build': set(), 'build-one': set()}
+@@ -220,3 +249,4 @@ class Disposition:
+-        logs = [grade.parse((out / f'{name}.log').read_text(errors='replace'), spec['sys_hz'], spec['cpu_hz'])
+-                for name in OWED_KINDS]
+-        _, self.owed, self.findings = held(*logs, point_shape(spec), spec['interfaces'])
++        logs = {name: grade.parse((out / f'{name}.log').read_text(errors='replace'), spec['sys_hz'], spec['cpu_hz'])
++                for name in OWED_KINDS}
++        _, self.owed, self.findings = held(*logs.values(), point_shape(spec), spec['interfaces'])
++        self.slices = transmit_slices(logs[kept_window.BOUND], point_shape(spec))
+@@ -225,3 +255,11 @@ class Disposition:
+-        """Whether a STATED line is one the registrations make in a group this disposition holds."""
+-        return not self.findings and any(line.startswith(f'{name}: {kind}') for name, kinds in OWED_KINDS.items()
+-                                         for kind in kinds if name in self.ran)
++        """Whether a STATED line is one the registrations make in a group this disposition holds. srp-bound's slice of
++        THE TRANSMIT's build is owed only where its log's slice of those cycles is a build of one, and none given whole
++        to the build is: a pass given whole to THE TRANSMIT's build is never owed (AMENDED)."""
++        if self.findings:
++            return False
++        if line.startswith(f'{kept_window.BOUND}: {TRANSMIT_SLICE}'):
++            cycles = stated_cycles(line)
++            return (kept_window.BOUND in self.ran and cycles in self.slices['build-one'] and
++                    cycles not in self.slices['build'])
++        return any(line.startswith(f'{name}: {kind}') for name, kinds in OWED_KINDS.items() for kind in kinds
++                   if name in self.ran)
+@@ -279,0 +318,9 @@ class Synthetic:
++        self.slice = slice_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limit']
++        self.limits = limits
++        #: a build of one MRPDU one cycle over the slice (and so over its stated cost, below the slice), and a pass
++        #: given whole to THE TRANSMIT's build over the slice and within CTRL_LOOP_BUILD_PASS_US (above the slice)
++        self.one_cycles, self.whole_cycles = self.slice + 1, (self.slice + limits['build']) // 2
++        self.slice_one = (f'PASS 1 9500000 9500000 {self.one_cycles}', 'ENTRY 9500010 build_mrpdu',
++                          f'TXC 9500020 {srp} 0')
++        self.slice_whole = (f'PASS 2 9700000 9700000 {self.whole_cycles}', 'ENTRY 9700010 build_mrpdu',
++                            f'TXC 9700020 {srp} 0', f'TXC 9700030 {srp} 0')
+@@ -321,0 +369,2 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
++    integral = {name: s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', 100_000)])
++                for name, kept in (('equal', 105_000), ('over', 105_001))}
+@@ -342,0 +392,3 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
++            ('kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive',
++             kept_within(105_000, 100_000) and not kept_within(105_001, 100_000) and integral['equal'][1] == [] and
++             only(integral['over'][1], 'kept_advertise', 'kept <= bound broken'), str(integral)),
+@@ -394,0 +447 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
++    import run   # its STATED lines, as it prints them (run.stated_misses)
+@@ -397,3 +450,3 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
+-              f'{kept_window.BOUND}: a build-one pass of 171,645 CPU cycles, over its stated 147,500',
+-              f"{kept_window.BOUND}: a tier-2 slice of THE TRANSMIT's build of 171,645 CPU cycles, over the stated "
+-              f'slice 147,500']
++              f'{kept_window.BOUND}: a build-one pass of {s.one_cycles:,} CPU cycles, over its stated '
++              f'{s.limits["build-one"]:,}',
++              f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.one_cycles:,} CPU cycles, over the stated slice {s.slice:,}"]
+@@ -414 +467,17 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
+-        for name, body in s.texts(*s.clean).items():
++        def disposed(**extra: tuple[str, ...]) -> tuple[Disposition, list[str], list[str]]:
++            """Disposition of both groups' logs with those extra lines, run.py's STATED lines of them, and those
++            that still fail."""
++            for name, body in s.texts(*s.clean, **extra).items():
++                (out / f'{name}.log').write_text(body)
++            logs = {name: grade.parse((out / f'{name}.log').read_text(), s.hz, s.hz) for name in OWED_KINDS}
++            lines = run.stated_misses([dict(group=name, passes=dict(slices=slice_grade.held(log, s.shape),
++                                                                    stated=whole_grade.held(log, s.shape)))
++                                       for name, log in logs.items()])
++            d = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
++            return d, lines, d.stated(list(lines))
++        one = disposed(bound_extra=s.slice_one)
++        whole = disposed(bound_extra=s.slice_whole)
++        both = disposed(bound_extra=(*s.slice_one, *s.slice_whole))
++        kept_whole = disposed(kept_extra=s.slice_whole)
++        whole_slice = f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.whole_cycles:,} CPU cycles"
++        for name, body in s.texts(*s.clean, bound_extra=s.slice_one).items():
+@@ -420 +489,2 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
+-        (out / f'{kept_window.NAME}.log').write_text(s.texts(*s.clean, kept_extra=s.over_share)[kept_window.NAME])
++        for name, body in s.texts(*s.clean, kept_extra=s.over_share).items():
++            (out / f'{name}.log').write_text(body)
+@@ -425 +495 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
+-             pair.findings == [] and pair_left == kept_build and len(pair.owed) == len(stated) and
++             pair.findings == [] and pair_left == kept_build and len(pair.owed) == len(stated) + 1 and
+@@ -426,0 +497,15 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
++            (f'srp-bound\'s build of one over the slice ({s.one_cycles:,} against {s.slice:,}): run.py\'s build-one '
++             f'and THE TRANSMIT slice lines are both owed, nothing fails',
++             one[0].findings == [] and one[2] == [] and len(one[1]) == 2 and
++             any(TRANSMIT_SLICE in line for line in one[1]), str(one[1:])),
++            (f'a srp-bound pass given whole to THE TRANSMIT\'s build, over the slice and within '
++             f'CTRL_LOOP_BUILD_PASS_US ({s.whole_cycles:,} against {s.slice:,} and {s.limits["build"]:,}): its slice '
++             f'line FAILS, never owed', s.slice < s.whole_cycles <= s.limits['build'] and whole[0].findings == [] and
++             len(whole[1]) == 1 and len(whole[2]) == 1 and whole[2][0].startswith(whole_slice) and
++             not any(TRANSMIT_SLICE in o for o in whole[0].owed), str(whole[1:])),
++            ('srp-bound\'s build of one and its pass given whole, in one log: the one\'s slice is owed, the whole\'s '
++             'still fails', both[0].findings == [] and len(both[2]) == 1 and both[2][0].startswith(whole_slice) and
++             sum(TRANSMIT_SLICE in o for o in both[0].owed) == 1, str(both[1:])),
++            ('srp-kept\'s pass given whole to THE TRANSMIT\'s build over the slice fails, never owed',
++             kept_whole[0].findings == [] and len(kept_whole[2]) == 1 and
++             kept_whole[2][0].startswith(f'{kept_window.NAME}: {TRANSMIT_SLICE}'), str(kept_whole[1:])),
+diff --git a/tb/verilator/ctrl_service_budget/kept_window.py b/tb/verilator/ctrl_service_budget/kept_window.py
+index 6a5db45004..269c972059 100644
+--- a/tb/verilator/ctrl_service_budget/kept_window.py
++++ b/tb/verilator/ctrl_service_budget/kept_window.py
+@@ -33,2 +33,3 @@ kept <= bound within the measurement rule's 5 % on the same image (#969's 2026-1
+-srp-kept over THE SHARE, each of srp-kept's builds within its stated cost; srp-bound's build of one and its passes over
+-THE SHARE are owed to #977 with its records; run.py gives their #977 lines that disposition (kept_grade.Disposition).
++srp-kept over THE SHARE, each of srp-kept's builds and each pass srp-bound gives whole to THE TRANSMIT's build within
++its stated cost; srp-bound's build of one (as a pass and as THE TRANSMIT's slice) and its passes over THE SHARE are
++owed to #977 with its records; run.py gives their #977 lines that disposition (kept_grade.Disposition).
+diff --git a/tb/verilator/ctrl_service_budget/poll_grade.py b/tb/verilator/ctrl_service_budget/poll_grade.py
+index 29f9b360f1..c97e63766b 100644
+--- a/tb/verilator/ctrl_service_budget/poll_grade.py
++++ b/tb/verilator/ctrl_service_budget/poll_grade.py
+@@ -135,2 +135,3 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
+-#: aecp-largest-notice; arm A's 30,912), 325 us by the rule, raised by #665's ruling item 4 of 2026-11-20 with every
+-#: owner bound still held (the manager's ruling on the #958 sync's STOP, item 2).
++#: aecp-largest-notice; arm A's 30,912), 325 us by the rule (record_classes.rule), raised with every owner bound
++#: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
++#: rule while every owner bound holds).

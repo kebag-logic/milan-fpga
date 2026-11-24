@@ -1,0 +1,33 @@
+# author-r3 receipts/INDEX.md sha256 prefixes recomputed on the published bytes at 8d71efcb
+ok 4ce11afff7532175 budget/kept-grade-1x1-answering-ports-r3.txt
+ok bc074031c9e02065 budget/kept-grade-1x1-arm-A-r3.txt
+ok 1173d97d528b8267 budget/kept-grade-8x8-1if-answering-ports-r3.txt
+ok 30af6ba5f3d67c32 budget/kept-grade-8x8-1if-arm-A-r3.txt
+ok 1c94b0521ba59aea budget/kept-grade-planted-r3.txt
+ok 10ee6e6782a156f9 budget/kept-grade-selftest-r3.txt
+ok f0010c730a35ab49 budget/regrade-summary-r3.txt
+ok 346439e0eed839fe budget/regrade_r3.sh.txt
+ok 72ae0783f11cdf8f budget/run-regrade-1x1-answering-ports-r3.txt
+ok 257865a9a27e608e budget/run-regrade-1x1-none-r3.txt
+ok a676c0a1fbe8b833 budget/run-regrade-8x8-1if-answering-ports-r3.txt
+ok e9226d11b0ff28b7 budget/run-regrade-8x8-1if-none-r3.txt
+ok c9f49754519a1b6b docs/docs-workflow-steps-adc13dbd.txt
+ok 21fe8286c3c41edf gates/ctrl-boundary-adc13dbd.txt
+ok b57f3b68a76068d9 gates/tree-checks-adc13dbd.txt
+ok ab91a1364fd8ddbc harness/probe-whole-build-slice-r3.txt
+ok 23344f8a28f44f8a ledger/image-hashes-vs-43076d0f.txt
+ok f8dfbc83fbf3c99b ledger/plat-ledger-adc13dbd.txt
+# round-2 vs round-3 re-grade receipts, below the '#' header lines
+kept-grade-1x1-answering-ports: < rc=0 
+kept-grade-1x1-arm-A: < rc=0 
+kept-grade-8x8-1if-answering-ports: < rc=0 
+kept-grade-8x8-1if-arm-A: < rc=0 
+run-regrade-1x1-answering-ports: < rc=0 
+run-regrade-1x1-none: < rc=0 
+run-regrade-8x8-1if-answering-ports: < rc=0 
+run-regrade-8x8-1if-none: < rc=0 
+# 24 image hash lines, plat-ledger-43076d0f.txt (round 2) vs plat-ledger-adc13dbd.txt (round 3)
+identical: 24 of 24
+# R911-1 probe tool sha256
+b7172b3e8ee2eafc5e686ff07e70a2f21258f4fa924614842ab48b64dffb5087  reviews/R911-1/tools/probe_whole_slice.py
+b7172b3e8ee2eafc5e686ff07e70a2f21258f4fa924614842ab48b64dffb5087  tools/probe_whole_slice.py
