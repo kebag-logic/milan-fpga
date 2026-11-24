@@ -2478,6 +2478,10 @@ protected:
         const auto sid=stream(s); const auto d=dest(s);
         ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,&sid,d.data(),2));
     }
+    // A block returned to the pool owes the count a pending one waits for (srp_mbx.c count_kept), as the MAP work's
+    // reservation returned one with every indication; at a one-interface shape lwSRP makes none at one port
+    // (LWSRP_ONE_PORT_MAP), so a test that needs that count returns a block of its own (#977).
+    void return_block() { ctrl_pool_free(&pool,ctrl_pool_alloc(&pool,1u)); }
     // The Listener declarations of stream s in interface 0's first MSRP MRPDU sent from frame `from` on, and when it
     // left.
     std::vector<Declaration> first_mrpdu(uint32_t from, unsigned s, unsigned *at_ms) {
@@ -2624,8 +2628,8 @@ TEST_F(SrpEarlyTalker, AJoinInOfTheOtherKindReplacesARegistrationKeptBeforeTheBi
 }
 
 // A kept registration that ends holds its block until mrp_reclaim frees it, so it is counted until then, by a walk made
-// meanwhile too (a bound Talker's indication owes one); once the block is freed, the walk its return owes counts it no
-// more, and another StreamID's Talker is kept in its place.
+// meanwhile too (a bound Talker's indication owes one) and by the count a returned block owes (return_block); once the
+// block is freed, the walk its return owes counts it no more, and another StreamID's Talker is kept in its place.
 TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFreed) {
     settle(); advance(400);
     const unsigned past=CTRL_SRP_SINKS, bound=CTRL_SRP_SINKS+1u;
@@ -2639,6 +2643,7 @@ TEST_F(SrpEarlyTalker, AKeptRegistrationThatLeftHoldsItsPlaceUntilItsBlockIsFree
     // bound indication owes runs before any poll reclaims, and the declaration it leaves as it was owes no transmit
     receive_before_poll(then(talker(0,kAdvertise,kLv),talker(bound,kAdvertise,kJoinIn,false,1000u)));
     ASSERT_EQ(sink(0).declared,kAdvertise);
+    return_block();
     const unsigned left=ctrl_pool_in_use(&pool);
     receive_before_poll(talker(past,kAdvertise,kJoinIn));
     EXPECT_EQ(ctrl_pool_in_use(&pool),left)<<"a kept registration that left is counted until its block is freed";
@@ -2657,8 +2662,9 @@ TEST_F(SrpEarlyTalker, AnUnboundRegistrationIsKeptAndCountedAgainstTheBound) {
     offer(talker(mine,kAdvertise,kJoinIn)); advance(kJoinMs);
     ASSERT_EQ(sink(0).declared,kAdvertise);
     for (unsigned k=1;k<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
-    // a refresh of one kept: the count before it sees every one kept registered, so none is pending when the binding
-    // changes, and the unbinding alone owes the next count
+    // a refresh of one kept: the count before it, owed by a block returned (return_block), sees every one kept
+    // registered, so none is pending when the binding changes, and the unbinding alone owes the next count
+    return_block();
     offer(talker(1,kAdvertise,kJoinIn)); quiet(400);
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); advance(kJoinMs);
     const unsigned full=ctrl_pool_in_use(&pool);
