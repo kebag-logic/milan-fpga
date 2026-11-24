@@ -1,0 +1,26 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 163558b5e9..63f2e1e883 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -581,6 +581,8 @@ margin sets each named entry:
+ | Suite | Budget | Basis |
+ |---|---|---|
+ | every other default suite | 1800 s | retained; #673's near-limit survey appears below |
++| `input_loopback`, `input_loopback_dp` | 300 s each | provisional at their own arm under the new-suite steps in the selector's docstring (`scripts/suite_shards.py`), from cold local runs; their hosted windows are owed and replace these figures |
++| `reboot_ctrl` | 300 s | provisional at its own arm under the same new-suite steps |
+ | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+ | `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
+ | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index de741c0664..021f878510 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -439,7 +439,7 @@ That run built the case and ran it, with ci-prepare's three entity images.
+ Its hosted window is owed by the first hosted run of a head that carries it.
+ 
+ #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
+-Both are provisional under the selftest's new-suite steps: each figure in `scripts/suite_shards.py` is 300 s.
++Both are provisional under the new-suite steps in the selector's docstring: each figure in `scripts/suite_shards.py` is 300 s.
+ That is the `suite_timeout` arm `scripts/run_all_suites.sh` gives each suite, as for `reboot_ctrl`.
+ The `*` arm's 1800 s cannot be the figure, because no regular worker holds it within its 1620 s bound.
+ The sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs, took at most 34.2 s and 98.0 s.
