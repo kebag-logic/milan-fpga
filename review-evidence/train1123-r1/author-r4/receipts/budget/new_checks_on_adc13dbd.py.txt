@@ -1,0 +1,23 @@
+"""The head's THE TRANSMIT slice checks (selftest_transmit) run against adc13dbd's own Disposition, which calls
+adc13dbd's own transmit_slices and owes; nothing is changed on disk.
+usage: python3 -I -B new_checks_on_adc13dbd.py <repo-root> <adc13dbd's kept_grade.py>"""
+import importlib.util
+import sys
+import tempfile
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]).resolve() / 'tb/verilator/ctrl_service_budget'))
+import kept_grade as k  # noqa: E402
+
+spec = importlib.util.spec_from_file_location('kept_grade_adc13dbd', sys.argv[2])
+old = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(old)
+head = k.Disposition
+for label, disposition in (('head', head), ('adc13dbd', old.Disposition)):
+    k.Disposition = disposition
+    with tempfile.TemporaryDirectory() as tmp:
+        checks = k.selftest_transmit(k.Synthetic(), Path(tmp))
+    k.Disposition = head
+    print(f'=== the head\'s {len(checks)} THE TRANSMIT checks against {label}\'s Disposition '
+          f'({disposition.__module__}): {sum(not ok for _, ok, _ in checks)} fail')
+    for what, ok, _ in checks:
+        print(f'  [{"ok" if ok else "FAIL"}] {what}')

@@ -1,0 +1,15 @@
+# python3 -I -B <R911-2's tools/probe_whole_slice.py, unmodified, sha256 b7172b3e8ee2eafc matching its MANIFEST.sha256> <lane>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0)
+1x1/1if: slice 95,000, CTRL_LOOP_BUILD_PASS_US 101,000, build of one 73,500 CPU cycles; probe pass 98,000 with two SRP frames
+--- srp-bound: whole_grade kinds over [], heaviest build 98,000; slices over [('build', 98000)]
+  STATED lines run.py prints: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+  kept_grade findings: []
+  OWED: []
+  still failing: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+--- srp-kept: whole_grade kinds over [], heaviest build 98,000; slices over [('build', 98000)]
+  STATED lines run.py prints: ["srp-kept: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+  kept_grade findings: []
+  OWED: []
+  still failing: ["srp-kept: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+RESULT srp-bound: the whole build pass's slice line is a failure
+RESULT srp-kept: the whole build pass's slice line is a failure
+rc=0

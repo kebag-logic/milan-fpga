@@ -1,0 +1,9 @@
+# diff of the full tree-check logs, round 3 (adc13dbd, units/tree-r3.log) against round 4 (6ab79cf6, units/tree-r4.log), with clock times, durations, the head SHA and temporary-directory names normalized: the only change is kept_grade's three new checks and its count
+93a94,96
+> [ok] srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+> [ok] srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+> [ok] srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+102c105
+< kept_grade selftest: PASS (29 checks)
+---
+> kept_grade selftest: PASS (32 checks)

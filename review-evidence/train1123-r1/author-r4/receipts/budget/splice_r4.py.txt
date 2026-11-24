@@ -1,0 +1,54 @@
+"""Source-level mutants of the round-4 kept_grade.py (scratch copies; the lane is never written), each run --selftest.
+usage: python3 -I -B splice_r4.py <repo-root> <adc13dbd's kept_grade.py> <scratch-out>
+  r3-rule      the head's transmit_slices replaced, text for text, by adc13dbd's
+  no-closed    the clause `and cycles not in self.slices['build']` deleted from Disposition.owes
+Prints each mutant's diff against the head file and its self-test's summary and FAIL lines."""
+import difflib
+import runpy
+import contextlib
+import io
+import re
+import sys
+from pathlib import Path
+
+root, old_path, out = Path(sys.argv[1]).resolve(), Path(sys.argv[2]), Path(sys.argv[3])
+harness = root / 'tb/verilator/ctrl_service_budget'
+head = (harness / 'kept_grade.py').read_text()
+old = old_path.read_text()
+
+
+def block(text, name):
+    m = re.search(rf'^def {name}\(.*?(?=^\S)', text, re.S | re.M)
+    return m.group(0)
+
+
+clause = (" and\n                    cycles not in self.slices['build'])")
+assert head.count(clause) == 1, 'the clause is not in the head file exactly once'
+mutants = {'r3-rule': head.replace(block(head, 'transmit_slices'), block(old, 'transmit_slices')),
+           'no-closed': head.replace(clause, ')')}
+sys.path.insert(0, str(harness))
+rc = 0
+for name, text in mutants.items():
+    assert text != head
+    path = out / name / 'kept_grade.py'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    print(f'=== {name}: diff against the head file')
+    sys.stdout.writelines(difflib.unified_diff(head.splitlines(True), text.splitlines(True), 'head/kept_grade.py',
+                                               f'{name}/kept_grade.py', n=1))
+    printed = io.StringIO()
+    sys.argv = [str(path), '--selftest']
+    with contextlib.redirect_stdout(printed):
+        try:
+            runpy.run_path(str(path), run_name='__main__')
+            code = 0
+        except SystemExit as e:
+            code = e.code
+    lines = printed.getvalue().splitlines()
+    print(f'--- {name}: --selftest rc={code}: {lines[-1]}')
+    for line in lines:
+        if line.startswith('[FAIL]'):
+            print('   ', line.split(': ', 1)[0] if len(line) > 200 else line)
+    rc |= 0 if code == 1 else 1
+print('every source mutant fails the self-test' if rc == 0 else 'A SOURCE MUTANT PASSED THE SELF-TEST')
+sys.exit(rc)

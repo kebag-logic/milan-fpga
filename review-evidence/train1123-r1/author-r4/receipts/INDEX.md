@@ -1,0 +1,38 @@
+# Receipts (generated from the files present)
+
+| File | Bytes | sha256 | First line |
+|---|---:|---|---|
+| `budget/kept-grade-1x1-answering-ports-r4.txt` | 2,801 | `f7ded178cafd935d` | # python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <1x1-answering-ports build> --results <round 1's view of the leg's srp-kept and srp-bound logs>, at  |
+| `budget/kept-grade-1x1-arm-A-r4.txt` | 2,781 | `113f2b85f2294b70` | # python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <1x1-none build> --results <round 1's view of the leg's srp-kept and srp-bound logs>, at head 300da9 |
+| `budget/kept-grade-8x8-1if-answering-ports-r4.txt` | 3,264 | `ff8a3d46c0a5d794` | # python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <8x8-1if-answering-ports build> --results <round 1's view of the leg's srp-kept and srp-bound logs>, |
+| `budget/kept-grade-8x8-1if-arm-A-r4.txt` | 2,997 | `18141cd864028ab5` | # python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <8x8-1if-none build> --results <round 1's view of the leg's srp-kept and srp-bound logs>, at head 30 |
+| `budget/kept-grade-planted-r4.txt` | 4,322 | `25ab3432c9b27c13` | # python3 -I -B kept_mutants_r4.py <lane> <adc13dbd's kept_grade.py, git show, blob 6a81cad0>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0); s |
+| `budget/kept-grade-selftest-r4.txt` | 3,536 | `c2128bd2d35b31e5` | # python3 -I -B tb/verilator/ctrl_service_budget/kept_grade.py --selftest, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0) |
+| `budget/kept-grade-source-mutants-r4.txt` | 2,872 | `0927d3e3d020cf0a` | # python3 -I -B splice_r4.py <lane> <adc13dbd's kept_grade.py> <scratch>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0): source-level mutants i |
+| `budget/kept_mutants_r4.py.txt` | 3,704 | `ec841c71b6f29d4f` | """Planted defects for kept_grade's round-4 checks (scratch monkeypatches, nothing committed). |
+| `budget/new-checks-on-adc13dbd-r4.txt` | 2,357 | `3e35540a959b36c6` | # python3 -I -B new_checks_on_adc13dbd.py <lane> <adc13dbd's kept_grade.py, blob 6a81cad0>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0) |
+| `budget/new_checks_on_adc13dbd.py.txt` | 1,154 | `c85e81ed565eca28` | """The head's THE TRANSMIT slice checks (selftest_transmit) run against adc13dbd's own Disposition, which calls |
+| `budget/regrade-identity-r4.txt` | 932 | `a21c75698d8c235f` | IDENTICAL below header: kept-grade-1x1-arm-A-r4.txt vs kept-grade-1x1-arm-A-r3.txt (3a5b4d95914d7837) |
+| `budget/regrade-summary-r4.txt` | 2,509 | `754c40e4d7c6703e` | lane HEAD 300da99beed5bb1c77e4b04af0bb4f9369856e0d porcelain 0; clone HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da porcelain 0 |
+| `budget/regrade_r4.sh.txt` | 2,203 | `e5689acddc041981` | #!/bin/bash |
+| `budget/run-regrade-1x1-answering-ports-r4.txt` | 2,842 | `71b1468536255eef` | # run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/c |
+| `budget/run-regrade-1x1-none-r4.txt` | 2,830 | `ff3095637925a643` | # run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/c |
+| `budget/run-regrade-8x8-1if-answering-ports-r4.txt` | 3,629 | `5ada688506f3df28` | # run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/c |
+| `budget/run-regrade-8x8-1if-none-r4.txt` | 3,359 | `a8a8d6ebd7e29187` | # run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/c |
+| `budget/splice_r4.py.txt` | 2,338 | `45782a716bb8e4d3` | """Source-level mutants of the round-4 kept_grade.py (scratch copies; the lane is never written), each run --selftest. |
+| `docs/docs-workflow-steps-300da99b.txt` | 9,479 | `66ca9960a3142438` | # bin/docs_steps_r2.py 300da99b <root> (unit milan-train1123-a828-docs-r4, rc 0): every run: step of docs.yml's five gate jobs on a fresh clean clone of 300da99 |
+| `gates/ctrl-boundary-300da99b.txt` | 72,859 | `9c0b35a94f5464a7` | # bin/cb.sh: python3 -B sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest on clean clone cb at 300da99b (unit milan-train1123-a828-cb-r4, rc 0) |
+| `gates/ctrl-boundary-log-diff-vs-adc13dbd.txt` | 269 | `d045bfa2690bade9` | # diff of the full ctrl_boundary logs, round 3 (adc13dbd, units/cb-r3.log) against round 4 (300da99b, units/cb-r4.log), with clock times, durations, the head SH |
+| `gates/tree-checks-300da99b.txt` | 71,321 | `ed25201517daef44` | # bin/tree_checks.sh on clean clone tc at 300da99b (unit milan-train1123-a828-tree-r4, rc 0): load_grade --check, flip_grade --check at 1x1/1if and 8x8/1if, sha |
+| `gates/tree-log-diff-vs-adc13dbd.txt` | 833 | `23f9ebe222a2bdd8` | # diff of the full tree-check logs, round 3 (adc13dbd, units/tree-r3.log) against round 4 (300da99b, units/tree-r4.log), with clock times, durations, the head S |
+| `harness/mutants_r911_2-r4.txt` | 447 | `bbc43025e3b98aae` | # python3 -I -B <R911-2's tools/mutants_r911_2.py, unmodified, sha256 2acf7e5dcf1e0050 matching its MANIFEST.sha256> <lane>, at head 300da99beed5bb1c77e4b04af0b |
+| `harness/probe_owes_edges-r4.txt` | 2,456 | `8bd551b70412f163` | # python3 -I -B <R911-2's tools/probe_owes_edges.py, unmodified, sha256 6c61c36c92f35f5a matching its MANIFEST.sha256> <lane>, at head 300da99beed5bb1c77e4b04af |
+| `harness/probe_whole_slice-r4.txt` | 1,228 | `9547f8ea8b724d87` | # python3 -I -B <R911-2's tools/probe_whole_slice.py, unmodified, sha256 b7172b3e8ee2eafc matching its MANIFEST.sha256> <lane>, at head 300da99beed5bb1c77e4b04a |
+| `ledger/image-hashes-vs-adc13dbd.txt` | 3,442 | `e100dfde934bd0fe` | # The 24 image hashes at 300da99b against adc13dbd's (round 3's receipt plat-ledger-adc13dbd.txt) |
+| `ledger/plat-ledger-300da99b.txt` | 15,277 | `1b4fec1377733f04` | # plat_ledger.py --build-dir <scratch>/ledger/300da99b on the clean clone lg at 300da99beed5bb1c77e4b04af0bb4f9369856e0d, unit milan-train1123-a828-ledger-r4 on |
+| `superseded-6ab79cf6/ctrl-boundary-6ab79cf6.txt` | 72,860 | `e7fbe0f90fef9694` | # bin/cb.sh: python3 -B sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest on clean clone cb at 6ab79cf6 (unit milan-train1123-a828-cb-r4, rc 0) |
+| `superseded-6ab79cf6/ctrl-boundary-log-diff-vs-adc13dbd.txt` | 1,220 | `9c47f4621811a372` | # diff of the full ctrl_boundary logs, round 3 (adc13dbd, units/cb-r3.log) against round 4 (6ab79cf6, units/cb-r4.log), clock times, durations and the head SHA  |
+| `superseded-6ab79cf6/docs-workflow-steps-6ab79cf6.txt` | 4,938 | `1a4155b83f25a98d` | # docs workflow steps at 6ab79cf6 (the first round-4 commit, amended to 300da99b): step names and rc only. The Python idiom gate failed (long function 10 > ratc |
+| `superseded-6ab79cf6/plat-ledger-6ab79cf6.txt` | 15,277 | `1647fd1c470ff924` | # plat_ledger.py --build-dir <scratch>/ledger/6ab79cf6 on the clean clone lg at 6ab79cf642b0aa772351fd80818f3749370265b9, unit milan-train1123-a828-ledger-r4 on |
+| `superseded-6ab79cf6/tree-checks-6ab79cf6.txt` | 71,321 | `8f4ee0e6217af34b` | # bin/tree_checks.sh on clean clone tc at 6ab79cf6 (unit milan-train1123-a828-tree-r4, rc 0): load_grade --check, flip_grade --check at 1x1/1if and 8x8/1if, sha |
+| `superseded-6ab79cf6/tree-log-diff-vs-adc13dbd.txt` | 833 | `2a433d89788259d4` | # diff of the full tree-check logs, round 3 (adc13dbd, units/tree-r3.log) against round 4 (6ab79cf6, units/tree-r4.log), with clock times, durations, the head S |

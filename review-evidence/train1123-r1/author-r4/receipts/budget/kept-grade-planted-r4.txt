@@ -1,0 +1,36 @@
+# python3 -I -B kept_mutants_r4.py <lane> <adc13dbd's kept_grade.py, git show, blob 6a81cad0>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0); scratch monkeypatches, nothing committed
+unpatched: PASS (32 checks)
+CAUGHT round 2: owe srp-bound THE TRANSMIT slice lines by prefix: 5 of 32 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+CAUGHT owe a whole-build slice as well as a build of one: 5 of 32 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+CAUGHT owe no THE TRANSMIT slice line: 3 of 32 checks fail
+    - both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures
+    - srp-bound's build of one over the slice (95,001 against 95,000): run.py's build-one and THE TRANSMIT slice lines are both owed, nothing fails
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+CAUGHT class every build slice a build of one: 5 of 32 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+CAUGHT kept <= bound strict (<): 1 of 32 checks fail
+    - kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive
+CAUGHT kept <= bound with a 6 % margin: 2 of 32 checks fail
+    - a kept record 6 % dearer than the bound one breaks kept <= bound, its own probe's, never owed
+    - kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive
+CAUGHT round 3's rule: adc13dbd's transmit_slices (frame count only): 2 of 32 checks fail
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+CAUGHT the equal-length fail-closed clause deleted from owes: 1 of 32 checks fail
+    - srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+8 of 8 caught
+rc=0

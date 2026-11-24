@@ -1,0 +1,82 @@
+"""Planted defects for kept_grade's round-4 checks (scratch monkeypatches, nothing committed).
+usage: python3 -I -B kept_mutants_r4.py <repo-root> <adc13dbd's kept_grade.py>
+Round 3's six, plus: round 3's rule (adc13dbd's transmit_slices, loaded from that file, verbatim) and the equal-length
+fail-closed clause deleted from Disposition.owes."""
+import importlib.util
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]).resolve() / 'tb/verilator/ctrl_service_budget'))
+import kept_grade as k  # noqa: E402
+
+spec = importlib.util.spec_from_file_location('kept_grade_adc13dbd', sys.argv[2])
+old = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(old)
+
+
+def run(name, patch):
+    saved = [(target, a, getattr(target, a)) for target, a, _ in patch]
+    for target, a, v in patch:
+        setattr(target, a, v)
+    try:
+        checks = k.selftest()
+    finally:
+        for target, a, v in saved:
+            setattr(target, a, v)
+    failed = [what for what, ok, _ in checks if not ok]
+    print(f'{"CAUGHT" if failed else "ESCAPED"} {name}: {len(failed)} of {len(checks)} checks fail')
+    for what in failed:
+        print(f'    - {what}')
+    return bool(failed)
+
+
+base = [w for w, ok, _ in k.selftest() if not ok]
+print(f'unpatched: {"PASS" if not base else "FAIL " + str(base)} ({len(k.selftest())} checks)')
+orig_owes = k.Disposition.owes
+
+
+def prefix_owes(self, line):   # round 2's: every srp-bound TRANSMIT slice line owed by its prefix
+    return not self.findings and any(line.startswith(f'{n}: {kind}') for n, kinds in k.OWED_KINDS.items()
+                                     for kind in kinds if n in self.ran)
+
+
+def whole_too(self, line):   # owes a slice of either kind
+    if line.startswith(f'{k.kept_window.BOUND}: {k.TRANSMIT_SLICE}') and not self.findings:
+        c = k.stated_cycles(line)
+        return c in self.slices['build-one'] | self.slices['build']
+    return orig_owes(self, line)
+
+
+def never_slice(self, line):   # owes no TRANSMIT slice at all
+    return False if line.startswith(f'{k.kept_window.BOUND}: {k.TRANSMIT_SLICE}') else orig_owes(self, line)
+
+
+def no_fail_closed(self, line):   # owes() with `cycles not in self.slices['build']` deleted
+    if self.findings:
+        return False
+    if line.startswith(f'{k.kept_window.BOUND}: {k.TRANSMIT_SLICE}'):
+        cycles = k.stated_cycles(line)
+        return k.kept_window.BOUND in self.ran and cycles in self.slices['build-one']
+    return any(line.startswith(f'{name}: {kind}') for name, kinds in k.OWED_KINDS.items() for kind in kinds
+               if name in self.ran)
+
+
+orig_ts = k.transmit_slices
+
+
+def all_one(log, shape):   # every build slice classed a build of one
+    s = orig_ts(log, shape)
+    return {'build': set(), 'build-one': s['build'] | s['build-one']}
+
+
+results = [
+    run('round 2: owe srp-bound THE TRANSMIT slice lines by prefix', [(k.Disposition, 'owes', prefix_owes)]),
+    run('owe a whole-build slice as well as a build of one', [(k.Disposition, 'owes', whole_too)]),
+    run('owe no THE TRANSMIT slice line', [(k.Disposition, 'owes', never_slice)]),
+    run('class every build slice a build of one', [(k, 'transmit_slices', all_one)]),
+    run('kept <= bound strict (<)', [(k, 'kept_within', lambda kept, bound: kept * 100 < bound * 105)]),
+    run('kept <= bound with a 6 % margin', [(k, 'KEPT_MARGIN_PERCENT', 6)]),
+    run("round 3's rule: adc13dbd's transmit_slices (frame count only)", [(k, 'transmit_slices', old.transmit_slices)]),
+    run("the equal-length fail-closed clause deleted from owes", [(k.Disposition, 'owes', no_fail_closed)]),
+]
+print(f'{sum(results)} of {len(results)} caught')
+sys.exit(0 if all(results) and not base else 1)

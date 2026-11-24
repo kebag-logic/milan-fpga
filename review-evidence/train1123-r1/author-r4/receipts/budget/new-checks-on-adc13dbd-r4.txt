@@ -1,0 +1,18 @@
+# python3 -I -B new_checks_on_adc13dbd.py <lane> <adc13dbd's kept_grade.py, blob 6a81cad0>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0)
+=== the head's 7 THE TRANSMIT checks against head's Disposition (kept_grade): 0 fail
+  [ok] srp-bound's build of one over the slice (95,001 against 95,000): run.py's build-one and THE TRANSMIT slice lines are both owed, nothing fails
+  [ok] a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+  [ok] srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+  [ok] srp-kept's pass given whole to THE TRANSMIT's build over the slice fails, never owed
+  [ok] srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+  [ok] srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+  [ok] srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+=== the head's 7 THE TRANSMIT checks against adc13dbd's Disposition (kept_grade_adc13dbd): 2 fail
+  [ok] srp-bound's build of one over the slice (95,001 against 95,000): run.py's build-one and THE TRANSMIT slice lines are both owed, nothing fails
+  [ok] a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+  [ok] srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+  [ok] srp-kept's pass given whole to THE TRANSMIT's build over the slice fails, never owed
+  [FAIL] srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+  [FAIL] srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+  [ok] srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+rc=0

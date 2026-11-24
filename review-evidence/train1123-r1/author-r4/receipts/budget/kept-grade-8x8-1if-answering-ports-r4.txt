@@ -1,0 +1,22 @@
+# python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <8x8-1if-answering-ports build> --results <round 1's view of the leg's srp-kept and srp-bound logs>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0); no simulation run again; output identical to round 3's kept-grade-8x8-1if-answering-ports-r3.txt below its header
+POINT endstation_ax7101_8x8, 1 interface(s): shape (1, 9, 9)
+RECORD srp.kept_advertise.if0: the dearest 130,837 CPU cycles, 1375 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_recount.if0: the dearest 70,379 CPU cycles, 740 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.kept_failed.if0: the dearest 134,143 CPU cycles, 1410 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+RECORD srp.bound_advertise.if0: the dearest 138,016 CPU cycles, 1450 us by the rule, against CTRL_LOOP_SRP_UNIT_US 375 us
+KEPT <= BOUND srp.kept_advertise.if0: 130,837 against 138,016 CPU cycles, -7,179 (-5.20 %), within the rule's +5 % (144,916), margin +14,079
+KEPT <= BOUND srp.kept_recount.if0: 70,379 against 138,016 CPU cycles, -67,637 (-49.01 %), within the rule's +5 % (144,916), margin +74,537
+KEPT <= BOUND srp.kept_failed.if0: 134,143 against 138,016 CPU cycles, -3,873 (-2.81 %), within the rule's +5 % (144,916), margin +10,773
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1908 work pass(es) and 1860 idle run(s) in its log
+SHARE srp-bound: 1 work pass(es) and 0 idle run(s) over THE SHARE, of 765 work pass(es) and 739 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 86,018 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 179,500 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 171,645 CPU cycles, against its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+OWED srp.kept_advertise.if0: a record of 130,837 CPU cycles, 1375 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 70,379 CPU cycles, 740 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 134,143 CPU cycles, 1410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 138,016 CPU cycles, 1450 us by the rule, over CTRL_LOOP_SRP_UNIT_US 375 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a work pass of 203,961 CPU cycles at bus cycle 606456104 over THE SHARE, the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp-bound: a build-one pass at bus cycle 606660065: 171,645 CPU cycles over its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+kept_grade: PASS (0 finding(s), 6 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))

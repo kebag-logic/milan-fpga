@@ -1,0 +1,27 @@
+# python3 -I -B <R911-2's tools/probe_owes_edges.py, unmodified, sha256 6c61c36c92f35f5a matching its MANIFEST.sha256> <lane>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0)
+1x1/1if: slice 95,000, build-one 73,500, build 101,000
+--- idle-one: whole_grade over [('build-one', 95001)]; slices over [('build', 95001)]; transmit_slices {'build': set(), 'build-one': {95001}}
+  STATED: ['srp-bound: a build-one pass of 95,001 CPU cycles, over its stated 73,500', "srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  owed slice lines: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)"]
+  still failing: []
+RESULT idle-one: slice line OWED
+--- busy-one: whole_grade over []; slices over [('build', 95001)]; transmit_slices {'build': {95001}, 'build-one': set()}
+  STATED: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  owed slice lines: []
+  still failing: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000"]
+RESULT busy-one: slice line FAILS
+--- aged-one: whole_grade over []; slices over [('build', 95001)]; transmit_slices {'build': {95001}, 'build-one': set()}
+  STATED: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  owed slice lines: []
+  still failing: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 95,001 CPU cycles, over the stated slice 95,000"]
+RESULT aged-one: slice line FAILS
+--- equal: whole_grade over [('build-one', 98000)]; slices over [('build', 98000), ('build', 98000)]; transmit_slices {'build': {98000}, 'build-one': {98000}}
+  STATED: ['srp-bound: a build-one pass of 98,000 CPU cycles, over its stated 73,500', "srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000", "srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  owed slice lines: []
+  still failing: ["srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000", "srp-bound: a tier-2 slice of THE TRANSMIT's build of 98,000 CPU cycles, over the stated slice 95,000"]
+RESULT equal: slice line FAILS
+rc=0

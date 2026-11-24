@@ -1,0 +1,40 @@
+# python3 -I -B splice_r4.py <lane> <adc13dbd's kept_grade.py> <scratch>, at head 300da99beed5bb1c77e4b04af0bb4f9369856e0d (porcelain 0): source-level mutants in scratch copies, each run --selftest
+=== r3-rule: diff against the head file
+--- head/kept_grade.py
++++ r3-rule/kept_grade.py
+@@ -207,8 +207,7 @@
+ def transmit_slices(log: grade.Log, shape: shape_costs.Shape) -> dict[str, set[int]]:
+-    """The CPU cycles of each tier-2 slice of THE TRANSMIT's build over the stated slice (slice_grade.held): 'build-one'
+-    where whole_grade.held itself classes the slice's pass, by its start, a build of one over its stated cost (the pass
+-    held owes, BOUND_OWED_BUILDS), and 'build' for every other: a pass given whole to the build (both MRPDUs), one whose
+-    round did work, an aged step's. Every shape's slice is at least its build of one's stated cost (THE SHAPES), so a
+-    build of one over the slice is over that cost too; one that were not would stay a failure."""
+-    ones = {o['start_sys'] for o in whole_grade.held(log, shape)['over'] if o['kind'] in BOUND_OWED_BUILDS}
++    """The CPU cycles of each tier-2 slice of THE TRANSMIT's build over the stated slice (slice_grade.held), by the
++    pass's kind as whole_grade.held tells it: 'build-one' where the pass makes at most one SRP frame, 'build' where it
++    is given whole to the build (both MRPDUs)."""
++    srp = scenario.CH['srp']
++    frames = sorted(cycle for cycle, ch, _ in log.commits if ch == srp)
+     out: dict[str, set[int]] = {'build': set(), 'build-one': set()}
+@@ -216,3 +215,4 @@
+         if o['kind'] == 'build':
+-            out['build-one' if o['start_sys'] in ones else 'build'].add(o['cycles'])
++            end = o['start_sys'] + o['cycles'] * log.sys_hz // log.cpu_hz
++            out['build' if whole_grade.within(frames, o['start_sys'], end) > 1 else 'build-one'].add(o['cycles'])
+     return out
+--- r3-rule: --selftest rc=1: kept_grade selftest: FAIL (32 checks)
+    [FAIL] srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES)
+    [FAIL] srp-bound's build of one over the slice that is an aged step's
+=== no-closed: diff against the head file
+--- head/kept_grade.py
++++ no-closed/kept_grade.py
+@@ -262,4 +262,3 @@
+             cycles = stated_cycles(line)
+-            return (kept_window.BOUND in self.ran and cycles in self.slices['build-one'] and
+-                    cycles not in self.slices['build'])
++            return (kept_window.BOUND in self.ran and cycles in self.slices['build-one'])
+         return any(line.startswith(f'{name}: {kind}') for name, kinds in OWED_KINDS.items() for kind in kinds
+--- no-closed: --selftest rc=1: kept_grade selftest: FAIL (32 checks)
+    [FAIL] srp-bound's build of one and its pass given whole, of equal length (98,000)
+every source mutant fails the self-test
+rc=0
