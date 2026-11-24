@@ -1,0 +1,28 @@
+1,5c1,5
+<   info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +0.783..+0.791 ticks; presentation n 3976 (off-law 0), the largest |frame - presentation time| 2579.8 ns (nearest frame: 10736.7 ns), render slips 0
+<   info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +0.783..+1.321 ticks; presentation n 1600 (off-law 0), the largest |frame - presentation time| 7997.8 ns (nearest frame: 10736.7 ns), render slips 1
+<   info: after the settle           [   5.454,    6.100) s: ring slips 0+0, margin +5.284..+5.299 ticks; presentation n 5142 (off-law 0), the largest |frame - presentation time| 7996.4 ns (nearest frame: 10736.7 ns), render slips 0
+<   info: [PULLIN]: settle recentre fired (1 pulse(s)); slips before it 0, after it 0; after it the loopback margin +5.284..+5.299 ticks, presentation n 4742, largest error 7996.4 ns, render slips 0, on the law
+< MARGINS: [PULLIN] empty 5.283840 full 5.775360 ticks
+---
+>   info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +1000000000.000..-1000000000.000 ticks; presentation n 3976 (off-law 3976), the largest |frame - presentation time| 65080.1 ns (nearest frame: 10736.7 ns), render slips 4000
+>   info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +1000000000.000..-1000000000.000 ticks; presentation n 1600 (off-law 1600), the largest |frame - presentation time| 54663.1 ns (nearest frame: 10736.7 ns), render slips 1600
+>   info: after the settle           [   5.454,    6.100) s: ring slips 0+0, margin +1000000000.000..-1000000000.000 ticks; presentation n 5142 (off-law 5142), the largest |frame - presentation time| 54665.1 ns (nearest frame: 10736.7 ns), render slips 5166
+>   info: [PULLIN]: settle recentre fired (1 pulse(s)); slips before it 0, after it 0; after it the loopback margin +1000000000.000..-1000000000.000 ticks, presentation n 4742, largest error 54665.1 ns, render slips 4766, OFF THE LAW
+> MARGINS: [PULLIN] empty 1000000000.000000 full 1000000000.000000 ticks
+10c10,16
+< RESULT-647: latency 210.42 us hold 52.0 us: largest |frame - presentation time| 2579.8 -> 7996.4 ns (nearest frame 10736.7 ns), render slips 1 across the hold and 0 after, refused 0, settle +0.854 s after the hold, loopback slips 0 before the settle and 0 after: ON THE LAW
+---
+> RESULT-647: latency 210.42 us hold 52.0 us: largest |frame - presentation time| 65080.1 -> 54665.1 ns (nearest frame 10736.7 ns), render slips 7234 across the hold and 4766 after, refused 0, settle +0.854 s after the hold, loopback slips 0 before the settle and 0 after: OFF-LAW BEFORE
+>   [FAIL] [PULLIN] the stream was on the presentation law before the hold
+>   [FAIL] [PULLIN] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)
+>   [FAIL] [PULLIN] empty-side margin at least one tick
+>   [FAIL] [PULLIN] full-side margin at least one tick
+>   [FAIL] [PULLIN] the presentation stage is on its law after the settle recentre
+>   [FAIL] [PULLIN] the presentation stage presented every PDU across the settle recentre
+12,13c18,19
+< == follow_ring: checks: 19   failures: 0 ==
+< RESULT: PASS
+---
+> == follow_ring: checks: 19   failures: 6 ==
+> RESULT: FAIL

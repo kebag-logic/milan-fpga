@@ -1,0 +1,11 @@
+`verilator_config
+// the harness's internal reads
+public_flat_rw -module "follow_ring_wrap" -var "settle_pend_r"
+public_flat_rw -module "follow_ring_wrap" -var "settle_recover_r"
+public_flat_rw -module "follow_ring_wrap" -var "settle_run_ticks_r"
+public_flat_rw -module "KL_mmcm_drp_servo" -var "pp_seq_r"
+public_flat_rw -module "KL_mmcm_drp_servo" -var "pp_run_r"
+public_flat_rw -module "KL_mmcm_drp_servo" -var "integ_r"
+public_flat_rw -module "KL_mmcm_drp_servo" -var "ew_r"
+public_flat_rw -module "KL_chan_map_capture" -var "q_wr_r"
+public_flat_rw -module "KL_chan_map_capture" -var "q_rd_r"

@@ -1,0 +1,12 @@
+shard: 11/19   selected suites: 3
+PASS     maap__3
+TIMEOUT  crf_rx   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     media_grid_align
+----------------------------------------------------------------
+suites: 3   passed: 2   failed: 0   timed out: 1
+checks: 18045   in-suite failures: 0
+TIMED OUT (result unknown, NOT a failure): crf_rx
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: /data-2/milan/tmp/cicd-a839/runs/shards/b11-11/logs
