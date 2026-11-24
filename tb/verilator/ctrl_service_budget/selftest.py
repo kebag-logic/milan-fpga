@@ -729,7 +729,7 @@ def reuse_checks() -> list[Check]:
 
 
 def build_checks() -> list[Check]:
-    """The ledgered point is named at its own point only, every labelled arm and control plant applies to the
+    """Each ledgered point is named at its own point only, every labelled arm and control plant applies to the
     checkout's sources (scratch copies, never the tree), and the split SoC argv names one image (#665)."""
     sys.path[:0] = [str(HERE.parents[2] / 'sw/litex'), str(HERE.parents[2] / 'sw/builder')]
     import ctrl_memory
@@ -737,9 +737,10 @@ def build_checks() -> list[Check]:
     named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
-    out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
-            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
+    out = [('the ledgered points are named at 8x8 only, with two interfaces and with one (#977), as the planner '
+            'ledgers them', named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': '8x8-one-interface'} and
+            all(named[p] in ctrl_memory.LEDGERED for p in ('8x8', '8x8-1if')) and not any(others.values()),
+            f'{named}; other points {others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
