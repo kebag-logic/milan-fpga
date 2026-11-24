@@ -111,8 +111,10 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
 #: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
 #: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
-#: (the queued rule's figure; the owner's bound is 140 ms).
-ONE = dict(base=225, withdraw=90, rebuild=290, walk=80, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
+#: (the queued rule's figure; the owner's bound is 140 ms). With #977's round 3 the walk after a registering record is
+#: gone (the sink index, a declaration's walk owed only for a source's StreamID): its heaviest in that group 343
+#: cycles, so the walk is stated 35 us again, as before round 2, within it every arm's.
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=700, acmp_declined=20)
@@ -144,7 +146,9 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: options), measured over every group of every arm on its image (f7d07720, the image 3de17804 links unchanged
 #: there), the walk is 18,004 cycles in arm A's srp-register-burst, a registrar walk after a record that replaced
 #: every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other item is within this table's.
-EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=190, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
+#: With #977's round 3 that walk is gone (its heaviest in the burst 637 cycles), so it is stated 120 us again, as
+#: before round 2, within it every arm's.
+EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}

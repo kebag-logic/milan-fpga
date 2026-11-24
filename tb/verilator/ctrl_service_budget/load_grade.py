@@ -231,7 +231,8 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: arm's aecp-fanout; 210 before). With a waiting SET_STREAM_FORMAT's running check made again (#950), whose code
 #: moves AECP's, measured over every arm and group, 1x1/1if's AECP record raised by the rule in both columns: 255 us
 #: (23,858 CPU cycles, the same SET_STREAM_INFO). With #977's round 2, over every arm at 1x1/1if (3de17804), the walk
-#: 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it.
+#: 80 (7,289 in srp-register-burst), in both columns, as poll_grade.py's ONE states it; 35 again with round 3, whose
+#: registering records walk no registrar of their sinks after them.
 STATED_US = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 255, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
@@ -290,7 +291,7 @@ STATED_US_DONOR = {
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
-                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 80, 'build': 1010, 'build_one': 735, 'step': 975},
+                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.aecp.notice': 275,

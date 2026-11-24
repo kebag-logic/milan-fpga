@@ -256,7 +256,7 @@ end leaves before the declaration is on the wire. Both terms are counted inside
 the two periods (#956, the owner's decision of 2026-11-21), so the declaration
 is made two longest periods less both terms after the request and reaches the
 wire no later than 30 s after it. That is 2,977 cs at 1x1/1if (35 ms), 2,973 at
-8x8/1if (78 ms) and 2,970 at two interfaces (105 ms), each figure stated for its
+8x8/1if (77 ms) and 2,970 at two interfaces (105 ms), each figure stated for its
 shape (THE SHAPES, `ctrl_loop.h`) and held to its row by `flip_grade.py --check`
 (`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
 reported rows;
