@@ -395,8 +395,9 @@ def trace_shown(cap: Capture, application: str, key: Key) -> str:
     return f"{application} {label_of(application, key)}: {messages}; {heard}"
 
 
-def selftest() -> list[str]:
-    """The own-LeaveAll grade on hand-made traces and frames; each failed check, by name.
+def selftest(ran: list[str] | None = None) -> list[str]:
+    """The own-LeaveAll grade on hand-made traces and frames; each failed check, by name. Each check run is
+    appended to `ran`, where given, so a caller counts the checks executed rather than states them.
 
     A Domain value declared and sent JoinMt until QA (Table 10-3, the Registrar MT):
       * at a LeaveAll MRPDU that carries it, its txLA! sends JoinMt and keeps QA, so a Lv! after it sends Lv
@@ -404,14 +405,19 @@ def selftest() -> list[str]:
       * Mt there is illegal: no rLA! takes the Applicant to VP before its txLA!;
       * left out of a LeaveAll MRPDU with room for it, nothing is a finding naming JoinMt alone;
       * left out of a full one, nothing is txLAF! (QA to VP), and its next tx! sends JoinMt.
+    The same Domain with a peer's JoinIn received first (the Registrar IN), left out of a full LeaveAll MRPDU:
+    txLAF! takes QA to VP and the sLA's rLA! takes the Registrar IN to LV (Table 10-4), so its next tx! sends
+    JoinMt, and JoinIn there is illegal.
     Then each half's MRPDU octets and the smallest vector of each type."""
     failed: list[str] = []
+    executed = [] if ran is None else ran
     msrp = Participant("MSRP", REGISTRAR["MSRP"], True)
     mvrp = Participant("MVRP", REGISTRAR["MVRP"], True)
     joined = [Seen(0, "JoinMt"), Seen(100, "JoinMt")]
 
     def check(name: str, ok: bool) -> None:
-        """Record `name` as failed unless `ok`."""
+        """Count `name` as run, and record it as failed unless `ok`."""
+        executed.append(name)
         if not ok:
             failed.append(name)
 
@@ -426,6 +432,14 @@ def selftest() -> list[str]:
     full = grade_attribute("Domain", [*joined, Seen(1000, None, True, full=True), Seen(1010, "JoinMt")], msrp)
     check("omission-from-full", not full.findings and full.configs == {("AA", "MT")}
           and full.boundaries == [(1000, True)])
+    heard = [*joined, Seen(200, got="rJoinIn!")]
+    registered = grade_attribute("Domain", heard, msrp).configs
+    left = grade_attribute("Domain", [*heard, Seen(1000, None, True, full=True), Seen(1010, "JoinMt")], msrp)
+    check("omission-from-full-registrar-in", {r for _, r in registered} == {"IN"} and not left.findings
+          and left.configs == {("AA", "LV"), ("AA", "MT")} and left.boundaries == [(1000, True)])
+    kept = grade_attribute("Domain", [*heard, Seen(1000, None, True, full=True), Seen(1010, "JoinIn")], msrp)
+    check("joinin-after-omission-from-full", len(kept.findings) == 1
+          and "from VP, Table 10-3's tx! sends JoinMt (" in kept.findings[0])
 
     header = bytes(14)
     domains = 212   # 1 + 4 + 212 x 7 + 2 + 2 = 1493 octets: room for no Listener, room for one more Domain
@@ -445,6 +459,8 @@ if __name__ == "__main__":
     import sys
     if sys.argv[1:] != ["--selftest"]:
         raise SystemExit("usage: twin_mrp.py --selftest")
-    missed = selftest()
-    print("twin_mrp selftest: " + (f"FAILED {', '.join(missed)}" if missed else "OK (10 checks)"))
-    raise SystemExit(1 if missed else 0)
+    checks: list[str] = []
+    missed = selftest(checks)
+    census = f"{len(checks)} checks"
+    print("twin_mrp selftest: " + (f"FAILED {', '.join(missed)} ({census})" if missed else f"OK ({census})"))
+    raise SystemExit(1 if missed or not checks else 0)
