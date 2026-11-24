@@ -1,0 +1,114 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: lane/shard-lists.log
+Original SHA256: a53aa01bfe25ce8aa7e06f993412f01d3e3f429dbed71bd9f40a2c69f75e315c
+Scope: complete text; paths and host fields normalized
+
+HEAD c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+$ bash -c for i in $(seq 0 18); do echo "== shard $i/19"; scripts/run_all_suites.sh --ci-pieces --shard $i/19 --list || exit $?; done
+== shard 0/19
+follow_ring
+== shard 1/19
+capture_coherence__3
+milan_dp__1
+adp_tx
+avtp_rxmon
+classifier
+link_guard
+mmcm_servo_autorepair
+render_queue
+rx_filter
+tsn_fuzz
+== shard 2/19
+capture_coherence__0
+== shard 3/19
+maap__1
+pp_shadow__0
+chmap_capture
+gptp_tables
+== shard 4/19
+milan_dp__0
+== shard 5/19
+aes3
+controller_rate
+crf_tx
+media_phase
+queues
+== shard 6/19
+milan_dp__3
+avtp_stream
+datapath
+mbx
+media_nco
+shaper_core
+tdm
+== shard 7/19
+mmcm_servo
+reboot_ctrl
+== shard 8/19
+capture_coherence__1
+maap__0
+pair_fill
+== shard 9/19
+maap__2
+aaf_clock_meter
+cbs
+eth_tx_reset
+mac_rmon
+ptp
+tcam_csr
+== shard 10/19
+milan_dp__2
+aaf
+cdc
+gptp_txts
+i2spb
+milan_dp_gm_steps
+ptp_sync
+tdm_render
+== shard 11/19
+maap__3
+pp_shadow__1
+crf_rx
+== shard 12/19
+milan_dp_render__2
+csr
+input_loopback_dp
+== shard 13/19
+pp_shadow__2
+input_loopback
+nvm_cosim
+== shard 14/19
+gptp_plane
+gptp_shadow
+media_grid_align
+== shard 15/19
+milan_dp_mclk__1
+milan_dp_render__3
+pp_shadow__3
+lat_history_ring
+== shard 16/19
+milan_dp_mclk__2
+milan_dp_mclk__3
+aaf_audio_loop
+aaf_latency_tap_bank
+avtp_parser
+chmap_render
+fw_service_budget
+ifg
+ptp_ts
+tkdiag
+== shard 17/19
+capture_coherence__2
+milan_dp_render__0
+milan_dp_render__1
+aaf_latency_taps
+clkvalid
+cls
+nvm_backend
+pcmlpf
+tcam
+== shard 18/19
+milan_dp_mclk__0
+exit 0

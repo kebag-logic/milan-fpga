@@ -1,0 +1,113 @@
+"""Write the round-6 receipts: normalized plain text below 200 KB, a manifest and an index.
+
+Usage: pack.py <checkout> <final-merge-worktree>
+"""
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+PACKET = Path(__file__).resolve().parents[1]
+SCRATCH, TOOLS, OUT = PACKET / "scratch", PACKET / "tools", PACKET / "receipts"
+checkout, merge = Path(sys.argv[1]), Path(sys.argv[2])
+PRIOR = "9acb9b828b29aba71bd51303a4836f86c2278267"
+LIMIT = 190_000
+
+
+def git(directory: Path, *args: str) -> str:
+    """One line of git output."""
+    return subprocess.check_output(["git", *args], cwd=directory, text=True).strip()
+
+
+head = git(checkout, "rev-parse", "HEAD")
+assert not git(checkout, "status", "--porcelain"), "lane checkout is dirty"
+final, final_tree = git(merge, "rev-parse", "HEAD"), git(merge, "rev-parse", "HEAD^{tree}")
+assert git(merge, "rev-parse", "HEAD^2") == head, "final merge does not carry the lane head"
+REPLACE = [(str(SCRATCH), "$SCRATCH"), (str(TOOLS), "$TOOLS"), (str(PACKET), "$PACKET"),
+           (str(checkout), "$CHECKOUT"),
+           ("$WORKSPACE_HOME/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu", "$PY312"),
+           ("$VALIDATION_TOOLS/md-venv-40cdefe08ebd", "$MDVENV"), ("$WORKSPACE_HOME", "$HOME"),
+           ("<bench-host>", "$HOST")]
+
+
+def normalize(text: str) -> str:
+    """Replace host paths and the host name by stable placeholders."""
+    for old, new in REPLACE:
+        text = text.replace(old, new)
+    return text
+
+
+def binding() -> Path:
+    """The candidate, the merge the replays read, and the files this round changed."""
+    path = SCRATCH / "source-binding.json"
+    changed = git(checkout, "diff", "--name-only", PRIOR, "HEAD").splitlines()
+    path.write_text(json.dumps({
+        "candidate_head": head, "candidate_tree": git(checkout, "rev-parse", "HEAD^{tree}"),
+        "prior_reviewed_head": PRIOR, "base_branch": "dev-soft-core",
+        "base_tip": git(merge, "rev-parse", "HEAD^1"), "final_merge": final, "final_merge_tree": final_tree,
+        "hosted_failing_merge": "7bfae19dee8a1eb105e8481691a407e66b92c142",
+        "commits": git(checkout, "log", "--format=%H %s", f"{PRIOR}..HEAD").splitlines(),
+        "changed_files": changed,
+        "diffstat": git(checkout, "diff", "--stat", PRIOR, "HEAD").splitlines()}, indent=2) + "\n")
+    return path
+
+
+sources: list[tuple[Path, str]] = [(binding(), "complete text")]
+sources += [(p, "complete text") for p in sorted(TOOLS.glob("*")) if p.is_file()]
+sources += [(p, "complete text") for p in sorted((SCRATCH / "repro").iterdir())]
+sources += [(p, "excerpt: checkout settings and the failing step") for p in sorted((SCRATCH / "hosted").glob("*.excerpt"))]
+sources += [(p, "complete text, as downloaded") for p in sorted((SCRATCH / "hosted-receipts").rglob("*.json"))]
+sources += [(SCRATCH / "docswf2/results.json", "complete text")]
+sources += [(p, "complete text") for p in sorted((SCRATCH / "docswf2").glob("*.log"))]
+sources += [(SCRATCH / n, "complete text") for n in ("rtl-ownership.log", "driver-input-loopback.log",
+                                                      "driver-input-loopback.json", "cold-input_loopback.log",
+                                                      "cold-input_loopback_dp.log")]
+sources += [(p, "complete text") for p in sorted((SCRATCH / "lane").glob("*.log"))]
+
+OUT.mkdir(exist_ok=True)
+for old in OUT.iterdir():
+    old.unlink()
+rows = []
+for path, scope in sources:
+    relative = path.relative_to(SCRATCH) if path.is_relative_to(SCRATCH) else Path("tools") / path.name
+    raw = path.read_bytes()
+    body = normalize(raw.decode("utf-8", errors="replace"))
+    header = (f"Candidate head: {head}\nPrior reviewed head: {PRIOR}\nFinal merge read: {final} (tree {final_tree})\n"
+              f"Source: {relative}\nOriginal SHA256: {hashlib.sha256(raw).hexdigest()}\n"
+              f"Scope: {scope}; paths and host fields normalized\n\n")
+    stem = str(relative).replace("/", "--")
+    data = body.encode()
+    parts = [data[i:i + LIMIT] for i in range(0, max(len(data), 1), LIMIT)] or [b""]
+    for n, part in enumerate(parts, 1):
+        name = stem + (f".part{n:03d}" if len(parts) > 1 else "") + ".txt"
+        blob = header.encode() + part
+        (OUT / name).write_bytes(blob)
+        rows.append({"file": name, "bytes": len(blob), "sha256": hashlib.sha256(blob).hexdigest(),
+                     "source": str(relative)})
+(OUT / "manifest-1.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+results = json.loads((SCRATCH / "docswf2/results.json").read_text())["steps"]
+links = {r["source"]: r["file"] for r in rows}
+lines = ["# Round 6 receipts", "",
+         f"Candidate head: {head}.", f"Prior reviewed head: {PRIOR}.",
+         f"Final merge the replays read: {final} (tree {final_tree}), the candidate merged into dev-soft-core {git(merge, 'rev-parse', 'HEAD^1')}.",
+         "", "Plain text only; each file is smaller than 200,000 bytes; nothing is compressed.",
+         "Original SHA256 values precede path/host normalization. [manifest-1.jsonl](manifest-1.jsonl) binds every receipt by size and SHA256.",
+         "", "## Key receipts", "",
+         f"- [Source binding](" + links["source-binding.json"] + ")",
+         f"- [Hosted failure reproduced and its cause isolated](" + links["repro/repro.log"] + ")",
+         f"- [Hosted docs-check excerpt](" + links["hosted/job-138601303963.excerpt"] + "), "
+         f"[hosted elaborate excerpt](" + links["hosted/job-138602447405.excerpt"] + ")",
+         f"- [Docs workflow replay results](" + links["docswf2/results.json"] + "), "
+         f"[firmware gate split attempt](" + links["docswf2/030-split.log"] + ")",
+         f"- [rtl ownership and physical selection steps, all 19 shards](" + links["rtl-ownership.log"] + ")",
+         f"- [Builder driver, the changed gate](" + links["driver-input-loopback.log"] + "), [its receipt](" + links["driver-input-loopback.json"] + ")",
+         f"- [Planner self-test](" + links["lane/planner-selftest.log"] + "), [19 shard listings](" + links["lane/shard-lists.log"] + "), "
+         f"[timeout arms](" + links["lane/timeout-arms.log"] + ")",
+         f"- Cold suite runs: [input_loopback](" + links["cold-input_loopback.log"] + "), [input_loopback_dp](" + links["cold-input_loopback_dp.log"] + ")",
+         "", "## Docs workflow replay at the final merge", "", "| Row | Job | Step | Exit | Seconds |", "|---:|---|---|---:|---:|"]
+lines += [f"| {r['n']} | {r['job']} | {r['name']} | {r['exit']} | {r['seconds']} |" for r in results]
+lines += ["", "## All receipts", "", "| Receipt | Bytes | Source |", "|---|---:|---|"]
+lines += [f"| [{r['file']}]({r['file']}) | {r['bytes']} | `{r['source']}` |" for r in rows]
+(OUT / "INDEX.md").write_text("\n".join(lines) + "\n")
+print("receipts", len(rows), "bytes", sum(r["bytes"] for r in rows), "largest", max(r["bytes"] for r in rows))

@@ -1,0 +1,21 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: tools/verify.sh
+Original SHA256: fff3ec6afaa5b7d6e9e2511f103c0f314b8e9b24d47c9fa8ee5e9995279ef2a0
+Scope: complete text; paths and host fields normalized
+
+#!/bin/bash
+# verify.sh <tree> <workflow> <receipts-root> <outfile>: the aggregate job's "Require every gate exactly once" step.
+set -u
+S=$(dirname "$(readlink -f "$0")")/../scratch
+tree=$1; wf=$2; root=$3; out=$4
+if [ "$wf" = docs ]; then legs="docs-gates-0 docs-gates-1 docs-gates-2"; else legs="elaborate-gates-0 elaborate-gates-1 elaborate-gates-2 elaborate-gates-3 elaborate-gates-4"; fi
+needs=$(for l in $legs; do printf '"%s":{"result":"success","outputs":{}},' "$l"; done)
+export CI_GATE_NEEDS="{${needs%,}}"
+cd "$tree"
+sha=$(git rev-parse HEAD)
+echo "tree=$tree head=$sha workflow=$wf submodule-protocol-processor=$(ls protocol-processor | wc -l) python=$($S/shim/python3 -V)"
+rm -f "$out"
+PATH=$S/shim:/usr/bin:/bin bash --noprofile --norc -e -c "python3 scripts/ci_gate_receipts.py verify --workflow $wf --root '$root' --head '$sha' --output '$out'"
+echo "exit=$?"

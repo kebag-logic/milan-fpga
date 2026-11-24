@@ -1,0 +1,58 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: hosted/job-138601303963.excerpt
+Original SHA256: 859d357a9b24695ca6cf8593e9a27796dead54c2921eeb4ae3e05074fc9cf604
+Scope: excerpt: checkout settings and the failing step; paths and host fields normalized
+
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:24.6688056Z   fetch-depth: 0
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:24.6691760Z   sparse-checkout-cone-mode: true
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:24.6692858Z   submodules: false
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:28.4173927Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +7bfae19dee8a1eb105e8481691a407e66b92c142:refs/remotes/pull/987/merge
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:55.7614596Z [command]/usr/bin/git sparse-checkout disable
+docs-check	Run actions/checkout@v4	2026-11-24T16:33:56.1042381Z HEAD is now at 7bfae19dee Merge 9acb9b828b29aba71bd51303a4836f86c2278267 into 2509db684b58b920e215b0d5d327b4a845bac3f4
+docs-check	Require every gate exactly once	﻿2026-11-24T16:34:03.3854022Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3854942Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3881939Z shell: /usr/bin/bash -e {0}
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3882329Z env:
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3882664Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3883072Z   CI_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3883341Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3883606Z   CI_CAMPAIGN_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3883861Z   VERILATOR_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3884098Z   SIM_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3884360Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3884998Z   CI_GATE_NEEDS: {
+docs-check	Require every gate exactly once	  "docs-gates-0": {
+docs-check	Require every gate exactly once	    "result": "success",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-1": {
+docs-check	Require every gate exactly once	    "result": "success",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-2": {
+docs-check	Require every gate exactly once	    "result": "success",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  }
+docs-check	Require every gate exactly once	}
+docs-check	Require every gate exactly once	2026-11-24T16:34:03.3885865Z ##[endgroup]
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1993860Z Traceback (most recent call last):
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1994426Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 199, in <module>
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1994829Z     raise SystemExit(main())
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1995216Z                      ^^^^^^
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1995622Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 171, in main
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1996101Z     names = verify(args.workflow, source, identity, digest, Collected(receipts, builder, litex), needs)
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1996490Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1997132Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 127, in verify
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1997589Z     union(builder or [], identity[0], identity[1], requirements(builder_command(name, source)))
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1998027Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_builder_legs.py", line 145, in union
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1998382Z     names = inventory() if names is None else names
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1998606Z             ^^^^^^^^^^^
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1998909Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_builder_legs.py", line 59, in inventory
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1999335Z     result = subprocess.run([sys.executable, DRIVER, "--list"], cwd=root, check=True,
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1999671Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.1999955Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.2002513Z     raise CalledProcessError(retcode, process.args,
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.2003012Z subprocess.CalledProcessError: Command '['/usr/bin/python3', 'sw/builder/test_builder.py', '--list']' returned non-zero exit status 2.
+docs-check	Require every gate exactly once	2026-11-24T16:34:04.2168997Z ##[error]Process completed with exit code 1.

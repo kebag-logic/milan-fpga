@@ -1,0 +1,67 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: hosted/job-138602447405.excerpt
+Original SHA256: 4043febb22b6a176de469e14670ab5c11edfc7d75e214ff65adfb39de5b78b4f
+Scope: excerpt: checkout settings and the failing step; paths and host fields normalized
+
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:18.4975956Z   sparse-checkout-cone-mode: true
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:18.4976284Z   fetch-depth: 1
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:18.4977618Z   submodules: false
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:22.7670806Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +7bfae19dee8a1eb105e8481691a407e66b92c142:refs/remotes/pull/987/merge
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:27.1126814Z [command]/usr/bin/git sparse-checkout disable
+elaborate	Run actions/checkout@v4	2026-11-24T16:35:27.4271874Z HEAD is now at 7bfae19 Merge 9acb9b828b29aba71bd51303a4836f86c2278267 into 2509db684b58b920e215b0d5d327b4a845bac3f4
+elaborate	Require every gate exactly once	﻿2026-11-24T16:35:33.9557286Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9558170Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9586033Z shell: /usr/bin/bash -e {0}
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9586268Z env:
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9586487Z   VERILATOR_VERSION: v5.050
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9586819Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9587151Z   CI_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9587338Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9587545Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9587733Z   VERILATOR_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9587911Z   SIM_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9588108Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9588976Z   CI_GATE_NEEDS: {
+elaborate	Require every gate exactly once	  "elaborate-gates-0": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-1": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-2": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-3": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-4": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  }
+elaborate	Require every gate exactly once	}
+elaborate	Require every gate exactly once	2026-11-24T16:35:33.9589869Z ##[endgroup]
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7654621Z Traceback (most recent call last):
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7655248Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 199, in <module>
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7655647Z     raise SystemExit(main())
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7655857Z                      ^^^^^^
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7656183Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 171, in main
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7656724Z     names = verify(args.workflow, source, identity, digest, Collected(receipts, builder, litex), needs)
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7657133Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7657547Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_gate_receipts.py", line 127, in verify
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7658027Z     union(builder or [], identity[0], identity[1], requirements(builder_command(name, source)))
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7658490Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_builder_legs.py", line 145, in union
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7658868Z     names = inventory() if names is None else names
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7659118Z             ^^^^^^^^^^^
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7659443Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_builder_legs.py", line 59, in inventory
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7660324Z     result = subprocess.run([sys.executable, DRIVER, "--list"], cwd=root, check=True,
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7660713Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7661010Z   File "/usr/lib/python3.12/subprocess.py", line 571, in run
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7664565Z     raise CalledProcessError(retcode, process.args,
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7665281Z subprocess.CalledProcessError: Command '['/usr/bin/python3', 'sw/builder/test_builder.py', '--list']' returned non-zero exit status 2.
+elaborate	Require every gate exactly once	2026-11-24T16:35:34.7838614Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,20 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: docswf2/032-docs-gates-0-31.log
+Original SHA256: dfefda8b1f1766a882a82628bb05299ffaee9d594d4b62db97f6e7ceeec75bfb
+Scope: complete text; paths and host fields normalized
+
+JOB docs-gates-0 STEP 31 gate_27 Capture measurement census and clock gate
+HEAD 79d350657a5966306c87a607ffc3e52ecf6abc05
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+CONTROL receipt-opt-out: production bound applied despite a control field
+PASS: capture census, clocks, both timing arms and receipt agree

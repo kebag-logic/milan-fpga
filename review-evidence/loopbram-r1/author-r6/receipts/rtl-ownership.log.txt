@@ -1,0 +1,1396 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: rtl-ownership.log
+Original SHA256: 94cad3542d54aa80cfa3bb2448229158d3e5d4e6e6692d52711bf2ce2dffc911
+Scope: complete text; paths and host fields normalized
+
+HEAD 79d350657a5966306c87a607ffc3e52ecf6abc05
+== shard 0/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 0 owns:
+  follow_ring
+== shard 1/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 1 owns:
+  capture_coherence__3
+  milan_dp__1
+  adp_tx
+  avtp_rxmon
+  classifier
+  link_guard
+  mmcm_servo_autorepair
+  render_queue
+  rx_filter
+  tsn_fuzz
+tsn_fuzz
+== shard 2/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 2 owns:
+  capture_coherence__0
+== shard 3/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 3 owns:
+  maap__1
+  pp_shadow__0
+  chmap_capture
+  gptp_tables
+chmap_capture
+== shard 4/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 4 owns:
+  milan_dp__0
+== shard 5/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 5 owns:
+  aes3
+  controller_rate
+  crf_tx
+  media_phase
+  queues
+== shard 6/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 6 owns:
+  milan_dp__3
+  avtp_stream
+  datapath
+  mbx
+  media_nco
+  shaper_core
+  tdm
+== shard 7/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 7 owns:
+  mmcm_servo
+  reboot_ctrl
+== shard 8/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 8 owns:
+  capture_coherence__1
+  maap__0
+  pair_fill
+== shard 9/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 9 owns:
+  maap__2
+  aaf_clock_meter
+  cbs
+  eth_tx_reset
+  mac_rmon
+  ptp
+  tcam_csr
+== shard 10/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 10 owns:
+  milan_dp__2
+  aaf
+  cdc
+  gptp_txts
+  i2spb
+  milan_dp_gm_steps
+  ptp_sync
+  tdm_render
+== shard 11/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 11 owns:
+  maap__3
+  pp_shadow__1
+  crf_rx
+== shard 12/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 12 owns:
+  milan_dp_render__2
+  csr
+  input_loopback_dp
+== shard 13/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 13 owns:
+  pp_shadow__2
+  input_loopback
+  nvm_cosim
+== shard 14/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 14 owns:
+  gptp_plane
+  gptp_shadow
+  media_grid_align
+== shard 15/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 15 owns:
+  milan_dp_mclk__1
+  milan_dp_render__3
+  pp_shadow__3
+  lat_history_ring
+== shard 16/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 16 owns:
+  milan_dp_mclk__2
+  milan_dp_mclk__3
+  aaf_audio_loop
+  aaf_latency_tap_bank
+  avtp_parser
+  chmap_render
+  fw_service_budget
+  ifg
+  ptp_ts
+  tkdiag
+== shard 17/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 17 owns:
+  capture_coherence__2
+  milan_dp_render__0
+  milan_dp_render__1
+  aaf_latency_taps
+  clkvalid
+  cls
+  nvm_backend
+  pcmlpf
+  tcam
+== shard 18/19
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 18 owns:
+  milan_dp_mclk__0
+verilator-shards ownership step: 0 failures of 19
+== physical-gptp selection
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head provisional figures {'input_loopback': 300, 'input_loopback_dp': 300, 'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1559 s (26.0 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 6/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 7/19 predicted 1567 s (26.1 min), bound 1620 s
+  ok   head worker 8/19 predicted 1547 s (25.8 min), bound 1620 s
+  ok   head worker 9/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 10/19 predicted 1549 s (25.8 min), bound 1620 s
+  ok   head worker 11/19 predicted 1573 s (26.2 min), bound 1620 s
+  ok   head worker 12/19 predicted 1563 s (26.1 min), bound 1620 s
+  ok   head worker 13/19 predicted 1560 s (26.0 min), bound 1620 s
+  ok   head worker 14/19 predicted 1554 s (25.9 min), bound 1620 s
+  ok   head worker 15/19 predicted 1545 s (25.8 min), bound 1620 s
+  ok   head worker 16/19 predicted 1546 s (25.8 min), bound 1620 s
+  ok   head worker 17/19 predicted 1548 s (25.8 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 10852 s to 12345 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+physical selection rc=0

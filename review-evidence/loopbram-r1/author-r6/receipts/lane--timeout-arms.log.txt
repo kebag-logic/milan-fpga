@@ -1,0 +1,14 @@
+Candidate head: c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+Prior reviewed head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Final merge read: 79d350657a5966306c87a607ffc3e52ecf6abc05 (tree ecaf54ccedc2f1fcdd4806dd3c0d510a202e273b)
+Source: lane/timeout-arms.log
+Original SHA256: f8682f100f0ae7530a6bda8c0d9bf0b192821b40f3caae282432f0d7b95a1dfe
+Scope: complete text; paths and host fields normalized
+
+HEAD c413d33abe016f5c1e44bdaa1e0354cfe4ab6d99
+$ bash -c eval "$(sed -n "/^suite_timeout() {/,/^}/p" scripts/run_all_suites.sh)"; for s in input_loopback input_loopback_dp reboot_ctrl other; do echo "$s $(suite_timeout $s)"; done
+input_loopback 300
+input_loopback_dp 300
+reboot_ctrl 300
+other 1800
+exit 0
