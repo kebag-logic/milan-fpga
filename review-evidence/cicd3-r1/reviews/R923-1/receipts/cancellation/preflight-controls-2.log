@@ -1,0 +1,27 @@
+preflight-only: {"exit": 0, "failing_selftest": false, "preflight_only": true, "suite_started": false}
+preflight-only-fail: {"exit": 2, "failing_selftest": true, "preflight_only": true, "suite_started": false}
+no-preflight: {"exit": 0, "no_preflight": true, "owner_ran": false}
+refused-no-preflight: {"exit": 2, "refused": ["--no-preflight"]}
+refused-no-preflight-physical-gptp: {"exit": 2, "refused": ["--no-preflight", "--physical-gptp"]}
+refused-preflight-only-shard0_1: {"exit": 2, "refused": ["--preflight-only", "--shard", "0/1"]}
+refused-preflight-only-list: {"exit": 2, "refused": ["--preflight-only", "--list"]}
+refused-preflight-only-ci-pieces: {"exit": 2, "refused": ["--preflight-only", "--ci-pieces"]}
+refused-preflight-only-physical-gptp: {"exit": 2, "refused": ["--preflight-only", "--physical-gptp"]}
+refused-preflight-only-no-preflight: {"exit": 2, "refused": ["--preflight-only", "--no-preflight"]}
+cancel-preflight-SIGINT--preflight-only: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 409109, "cwd": "/tmp/r-preflight-controls-hlhc9lfg/cancel-preflight-SIGINT--preflight-only input [523]", "identities": {"409108": ["15733806", "S"], "409109": ["15733810", "S"]}, "pid": 409108}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM--preflight-only: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 409219, "cwd": "/tmp/r-preflight-controls-hlhc9lfg/cancel-preflight-SIGTERM--preflight-only input [523]", "identities": {"409218": ["15734123", "S"], "409219": ["15734129", "S"]}, "pid": 409218}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scripts/run_preflight_controls.py", line 26, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<packet>/scripts/run_preflight_controls.py", line 21, in main
+    suite_preflight_controls.run(Path(directory), harness)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/ggate/scripts/suite_preflight_controls.py", line 82, in run
+    harness.cancellation(parent, phase, signal.SIGTERM, options=("--ci-pieces", "--no-preflight"))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/ggate/scripts/test_suite_cancellation.py", line 183, in cancellation
+    data = probe.ready()
+  File "<packet>/scratch/ggate/scripts/process_test_support.py", line 220, in ready
+    raise AssertionError(f"{self.label}: missing boundary: {self.log()}")
+AssertionError: cancel-selection-SIGTERM--ci-pieces--no-preflight: missing boundary: 

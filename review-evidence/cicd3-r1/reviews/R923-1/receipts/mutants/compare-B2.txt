@@ -1,0 +1,35 @@
+capture_coherence-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (45 normalised lines, 43 verdict lines)
+capture_coherence-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (45 normalised lines, 43 verdict lines)
+capture_coherence-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (45 normalised lines, 43 verdict lines)
+chmap_capture-lockstep_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (10 normalised lines, 5 verdict lines)
+chmap_capture-lockstep_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (10 normalised lines, 5 verdict lines)
+chmap_capture-lockstep_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (10 normalised lines, 5 verdict lines)
+gptp_tables-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (28 normalised lines, 28 verdict lines)
+gptp_tables-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (28 normalised lines, 28 verdict lines)
+gptp_tables-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (28 normalised lines, 28 verdict lines)
+maap-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (129 normalised lines, 64 verdict lines)
+maap-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (129 normalised lines, 64 verdict lines)
+maap-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (129 normalised lines, 64 verdict lines)
+mbx-dma_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (26 normalised lines, 1 verdict lines)
+mbx-dma_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (26 normalised lines, 1 verdict lines)
+mbx-dma_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (26 normalised lines, 1 verdict lines)
+mbx-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (247 normalised lines, 247 verdict lines)
+mbx-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (247 normalised lines, 247 verdict lines)
+mbx-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (247 normalised lines, 247 verdict lines)
+milan_dp-split_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (34 normalised lines, 34 verdict lines)
+milan_dp-split_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (34 normalised lines, 34 verdict lines)
+milan_dp-split_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (34 normalised lines, 34 verdict lines)
+pp_shadow-pending_mutant: base-cold vs base-warm: DIFFER, rc=143 vs rc=0 (47 normalised lines, 33 verdict lines)
+    -   [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+    -   [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+    -   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+    -   [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+    -   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+    -   [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+    -   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+    -   [PASS] K command marks                            got=0x00000000 exp=0x00000000
+    -   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+    -   [PASS] K mark group                               got=0x00000000 exp=0x00000000
+pp_shadow-pending_mutant: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (47 normalised lines, 33 verdict lines)
+pp_shadow-pending_mutant: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (47 normalised lines, 33 verdict lines)
+groups: 8, differing or missing comparisons: 1

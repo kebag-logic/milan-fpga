@@ -1,0 +1,26 @@
+ci_gate_workflows_check rc=0 wall=3
+ci_events_check rc=0 wall=3
+ci_gate_workflows_selftest rc=0 wall=198
+ci_suite_pieces_selftest rc=0 wall=38
+ci_make_cases_selftest rc=0 wall=2
+mutant_stage_selftest rc=0 wall=0
+gptp_shadow_lifecycle rc=0 wall=110
+check_py_idiom rc=0 wall=41
+check_sh_idiom rc=0 wall=1
+check_hygiene rc=0 wall=2
+docs_check rc=0 wall=38
+check_em_dash rc=2 wall=3
+check_doc_paths rc=0 wall=0
+gen_toc_check rc=2 wall=1
+ci_fail_fast_selftest rc=0 wall=4
+ci_runtime_evidence_selftest rc=0 wall=21
+ci_manifest_selftest rc=0 wall=1
+ci_workflow_plan_selftest rc=0 wall=0
+generate_ci_evidence_pins_check rc=0 wall=1
+suite_shards_selftest rc=0 wall=9
+test_suite_cancellation rc=1 wall=158
+ci_events_selftest rc=0 wall=783
+no_preflight_refused rc=2 wall=4
+finished
+check_em_dash (rerun with the pinned Markdown lock) rc=0
+gen_toc_check (rerun with the pinned Markdown lock) rc=0

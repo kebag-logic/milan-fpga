@@ -1,0 +1,14 @@
+receipt capture_coherence__3.json: IDENTICAL outside head/tree (10 cases; head 7bd357c8 -> 4ad4482c)
+receipt milan_dp__1.json: IDENTICAL outside head/tree (7 cases; head 7bd357c8 -> 4ad4482c)
+log aaf.log: 5539 vs 5539 normalised lines, 6 differing
+log capture_coherence__3.log: 13 vs 13 normalised lines, 0 differing
+log cbs.log: 50 vs 50 normalised lines, 0 differing
+log eth_tx_reset.log: 51 vs 51 normalised lines, 0 differing
+log mac_rmon.log: 80 vs 80 normalised lines, 0 differing
+log media_nco.log: 171 vs 171 normalised lines, 0 differing
+log milan_dp__1.log: 5520 vs 5520 normalised lines, 22 differing
+log nvm_backend.log: 71 vs 71 normalised lines, 0 differing
+log queues.log: 340 vs 340 normalised lines, 0 differing
+log tsn_fuzz.log: 307 vs 307 normalised lines, 0 differing
+base preflight/: ['check_list_hermetic.log', 'check_merge_containment.log', 'check_merge_review_integrity.log', 'check_results_fresh.log', 'suite_shards.log', 'suite_tally.log', 'test_suite_cancellation.log', 'xvlog_gate.log']
+head preflight/: absent or empty

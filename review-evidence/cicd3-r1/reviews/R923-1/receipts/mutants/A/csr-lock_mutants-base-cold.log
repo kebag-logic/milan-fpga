@@ -1,0 +1,18 @@
+[INFO] obj_lock1/Vcsr_lock is missing or older than its sources: the positive control is rebuilt
+[PASS] the unmutated block still passes the lockstep leg
+[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+    it failed reset-values, decode, lockstep
+[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+    it failed snapshot-coherence, lockstep
+[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+    it failed reset-values, lockstep
+[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+
+8 checks: 8 PASS, 0 FAIL

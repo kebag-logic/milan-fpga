@@ -1,0 +1,49 @@
+[PASS] the unmutated stack still passes the N=8 fan-out contract
+[PASS] mutant caught: the parser's one index: each PDU goes to the highest matching entry alone (the defect #948 found) - breaks "[FO1] accept verdicts: input 0"
+    it broke 472 check(s); first: [FO1] accept verdicts: input 0
+[PASS] mutant caught: the engine serves a bundle to its first context alone - breaks "[FO1] accept verdicts: input 1"
+    it broke 462 check(s); first: [FO1] accept verdicts: input 1
+[PASS] mutant caught: the done pulse leaves out the last context's own accept - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+    it broke 378 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 1
+[PASS] mutant caught: a new bundle inherits the previous bundle's accepts - breaks "[FO4] the 2-channel input: no payload: input 5"
+    it broke 536 check(s); first: [FO3] the unbound input: no payload: input 1
+[PASS] mutant caught: the depacketizer reads a frame once: no pass for a second input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 1"
+    it broke 564 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a second pass keeps the first pass's input - breaks "[FO1] payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 628 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a second pass goes on from where the first ended, not from the frame's start - breaks "[FO1] payloads equal the sent ones, byte for byte, in order: input 1"
+    it broke 625 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a frame no input accepted is read out to input 0 - breaks "[FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 132 check(s); first: [FO7] the 8-channel PDU: payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: the read side takes a frame before its verdicts are known - breaks "[FO6] payloads equal the sent ones, byte for byte, in order"
+    it broke 426 check(s); first: [FO6] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a frame that ends in its enqueue pulse's cycle has its fate written to the previous frame's entry - breaks "[FO8] only the full PDU reaches the depacketizer's output: input 0"
+    it broke 472 check(s); first: [FO8] only the full PDU reaches the depacketizer's output: input 0
+[PASS] mutant caught: the verdict queue holds two entries, not the four a full ring and a lost PDU need - breaks "[FO9] only the three full PDUs reach the depacketizer's output"
+    it broke 206 check(s); first: [FO9] only the three full PDUs reach the depacketizer's output: input 0
+[PASS] mutant caught: a frame the full store dropped counts in no input's DEPKT drops - breaks "[FO10] every accepted PDU is delivered to the input or one of its DEPKT drops"
+    it broke 36 check(s); first: [FO8] the cut frame, short of its payload, is one DEPKT drop: input 0
+[PASS] mutant caught: the engine leaves stream_data_length out of the format verdict - breaks "[FO11] the 192-octet PDUs: accept verdicts: input 0"
+    it broke 528 check(s); first: [FO11] the 192-octet PDUs: accept verdicts: input 0
+[PASS] mutant caught: the frame size takes six samples per frame, not the format's own - breaks "[FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1"
+    it broke 541 check(s); first: [FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1
+[PASS] mutant caught: every input is judged by input 0's frame size - breaks "[FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1"
+    it broke 281 check(s); first: [FO11] input 1 takes the 224-octet PDUs: payloads equal the sent ones, byte for byte, in order: input 1
+[PASS] mutant caught: an INT_24BIT sample is sized as four octets - breaks "[FO12] 81 octets: accept verdicts: input 0"
+    it broke 260 check(s); first: [FO12] 81 octets: accept verdicts: input 0
+[PASS] mutant caught: an INT_16BIT sample is sized as four octets - breaks "[FO12] 70 octets: accept verdicts: input 0"
+    it broke 240 check(s); first: [FO12] 70 octets: accept verdicts: input 0
+[PASS] mutant caught: a tail left in the hold: the frame's last word is popped with the beat before it (#948) - breaks "[FO12] 81 octets: payloads equal the sent ones, byte for byte, in order: input 0"
+    it broke 156 check(s); first: [FO12] 81 octets: payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: a frame short of its payload is committed and read out in part - breaks "[FO13] ...each its own payload, in order: input 0"
+    it broke 20 check(s); first: [FO8] ...with its own payload: input 0
+[PASS] mutant caught: a pulse is taken only while its frame is still on the tap (the #948 short-frame defect, nine and ten beats) - breaks "[FO14] 28 octets: payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 126 check(s); first: [FO14] 26 octets tagged: payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: the store's write side takes the tap as it comes (the #948 short-frame defect) - breaks "[FO14] 24 octets: payloads reach the depacketizer's output under the input's index: input 0"
+    it broke 436 check(s); first: [FO1] payloads reach the depacketizer's output under the input's index: input 0
+[PASS] mutant caught: the pending DEPKT tallies are three bits again and drained only by an idle walker (the #948 drop-tally defect) - breaks "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"
+    it broke 31 check(s); first: [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 0
+[PASS] mutant caught: a half-full DEPKT tally waits for an idle walker, which a dense burst never leaves - breaks "[FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 2"
+    it broke 17 check(s); first: [FO15] every accepted PDU is delivered to the input or one of its DEPKT drops: input 1
+
+24 checks: 24 PASS, 0 FAIL

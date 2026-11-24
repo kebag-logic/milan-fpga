@@ -1,0 +1,16 @@
+preflight-only: {"exit": 0, "failing_selftest": false, "preflight_only": true, "suite_started": false}
+preflight-only-fail: {"exit": 2, "failing_selftest": true, "preflight_only": true, "suite_started": false}
+no-preflight: {"exit": 0, "no_preflight": true, "owner_ran": false}
+refused-no-preflight: {"exit": 2, "refused": ["--no-preflight"]}
+refused-no-preflight-physical-gptp: {"exit": 2, "refused": ["--no-preflight", "--physical-gptp"]}
+refused-preflight-only-shard0_1: {"exit": 2, "refused": ["--preflight-only", "--shard", "0/1"]}
+refused-preflight-only-list: {"exit": 2, "refused": ["--preflight-only", "--list"]}
+refused-preflight-only-ci-pieces: {"exit": 2, "refused": ["--preflight-only", "--ci-pieces"]}
+refused-preflight-only-physical-gptp: {"exit": 2, "refused": ["--preflight-only", "--physical-gptp"]}
+refused-preflight-only-no-preflight: {"exit": 2, "refused": ["--preflight-only", "--no-preflight"]}
+cancel-preflight-SIGINT--preflight-only: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 405640, "cwd": "/tmp/r-preflight-controls-2rnr7h2l/cancel-preflight-SIGINT--preflight-only input [523]", "identities": {"405624": ["15729173", "S"], "405640": ["15729212", "S"]}, "pid": 405624}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM--preflight-only: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 405996, "cwd": "/tmp/r-preflight-controls-2rnr7h2l/cancel-preflight-SIGTERM--preflight-only input [523]", "identities": {"405995": ["15730047", "S"], "405996": ["15730055", "S"]}, "pid": 405995}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-selection-SIGTERM--ci-pieces--no-preflight: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 406367, "cwd": "/tmp/r-preflight-controls-2rnr7h2l/cancel-selection-SIGTERM--ci-pieces--no-preflight input [523]", "identities": {"406332": ["15730329", "S"], "406367": ["15730337", "S"]}, "pid": 406332}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-command-SIGTERM--ci-pieces--no-preflight: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 406757, "cwd": "/tmp/r-preflight-controls-2rnr7h2l/cancel-command-SIGTERM--ci-pieces--no-preflight input [523]", "identities": {"406753": ["15730621", "S"], "406757": ["15730627", "S"]}, "pid": 406753}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGTERM--ci-pieces--no-preflight: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 407222, "cwd": "/tmp/r-preflight-controls-2rnr7h2l/cancel-transition-SIGTERM--ci-pieces--no-preflight input [523]", "identities": {"407208": ["15730923", "S"], "407222": ["15730936", "S"]}, "pid": 407208}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+suite preflight modes: PASS (preflight-only and no-preflight sweeps, their refusals, INT/TERM in each)

@@ -1,0 +1,5 @@
+fresh-root: ACCEPTED; staged at fresh-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o755 slot mode=0o700
+world-writable-root: ACCEPTED; staged at world-writable-root/milan-mutant-stage-1000/probe-0; root is_symlink=False root mode=0o777 slot mode=0o700
+symlinked-root: ACCEPTED; staged at symlinked-root/chosen-by-another-account/probe-0; root is_symlink=True root mode=0o777 slot mode=0o700
+locks-is-a-file: RAISED FileExistsError: [Errno 17] File exists: '<packet>/scratch/stageprobe/locks-is-a-file/milan-mutant-stage-1000/locks'
+tempfile.mkdtemp (the base's call): probe-ummr8c_9 mode=0o700, random name, created atomically

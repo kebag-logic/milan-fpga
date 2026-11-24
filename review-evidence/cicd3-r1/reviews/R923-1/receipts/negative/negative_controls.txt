@@ -1,0 +1,27 @@
+preflight binding control: a preflight that passed for this SHA: verilator-suites passes
+preflight binding control: a preflight that failed: verilator-suites fails
+preflight binding control: a preflight that cancelled: verilator-suites fails
+preflight binding control: a preflight that skipped: verilator-suites fails
+preflight binding control: a preflight that passed for another SHA: verilator-suites fails
+preflight binding control: a preflight that left no record: verilator-suites fails
+clean   generated rtl.yml passes preflight_controls
+preflight binding control: a preflight that passed for this SHA: verilator-suites passes
+CAUGHT  aggregate step loses its result test: AssertionError: "('failed', 0, '  ok   suite-preflight  13e6d869d842fc06155ef5dae9b0347596d6d4df\\ntarget-sha: OK, 1 record(s) all 13e6d869d842fc06155ef5dae9b"
+preflight binding control: a preflight that passed for this SHA: verilator-suites passes
+preflight binding control: a preflight that failed: verilator-suites fails
+preflight binding control: a preflight that cancelled: verilator-suites fails
+preflight binding control: a preflight that skipped: verilator-suites fails
+CAUGHT  aggregate step loses its SHA-record check: AssertionError: "('passed for another SHA', 0, 'verilator-suites: the preflight self-tests passed once at 13e6d869d842fc06155ef5dae9b0347596d6d4df\\n', '')"
+CAUGHT  verilator-suites no longer needs the preflight: AssertionError: "['full-ci-gate', 'verilator-shards', 'union-milan_dp', 'union-milan_dp_mclk', 'union-capture_coherence', 'union-maap', 'union-milan_dp_rende"
+CAUGHT  aggregate preflight step continues on error: AssertionError: '{\'name\': "Require the preflight to have passed for this run\'s SHA", \'if\': \'${{ always() }}\', \'env\': {\'GATE_SHA\': \'${{ needs.full-ci-gate.out'
+CAUGHT  fail-fast no longer watches the preflight: AssertionError: 'fail-fast does not watch the preflight'
+CAUGHT  preflight job runs something other than --preflight-only: AssertionError: '[\'scripts/run_all_suites.sh "$RUNNER_TEMP/suite-preflight" --list\\n\']'
+CAUGHT  preflight job condition differs from the workers': AssertionError: "{'name': 'Verilator preflight', 'needs': 'full-ci-gate', 'if': '${{ false }}', 'runs-on': 'ubuntu-24.04', 'timeout-minutes': 15, 'steps': [{"
+CAUGHT  start order drops a case the table does not name: KeyError: "'unmeasured'"
+CAUGHT  start order ignores the table: AssertionError: "['short', 'long', 'tie_a', 'unmeasured', 'tie_b', 'longest']"
+CAUGHT  results returned in start order, not driver order: AssertionError: "[('pass', 0, 'longest checks: 1   failures: 0\\n'), ('pass', 0, 'long checks: 1   failures: 0\\n'), ('pass', 0, 'tie_a checks: 1   failures: 0"
+make case start order control, 1 job(s): results in driver order
+make case start order control, 3 job(s): results in driver order
+make case start order control: an unmeasured suite keeps driver order
+CAUGHT  the table names a case the suite does not have: AssertionError: "('milan_dp', ['aclk-typo'])"
+negative controls: 11/11 caught

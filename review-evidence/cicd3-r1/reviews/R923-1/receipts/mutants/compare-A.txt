@@ -1,0 +1,56 @@
+aaf-start_mutants: base-cold vs base-warm: IDENTICAL-AS-MULTISET, rc=0 vs rc=0 (9 normalised lines, 9 verdict lines)
+aaf-start_mutants: base-cold vs head-cold: IDENTICAL-AS-MULTISET, rc=0 vs rc=0 (9 normalised lines, 9 verdict lines)
+aaf-start_mutants: base-cold vs head-warm: IDENTICAL-AS-MULTISET, rc=0 vs rc=0 (9 normalised lines, 9 verdict lines)
+avtp_rxmon-ctxfmt_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (11 normalised lines, 6 verdict lines)
+avtp_rxmon-ctxfmt_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (11 normalised lines, 6 verdict lines)
+avtp_rxmon-ctxfmt_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (11 normalised lines, 6 verdict lines)
+avtp_rxmon-fanout_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (49 normalised lines, 25 verdict lines)
+avtp_rxmon-fanout_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (49 normalised lines, 25 verdict lines)
+avtp_rxmon-fanout_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (49 normalised lines, 25 verdict lines)
+csr-lock_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (18 normalised lines, 16 verdict lines)
+csr-lock_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (18 normalised lines, 16 verdict lines)
+csr-lock_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (18 normalised lines, 16 verdict lines)
+maap-mutants: base-cold vs base-warm: DIFFER, rc=MISSING vs rc=1 (154 normalised lines, 83 verdict lines)
+    - [ok] m1_defend_no_compare: rc=1
+    -   named rejection: M1 rDefend/DEFEND lower MAC keeps range
+    - [ok] m7_accept_invalid_seed: rc=1
+    -   named rejection: M7 Table B.9 invalid supplied range refused
+    - [ok] m7_reject_valid_<RAND>: rc=1
+    -   named rejection: M7 Table B.9 valid supplied boundary retained
+    - [ok] m2_own_requested_start: rc=1
+    -   named rejection: M2 B.3.6.6 requested start echoes PROBE
+    - [ok] m2_echo_overlap_start: rc=1
+    -   named rejection: M2 B.3.6.6 requested start echoes a PROBE starting below ours
+    + [ESCAPED] m1_defend_no_compare: rc=-15
+maap-mutants: base-cold vs head-cold: IDENTICAL, rc=1 vs rc=1 (154 normalised lines, 83 verdict lines)
+maap-mutants: base-cold vs head-warm: DIFFER, rc=MISSING vs rc=1 (154 normalised lines, 83 verdict lines)
+    - [ok] cdl_28: rc=1
+    -   named rejection: B.2.1 cdl 16 (Begin! PROBE 1)
+    - [ok] probe_draw_7_bits: rc=1
+    -   named rejection: B.3.4.2 probe T < 600 ms (campaign)
+    - [ok] probe_<RAND>: rc=1
+    -   named rejection: B.3.4.2 probe T > 500 ms (campaign)
+    - [ok] announce_base_3s: rc=1
+    -   named rejection: B.3.4.1 announce T > 30 s
+    - [ok] announce_draw_11_bits: rc=1
+    -   named rejection: B.3.4.1 announce T < 32 s
+    + [ESCAPED] cdl_28: rc=-15
+    + == KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+    + 
+    + 
+    + 
+    + 
+    + 
+    + 
+    + 
+    + [1] reset/idle
+reboot_ctrl-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (63 normalised lines, 63 verdict lines)
+reboot_ctrl-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (63 normalised lines, 63 verdict lines)
+reboot_ctrl-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (63 normalised lines, 63 verdict lines)
+render_queue-mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (30 normalised lines, 29 verdict lines)
+render_queue-mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (30 normalised lines, 29 verdict lines)
+render_queue-mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (30 normalised lines, 29 verdict lines)
+tkdiag-mcr_mutants: base-cold vs base-warm: IDENTICAL, rc=0 vs rc=0 (12 normalised lines, 6 verdict lines)
+tkdiag-mcr_mutants: base-cold vs head-cold: IDENTICAL, rc=0 vs rc=0 (12 normalised lines, 6 verdict lines)
+tkdiag-mcr_mutants: base-cold vs head-warm: IDENTICAL, rc=0 vs rc=0 (12 normalised lines, 6 verdict lines)
+groups: 8, differing or missing comparisons: 2
