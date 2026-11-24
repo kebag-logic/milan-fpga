@@ -4644,6 +4644,95 @@ TEST_F(Face, CountersAreReadThroughTheWindowEachWithinItsBound)
     EXPECT_EQ(face.unanswered,4u);
 }
 
+TEST_F(Face, SoftwareGptpAvbKeepsTheDatapathsLinkAndClass)
+{
+    struct Snapshot { unsigned interface=0; unsigned calls=0; bool capable=false; } snapshot;
+    const struct aecp_face_gptp owner{
+        .ctx=&snapshot,
+        .avb=[](void *ctx,unsigned interface,uint64_t *gm,uint32_t *delay,uint8_t *domain,bool *capable) {
+            auto &s=*static_cast<Snapshot*>(ctx);
+            EXPECT_EQ(interface,s.interface);
+            ++s.calls;
+            *gm=0xfedcba9876543210ull+interface;
+            *delay=77u+interface;
+            *domain=static_cast<uint8_t>(17u+interface);
+            *capable=s.capable;
+        },
+        .path=nullptr,
+    };
+    aecp_face_gptp(&face,&owner);
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        snapshot.interface=i;
+        for(bool capable:{true,false}){
+            snapshot.capable=capable;
+            aecp_avb_info result{};
+            const auto before=snapshot.calls;
+            ASSERT_TRUE(face.ports.avb(&face,i,0,&result));
+            EXPECT_EQ(snapshot.calls,before+1u);
+            EXPECT_EQ(result.gm_id,0xfedcba9876543210ull+i);
+            EXPECT_EQ(result.propagation_delay,77u+i);
+            EXPECT_EQ(result.domain,17u+i);
+            EXPECT_EQ(result.flags,capable?0x7bu:0x7au) << "software gPTP keeps the datapath's link flags";
+            EXPECT_EQ(result.class_priority,3u);
+            EXPECT_EQ(result.class_vlan,2u);
+        }
+    }
+    far.reply=MBX_MODEL_SILENT;
+    const auto before=snapshot.calls;
+    aecp_avb_info result{};
+    EXPECT_FALSE(face.ports.avb(&face,0,0,&result));
+    EXPECT_EQ(snapshot.calls,before) << "an unanswered datapath still refuses the whole observation";
+}
+
+TEST_F(Face, SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead)
+{
+    struct Snapshot {
+        unsigned interface=0;
+        unsigned calls=0;
+        size_t capacity=0;
+        uint64_t *out=nullptr;
+        size_t *count=nullptr;
+        bool accepts=true;
+    } snapshot;
+    const struct aecp_face_gptp owner{
+        .ctx=&snapshot,
+        .avb=nullptr,
+        .path=[](void *ctx,unsigned interface,uint64_t *out,size_t capacity,size_t *count) {
+            auto &s=*static_cast<Snapshot*>(ctx);
+            EXPECT_EQ(interface,s.interface);
+            EXPECT_EQ(out,s.out);
+            EXPECT_EQ(capacity,s.capacity);
+            EXPECT_EQ(count,s.count);
+            ++s.calls;
+            if(s.accepts){
+                *count=1;
+                out[0]=0x1122334455667788ull+interface;
+            }
+            return s.accepts;
+        },
+    };
+    aecp_face_gptp(&face,&owner);
+    const auto requests=far.requests[MBX_WIN_GSI];
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        snapshot.interface=i;
+        for(bool accepts:{true,false}){
+            uint64_t result=0;
+            size_t count=99;
+            snapshot.accepts=accepts;
+            snapshot.capacity=accepts?1u:0u;
+            snapshot.out=&result;
+            snapshot.count=&count;
+            const auto before=snapshot.calls;
+            EXPECT_EQ(face.ports.path(&face,i,0,&result,snapshot.capacity,&count),accepts)
+                << "software gPTP forwards the path owner's refusal";
+            EXPECT_EQ(snapshot.calls,before+1u);
+            EXPECT_EQ(count,accepts?1u:99u);
+            EXPECT_EQ(result,accepts?0x1122334455667788ull+i:0u);
+        }
+    }
+    EXPECT_EQ(far.requests[MBX_WIN_GSI],requests) << "the firmware snapshot is the path's only owner";
+}
+
 TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
 {
     auto out=receive(15,target(6,0));

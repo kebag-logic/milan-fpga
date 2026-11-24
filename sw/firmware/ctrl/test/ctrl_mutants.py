@@ -680,6 +680,13 @@ A31 = "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
 B10 = "AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse"
 MUTANTS += (
     # the driver's encoding of each register
+    Mutant("pub-gptp-generation-written-twice", "mbx/mbx.c", "if (k != state) {", "if (true) {",
+           "unit", "DriverUnit.GptpPublicationCommitsAfterItsIdentityWords",
+           "the generation commits the complete identity on its own interface"),
+    Mutant("timestamp-high-word-shifted", "mbx/mbx.c",
+           "MBX_EV_TIMESTAMP_W3_NS_HI_WIDTH) << 32)", "MBX_EV_TIMESTAMP_W3_NS_HI_WIDTH) << 16)",
+           "unit", "DriverUnit.TimestampEventDecodesFlagsAndBothTimeWordsAcrossWrap",
+           "the timestamp keeps all 64 time bits"),
     Mutant("pub-sid-valid-set-first", "mbx/mbx.c", PUB_SINK_FIRST_WRITE,
            PUB_SINK_FIRST_WRITE.replace("binding);", "binding |\n\t\t\t(stream_id != 0u ? mbx_place(1u, "
                                         "MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) : 0u));"),
