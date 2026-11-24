@@ -225,7 +225,8 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: decided on 2026-11-20 (#665, ruling item 4), in both columns: an AECP record 250 us (23,726 CPU cycles, a
 #: SET_STREAM_INFO in the declaring-outputs arm's aecp-fanout; the cut's code moves AECP's), a centisecond 170
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
-#: arm's aecp-fanout; 210 before).
+#: arm's aecp-fanout; 210 before). With #977's round 2, over every arm at 1x1/1if (3de17804), the walk 80 (7,289 in
+#: srp-register-burst), in both columns, as poll_grade.py's ONE states it; the notice item's 14,370 is within its 150.
 STATED_US = {
     '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
@@ -283,7 +284,7 @@ STATED_US_DONOR = {
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
                 'item.aecp.response': 60, 'item.aecp.probe': 60, 'base': 225, 'item.reclaim': 25, 'item.retained': 285,
-                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 35, 'build': 1010, 'build_one': 735, 'step': 975},
+                'item.mrpdu': 735, 'item.acmp': 55, 'item.walk': 80, 'build': 1010, 'build_one': 735, 'step': 975},
     '8x8/2if': {'record.srp': 365, 'record.aecp': 265, 'record.acmp': 305, 'record.adp': 125, 'record.maap': 160,
                 'event.ADP': 120, 'event.ACMP': 210, 'event.MAAP': 225, 'event.AECP': 120, 'event.TICK': 85,
                 'event.GM': 320, 'centisecond': 510, 'events_none': 45, 'item.aecp.notice': 275,
@@ -326,8 +327,11 @@ TX_PER_JOIN = 3
 #: Measured at #977's round 2 head over srp-register and srp-register-burst: at 8x8/1if a record of the burst replacing
 #: every input's Talker, 143,047 CPU cycles, 105,547 past the 37,500-cycle unit, and THE SETTLE after it, 46,784, over
 #: nine values, 16,926 cycles; at 1x1/1if 46,654 cycles, 18,154 past the unit, and its settle, 10,108, over two values,
-#: 14,131 cycles.
-REGISTRATION_US = {'1x1/1if': 150, '8x8/1if': 180}
+#: 14,131 cycles. Measured again over every arm on round 2's final image: at 8x8/1if 145,803 cycles, 108,303 past the
+#: unit, and its settle, 50,075, over nine values, 17,598 cycles, 185 us by the rule (f7d07720, the image 3de17804 links
+#: unchanged there); at 1x1/1if 48,672 cycles, 20,172 past the unit, and its settle, 9,649, over two values, 14,910
+#: cycles, 160 us by the rule (3de17804).
+REGISTRATION_US = {'1x1/1if': 160, '8x8/1if': 185}
 #: The poll items the load counts (poll_grade.py's names); AECP's owed frame is the table's, by what each source sends.
 ITEMS = ('base', 'reclaim', 'retained', 'mrpdu', 'acmp', 'walk', 'acmp_declined')
 #: THE TRANSMIT's and THE STEP's stated costs (ctrl_loop.h), at a point the headers state them for.

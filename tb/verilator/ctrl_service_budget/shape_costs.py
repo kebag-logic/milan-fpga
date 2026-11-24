@@ -443,6 +443,14 @@ def controls(root: Path = ROOT) -> list[str]:
             raise AssertionError(f'control fixture {old!r} does not occur exactly once in {HEADER}')
         return {HEADER: text.replace(old, new)}
 
+    def table_planted(old: str, new: str) -> dict[str, str]:
+        """As planted, within THE SHAPES table alone, up to its #error: the per-shape chain after it (the drain's
+        registration cost, #977) tests the same shapes."""
+        end = text.index('#error "THE SHAPES')
+        if text[:end].count(old) != 1:
+            raise AssertionError(f'control fixture {old!r} does not occur exactly once in {HEADER}\'s table')
+        return {HEADER: text[:end].replace(old, new) + text[end:]}
+
     first = next(iter(listed(text)))
     one = listed(text)[first]
     block = ''.join(f'#define {name} {one[name]}u\n' for name in NAMES + BOUNDS)
@@ -490,7 +498,7 @@ def controls(root: Path = ROOT) -> list[str]:
     point = next(iter(BUILT))
     s = of_point(point, root)
     head = f'CTRL_LOOP_SHAPE({s.interfaces}u, {s.sources}u, {s.sinks}u)'
-    if not any(point in f for f in findings(root, planted(head, f'CTRL_LOOP_SHAPE({s.interfaces}u, 3u, 3u)'))):
+    if not any(point in f for f in findings(root, table_planted(head, f'CTRL_LOOP_SHAPE({s.interfaces}u, 3u, 3u)'))):
         escaped.append('a point whose shape is not listed')
     # a listed shape whose polls poll_grade.py does not state: it would be graded at none
     import poll_grade

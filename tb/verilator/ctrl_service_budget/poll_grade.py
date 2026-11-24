@@ -105,8 +105,13 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: At 1x1/1if on the SRP cut's head, measured over every arm and group, the AECP notice item 150 us (14,084 CPU cycles
 #: in the declaring-outputs arm's aecp-fanout; 210 before) and a notice longer than AECP_FAN_BYTES 315 (29,652 in arm
 #: A's aecp-largest-notice; 365 before), each restated from its measurement by the rule by ruling item 4 of 2026-11-20,
-#: as the owner decided (#665).
-ONE = dict(base=225, withdraw=90, rebuild=290, walk=35, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
+#: as the owner decided (#665). With #977's round 2 (the drain's charge, THE SETTLE, lwSRP's one-interface options),
+#: measured over every group of every arm on its image (3de17804), the walk is 7,289 cycles in arm A's
+#: srp-register-burst, a registrar walk after a record that replaced both inputs' Talkers, 80 us by the rule (7,025 at
+#: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
+#: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
+#: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the owner's 130 ms.
+ONE = dict(base=225, withdraw=90, rebuild=290, walk=80, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
            aecp_long=700, acmp_declined=20)
@@ -129,8 +134,12 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: 8x8/1if's reclaim is 3,446 cycles in srp-talker-held, 40 us by the rule.
 #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if base
 #: 28,417 CPU cycles (the valid-destinations arm, srp-talker-held), 300 us; 8x8/1if retained 35,350 CPU cycles (the
-#: valid-destinations arm, srp-talker-held), 375 us, each by the rule.
-EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
+#: valid-destinations arm, srp-talker-held), 375 us, each by the rule. With #977's round 2 (the drain's charge, THE
+#: SETTLE, lwSRP's one-interface options), measured over every group of every arm on its image (f7d07720, the image
+#: 3de17804 links unchanged there), the walk is 18,004 cycles in arm A's srp-register-burst, a registrar walk
+#: after a record that replaced every input's Talker, 190 us by the rule (18,694 at the base, dd163e41); every other
+#: item is within this table's.
+EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=190, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=320, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,
              shape_costs.Shape(2, 9, 9): TWO}

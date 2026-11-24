@@ -228,7 +228,7 @@ Leave is sent. MSRP does not support a changed FirstValue on a StreamID (IEEE
 declares at once, while a changed destination waits `SRP_REDECLARE_CS` after
 the Leave's request: two nominal longest LeaveAll periods, with a JoinTime and
 THE TRANSMIT's MRPDU by every source, `CTRL_LOOP_TX_MS`, the latest the Leave
-departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (77 ms) and 3,030
+departs. That is 3,023 cs at 1x1/1if (35 ms), 3,027 at 8x8/1if (78 ms) and 3,030
 at two interfaces (105 ms), each figure stated for its shape (THE SHAPES,
 `ctrl_loop.h`) and held to its row by `flip_grade.py --check`
 (`rows_tiers.tx_statements`, and at 8x8/1if `tx_held`, apart from that point's
