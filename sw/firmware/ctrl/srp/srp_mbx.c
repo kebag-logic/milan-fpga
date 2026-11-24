@@ -273,6 +273,24 @@ static void release_held(struct srp_mbx *m, struct srp_held *h)
 }
 
 _Static_assert(CTRL_SRP_SINKS <= 32u, "an interface's touched sinks hold a bit for each sink");
+_Static_assert(CTRL_SRP_SINKS < 255u, "a sink index holds each sink plus one in an octet");
+
+// The interface's sink index (srp_mbx.h, lane_first): every bound sink in the lane of its StreamID's last byte, each
+// lane ascending, so a visit of a lane finds what the loop over every sink found, in its order. Only srp_mbx_bind
+// writes a binding, and it rebuilds the index; srp_mbx_init's zeroing leaves every lane empty, as every sink unbound
+// (#977, its ruling of 2026-11-23, item 5).
+static void index_sinks(struct srp_interface *i)
+{
+    memset(i->lane_first,0,sizeof(i->lane_first));
+    for (unsigned k = CTRL_SRP_SINKS; k-- != 0u;) {
+        i->lane_next[k] = 0u;
+        if (i->sinks[k].bound) {
+            uint8_t *first = &i->lane_first[i->sinks[k].stream_id.bytes[7] % SRP_SINK_LANES];
+            i->lane_next[k] = *first;
+            *first = (uint8_t)(k + 1u);
+        }
+    }
+}
 
 // Indications copy registration changes only. The filter below closes the
 // preceding complete wire event, after both halves of an atomic replacement.
@@ -280,11 +298,13 @@ static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv
                            uint8_t kind, bool registered)
 {
     bool bound = false;
-    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+    const uint8_t last = v->stream_id.bytes[7];
+    // the bound sinks of the StreamID's lane (index_sinks), the last byte first, as sources_of: one talker's
+    // StreamIDs differ in their unique ID (#977)
+    for (unsigned n = i->lane_first[last % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {
+        const unsigned k = n - 1u;
         struct srp_sink *s = &i->sinks[k];
-        // the last byte first, as sources_of: one talker's StreamIDs differ in their unique ID (#977)
-        if (s->bound && s->stream_id.bytes[7] == v->stream_id.bytes[7] &&
-            same(s->stream_id.bytes,v->stream_id.bytes,8)) {
+        if (s->stream_id.bytes[7] == last && same(s->stream_id.bytes,v->stream_id.bytes,8)) {
             bound = true;
             // what listener_kind reads of this sink changed: the receive filter takes it again (#977)
             i->touched |= 1u << k;
@@ -545,10 +565,10 @@ static bool interested_msrp(void *ctx, uint8_t port, uint8_t type, const void *v
     if (type == MSRP_ATTR_TYPE_LISTENER) {
         return sources_of(i,value) != 0u;
     } else {
-        for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-            const uint8_t *id = value;
-            if (i->sinks[n].bound && i->sinks[n].stream_id.bytes[7] == id[7] &&
-                same(i->sinks[n].stream_id.bytes,id,8)) {
+        // the bound sinks of the StreamID's lane alone (index_sinks; #977)
+        const uint8_t *id = value;
+        for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {
+            if (i->sinks[n - 1u].stream_id.bytes[7] == id[7] && same(i->sinks[n - 1u].stream_id.bytes,id,8)) {
                 return true;
             }
         }
@@ -843,6 +863,7 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
     const struct srp_sink old = *s;
     *s = replacement;
     i->stale = true; // snapshot matches registrations against the bindings (#665)
+    index_sinks(i); // the lookups' index of the bindings, this one among them (#977)
     // and the next receive counts the kept Talkers again: a binding made now takes its StreamID's, an unbinding keeps
     // them (#969, count_kept)
     m->kept_due[interface] |= SRP_KEPT_BOUND;
@@ -1006,8 +1027,9 @@ static CTRL_CC_INLINE unsigned attribute_room(const struct ctrl_pool *pool)
 // Whether a binding of the interface holds the StreamID at id.
 static bool bound_stream(const struct srp_interface *i, const uint8_t *id)
 {
-    for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-        if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,id,8)) {
+    // the bound sinks of the StreamID's lane alone (index_sinks; #977)
+    for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {
+        if (same(i->sinks[n - 1u].stream_id.bytes,id,8)) {
             return true;
         }
     }
@@ -1216,10 +1238,11 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
     } else if (status->attr_type == MSRP_ATTR_TYPE_TALKER_ADV ||
                status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED) {
         const struct msrp_talker_adv *v = status->attr_val;
-        for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {
-            struct srp_sink *sink = &i->sinks[n];
-            if (sink->bound && sink->stream_id.bytes[7] == v->stream_id.bytes[7] &&
-                same(sink->stream_id.bytes,v->stream_id.bytes,8)) {
+        const uint8_t last = v->stream_id.bytes[7];
+        // the bound sinks of the StreamID's lane alone (index_sinks; #977)
+        for (unsigned n = i->lane_first[last % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {
+            struct srp_sink *sink = &i->sinks[n - 1u];
+            if (sink->stream_id.bytes[7] == last && same(sink->stream_id.bytes,v->stream_id.bytes,8)) {
                 // the StreamID's, whatever their destination and VID: a final unbinding with both holds the latest
                 // (#925, srp_mbx_bind)
                 sink->stream_kinds |= status->attr_type == MSRP_ATTR_TYPE_TALKER_FAILED ? 1u : 2u;
@@ -1340,9 +1363,12 @@ static bool prepare_declarations(struct srp_interface *i)
         }
         uint8_t desired = 0;
         bool handled = false;
+        // the last byte first, as sources_of: one talker's StreamIDs differ in their unique ID, so a call of memcmp
+        // for every pair made the declarations' pass quadratic in the sinks (#977, its ruling of 2026-11-23, item 5)
         for (unsigned other = 0; other < CTRL_SRP_SINKS; ++other) {
             const struct srp_sink *r = &i->sinks[other];
-            if (r->bound && memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
+            if (r->bound && r->stream_id.bytes[7] == s->stream_id.bytes[7] &&
+                memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
                 handled = handled || other < k;
                 if (r->desired != 2 || r->vlan_sent) {
                     desired |= r->desired;
@@ -1362,7 +1388,8 @@ static bool prepare_declarations(struct srp_interface *i)
             m->declarations += desired != s->declared;
             for (unsigned other = k; other < CTRL_SRP_SINKS; ++other) {
                 struct srp_sink *r = &i->sinks[other];
-                if (r->bound && memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
+                if (r->bound && r->stream_id.bytes[7] == s->stream_id.bytes[7] &&
+                    memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
                     r->declared = desired;
                 }
             }

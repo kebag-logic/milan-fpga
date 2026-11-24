@@ -16,6 +16,9 @@ extern "C" {
 #endif
 #include "shish_lan/msrp.h"
 #include "shish_lan/mvrp.h"
+// The lanes of an interface's sink index (srp_interface, lane_first): a sink's lane is its StreamID's last byte modulo
+// this, so the StreamIDs of one talker, which differ in their unique ID, fall in lanes of their own (#977).
+#define SRP_SINK_LANES 16u
 struct srp_source {
     struct msrp_talker_adv value;
     bool allocated;
@@ -82,6 +85,12 @@ struct srp_interface {
     // The sinks, bit k sink k, whose registered kinds a Talker's indication changed since the receive filter last
     // took them (srp_mbx.c, talker_changed and interested_msrp; #977).
     uint32_t touched;
+    // The bound sinks by their StreamID's last byte, in SRP_SINK_LANES lanes: a lane's first sink plus one (0 none),
+    // and each sink's next in its lane plus one, each lane ascending, rebuilt by every binding (srp_mbx.c,
+    // index_sinks). A Talker's indication, the receive filter and the walk visit only the sinks of its StreamID's
+    // lane, where each visited every sink (#977, its ruling of 2026-11-23, item 5).
+    uint8_t lane_first[SRP_SINK_LANES];
+    uint8_t lane_next[CTRL_SRP_SINKS];
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665). It is set where one may arise: an attribute's change
     // into a state mrp_reclaim frees, or one a receive created and left in the

@@ -42,8 +42,8 @@ NEVER = EARLY + "AKeptLeaveOfAStreamNeverRegisteredIsCountedNoMoreOnceFreed"
 REFRESHED = EARLY + "AKeptRegistrationRefreshedIsCountedOnce"
 #: srp_mbx.c's receive filter for a Talker no binding holds, and its search of the bindings, as it holds them.
 KEEPS = "    return keep_talker(i,type,value);\n"
-SEARCH = ("        for (unsigned n = 0; n < CTRL_SRP_SINKS; ++n) {\n"
-          "            if (i->sinks[n].bound && same(i->sinks[n].stream_id.bytes,value,8)) {\n")
+SEARCH = ("        for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n != 0u; n = i->lane_next[n - 1u]) {\n"
+          "            if (i->sinks[n - 1u].stream_id.bytes[7] == id[7] && same(i->sinks[n - 1u].stream_id.bytes,id,8)) {\n")
 #: keep_talker's bound, its search of the kept list, its listing of one kept now and the count it leaves pending.
 FULL = "    if (*count >= SRP_KEPT_TALKERS) {\n        return false;\n    }\n"
 KIND = "        if (kept[n].kind == kind && same(kept[n].stream_id.bytes,stream_id,8)) {\n"
@@ -74,7 +74,7 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("feedback-early-rebind-ignored", REBIND, KEEPS, KEEPS.replace("return ", "return false && "),
              "a rebind to a stream declared all along"),
         # binding then registration, the kept attributes at their bound: the binding's own Talker, first sink only
-        kind("feedback-early-bound-first-sink-only", AFTER, SEARCH, SEARCH.replace("n < CTRL_SRP_SINKS", "n < 1u"),
+        kind("feedback-early-bound-first-sink-only", AFTER, SEARCH, SEARCH.replace("n != 0u;", "n == 1u;"),
              "a binding made before its registration"),
         # the bound
         kind("feedback-early-unbounded", BOUNDED, FULL, "", "a registration past the bound takes no block"),
