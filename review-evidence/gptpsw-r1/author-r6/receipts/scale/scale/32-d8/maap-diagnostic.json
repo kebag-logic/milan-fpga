@@ -1,0 +1,14 @@
+{
+  "scope": "Diagnostic context only; grader rc 1 is retained without changing its bounds",
+  "link1_up_cycles": 190615451,
+  "first_after_link_up": [
+    "ENTRY 190639361 build_mrpdu if1 MSRP",
+    "ENTRY 190669567 build_mrpdu if1 MVRP"
+  ],
+  "periodic_before_link_up": [
+    "ENTRY 115705292 on_pt_timer if1 MVRP",
+    "ENTRY 115707912 on_pt_timer if1 MSRP"
+  ],
+  "log_sha256": "5c5330ba940b926ce7368a985e9ab8695c14894ac33715d33a94158a33406eaa",
+  "interpretation": "The reported late periodic opportunities predate interface 1 link-up. No protocol verdict is inferred from this diagnostic."
+}

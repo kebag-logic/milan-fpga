@@ -1,0 +1,26 @@
+{
+  "arm": "32-d0",
+  "group": "backlog-owed",
+  "at": "2026-11-24T11:21:08.198752+00:00",
+  "grader_rc": 0,
+  "flags": "record-budget-findings and record-share-findings; rc is not a waiver of those findings",
+  "refusals": [],
+  "budget_misses": [
+    "backlog.owed.if0: 64.226 ms over its budget 20 ms",
+    "backlog.owed_behind0.if0: 64.561 ms over its budget 20 ms",
+    "backlog.owed_behind1.if0: 64.895 ms over its budget 20 ms",
+    "backlog.owed_behind2.if0: 65.229 ms over its budget 20 ms",
+    "backlog.owed_behind3.if0: 65.563 ms over its budget 20 ms",
+    "backlog-owed.service.acmp.last.if0: 61.947 ms over its budget 20 ms",
+    "backlog-owed.service.aecp.last.if1: 63.867 ms over its budget 20 ms"
+  ],
+  "share_misses": [],
+  "other_findings": [],
+  "timings": [
+    {
+      "hart0_cycles": 81531,
+      "hart1_cycles": 87266
+    }
+  ],
+  "native_verdict": "PASS"
+}

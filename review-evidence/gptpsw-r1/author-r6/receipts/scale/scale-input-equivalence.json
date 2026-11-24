@@ -1,0 +1,50 @@
+{
+  "build_head": "368c2d1e9898e43849873bd242fba482924817f0",
+  "report_head": "fe009fa2c7741b8612bdbc74fe70909d57931503",
+  "changed_since_build": [
+    "docs/design/TWO_HART_CONTROL.md",
+    "tb/verilator/ctrl_service_budget/build.py",
+    "tb/verilator/ctrl_service_budget/selftest.py",
+    "tb/verilator/ctrl_service_budget/selftest_opened.py",
+    "tb/verilator/ctrl_service_budget/selftest_reuse.py",
+    "tb/verilator/ctrl_service_budget/selftest_scale.py"
+  ],
+  "models": [
+    {
+      "arm": "32-d0",
+      "recorded_inputs_match": true,
+      "executable_sha256": "08eeff0fcaf7a385c09cea4816ff4e3db28a143b73675800a7156e4d2ef13165",
+      "supplemental_observer_sha256": "0e8e9fca5a5666dcf6a4f3a357863118442a7ffb94d38f236601e4c489818296",
+      "observer_same_as_build_commit": true,
+      "compiler_depfile_lists_observer": true,
+      "note": "Original manifest omitted the new header; the later builder correctly refuses reuse without it. Original manifest is retained, not rewritten. This supplemental evidence ties the unmodified header to the recorded build commit and compiler dependency file."
+    },
+    {
+      "arm": "32-d8",
+      "recorded_inputs_match": true,
+      "executable_sha256": "6cc28fdf1df68291135a13ac59d6525bfa2583775f0300e0093210a2908505da",
+      "supplemental_observer_sha256": "0e8e9fca5a5666dcf6a4f3a357863118442a7ffb94d38f236601e4c489818296",
+      "observer_same_as_build_commit": true,
+      "compiler_depfile_lists_observer": true,
+      "note": "Original manifest omitted the new header; the later builder correctly refuses reuse without it. Original manifest is retained, not rewritten. This supplemental evidence ties the unmodified header to the recorded build commit and compiler dependency file."
+    }
+  ],
+  "one_hart_before": {
+    "elf": "/data-2/milan/tmp/opt-a837/scale/onehart32-before/image/ctrl_app.elf",
+    "sha256": "2b05feba4c2c7ff44f0eda69dadf9dc882124b553ada835e7e93db9a0add1cc7",
+    "bytes": 196024,
+    "head": "32d78e993803c621a29357ee9a71cbc9052f37b5",
+    "shape": "endstation_ax7101_32x32",
+    "harts": 1,
+    "interfaces": 2
+  },
+  "one_hart_after": {
+    "elf": "/data-2/milan/tmp/opt-a837/scale/onehart32-after/image/ctrl_app.elf",
+    "sha256": "2b05feba4c2c7ff44f0eda69dadf9dc882124b553ada835e7e93db9a0add1cc7",
+    "bytes": 196024,
+    "head": "368c2d1e9898e43849873bd242fba482924817f0",
+    "shape": "endstation_ax7101_32x32",
+    "harts": 1,
+    "interfaces": 2
+  }
+}

@@ -1,0 +1,6 @@
+the shape (2, 33, 33): a slice of 1935 us, over the ruling's 1600 us
+the shape (2, 33, 33): a build of both of 10810 us, not under two builds of one of 1935 us, where its slice holds one build
+the shape (2, 64, 64): a slice of 1935 us, over the ruling's 1600 us
+the shape (2, 64, 64): a build of both of 10810 us, not under two builds of one of 1935 us, where its slice holds one build
+the model's points are built at [('endstation_ax7101_1x1_tdm8', 1), ('endstation_ax7101_8x8', 1), ('endstation_ax7101_8x8', 2)], not at the harness's points' [('endstation_ax7101_1x1_tdm8', 1), ('endstation_ax7101_32x32', 2), ('endstation_ax7101_64x64', 2), ('endstation_ax7101_8x8', 1), ('endstation_ax7101_8x8', 2)] (run.py, POINTS)
+poll_grade.py states the polls at [(1, 2, 2), (1, 9, 9), (2, 2, 2), (2, 9, 9)], not at the shapes ctrl_loop.h lists, [(1, 2, 2), (1, 9, 9), (2, 2, 2), (2, 9, 9), (2, 33, 33), (2, 64, 64)]

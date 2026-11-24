@@ -1,0 +1,13 @@
+{"argv": ["scripts/run_litex_sims.sh", "/data-2/milan/tmp/opt-a837/litex-sim-logs"], "cwd": "/data-2/milan/lanes/opt-gptp-sw", "start": "2026-11-24T07:30:00.183347+00:00"}
+PASS     test_cpu_memory_port_cdc   (82s)
+PASS     test_ctrl_memory   (135s)
+PASS     test_gmii_rx_capture   (0s)
+PASS     test_gptp_tx_timestamp   (605s)
+PASS     test_pp_boot_bus_freeze   (38s)
+PASS     test_pp_mem_bridge   (19s)
+PASS     test_retained_cdc_storage   (491s)
+TIMEOUT  test_soc_timing_cuts   (900s wall clock - result UNKNOWN, not a failure)
+----------------------------------------------------------------
+simulations: 8   passed: 7   failed: 0   skipped: 0   timed out: 1
+TIMED OUT (result unknown, NOT a failure): test_soc_timing_cuts
+logs: /data-2/milan/tmp/opt-a837/litex-sim-logs

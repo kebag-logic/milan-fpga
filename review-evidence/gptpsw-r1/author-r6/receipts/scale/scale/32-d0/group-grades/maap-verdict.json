@@ -1,0 +1,21 @@
+{
+  "arm": "32-d0",
+  "group": "maap",
+  "at": "2026-11-24T10:17:48.805018+00:00",
+  "grader_rc": 1,
+  "flags": "record-budget-findings and record-share-findings; rc is not a waiver of those findings",
+  "refusals": [],
+  "budget_misses": [],
+  "share_misses": [],
+  "other_findings": [
+    "maap: the periodic timer's run-out at 1159.100 ms (if1 MVRP): its owner's first frame or build 769.512 ms after the owner's transmit opportunity at 1159.100 ms, past THE TRANSMIT's 49 ms (late)",
+    "maap: the periodic timer's run-out at 1159.127 ms (if1 MSRP): its owner's first frame or build 769.196 ms after the owner's transmit opportunity at 1159.127 ms, past THE TRANSMIT's 49 ms (late)"
+  ],
+  "timings": [
+    {
+      "hart0_cycles": 37355,
+      "hart1_cycles": 53607
+    }
+  ],
+  "native_verdict": "PASS"
+}

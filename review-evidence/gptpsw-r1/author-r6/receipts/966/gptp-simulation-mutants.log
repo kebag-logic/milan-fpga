@@ -1,0 +1,18 @@
+{"argv": ["python3", "tb/verilator/gptp_sw/gptp_sw_mutants.py", "--jobs", "2", "--build-dir", "/data-2/milan/tmp/opt-a837/gptp-simulation-mutants"], "cwd": "/data-2/milan/lanes/opt-gptp-sw", "start": "2026-11-24T08:00:24.525578+00:00", "source": "/data-2/milan/lanes/opt-gptp-sw", "head": "e48ff320e17c22f2e577087e3c4b72a579fd02cd"}
+baseline: PASS
+  ok   ingress-stamp-dropped: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   trailer-read-lsb-first: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   trailer-left-on-the-frame: KILLED: [FAIL] SLAVE if1 a Pdelay_Req cut short by its last eight octets is refused, not answered got=0.000 exp=1.000
+  ok   egress-stamp-dropped: KILLED: [FAIL] SLAVE if0 the measured link delay is its link's got=0.000 exp=300.000
+  ok   second-port-steers-first-phc: KILLED: [FAIL] SLAVE if1 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   snapshot-not-kept: KILLED: [FAIL] SLAVE if0 the snapshot holds the grandmaster it published got=0.000 exp=0.000
+  ok   notice-not-raised: KILLED: [FAIL] SLAVE if0 the AVB_INFO and AS_PATH changes were raised to the AECP owner got=0.000 exp=1.000
+  ok   path-answer-shifted: KILLED: [FAIL] SLAVE if0 GET_AS_PATH is the snapshot's path, its grandmaster first got=2.000 exp=2.000
+  ok   publication-skips-gm: KILLED: [FAIL] SLAVE if0 the words the datapath takes are the snapshot's, its GEN last got=0.000 exp=4261412865.000
+  ok   record-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=23610.000 exp=0.000
+  ok   event-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=4.000 exp=0.000
+  ok   tick-change-left-unpublished: KILLED: [FAIL] SLAVE the publication follows every port change in the pass that made it got=2.000 exp=0.000
+  ok   servo-sign: KILLED: [FAIL] SLAVE if0 the PHC is within 100 ns of its grandmaster by 8 s got=10.000 exp=8.000
+  ok   responder-t2-from-another-frame: KILLED: [FAIL] SLAVE if0 the peer measures the link through the firmware's answers got=789.007 exp=300.000
+== gptp in firmware, closed-loop planted defects: checks: 14   failures: 0 ==
+RESULT: PASS

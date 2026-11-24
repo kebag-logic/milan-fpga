@@ -1,0 +1,21 @@
+{"argv": ["python3", "-B", "tb/verilator/ctrl_service_budget/selftest_scale.py"], "cwd": "/data-2/milan/lanes/opt-hart2", "start": "2026-11-24T09:25:45.606787+00:00", "source": "/data-2/milan/lanes/opt-hart2", "head": "32d78e993803c621a29357ee9a71cbc9052f37b5"}
+PASS: 32x32: removed hart 1: refused
+PASS: 32x32: last commit without passes: refused
+PASS: 32x32: passes without last commit: refused
+PASS: 64x64: removed hart 1: refused
+PASS: 64x64: last commit without passes: refused
+PASS: 64x64: passes without last commit: refused
+PASS: hart 1 defaults to no D$, 8 KiB alternative is exact: geometry
+PASS: D$ reuse mismatch refused: 0 vs 8 KiB
+PASS: header expression (1 == 1 || 12 > 40 ? 12 : 40): 12
+PASS: header expression (2 == 1 || 68 > 40 ? 68 : 40): 68
+PASS: header expression (2 == 1 || 12 > 40 ? 12 : 40): 40
+PASS: header expression (1 ? 7 : 1 / 0): 7
+PASS: header expression (0 && 1 / 0 ? 7 : 8): 8
+PASS: header expression (1 || 1 / 0 ? 9 : 8): 9
+PASS: header reader refuses x: unsupported expression
+PASS: header reader refuses f(): unsupported expression
+PASS: header reader refuses 1 < 2 < 3: unsupported expression
+PASS: header reader refuses [1]: unsupported expression
+PASS: hart 1 over SHARE fails the shared verdict: 200001 cycles
+19 checks, 0 failures

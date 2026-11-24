@@ -1,0 +1,50 @@
+{
+  "scope": "Actual completed 32x32 SRP traces; observation-deletion plant, not a rebuilt physical core removal",
+  "checks": [
+    {
+      "arm": "32-d0",
+      "plant": "clean",
+      "grader_rc": 0,
+      "expected_rc": 0,
+      "passed": true,
+      "refusals": [],
+      "source_sha256": "bce7550fedd9cb08b7fb8ee525b5a926338aff0533a30629e8f8bdddf0781d23",
+      "plant_sha256": "bce7550fedd9cb08b7fb8ee525b5a926338aff0533a30629e8f8bdddf0781d23"
+    },
+    {
+      "arm": "32-d0",
+      "plant": "removed-hart1-observations",
+      "grader_rc": 1,
+      "expected_rc": 1,
+      "passed": true,
+      "refusals": [
+        "two-hart build has no executing hart 1: missing completed passes or last commit"
+      ],
+      "source_sha256": "bce7550fedd9cb08b7fb8ee525b5a926338aff0533a30629e8f8bdddf0781d23",
+      "plant_sha256": "2d0493c35e58152c8426c7295286997c6965733b09c3cec753f59db0f5836ecc"
+    },
+    {
+      "arm": "32-d8",
+      "plant": "clean",
+      "grader_rc": 0,
+      "expected_rc": 0,
+      "passed": true,
+      "refusals": [],
+      "source_sha256": "9a4cc997758d93e0582ebb6ef2326e3cda52134b5779ed309fdead9c25e015e8",
+      "plant_sha256": "9a4cc997758d93e0582ebb6ef2326e3cda52134b5779ed309fdead9c25e015e8"
+    },
+    {
+      "arm": "32-d8",
+      "plant": "removed-hart1-observations",
+      "grader_rc": 1,
+      "expected_rc": 1,
+      "passed": true,
+      "refusals": [
+        "two-hart build has no executing hart 1: missing completed passes or last commit"
+      ],
+      "source_sha256": "9a4cc997758d93e0582ebb6ef2326e3cda52134b5779ed309fdead9c25e015e8",
+      "plant_sha256": "67f09e64688c01b98ec5f05a6ad294e93451bd43bd5e56be1593dbace436b56a"
+    }
+  ],
+  "failures": 0
+}

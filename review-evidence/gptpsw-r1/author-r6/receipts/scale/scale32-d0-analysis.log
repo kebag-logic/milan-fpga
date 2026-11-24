@@ -1,0 +1,104 @@
+{"argv": ["python3", "/data-2/milan/tmp/opt-a837/scale_analysis.py", "/data-2/milan/tmp/opt-a837/scale/32-d0", "32x32", "/data-2/milan/tmp/opt-a837/scale/32-d0-analysis.json"], "cwd": "/data-2/milan/lanes/opt-hart2", "start": "2026-11-24T11:39:36.606646+00:00", "source": "/data-2/milan/lanes/opt-hart2", "head": "fe009fa2c7741b8612bdbc74fe70909d57931503"}
+{
+  "point": "32x32/2if",
+  "geometry": "i16k-d0-md",
+  "charge_cases": [
+    {
+      "gptp_hart": 0,
+      "loads": [
+        0.5441696842105264,
+        0.3505220701754386
+      ],
+      "terms": [
+        {
+          "srp": 0.1915,
+          "item.reclaim": 0.025526315789473685,
+          "item.walk": 0.013684210526315792,
+          "builds": 0.11378947368421052,
+          "item.mrpdu": 0.15757894736842104,
+          "ticks": 0.0225,
+          "steps": 0.00124,
+          "take.SINK_REQUEST": 0.0030080000000000007,
+          "send.REGISTRATION": 0.006208000000000001,
+          "send.PRESENCE": 0.0032,
+          "send.NOTICED": 0.00013473684210526314,
+          "take.DA_GATE": 0.0016,
+          "gptp": 0.0042
+        },
+        {
+          "rec.aecp": 0.032,
+          "rec.acmp": 0.05,
+          "rec.adp": 0.013,
+          "rec.maap": 0.009,
+          "item.aecp": 0.03116,
+          "notices": 0.037399999999999996,
+          "item.acmp": 0.07520000000000002,
+          "item.acmp_declined": 0.0,
+          "timers": 0.04913800000000001,
+          "gm": 0.00014000000000000001,
+          "ticks": 0.005,
+          "steps": 0.034333333333333334,
+          "send.SINK_REQUEST": 0.0030080000000000007,
+          "take.REGISTRATION": 0.006208000000000001,
+          "take.PRESENCE": 0.0032,
+          "take.NOTICED": 0.00013473684210526314,
+          "send.DA_GATE": 0.0016
+        }
+      ]
+    },
+    {
+      "gptp_hart": 1,
+      "loads": [
+        0.5399696842105263,
+        0.3547220701754386
+      ],
+      "terms": [
+        {
+          "srp": 0.1915,
+          "item.reclaim": 0.025526315789473685,
+          "item.walk": 0.013684210526315792,
+          "builds": 0.11378947368421052,
+          "item.mrpdu": 0.15757894736842104,
+          "ticks": 0.0225,
+          "steps": 0.00124,
+          "take.SINK_REQUEST": 0.0030080000000000007,
+          "send.REGISTRATION": 0.006208000000000001,
+          "send.PRESENCE": 0.0032,
+          "send.NOTICED": 0.00013473684210526314,
+          "take.DA_GATE": 0.0016
+        },
+        {
+          "rec.aecp": 0.032,
+          "rec.acmp": 0.05,
+          "rec.adp": 0.013,
+          "rec.maap": 0.009,
+          "item.aecp": 0.03116,
+          "notices": 0.037399999999999996,
+          "item.acmp": 0.07520000000000002,
+          "item.acmp_declined": 0.0,
+          "timers": 0.04913800000000001,
+          "gm": 0.00014000000000000001,
+          "ticks": 0.005,
+          "steps": 0.034333333333333334,
+          "send.SINK_REQUEST": 0.0030080000000000007,
+          "take.REGISTRATION": 0.006208000000000001,
+          "take.PRESENCE": 0.0032,
+          "take.NOTICED": 0.00013473684210526314,
+          "send.DA_GATE": 0.0016,
+          "gptp": 0.0042
+        }
+      ]
+    }
+  ],
+  "unmeasured": [
+    "event.TICK",
+    "event.GM",
+    "centisecond",
+    "events_none",
+    "base",
+    "item.mrpdu",
+    "item.acmp_declined",
+    "build",
+    "step"
+  ]
+}

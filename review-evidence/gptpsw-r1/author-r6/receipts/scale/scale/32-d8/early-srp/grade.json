@@ -1,0 +1,55 @@
+{
+  "arm": "32-d8",
+  "scope": "EARLY single-group grade; full nine-group run still pending",
+  "rc": 0,
+  "refusals": [],
+  "misses": [],
+  "shares": [],
+  "stated": [],
+  "harts": [
+    {
+      "hart0": {
+        "cycles": 83225,
+        "ms": 0.83225,
+        "instr": 17634,
+        "start_sys": 287566008,
+        "modules": {
+          "ctrl_loop": 812,
+          "srp_mbx": 30087,
+          "mbx": 1409,
+          "ctrl_mem": 9706,
+          "timer": 924,
+          "mrp_mad": 34657,
+          "msrp": 1286,
+          "shlan_port": 112,
+          "ctrl_pool": 1207,
+          "mvrp": 303,
+          "rt_lshrdi3": 1322,
+          "rt_ashldi3": 1400
+        }
+      },
+      "hart1": {
+        "work": 10,
+        "idle": 12233,
+        "idle_min": 22640,
+        "idle_max": 40948,
+        "worst": {
+          "cycles": 39971,
+          "ms": 0.39971,
+          "start_sys": 21071003
+        },
+        "share": {
+          "ms": 2.0,
+          "cycles": 200000,
+          "over": 0,
+          "over_passes": []
+        },
+        "steps": 0,
+        "last": [
+          294121960,
+          92304
+        ]
+      }
+    }
+  ]
+}

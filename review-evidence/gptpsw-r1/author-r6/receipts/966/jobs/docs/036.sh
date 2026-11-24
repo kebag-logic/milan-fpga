@@ -1,0 +1,2 @@
+set -euo pipefail
+python3 scripts/check_deploy_shape.py --self-test

@@ -1,0 +1,4 @@
+set -euo pipefail
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/measure_test_evidence.py --selftest
+

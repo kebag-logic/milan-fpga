@@ -1,0 +1,1019 @@
+{
+  "point": "32x32/2if",
+  "model_counts": {
+    "n_if": 2,
+    "sinks_per_if": 17,
+    "registrations": 16,
+    "counter_descriptors": 68
+  },
+  "geometry": "i16k-d8k-md",
+  "clock_hz": 100000000,
+  "share_cycles": 200000,
+  "groups": [
+    {
+      "group": "acmp-noresp",
+      "completed": true,
+      "harts": [
+        {
+          "work": 650,
+          "idle": 50993,
+          "worst": 37355,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 2082,
+          "idle": 24432,
+          "worst": 78905,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "2958b5cc84bdc88a0963a52607d45ac73d7b6f9175c265edb19fda7158755529"
+    },
+    {
+      "group": "acmp-notk",
+      "completed": true,
+      "harts": [
+        {
+          "work": 1120,
+          "idle": 87730,
+          "worst": 39648,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 3775,
+          "idle": 42143,
+          "worst": 78905,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "2dce308b23c71f3f96ea996405c4fafa58f775d14caf5073f61caec2f7e2a8bf"
+    },
+    {
+      "group": "adp-link",
+      "completed": true,
+      "harts": [
+        {
+          "work": 91,
+          "idle": 6342,
+          "worst": 66437,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 4,
+          "idle": 3367,
+          "worst": 53609,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "3db6e70bbb7c37a46fe9ed2d565573ee831b37a81c63ce258d6636e8514d9786"
+    },
+    {
+      "group": "aecp",
+      "completed": true,
+      "harts": [
+        {
+          "work": 101,
+          "idle": 7448,
+          "worst": 37355,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 44,
+          "idle": 3880,
+          "worst": 53609,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "32db6f69e11d74b86e1b81758387d53fc657ec3b598fba8599d31a695abd4d01"
+    },
+    {
+      "group": "backlog-adp-refill",
+      "completed": true,
+      "harts": [
+        {
+          "work": 478,
+          "idle": 35973,
+          "worst": 81531,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 459,
+          "idle": 18489,
+          "worst": 68439,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "2dce37cec4f0149266dbe262b234c59d5d831d99fccd0d40c32291b9497d4a0d"
+    },
+    {
+      "group": "backlog-owed",
+      "completed": true,
+      "harts": [
+        {
+          "work": 520,
+          "idle": 39468,
+          "worst": 81534,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 51,
+          "idle": 20922,
+          "worst": 66448,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "009f83a6eabc35eca1ad327dcb9cc15c87368e3c00419c4794d8e1890236c51b"
+    },
+    {
+      "group": "control",
+      "completed": true,
+      "harts": [
+        {
+          "work": 87,
+          "idle": 6342,
+          "worst": 37355,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 4,
+          "idle": 3361,
+          "worst": 53609,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "4584ebd422ffe1787de62517a51621a6609ab0754272df8616b57d42d8b73bf2"
+    },
+    {
+      "group": "maap",
+      "completed": true,
+      "harts": [
+        {
+          "work": 365,
+          "idle": 28529,
+          "worst": 37356,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 12,
+          "idle": 15148,
+          "worst": 40948,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "5c5330ba940b926ce7368a985e9ab8695c14894ac33715d33a94158a33406eaa"
+    },
+    {
+      "group": "srp",
+      "completed": true,
+      "harts": [
+        {
+          "work": 308,
+          "idle": 23004,
+          "worst": 83225,
+          "work_over": 0,
+          "idle_runs_over": 0
+        },
+        {
+          "work": 10,
+          "idle": 12233,
+          "worst": 40948,
+          "work_over": 0,
+          "idle_runs_over": 0
+        }
+      ],
+      "graded": true,
+      "sha256": "9a4cc997758d93e0582ebb6ef2326e3cda52134b5779ed309fdead9c25e015e8"
+    }
+  ],
+  "costs": {
+    "record.srp": 320,
+    "record.aecp": 145,
+    "record.acmp": 265,
+    "record.adp": 155,
+    "record.maap": 130,
+    "event.ADP": 55,
+    "event.ACMP": 185,
+    "event.MAAP": 165,
+    "event.AECP": 25,
+    "event.TICK": 45,
+    "event.GM": 30,
+    "centisecond": 960,
+    "events_none": 20,
+    "base": 570,
+    "item.reclaim": 25,
+    "item.retained": 865,
+    "item.mrpdu": 7485,
+    "item.acmp": 145,
+    "item.acmp_declined": 0,
+    "item.aecp.notice": 350,
+    "item.aecp.response": 80,
+    "item.aecp.probe": 65,
+    "item.walk": 65,
+    "build": 10810,
+    "build_one": 875,
+    "step": 1030
+  },
+  "provenance": {
+    "record.srp": {
+      "kind": "measured",
+      "hart": 0,
+      "function": "srp_mbx:receive",
+      "maximum_cycles": 30262,
+      "count": 70,
+      "unfinished": 0,
+      "where": "srp",
+      "us": 320
+    },
+    "record.aecp": {
+      "kind": "measured",
+      "hart": 1,
+      "function": "aecp_mbx:frame",
+      "maximum_cycles": 13667,
+      "count": 73,
+      "unfinished": 0,
+      "where": "aecp",
+      "us": 145
+    },
+    "record.acmp": {
+      "kind": "measured",
+      "hart": 1,
+      "function": "acmp_mbx:on_frame",
+      "maximum_cycles": 24778,
+      "count": 82,
+      "unfinished": 0,
+      "where": "acmp-noresp",
+      "us": 265
+    },
+    "record.adp": {
+      "kind": "measured",
+      "hart": 1,
+      "function": "acmp_mbx:on_adp_frame",
+      "maximum_cycles": 14379,
+      "count": 26,
+      "unfinished": 0,
+      "where": "backlog-adp-refill",
+      "us": 155
+    },
+    "record.maap": {
+      "kind": "measured",
+      "hart": 1,
+      "function": "maap_mbx:receive",
+      "maximum_cycles": 12080,
+      "count": 16,
+      "unfinished": 0,
+      "where": "backlog-adp-refill",
+      "us": 130
+    },
+    "event.ADP": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "adp_mbx:on_event",
+      "maximum_cycles": 4925,
+      "count": 5741,
+      "unfinished": 0,
+      "where": "acmp-notk",
+      "us": 55
+    },
+    "event.ACMP": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "acmp_mbx:on_event",
+      "maximum_cycles": 17362,
+      "count": 5741,
+      "unfinished": 0,
+      "where": "acmp-notk",
+      "us": 185
+    },
+    "event.MAAP": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "maap_mbx:event",
+      "maximum_cycles": 15405,
+      "count": 5741,
+      "unfinished": 0,
+      "where": "maap",
+      "us": 165
+    },
+    "event.AECP": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "aecp_mbx:event",
+      "maximum_cycles": 1921,
+      "count": 5741,
+      "unfinished": 0,
+      "where": "acmp-noresp",
+      "us": 25
+    },
+    "event.TICK": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 45
+    },
+    "event.GM": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 30
+    },
+    "centisecond": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 960
+    },
+    "events_none": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 20
+    },
+    "base": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 570
+    },
+    "item.reclaim": {
+      "kind": "measured",
+      "hart": 0,
+      "function": "mrp_reclaim",
+      "maximum_cycles": 2241,
+      "count": 48,
+      "unfinished": 0,
+      "where": "srp",
+      "us": 25
+    },
+    "item.retained": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 865
+    },
+    "item.mrpdu": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 7485
+    },
+    "item.acmp": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "acmp_mbx:on_poll",
+      "maximum_cycles": 13343,
+      "count": 148448,
+      "unfinished": 0,
+      "where": "backlog-owed",
+      "us": 145
+    },
+    "item.acmp_declined": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 0
+    },
+    "item.aecp.notice": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 350
+    },
+    "item.aecp.response": {
+      "kind": "measured conservative proxy",
+      "hart": 1,
+      "function": "aecp:transmit",
+      "maximum_cycles": 7406,
+      "count": 148696,
+      "unfinished": 0,
+      "where": "aecp",
+      "us": 80
+    },
+    "item.aecp.probe": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 65
+    },
+    "item.walk": {
+      "kind": "measured",
+      "hart": 0,
+      "function": "mrp_attr_visit",
+      "maximum_cycles": 6064,
+      "count": 24,
+      "unfinished": 0,
+      "where": "srp",
+      "us": 65
+    },
+    "build": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 10810
+    },
+    "build_one": {
+      "kind": "measured",
+      "hart": 0,
+      "maximum_cycles": 83225,
+      "where": "srp",
+      "us": 875
+    },
+    "step": {
+      "kind": "unmeasured transfer",
+      "source": "historical one-hart 32x32 GRADED table",
+      "us": 1030
+    }
+  },
+  "centisecond_by_hart_us": [
+    150,
+    5
+  ],
+  "charge_cases": [
+    {
+      "gptp_hart": 0,
+      "loads": [
+        0.5961696842105263,
+        0.3906260701754386
+      ],
+      "terms": [
+        {
+          "srp": 0.2465,
+          "item.reclaim": 0.025526315789473685,
+          "item.walk": 0.013684210526315792,
+          "builds": 0.11378947368421052,
+          "item.mrpdu": 0.15757894736842104,
+          "ticks": 0.0195,
+          "steps": 0.00124,
+          "take.SINK_REQUEST": 0.0030080000000000007,
+          "send.REGISTRATION": 0.006208000000000001,
+          "send.PRESENCE": 0.0032,
+          "send.NOTICED": 0.00013473684210526314,
+          "take.DA_GATE": 0.0016,
+          "gptp": 0.0042
+        },
+        {
+          "rec.aecp": 0.029,
+          "rec.acmp": 0.053,
+          "rec.adp": 0.0155,
+          "rec.maap": 0.0065,
+          "item.aecp": 0.07831999999999999,
+          "notices": 0.037399999999999996,
+          "item.acmp": 0.06815,
+          "item.acmp_declined": 0.0,
+          "timers": 0.049132,
+          "gm": 0.00014000000000000001,
+          "ticks": 0.005,
+          "steps": 0.034333333333333334,
+          "send.SINK_REQUEST": 0.0030080000000000007,
+          "take.REGISTRATION": 0.006208000000000001,
+          "take.PRESENCE": 0.0032,
+          "take.NOTICED": 0.00013473684210526314,
+          "send.DA_GATE": 0.0016
+        }
+      ]
+    },
+    {
+      "gptp_hart": 1,
+      "loads": [
+        0.5919696842105263,
+        0.3948260701754386
+      ],
+      "terms": [
+        {
+          "srp": 0.2465,
+          "item.reclaim": 0.025526315789473685,
+          "item.walk": 0.013684210526315792,
+          "builds": 0.11378947368421052,
+          "item.mrpdu": 0.15757894736842104,
+          "ticks": 0.0195,
+          "steps": 0.00124,
+          "take.SINK_REQUEST": 0.0030080000000000007,
+          "send.REGISTRATION": 0.006208000000000001,
+          "send.PRESENCE": 0.0032,
+          "send.NOTICED": 0.00013473684210526314,
+          "take.DA_GATE": 0.0016
+        },
+        {
+          "rec.aecp": 0.029,
+          "rec.acmp": 0.053,
+          "rec.adp": 0.0155,
+          "rec.maap": 0.0065,
+          "item.aecp": 0.07831999999999999,
+          "notices": 0.037399999999999996,
+          "item.acmp": 0.06815,
+          "item.acmp_declined": 0.0,
+          "timers": 0.049132,
+          "gm": 0.00014000000000000001,
+          "ticks": 0.005,
+          "steps": 0.034333333333333334,
+          "send.SINK_REQUEST": 0.0030080000000000007,
+          "take.REGISTRATION": 0.006208000000000001,
+          "take.PRESENCE": 0.0032,
+          "take.NOTICED": 0.00013473684210526314,
+          "send.DA_GATE": 0.0016,
+          "gptp": 0.0042
+        }
+      ]
+    }
+  ],
+  "top_terms": [
+    [
+      [
+        "srp",
+        0.2465
+      ],
+      [
+        "item.mrpdu",
+        0.15757894736842104
+      ],
+      [
+        "builds",
+        0.11378947368421052
+      ],
+      [
+        "item.reclaim",
+        0.025526315789473685
+      ],
+      [
+        "ticks",
+        0.0195
+      ],
+      [
+        "item.walk",
+        0.013684210526315792
+      ],
+      [
+        "send.REGISTRATION",
+        0.006208000000000001
+      ],
+      [
+        "send.PRESENCE",
+        0.0032
+      ],
+      [
+        "take.SINK_REQUEST",
+        0.0030080000000000007
+      ],
+      [
+        "take.DA_GATE",
+        0.0016
+      ],
+      [
+        "steps",
+        0.00124
+      ],
+      [
+        "send.NOTICED",
+        0.00013473684210526314
+      ]
+    ],
+    [
+      [
+        "item.aecp",
+        0.07831999999999999
+      ],
+      [
+        "item.acmp",
+        0.06815
+      ],
+      [
+        "rec.acmp",
+        0.053
+      ],
+      [
+        "timers",
+        0.049132
+      ],
+      [
+        "notices",
+        0.037399999999999996
+      ],
+      [
+        "steps",
+        0.034333333333333334
+      ],
+      [
+        "rec.aecp",
+        0.029
+      ],
+      [
+        "rec.adp",
+        0.0155
+      ],
+      [
+        "rec.maap",
+        0.0065
+      ],
+      [
+        "take.REGISTRATION",
+        0.006208000000000001
+      ],
+      [
+        "ticks",
+        0.005
+      ],
+      [
+        "take.PRESENCE",
+        0.0032
+      ],
+      [
+        "send.SINK_REQUEST",
+        0.0030080000000000007
+      ],
+      [
+        "send.DA_GATE",
+        0.0016
+      ],
+      [
+        "gm",
+        0.00014000000000000001
+      ],
+      [
+        "take.NOTICED",
+        0.00013473684210526314
+      ],
+      [
+        "item.acmp_declined",
+        0.0
+      ]
+    ]
+  ],
+  "spans": [
+    {
+      "srp_mbx:open_interface": {
+        "count": 20,
+        "sum": 864146,
+        "maximum": 47115,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "mrp_reclaim": {
+        "count": 48,
+        "sum": 38559,
+        "maximum": 2241,
+        "unfinished": 0,
+        "where": "srp"
+      },
+      "ctrl_loop:dispatch_ticks": {
+        "count": 292588,
+        "sum": 83894380,
+        "maximum": 14201,
+        "unfinished": 0,
+        "where": "acmp-notk"
+      },
+      "mrp_attr_visit": {
+        "count": 24,
+        "sum": 26617,
+        "maximum": 6064,
+        "unfinished": 0,
+        "where": "srp"
+      },
+      "srp_mbx:poll": {
+        "count": 289127,
+        "sum": 1006204224,
+        "maximum": 55735,
+        "unfinished": 0,
+        "where": "adp-link"
+      },
+      "srp_mbx:on_event": {
+        "count": 3477,
+        "sum": 920204,
+        "maximum": 11485,
+        "unfinished": 0,
+        "where": "adp-link"
+      },
+      "srp_mbx:build_mrpdu": {
+        "count": 376,
+        "sum": 6082591,
+        "maximum": 39285,
+        "unfinished": 0,
+        "where": "srp"
+      },
+      "srp_mbx:reset_interface": {
+        "count": 2,
+        "sum": 21155,
+        "maximum": 11114,
+        "unfinished": 0,
+        "where": "adp-link"
+      },
+      "srp_mbx:apply_receive": {
+        "count": 70,
+        "sum": 998175,
+        "maximum": 29802,
+        "unfinished": 0,
+        "where": "srp"
+      },
+      "srp_mbx:receive": {
+        "count": 70,
+        "sum": 1020776,
+        "maximum": 30262,
+        "unfinished": 0,
+        "where": "srp"
+      }
+    },
+    {
+      "ctrl_loop:round_of": {
+        "count": 145093,
+        "sum": 244020823,
+        "maximum": 8056,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "adp_mbx:on_poll": {
+        "count": 148448,
+        "sum": 54514555,
+        "maximum": 513,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "mrp_attr_visit": {
+        "count": 0,
+        "sum": 0,
+        "maximum": 0,
+        "unfinished": 0,
+        "where": ""
+      },
+      "mrp_reclaim": {
+        "count": 0,
+        "sum": 0,
+        "maximum": 0,
+        "unfinished": 0,
+        "where": ""
+      },
+      "acmp_mbx:on_poll": {
+        "count": 148448,
+        "sum": 25653425,
+        "maximum": 13343,
+        "unfinished": 0,
+        "where": "backlog-owed"
+      },
+      "aecp:transmit": {
+        "count": 148696,
+        "sum": 11602641,
+        "maximum": 7406,
+        "unfinished": 0,
+        "where": "aecp"
+      },
+      "acmp_rx": {
+        "count": 86,
+        "sum": 617408,
+        "maximum": 24431,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "ctrl_loop:dispatch_ticks": {
+        "count": 151898,
+        "sum": 10462099,
+        "maximum": 263,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "aecp_mbx:frame": {
+        "count": 73,
+        "sum": 657775,
+        "maximum": 13667,
+        "unfinished": 0,
+        "where": "aecp"
+      },
+      "acmp_mbx:on_adp_frame": {
+        "count": 26,
+        "sum": 91335,
+        "maximum": 14379,
+        "unfinished": 0,
+        "where": "backlog-adp-refill"
+      },
+      "acmp_mbx:on_frame": {
+        "count": 82,
+        "sum": 600776,
+        "maximum": 24778,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "maap_mbx:receive": {
+        "count": 16,
+        "sum": 173976,
+        "maximum": 12080,
+        "unfinished": 0,
+        "where": "backlog-adp-refill"
+      },
+      "aecp_mbx:poll": {
+        "count": 148448,
+        "sum": 152600987,
+        "maximum": 8732,
+        "unfinished": 0,
+        "where": "aecp"
+      },
+      "maap_mbx:poll": {
+        "count": 148448,
+        "sum": 1128542679,
+        "maximum": 11368,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "ctrl_app_aecp:deliver": {
+        "count": 148448,
+        "sum": 188702306,
+        "maximum": 3535,
+        "unfinished": 0,
+        "where": "aecp"
+      },
+      "acmp_mbx:on_event": {
+        "count": 5741,
+        "sum": 649240,
+        "maximum": 17362,
+        "unfinished": 0,
+        "where": "acmp-notk"
+      },
+      "adp_mbx:on_event": {
+        "count": 5741,
+        "sum": 617646,
+        "maximum": 4925,
+        "unfinished": 0,
+        "where": "acmp-notk"
+      },
+      "aecp_mbx:event": {
+        "count": 5741,
+        "sum": 517298,
+        "maximum": 1921,
+        "unfinished": 0,
+        "where": "acmp-noresp"
+      },
+      "maap_mbx:event": {
+        "count": 5741,
+        "sum": 1457646,
+        "maximum": 15405,
+        "unfinished": 0,
+        "where": "maap"
+      },
+      "adp_mbx:on_frame": {
+        "count": 16,
+        "sum": 2779299,
+        "maximum": 1002527,
+        "unfinished": 3,
+        "where": "backlog-adp-refill"
+      }
+    }
+  ],
+  "observed_elapsed_cycles": 3602309131,
+  "inclusive_function_fractions": [
+    [
+      [
+        "srp_mbx:poll",
+        0.27932200913603383
+      ],
+      [
+        "ctrl_loop:dispatch_ticks",
+        0.023289056255066855
+      ],
+      [
+        "srp_mbx:build_mrpdu",
+        0.001688525548142359
+      ],
+      [
+        "srp_mbx:receive",
+        0.00028336713004878427
+      ],
+      [
+        "srp_mbx:apply_receive",
+        0.00027709309881545534
+      ],
+      [
+        "srp_mbx:on_event",
+        0.00025544837117978035
+      ],
+      [
+        "srp_mbx:open_interface",
+        0.00023988668617124298
+      ],
+      [
+        "mrp_reclaim",
+        1.070396753798196e-05
+      ],
+      [
+        "mrp_attr_visit",
+        7.388871702027174e-06
+      ],
+      [
+        "srp_mbx:reset_interface",
+        5.872622040665171e-06
+      ]
+    ],
+    [
+      [
+        "maap_mbx:poll",
+        0.31328312978145684
+      ],
+      [
+        "ctrl_loop:round_of",
+        0.06774011172446488
+      ],
+      [
+        "ctrl_app_aecp:deliver",
+        0.05238370698841615
+      ],
+      [
+        "aecp_mbx:poll",
+        0.042361991003708785
+      ],
+      [
+        "adp_mbx:on_poll",
+        0.01513322511132374
+      ],
+      [
+        "acmp_mbx:on_poll",
+        0.007121383553464945
+      ],
+      [
+        "aecp:transmit",
+        0.0032208898731517555
+      ],
+      [
+        "ctrl_loop:dispatch_ticks",
+        0.002904275735240891
+      ],
+      [
+        "adp_mbx:on_frame",
+        0.0007715326194752385
+      ],
+      [
+        "maap_mbx:event",
+        0.00040464211898309733
+      ],
+      [
+        "aecp_mbx:frame",
+        0.000182598154705674
+      ],
+      [
+        "acmp_mbx:on_event",
+        0.00018022884110997192
+      ],
+      [
+        "adp_mbx:on_event",
+        0.0001714583556099589
+      ],
+      [
+        "acmp_rx",
+        0.00017139228687700317
+      ],
+      [
+        "acmp_mbx:on_frame",
+        0.00016677524836221502
+      ],
+      [
+        "aecp_mbx:event",
+        0.00014360177907785448
+      ],
+      [
+        "maap_mbx:receive",
+        4.829568859119659e-05
+      ],
+      [
+        "acmp_mbx:on_adp_frame",
+        2.5354570271054288e-05
+      ]
+    ]
+  ],
+  "unmeasured": [
+    "event.TICK",
+    "event.GM",
+    "centisecond",
+    "events_none",
+    "base",
+    "item.retained",
+    "item.mrpdu",
+    "item.acmp_declined",
+    "item.aecp.notice",
+    "item.aecp.probe",
+    "build",
+    "step"
+  ],
+  "external_terms": {
+    "send.* / take.*": "6.4 us from historical 1x1 cross-hart record; not remeasured at scale",
+    "hart0.steps": "PHY 155 us per 125 ms, not staged at scale",
+    "gptp": "0.0042 per hart for both ports, transferred from gPTP lane; not staged by Arm A",
+    "ticks": "event.TICK overhead transferred; each hart dispatch_ticks maximum measured where nonzero",
+    "notices": "cold-round and notice costs from shape header; item.aecp.notice and item.aecp.probe remain historical transfers because their costs are not separately staged; long notice/declaring arms not staged",
+    "background": "empty-pass base is not a long-window term in the inherited equations; report is demand model, not CPU occupancy",
+    "stream counts": "derived from the generated shape; worst sinks/interface rounded up (17 for the 33-slot 32x32 image)",
+    "unfinished calls": "only completed entry-to-return calls contribute maxima; tail calls and unfinished calls are not complete samples. Counts are retained; this is sampled cost evidence, not a proof of WCET",
+    "16-value cap": "full-declaring chunk counts per JoinTime, and their build, reclaim, walk, owed-send and NOTICED rates, are not validated by these nondeclaring Arm A groups; inherited rates are retained explicitly",
+    "retained SRP retry": "item.retained remains historical: normal apply_receive samples do not stage the refusal, pool-release and retry scheduling paths",
+    "inclusive overlap": "sampled handlers and polls can already include cross-hart sends or redelivery; separate historical record charges are retained and can conservatively double-count that work, with no overlap deduction",
+    "cross-hart retries": "queue-full retries beyond one send/take per admitted record are not separately measured or modeled",
+    "bus and cache interaction": "handler samples include their observed waits; unstaged combinations and empty-loop overhead are not separately bounded",
+    "bitmap scans": "MRP walk is observed; ACMP bitmap scan inside handlers is not separately attributed",
+    "scope": "Arm A nine groups only; saved-state, PHY and live-Talker declarations are not measured here"
+  }
+}

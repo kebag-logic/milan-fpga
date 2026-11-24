@@ -1,0 +1,19 @@
+{"argv": ["python3", "/data-2/milan/tmp/opt-a837/onehart_image.py", "/data-2/milan/tmp/opt-a837/scale/64-preflight", "endstation_ax7101_64x64", "2"], "cwd": "/data-2/milan/lanes/opt-hart2", "start": "2026-11-24T11:44:12.071707+00:00", "source": "/data-2/milan/lanes/opt-hart2", "head": "fe009fa2c7741b8612bdbc74fe70909d57931503"}
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B /data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $WORKSPACE_HOME/litex-milan/litex/litex/soc/software --output /data-2/milan/tmp/opt-a837/scale/64-preflight/runtime
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B /data-2/milan/lanes/opt-hart2/sw/firmware/ctrl/test/ctrl_srp_image.py --config /data-2/milan/lanes/opt-hart2/configs/endstation_ax7101_64x64.yaml --interfaces 2 --with-aecp --layout split --output /data-2/milan/tmp/opt-a837/scale/64-preflight/image --harts 2 --libc /data-2/milan/tmp/opt-a837/scale/64-preflight/runtime/libc.a --compiler-runtime /data-2/milan/tmp/opt-a837/scale/64-preflight/runtime/libcompiler_rt.a
+Traceback (most recent call last):
+  File "/data-2/milan/tmp/opt-a837/onehart_image.py", line 8, in <module>
+    elf = build.firmware(out, shape, 2, extra=build.ImageArgs(harts=harts))
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/build.py", line 373, in firmware
+    run([sys.executable, '-B', *entry,
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+         '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        out / 'image.log', cwd=ROOT)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/build.py", line 52, in run
+    raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
+RuntimeError: $WORKSPACE_HOME/litex-milan/venv/bin/python3 exited 2; see image.log

@@ -1,0 +1,2 @@
+set -euo pipefail
+python3 avdecc/gen_aem_store.py --self-test

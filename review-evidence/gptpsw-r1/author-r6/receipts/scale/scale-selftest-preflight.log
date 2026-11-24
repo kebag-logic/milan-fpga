@@ -1,0 +1,57 @@
+{"argv": ["python3", "-B", "tb/verilator/ctrl_service_budget/run.py", "--self-test"], "cwd": "/data-2/milan/lanes/opt-hart2", "start": "2026-11-24T09:12:12.982456+00:00", "source": "/data-2/milan/lanes/opt-hart2", "head": "32d78e993803c621a29357ee9a71cbc9052f37b5"}
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 1 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded caught: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 1 with a row over and no pass over, 0 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 1 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 1 refusal(s)
+CONTROL store-step-unbounded ESCAPED: 0 group(s) with a pass over the per-pass share and every row within its budget, 0 with a row over its budget as well, 0 with a row over and no pass over, 0 refusal(s)
+Traceback (most recent call last):
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/run.py", line 1051, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/run.py", line 949, in main
+    return selftest.main([])
+           ~~~~~~~~~~~~~^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/selftest.py", line 982, in main
+    for name, ok, detail in [*checks(), *harts_checks()]:   # the two harts' own controls, once (harts_rows.py)
+                              ~~~~~~^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/selftest.py", line 934, in checks
+    *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
+                                                ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/selftest_round.py", line 116, in round_checks
+    return out + slice_checks(synthetic, sys_hz, cpu_hz) + datapath_checks(synthetic, sys_hz, cpu_hz) + \
+                 ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/selftest_round.py", line 180, in slice_checks
+    [slice_grade.stated_us(1), slice_grade.stated_us(2)] == us == [rows_tiers.ruled(scenario.ROOT), 1300],
+                                                                   ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_tiers.py", line 714, in ruled
+    us, margin = slice_choice(root)
+                 ~~~~~~~~~~~~^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_tiers.py", line 699, in slice_choice
+    i = point_inputs(root, point)
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_tiers.py", line 186, in point_inputs
+    base = rows_grade.point_inputs(root, point)
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 316, in point_inputs
+    h = header(root, shape_costs.of_point(point, root), texts)
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 140, in header
+    return {n: value(n) for n in NAMES}
+               ~~~~~^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 135, in value
+    body = re.sub(r'[A-Z][A-Z0-9_]+', lambda m: str(value(m[0])), body)
+  File "/usr/lib/python3.14/re/__init__.py", line 208, in sub
+    return _compile(pattern, flags).sub(repl, string, count)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 135, in <lambda>
+    body = re.sub(r'[A-Z][A-Z0-9_]+', lambda m: str(value(m[0])), body)
+                                                    ~~~~~^^^^^^
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 139, in value
+    return arithmetic(body)
+  File "/data-2/milan/lanes/opt-hart2/tb/verilator/ctrl_service_budget/rows_grade.py", line 157, in arithmetic
+    return walk(ast.parse(text, mode='eval').body)
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/ast.py", line 46, in parse
+    return compile(source, filename, mode, flags,
+                   _feature_version=feature_version, optimize=optimize)
+  File "<unknown>", line 1
+    (1 == 1 || 12 > 40 ? 12 : 40)
+             ^
+SyntaxError: invalid syntax

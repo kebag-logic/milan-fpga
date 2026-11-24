@@ -1,0 +1,9 @@
+{"argv": ["python3", "/data-2/milan/tmp/opt-a837/focused.py"], "cwd": "/data-2/milan/lanes/opt-gptp-sw", "start": "2026-11-24T07:23:36.243866+00:00"}
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+Traceback (most recent call last):
+  File "/data-2/milan/tmp/opt-a837/focused.py", line 10, in <module>
+    for r in results: print(r.name,r.code if hasattr(r,"code") else r)
+                            ^^^^^^
+AttributeError: 'Outcome' object has no attribute 'name'

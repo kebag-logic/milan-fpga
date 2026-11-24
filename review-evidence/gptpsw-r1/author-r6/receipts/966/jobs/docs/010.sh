@@ -1,0 +1,2 @@
+set -euo pipefail
+python3 docs/traceability/gen_module_matrix.py --check

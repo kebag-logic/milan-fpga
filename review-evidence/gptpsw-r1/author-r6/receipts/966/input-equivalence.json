@@ -1,0 +1,24 @@
+{
+  "head": "44c566399002db32bf8a6ad3ce719488d418bcb0",
+  "base": "165476c755e4728a044c12ea6bc33ce0a0a9d28f",
+  "full_delta": [
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/test/aecp_face_mutants.py",
+    "sw/firmware/ctrl/test/ctrl_configs.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/gptp_driver_mutants.py",
+    "sw/firmware/ctrl/test/test_aecp.cpp",
+    "sw/firmware/ctrl/test/test_unit_driver.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "tb/verilator/gptp_sw/Makefile"
+  ],
+  "product_c_and_rtl_unchanged": true,
+  "coverage_executable_input_head": "17bd60c6989f9db53407dec06a245feba36656df",
+  "coverage_executable_sources_equal": true,
+  "control_mutants": "828 definitions and order identical after extraction; driver-inventory-identity.log",
+  "boundary_replayed_head": "edd31d4d349e147aa7a20cc1ad854ec901263d31",
+  "scope": "Firmware gate test bodies remain those started at 17bd60c6. Later changes register the gPTP simulation and campaigns in the boundary census, honor STACK_DIR and its pin in the simulation Makefile, update the pin-control count, and extract two unchanged mutations. Boundary builders are replayed after registration; Python idiom and coverage are replayed at the final head. Logs retain actual launch heads.",
+  "final_prose_change": "gtest/README.md states gPTP floor accurately; its 21 parsed exclusions are unchanged (coverage-readme-identity.log)",
+  "coverage_measured_head": "7ad1e7df55d8516ce9f8080d3400320719e3f6d0"
+}

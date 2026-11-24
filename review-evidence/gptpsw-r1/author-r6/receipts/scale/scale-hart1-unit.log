@@ -1,0 +1,33 @@
+{"argv": ["python3", "-B", "sw/litex/test_ctrl_hart1.py"], "cwd": "/data-2/milan/lanes/opt-hart2", "start": "2026-11-24T09:44:30.197366+00:00", "source": "/data-2/milan/lanes/opt-hart2", "head": "1ad4695446b3291df3ec214255b03e21094716a9"}
+-- submodule names
+  [ok  ] a netlist with plain, parameterised and attributed instances is renamed
+  [ok  ] BufferCC_1's definition carries the netlist's prefix
+  [ok  ] BufferCC's definition carries the netlist's prefix
+  [ok  ] StreamArbiter's definition carries the netlist's prefix
+  [ok  ] the attributed instance carries the prefix
+  [ok  ] the parameterised instance carries the prefix
+  [ok  ] the plain instance carries the prefix
+  [ok  ] the shared generic RAM keeps its name
+  [ok  ] the top keeps its name
+  [ok  ] a renamed netlist is left alone the second time
+  [ok  ] PLANTED: an instance match without the attribute form is refused, naming BufferCC
+-- geometry labels
+  [ok  ] i8k-d0-md reads back as itself
+  [ok  ] i8k-d4k-md reads back as itself
+  [ok  ] i16k-d8k-md reads back as itself
+  [ok  ] i0-d0-md reads back as itself
+  [ok  ] i16k-d4k-md reads back as itself
+  [ok  ] i8k is refused
+  [ok  ] d4k-i8k-md is refused
+  [ok  ] i8k-d0-xy is refused
+-- the map
+  [ok  ] rom, sram, hram and h2h do not overlap
+  [ok  ] h2h is in LiteX's IO window (uncached)
+  [ok  ] hram is outside it (cached by hart 1's data cache)
+  [ok  ] harts_ld places hart 1's bss, its stack and the queues uninitialised in their regions
+-- the second event ring
+  [ok  ] the mailbox's KL_mbx gets EVT_RINGS_P = 2 and no other parameter
+  [ok  ] a mailbox whose ring count is set already is refused
+  [ok  ] a mailbox with no KL_mbx instance is refused
+test_ctrl_hart1: checks 26, failures 0
+RESULT: PASS

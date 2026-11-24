@@ -1,0 +1,9 @@
+{"argv": ["python3", "/data-2/milan/lanes/opt-gptp-sw/sw/firmware/ctrl/test/test_ctrl_firmware.py", "--require-rv32", "--self-test", "--jobs", "4", "--shard", "2/4", "--build-dir", "/data-2/milan/tmp/opt-a837/fw-shard-2"], "cwd": "/data-2/milan/tmp/opt-a837/fw-cwd-2", "start": "2026-11-24T07:29:19.429511+00:00"}
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1843 live invocations in exactly one shard; shard sizes [88, 827, 386, 542]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+REFUSED: AECP plant table drift: missing={'Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead', 'Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass'}, extra=set()

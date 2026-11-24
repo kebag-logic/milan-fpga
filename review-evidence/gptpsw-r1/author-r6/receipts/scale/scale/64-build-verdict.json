@@ -1,0 +1,13 @@
+{
+  "verdict": "STOP: 64x64 two-hart firmware does not build",
+  "head": "fe009fa2c7741b8612bdbc74fe70909d57931503",
+  "wrapper_rc": 1,
+  "image_builder_rc": 2,
+  "linker_rc": 1,
+  "seconds": 6.781095027923584,
+  "hram_limit_bytes": 262144,
+  "overflow_bytes": 92064,
+  "implied_span_bytes": 354208,
+  "image_log_sha256": "d4649283560f770af6759a4ae0b9b39c0b9949f87b745fd8290c450a6d761a8d",
+  "detail": "The 64x64/2if two-hart firmware build at `fe009fa2c7741b8612bdbc74fe70909d57931503` failed during linking: `.hart1.bss` does not fit `hram`; the region overflows by 92064 bytes. The region is 262144 bytes, so the reported overflow implies a 354208-byte linked span. The image builder returned 2, its link step returned 1, and the foreground wrapper returned 1 after 6.781 s. No executable, native 64x64 run or 64x64 load result is claimed. The user\u2019s explicit \u201cif 64x64 does not build, report 32x32 and STOP\u201d condition applies. No memory limit, layout or cache was changed to bypass it; no route was run."
+}

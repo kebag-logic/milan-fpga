@@ -1,0 +1,4 @@
+set -euo pipefail
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+

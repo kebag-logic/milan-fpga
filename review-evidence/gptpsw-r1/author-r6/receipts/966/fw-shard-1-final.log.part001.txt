@@ -1,0 +1,312 @@
+[ok] mutant retry-binds-twice (port): 2 check(s) failed
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a second retry client is refused
+[ok] mutant retry-binds-no-function (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no function is refused
+[ok] mutant retry-binds-no-age (port): 3 check(s) failed
+    first: [FAIL] LoopBring.L15RetryBindingRefusals: L15 a retry client with no age is refused
+[ok] mutant retry-beside-input (port): 12 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a pass that takes a record does not call the retry
+[ok] mutant retry-beside-a-centisecond (port): 2 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 nor one that dispatches a centisecond, though it takes no input
+[ok] mutant retry-in-every-pass (port): 16 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a pass that takes a record does not call the retry
+[ok] mutant retry-before-the-polls (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 after its polls
+[ok] mutant retry-after-the-step (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 and before THE STEP
+[ok] mutant retry-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 a retry still owed asks for the next pass at once
+[ok] mutant retry-pass-uncounted (port): 2 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass is counted as one that called the retry
+[ok] mutant retry-age-ignored (port): 21 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass given whole to an aged step calls it after the step, once it is aged
+[ok] mutant retry-aged-pass-takes-input (port): 51 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+[ok] mutant retry-aged-pass-sleeps (port): 10 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+[ok] mutant retry-aged-pass-not-a-retry-pass (port): 2 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass is counted as one that called the retry
+[ok] mutant retry-not-after-an-aged-step (port): 4 check(s) failed
+    first: [FAIL] Loop.L16TheRetryOnlyInAPassThatTakesNothing: L16 the pass given whole to an aged step calls it after the step, once it is aged
+[ok] mutant retry-told-all-of-the-pass (port): 4 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round beside a step has what the step left of the pass, a slice at most
+[ok] mutant retry-told-past-the-margin (port): 5 check(s) failed
+    first: [FAIL] Loop.L17AnAgedRetryIsAPassOfItsOwn: L17 a round in a pass of its own has a whole slice under the margin, with no clock
+[ok] mutant transmit-binds-twice (port): 2 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a second transmit client is refused
+[ok] mutant transmit-binds-no-function (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no function is refused
+[ok] mutant transmit-binds-no-age (port): 3 check(s) failed
+    first: [FAIL] LoopBring.L18TransmitBindingRefusals: L18 a transmit client with no age is refused
+[ok] mutant transmit-due-ignored (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+[ok] mutant transmit-pass-takes-input (port): 51 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+[ok] mutant transmit-pass-sleeps (port): 10 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+[ok] mutant transmit-pass-uncounted (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the pass is counted as the transmit's
+[ok] mutant transmit-pass-without-the-retry (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass calls the transmit though input waits, then an aged round: its ordinary pass before it left tier 1 holding nothing, so one slice, then tier 1 (THE TIERS)
+[ok] mutant transmit-after-an-aged-step (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant transmit-in-the-aged-steps-pass (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the aged step's pass may follow it, the second in a row
+[ok] mutant tick-pass-uncapped (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+[ok] mutant tick-cap-in-every-pass (port): 32 check(s) failed
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+[ok] mutant tick-cap-ignored (port): 3 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+[ok] mutant whole-row-unlimited (port): 1 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a fourth may not
+[ok] mutant whole-row-of-two (port): 2 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and a third
+[ok] mutant whole-row-beside-a-backlog (port): 2 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and no second while records wait and the client yields
+[ok] mutant whole-row-beside-events (port): 1 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 none follows another while events wait
+[ok] mutant whole-row-beside-the-drain (port): 1 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a record of THE DRAIN's channel waits
+[ok] mutant backlog-never-marked (port): 14 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant backlog-never-cleared (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 which leaves tier 1 holding nothing
+[ok] mutant drain-past-its-time (port): 1 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+[ok] mutant drain-to-the-cap-alone (port): 2 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 with a clock it goes past its cap while the slice has room
+[ok] mutant spare-records-beside-no-centisecond (port): 4 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant spare-records-never-taken (port): 11 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a build owed comes before an aged step
+[ok] mutant spare-records-channel-by-channel (port): 1 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L23 one a channel in turn
+[ok] mutant drain-past-its-records (port): 1 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and stops at CTRL_LOOP_DRAIN_RECORDS
+[ok] mutant rx-held-ignored (port): 1 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 a pass whose poll owes a heavy step stops at its cap
+[ok] mutant rx-start-stays (port): 2 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 each pass starts one channel on
+[ok] mutant rx-start-wraps-short (port): 1 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 and wraps past the last
+[ok] mutant rx-start-ignored (port): 1 check(s) failed
+    first: [FAIL] Loop.L25WhatAPassHasLeftGoesToTheRecordsStillWaiting: L25 the channel a pass starts at has the time first
+[ok] mutant order-mark-read-after-the-events (port): 1 check(s) failed
+    first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 the mark is read before the events
+[ok] mutant order-moved-past-events-left (port): 1 check(s) failed
+    first: [FAIL] Loop.L24ARecordFollowsOnlyTheEventsPostedBeforeIt: L24 a pass that leaves events keeps the order where it was
+[ok] mutant tier1-others-beside-the-first (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and no other tier-1 channel's record while it holds one it would take
+[ok] mutant tier1-first-to-its-cap (port): 3 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 with a clock it goes past its cap while the pass has room
+[ok] mutant tier1-first-past-its-time (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 and stops once the pass has spent CTRL_LOOP_DRAIN_US
+[ok] mutant tier1-held-by-a-module-not-ready (port): 1 check(s) failed
+    first: [FAIL] Loop.L26TierOnesFirstChannelGoesFirst: L26 a first channel whose module is not ready holds the others back no longer
+[ok] mutant tier1-held-by-an-empty-ring (port): 33 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the build is read once as the pass starts, before it takes any input
+[ok] mutant tier2-beside-tier1 (port, port): 16 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that stops at its cap may leave a record: tier 1 is not done
+[ok] mutant whole-beside-tier1 (port): 8 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 a take that finds its ring empty leaves tier 1 holding nothing
+[ok] mutant holds-a-module-not-ready (port): 4 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a tier-1 record whose module is not ready holds none back (THE TIERS)
+[ok] mutant whole-row-beside-tier1 (port): 7 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 the next pass takes the input it held off
+[ok] mutant round-before-the-drain (port): 3 check(s) failed
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 (told it stands beside held work)
+[ok] mutant drained-beside-the-drain (port): 3 check(s) failed
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 (the ordinary pass leaves THE DRAIN's channel its record)
+[ok] mutant first-notice-not-tier1 (port): 3 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 a queue's first notice after that pass, though a record waits
+[ok] mutant round-one-never-told (port): 7 check(s) failed
+    first: [FAIL] Loop.L22PassesGivenWholeStandApartAsInputWaits: L22 and none follows another while a tier-1 record is held (THE TIERS)
+[ok] mutant round-one-kept-from-a-pass-given-whole (port): 1 check(s) failed
+    first: [FAIL] Loop.L28AnOrdinaryPassesRoundIsToldItStandsAlone: L28 an ordinary pass's round is told it stands alone
+[ok] mutant round-slice-is-the-share (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass given whole has a slice from the pass's start
+[ok] mutant slice-end-past-the-deadline (port): 1 check(s) failed
+    first: [FAIL] Loop.L27TierTwoRoundsComeAfterTheDrainInSlices: L27 a round in a pass that took nothing has a slice from its start, and never past the pass's deadline
+[ok] mutant slice-starts-at-the-cap (port): 3 check(s) failed
+    first: [FAIL] Loop.L23TheDrainIsTierTwoInASlice: L23 and starts none once its slice has no room for a record's stated cost
+[ok] mutant transmit-told-a-whole-build (port): 1 check(s) failed
+    first: [FAIL] Loop.L20AnOwedBuildIsAPassOfItsOwn: L20 told the MRPDUs its slice holds (THE TIERS)
+[ok] mutant f3b-query-inside-allocation (maap): 542 check(s) failed
+    first: [FAIL] MaapHost.HMaapTimerCommitsAndIntervals: declaration query stays outside MAAP callbacks
+[ok] mutant f3b-composition-owner (acmp): 5 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[ok] mutant f3b-idle-tick (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: service tick wakes an idle platform for freshness expiry
+[ok] mutant f3b-config-interval (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: mailbox composition supplies the Milan freshness interval
+[ok] mutant f3b-fresh-probe-arm (maap): 2 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-listener-arm (maap): 17 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant f3b-no-demand-arm (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+[ok] mutant f3b-source-validity (acmp, acmp, acmpif2, acmpif2, maap): 35 check(s) failed
+    first: [FAIL] AcmpMailbox.F3bListenerRequiresSourceDestination: published source predicate includes destination validity and interface
+[ok] mutant f3b-expiry-arm (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe expires at 15000 milliseconds without a Listener
+[ok] mutant f3b-expiry-refresh (maap): 3 check(s) failed
+    first: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+[ok] mutant sink-open-unwritten (platsinks8): 15 check(s) failed
+    first: [FAIL] Sinks.S1EveryAafInputAboveZeroHoldsItsFormatAtReady: S1 every AAF input above 0 holds its current format: input 1 holds none
+[ok] mutant sink-change-unfollowed (platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-open-before-acknowledgement (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S3AnUnacknowledgedCommitWritesNoContext: S3 a commit never acknowledged writes no context
+[ok] mutant sink-change-before-commit (platsinks8, platsinks8): 18 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 written after the change's acknowledged commit
+[ok] mutant sink-change-unacknowledged (platsinks8): 5 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 a change waiting for its acknowledgement writes no context
+[ok] mutant sink-redo-unwritten (platsinks8, platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S4AChangeWaitingForItsAcknowledgementIsWrittenOnceInForce: S4 the change done again reaches input 7's context
+[ok] mutant sink-redo-refusal-skipped (platsinks8): 16 check(s) failed
+    first: [FAIL] Sinks.S6AWaitingChangeIsNotDoneAgainOntoAnInputBoundAndSettledMeanwhile: S6 a change whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-other-input (platsinks8): 16 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 SET_STREAM_FORMAT's new format reaches input 7's context
+[ok] mutant sink-held-once-settled (platsinks8): 3 check(s) failed
+    first: [FAIL] Sinks.S7AWaitingChangeIsNotDoneAgainOntoAnInputBoundWithItsProbeUnanswered: S7 a change whose input is bound, its probe unanswered, is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-configuration-unchecked (platsinks8): 10 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 a SET_CONFIGURATION whose input was bound meanwhile is answered ENTITY_MISBEHAVING at the wait's bound
+[ok] mutant sink-held-outside-the-wait (platsinks8): 3 check(s) failed
+    first: [FAIL] Sinks.S8AChangeNeverAcknowledgedInItsWaitKeepsTheFormatInForce: S8 the refusal ends with the wait: another input's change is taken
+[ok] mutant sink-output-taken-for-its-input (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 output 7's SET_STREAM_FORMAT is taken while input 7 is bound
+[ok] mutant sink-any-kind-of-an-input (platsinks8): 1 check(s) failed
+    first: [FAIL] Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext: S11 SET_NAME of input 7 writes no context
+[ok] mutant sink-configuration-unwritten (platsinks8): 8 check(s) failed
+    first: [FAIL] Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput: S10 SET_CONFIGURATION rewrites every context at its format in force: input 1 holds none
+[ok] mutant sink-change-writes-every-context (platsinks8): 5 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+[ok] mutant sink-other-kind-writes-every-context (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S5AChangeOfAnotherKindWritesNoContext: S5 SET_NAME writes no context
+[ok] mutant sink-every-pass-rewrites (platsinks8): 9 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 that input's context alone is written
+[ok] mutant sink-input-zero-written (plat, platsinks8): 4 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not input 0
+[ok] mutant sink-crf-input-written (plat, platsinks8): 4 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a CRF input
+[ok] mutant sink-other-type-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a STREAM_OUTPUT
+[ok] mutant sink-other-interface-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not another interface's input
+[ok] mutant sink-other-configuration-written (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not an input of a configuration not in force
+[ok] mutant sink-short-descriptor-read (plat): 1 check(s) failed
+    first: [FAIL] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero: C6 not a descriptor too short to hold its interface
+[ok] mutant sink-format-halves-swapped (plat, platsinks8): 34 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-talker-selected (plat, platsinks8): 33 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-restored (plat, platsinks8): 7 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant sink-selection-not-read (plat): 2 check(s) failed
+    first: [FAIL] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores: C5 listener 5 selected, FMT_LO then FMT_HI, the selection written back
+[ok] mutant set-format-bound-accepted (platsinks8): 2 check(s) failed
+    first: [FAIL] Sinks.S2SetStreamFormatMovesOnlyThatContextAndABoundInputRefuses: S2 a bound input refuses SET_STREAM_FORMAT
+[ok] mutant restore-format-survival-read (platsinks1): 1 check(s) failed
+    first: [FAIL] Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut: S12 input 0's narrowed format is restored after the cut
+[ok] mutant pin-adp-short-discovery (adp): 124 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsEveryTruncatedDiscovery: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-version (adp): 26 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsUnsupportedDiscoveryVersions: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-discovery-length (adp): 20 check(s) failed
+    first: [FAIL] AdpAdapter.PinRejectsWrongDiscoveryControlLength: malformed discovery changes only the discard count through the parent adapter
+[ok] mutant pin-adp-valid-discovery (adp): 2 check(s) failed
+    first: [FAIL] AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox: complete discovery restarts advertising through the mailbox
+[ok] mutant pub-gptp-generation-written-twice (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.GptpPublicationCommitsAfterItsIdentityWords: the generation commits the complete identity on its own interface
+[ok] mutant timestamp-high-word-shifted (unit): 4 check(s) failed
+    first: [FAIL] DriverUnit.TimestampEventDecodesFlagsAndBothTimeWordsAcrossWrap: the timestamp keeps all 64 time bits
+[ok] mutant pub-sid-valid-set-first (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sid-halves-swapped (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_LO holds stream_id[31:0]
+[ok] mutant pub-domain-priority-and-vid-swapped (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields
+[ok] mutant pub-licence-in-the-da-gate (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 DA_GATE.OPEN holds the gate
+[ok] mutant pub-sink-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-sink-binding-past-the-block (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a sink past the block's is refused
+[ok] mutant pub-started-in-the-bound-bit (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 SID_VALID is clear while the stream_id is written, and set after it
+[ok] mutant pub-sink-binding-drops-sid-valid (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 a stop with the stream unchanged: BINDING alone, STARTED clear, SID_VALID kept, one write
+[ok] mutant pub-talker-decl-in-the-licence (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D14PublicationBlock: D14 LICENCE.ACTIVE holds the licences
+[ok] mutant model-pub-sid-not-gated (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant model-pub-hole-takes-a-write (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-started-not-stored (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-declarations-a-hole (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] mutant model-pub-every-sink-reads-entry-0 (model): 7 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 every field reaches the datapath on its own output, for its own interface and sink
+[ok] mutant model-face-window-tag-ignored (model): 12 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR an answer under another tag is discarded: still BUSY, no DATA
+[ok] mutant model-face-window-timeout-keeps-the-request (model): 8 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F4 CTR unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+[ok] mutant model-face-commit-not-held (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F3 every setting and entry write, and a second commit, is refused while BUSY and counted
+[ok] mutant model-face-fmt-out-high-from-low (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F2 every setting, entry and request field reaches the datapath on its own port, for its own interface
+[ok] mutant model-face-avb-change-dropped (model): 3 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+[ok] mutant model-face-holdoff-never-rolls (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Face: F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+[ok] mutant model-pub-src-sid-a-hole (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P1 each source's entry reads back the stream_id written to it, at its own interface, and only that
+[ok] mutant model-pub-every-source-reads-entry-0 (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Publication: P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o, for its own interface and source
+[ok] mutant pub-acmp-after-the-response (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the binding is published before the BIND_RX response
+[ok] mutant pub-acmp-skipped-at-the-end-of-an-entry (acmp, acmp, acmp): 48 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a PROBE_TX_RESPONSE that settles publishes the stream
+[ok] mutant pub-acmp-talker-for-the-stream (acmp): 7 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 the stream_id the response carried (5.5.3.5.18 step 4)
+[ok] mutant pub-acmp-stream-held-past-settlement (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath: A31 TMR_NO_TK publishes the sink without its stream (5.5.3.5.36 step 1)
+[ok] mutant pub-acmp-every-sink-every-entry (acmp): 12 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 a BIND_RX publishes the sink's binding once
+[ok] mutant pub-acmp-port-unguarded (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31ACallBackFromThePublishPortIsRefused: A31 an UNBIND_RX and a poll from inside the publish port are counted and change nothing (#678)
+[ok] mutant pub-acmp-reset-forgets-the-port (acmp): 3 check(s) failed
+    first: [FAIL] AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens: A31 a sink the store resets is published unbound at the next open
+[ok] mutant pub-acmp-adapter-drops-the-port (acmp, acmp): 22 check(s) failed
+    first: [FAIL] AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse: B10 a BIND_RX publishes its sink bound, with no stream, interface 0
+[ok] mutant pub-acmp-started-after-the-response (acmp): 1 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 the started move is published before the BIND_RX response
+[ok] mutant pub-acmp-started-after-the-report (acmp): 4 check(s) failed
+    first: [FAIL] AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt: A31 and before the notifier hears of the settled sink
+[ok] mutant pub-acmp-started-from-bound (acmp): 9 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a bind with STREAMING_WAIT is published bound and stopped
+[ok] mutant pub-acmp-started-move-skipped (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised: A31 a re-bind to the same talker without STREAMING_WAIT publishes once
+[ok] mutant pub-acmp-adapter-rewrites-the-stream (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 a started move is one write to the sink's entry, interface 0
+[ok] mutant pub-acmp-adapter-drops-sid-valid (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream: B12 that write is BINDING, with SID_VALID kept and STARTED moved, interface 0
+[ok] mutant pub-acmp-adapter-sid-valid-always (acmp, acmpif2): 18 check(s) failed
+    first: [FAIL] AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream: B13 a BIND_RX of a sink with no settled stream writes only BINDING, SID_VALID clear, interface 0
+[ok] mutant pub-maap-gate-after-the-report (maap): 5 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-skipped (maap): 25 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-one-source-short (maap): 16 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 828 of 828 caught
+test_ctrl_firmware: PASS

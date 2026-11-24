@@ -1,0 +1,212 @@
+{"argv": ["python3", "/data-2/milan/lanes/opt-gptp-sw/sw/firmware/ctrl/test/test_ctrl_firmware.py", "--require-rv32", "--self-test", "--jobs", "4", "--shard", "3/4", "--build-dir", "/data-2/milan/tmp/opt-a837/fw-shard-3"], "cwd": "/data-2/milan/tmp/opt-a837/fw-cwd-3", "start": "2026-11-24T07:29:19.430160+00:00"}
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 1843 live invocations in exactly one shard; shard sizes [88, 827, 386, 542]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-listener-not-forwarded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] f3b-listener-wrong-interface: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-asking-failed-excluded: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] four-way-f3b-withdrawal-stale: AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-8x8-sources-past-two-undeclared: StartupDeclaresTalkersDomainAndVlan / each source's three Talker declarations and no other
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] startup-8x8-failure-code-past-two: StartupDeclaresTalkersDomainAndVlan / source 2's failure code
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+[ok] duplicate-tick-owner-8x8: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/fw-shard-3/srp-mutants/work/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]

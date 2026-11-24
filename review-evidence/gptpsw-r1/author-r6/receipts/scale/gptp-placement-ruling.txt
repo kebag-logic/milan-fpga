@@ -1,0 +1,21 @@
+https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546
+
+[A10] Rulings on the gPTP-in-firmware round 1 report (issuecomment-7067459898), OWNER DECIDES 1-7 (owner-delegated decision, 2026-11-21; none goes to the owner)
+
+1. **gptp bound:** 10 ms kept (802.1AS-2011 B.2.3). THE SHARE stays 2.0 ms; gPTP passes are held to it. Round 2 measures the turnaround at 8x8/2if (the 4 ms figure is modelled).
+2. **gptp channel admission** (burst 16, refill 10 ms): provisional. Round 2 runs a flood with a planted overrun and shows no legitimate stamp is lost (burst 16 exceeds the 8-record stamp FIFO).
+3. **Minimal fixed-point core**, not flexPTP. Condition: every gPTP clause scenario of the in-house qualification passes on the bench, as slave and as grandmaster, before any plane RTL is deleted.
+4. **Memory at 8x8 and above** (+2.5..3.0 RAMB36): accepted as debt with a ledger entry; fit and timing gate. The harness refusal may be lifted as recorded debt so the 8x8 points are measured.
+5. **Second PHC:** required, one PHC and one timestamp unit per MAC (Milan v1.2 8.3.4), in round 2.
+6. **Requirement text:** the plane leaves the build on this line now (`--sw-gptp`); its RTL stays buildable on this line for bench A/B until item 3's condition passes, then is deleted. dev-soft-core keeps the plane until this line merges.
+7. **gPTP status block narrowed** under `--sw-gptp`: a documented register-map change, REGISTER_MAP updated in the same PR; firmware answers must match the published GEN snapshot; the saving is claimed only after synthesis.
+
+**Contract numbering:** this lane's contract integrates first as 2.5. The second-hart lane rebases and takes 2.6 (second event ring). Both are additive and reset-compatible (all events on ring 0 at reset); one-hart builds generate no second ring. For 2.6:
+- EVT_ROUTE covers TIMESTAMP and LINK;
+- each event routes to exactly one ring;
+- TIMESTAMP keeps its credit flow and stays uncoalesced on either ring;
+- the gptp channel rings, the tick, the publication window and the PTP block follow gPTP's hart.
+
+**gPTP's hart:** gPTP's load (0.42 % at most) does not discriminate between the harts, so latency decides. Both ports go on the hart with the shorter measured worst pass at 64x64/2if, provided that hart stays at or below 0.70 load and holds THE SHARE.
+
+Clause numbers above are as the report cites them; round 2 confirms 802.1AS-2011 B.2.3 and Milan v1.2 8.3.4 against the standards.

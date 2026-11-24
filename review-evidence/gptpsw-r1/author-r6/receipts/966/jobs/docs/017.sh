@@ -1,0 +1,2 @@
+set -euo pipefail
+python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test

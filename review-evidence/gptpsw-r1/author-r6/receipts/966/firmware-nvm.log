@@ -1,0 +1,74 @@
+{"argv": ["python3", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "--require-rv32", "--jobs", "4"], "cwd": "/data-2/milan/lanes/opt-gptp-sw", "start": "2026-11-24T07:34:11.923772+00:00", "source": "/data-2/milan/lanes/opt-gptp-sw", "head": "17bd60c6989f9db53407dec06a245feba36656df"}
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+endstation_arty_4x4          clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 110   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (110 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=14044 data=24 bss=5902 stage=4994 payload=66 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+endstation_arty_8ch          clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 110   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (110 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=14044 data=24 bss=8526 stage=7618 payload=66 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+endstation_arty_current      clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 110   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (110 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=14032 data=24 bss=3518 stage=2610 payload=66 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 110   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (110 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  longest service call, model time: 167 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, layout 3 NAME capacity (endstation_ax7101_1x1_tdm8): checks: 6   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+  == NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  over capacity: 908 names refused at compile time ('the names outgrow their id block')
+  over width: MILAN_NVM3_MAPIN_ENTRIES_0 = 256 refused at compile time ("an input map's entries outgrow the codec's byte table")
+  over width: MILAN_NVM3_MAPOUT_ENTRIES_0 = 65536 refused at compile time ("an output map's entries outgrow the codec's 16-bit table")
+  at width: MILAN_NVM3_MAPIN_ENTRIES_0 = 255, its table's limit, compiles
+  doctored build outside the host test: refused at compile time ("NVM_DOCTORED_MAPIN builds only under the host test's shape header")
+  rv32 at 100000000 Hz: text=13928 data=24 bss=4430 stage=3454 payload=136 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+endstation_ax7101_8x8        clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 110   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (110 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  rv32 at 100000000 Hz: text=13936 data=24 bss=15010 stage=13594 payload=576 chunk=256 store=560 clock=24 (bytes)
+  largest static frame: 304 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): OK across 5 shape(s), 566 tests

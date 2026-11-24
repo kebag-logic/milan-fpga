@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "tb/verilator/ctrl_service_budget/run.py",
+    "--point",
+    "32x32",
+    "--harts",
+    "2",
+    "--hart1",
+    "i16k-d0-md",
+    "--build-dir",
+    "/data-2/milan/tmp/opt-a837/scale/32-d0",
+    "--groups",
+    "srp,backlog-owed,backlog-adp-refill,control,adp-link,acmp-noresp,maap,aecp,acmp-notk",
+    "--jobs",
+    "4",
+    "--record-budget-findings",
+    "--record-share-findings"
+  ],
+  "cwd": "/data-2/milan/lanes/opt-hart2",
+  "start": "2026-11-24T09:26:32.997803+00:00",
+  "source": "/data-2/milan/lanes/opt-hart2",
+  "head": "368c2d1e9898e43849873bd242fba482924817f0",
+  "rc": 1,
+  "seconds": 7968.667994022369
+}

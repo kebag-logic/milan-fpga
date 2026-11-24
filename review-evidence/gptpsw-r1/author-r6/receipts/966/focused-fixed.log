@@ -1,0 +1,28 @@
+{"argv": ["python3", "/data-2/milan/tmp/opt-a837/focused.py"], "cwd": "/data-2/milan/lanes/opt-gptp-sw", "start": "2026-11-24T07:25:26.919041+00:00"}
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote /data-2/milan/tmp/opt-a837/focused/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] arm unit
+    == ctrl units on the HAL and port-layer mocks: checks: 27   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (27 tests, 0 failures, exit 0)
+    == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+    == ctrl mailbox driver on the MMIO window (host window): checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+    == ctrl mailbox driver with the record mover (host register model): checks: 10   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (10 tests, 0 failures, exit 0)
+    == ctrl memory primitives (host): checks: 5   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (5 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+    == AECP core: checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+    == AECP core: checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
