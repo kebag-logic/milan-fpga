@@ -1,0 +1,15 @@
+[
+  {
+    "name": "control-old-needle-face-software-gptp-keeps-datapath-capable",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the software gPTP owner's"
+      ]
+    ],
+    "caught": false
+  }
+]

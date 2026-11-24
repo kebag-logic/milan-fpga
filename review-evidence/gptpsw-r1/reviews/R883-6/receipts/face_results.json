@@ -1,0 +1,184 @@
+[
+  {
+    "name": "face-software-gptp-clears-link-flags",
+    "path": "aecp/aecp_face.c",
+    "old": "(out->flags & ~1u)",
+    "new": "0u",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "software gPTP keeps the datapath's link flags"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-software-gptp-keeps-datapath-capable",
+    "path": "aecp/aecp_face.c",
+    "old": "out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));",
+    "new": "out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));",
+    "checks": [
+      [
+        "Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass",
+        "AS_CAPABLE is the firmware gPTP owner's"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-software-gptp-ignores-path-refusal",
+    "path": "aecp/aecp_face.c",
+    "old": "return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);",
+    "new": "return f->gptp.path(f->gptp.ctx, interface, out, capacity, count) || true;",
+    "checks": [
+      [
+        "Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead",
+        "software gPTP forwards the path owner's refusal"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-count-read-as-avb-info",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "new": "if (!gsi(f, interface, 1u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "the count, then each entry once"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-entries-at-one-ordinal",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+    "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, 0u, 0u, &out[k])) {",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "at selector 8, by its ordinal"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-through-the-first-interface",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "new": "if (!gsi(f, 0u, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "checks": [
+      [
+        "Face.AsPathIsTheDatapathsSequenceThroughItsOwnWindow",
+        "read through its own interface's window"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-truncated-at-its-bound",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {\n\t\treturn false;\n\t}\n",
+    "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n)) {\n\t\treturn false;\n\t}\n\tn = n > capacity ? capacity : n;\n",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "a count past the bound fails the port"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-bound-off-by-one",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n >= capacity) {",
+    "checks": [
+      [
+        "Face.AsPathCarriesItsWholeBoundAndFailsACountPastIt",
+        "AECP_PATH_ITEMS entries are carried"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-count-unanswered-ignored",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) || n > capacity) {",
+    "new": "if ((gsi(f, interface, 2u, AVB_INTERFACE, index, 0u, 0u, 0u, &n) && false) || n > capacity) {",
+    "checks": [
+      [
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "the count unanswered fails the port"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-entry-unanswered-ignored",
+    "path": "aecp/aecp_face.c",
+    "old": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k])) {",
+    "new": "if (!gsi(f, interface, 2u, AVB_INTERFACE, index, 8u, k, 0u, &out[k]) && false) {",
+    "checks": [
+      [
+        "Face.AnUnansweredAsPathWordFailsItsPortThere",
+        "an entry unanswered fails the port"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-change-notifies-avb-info",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "ctrl_app_aecp_changed(c, 9u, e->interface, 4u);",
+    "new": "ctrl_app_aecp_changed(c, 9u, e->interface, 2u);",
+    "checks": [
+      [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "an AS_PATH change notifies GET_AS_PATH"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-as-path-change-on-the-first-interface",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "ctrl_app_aecp_changed(c, 9u, e->interface, 4u);",
+    "new": "ctrl_app_aecp_changed(c, 9u, 0u, 4u);",
+    "checks": [
+      [
+        "AppFace.AnAsPathChangeNotifiesTheDatapathsSequence",
+        "an AS_PATH change notifies GET_AS_PATH"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-format-survival-read-before-the-open",
+    "path": "aecp/aecp_face.c",
+    "old": "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;",
+    "new": "(verdict & 0xFFu) == 3u;",
+    "checks": [
+      [
+        "Face.BeforeOpenAFormatVerdictJudgesSupportAlone",
+        "supported, before the open"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-format-survival-unread-once-open",
+    "path": "aecp/aecp_face.c",
+    "old": "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;",
+    "new": "((verdict & 0xFFu) | 2u) == 3u;",
+    "checks": [
+      [
+        "Face.BeforeOpenAFormatVerdictJudgesSupportAlone",
+        "supported alone refuses once open"
+      ]
+    ],
+    "caught": true
+  }
+]

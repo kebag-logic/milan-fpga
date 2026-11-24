@@ -1,0 +1,32 @@
+HEAD e05f800a6ae3ae20ed616b58e4a36b1ceb6fd31d tree c58fc25595e596d3125a2f50d4ec02f10f8e82a8
+index-tree c58fc25595e596d3125a2f50d4ec02f10f8e82a8
+status-porcelain-ignored:
+(end)
+sw/firmware/ctrl/test/test_aecp.cpp head=100644 d503344a81f70a2fde25913824c91162d094c506 index=100644 d503344a81f70a2fde25913824c91162d094c506 worktree=d503344a81f70a2fde25913824c91162d094c506 mode=644
+sw/firmware/ctrl/test/aecp_face_mutants.py head=100644 7eb50fa4c2f8ff2b313f366162b7ce980516ee73 index=100644 7eb50fa4c2f8ff2b313f366162b7ce980516ee73 worktree=7eb50fa4c2f8ff2b313f366162b7ce980516ee73 mode=644
+sw/firmware/ctrl/aecp/aecp_face.c head=100644 1cf772cc98b3242693ab70ff36ea337f627e9af9 index=100644 1cf772cc98b3242693ab70ff36ea337f627e9af9 worktree=1cf772cc98b3242693ab70ff36ea337f627e9af9 mode=644
+gitlinks:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (1616fc8)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+worktree==HEAD
+gptp-processor: 0 entries
+protocol-processor: 0 entries
+third_party/lwSRP: 0 entries
+third_party/tsn-c-stack: 0 entries
+third_party/verilog-axis: 0 entries
+commit message:
+Word the AS_CAPABLE check as the firmware gPTP owner's$
+$
+parent: 0acf24d9b5060a263f725c02026446dde64c2574
+M	sw/firmware/ctrl/test/aecp_face_mutants.py
+M	sw/firmware/ctrl/test/test_aecp.cpp
