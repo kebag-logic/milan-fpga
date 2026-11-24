@@ -1,0 +1,124 @@
+=== b04610c299e9af284134b719d6e8e589f887da06 23ee95296bf3e4d72193615f95c4eff583411c3b 87b2fc0f2867ef132b9388e22ec262fc626cbb57
+Merge PR #978 (973-srp-link-carried, 87b2fc0f) into the post-flip composition train, keeping both sides' SRP plants and changelog entries
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+remerge CONFLICT (content): Merge conflict in CHANGELOG.md
+index 17a471f3a8..b1d87d7890 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,11 +8,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
+-- **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
+-=======
+ - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
++- **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
+ - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+ - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+ - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@ -63,7 +60,15 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
++## Unreleased - a link-up inside a loop pass
++
++- #973: SRP's poll takes an UP the loop dispatched.
++- A link-up after a pass's events no longer resets twice.
++- A first UP keeps the clean startup participants.
++- A DOWN still fails closed from the LINK register.
++- Re-attach follows an up link with no LINK owed.
++- An UP elided by a DOWN authorizes no later UP.
++
+ ## Unreleased - 8x8 input clusters
+ 
+ - #584: every STREAM_PORT_INPUT owns an AUDIO_CLUSTER.
+@@ -95,16 +100,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - `ship8-mutants` plants projection, adapter and bus faults.
+ - It also replays stale events, which the record refuses.
+ - The 8x8's build plan now lists `Unrouted S<p>`.
+-=======
+-## Unreleased - a link-up inside a loop pass
+-
+-- #973: SRP's poll takes an UP the loop dispatched.
+-- A link-up after a pass's events no longer resets twice.
+-- A first UP keeps the clean startup participants.
+-- A DOWN still fails closed from the LINK register.
+-- Re-attach follows an up link with no LINK owed.
+-- An UP elided by a DOWN authorizes no later UP.
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
+ 
+ ## Unreleased - the Mark II split ships
+ 
+diff --git a/sw/firmware/ctrl/test/srp_mutants.py b/sw/firmware/ctrl/test/srp_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/srp_mutants.py
+index 431d4c6cfd..4283564e59 100644
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@ -15,11 +15,8 @@ import srp_talker_mutants
+ import srp_listener_mutants
+ import srp_kind_mutants
+ import srp_reclaim_mutants
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
+ import srp_early_mutants
+-=======
+ import srp_link_mutants
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
+ def caught(test: str, needle: str, outcome: Outcome) -> bool:
+     """Match the named FT failure and its complete GoogleTest diagnostic.
+ 
+@@ -960,11 +957,8 @@ DEFECTS += srp_talker_mutants.defects(Defect)
+ DEFECTS += srp_listener_mutants.defects(Defect)
+ DEFECTS += srp_kind_mutants.defects(Defect)
+ DEFECTS += srp_reclaim_mutants.defects(Defect)
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
+ DEFECTS += srp_early_mutants.defects(Defect)
+-=======
+ DEFECTS += srp_link_mutants.defects(Defect)
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
+ 
+ def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+     """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index aba24cc311..3d5e872ca7 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -165,11 +165,8 @@ import srp_mutants  # noqa: E402
+ import srp_pub_mutants  # noqa: E402
+ import srp_listener_mutants  # noqa: E402
+ import srp_reclaim_mutants  # noqa: E402
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
+ import srp_early_mutants  # noqa: E402
+-=======
+ import srp_link_mutants  # noqa: E402
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
+ import aecp_arms  # noqa: E402
+ import aecp_mutants  # noqa: E402
+ import plat_arms  # noqa: E402
+@@ -240,19 +237,11 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
+                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+                                                         srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))
+         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
+-<<<<<<< 23ee95296b (Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries)
+-        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the
+-        # Talkers kept for StreamIDs no binding holds (#969)
++        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
++        # Talkers kept for StreamIDs no binding holds (#969) and the link level in a loop pass (#973)
+         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+-                                                          srp_early_mutants.PREFIX)))
+-=======
+-        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the link
+-        # level in a loop pass (#973)
+-        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+-                                    if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+-                                                          srp_link_mutants.PREFIX)))
+->>>>>>> 87b2fc0f28 (State that a DOWN SRP's poll reads clears the mark of an UP no LINK carried, and why an UP after a DOWN is taken from its own LINK, in the SRP README and the changelog (#973))
++                                                          srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))
+         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
+                                       srp_listener_mutants.ENTITY) or failed
+     finally:

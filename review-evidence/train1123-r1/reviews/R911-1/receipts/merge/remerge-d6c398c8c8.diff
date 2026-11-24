@@ -1,0 +1,62 @@
+=== d6c398c8c8f506dee7f512d2f8b8d1b2caed6b73 b04610c299e9af284134b719d6e8e589f887da06 77a74b2f4e289c5a5a89687e07a6925cfedf6860
+Merge PR #974 (972-link-once, 77a74b2f) into the post-flip composition train, keeping both sides' changelog entries
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+remerge CONFLICT (content): Merge conflict in CHANGELOG.md
+index 1f2229db51..c5a5ca2780 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,12 +8,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
+-<<<<<<< b04610c299 (Merge PR #978 (973-srp-link-carried, 87b2fc0f) into the post-flip composition train, keeping both sides' SRP plants and changelog entries)
++- **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
+ - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
+ - **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
+-=======
+-- **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
+->>>>>>> 77a74b2f4e (Hold the new test code to the idiom ratchets: one declarator a declaration, a documented main, a short line, the BMCR plants their own table (#840, #972))
+ - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+ - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+ - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@ -64,7 +61,18 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
+-<<<<<<< b04610c299 (Merge PR #978 (973-srp-link-carried, 87b2fc0f) into the post-flip composition train, keeping both sides' SRP plants and changelog entries)
++## Unreleased - the boot forms its link once
++
++- #972: the split's boot forms its link once.
++- A PHY holding the advertisement is not restarted.
++- Holding it needs BMCR negotiating, as #840 asks.
++- A forced or isolated PHY is renegotiated, never published up.
++- The split's link word now resets to link down.
++- Boards without an MDIO pair keep link up.
++- So nothing is sent before the PHY's verified link.
++- A datapath leg checks it from reset at both shapes.
++- FR_NFR derives the declared 6.0 s discovery time.
++
+ ## Unreleased - a link-up inside a loop pass
+ 
+ - #973: SRP's poll takes an UP the loop dispatched.
+@@ -105,19 +113,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - `ship8-mutants` plants projection, adapter and bus faults.
+ - It also replays stale events, which the record refuses.
+ - The 8x8's build plan now lists `Unrouted S<p>`.
+-=======
+-## Unreleased - the boot forms its link once
+-
+-- #972: the split's boot forms its link once.
+-- A PHY holding the advertisement is not restarted.
+-- Holding it needs BMCR negotiating, as #840 asks.
+-- A forced or isolated PHY is renegotiated, never published up.
+-- The split's link word now resets to link down.
+-- Boards without an MDIO pair keep link up.
+-- So nothing is sent before the PHY's verified link.
+-- A datapath leg checks it from reset at both shapes.
+-- FR_NFR derives the declared 6.0 s discovery time.
+->>>>>>> 77a74b2f4e (Hold the new test code to the idiom ratchets: one declarator a declaration, a documented main, a short line, the BMCR plants their own table (#840, #972))
+ 
+ ## Unreleased - the Mark II split ships
+ 

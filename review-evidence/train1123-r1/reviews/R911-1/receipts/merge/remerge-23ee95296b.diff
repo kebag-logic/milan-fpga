@@ -1,0 +1,494 @@
+=== 23ee95296bf3e4d72193615f95c4eff583411c3b 8fac1fd23969669d39faa0ba1186098e058caad2 c113018d3cd4e70a7d3b66940a3a88fb93f0421a
+Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 1ac3f43201..ab52982dc3 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -134,16 +134,10 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ | `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 57.0 |
+ | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,568 B | 64.0 |
+-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 18,944 B | 59.0 |
+-=======
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,824 B | 63.5 |
+-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 19,072 B | 58.5 |
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,824 B | 64.0 |
++| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 19,072 B | 59.0 |
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+@@ -165,15 +159,10 @@ In the composed flip train (#665's [ruling of 2026-11-17](https://github.com/keb
+ With the largest legal record's cut ([section 13](#the-largest-legal-record-on-the-composed-flip-train-665)) the entry is 60.5, by the same rule and #665's [ruling of 2026-11-17, amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243): the harness's `answering-ports` arm needs 131,128 B of `rom`, 56 B past the 131,072 B that 60.0 holds, and the other five arms 130,624 to 130,948 B, within it; ROM debt of 4.5 RAMB36 owed to S14.
+ The platform's two-interface entry is 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946): its `rom` is 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its 115,504 B of `sram`, with `ctrl_plat` unchanged.
+ It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ Its one-interface entry is 58.5 with a waiting SET_STREAM_FORMAT's running check made again (#950) and ACMP's source port's Listener Asking Failed (#954): its `rom` is 139,304 B, 40 B past the 139,264 B that 58.0 holds, with `ctrl_plat` unchanged, by the owner's rule of 2026-11-15.
+ It is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
+-Each image is refused half a tile past its entry, at 61.0, 63.5 and 59.0.
+-=======
+-Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
+ With the Talkers SRP keeps for StreamIDs no binding holds (#969), the two-interface entry is 63.5, 408 B of `rom` past the 141,312 B that 63.0 holds beside its 115,760 B of `sram`, and the one-interface entry 58.5, 872 B of `rom` past the 139,264 B that 58.0 holds, by the same rule (below, with the kept Talkers).
+-Each image is refused half a tile past its entry, at 61.0, 64.0 and 59.0.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++Each image is refused half a tile past its entry, at 61.0, 63.5 and 59.0.
+ 
+ Each override recognises its image by the image's own symbols.
+ `nvm_stage` is the 8x8 shape's staging buffer.
+@@ -330,11 +319,7 @@ In the composed flip train (measured [below](#5-fit)) the entries were:
+ 
+ - the target platform's 8x8 image with two interfaces, 63.5 RAMB36 with the Talkers SRP keeps for StreamIDs no binding holds (#969), a debt of 7.5, 30,720 B of cold code to move;
+ - the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-- the target platform's 8x8 image with one interface, a product image, 58.5, a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
+-=======
+ - the target platform's 8x8 image with one interface, a product image, 58.5 with the kept Talkers (#969), a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ - every other point stays at or under 56.
+ 
+ S14 is the first lane after the flip.
+@@ -720,7 +705,6 @@ The platform's 8x8 image with two interfaces holds 131,976 B of `rom` in 133,120
+ 
+ The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
+ 
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ **With a waiting SET_STREAM_FORMAT's running check made again and the source port's Listener Asking Failed** (#950, #954, on the flip train's head `15168e14`), planned the same way (`plat_ledger.py`):
+ 
+ | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+@@ -742,7 +726,7 @@ The two changes add 96 to 104 B of `rom` an image (126,432, 128,032, 139,208 and
+ | 8x8, two interfaces (largest) | 140,960 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 352 B of `rom` left |
+ 
+ Each image is the sum of the two changes' own, within 8 B by alignment: #956's and #957's alone are 126,360, 128,112, 139,136 and 140,864 B, and #950's and #954's add 96 to 104 B to each. Every `ctrl_plat` and `sram` is unchanged. Together the 8x8 one-interface image needs 58.0 again; its entry stays 58.5, the raise #950's image needed alone; whether to restore 58.0 is the owner's to decide, not this merge's.
+-=======
++
+ **With the kept Talkers (#969)**, on the flip PR's head `dd163e41`, the Talkers SRP keeps for StreamIDs no binding holds (`srp_mbx.c` `keep_talker`, `count_kept`) add 928 to 952 B of `rom` to every platform image: in cold code, and 16 B in `reset_interface`, which zeroes the kept count with the participants a reset destroys. Of the hot list's 261 functions in the 1x1 and 8x8 one-interface platform images, 152 change in offset or size: `reset_interface` grows 16 B at its own offset, the 151 functions the hot list places after it each start 16 B later at their own size, and the 109 before it do not move; and to `ctrl_plat` 64 B at 1x1 with two interfaces, 128 B at 8x8 with one and 256 B at 8x8 with two, and none at 1x1 with one, where they take its padding: the kept list and its count, and the StreamIDs held, half the kept bound more. They take no SRP pool block of their own: the pool's fixed 16 blocks an interface fund them (`srp_mbx.h`, `SRP_KEPT_TALKERS`). Planned by `plat_ledger.py` against the base's:
+ 
+ | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+@@ -753,7 +737,6 @@ Each image is the sum of the two changes' own, within 8 B by alignment: #956's a
+ | 8x8, two interfaces (largest) | 141,720 (140,784) / 115,760 (115,504) | 63.5 (63.0) | 21,824 (21,568) | at its entry's 63.5, S14's debt, 1,640 B of `rom` left |
+ 
+ The base left 544 B of `rom` before the next granule at 1x1 with one interface and 56 B at 8x8 with one, so the shipping images each take half a tile more. The size fixture's 8x8 image with one interface, which the split SoC's export plans as the stand-in within 56, holds 130,960 B of `rom` (130,032 at the base) in 131,072 and 97,072 B of `sram` (96,928) in 98,304: 56.0, as before.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ 
+ Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+ One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+diff --git a/sw/firmware/ctrl/plat/README.md b/sw/firmware/ctrl/plat/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/plat/README.md
+index ec94ecc80d..4d1606e4f1 100644
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@ -156,11 +156,7 @@ Every 1x1 point is within 56 ([split control memory](../../../../docs/design/SPL
+ - `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick. With a pin-level Clause-22 PHY behind that bus (`phy_peer.hpp`), the PHY poll alone (`test_plat_phy.cpp`, P1 to P18: the probe, the pace, the latched loss, every resolved mode, the error paths, the frame, THE STEP's room, the owed report, the half period, the clock's wrap; and the advertisement: its writes at boot, each property by its own name from start values in opposite states as the release's host test grades them, a 10/100 PHY never written, written and read back after every loss with no restart where the PHY held it, a reset PHY, or one that lost register 4 or register 9 alone, restarted once, an advertisement that does not read back owed again and negotiation restarted after each repaired write, an unacknowledged read writing nothing, and P17, the abilities in force latched at each restart by the peer: register 4's writes dropped through a try, at boot and after a loss, a 100BASE-TX-only partner has no link once the repair reads back, the repair's own restart doing it; and THE OUTCOME, P18: a restart write the PHY lost, so the earlier 100 Mb/s negotiation stays in force, is published down and restarted once by the next poll, counted (saturating), one restart a poll until one takes, none while the negotiation is incomplete, none at 1000BASE-T, none on a PHY the advertisement is not for) and composed (`test_plat_boot.cpp`, B11, B12 and L1 to L6: armed past the identity check, THE STEP's client, and the published word's consumers, the datapath's link modelled as the RTL builds it: each edge counted, notified by AECP, and the gPTP plane's port enable rising with the first poll after the link's return; a loss and a return each published within one poll period through a save in flight, and a save durable within its stated worst case under a probe that always misses); GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
+ - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
+ - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-- `platsinks`: the receive monitor's formats (#946) and the streams beside them (#950, #954) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). Beside the contexts, at the same shapes: at input 0 and the CRF input, which have no context, a waiting SET_STREAM_FORMAT whose input is bound meanwhile refused STREAM_IS_RUNNING once acknowledged, and taken once unbound (S13, #950); the same at every STREAM_OUTPUT started meanwhile by a Listener Ready for its stream, and taken once it has stopped (S14); and GET_TX_STATE's REGISTERING_FAILED at every output while a Listener Asking Failed is registered for its stream, not for Ready or Ready Failed nor at another output, dropped once the registration goes (T1, #954). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 35 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if), the shipped core's waiting SET_STREAM_FORMAT done again without its running check and the shipped source port's REGISTERING_FAILED never reported among them.
+-=======
+-- `platsinks`: the receive monitor's formats (#946) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). The same suite holds SRP's Talkers kept before a binding (#969): every STREAM_INPUT's saved binding restored at power-on, its talker declaring before it is discovered and probed, then quiet, declares its Listener in THE TRANSMIT's next MRPDU once the probe is answered and shows GET_STREAM_INFO's REGISTERING and REGISTERING_FAILED (S13), and so does a bind while bound to a stream declared all along (S14). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 30 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if) and the SRP filter before #969 (S13 and S14 at both shapes) among them.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++- `platsinks`: the receive monitor's formats (#946) and the streams beside them (#950, #954) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). Beside the contexts, at the same shapes: at input 0 and the CRF input, which have no context, a waiting SET_STREAM_FORMAT whose input is bound meanwhile refused STREAM_IS_RUNNING once acknowledged, and taken once unbound (S13, #950); the same at every STREAM_OUTPUT started meanwhile by a Listener Ready for its stream, and taken once it has stopped (S14); and GET_TX_STATE's REGISTERING_FAILED at every output while a Listener Asking Failed is registered for its stream, not for Ready or Ready Failed nor at another output, dropped once the registration goes (T1, #954). The same suite holds SRP's Talkers kept before a binding (#969), in its Early fixture: every STREAM_INPUT's saved binding restored at power-on, its talker declaring before it is discovered and probed, then quiet, declares its Listener in THE TRANSMIT's next MRPDU once the probe is answered and shows GET_STREAM_INFO's REGISTERING and REGISTERING_FAILED (S13), and so does a bind while bound to a stream declared all along (S14). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 36 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if), the shipped core's waiting SET_STREAM_FORMAT done again without its running check, the shipped source port's REGISTERING_FAILED never reported and the SRP filter before #969 (Early's S13 and S14 at both shapes) among them.
+ 
+ The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 121 defects, each caught by a named test on its own words.
+ They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop. The PHY's 53 (the poll's 22, the link counters' notification, the bus map's 3 and the advertisement's 27) include the four #919 names, each reproducing a bench symptom: no poll, the latched loss not published, an edge not counted (a whole poll in one call, its loss and its recovery in the same turn), and the cease not ended on link-up (the second BMSR read dropped, so the link's return is published a poll late). They also include #840's named defect, 100BASE-TX left advertised, and one per write property and per rule: written once only, restarted after every loss, a PHY that lost register 4 or register 9 alone not restarted, a restart marked taken before the read-back verifies (the repair of a dropped write then never negotiated), not read back, written before its reads are answered; and THE OUTCOME's: unchecked, owing the advertisement without its restart, uncounted, its count wrapping, judging a link at 1000BASE-T or a PHY the advertisement is not for, and resolving from the BMSR read before a restart.
+@@ -176,10 +172,5 @@ The refusal of a link without the map, or with a map that lacks a header, is a c
+ ## Not yet done
+ 
+ - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ - **The 8x8 images' block RAM.** At 8x8 with two interfaces the image plans 63.0 RAMB36 in the composed flip train, with the control loop's tiers (#894), SRP's Talker declarations (#895), GET_AS_PATH's read through the face (#897), the PHY poll and its advertisement (#919, #840), the map edits' commit (#923), the StreamIDs #925 holds, its `sram` a 57th granule, and each AAF Stream Input's format written into its receive-monitor context (#946). That is past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip and past that decision's 60.5 cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4). Its entry is 63.0, refused at 63.5, by the owner's rule of 2026-11-15 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)): debt of 7.0 RAMB36 owed to lane S14 (decision D3), 28,672 B of cold code to move to flash. At 8x8 with one interface it plans 58.5, its own entry by the same rule with a waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed (#950, #954), refused at 59.0: ROM debt of 2.5 RAMB36, 10,240 B, owed to S14. With SRP's sliced build keeping what came due (#956) and the Listener registration's notice (#957) beside them it plans 58.0 within that entry, 139,240 B of `rom`. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+-=======
+-- **The 8x8 images' block RAM.** At 8x8 with two interfaces the image plans 63.0 RAMB36 in the composed flip train, with the control loop's tiers (#894), SRP's Talker declarations (#895), GET_AS_PATH's read through the face (#897), the PHY poll and its advertisement (#919, #840), the map edits' commit (#923), the StreamIDs #925 holds, its `sram` a 57th granule, each AAF Stream Input's format written into its receive-monitor context (#946), and 63.5 with the Talkers SRP keeps for StreamIDs no binding holds (#969), 408 B of `rom` past 63.0. That is past the 60.0 the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers for the flip and past that decision's 60.5 cap ([#895's ruling of 2026-11-14](https://github.com/kebag-logic/milan-fpga/issues/895#issuecomment-6876349305), item 4). Its entry is 63.5, refused at 64.0, by the owner's rule of 2026-11-15 ([#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)): debt of 7.5 RAMB36 owed to lane S14 (decision D3), 30,720 B of cold code to move to flash. At 8x8 with one interface it plans 58.5 with #969's kept Talkers, 872 B of `rom` past 58.0, its own entry by the same rule, refused at 59.0: ROM debt of 2.5 RAMB36, 10,240 B, owed to S14. At 1x1 with one interface, the shipping image, it plans 45.5 with them, 400 B of `rom` past 45.0, within 56. [`plat_ledger.py`](../../../../tb/verilator/ctrl_split_boot/plat_ledger.py) links the image at every point against the ledger ([SPLIT_CONTROL_MEMORY.md section 5](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+-- **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ - **The datapath faces.** At this base the `--ctrl-mailbox` build holds the face acknowledgement idle, so AECP does not open on it; the placement switch (S6) connects it.
+diff --git a/sw/firmware/ctrl/test/sink_mutants.py b/sw/firmware/ctrl/test/sink_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/sink_mutants.py
+index 3e6ac24848..72520beaf3 100644
+--- a/sw/firmware/ctrl/test/sink_mutants.py
++++ b/sw/firmware/ctrl/test/sink_mutants.py
+@@ -22,16 +22,14 @@ back); the AECP refusal the race argument rests on, a bound input accepting SET_
+ state's format restore reading the verdict's survival bit against the map store's reset set, which loses a
+ narrowed input at every boot where that set maps its channels (REQUIREMENTS.md, the persisted inventory).
+ 
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ The streams beside the contexts (Streams): a waiting SET_STREAM_FORMAT done again without its running check, the
+ shipped core's (#950), at input 0, the CRF input and every STREAM_OUTPUT at both shapes, or its check made of
+ stream 0; and GET_TX_STATE's REGISTERING_FAILED from the platform's source port never reported, the shipped
+ platform's (#954), reported for any Listener, with none, or from output 0's Listener.
+-=======
+-The suite's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
++
++The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
+ holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a bind
+ while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ """
+ from __future__ import annotations
+ 
+@@ -51,7 +49,6 @@ S9 = "Sinks.S9AChangeWhoseInputIsUnboundAgainIsDoneAgainBeforeARebind"
+ S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
+ S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
+ S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ S13 = "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile"
+ S14 = "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile"
+ T1 = "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered"
+@@ -67,16 +64,15 @@ AGAIN_CHECK = "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;"
+ ASKING = "\tout->asking_failed = srp->listener_present[n] && !srp->registered[n];\n"
+ T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or "
+             "Ready Failed (Table 5.47): output ")
+-=======
+-S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+-S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
++#: #969's two tests (Early), named apart from the Streams fixture's S13 and S14 above, whose numbers they share.
++EARLY_S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
++EARLY_S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+ #: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
+ KEEPS = "    return keep_talker(i,type,value);\n"
+ POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
+             "TRANSMIT's next MRPDU, input 0")
+ REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
+            "MRPDU, input 0")
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
+ VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
+ C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
+@@ -201,8 +197,9 @@ def contexts(mutant: type) -> tuple:
+           "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
+         # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
+         m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
+-          S13, POWER_ON,
+-          also=(("platsinks1", S13, POWER_ON), ("platsinks8", S14, REBOUND), ("platsinks1", S14, REBOUND))),
++          EARLY_S13, POWER_ON,
++          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14, REBOUND),
++                ("platsinks1", EARLY_S14, REBOUND))),
+     )
+ 
+ 
+diff --git a/sw/firmware/ctrl/test/test_plat_sinks.cpp b/sw/firmware/ctrl/test/test_plat_sinks.cpp
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_plat_sinks.cpp
+index 382106ffe6..fc2724b434 100644
+--- a/sw/firmware/ctrl/test/test_plat_sinks.cpp
++++ b/sw/firmware/ctrl/test/test_plat_sinks.cpp
+@@ -56,7 +56,6 @@
+ //       persisted inventory; Milan v1.2 5.3.8.1, 5.3.13). At 1x1/1if that set
+ //       maps input 0's channels; at 8x8/1if it maps none. The far model keeps
+ //       the store and judges the verdict from it, as the datapath does
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ //
+ // The streams beside the contexts (Streams), at the same shapes:
+ //   S13 at input 0 and at the CRF input, which have no context, a
+@@ -71,7 +70,8 @@
+ //       Listener Asking Failed is registered for its stream on its interface,
+ //       not for Ready or Ready Failed nor at another output, and drops it once
+ //       the registration goes (#954; Milan v1.2 Table 5.47)
+-=======
++//
++// A Talker registered before its input's binding settles (Early), at the same shapes:
+ //   S13 every STREAM_INPUT's saved binding is restored at power-on; its
+ //       talker declares the stream's Talker Advertise (or Failed) before it
+ //       is discovered and probed, and is then quiet; once the probe is
+@@ -81,7 +81,6 @@
+ //       5.5.3.5.18 step 4, Tables 5.9, 5.10)
+ //   S14 as S13 after BIND_RX while bound: each input is re-bound to another
+ //       stream, whose Talker has been declared all along
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ 
+ #include <gtest/gtest.h>
+ 
+@@ -1087,7 +1086,6 @@ TEST_F(Sinks, S12ANarrowedInputFormatIsKeptAcrossAPowerCut) {
+     EXPECT_TRUE(input_rows(0).empty()) << "S12 the mappings removed before the cut stay removed";
+ }
+ 
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ // The platform's streams beside the contexts: every STREAM_INPUT with no context of its own and every STREAM_OUTPUT
+ // (#950), and each output's Talker as ACMP reports it (#954).
+ struct Streams : Sinks {
+@@ -1334,7 +1332,6 @@ TEST_F(Streams, T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIs
+     }
+ }
+ 
+-=======
+ // ---- #969: a Talker registered before its input's binding settles -------------------------------------------------
+ // The talker's MSRP Talker Advertise (Failed: failure code 1) of stream v, JoinIn, to interface 0 (IEEE 802.1Q-2018
+ // 35.2.2.8, 10.8): StreamID kSid + v, destination kDa + v, VID 2, as answer_probe's PROBE_TX_RESPONSE carries them.
+@@ -1586,5 +1583,4 @@ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTran
+     answer_every_probe(all, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
+ }
+ 
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ }  // namespace
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index b5f843ab75..dae3e21ff8 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -255,16 +255,10 @@ class Ledgered:
+ #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
+ #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
+ #: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ #: 59.0, its entry at 58.5 by the same rule with a waiting SET_STREAM_FORMAT's check made again and the source port's
+-#: Asking Failed (#950, #954): 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the composed train
+-#: before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned on it (#665).
+-#: The platform's image is linked at
+-=======
+-#: 59.0, its entry at 58.5 by the same rule with the Talkers SRP keeps (#969): 56.5 with #895's declarations and the
+-#: PHY poll (#919), 57.0 on the composed train before the commit, 57.5 with it, 58.0 with the largest legal record's
+-#: cut and the hot list relearned on it (#665). The platform's image is linked at
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++#: Asking Failed (#950, #954), and by the same rule with the Talkers SRP keeps (#969): 56.5 with #895's declarations
++#: and the PHY poll (#919), 57.0 on the composed train before the commit, 57.5 with it, 58.0 with the largest legal
++#: record's cut and the hot list relearned on it (#665). The platform's image is linked at
+ #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
+ #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
+ LEDGERED: dict[str, Ledgered] = {
+@@ -305,11 +299,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                          "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
+                                          "5.5 RAMB36 owed to S14"),
+     "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_568)), 64.0,
+-=======
+-                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_824)), 63.5,
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_824)), 64.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                             "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                             "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+@@ -348,22 +338,16 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "context (#946) on that train, 140,008 B of rom and 115,504 B of sram, "
+                                             "744 B past the 139,264 B of rom 62.5 holds beside them, ctrl_plat "
+                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-                                            "S14; and 64.0 with each 8x8 STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), "
++                                            "S14; 64.0 with each 8x8 STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), "
+                                             "142,120 B of rom and 117,312 B of sram against 140,784 B and "
+                                             "115,504 B at its base, ctrl_plat unchanged, by the same rule: debt of "
+-                                            "8.0 RAMB36 owed to S14"),
+-    "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 18_944)), 59.0,
+-=======
+-                                            "S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
+-                                            "holds (#969) on that train, 141,720 B of rom, 408 B past the "
++                                            "8.0 RAMB36 owed to S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
++                                            "holds (#969) on the flip train, 141,720 B of rom, 408 B past the "
+                                             "141,312 B of rom 63.0 holds beside 115,760 B of sram, ctrl_plat at "
+                                             "its measured 21,824 B, by the same rule: debt of 7.5 RAMB36 owed to "
+                                             "S14"),
+     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 19_072)), 58.5,
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_072)), 59.0,
+                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+@@ -382,7 +366,6 @@ LEDGERED: dict[str, Ledgered] = {
+                                            "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
+                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
+                                            "with each AAF Stream Input's current format written (#946), "
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+                                            "138,432 B of rom, ctrl_plat unchanged; 58.5 with a waiting "
+                                            "SET_STREAM_FORMAT's running check made again (#950) and ACMP's "
+                                            "source port's Listener Asking Failed (#954), 139,304 B of rom, 40 B "
+@@ -391,14 +374,11 @@ LEDGERED: dict[str, Ledgered] = {
+                                            "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), 140,544 B of rom and 99,904 B "
+                                            "of sram against 139,208 B and 98,160 B at its base, the stage 14,250 B, "
+                                            "ctrl_plat unchanged, by the same rule: ROM debt of 3.0 RAMB36 owed to "
++                                           "S14; and 58.5 with the Talkers SRP keeps for StreamIDs no binding "
++                                           "holds (#969) on the flip train, 140,136 B of rom, 872 B past the "
++                                           "139,264 B 58.0 holds, and 98,288 B of sram, ctrl_plat at its "
++                                           "measured 19,072 B, by the same rule: ROM debt of 2.5 RAMB36 owed to "
+                                            "S14"),
+-=======
+-                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with the Talkers SRP "
+-                                           "keeps for StreamIDs no binding holds (#969) on that train, 140,136 B "
+-                                           "of rom, 872 B past the 139,264 B 58.0 holds, and 98,288 B of sram, "
+-                                           "ctrl_plat at its measured 19,072 B, by the same rule: ROM debt of "
+-                                           "2.5 RAMB36 owed to S14"),
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ }
+ 
+ 
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index 40778e56ee..1a7a0f3dcd 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -13,19 +13,12 @@ interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read com
+ #665) and the target platform's at 63.5 (60.5, the
+ owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
+ poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, 62.5 with the
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-StreamIDs held with their latest Talker kind, #925, and 63.0 with each AAF Stream Input's format written into its
+-receive-monitor context, #946), and the
+-target platform's 8x8 image with one interface, a product image, at 58.5 (56.5 with the PHY poll, 57.0 on the composed
+-train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with a
+-waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954); each is refused
+-=======
+ StreamIDs held with their latest Talker kind, #925, 63.0 with each AAF Stream Input's format written into its
+ receive-monitor context, #946, and 63.5 with the Talkers SRP keeps for StreamIDs no binding holds, #969), and the
+ target platform's 8x8 image with one interface, a product image, at 58.5 (56.5 with the PHY poll, 57.0 on the composed
+-train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with the
++train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with a
++waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954, and 58.5 with the
+ Talkers SRP keeps, #969); each is refused
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ half a tile past. A measurement names its point, and the product SoC build plans an image at the point whose symbols it
+ carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps it for the composed train). A `Case` here is what
+ the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+@@ -70,7 +63,6 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+ OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 61.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 64.0),
+        PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 59.0), FIXTURE1: Case(STAGE_8X8, 1, None, 57.0)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+@@ -78,14 +70,6 @@ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 1
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 64.0),
+         PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 59.0),
+         FIXTURE1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8)), 57.0)}
+-=======
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 60.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 63.5),
+-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 58.5)}
+-#: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 60.5),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 63.5),
+-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 58.5)}
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+@@ -96,7 +80,6 @@ REFUSED = (
+     ("the size fixture's 8x8 one-interface image at 61.5", FIXTURE, Case(STAGE_8X8, 1, None, 61.5)),
+     ("an 8x8 image with no image_allocation at 61.5", FIXTURE, Case(STAGE_8X8, None, None, 61.5)),
+     ("the size fixture's 1x1 one-interface image within the budget", FIXTURE, Case(STAGE_1X1, 1, None, 56.0)),
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+     ("the platform's 8x8 two-interface image at 61.5", FIXTURE, OWN[PLATFORM]._replace(tiles=61.5)),
+     ("its own image at 64.5 RAMB36, half a tile past its 64.0", PLATFORM, OWN[PLATFORM]._replace(tiles=64.5)),
+     ("the platform's 1x1 one-interface image at 64.0", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 64.0)),
+@@ -121,27 +104,6 @@ REFUSED = (
+     ("an 8x8 image with no image_allocation at 57.0", FIXTURE1, Case(STAGE_8X8, None, None, 57.0)),
+     ("the platform's 8x8 one-interface image at 57.0", FIXTURE1, OWN[PRODUCT]._replace(tiles=57.0)),
+     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "1x1-one-interface",
+-=======
+-    ("the platform's 8x8 two-interface image at 60.5", FIXTURE, OWN[PLATFORM]._replace(tiles=60.5)),
+-    ("its own image at 64.0 RAMB36, half a tile past its 63.5", PLATFORM, OWN[PLATFORM]._replace(tiles=64.0)),
+-    ("the platform's 1x1 one-interface image at 63.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 63.5)),
+-    ("the platform's 1x1 two-interface image at 63.5", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_2, 63.5)),
+-    ("the platform's 8x8 one-interface image at 63.5", PLATFORM, Case(STAGE_8X8, None, PLAT_8X8_1, 63.5)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 63.5", PLATFORM,
+-     Case(STAGE_1X1, None, PLAT_8X8_2, 63.5)),
+-    ("an 8x8 image with no ctrl_plat at 63.5", PLATFORM, Case(STAGE_8X8, None, None, 63.5)),
+-    ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
+-    ("the size fixture's 8x8 two-interface image at 63.5", PLATFORM, OWN[FIXTURE]._replace(tiles=63.5)),
+-    ("its own image at 59.0 RAMB36, half a tile past its 58.5", PRODUCT, OWN[PRODUCT]._replace(tiles=59.0)),
+-    ("the platform's 1x1 one-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 58.5)),
+-    ("the platform's 1x1 two-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 58.5)),
+-    ("the platform's 8x8 two-interface image at 58.5", PRODUCT, OWN[PLATFORM]._replace(tiles=58.5)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 58.5", PRODUCT,
+-     Case(STAGE_1X1, None, PLAT_8X8_1, 58.5)),
+-    ("an 8x8 image with no ctrl_plat at 58.5", PRODUCT, Case(STAGE_8X8, None, None, 58.5)),
+-    ("the size fixture's 8x8 one-interface image at 58.5", PRODUCT, Case(STAGE_8X8, 1, None, 58.5)),
+-    ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+      OWN[FIXTURE]),
+     ("the image of the point it names, a name the ledger does not hold", "1x1-one-interface",
+      Case(STAGE_1X1, 1, None, 56.5)),
+@@ -214,7 +176,6 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
+              ("the platform's entry without ctrl_plat", PLATFORM, {"symbols": (stage,)}),
+              ("the platform's entry at the 8x8 one-interface ctrl_plat", PLATFORM,
+               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_1))}),
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+              ("the platform's entry at 64.5 RAMB36", PLATFORM, {"tiles": 64.5}),
+              ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
+              ("the size fixture's entry at the platform's 64.0", FIXTURE, {"tiles": 64.0}),
+@@ -226,15 +187,6 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
+              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
+               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
+              ("the product entry at 59.5 RAMB36", PRODUCT, {"tiles": 59.5}),
+-=======
+-             ("the platform's entry at 64.0 RAMB36", PLATFORM, {"tiles": 64.0}),
+-             ("the size fixture's entry without image_allocation", FIXTURE, {"symbols": (stage,)}),
+-             ("the size fixture's entry at the platform's 63.5", FIXTURE, {"tiles": 63.5}),
+-             ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
+-             ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
+-              {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
+-             ("the product entry at 59.0 RAMB36", PRODUCT, {"tiles": 59.0}),
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+              ("the product entry at the two-interface ctrl_plat", PRODUCT,
+               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
+     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+index bfcbe72927..8029e2b0e7 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -15,11 +15,7 @@ block RAM the SoC builds from them. This file grades nine things:
+      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
+      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
+      (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+      interfaces and the platform's 8x8 image with one) plans its 60.5, 63.0 or 58.5 by name, and through
+-=======
+-     interfaces and the platform's 8x8 image with one) plans its 60.5, 63.5 or 58.5 by name, and through
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
+      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
+      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
+@@ -228,13 +224,8 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
+ 
+ def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
+     """A ledger case written: the good image with six tiles of .text more and of .bss less, still 56 RAMB36,
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+     then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 64.5, half a tile past
+     the platform's 64.0 (#584; five tiles reached 63.5, past which .bss would run out of sram)."""
+-=======
+-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 64.0, half a tile past
+-    the platform's 63.5 (five tiles reached 63.5 alone, past which .bss would run out of sram)."""
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+     return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
+                                   text=GOOD.text + 12 * GRANULE,
+                                   bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 12) * GRANULE))
+@@ -347,15 +338,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     point and image, an unknown name) are refusal_arms rows under `budget`.
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's 8x8 images at "
+                                           f"57.0 and 61.5 and the platform's at 59.0 and 64.0, with one and two "
+                                           f"interfaces ({held})")
+-=======
+-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.5 and the "
+-                                          f"platform's 8x8 image with one at 58.5 ({held})")
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
+diff --git a/tb/verilator/ctrl_split_boot/README.md b/tb/verilator/ctrl_split_boot/README.md
+remerge CONFLICT (content): Merge conflict in tb/verilator/ctrl_split_boot/README.md
+index 5e639273d7..be8ee259a3 100644
+--- a/tb/verilator/ctrl_split_boot/README.md
++++ b/tb/verilator/ctrl_split_boot/README.md
+@@ -130,11 +130,7 @@ The prior measurements at `a68536fa`, on the stand-in flash addresses with the s
+ Both boots at this head are within the 20 s ADP valid time.
+ Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
+ A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
+-<<<<<<< 8fac1fd239 (Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries)
+-The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, and each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with a waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed (#950, #954), 58.0 with the largest legal record's cut and the hot list relearned on it, and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+-=======
+-The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0, and the Talkers SRP keeps for StreamIDs no binding holds (#969) to 63.5. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with #969's kept Talkers, 58.0 with the largest legal record's cut and the hot list relearned on it and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+->>>>>>> c113018d3c (Split kept_grade's self-test into its held and file cases, each function within the idiom gate's length (#969))
++The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0, and the Talkers SRP keeps for StreamIDs no binding holds (#969) to 63.5. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with a waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed (#950, #954), and 58.5 with #969's kept Talkers, 58.0 with the largest legal record's cut and the hot list relearned on it, and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+ At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
+ 
+ The smoke grader's verdicts on the simulated UART:

@@ -1,0 +1,171 @@
+=== 8fac1fd23969669d39faa0ba1186098e058caad2 ee58b4999a627c19168f3ae5daea4d7c368fa7b2 3cda030c174b325e36c26af6420487ff91346d15
+Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries
+
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+remerge CONFLICT (content): Merge conflict in docs/design/SPLIT_CONTROL_MEMORY.md
+index 61984369df..2bc99ece0a 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -134,16 +134,10 @@ Two are 8x8 with two interfaces; the third, the target platform's 8x8 image with
+ 
+ | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+ |---|---|---|---:|
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
+-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,568 B | 63.0 |
+-| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 18,944 B | 58.5 |
+-=======
+ | `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 57.0 |
+ | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.5 |
+ | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,568 B | 64.0 |
+ | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 18,944 B | 59.0 |
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+ 
+ The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+ The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/aecp_mutants.py
+index ef88fccea1..b7a3ef456c 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -888,14 +888,10 @@ DEFECTS = (
+     + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+     + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
+-    + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
+-=======
+     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
+     + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+ 
+ 
+ def caught(test: str, words: str, result: Outcome) -> bool:
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory.py
+index 68ff6510e7..abd8edfdb7 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -342,11 +342,7 @@ LEDGERED: dict[str, Ledgered] = {
+                                             "115,504 B at its base, ctrl_plat unchanged, by the same rule: debt of "
+                                             "8.0 RAMB36 owed to S14"),
+     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.5,
+-=======
+                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 18_944)), 59.0,
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+@@ -365,19 +361,15 @@ LEDGERED: dict[str, Ledgered] = {
+                                            "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
+                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
+                                            "with each AAF Stream Input's current format written (#946), "
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+                                            "138,432 B of rom, ctrl_plat unchanged; 58.5 with a waiting "
+                                            "SET_STREAM_FORMAT's running check made again (#950) and ACMP's "
+                                            "source port's Listener Asking Failed (#954), 139,304 B of rom, 40 B "
+                                            "past the 139,264 B 58.0 holds, ctrl_plat unchanged, by the same rule: "
+-                                           "ROM debt of 2.5 RAMB36 owed to S14"),
+-=======
+-                                           "138,432 B of rom, ctrl_plat unchanged; 59.0 with each 8x8 "
++                                           "ROM debt of 2.5 RAMB36 owed to S14; 59.0 with each 8x8 "
+                                            "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), 140,544 B of rom and 99,904 B "
+                                            "of sram against 139,208 B and 98,160 B at its base, the stage 14,250 B, "
+                                            "ctrl_plat unchanged, by the same rule: ROM debt of 3.0 RAMB36 owed to "
+                                            "S14"),
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+ }
+ 
+ 
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+remerge CONFLICT (content): Merge conflict in sw/litex/ctrl_memory_ledger.py
+index 5a8082a47d..82eed55f11 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -62,14 +62,6 @@ class Case(NamedTuple):
+ 
+ 
+ #: Each ledgered point's own image, at its ledgered tiles.
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 60.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 63.0),
+-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 58.5)}
+-#: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+-HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 60.5),
+-        PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 63.0),
+-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 58.5)}
+-=======
+ OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 61.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 64.0),
+        PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 59.0), FIXTURE1: Case(STAGE_8X8, 1, None, 57.0)}
+ #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
+@@ -77,7 +69,6 @@ HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 1
+         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 64.0),
+         PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 59.0),
+         FIXTURE1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8)), 57.0)}
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+ #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
+ #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
+ #: symbols, and names the ledger does not hold.
+@@ -97,18 +88,6 @@ REFUSED = (
+      Case(STAGE_1X1, None, PLAT_8X8_2, 64.0)),
+     ("an 8x8 image with no ctrl_plat at 64.0", PLATFORM, Case(STAGE_8X8, None, None, 64.0)),
+     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-    ("the size fixture's 8x8 two-interface image at 63.0", PLATFORM, OWN[FIXTURE]._replace(tiles=63.0)),
+-    ("its own image at 59.0 RAMB36, half a tile past its 58.5", PRODUCT, OWN[PRODUCT]._replace(tiles=59.0)),
+-    ("the platform's 1x1 one-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 58.5)),
+-    ("the platform's 1x1 two-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 58.5)),
+-    ("the platform's 8x8 two-interface image at 58.5", PRODUCT, OWN[PLATFORM]._replace(tiles=58.5)),
+-    ("an image with the point's ctrl_plat and the 1x1 stage at 58.5", PRODUCT,
+-     Case(STAGE_1X1, None, PLAT_8X8_1, 58.5)),
+-    ("an 8x8 image with no ctrl_plat at 58.5", PRODUCT, Case(STAGE_8X8, None, None, 58.5)),
+-    ("the size fixture's 8x8 one-interface image at 58.5", PRODUCT, Case(STAGE_8X8, 1, None, 58.5)),
+-    ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
+-=======
+     ("the size fixture's 8x8 two-interface image at 64.0", PLATFORM, OWN[FIXTURE]._replace(tiles=64.0)),
+     ("its own image at 59.5 RAMB36, half a tile past its 59.0", PRODUCT, OWN[PRODUCT]._replace(tiles=59.5)),
+     ("the platform's 1x1 one-interface image at 59.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 59.0)),
+@@ -124,7 +103,6 @@ REFUSED = (
+     ("an 8x8 image with no image_allocation at 57.0", FIXTURE1, Case(STAGE_8X8, None, None, 57.0)),
+     ("the platform's 8x8 one-interface image at 57.0", FIXTURE1, OWN[PRODUCT]._replace(tiles=57.0)),
+     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "1x1-one-interface",
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+      OWN[FIXTURE]),
+     ("the image of the point it names, a name the ledger does not hold", "1x1-one-interface",
+      Case(STAGE_1X1, 1, None, 56.5)),
+@@ -207,11 +185,7 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
+              ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
+              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
+               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-             ("the product entry at 59.0 RAMB36", PRODUCT, {"tiles": 59.0}),
+-=======
+              ("the product entry at 59.5 RAMB36", PRODUCT, {"tiles": 59.5}),
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+              ("the product entry at the two-interface ctrl_plat", PRODUCT,
+               {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
+     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+remerge CONFLICT (content): Merge conflict in sw/litex/test_ctrl_memory.py
+index c6bb06d41b..8029e2b0e7 100644
+--- a/sw/litex/test_ctrl_memory.py
++++ b/sw/litex/test_ctrl_memory.py
+@@ -338,15 +338,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
+     point and image, an unknown name) are refusal_arms rows under `budget`.
+     """
+     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+-<<<<<<< ee58b4999a (Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train)
+-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
+-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0 and the "
+-                                          f"platform's 8x8 image with one at 58.5 ({held})")
+-=======
+     check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's 8x8 images at "
+                                           f"57.0 and 61.5 and the platform's at 59.0 and 64.0, with one and two "
+                                           f"interfaces ({held})")
+->>>>>>> 3cda030c17 (State the owner's approval of the 8x8 input-port backing)
+     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
+         check(problems, holds, what)
+     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):
