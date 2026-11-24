@@ -95,7 +95,6 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 from pathlib import Path
 
@@ -124,6 +123,7 @@ LEGS = {
 }
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: at most two mutant elaborations at once, whatever --jobs says: a build is
 #: the larger share of a mutant's memory and of its CPU
@@ -637,7 +637,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, on_sigterm)
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="dynmap-mutants-") as td:
+    with mutant_stage.directory("dynmap-mutants-") as td:
         work = Path(td)
         for leg in dict.fromkeys(m[0] for m in mutations):
             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]

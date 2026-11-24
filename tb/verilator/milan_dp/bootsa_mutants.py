@@ -42,7 +42,6 @@ import re
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -50,6 +49,7 @@ RTL = {"DP_SRC": HERE / "../../../hdl/milan/milan_datapath.sv"}
 EXE = "Vmilan_dp_bootsa"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the transmit gate: both halves of the pair
 PAIR = "  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;"
@@ -217,7 +217,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, on_sigterm)
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="bootsa-mutants-") as td:
+    with mutant_stage.directory("bootsa-mutants-") as td:
         work = Path(td)
         clean = HERE / "obj_bootsa" / EXE
         exe = clean if clean.is_file() else build({}, work / "obj_clean")

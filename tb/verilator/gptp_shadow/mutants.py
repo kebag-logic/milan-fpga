@@ -34,7 +34,6 @@ KILL can leave private scratch/children, but cannot modify caller source.
 import argparse
 import re
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -42,6 +41,7 @@ REPO = HERE.parent.parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
 from owned_process import Cancelled, OwnedProcesses  # noqa: E402
 from private_inputs import InputRefused, copy_inputs  # noqa: E402
+import mutant_stage  # noqa: E402
 
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 RET = PLANE / "KL_gptp_txret.sv"
@@ -252,7 +252,7 @@ def main() -> int:
 
     try:
         with OwnedProcesses() as owner:
-            with tempfile.TemporaryDirectory(prefix="gptp-shadow-mutants-") as scratch:
+            with mutant_stage.directory("gptp-shadow-mutants-") as scratch:
                 private = Path(scratch)
                 targets = {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}
                 copy_inputs(REPO, HERE, private, owner, targets)

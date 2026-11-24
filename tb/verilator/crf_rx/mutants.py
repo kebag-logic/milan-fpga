@@ -21,10 +21,12 @@ is rebuilt from this invocation's source. The harness has bounded loops.
 import os
 import signal
 import subprocess
-import tempfile
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE / "../../../hdl/ieee1722/crf/KL_crf_rx.sv"
 SERVO = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
 MUTANTS = (
@@ -185,7 +187,7 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, interrupted)
     source = RTL.read_text()
-    with tempfile.TemporaryDirectory(prefix="crf-step-mutants-") as directory:
+    with mutant_stage.directory("crf-step-mutants-") as directory:
         work = Path(directory)
         if not run_case(work, "clean", source, None):
             return 1

@@ -18,12 +18,13 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import srptx_grade as g
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 ROOT = HERE.parents[2]
 MRP = ROOT / "third_party/lwSRP/src/core/mrp_mad.c"
 ADAPTER = ROOT / "sw/firmware/ctrl/srp/srp_mbx.c"
@@ -126,7 +127,7 @@ def main() -> int:
     if not arms:
         print(f"no arm named {args.only!r}")
         return 2
-    work = Path(tempfile.mkdtemp(prefix="srptx-mutants-", dir=HERE))
+    work = Path(mutant_stage.mkdtemp("srptx-mutants-", parent=HERE))
     bad = 0
     try:
         ok, out = build(work / "clean", None, None)

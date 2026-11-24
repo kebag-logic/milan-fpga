@@ -32,10 +32,11 @@ nothing lands in the tree.
 import re
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 FILTER = HERE / "../../../hdl/ieee8021q/filtering/rx_mac_filter.sv"
 TCAM = HERE / "../../../hdl/ieee8021q/filtering/tcam.sv"
 HARNESS = HERE / "sim_main.cpp"
@@ -83,7 +84,7 @@ def run_arm(recipe: list[str], path: Path, old: str, new: str,
     if sources[path].count(old) != 1:
         return False, "the anchor text was not found exactly once"
     sources[path] = sources[path].replace(old, new)
-    with tempfile.TemporaryDirectory(prefix="rx-filter-binding-") as tmp:
+    with mutant_stage.directory("rx-filter-binding-") as tmp:
         work = Path(tmp)
         for src, text in sources.items():
             (work / src.name).write_text(text)

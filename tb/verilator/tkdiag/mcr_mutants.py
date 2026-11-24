@@ -35,7 +35,6 @@ Exit 0 = every mutant was caught and the clean harness still passes.
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -48,6 +47,7 @@ CLEAN_INPUTS = [MCR_RTL, HERE / "../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.s
 EXE_NAME = "Vtkdiag_sim"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the one line the merge lives on
 MERGE_LINE = "      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;"
@@ -171,7 +171,7 @@ def main() -> int:
     src = MCR_RTL.read_text()
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="mcr-mutants-") as td:
+    with mutant_stage.directory("mcr-mutants-") as td:
         work = Path(td)
         clean = CLEAN_MDIR / EXE_NAME
         exe = clean

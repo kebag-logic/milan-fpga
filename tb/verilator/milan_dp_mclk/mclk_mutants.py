@@ -41,7 +41,6 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -52,6 +51,7 @@ CLEAN_EXE = HERE / "obj_mclk/Vmilan_dp_mclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 from ci_case_receipts import Receipt, partition  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the three files the schemata plant into: (path, the Makefile override)
 SOURCES = {
@@ -298,7 +298,7 @@ def main() -> int:
     if not CLEAN_EXE.is_file():
         print(f"[FAIL] the clean leg {CLEAN_EXE.name} is not built (make mclk-build)")
         return 1
-    with tempfile.TemporaryDirectory(prefix="mclk-mutants-") as td:
+    with mutant_stage.directory("mclk-mutants-") as td:
         work = Path(td)
         copies = plant(work)
         if isinstance(copies, str):

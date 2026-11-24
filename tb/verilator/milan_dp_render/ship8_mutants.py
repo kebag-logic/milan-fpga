@@ -36,7 +36,6 @@ Exit 0 = the clean leg passed and every plant was caught.
 import argparse
 import subprocess
 import sys
-import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -45,6 +44,7 @@ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
 SHAPE_SVH = HERE / "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the source a plant edits, and the recipe variable that selects its copy
 RENDER_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv"
@@ -210,7 +210,7 @@ def main() -> int:
     control = verdict(clean, ())
     lines.append("[PASS] the unplanted leg passes" if control == "pass"
                  else f"[FAIL] the unplanted leg does not pass ({control}): no plant below is evidence")
-    with tempfile.TemporaryDirectory(prefix="ship8-mutants-") as td:
+    with mutant_stage.directory("ship8-mutants-") as td:
         work = Path(td)
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
             jobs = [pool.submit(run_plant, work, *p) for p in PLANTS]

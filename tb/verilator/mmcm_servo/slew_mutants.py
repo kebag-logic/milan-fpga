@@ -10,10 +10,12 @@ Run explicitly with make slew-mutants; the default retains every clean case.
 import os
 import signal
 import subprocess
-import tempfile
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+import mutant_stage  # noqa: E402
 RTL = HERE / "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv"
 MUTANTS = (
     ("discard_removed", "&& !slew_window_w", "&& 1'b1",
@@ -87,7 +89,7 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, interrupted)
     source = RTL.read_text()
-    with tempfile.TemporaryDirectory(prefix="servo-slew-mutants-") as directory:
+    with mutant_stage.directory("servo-slew-mutants-") as directory:
         work = Path(directory)
         if not run_case(work, "clean", source, None):
             return 1

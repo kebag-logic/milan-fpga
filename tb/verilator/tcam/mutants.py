@@ -36,13 +36,13 @@ import os
 import signal
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee8021q/filtering/tcam.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: The harness runs in well under a second; a mutant still running after this
 #: many seconds is livelocked (a loop that no longer advances), not slow.
@@ -139,7 +139,7 @@ def main() -> int:
     #: SIGTERM handler turns the sweep's `timeout` kill into one, so a killed
     #: run leaves no tcam-mutants-* directory behind either.
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
-    with tempfile.TemporaryDirectory(prefix="tcam-mutants-") as td:
+    with mutant_stage.directory("tcam-mutants-") as td:
         work = Path(td)
 
         # -- positive control: the real RTL must still pass -------------------

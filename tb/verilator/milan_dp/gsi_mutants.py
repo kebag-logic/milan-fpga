@@ -97,6 +97,7 @@ CLEAN_MDIR = HERE / "obj_notify"
 EXE_NAME = "Vmilan_dp_notify"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+import mutant_stage  # noqa: E402
 
 #: the processor's STREAM_INPUT answer arms, verbatim at the pin
 PP_SEL4 = "        4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};"
@@ -398,7 +399,7 @@ def main() -> int:
     signal.signal(signal.SIGTERM, on_sigterm)
     passes = 0
     fails = 0
-    with tempfile.TemporaryDirectory(prefix="gsi-mutants-") as td:
+    with mutant_stage.directory("gsi-mutants-") as td:
         work = Path(td)
         clean = CLEAN_MDIR / EXE_NAME
         exe = clean if clean.is_file() else build(DP_RTL, PP_HDL, work / "obj_clean")
