@@ -1,0 +1,57 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: source-binding.json
+Original SHA256: 8ab4098fd15fcba2b5f755f5710ab2e2678664920425151fbd1b4c54b1fdafed
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+  "prior_reviewed_head": "dc78aedae34c25a97125ecd6816a1f645db5575f",
+  "commits": [
+    "9acb9b828b29aba71bd51303a4836f86c2278267 Print the leaf loopback tally in a shape the sweep counts",
+    "be69935f624171a2f4c172fd864ecc749c91c985 State both cold timings behind the loopback suite figures",
+    "128909ef8b1396cf572777cbd14121b4efc08369 Add loopback page contents and regenerate the documentation inventories",
+    "1f3e7eb0e0ccf06648461abe41e14bb0abdc6836 Bring the loopback tests within the idiom and host-deadline gates",
+    "68ff356fccc0be4b7f9063d7d926ca425ddef857 Annotate the loopback test scripts and wrap their long lines",
+    "fbcaba2fb9ac01a3a3c613ab5aa186bd72a8f860 Register the loopback suites and parent campaign in the test inventories",
+    "7d19336f61cec0edde5b6aca32a83932d312f039 Grade every loopback output stream's delivery in the parent test"
+  ],
+  "changed_files": [
+    "docs/DOCUMENTATION_AUDIT.md",
+    "docs/design/INPUT_MAPPED_LOOPBACK.md",
+    "docs/testing/TESTING.md",
+    "docs/traceability/MODULE_MATRIX.md",
+    "hdl/ieee1722/aaf/README-parameters.md",
+    "hdl/ieee1722/aaf/README-tests.md",
+    "hdl/ieee1722/avtp/README-tests.md",
+    "scripts/measure_test_evidence_readers.py",
+    "scripts/suite_shards.py",
+    "tb/verilator/input_loopback/README.md",
+    "tb/verilator/input_loopback/bounds.py",
+    "tb/verilator/input_loopback/mutants.py",
+    "tb/verilator/input_loopback/sim_main.cpp",
+    "tb/verilator/input_loopback_dp/README.md",
+    "tb/verilator/input_loopback_dp/mutants.py",
+    "tb/verilator/input_loopback_dp/run.py",
+    "tb/verilator/input_loopback_dp/sim_main.cpp",
+    "tb/verilator/render_queue/mutants.py"
+  ],
+  "trees_at_head": {
+    "hdl": "aefab0802b86433564fce98219f03a9fb7c9bb53",
+    "sw": "374e7a0cda1737a4c346052d405405cbc80a6372",
+    "configs": "645784f4fa209c130642a2955bae930b97b82957"
+  },
+  "trees_at_prior_head": {
+    "hdl": "115838d17a389527009dcf2fd6fde4d66d8d9de6",
+    "sw": "374e7a0cda1737a4c346052d405405cbc80a6372",
+    "configs": "645784f4fa209c130642a2955bae930b97b82957"
+  },
+  "route_start_trees": "hdl 115838d17a389527009dcf2fd6fde4d66d8d9de6\nsw 374e7a0cda1737a4c346052d405405cbc80a6372\nconfigs 645784f4fa209c130642a2955bae930b97b82957\nscripts 4efcfcdbb9ee171247b8f0b10d39961f6e87d181\ntb 90ce668aeb658c13e223d3f7cf0c4b83b66575b3\ndocs 69d319c7799d53c5a73a35b155206a9407ff371c\n efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)\n 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/640-m7-99-g1616fc8)\n 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)\n 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)\n 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)\n",
+  "submodules_at_head": " efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)\n 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/640-m7-99-g1616fc8)\n 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)\n 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)\n 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)\n",
+  "changed_under_hdl_sw_configs_submodules_workflows": [
+    "hdl/ieee1722/aaf/README-parameters.md",
+    "hdl/ieee1722/aaf/README-tests.md",
+    "hdl/ieee1722/avtp/README-tests.md"
+  ],
+  "non_markdown_hdl_changes": []
+}

@@ -1,0 +1,367 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/parent-plants/results.json
+Original SHA256: f53c182986430d8faf5b4cd1d311baf4c7002dcc5420aaabfa53c4922b9a6528
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "control1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/control1"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "required": null,
+    "log_sha256": "38e82e10148b3383b71c7322823130e9a6054dd7ab20e45f5f3f75495629cf06"
+  },
+  {
+    "name": "control8",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/control8"
+    ],
+    "exit": 0,
+    "built": true,
+    "passed": true,
+    "required": null,
+    "log_sha256": "c826fa74a73e8d51bfb721bdfb98baeef99a1d5b4ddd8b07512f5576eb458403"
+  },
+  {
+    "name": "missing_edit_invalidation",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_edit_invalidation",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_edit_invalidation/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "622ddc076a1591f6e5e2e9ccbbf0af74dda5c9c9075c67e56e0c206ad2bf2681"
+  },
+  {
+    "name": "missing_edit_invalidation_1x1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_edit_invalidation_1x1",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_edit_invalidation_1x1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "fca6a30beb462987b94b76bed8274691261fccb24aabae1726aa6030d91e65b7"
+  },
+  {
+    "name": "disconnected_map",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/disconnected_map",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/disconnected_map/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "d5c3f3cf15e1ff2a252f5929929b8d233292a51cc6ac39526f8f2e8f10a647ca"
+  },
+  {
+    "name": "disconnected_map_1x1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/disconnected_map_1x1",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/disconnected_map_1x1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "6230a55810940cfbdd090a63726653695cc1385ea2af2860dbbe9bd2b85260e8"
+  },
+  {
+    "name": "overwritten_capture_page",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/overwritten_capture_page",
+      "--queue-source",
+      "$SCRATCH/gates/parent-plants/overwritten_capture_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "8580f49e96f1c9a3914f6d7468a5fc88bb2c8f12a9c85c174f40bc920ec0382d"
+  },
+  {
+    "name": "truncated_claim_page",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/truncated_claim_page",
+      "--queue-source",
+      "$SCRATCH/gates/parent-plants/truncated_claim_page/KL_render_queue.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] PARENT_SAMPLE"
+    ],
+    "log_sha256": "8c85c1e5f7e9f96616e4f5dd8f88038286634d75fe6995b20d280db2cdf4ed82"
+  },
+  {
+    "name": "missing_output_8x8_stream0",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream0",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream0/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+    ],
+    "log_sha256": "6f133112ea5490b81202c38036aaed16dcbb535c915f9308e0fa9b3b88362db0"
+  },
+  {
+    "name": "missing_output_8x8_stream1",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream1",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream1/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 1",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 1",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 1",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 1"
+    ],
+    "log_sha256": "a66ae807725b020a39b02a1992eff2c0e1ace9a55e7765adbf7cd56e634a4c9a"
+  },
+  {
+    "name": "missing_output_8x8_stream2",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream2",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream2/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 2",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 2",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 2",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 2"
+    ],
+    "log_sha256": "0b0308e417021aeb7e71efc5593eda0254e85d2e185bb54697454198b8e87006"
+  },
+  {
+    "name": "missing_output_8x8_stream3",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream3",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream3/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 3",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 3",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 3",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 3"
+    ],
+    "log_sha256": "922394ce5d45996d1ef532675a37f13504cf63b063d62c6a4a715db0a471f417"
+  },
+  {
+    "name": "missing_output_8x8_stream4",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream4",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream4/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 4",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 4",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 4",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 4"
+    ],
+    "log_sha256": "843f3877c5d6c3ccec65f697d0b2729c96ec1b98efe8e2a9fcc38c4edfe266f4"
+  },
+  {
+    "name": "missing_output_8x8_stream5",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream5",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream5/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 5",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 5",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 5",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 5"
+    ],
+    "log_sha256": "6d657d649e191e16b4ac816dc9550d97d43572a83bf9872d8dcb91d966e5cd1a"
+  },
+  {
+    "name": "missing_output_8x8_stream6",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream6",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream6/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 6",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 6",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 6",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 6"
+    ],
+    "log_sha256": "30433638af2c6b81cd15c9e4a92c43be347b48ac9e38c22176db041f2c8cb911"
+  },
+  {
+    "name": "missing_output_8x8_stream7",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "8",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream7",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_8x8_stream7/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 7",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 7",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 7",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 7"
+    ],
+    "log_sha256": "aff21eb0564b509f2da27e359a365f5fb1649b69059afb308a345a2d81024565"
+  },
+  {
+    "name": "missing_output_1x1_stream0",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+      "--shape",
+      "1",
+      "--work",
+      "$SCRATCH/gates/parent-plants/missing_output_1x1_stream0",
+      "--dp-source",
+      "$SCRATCH/gates/parent-plants/missing_output_1x1_stream0/milan_datapath.sv"
+    ],
+    "exit": 1,
+    "built": true,
+    "passed": true,
+    "required": [
+      "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+      "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+      "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+    ],
+    "log_sha256": "9c20d500b7dc547956ed3f0a1bab5bcfccabdeb4fc4031630e992e160a1e1eab"
+  }
+]

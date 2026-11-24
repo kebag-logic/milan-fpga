@@ -1,0 +1,75 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: docswf.py
+Original SHA256: b47824c3088c0e620aa4793c01c0fd577e3ee7a3a9bb3d59db5f25fee6efda5d
+Scope: complete text; paths and host fields normalized
+
+"""Replay the docs workflow's gate steps at the lane head. Usage: docswf.py <outdir>.
+
+Every `run:` step of .github/workflows/docs.yml is executed except installs, caches,
+uploads, submodule fetches (already initialized here), runtime-evidence records,
+the fail-fast/cancel jobs and the two builder legs (the builder union group runs a
+superset of them). The no-git job runs in an exported copy without .git.
+"""
+import ast
+import json
+import os
+import subprocess
+import sys
+import tarfile
+import time
+from pathlib import Path
+
+root = Path('$CHECKOUT')
+out = Path(sys.argv[1]).resolve()
+out.mkdir(parents=True, exist_ok=True)
+shim = out / 'shim'
+shim.mkdir(exist_ok=True)
+venv = '$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3'
+for name in ('python3', 'python'):
+    wrapper = shim / name
+    wrapper.unlink(missing_ok=True)
+    wrapper.write_text(f'#!/bin/sh\nexec {venv} "$@"\n')
+    wrapper.chmod(0o755)
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+base = subprocess.check_output(['git', 'merge-base', 'HEAD', 'origin/dev-soft-core'], cwd=root, text=True).strip()
+SKIP_JOBS = {'ci-fail-fast', 'ci-cancel-tail', 'ci-manifest', 'docs-check', 'docs-gates-1'}
+SKIP_WORDS = ('install', 'resolve', 'cache', 'set cpu', 'upload', 'fetch', 'record', 'retain checkout',
+              'end-station builder gates')
+steps = []
+for line in (out.parent / 'docswf.tsv').read_text().splitlines():
+    job, index, name, script = line.split('\t')
+    if job in SKIP_JOBS or any(word in name.lower() for word in SKIP_WORDS):
+        continue
+    steps.append((job, int(index), name, ast.literal_eval(script)))
+nogit = out / 'nogit-copy'
+if not nogit.exists():
+    nogit.mkdir()
+    archive = out / 'head.tar'
+    subprocess.run(['git', 'archive', '--format=tar', '-o', str(archive), 'HEAD'], cwd=root, check=True)
+    with tarfile.open(archive) as tar:
+        tar.extractall(nogit, filter='tar')
+    archive.unlink()
+    (nogit / '.git').mkdir()  # the step itself removes it, as on the hosted runner
+results = []
+for n, (job, index, name, script) in enumerate(steps):
+    temp = out / 'runner' / f'{n:02d}'
+    temp.mkdir(parents=True, exist_ok=True)
+    env = dict(os.environ, PATH=f'{shim}:/usr/local/bin:/usr/bin:/bin', RUNNER_TEMP=str(temp),
+               GITHUB_OUTPUT=str(temp / 'output'), GITHUB_ENV=str(temp / 'env'),
+               GITHUB_STEP_SUMMARY=str(temp / 'summary'), GITHUB_SHA=head, EVENT_NAME='push',
+               PUSH_BEFORE_SHA=base, TMPDIR=str(temp), PYTHONDONTWRITEBYTECODE='1')
+    cwd = nogit if job == 'docs-check-no-git' else root
+    t = time.time()
+    log = out / f'{n:02d}-{job}-{index}.log'
+    with log.open('w') as f:
+        f.write(f'JOB {job} STEP {index} {name}\nHEAD {head}\n')
+        f.flush()
+        r = subprocess.run(['bash', '--noprofile', '--norc', '-eo', 'pipefail', '-c', script], cwd=cwd, env=env,
+                           stdout=f, stderr=subprocess.STDOUT, timeout=7200)
+    dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True)
+    results.append(dict(n=n, job=job, step=index, name=name, exit=r.returncode, seconds=round(time.time() - t, 1),
+                        log=log.name, lane_dirty_after=bool(dirty)))
+    (out / 'results.json').write_text(json.dumps(dict(head=head, base=base, steps=results), indent=2) + '\n')
+    print(f'{n:02d} {job} {name}: exit {r.returncode}', flush=True)
+print('FAILED:', [x['name'] for x in results if x['exit']], flush=True)

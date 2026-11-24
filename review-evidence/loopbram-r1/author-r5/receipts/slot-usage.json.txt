@@ -1,0 +1,59 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: slot-usage.json
+Original SHA256: c5e52212a9a7303ad659d4f3274cdb6e0b342e9cd88c7eb4abaa21517ac5adef
+Scope: complete text; paths and host fields normalized
+
+{
+  "vendor_runs": 4,
+  "sequential": true,
+  "min_mem_available_gb": 61,
+  "slots": [
+    {
+      "log": "route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.log",
+      "slot": 0,
+      "mem_available_gb": 68,
+      "start": "2026-11-24T10:00:29+01:00"
+    },
+    {
+      "log": "route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/measure_route.log",
+      "slot": 0,
+      "mem_available_gb": 66,
+      "start": "2026-11-24T09:30:51+01:00"
+    },
+    {
+      "log": "route/endstation_ax7101_8x8/gateware/ExtraTimingOpt/measure_route.log",
+      "slot": 0,
+      "mem_available_gb": 64,
+      "start": "2026-11-24T10:24:40+01:00"
+    },
+    {
+      "log": "route/endstation_ax7101_8x8/gateware/measure_synth.log",
+      "slot": 0,
+      "mem_available_gb": 61,
+      "start": "2026-11-24T09:06:55+01:00"
+    }
+  ],
+  "runs": [
+    {
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high",
+      "exit": 0,
+      "seconds": 1440.3
+    },
+    {
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt",
+      "exit": 0,
+      "seconds": 1778.2
+    },
+    {
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraTimingOpt",
+      "exit": 0,
+      "seconds": 2340.6
+    },
+    {
+      "cwd": "$SCRATCH/route/endstation_ax7101_8x8/gateware",
+      "exit": 0,
+      "seconds": 1435.8
+    }
+  ]
+}

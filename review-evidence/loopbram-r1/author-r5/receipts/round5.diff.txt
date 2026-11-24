@@ -1,0 +1,725 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: round5.diff
+Original SHA256: 1dcbb07e1257f575d97042e2a6f9e033c06d202b294d0f6e71eea686942b488a
+Scope: complete text; paths and host fields normalized
+
+diff --git a/docs/DOCUMENTATION_AUDIT.md b/docs/DOCUMENTATION_AUDIT.md
+index 36bb389e29..ef91b179c1 100644
+--- a/docs/DOCUMENTATION_AUDIT.md
++++ b/docs/DOCUMENTATION_AUDIT.md
+@@ -27,18 +27,18 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
+ 
+ | Status | Pages |
+ |---|---:|
+-| current | 186 |
++| current | 189 |
+ | stale | 16 |
+ | superseded | 0 |
+ | obsolete | 21 |
+-| **total** | **223** |
++| **total** | **226** |
+ 
+ | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
+ |---|---:|---:|---:|---:|---:|---:|
+ | archive | 22 | 1 | 0 | 0 | 21 | 0 |
+-| design | 28 | 27 | 1 | 0 | 0 | 0 |
++| design | 29 | 28 | 1 | 0 | 0 | 0 |
+ | findings | 23 | 23 | 0 | 0 | 0 | 0 |
+-| module READMEs | 88 | 88 | 0 | 0 | 0 | 0 |
++| module READMEs | 90 | 90 | 0 | 0 | 0 | 0 |
+ | overview and guides | 21 | 19 | 2 | 0 | 0 | 12 |
+ | reference | 23 | 11 | 12 | 0 | 0 | 18 |
+ | repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
+@@ -72,13 +72,13 @@ The README count includes subdirectories.
+ | `sw/litex/` | no | 1 |
+ | `sw/mailbox/` | no | 0 |
+ | `sw/trace/` | yes | 1 |
+-| `tb/` | no | 34 |
++| `tb/` | no | 36 |
+ | `tb/avtp_packet_gen_sv/` | yes | 1 |
+ | `tb/common/` | no | 0 |
+ | `tb/itests/` | yes | 1 |
+ | `tb/tools/` | no | 0 |
+ | `tb/utests/` | no | 1 |
+-| `tb/verilator/` | yes | 31 |
++| `tb/verilator/` | yes | 33 |
+ | `syn/` | no | 2 |
+ | `syn/ooc/` | no | 0 |
+ | `syn/resmap/` | no | 0 |
+@@ -95,7 +95,7 @@ Areas follow the directory tree.
+ - [.github](#github) (1)
+ - [avdecc](#avdecc) (1)
+ - [docs](#docs) (10)
+-- [docs/design](#docsdesign) (18)
++- [docs/design](#docsdesign) (19)
+ - [docs/development](#docsdevelopment) (1)
+ - [docs/diagrams](#docsdiagrams) (1)
+ - [docs/findings](#docsfindings) (23)
+@@ -113,7 +113,7 @@ Areas follow the directory tree.
+ - [hdl](#hdl) (36)
+ - [sw](#sw) (12)
+ - [syn](#syn) (2)
+-- [tb](#tb) (34)
++- [tb](#tb) (36)
+ - [tests](#tests) (1)
+ 
+ ### root
+@@ -163,6 +163,7 @@ Areas follow the directory tree.
+ | [docs/design/CSR_REGISTER_NOTES.md](design/CSR_REGISTER_NOTES.md) | maintainer | CSR register design notes | `hdl/milan`, `configs`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
+ | [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | maintainer | Grandmaster loss and recovery | `tb/verilator/milan_dp_gm_steps`, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
+ | [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | maintainer | Fabric gPTP plane | `tb/verilator/gptp_txts`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
++| [docs/design/INPUT_MAPPED_LOOPBACK.md](design/INPUT_MAPPED_LOOPBACK.md) | maintainer | Input-mapped block-RAM loopback | 1722.1-2021 | current | no recorded contradiction | area lane | design |
+ | [docs/design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) | maintainer | MAAP in fabric - design + reference contract (task #18) | `hdl/ieee1722/maap`, `hdl/milan`, `tb/verilator/maap`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
+ | [docs/design/MAILBOX_SPLIT.md](design/MAILBOX_SPLIT.md) | firmware developer | Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0) | `sw/firmware/ctrl`, `sw/mailbox`, `hdl/milan/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
+ | [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
+@@ -438,6 +439,8 @@ Areas follow the directory tree.
+ | [tb/verilator/gptp_shadow/README.md](../tb/verilator/gptp_shadow/README.md) | verification | gptp_shadow -- the fabric slice, wide faces, loop closed in fabric | `tb/verilator/gptp_shadow`, `tb/verilator/gptp_plane`, `third_party/verilog-axis` | current | no recorded contradiction | area lane | module READMEs |
+ | [tb/verilator/gptp_tables/README.md](../tb/verilator/gptp_tables/README.md) | verification | gptp_tables -- per-table lockstep of the fabric gPTP plane | `tb/verilator/gptp_tables`, `scripts`, `tb/verilator/gptp_shadow` | current | no recorded contradiction | area lane | module READMEs |
+ | [tb/verilator/gptp_txts/README.md](../tb/verilator/gptp_txts/README.md) | verification | `gptp_txts` - the gPTP egress timestamp closed loop | `tb/verilator/gptp_txts`, `sw/litex`, `hdl/common` | current | no recorded contradiction | area lane | module READMEs |
++| [tb/verilator/input_loopback/README.md](../tb/verilator/input_loopback/README.md) | verification | Input-mapped loopback wire test | `tb/verilator/input_loopback`, `tb/verilator/input_loopback_dp`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
++| [tb/verilator/input_loopback_dp/README.md](../tb/verilator/input_loopback_dp/README.md) | verification | Enabled parent loopback integration | `tb/verilator/input_loopback_dp`, `tb/verilator/input_loopback` | current | no recorded contradiction | area lane | module READMEs |
+ | [tb/verilator/mbx/README.md](../tb/verilator/mbx/README.md) | verification | mbx: the packet-mailbox fabric skeleton, through both bus adapters | `tb/verilator/mbx`, `sw/mailbox`, `sw/firmware/ctrl`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+ | [tb/verilator/media_grid_align/README.md](../tb/verilator/media_grid_align/README.md) | verification | media_grid_align - the #74 grid-alignment loop, closed over the real NCO | `tb/verilator/media_grid_align`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
+ | [tb/verilator/media_nco/README.md](../tb/verilator/media_nco/README.md) | verification | `media_nco` - the steerable media sample grid | `tb/verilator/media_nco`, `hdl/ieee1722/crf`, `tb/verilator/capture_coherence`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
+diff --git a/docs/design/INPUT_MAPPED_LOOPBACK.md b/docs/design/INPUT_MAPPED_LOOPBACK.md
+index 59fa29816c..48fc03e5c4 100644
+--- a/docs/design/INPUT_MAPPED_LOOPBACK.md
++++ b/docs/design/INPUT_MAPPED_LOOPBACK.md
+@@ -10,6 +10,20 @@ Examined base: `3cda030c174b325e36c26af6420487ff91346d15`.
+ 
+ The manager authorized implementation behind a default-off build option.
+ 
++## Contents
++
++- **[Selected topology](#selected-topology)** -- The approved option B: 63 mono loopback destinations beside the physical one in 64 keys at 8x8, sixteen keys at 1x1, and the per-port input counts
++- **[Implementation status](#implementation-status)** -- What is built behind the default-off option, and the enabled 8x8 control memory that remains refused as S14 debt
++- **[Authority and existing behavior](#authority-and-existing-behavior)** -- The Milan and IEEE 1722.1 clauses for mono clusters and mapping commands, and how the existing render path already behaves
++- **[Memory-port finding](#memory-port-finding)** -- Why the copy reads the render queue's existing synchronous bank ports rather than adding new ones
++- **[Proposed datapath](#proposed-datapath)** -- The pipeline from accepted received samples through the mapped copy into capture bucket 6 and the talker
++- **[Latency and rate contract](#latency-and-rate-contract)** -- Exactly one media frame of added delay, the received-frame definition and the copy deadline
++- **[Mapping changes](#mapping-changes)** -- How committed map edits invalidate a fill so that a mixed map never publishes
++- **[Build and descriptor contract](#build-and-descriptor-contract)** -- The RTL parameter, the config fact that derives it and the descriptor pools that must agree with it
++- **[Validation and measurement contract](#validation-and-measurement-contract)** -- The tests, plants, per-stream delivery checks, builds and route floors the change must meet
++- **[Completion disposition](#completion-disposition)** -- What completion requires, and that the topology ruling relaxes no resource or timing ceiling
++- **[Retention and capture-clock bounds](#retention-and-capture-clock-bounds)** -- The two-frame lead limit, eight sample pages, the derived timestamp window and the five guards left untested
++
+ ## Selected topology
+ 
+ The manager selected option B on Issue #979.
+@@ -355,6 +369,8 @@ Select a source stream different from the input port index.
+ 
+ Verify transmitted payload values, channel identity, and event sequence.
+ 
++Grade each output stream's delivery separately; a missing output must fail.
++
+ Cover ADD, REMOVE, replacement, fan-out, unmapped silence, and underrun.
+ 
+ Cover reset, bind loss, format clipping, and buffer-fill edits.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 3af596d541..e9c6bf2c53 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -351,6 +351,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ |---|---|---|
+ | #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
+ | #979 mapped input loopback | `make -C tb/verilator/input_loopback`; `python3 tb/verilator/input_loopback/mutants.py --output <scratch-directory>` | Authors and reviewers changing the optional mapped copy, synchronous bucket 6, or invalidation; [coverage](../../tb/verilator/input_loopback/README.md) |
++| #979 enabled parent loopback, its connection, retention and missing-output plants | `make -C tb/verilator/input_loopback_dp`; `python3 tb/verilator/input_loopback_dp/mutants.py --output <scratch-directory>` | Authors and reviewers changing the `milan_datapath.sv` map writers, `g_input_invalidation`, the talker enable, the queue or capture packed loopback fields, `tb/verilator/input_loopback_dp` or this campaign; [coverage](../../tb/verilator/input_loopback_dp/README.md) |
+ | #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_queue.sv`, `sim_aclk.cpp` or this campaign |
+ | #645/#647 settle recentre, sixteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
+ | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
+@@ -437,6 +438,12 @@ It is the case's cold run through `ci_make_cases.py` on four CPUs, 147.9 s, scal
+ That run built the case and ran it, with ci-prepare's three entity images.
+ Its hosted window is owed by the first hosted run of a head that carries it.
+ 
++#979 adds two default suites, `input_loopback` and `input_loopback_dp`.
++Their `scripts/suite_shards.py` figures, 38 s and 107 s, are not hosted windows.
++Each is the sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs.
++The longer of two such runs took 23.8 s and 67.7 s, each scaled by 1.58 and rounded up.
++Their hosted windows are owed by the first hosted run of a head that carries them.
++
+ #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
+ added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.
+ It was measured cold, back to back, on one four-CPU set with independent jobs on the host's other CPUs:
+diff --git a/docs/traceability/MODULE_MATRIX.md b/docs/traceability/MODULE_MATRIX.md
+index 18d2244efb..a9887e0c2a 100644
+--- a/docs/traceability/MODULE_MATRIX.md
++++ b/docs/traceability/MODULE_MATRIX.md
+@@ -64,11 +64,11 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_tap_bank` | `ieee1722/aaf/KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
+-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
+-| ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `input_loopback` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
++| ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `input_loopback` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `input_loopback` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+@@ -78,7 +78,7 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+-| ✅ `KL_render_queue` | `ieee1722/aaf/KL_render_queue.sv` | `follow_ring` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_render_queue` | `ieee1722/aaf/KL_render_queue.sv` | `follow_ring` · `input_loopback` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+@@ -86,12 +86,12 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
+ | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | -- |
+-| ✅ `KL_avtp_rx_monitor` | `ieee1722/avtp/KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | -- |
++| ✅ `KL_avtp_rx_monitor` | `ieee1722/avtp/KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `input_loopback` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | -- |
+ | ✅ `KL_avtp_rx_monitor_ctx` | `ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_media_clock_restart` | `ieee1722/avtp/KL_media_clock_restart.sv` | `milan_dp` · `tkdiag` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `milan_dp` · `tkdiag` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+-| ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `input_loopback` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
+ | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+diff --git a/hdl/ieee1722/aaf/README-parameters.md b/hdl/ieee1722/aaf/README-parameters.md
+index 222b5e72fa..2dc756036e 100644
+--- a/hdl/ieee1722/aaf/README-parameters.md
++++ b/hdl/ieee1722/aaf/README-parameters.md
+@@ -20,6 +20,7 @@ TDM/AES3/SPDIF ser/des families sibling selections of this module.
+ - **[Config-driven ports (not parameters, still schema-owned)](#config-driven-ports-not-parameters-still-schema-owned)** -- Three inputs that behave like configuration but arrive as ports, including `wire_chans_i` - which is explicitly *not* config: the render mapping follows channels-per-frame off the last accepted PDU regardless of declared format.
+ - **[Cross-parameter / cross-module pairings (STRICT)](#cross-parameter--cross-module-pairings-strict)** -- Three must-match pairs and the failure each produces, all of them quiet: a wrong `CLK_FREQ_HZ` skews the convergence window silently, a wrong audio clock drifts the FIFO to a permanent rail, and a `SETPOINT_P` at or above the FIFO depth means playback never restarts after a rail event.
+ - **[Validation](#validation)** -- What the builder actually checks versus what it does not: clock consistency raises `ConfigError`, but the `FIFO_LOG2` and `SETPOINT_P` bounds have no elaboration assert today.
++- **[Optional input-mapped loopback](#optional-input-mapped-loopback)** -- The default-off `INPUT_LOOPBACK_P` copy, its map-slice parameters and the two approved shapes, with the packed port fields it adds when enabled
+ 
+ ## Parameters
+ 
+diff --git a/hdl/ieee1722/aaf/README-tests.md b/hdl/ieee1722/aaf/README-tests.md
+index 930137bf65..25cbbc92e1 100644
+--- a/hdl/ieee1722/aaf/README-tests.md
++++ b/hdl/ieee1722/aaf/README-tests.md
+@@ -13,11 +13,11 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | ✅ `KL_aaf_capture_i2s` | `KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_tap_bank` | `KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_chain` | `KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
+-| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
+-| ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `input_loopback` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
++| ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `input_loopback` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `input_loopback` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `KL_i2s_feed_mux.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+@@ -27,7 +27,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | ✅ `KL_pair_zero_fill` | `KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_pcm_lpf` | `KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_pcm_route` | `KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+-| ✅ `KL_render_queue` | `KL_render_queue.sv` | `follow_ring` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_render_queue` | `KL_render_queue.sv` | `follow_ring` · `input_loopback` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_capture` | `KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_capture_master` | `KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_tdm_render` | `KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+diff --git a/hdl/ieee1722/avtp/README-tests.md b/hdl/ieee1722/avtp/README-tests.md
+index 70a0b6848d..e297766165 100644
+--- a/hdl/ieee1722/avtp/README-tests.md
++++ b/hdl/ieee1722/avtp/README-tests.md
+@@ -11,10 +11,10 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | module | file | test | clauses |
+ |---|---|---|---|
+ | 🔬 `KL_avtp_common_parser` | `KL_avtp_common_parser.sv` | 🔬`make aaf` | -- |
+-| ✅ `KL_avtp_rx_monitor` | `KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | -- |
++| ✅ `KL_avtp_rx_monitor` | `KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `input_loopback` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | -- |
+ | ✅ `KL_avtp_rx_monitor_ctx` | `KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_media_clock_restart` | `KL_media_clock_restart.sv` | `milan_dp` · `tkdiag` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_stream_table` | `KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_talker_diag_ctx` | `KL_talker_diag_ctx.sv` | `milan_dp` · `tkdiag` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+-| ✅ `avtp_stream_parser` | `avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `avtp_stream_parser` | `avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `input_loopback` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | 📦 `avtp_subtype_pkg` | `avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index 8fbe9638a0..04fa6d915d 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -278,6 +278,15 @@ DUT_READER_DISPOSITIONS = {
+         "structural CDC check; it elaborates KL_mbx_cdc and its window, judges each sink's clock "
+         "domain from the netlist, and plants raw crossings into isolated copies, each refused by its "
+         "own words; no expected value is read from the text",
++    "tb/verilator/input_loopback/mutants.py":
++        "mutation campaign (#979); it plants one of seven mapped-copy and capture defects into copies of "
++        "KL_render_queue.sv or KL_chan_map_capture.sv and requires the unchanged sample scoreboard to "
++        "fail after a clean control; no expected value is read from the text",
++    "tb/verilator/input_loopback_dp/mutants.py":
++        "mutation campaign (#979); it plants one connection, retention or held-output defect into a copy "
++        "of milan_datapath.sv or KL_render_queue.sv and requires that plant's named runtime checks to "
++        "fail after both clean controls; expected values come from command intent and injected "
++        "samples, never from the text",
+     "tb/verilator/milan_dp/srptx_mutants.py":
+         "mutation campaign (#867); it plants one defect of the split build's SRP transmit path from its "
+         "own table into an isolated copy of lwSRP, the SRP adapter or the datapath, and requires "
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index 3e59d3e893..36ca679a5f 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -108,6 +108,8 @@ SUITE_SECONDS = {
+     "gptp_txts": 72,
+     "i2spb": 6,
+     "ifg": 6,
++    "input_loopback": 38,
++    "input_loopback_dp": 107,
+     "lat_history_ring": 6,
+     "link_guard": 7,
+     "maap": 1375,
+@@ -188,7 +190,6 @@ def concrete_job_limits(workflow: str) -> tuple[int, ...] | None:
+     return tuple(workers[index] for index in range(len(workers)))
+ 
+ 
+-
+ def expand_suites(suites: list[str]) -> list[str]:
+     """Replace each registered parent by every leg, retaining all other suites."""
+     pieces = [f"{suite}__{leg}" for suite in suites if suite in PIECE_SECONDS
+@@ -345,8 +346,6 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
+     return max(limits), len(limits)
+ 
+ 
+-
+-
+ SUITE_TIMEOUT_ARM_RE = re.compile(
+     r" +([A-Za-z0-9_]+|\*)\) +printf '%s\\n' \"\$\{SUITE_TIMEOUT:-([0-9]+)\}\" ;;")
+ 
+diff --git a/tb/verilator/input_loopback/README.md b/tb/verilator/input_loopback/README.md
+index 5c50400dad..d80a5751e1 100644
+--- a/tb/verilator/input_loopback/README.md
++++ b/tb/verilator/input_loopback/README.md
+@@ -14,7 +14,8 @@ The default shape has eight streams and 63 independent loop destinations.
+ The scoreboard covers cross-stream and reversed-channel mappings, every
+ loop destination, out-of-range silence, input and output fan-out, REMOVE,
+ replacement, edits during copying, live clock stop/restart, reset during
+-activity, bind flush, timestamp wrap and prolonged absence across tag wraps.
++activity, bind flush together with map invalidation (the bind-only term is
++untested; see below), timestamp wrap and prolonged absence across tag wraps.
+ The wrapper supplies committed logical maps directly.
+ The [parent integration test](../input_loopback_dp/README.md) executes mapping commands.
+ It also checks generated geometry and committed parent connections. This test does not claim a board audio soak.
+diff --git a/tb/verilator/input_loopback/bounds.py b/tb/verilator/input_loopback/bounds.py
+index eb3ac15eff..d7e9d655a1 100644
+--- a/tb/verilator/input_loopback/bounds.py
++++ b/tb/verilator/input_loopback/bounds.py
+@@ -10,7 +10,8 @@ import subprocess
+ HERE = Path(__file__).resolve().parent
+ 
+ 
+-def main():
++def main() -> None:
++    """Run the bound controls and refusals, writing results under --output."""
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+@@ -29,7 +30,7 @@ def main():
+             log = out / f"{shape}-{name}.log"
+             with log.open("w") as sink:
+                 result = subprocess.run(command, env=dict(os.environ, **extra), stdout=sink,
+-                                        stderr=subprocess.STDOUT, timeout=3600)
++                                        stderr=subprocess.STDOUT)
+             text = log.read_text()
+             passed = ((result.returncode == 0 and "PASS input-loopback" in text) if expectation == "pass" else
+                       (result.returncode != 0 and "FAIL COPY_SAMPLE" in text) if expectation == "sample" else
+diff --git a/tb/verilator/input_loopback/mutants.py b/tb/verilator/input_loopback/mutants.py
+index 0d899c117d..f1336c3003 100644
+--- a/tb/verilator/input_loopback/mutants.py
++++ b/tb/verilator/input_loopback/mutants.py
+@@ -45,7 +45,7 @@ def main() -> None:
+                        "VERILATOR_JOBS=4", "MDIR="+str(where / "obj"), "QUEUE_SRC="+str(source)]
+             log = args.output / (name+".log")
+             with log.open("w") as sink:
+-                result = subprocess.run(command, stdout=sink, stderr=subprocess.STDOUT, timeout=1800)
++                result = subprocess.run(command, stdout=sink, stderr=subprocess.STDOUT)
+             output = log.read_text()
+             passed = ((result.returncode == 0 and "PASS input-loopback" in output) if not old else
+                       (result.returncode != 0 and "FAIL "+assertion in output
+diff --git a/tb/verilator/input_loopback/sim_main.cpp b/tb/verilator/input_loopback/sim_main.cpp
+index 2d2f18e56e..de1f71b29b 100644
+--- a/tb/verilator/input_loopback/sim_main.cpp
++++ b/tb/verilator/input_loopback/sim_main.cpp
+@@ -17,6 +17,18 @@ using Frame = std::array<uint32_t, 8>;
+ uint32_t sample(int s, int c, int f) {
+     return 0x800000u | (unsigned(s) << 20) | (unsigned(c) << 17) | unsigned(f);
+ }
++// An unset control reads as zero; a malformed one stops the run instead.
++int env_int(const char* name) {
++    const char* text = std::getenv(name);
++    if (!text) return 0;
++    char* end = nullptr;
++    const long value = std::strtol(text, &end, 10);
++    if (end == text || *end != '\0') {
++        std::fprintf(stderr, "%s=%s is not a decimal integer\n", name, text);
++        std::exit(2);
++    }
++    return int(value);
++}
+ uint32_t stamp(int f) { return uint32_t(0xFFF00000ull + uint64_t(f)*62500/3); }
+ struct Beat { uint64_t data; uint8_t keep; bool last; };
+ class Bench {
+@@ -39,8 +51,8 @@ class Bench {
+     bool events = true;
+     // Sweep the prediction-horizon rate error with worst-sign marker jitter.
+     // Environment controls leave the standard mutation oracle unchanged.
+-    int stamp_ppm = std::getenv("STAMP_PPM") ? std::atoi(std::getenv("STAMP_PPM")) : 0;
+-    int stamp_jitter = std::getenv("STAMP_JITTER_NS") ? std::atoi(std::getenv("STAMP_JITTER_NS")) : 0;
++    int stamp_ppm = env_int("STAMP_PPM");
++    int stamp_jitter = env_int("STAMP_JITTER_NS");
+     int capture_offset(int frame) const {
+         if (!stamp_ppm && !stamp_jitter) return 0;
+         int ramp = (frame % 65) - 32;
+@@ -209,8 +221,9 @@ public:
+         invalidate();d->flush_i=0;
+         until(int(cycles/kPeriod)+1+24);
+         check(packets>100,"WIRE_COVERAGE");
+-        std::printf("%s input-loopback streams=%d channels=%d lead=%d: checks=%d packets=%d failures=%d\n",
+-            failures?"FAIL":"PASS",NSTREAMS,CHANNELS,LEAD,checks,packets,failures);
++        // The count is in a shape the sweep's tally reads (scripts/suite_tally.py).
++        std::printf("%s input-loopback streams=%d channels=%d lead=%d: %d checks, %d failures, packets=%d\n",
++            failures?"FAIL":"PASS",NSTREAMS,CHANNELS,LEAD,checks,failures,packets);
+         return failures?1:0;
+     }
+ };
+diff --git a/tb/verilator/input_loopback_dp/README.md b/tb/verilator/input_loopback_dp/README.md
+index 31ff7461c3..c2562573d0 100644
+--- a/tb/verilator/input_loopback_dp/README.md
++++ b/tb/verilator/input_loopback_dp/README.md
+@@ -19,15 +19,20 @@ The expected map comes exclusively from command intent.
+ The parent commit pulse establishes the edit time.
+ Neither stored mapping bits nor buffer samples supply expected values.
+ Every capture sample and transmitted sample is graded.
++Each output stream's delivery is graded separately in both traffic phases.
++At each phase's end every stream must have sent packets of its own words.
++Its words not yet on the wire must not exceed one packet, the partial tail.
+ Silence and the first eligible new frame are included.
+ All 63 destinations and eight talkers run concurrently at 8x8.
+ The final unused channel must remain silent.
+ A walk deadline assertion covers the entire capture walk.
+ 
+-`python3 mutants.py --output <scratch>` runs controls and four plants.
+-Removing the edit invalidation or map connection must fail samples.
++`python3 mutants.py --output <scratch>` runs two controls and fifteen plants.
++Removing the edit invalidation or map connection must fail samples at both shapes.
+ Reducing retention to four pages must fail at 1x1.
+ Dropping the claimed page's upper address bit must also fail.
++Holding any one output stream off, each of the eight at 8x8 and the one at 1x1,
++must fail that stream's `WIRE_STREAM_DELIVERY` and `WIRE_STREAM_COMPLETE` in both phases.
+ Compilation errors never count as successful detections.
+ 
+ The [wire fixture](../input_loopback/README.md) adds isolated leaf coverage.
+diff --git a/tb/verilator/input_loopback_dp/mutants.py b/tb/verilator/input_loopback_dp/mutants.py
+index f7581a3319..f564ad3e1e 100644
+--- a/tb/verilator/input_loopback_dp/mutants.py
++++ b/tb/verilator/input_loopback_dp/mutants.py
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env python3
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Require runtime sample failures for broken parent connections and retention."""
++"""Require named runtime failures for broken parent connections, retention and outputs."""
+ import argparse
+ import hashlib
+ import json
+@@ -12,7 +12,8 @@ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+ 
+ 
+-def main():
++def main() -> None:
++    """Run every control and plant, requiring each plant's named runtime failure."""
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+@@ -21,16 +22,30 @@ def main():
+     dp = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+     queue = (ROOT / "hdl/ieee1722/aaf/KL_render_queue.sv").read_text()
+     pulse = "else invalidate_r <= edit_change_w || direct_change_w || restore_change_w;"
+-    plants = [("control1", 1, None, None), ("control8", 8, None, None),
+-              ("missing_edit_invalidation", 8, "dp", [(pulse, pulse.replace("edit_change_w", "1'b0"))]),
+-              ("disconnected_map", 8, "dp", [("{(INPUT_LOOPBACK_P != 0){amap_in_store_r,", "{(INPUT_LOOPBACK_P != 0){(AMAP_IN_KEYS_C*8)'(0),")]),
++    enable = ".stream_en_i (aaf_stream_en_w),"
++    sample = ["[FAIL] PARENT_SAMPLE"]
++    invalidation = [(pulse, pulse.replace("edit_change_w", "1'b0"))]
++    disconnect = [("{(INPUT_LOOPBACK_P != 0){amap_in_store_r,",
++                   "{(INPUT_LOOPBACK_P != 0){(AMAP_IN_KEYS_C*8)'(0),")]
++    plants = [("control1", 1, None, None, None), ("control8", 8, None, None, None),
++              ("missing_edit_invalidation", 8, "dp", invalidation, sample),
++              ("missing_edit_invalidation_1x1", 1, "dp", invalidation, sample),
++              ("disconnected_map", 8, "dp", disconnect, sample),
++              ("disconnected_map_1x1", 1, "dp", disconnect, sample),
+               ("overwritten_capture_page", 1, "queue", [
+                   ("cons_w[2:0]", "{1'b0, cons_w[1:0]}"),
+-                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")]),
++                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")], sample),
+               ("truncated_claim_page", 1, "queue", [
+-                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")])]
++                  ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")], sample)]
++    # One output stream held off for the whole run, at each 8x8 talker and the 1x1 talker.
++    for shape, talker in [(8, t) for t in range(8)] + [(1, 0)]:
++        mask = ((1 << shape) - 1) & ~(1 << talker)
++        held = enable.replace("aaf_stream_en_w)", "aaf_stream_en_w & N_STREAMS'(8'h%02x))" % mask)
++        plants.append(("missing_output_%dx%d_stream%d" % (shape, shape, talker), shape, "dp", [(enable, held)],
++                       ["[FAIL] WIRE_STREAM_%s %s stream %d" % (label, phase, talker)
++                        for label in ("DELIVERY", "COMPLETE") for phase in ("edits", "clipped")]))
+     results = []
+-    for name, shape, kind, replacements in plants:
++    for name, shape, kind, replacements, required in plants:
+         work = out / name
+         work.mkdir(exist_ok=True)
+         cmd = [sys.executable, str(HERE / "run.py"), "--shape", str(shape), "--work", str(work)]
+@@ -47,13 +62,13 @@ def main():
+             cmd += ["--dp-source" if kind == "dp" else "--queue-source", str(target)]
+         log = out / (name + ".log")
+         with log.open("w") as sink:
+-            result = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT, timeout=7200)
++            result = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT)
+         text = log.read_text()
+         built = (work / "obj/parent_loopback").is_file()
+         passed = (result.returncode == 0 and "RESULT: PASS" in text) if not kind else (
+-            built and result.returncode != 0 and "[FAIL] PARENT_SAMPLE" in text and "RESULT: FAIL" in text)
++            built and result.returncode != 0 and all(tag in text for tag in required) and "RESULT: FAIL" in text)
+         results.append(dict(name=name, command=cmd, exit=result.returncode, built=built, passed=passed,
+-                            log_sha256=hashlib.sha256(log.read_bytes()).hexdigest()))
++                            required=required, log_sha256=hashlib.sha256(log.read_bytes()).hexdigest()))
+         (out / "results.json").write_text(json.dumps(results, indent=2) + "\n")
+         print(name, "PASS" if passed else "FAIL", flush=True)
+         if not passed:
+diff --git a/tb/verilator/input_loopback_dp/run.py b/tb/verilator/input_loopback_dp/run.py
+index 7655707e04..f3a8923e9a 100644
+--- a/tb/verilator/input_loopback_dp/run.py
++++ b/tb/verilator/input_loopback_dp/run.py
+@@ -16,7 +16,8 @@ sys.path.insert(0, str(ROOT / "tb/verilator/milan_dp_render"))
+ from ship8_params import derive, header, listener_format
+ 
+ 
+-def main():
++def main() -> None:
++    """Generate the selected enabled shape, build the parent test and run it."""
+     p = argparse.ArgumentParser(description=__doc__)
+     p.add_argument("--shape", type=int, choices=(1, 8), required=True)
+     p.add_argument("--work", type=Path, required=True)
+@@ -31,9 +32,10 @@ def main():
+     raw["audio_interface"]["cluster_mapping"]["fabric"].update(input_loopback_lane=True, loopback_lane=False)
+     cfg = w / (name + ".yaml")
+     cfg.write_text(yaml.safe_dump(raw))
+-    def run(cmd, cwd=ROOT):
++    def run(cmd: list, cwd: Path = ROOT) -> None:
++        """Echo and execute one command, failing on a nonzero exit."""
+         print(shlex.join(list(map(str, cmd))), flush=True)
+-        subprocess.run(list(map(str, cmd)), cwd=cwd, check=True, timeout=7200)
++        subprocess.run(list(map(str, cmd)), cwd=cwd, check=True)
+     run([sys.executable, ROOT / "sw/builder/endstation_builder.py", cfg, "-o", w / "gen"])
+     gen = w / "gen" / name
+     overlay = json.loads((gen / "aem_overlay.json").read_text())
+@@ -58,7 +60,8 @@ def main():
+         run(["cc", "-std=c11", "-O2", *includes, "-c", ctrl / "aecp" / unit, "-o", obj])
+         objects.append(obj)
+     run(["ar", "rcs", w / "libaecp.a", *objects])
+-    def make_words(target):
++    def make_words(target: str) -> list[str]:
++        """Return the milan_dp Makefile's words for one print target."""
+         cmd = ["make", "-s", "--no-print-directory", "-C", str(ROOT / "tb/verilator/milan_dp"),
+                target, "VERILATOR_JOBS=" + os.environ.get("VERILATOR_JOBS", "4")]
+         if a.dp_source:
+@@ -67,7 +70,8 @@ def main():
+             cmd.append("RQ_SRC=" + str(a.queue_source.resolve()))
+         return shlex.split(subprocess.check_output(cmd, text=True))
+     cmd = [os.environ.get("VERILATOR", "verilator"), "+incdir+" + str(gen), *make_words("print-dp-vflags"),
+-           "--Mdir", str(w / "obj"), "-CFLAGS", " ".join(includes), "-LDFLAGS", str(w / "libaecp.a"), str(HERE / "probes.vlt")]
++           "--Mdir", str(w / "obj"), "-CFLAGS", " ".join(includes), "-LDFLAGS", str(w / "libaecp.a"),
++           str(HERE / "probes.vlt")]
+     cmd += ["-G" + k + "=" + str(v) for k, v in params.items()]
+     cmd += make_words("print-srcs") + [str(HERE / "sim_main.cpp"), "-o", "parent_loopback"]
+     (w / "build-command.json").write_text(json.dumps(cmd, indent=2) + "\n")
+diff --git a/tb/verilator/input_loopback_dp/sim_main.cpp b/tb/verilator/input_loopback_dp/sim_main.cpp
+index 11b6dc89c2..9a986c2432 100644
+--- a/tb/verilator/input_loopback_dp/sim_main.cpp
++++ b/tb/verilator/input_loopback_dp/sim_main.cpp
+@@ -39,6 +39,12 @@ constexpr uint32_t kEventMask = 0x1FFFFu;
+ constexpr int kFirst = kStreams == 1 ? 8 : 1;
+ constexpr int kDestinations = kStreams == 1 ? 8 : 63;
+ constexpr int kLead = kStreams == 1 ? 2 : 1;
++// One packet carries kEvents events of kChans words. A stream's packet leaves
++// once its sixth event is captured, so at most one packet's words wait.
++constexpr long kPacketWords = long(kEvents)*kChans;
++constexpr long kWireTail = kPacketWords;
++// The shorter, clipped phase carries 24 PDUs per stream.
++constexpr long kMinPhasePackets = 16;
+ constexpr uint32_t sample_word(int s,int c,long e) {
+     return kMarker | (unsigned(s)<<20) | (unsigned(c)<<17) | unsigned(e);
+ }
+@@ -341,14 +347,24 @@ private:
+     long walks = 0;
+     long pair_count = 0;
+     long max_walk_cycles = 0;
+-    long words = 0, nonzero = 0, silent = 0;
+-    long commands = 0, copy_edits = 0;
++    long words = 0;
++    long nonzero = 0;
++    long silent = 0;
++    long commands = 0;
++    long copy_edits = 0;
+     bool grade = false;
+     std::array<uint32_t,64> expected{};
+     std::array<std::deque<uint32_t>,kStreams> pending_wire;
++    // Per-stream delivery accounting for one traffic phase.
++    std::array<long,kStreams> phase_captured{};
++    std::array<long,kStreams> phase_delivered{};
++    std::array<long,kStreams> phase_packets{};
++    std::array<long,kStreams> phase_backlog{};
++    long max_backlog = 0;
+     std::vector<uint8_t> tx;
+     long packets = 0;
+-    int pending_key = -1, pending_value = 0;
++    int pending_key = -1;
++    int pending_value = 0;
+     bool pending_change = false;
+     int last_commit_phase = -1;
+     bool clipped = false;
+@@ -376,6 +392,8 @@ private:
+     void output_buffered(bool firmware);
+     void windows(int pdus) { run_pdus(pdus); }
+     void clip_at_boot();
++    void begin_phase();
++    void end_phase(const char* phase);
+ };
+ 
+ void Harness::bring_out_of_reset() {
+@@ -447,7 +465,8 @@ void Harness::observe_audio() {
+             for (int d=0;d<kDestinations;++d) {
+                 int source=pub.routes[kFirst+d];
+                 if (source<0) continue;
+-                int stream=source/8, channel=source%8;
++                int stream=source/8;
++                int channel=source%8;
+                 const double presentation=pub.capture_ns-62500.0/3;
+                 const long ord=std::lround((presentation-anchor_ns[stream])/ps_phc)+anchor_ord[stream];
+                 if (anchored[stream] && ord>=0 && ord<injected[stream] &&
+@@ -468,7 +487,10 @@ void Harness::observe_audio() {
+             uint32_t got=half ? r->milan_datapath__DOT__cmap_r_w : r->milan_datapath__DOT__cmap_l_w;
+             uint32_t want=expected[channel];
+             check.hex("PARENT_SAMPLE",got,want);
+-            pending_wire[channel/8].push_back(want);
++            auto& queue=pending_wire[channel/8];
++            queue.push_back(want);
++            ++phase_captured[channel/8];
++            phase_backlog[channel/8]=std::max<long>(phase_backlog[channel/8],long(queue.size()));
+             ++words;
+             if (want) ++nonzero; else ++silent;
+         }
+@@ -498,14 +520,18 @@ void Harness::grade_wire() {
+                 uint32_t got=(uint32_t(tx[o])<<16)|(uint32_t(tx[o+1])<<8)|tx[o+2];
+                 check.hex("PARENT_WIRE_SAMPLE",got,q.front()); q.pop_front();
+                 check.dec("WIRE_PAD",tx[o+3],0);
++                ++phase_delivered[stream];
+             }
++            ++phase_packets[stream];
+         }
+         ++packets;
+     }
+     tx.clear();
+ }
+ void Harness::edit(uint16_t command,int dest,int stream,int channel,long status) {
+-    int key=kFirst+dest,port=0,cluster=key;
++    int key=kFirst+dest;
++    int port=0;
++    int cluster=key;
+     for(int p=0;p<kStreams;++p)
+         if(key>=kInputBase[p] && key<kInputBase[p]+kInputWidth[p]) {
+             port=p; cluster=key-kInputBase[p]; break;
+@@ -565,7 +591,31 @@ void Harness::pages(bool firmware) {
+         }
+     }
+ }
++void Harness::begin_phase() {
++    phase_captured.fill(0); phase_delivered.fill(0); phase_packets.fill(0); phase_backlog.fill(0);
++}
++// Every configured output stream must carry its own captured words. A stream's
++// words that have not reached the wire are bounded by kWireTail, the packet
++// still being assembled. An absent or stalled output grows that backlog
++// without limit, so the phase's completion point fails it by name.
++void Harness::end_phase(const char* phase) {
++    for(int s=0;s<kStreams;++s) {
++        const size_t i=size_t(s);
++        char what[96];
++        std::snprintf(what,sizeof what,"WIRE_STREAM_DELIVERY %s stream %d",phase,s);
++        check.that(what,phase_packets[i]>=kMinPhasePackets && phase_captured[i]>0 &&
++                   phase_delivered[i]>=phase_captured[i]-kWireTail);
++        std::snprintf(what,sizeof what,"WIRE_STREAM_COMPLETE %s stream %d",phase,s);
++        check.that(what,long(pending_wire[i].size())<=kWireTail && phase_backlog[i]<=kWireTail);
++        max_backlog=std::max(max_backlog,phase_backlog[i]);
++        std::printf("phase %s stream %d captured=%ld delivered=%ld packets=%ld tail=%zu max_backlog=%ld\n",
++                    phase,s,phase_captured[i],phase_delivered[i],phase_packets[i],
++                    pending_wire[i].size(),phase_backlog[i]);
++    }
++}
+ void Harness::clip_at_boot() {
++    // Grade the first traffic phase before the reset discards its tail.
++    end_phase("edits");
+     // Hold the restore open while its input format clips the factory image.
+     grade=false; feed_mask=0;
+     dut->axis_resetn=0; dut->gtx_resetn=0; steps(32);
+@@ -587,12 +637,14 @@ void Harness::clip_at_boot() {
+     for(auto& queue:pending_wire) queue.clear();
+     tx.clear(); publications.clear(); expected.fill(0);
+     while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
++    begin_phase();
+     grade=true; axi_write(0x654,0x00020003);
+     check.dec("AAF_ENABLED_AFTER_CLIP",axi_read(0x654)&3,3);
+     long before_packets=packets;
+     start_the_feeds(); windows(24);
+     check.that("CLIPPED_WIRE_TRANSMITS",packets>before_packets+10*kStreams);
+     pages(false);
++    end_phase("clipped");
+     clipped=true;
+ }
+ void Harness::output_buffered(bool firmware) {
+@@ -636,7 +688,8 @@ bool Harness::edit_beat(unsigned phase,unsigned record,uint64_t value) {
+     dut->i_ctl_edit_phase=phase; dut->i_ctl_edit_rec=record; dut->i_ctl_edit_record=value;
+     lo(); hi();
+     dut->i_ctl_edit_req=1;
+-    bool accepted=false,answered=false;
++    bool accepted=false;
++    bool answered=false;
+     for(int n=0;n<4096;++n) {
+         lo(); bool ready=!dut->o_ctl_edit_wait; uint64_t answer=dut->o_ctl_edit_data; hi();
+         if(ready) { accepted=(answer&1)!=0; answered=true; break; }
+@@ -692,6 +745,7 @@ int Harness::run() {
+     start_the_feeds(); windows(12);
+     // Start packet capture from a complete walk with the packetizer disabled.
+     while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
++    begin_phase();
+     grade=true;
+     axi_write(0x654,0x00020003);
+     windows(12);
+@@ -713,8 +767,8 @@ int Harness::run() {
+     check.that("EDIT_DURING_COPY",copy_edits==1);
+     check.that("BOOT_CLIPPING_WRITER",clipped);
+     check.that("ALL_TALKERS_TRANSMIT",packets>20*kStreams);
+-    std::printf("parent loopback streams=%d words=%ld nonzero=%ld silence=%ld packets=%ld walks=%ld max_walk_cycles=%ld first_eligible=%ld\n",
+-                kStreams,words,nonzero,silent,packets,walks,max_walk_cycles,first_eligible);
++    std::printf("parent loopback streams=%d words=%ld nonzero=%ld silence=%ld packets=%ld walks=%ld max_walk_cycles=%ld first_eligible=%ld max_backlog=%ld\n",
++                kStreams,words,nonzero,silent,packets,walks,max_walk_cycles,first_eligible,max_backlog);
+     return check.report();
+ }
+ }
+diff --git a/tb/verilator/render_queue/mutants.py b/tb/verilator/render_queue/mutants.py
+index 168dc0e4f2..4887c12e2d 100644
+--- a/tb/verilator/render_queue/mutants.py
++++ b/tb/verilator/render_queue/mutants.py
+@@ -142,7 +142,8 @@ MUTATIONS = [
+        "  assign b_slip_w = 1'b0;"),),
+      "[slip] gaps and overlaps counted", ()),
+     ("lead_o kept after the stream drains",
+-     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
++     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && "
++       "(lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
+        "          lwv_r[s] <= 1'b0;",
+        "        if (1'b0)\n          lwv_r[s] <= 1'b0;"),),
+      "[place] lead_o and idle_o follow the model at every frame end", ()),

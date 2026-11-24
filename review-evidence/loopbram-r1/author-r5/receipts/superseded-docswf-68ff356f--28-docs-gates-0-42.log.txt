@@ -1,0 +1,11 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: superseded-docswf-68ff356f/28-docs-gates-0-42.log
+Original SHA256: 143cbf0ec513cf9a5be7e72dcec8f6955bb473e3e51216c82647fe9199a9a497
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+JOB docs-gates-0 STEP 42 C and C++ idiom gate
+HEAD 68ff356fccc0be4b7f9063d7d926ca425ddef857
+REFUSED UNBOUNDED C CALL: tb/verilator/input_loopback/sim_main.cpp:42 — int stamp_ppm = std::getenv("STAMP_PPM") ? std::atoi(std::getenv("STAMP_PPM")) : 0;. Rule 11 in docs/development/CODE_QUALITY.md names the construct that replaces it.
+REFUSED UNBOUNDED C CALL: tb/verilator/input_loopback/sim_main.cpp:43 — int stamp_jitter = std::getenv("STAMP_JITTER_NS") ? std::atoi(std::getenv("STAMP_JITTER_NS. Rule 11 in docs/development/CODE_QUALITY.md names the construct that replaces it.
+FAIL: multi-declarator declaration 6 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.

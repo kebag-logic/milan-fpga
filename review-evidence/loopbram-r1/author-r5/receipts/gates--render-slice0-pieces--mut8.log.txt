@@ -1,0 +1,9 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/render-slice0-pieces/mut8.log
+Original SHA256: 413ee07fb458a2b2a857c42587dfc44d382de7ac85f1398d8a1c5d988e1053c8
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+[PASS] mutant caught (ship --epoch-only): the epoch request races the acknowledgement instead of waiting - breaks "T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one"
+
+1 checks: 1 PASS, 0 FAIL (mutation 8)

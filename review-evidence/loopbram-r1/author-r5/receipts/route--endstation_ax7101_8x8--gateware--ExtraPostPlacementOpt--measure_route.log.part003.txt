@@ -1,0 +1,873 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/measure_route.log
+Original SHA256: c1357f985988b3a8e7e50f95ffb790821a2e1c4ae6959468dfd5e4ce990f9386
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+ Number of Nodes with overlaps = 708
+ Number of Nodes with overlaps = 181
+ Number of Nodes with overlaps = 74
+ Number of Nodes with overlaps = 46
+ Number of Nodes with overlaps = 15
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.529 | TNS=-139.499| WHS=N/A    | THS=N/A    |
+
+Phase 5.3 Global Iteration 2 | Checksum: 2b98beadb
+
+Time (s): cpu = 00:11:14 ; elapsed = 00:05:01 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33372 ; free virtual = 95024
+
+Phase 5.4 Global Iteration 3
+ Number of Nodes with overlaps = 837
+ Number of Nodes with overlaps = 273
+ Number of Nodes with overlaps = 199
+ Number of Nodes with overlaps = 85
+ Number of Nodes with overlaps = 38
+ Number of Nodes with overlaps = 27
+ Number of Nodes with overlaps = 20
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.602 | TNS=-116.608| WHS=N/A    | THS=N/A    |
+
+Phase 5.4 Global Iteration 3 | Checksum: 28ac818ab
+
+Time (s): cpu = 00:12:47 ; elapsed = 00:05:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33921 ; free virtual = 95041
+Phase 5 Rip-up And Reroute | Checksum: 28ac818ab
+
+Time (s): cpu = 00:12:47 ; elapsed = 00:05:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33913 ; free virtual = 95033
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 24797ff0e
+
+Time (s): cpu = 00:13:00 ; elapsed = 00:05:57 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31851 ; free virtual = 92976
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.474 | TNS=-121.117| WHS=N/A    | THS=N/A    |
+
+ Number of Nodes with overlaps = 0
+Phase 6.1 Delay CleanUp | Checksum: 1b1e51d0c
+
+Time (s): cpu = 00:13:02 ; elapsed = 00:05:58 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31890 ; free virtual = 93134
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 1b1e51d0c
+
+Time (s): cpu = 00:13:02 ; elapsed = 00:05:58 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31844 ; free virtual = 93105
+Phase 6 Delay and Skew Optimization | Checksum: 1b1e51d0c
+
+Time (s): cpu = 00:13:02 ; elapsed = 00:05:58 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31805 ; free virtual = 93082
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.474 | TNS=-119.761| WHS=0.033  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 1d6e8c939
+
+Time (s): cpu = 00:13:19 ; elapsed = 00:06:01 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31722 ; free virtual = 93018
+Phase 7 Post Hold Fix | Checksum: 1d6e8c939
+
+Time (s): cpu = 00:13:19 ; elapsed = 00:06:01 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31768 ; free virtual = 93064
+
+Phase 8 Timing Verification
+
+Phase 8.1 Update Timing
+Phase 8.1 Update Timing | Checksum: 202f9ca1d
+
+Time (s): cpu = 00:13:40 ; elapsed = 00:06:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31559 ; free virtual = 92860
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.474 | TNS=-119.761| WHS=0.033  | THS=0.000  |
+
+Phase 8 Timing Verification | Checksum: 202f9ca1d
+
+Time (s): cpu = 00:13:40 ; elapsed = 00:06:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31543 ; free virtual = 92844
+
+Phase 9 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.6847 %
+  Global Horizontal Routing Utilization  = 36.9749 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+
+--GLOBAL Congestion:
+Utilization threshold used for congestion level computation: 0.85
+Congestion Report
+North Dir 1x1 Area, Max Cong = 98.1982%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X28Y141 -> INT_L_X28Y141
+   INT_L_X32Y137 -> INT_L_X32Y137
+   INT_L_X34Y135 -> INT_L_X34Y135
+   INT_L_X34Y131 -> INT_L_X34Y131
+   INT_L_X28Y130 -> INT_L_X28Y130
+South Dir 1x1 Area, Max Cong = 98.1982%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_R_X31Y120 -> INT_R_X31Y120
+   INT_R_X27Y118 -> INT_R_X27Y118
+   INT_L_X32Y118 -> INT_L_X32Y118
+   INT_L_X46Y116 -> INT_L_X46Y116
+   INT_L_X40Y112 -> INT_L_X40Y112
+East Dir 1x1 Area, Max Cong = 98.5294%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_R_X31Y136 -> INT_R_X31Y136
+   INT_R_X27Y135 -> INT_R_X27Y135
+   INT_R_X27Y131 -> INT_R_X27Y131
+   INT_R_X25Y126 -> INT_R_X25Y126
+   INT_L_X42Y120 -> INT_L_X42Y120
+West Dir 2x2 Area, Max Cong = 86.3971%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X28Y18 -> INT_R_X29Y19
+
+------------------------------
+Reporting congestion hotspots
+------------------------------
+Direction: North
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 0.5 Sparse Ratio: 0.5
+Direction: South
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 1 Sparse Ratio: 1.5
+Direction: East
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 0.666667 Sparse Ratio: 1.25
+Direction: West
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 2 Aspect Ratio: 0.625 Sparse Ratio: 1
+
+Phase 9 Route finalize | Checksum: 202f9ca1d
+
+Time (s): cpu = 00:13:41 ; elapsed = 00:06:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31489 ; free virtual = 92790
+
+Phase 10 Verifying routed nets
+
+ Verification completed successfully
+Phase 10 Verifying routed nets | Checksum: 202f9ca1d
+
+Time (s): cpu = 00:13:41 ; elapsed = 00:06:04 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31453 ; free virtual = 92756
+
+Phase 11 Depositing Routes
+Phase 11 Depositing Routes | Checksum: 2281c9cee
+
+Time (s): cpu = 00:13:53 ; elapsed = 00:06:11 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 32166 ; free virtual = 93493
+
+Phase 12 Incr Placement Change
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 32017 ; free virtual = 93344
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.019. For the most accurate timing information please run report_timing.
+Ending IncrPlace Task | Checksum: 1328626ab
+
+Time (s): cpu = 00:02:01 ; elapsed = 00:00:52 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 32732 ; free virtual = 94390
+Phase 12 Incr Placement Change | Checksum: 1328626ab
+
+Time (s): cpu = 00:15:55 ; elapsed = 00:07:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33048 ; free virtual = 94706
+
+Phase 13 Build RT Design
+Checksum: PlaceDB: aa6c512d ConstDB: 0 ShapeSum: dcee1a8 RouteDB: 7a4af3d6
+Post Restoration Checksum: NetGraph: ce01c854 | NumContArr: 52055192 | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 13 Build RT Design | Checksum: 2a5590f20
+
+Time (s): cpu = 00:16:40 ; elapsed = 00:07:13 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 32959 ; free virtual = 94640
+
+Phase 14 Router Initialization
+
+Phase 14.1 Fix Topology Constraints
+Phase 14.1 Fix Topology Constraints | Checksum: 2a5590f20
+
+Time (s): cpu = 00:16:41 ; elapsed = 00:07:13 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33083 ; free virtual = 94766
+
+Phase 14.2 Pre Route Cleanup
+Phase 14.2 Pre Route Cleanup | Checksum: 2e0c49dcf
+
+Time (s): cpu = 00:16:42 ; elapsed = 00:07:13 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 33063 ; free virtual = 94745
+ Number of Nodes with overlaps = 0
+
+Phase 14.3 Update Timing
+Phase 14.3 Update Timing | Checksum: 224b4bdbc
+
+Time (s): cpu = 00:17:54 ; elapsed = 00:07:29 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 32011 ; free virtual = 93970
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.038 | TNS=-0.038 | WHS=-0.386 | THS=-1048.877|
+
+
+Phase 14.4 Soft Constraint Pins - Fast Budgeting
+Phase 14.4 Soft Constraint Pins - Fast Budgeting | Checksum: 264e85037
+
+Time (s): cpu = 00:18:22 ; elapsed = 00:07:36 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 26803 ; free virtual = 88834
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.6256 %
+  Global Horizontal Routing Utilization  = 36.9318 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 390
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 109
+  Number of Partially Routed Nets     = 281
+  Number of Node Overlaps             = 0
+
+Phase 14 Router Initialization | Checksum: 264e85037
+
+Time (s): cpu = 00:18:24 ; elapsed = 00:07:36 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 27583 ; free virtual = 89566
+
+Phase 15 Global Routing
+Phase 15 Global Routing | Checksum: 264e85037
+
+Time (s): cpu = 00:18:24 ; elapsed = 00:07:36 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 27575 ; free virtual = 89557
+
+Phase 16 Initial Routing
+
+Phase 16.1 Initial Net Routing Pass
+Phase 16.1 Initial Net Routing Pass | Checksum: 1c8a7a735
+
+Time (s): cpu = 00:18:26 ; elapsed = 00:07:38 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 28149 ; free virtual = 90142
+Phase 16 Initial Routing | Checksum: 1c8a7a735
+
+Time (s): cpu = 00:18:26 ; elapsed = 00:07:38 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 28166 ; free virtual = 90162
+INFO: [Route 35-580] Design has 14 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++======================+======================+====================================================================================================================================+
+| Launch Setup Clock   | Launch Hold Clock    | Pin                                                                                                                                |
++======================+======================+====================================================================================================================================+
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | KL_mbx/u_evt/ctr_seen_r_reg[0][26]/D                                                                                               |
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | KL_mbx/u_evt/ctr_seen_r_reg[0][2]/D                                                                                                |
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | KL_mbx/u_evt/ctr_seen_r_reg[0][3]/D                                                                                                |
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | KL_mbx/u_evt/ctr_pend_r_reg[0][27]/D                                                                                               |
+| milansoc_crg_clkout0 | milansoc_crg_clkout0 | VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D |
++----------------------+----------------------+------------------------------------------------------------------------------------------------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 17 Rip-up And Reroute
+
+Phase 17.1 Global Iteration 0
+ Number of Nodes with overlaps = 2433
+ Number of Nodes with overlaps = 1322
+ Number of Nodes with overlaps = 528
+ Number of Nodes with overlaps = 222
+ Number of Nodes with overlaps = 97
+ Number of Nodes with overlaps = 48
+ Number of Nodes with overlaps = 29
+ Number of Nodes with overlaps = 14
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 7
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.225 | TNS=-5.227 | WHS=N/A    | THS=N/A    |
+
+Phase 17.1 Global Iteration 0 | Checksum: 28213c85c
+
+Time (s): cpu = 00:20:57 ; elapsed = 00:08:52 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 30514 ; free virtual = 92845
+
+Phase 17.2 Global Iteration 1
+ Number of Nodes with overlaps = 2290
+ Number of Nodes with overlaps = 611
+ Number of Nodes with overlaps = 290
+ Number of Nodes with overlaps = 116
+ Number of Nodes with overlaps = 57
+ Number of Nodes with overlaps = 25
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.421 | TNS=-19.943| WHS=N/A    | THS=N/A    |
+
+Phase 17.2 Global Iteration 1 | Checksum: 1bc9b3623
+
+Time (s): cpu = 00:22:13 ; elapsed = 00:09:43 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31698 ; free virtual = 94418
+Phase 17 Rip-up And Reroute | Checksum: 1bc9b3623
+
+Time (s): cpu = 00:22:13 ; elapsed = 00:09:43 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31678 ; free virtual = 94401
+
+Phase 18 Delay and Skew Optimization
+
+Phase 18.1 Delay CleanUp
+
+Phase 18.1.1 Update Timing
+Phase 18.1.1 Update Timing | Checksum: 1bc6c6b0b
+
+Time (s): cpu = 00:22:26 ; elapsed = 00:09:46 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31174 ; free virtual = 93949
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.225 | TNS=-2.670 | WHS=N/A    | THS=N/A    |
+
+ Number of Nodes with overlaps = 0
+Phase 18.1 Delay CleanUp | Checksum: 1d08845a5
+
+Time (s): cpu = 00:22:29 ; elapsed = 00:09:47 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31068 ; free virtual = 93845
+
+Phase 18.2 Clock Skew Optimization
+Phase 18.2 Clock Skew Optimization | Checksum: 1d08845a5
+
+Time (s): cpu = 00:22:30 ; elapsed = 00:09:47 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31039 ; free virtual = 93816
+Phase 18 Delay and Skew Optimization | Checksum: 1d08845a5
+
+Time (s): cpu = 00:22:30 ; elapsed = 00:09:47 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31015 ; free virtual = 93792
+
+Phase 19 Post Hold Fix
+
+Phase 19.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.188 | TNS=-2.351 | WHS=0.033  | THS=0.000  |
+
+Phase 19.1 Hold Fix Iter | Checksum: 1a8daa60a
+
+Time (s): cpu = 00:22:47 ; elapsed = 00:09:51 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29955 ; free virtual = 92745
+Phase 19 Post Hold Fix | Checksum: 1a8daa60a
+
+Time (s): cpu = 00:22:47 ; elapsed = 00:09:51 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29911 ; free virtual = 92701
+
+Phase 20 Timing Verification
+
+Phase 20.1 Update Timing
+Phase 20.1 Update Timing | Checksum: 1d38e3952
+
+Time (s): cpu = 00:23:07 ; elapsed = 00:09:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29401 ; free virtual = 92364
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.188 | TNS=-2.351 | WHS=0.033  | THS=0.000  |
+
+Phase 20 Timing Verification | Checksum: 1d38e3952
+
+Time (s): cpu = 00:23:07 ; elapsed = 00:09:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29351 ; free virtual = 92315
+
+Phase 21 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.7432 %
+  Global Horizontal Routing Utilization  = 37.033 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+
+--GLOBAL Congestion:
+Utilization threshold used for congestion level computation: 0.85
+Congestion Report
+North Dir 1x1 Area, Max Cong = 95.4955%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X28Y141 -> INT_L_X28Y141
+   INT_L_X32Y137 -> INT_L_X32Y137
+   INT_L_X34Y135 -> INT_L_X34Y135
+   INT_L_X34Y131 -> INT_L_X34Y131
+   INT_L_X28Y130 -> INT_L_X28Y130
+South Dir 1x1 Area, Max Cong = 96.3964%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_R_X31Y120 -> INT_R_X31Y120
+   INT_R_X27Y118 -> INT_R_X27Y118
+   INT_L_X32Y118 -> INT_L_X32Y118
+   INT_L_X44Y117 -> INT_L_X44Y117
+   INT_L_X46Y116 -> INT_L_X46Y116
+East Dir 2x2 Area, Max Cong = 86.3971%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X36Y102 -> INT_R_X37Y103
+West Dir 2x2 Area, Max Cong = 85.6618%, Congestion bounded by tiles (Lower Left Tile -> Upper Right Tile):
+   INT_L_X28Y18 -> INT_R_X29Y19
+   INT_L_X28Y16 -> INT_R_X29Y17
+
+------------------------------
+Reporting congestion hotspots
+------------------------------
+Direction: North
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 0.5 Sparse Ratio: 0.5
+Direction: South
+----------------
+Congested clusters found at Level 0
+Effective congestion level: 1 Aspect Ratio: 1 Sparse Ratio: 1.25
+Direction: East
+----------------
+Congested clusters found at Level 1
+Effective congestion level: 2 Aspect Ratio: 0.666667 Sparse Ratio: 1
+Direction: West
+----------------
+Congested clusters found at Level 1
+Effective congestion level: 2 Aspect Ratio: 0.666667 Sparse Ratio: 1
+
+Phase 21 Route finalize | Checksum: 1d38e3952
+
+Time (s): cpu = 00:23:08 ; elapsed = 00:09:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29443 ; free virtual = 92407
+
+Phase 22 Verifying routed nets
+
+ Verification completed successfully
+Phase 22 Verifying routed nets | Checksum: 1d38e3952
+
+Time (s): cpu = 00:23:09 ; elapsed = 00:09:55 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 29447 ; free virtual = 92411
+
+Phase 23 Depositing Routes
+Phase 23 Depositing Routes | Checksum: 1236466b5
+
+Time (s): cpu = 00:23:20 ; elapsed = 00:10:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 30968 ; free virtual = 93949
+INFO: [Route 72-16] Aggressive Explore Summary
++======+========+=====+=======+=====+========+==============+===================+
+| Pass |  WNS   | TNS |  WHS  | THS | Status | Elapsed Time | Solution Selected |
++======+========+=====+=======+=====+========+==============+===================+
+|  1   | -0.474 |  -  | 0.033 |  -  |  Pass  |   00:05:34   |                   |
+|  2   | -0.188 |  -  | 0.033 |  -  |  Pass  |   00:02:50   |         x         |
++------+--------+-----+-------+-----+--------+--------------+-------------------+
+
+
+Phase 24 Post Process Routing
+Phase 24 Post Process Routing | Checksum: 1236466b5
+
+Time (s): cpu = 00:23:20 ; elapsed = 00:10:03 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 30923 ; free virtual = 93906
+
+Phase 25 Post Router Timing
+INFO: [Route 35-20] Post Routing Timing Summary | WNS=-0.182 | TNS=-1.966 | WHS=0.036  | THS=0.000  |
+
+Phase 25 Post Router Timing | Checksum: 14f9ac187
+
+Time (s): cpu = 00:24:21 ; elapsed = 00:10:14 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31086 ; free virtual = 94157
+CRITICAL WARNING: [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports.
+Resolution: Verify that the timing was met or had small violations at all previous steps (synthesis, placement, power_opt, and phys_opt). Run report_timing_summary and analyze individual timing paths.
+INFO: [Route 35-253] TNS is the sum of the worst slack violation on every endpoint in the design. Review the paths with the biggest WNS violations in the timing reports and modify your constraints or your design to improve both WNS and TNS.
+Total Elapsed time in route_design: 614.28 secs
+
+Phase 26 Post-Route Event Processing
+Phase 26 Post-Route Event Processing | Checksum: 7d1da4a7
+
+Time (s): cpu = 00:24:21 ; elapsed = 00:10:15 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31450 ; free virtual = 94534
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 7d1da4a7
+
+Time (s): cpu = 00:24:22 ; elapsed = 00:10:15 . Memory (MB): peak = 4201.973 ; gain = 1.000 ; free physical = 31340 ; free virtual = 94432
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+28 Infos, 0 Warnings, 1 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:24:27 ; elapsed = 00:10:16 . Memory (MB): peak = 4201.973 ; gain = 115.906 ; free physical = 30672 ; free virtual = 93796
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-241] Physical synthesis in post route mode 
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:10 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 29590 ; free virtual = 92916
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 64.48s |  WALL: 16.23s
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 29741 ; free virtual = 93074
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 16 CPUs
+INFO: [Physopt 32-668] Current Timing Summary | WNS=-0.182 | TNS=-1.966 | WHS=0.036 | THS=0.000 |
+Phase 1 Physical Synthesis Initialization | Checksum: 181f7ef5c
+
+Time (s): cpu = 00:00:29 ; elapsed = 00:00:10 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 29832 ; free virtual = 93333
+
+Phase 2 Critical Path Optimization
+INFO: [Physopt 32-668] Current Timing Summary | WNS=-0.182 | TNS=-1.966 | WHS=0.036 | THS=0.000 |
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][26].
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: milansoc_crg_clkout0.
+INFO: [Physopt 32-608] Optimized 1 net.  Swapped 24 pins.
+INFO: [Physopt 32-952] Improved path group WNS = -0.116. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_260.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][24].
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_258.
+INFO: [Physopt 32-710] Processed net KL_mbx/u_evt/KL_mbx_evt_net_258. Critical path length was reduced through logic transformation on cell KL_mbx/u_evt/KL_mbx_evt_LUT3_12_comp.
+INFO: [Physopt 32-952] Improved path group WNS = -0.088. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_pend_r[0][31]_i_3_n_0.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_reg_0_3_0_5/DOA0.
+INFO: [Physopt 32-710] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctxWrite_valid. Critical path length was reduced through logic transformation on cell VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/slots_ctx_reg_0_3_0_5_i_1_comp.
+INFO: [Physopt 32-952] Improved path group WNS = -0.081. Path group: milansoc_crg_clkout0. Processed net: VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/p_101_in.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][4].
+INFO: [Physopt 32-608] Optimized 1 net.  Swapped 18 pins.
+INFO: [Physopt 32-952] Improved path group WNS = -0.046. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_264.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/probe_wake_insertion_hits_roundRobinNext_priority[0].
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/probe_wake_stages_1_valid_reg_0[0].
+INFO: [Physopt 32-710] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/probe_wake_stages_1_valid_reg_0[0]. Critical path length was reduced through logic transformation on cell VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/streamArbiter_12/probe_ctxMem_spinal_port1[46]_i_1_comp.
+INFO: [Physopt 32-952] Improved path group WNS = -0.034. Path group: milansoc_crg_clkout0. Processed net: VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/splited_wc_hub_hub_logic_hub/probe_ctxMem_spinal_port1[46]_i_2_n_0.
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_1_in115_in.  Re-placed instance KL_mbx/u_evt/ctr_pend_r_reg[0][29]
+INFO: [Physopt 32-952] Improved path group WNS = -0.032. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/p_1_in115_in.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/p_1_in115_in.
+INFO: [Physopt 32-952] Improved path group WNS = -0.028. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_251.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_251.
+INFO: [Physopt 32-710] Processed net KL_mbx/u_evt/KL_mbx_evt_net_251. Critical path length was reduced through logic transformation on cell KL_mbx/u_evt/KL_mbx_evt_LUT2_58_comp.
+INFO: [Physopt 32-952] Improved path group WNS = -0.027. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_248.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_264.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_pend_r[0][7]_i_2_n_0.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_48.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_45.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_pend_r[0][7]_i_7_n_0.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_pend_r[0][31]_i_14_n_0.
+INFO: [Physopt 32-710] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_14_n_0. Critical path length was reduced through logic transformation on cell KL_mbx/u_evt/ctr_pend_r[0][31]_i_14_rewire_comp.
+INFO: [Physopt 32-952] Improved path group WNS = -0.007. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/ctr_pend_r[0][31]_i_20_n_0.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_54.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_53.
+INFO: [Physopt 32-953] Path group WNS did not improve. Path group: milansoc_crg_clkout0. Processed net: KL_mbx/u_evt/KL_mbx_evt_net_52.
+INFO: [Physopt 32-710] Processed net KL_mbx/u_evt/KL_mbx_evt_net_52. Critical path length was reduced through logic transformation on cell KL_mbx/u_evt/KL_mbx_evt_LUT3_11_comp.
+INFO: [Physopt 32-735] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_19_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-668] Current Timing Summary | WNS=0.008 | TNS=0.000 | WHS=0.036 | THS=0.000 |
+INFO: [Physopt 32-668] Current Timing Summary | WNS=0.008 | TNS=0.000 | WHS=0.036 | THS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25753 ; free virtual = 91090
+Phase 2 Critical Path Optimization | Checksum: 181f7ef5c
+
+Time (s): cpu = 00:05:37 ; elapsed = 00:03:17 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25749 ; free virtual = 91086
+
+Phase 3 Hold Fix Optimization
+INFO: [Physopt 32-668] Current Timing Summary | WNS=0.008 | TNS=0.000 | WHS=0.036 | THS=0.000 |
+INFO: [Physopt 32-1493] The number of hold_fix net fail limit is 5.
+INFO: [Physopt 32-66] No high hold slack nets found for hold slack optimization.
+INFO: [Physopt 32-668] Current Timing Summary | WNS=0.008 | TNS=0.000 | WHS=0.036 | THS=0.000 |
+Phase 3 Hold Fix Optimization | Checksum: 181f7ef5c
+
+Time (s): cpu = 00:05:38 ; elapsed = 00:03:17 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25585 ; free virtual = 90923
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25593 ; free virtual = 90931
+INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=0.008 | TNS=0.000 | WHS=0.036 | THS=0.000 |
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization   |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Critical Path  |          0.190  |          1.966  |            0  |              0  |                    10  |           0  |           1  |  00:03:06  |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Summary of Hold Fix Optimizations
+=================================
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization               |  WHS Gain (ns)  |  THS Gain (ns)  |  Added LUTs  |  Added FFs  |  Optimized Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT1 and ZHOLD Insertion   |          0.000  |          0.000  |           0  |          0  |               0  |           0  |           0  |  00:00:00  |
+|  Total                      |          0.000  |          0.000  |           0  |          0  |               0  |           0  |           0  |  00:00:00  |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25569 ; free virtual = 90909
+Ending Physical Synthesis Task | Checksum: 1751f9500
+
+Time (s): cpu = 00:05:38 ; elapsed = 00:03:17 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25520 ; free virtual = 90860
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+56 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:06:43 ; elapsed = 00:03:35 . Memory (MB): peak = 4201.973 ; gain = 0.000 ; free physical = 25379 ; free virtual = 90719
+# write_checkpoint -force alinx_ax7101_route.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 25314 ; free virtual = 90655
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 25318 ; free virtual = 90659
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.65 ; elapsed = 00:00:00.17 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 25276 ; free virtual = 90626
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 25218 ; free virtual = 90605
+Wrote PlaceStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 24965 ; free virtual = 90412
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.17 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 24870 ; free virtual = 90328
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 24868 ; free virtual = 90327
+Write Physdb Complete: Time (s): cpu = 00:00:09 ; elapsed = 00:00:04 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 24849 ; free virtual = 90308
+INFO: [Common 17-1381] The checkpoint '$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/alinx_ax7101_route.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:12 ; elapsed = 00:00:07 . Memory (MB): peak = 4211.293 ; gain = 9.320 ; free physical = 24361 ; free virtual = 89749
+# report_timing_summary -no_header -no_detailed_paths
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (14)
+6. checking no_output_delay (21)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (14)
+-------------------------------
+ There are 0 input ports with no input delay specified.
+
+ There are 14 input ports with no input delay but user has a false path constraint. (MEDIUM)
+
+
+6. checking no_output_delay (21)
+--------------------------------
+ There are 21 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.008        0.000                      0               162382        0.036        0.000                      0               162300        1.100        0.000                       0                 56888  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 29.130}       58.261          17.164          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.690          24.576          
+      milansoc_crg_audio_tdm_raw   {0.000 5.086}        10.173          98.304          
+      milansoc_crg_mmcm_audio_fb   {0.000 29.130}       58.261          17.164          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.539        0.000                      0                    7        0.237        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.008        0.000                      0                51391        0.076        0.000                      0                51391        3.000        0.000                       0                 18403  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      19.130        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       36.270        0.000                      0                   33        0.237        0.000                      0                   33       19.845        0.000                       0                    21  
+      milansoc_crg_audio_tdm_raw         5.160        0.000                      0                 1016        0.072        0.000                      0                 1016        3.956        0.000                       0                   319  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    41.739        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.525        0.000                      0                99433        0.036        0.000                      0                99433        7.500        0.000                       0                 37467  
+  milansoc_crg_clkout2                   1.130        0.000                      0                  172        0.130        0.000                      0                  172        1.500        0.000                       0                    70  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.648        0.000                      0                 1673        0.061        0.000                      0                 1673        2.870        0.000                       0                   589  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        6.481        0.000                      0                   13                                                                        
+milansoc_crg_clkout2  milansoc_crg_clkout1        2.662        0.000                      0                    3        0.174        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.315        0.000                      0                   51                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout2        2.277        0.000                      0                   16        0.186        0.000                      0                   16  
+milansoc_crg_clkout0  eth_clocks0_rx              6.724        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.527        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        4.306        0.000                      0                  591        0.223        0.000                      0                  591  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       13.421        0.000                      0                 7965        2.257        0.000                      0                 7965  
+
+
+report_timing_summary: Time (s): cpu = 00:00:54 ; elapsed = 00:00:12 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 24132 ; free virtual = 89534
+# report_route_status -file alinx_ax7101_route_status.rpt
+# report_drc -file alinx_ax7101_drc.rpt
+Command: report_drc -file alinx_ax7101_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '$WORKSPACE_HOME/Xilinx/2026.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file $SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/alinx_ax7101_drc.rpt.
+report_drc completed successfully
+# report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:01:06 ; elapsed = 00:00:13 . Memory (MB): peak = 4211.293 ; gain = 0.000 ; free physical = 23921 ; free virtual = 89377
+# report_power -file alinx_ax7101_power.rpt
+Command: report_power -file alinx_ax7101_power.rpt
+INFO: [Power 33-23] Power model is not available for STARTUPE2
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+1 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:35 ; elapsed = 00:00:16 . Memory (MB): peak = 4387.652 ; gain = 176.359 ; free physical = 23590 ; free virtual = 89215
+# kl_timing_grade_reports alinx_ax7101_signoff
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:10 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 24710 ; free virtual = 90420
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:09 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 23998 ; free virtual = 89732
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:47 ; elapsed = 00:00:09 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 24168 ; free virtual = 89929
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:10 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 23383 ; free virtual = 89173
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+report_timing_summary: Time (s): cpu = 00:00:55 ; elapsed = 00:00:10 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 23300 ; free virtual = 89123
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# set_property CONFIG_MODE SPIx4 [current_design]
+# set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+# set_property CFGBVS VCCO [current_design]
+# set_property CONFIG_VOLTAGE 3.3 [current_design]
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3451ns period=40.6901ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_tdm_raw {rise@0ns fall@5.08627ns period=10.1725ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 16 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:43 ; elapsed = 00:00:09 . Memory (MB): peak = 4387.652 ; gain = 0.000 ; free physical = 24974 ; free virtual = 90850
+# report_utilization -hierarchical -file routed_hier.rpt
+# report_utilization -file routed_util.rpt
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Nov 24 10:00:28 2026...

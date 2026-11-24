@@ -1,0 +1,16 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: phys8.events
+Original SHA256: b5f039e87617a6434a42ea28b846d05741e5cba3e0a76fc4c8f1c8595b592c7b
+Scope: complete text; paths and host fields normalized
+
+{"step": "start", "trees": {"hdl": "115838d17a389527009dcf2fd6fde4d66d8d9de6", "sw": "374e7a0cda1737a4c346052d405405cbc80a6372", "configs": "645784f4fa209c130642a2955bae930b97b82957", "dirty_hdl_sw_configs": "", "submodules": " efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)\n 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/640-m7-99-g1616fc8)\n 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)\n 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)\n 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)\n"}, "time": "2026-11-24T09:06:11"}
+{"step": "link", "exit": 2, "elf_exists": true, "time": "2026-11-24T09:06:52"}
+{"step": "export", "exit": 0, "time": "2026-11-24T09:06:55"}
+{"step": "vivado", "tcl": "$SCRATCH/route/endstation_ax7101_8x8/gateware/measure_synth.tcl", "exit": 0, "seconds": 1435.7725813388824, "time": "2026-11-24T09:30:50"}
+{"step": "vivado", "tcl": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraPostPlacementOpt/measure_route.tcl", "exit": 0, "seconds": 1778.231787443161, "time": "2026-11-24T10:00:29"}
+{"step": "floor", "directive": "ExtraPostPlacementOpt", "pass_floor": false, "summary": [0.008, 0.036, 0], "time": "2026-11-24T10:00:29"}
+{"step": "vivado", "tcl": "$SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.tcl", "exit": 0, "seconds": 1440.2736921310425, "time": "2026-11-24T10:24:29"}
+{"step": "floor", "directive": "AltSpreadLogic_high", "pass_floor": true, "summary": [0.223, 0.036, 0], "time": "2026-11-24T10:24:29"}
+{"step": "end", "trees": {"hdl": "aefab0802b86433564fce98219f03a9fb7c9bb53", "sw": "374e7a0cda1737a4c346052d405405cbc80a6372", "configs": "645784f4fa209c130642a2955bae930b97b82957", "dirty_hdl_sw_configs": "", "submodules": " efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)\n 1616fc8f062fbf58c35ad31674b5b233207bbdb8 gptp-processor (remotes/origin/640-m7-99-g1616fc8)\n 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)\n 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)\n 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (heads/main)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)\n"}, "time": "2026-11-24T10:24:29"}
+{"step": "vivado-best-of-three", "tcl": "$SCRATCH/route/endstation_ax7101_8x8/gateware/ExtraTimingOpt/measure_route.tcl", "exit": 0, "seconds": 2340.5836997032166, "time": "2026-11-24T11:03:41"}

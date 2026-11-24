@@ -1,0 +1,50 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: render_pieces.py
+Original SHA256: 580e7633d4045c68c179691c66dfe13ccb09252af1e762b3c30d1a5cff84d76f
+Scope: complete text; paths and host fields normalized
+
+"""Slice 0 of the tdm8render-mutants campaign as independent pieces (run with python -u).
+
+Usage: render_pieces.py controls | legdef | clean <i> | mut <index into MUTATIONS>.
+`controls` runs the positive controls, leg-defect arms and clean controls as main() does.
+"""
+import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, '$CHECKOUT/tb/verilator/milan_dp_render')
+import tdm8_render_mutants as m  # noqa: E402
+
+rounds = []
+with tempfile.TemporaryDirectory(prefix='tdm8-render-piece-') as td:
+    work = Path(td)
+    if sys.argv[1] == 'controls':
+        clean = m.clean_legs(work, False)
+        rounds.append(m.run_positive_controls(clean, m.control_modes(False)))
+        rounds.append(m.run_leg_defects(clean))
+        rounds.append(m.run_clean_controls(work))
+        label = 'controls'
+    elif sys.argv[1] == 'positive':
+        i = int(sys.argv[2])
+        clean = m.clean_legs(work, False)
+        rounds.append(m.run_positive_controls(clean, [m.control_modes(False)[i]]))
+        label = f'positive control {i}'
+    elif sys.argv[1] == 'legdef':
+        clean = m.clean_legs(work, False)
+        rounds.append(m.run_leg_defects(clean))
+        label = 'leg defects'
+    elif sys.argv[1] == 'clean':
+        i = int(sys.argv[2])
+        m.CLEAN_CONTROLS = [m.CLEAN_CONTROLS[i]]
+        rounds.append(m.run_clean_controls(work))
+        label = f'clean control {i}'
+    else:
+        i = int(sys.argv[2])
+        m.MUTATIONS = [m.MUTATIONS[i]]
+        rounds.append(m.run_mutations(work))
+        label = f'mutation {i}'
+passes = sum(p for p, _ in rounds)
+fails = sum(f for _, f in rounds)
+print(f'\n{passes + fails} checks: {passes} PASS, {fails} FAIL ({label})', flush=True)
+sys.exit(1 if fails else 0)

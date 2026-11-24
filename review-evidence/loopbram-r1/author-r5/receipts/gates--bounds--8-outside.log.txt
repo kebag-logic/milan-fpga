@@ -1,0 +1,19 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/bounds/8-outside.log
+Original SHA256: 9665f8028fa25a82f67e4514e331890ed3acadcf3388718793b6c87624017e85
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+FAIL COPY_SAMPLE_L frame=63 phase=306 got=000000 want=9e003e
+FAIL COPY_SAMPLE_R frame=63 phase=306 got=000000 want=9c003e
+FAIL COPY_SAMPLE_L frame=63 phase=334 got=000000 want=9a003e
+FAIL COPY_SAMPLE_R frame=63 phase=334 got=000000 want=98003e
+FAIL COPY_SAMPLE_L frame=63 phase=362 got=000000 want=96003e
+FAIL COPY_SAMPLE_R frame=63 phase=362 got=000000 want=94003e
+FAIL COPY_SAMPLE_L frame=63 phase=390 got=000000 want=92003e
+FAIL COPY_SAMPLE_R frame=63 phase=390 got=000000 want=90003e
+FAIL COPY_SAMPLE_L frame=64 phase=306 got=000000 want=9e003f
+FAIL COPY_SAMPLE_R frame=64 phase=306 got=000000 want=9c003f
+FAIL COPY_SAMPLE_L frame=64 phase=334 got=000000 want=9a003f
+FAIL COPY_SAMPLE_R frame=64 phase=334 got=000000 want=98003f
+FAIL input-loopback streams=8 channels=63 lead=1: 79587 checks, 216 failures, packets=468

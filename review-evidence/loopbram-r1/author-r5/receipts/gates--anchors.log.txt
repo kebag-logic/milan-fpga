@@ -1,0 +1,40 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/anchors.log
+Original SHA256: bc52225cbc6ed5b35556326c1a784788732db5629ac1e3baf0a13fe28f373765
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+render_queue/mutants.py  "a timestamp's frame truncated, not rounded to the nearest": base 1, head 1
+render_queue/mutants.py  "the divider's last quotient bit dropped": base 1, head 1
+render_queue/mutants.py  "a step's quotient bit kept with the remainder not reduced": base 1, head 1
+render_queue/mutants.py  'the timestamp difference taken on 31 bits (the 2^32 wrap misread)': base 1, head 1
+render_queue/mutants.py  'a PDU stamped behind the latest event refused whole, its events ahead lost': base 1, head 1
+render_queue/mutants.py  'a PDU stamped behind the latest event refused whole, on the shipping shape': base 1, head 1
+render_queue/mutants.py  'the late reach short of the longest PDU': base 1, head 1
+render_queue/mutants.py  'every interface reads the smallest out-lead': base 1, head 1
+render_queue/mutants.py  "banked by lane parity alone: a straddling beat's two lanes share a bank": base 1, head 1
+render_queue/mutants.py  "banked by lane parity alone: a straddling beat's two lanes share a bank": base 1, head 1
+render_queue/mutants.py  "a consumed frame's rows left valid (no invalidation)": base 1, head 1
+render_queue/mutants.py  'a bind wipe ignored': base 0, head 1
+render_queue/mutants.py  'tv ignored': base 1, head 1
+render_queue/mutants.py  'a payload placed before its frame is known': base 1, head 1
+render_queue/mutants.py  'a payload placed before its frame is known': base 1, head 1
+render_queue/mutants.py  'the per-event late rule removed': base 1, head 1
+render_queue/mutants.py  'the per-event early rule removed': base 1, head 1
+render_queue/mutants.py  'a gap in a presenting stream not counted': base 1, head 1
+render_queue/mutants.py  'a PDU on a frame its stream wrote not counted': base 1, head 1
+render_queue/mutants.py  'lead_o kept after the stream drains': base 0, head 1
+render_queue/mutants.py  "a PDU's events past the eighth wrapped onto its first frames (a 3-bit event index)": base 1, head 1
+render_queue/mutants.py  "a PDU's events past the eighth wrapped onto its first frames (a 3-bit event index)": base 1, head 1
+render_queue/mutants.py  "a long PDU's events not held past the queue once there (their frame numbers wrap to late)": base 1, head 1
+render_queue/mutants.py  'a too-early PDU not counted in refused_o': base 1, head 1
+render_queue/mutants.py  'a PDU with both a late and a too-early event counted twice in refused_o': base 1, head 1
+render_queue/mutants.py  "each render tick after the first stream's last beat": base 1, head 1
+render_queue/mutants.py  'a pop for an event without a sample': base 1, head 1
+render_queue/mutants.py  'converged kept through a gap': base 1, head 1
+render_queue/mutants.py  'the pad lane of an odd count read as a channel': base 1, head 1
+milan_dp/render_mutants.py 'each PDU placed by its arrival instead of its timestamp' (hdl/ieee1722/aaf/KL_render_queue.sv): base 1, head 1
+milan_dp/render_mutants.py 'the PDU without tv placed by its stale timestamp' (hdl/ieee1722/aaf/KL_render_queue.sv): base 1, head 1
+milan_dp/render_mutants.py 'a PHC step resets the stage' (hdl/milan/milan_datapath.sv): base 1, head 1
+milan_dp/render_mutants.py 'a clock-source change flushes the stage' (hdl/milan/milan_datapath.sv): base 1, head 1
+ANCHORS INTACT 0

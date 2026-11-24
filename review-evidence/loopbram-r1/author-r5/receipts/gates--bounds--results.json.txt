@@ -1,0 +1,142 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/bounds/results.json
+Original SHA256: 4ee68775dd047cc5d52781b9894d4c3560e51fbf40d58c367b28ebeb4cb22ce9
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "shape": 1,
+    "case": "control",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=1",
+      "FIRST=8",
+      "CHANNELS=8",
+      "MDIR=$SCRATCH/gates/bounds/1",
+      "LEAD=2"
+    ],
+    "environment": {},
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "inside",
+    "command": [
+      "$SCRATCH/gates/bounds/1/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "84"
+    },
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "outside",
+    "command": [
+      "$SCRATCH/gates/bounds/1/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "87"
+    },
+    "exit": 1,
+    "passed": true
+  },
+  {
+    "shape": 1,
+    "case": "lead3",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=1",
+      "FIRST=8",
+      "CHANNELS=8",
+      "MDIR=$SCRATCH/gates/bounds/1",
+      "LEAD=3",
+      "MDIR=$SCRATCH/gates/bounds/1-lead3"
+    ],
+    "environment": {},
+    "exit": 2,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "control",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=8",
+      "FIRST=1",
+      "CHANNELS=63",
+      "MDIR=$SCRATCH/gates/bounds/8",
+      "LEAD=1"
+    ],
+    "environment": {},
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "inside",
+    "command": [
+      "$SCRATCH/gates/bounds/8/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "84"
+    },
+    "exit": 0,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "outside",
+    "command": [
+      "$SCRATCH/gates/bounds/8/Vinput_loopback"
+    ],
+    "environment": {
+      "STAMP_PPM": "1000",
+      "STAMP_JITTER_NS": "87"
+    },
+    "exit": 1,
+    "passed": true
+  },
+  {
+    "shape": 8,
+    "case": "lead3",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "run",
+      "VERILATOR_JOBS=4",
+      "STREAMS=8",
+      "FIRST=1",
+      "CHANNELS=63",
+      "MDIR=$SCRATCH/gates/bounds/8",
+      "LEAD=3",
+      "MDIR=$SCRATCH/gates/bounds/8-lead3"
+    ],
+    "environment": {},
+    "exit": 2,
+    "passed": true
+  }
+]

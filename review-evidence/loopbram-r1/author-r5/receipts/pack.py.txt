@@ -1,0 +1,141 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: pack.py
+Original SHA256: 8360c8147795118df4fac1c0d1f86769ad7e112aff6385e39c7d00e84b6c93be
+Scope: complete text; paths and host fields normalized
+
+"""Pack round-5 text receipts (each under 200 KB, never compressed) and their index."""
+import hashlib
+import json
+import re
+import socket
+import subprocess
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+packet = Path('$MANAGEMENT/2026-09-23/loopbram-a826/round5')
+out = packet / 'receipts'
+out.mkdir(parents=True, exist_ok=True)
+for old in out.iterdir():
+    old.unlink()
+root = Path('$CHECKOUT')
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+assert not subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).strip()
+PRIOR = 'dc78aedae34c25a97125ecd6816a1f645db5575f'
+
+# Source binding: what changed since the reviewed head, and which trees the route read.
+trees = {p: subprocess.check_output(['git', 'rev-parse', f'HEAD:{p}'], cwd=root, text=True).strip()
+         for p in ('hdl', 'sw', 'configs')}
+prior_trees = {p: subprocess.check_output(['git', 'rev-parse', f'{PRIOR}:{p}'], cwd=root, text=True).strip()
+               for p in ('hdl', 'sw', 'configs')}
+binding = {
+    'head': head, 'prior_reviewed_head': PRIOR,
+    'commits': subprocess.check_output(['git', 'log', '--format=%H %s', f'{PRIOR}..HEAD'], cwd=root,
+                                       text=True).splitlines(),
+    'changed_files': subprocess.check_output(['git', 'diff', '--name-only', PRIOR, 'HEAD'], cwd=root,
+                                             text=True).splitlines(),
+    'trees_at_head': trees, 'trees_at_prior_head': prior_trees,
+    'route_start_trees': (w / 'trees-at-route-start.txt').read_text(),
+    'submodules_at_head': subprocess.check_output(['git', 'submodule', 'status'], cwd=root, text=True),
+    'changed_under_hdl_sw_configs_submodules_workflows': subprocess.check_output(
+        ['git', 'diff', '--name-only', PRIOR, 'HEAD', '--', 'hdl', 'sw', 'configs', 'external', 'gptp-processor',
+         'protocol-processor', 'third_party', '.github'], cwd=root, text=True).splitlines(),
+    # Every non-Markdown byte the route and the elaboration read is unchanged since the reviewed head.
+    'non_markdown_hdl_changes': subprocess.check_output(
+        ['git', 'diff', '--name-only', PRIOR, 'HEAD', '--', 'hdl', ':(exclude)*.md'], cwd=root, text=True).splitlines(),
+}
+assert all(f.endswith('.md') for f in binding['changed_under_hdl_sw_configs_submodules_workflows'])
+assert not binding['non_markdown_hdl_changes']
+assert trees['sw'] == prior_trees['sw'] and trees['configs'] == prior_trees['configs']
+assert [x.strip() for x in binding['submodules_at_head'].splitlines() if x.strip()] == [x.strip() for x in (w / 'trees-at-route-start.txt').read_text().splitlines()[6:] if x.strip()]
+(w / 'source-binding.json').write_text(json.dumps(binding, indent=2) + '\n')
+(w / 'round5.diff').write_bytes(subprocess.check_output(['git', 'diff', PRIOR, 'HEAD'], cwd=root))
+
+patterns = [
+    'source-binding.json', 'round5.diff', 'phys8.events', 'phys8.log', 'trees-at-route-start.txt',
+    'route-summary.json', 'slot-usage.json', 'firmware-memory.json', 'status.json',
+    'measure/*',
+    # Superseded runs kept only as evidence of the failures this round found and fixed.
+    'superseded-docswf-68ff356f/results.json', 'superseded-docswf-68ff356f/12-*.log',
+    'superseded-docswf-68ff356f/25-*.log', 'superseded-docswf-68ff356f/28-*.log',
+    'superseded-docswf-68ff356f/33-*.log', 'superseded-docswf-68ff356f/34-*.log',
+    'superseded-be69935f/gates/sweep-shard16.log', 'superseded-builder-collision/builder-leg0.log', 'superseded-render-capped/render.log',
+    'gates/render-slice0-pieces/*.log', 'gates/sweep-shard15/input_loopback*.log', 'gates/sweep-shard16/input_loopback*.log',
+    'gates/*.json', 'gates/*.log', 'gates/parent-plants/*.json', 'gates/parent-plants/*.log',
+    'gates/leaf-plants/*.json', 'gates/leaf-plants/*.log', 'gates/bounds/*.json', 'gates/bounds/*.log',
+    'gates/builder-union/*.json', 'gates/coherence-mutants-receipt', 'gates/reviewer-probes/results.json',
+    'gates/yosys/results/*.result', 'gates/leaf-off/*/cells.txt', 'gates/leaf-off/*/stat.txt',
+    'docswf/results.json', 'docswf/*.log',
+    'builds/*-on.log', 'route/*/export-command.json', 'route/*/export.log',
+    'route/**/measure_*.json', 'route/**/measure_*.tcl', 'route/**/measure_*.log',
+    'route/**/*signoff_*C_timing.rpt', 'route/**/*route_status.rpt', 'route/**/routed_util.rpt',
+    'route/**/routed_hier.rpt', 'route/**/*utilization_synth.rpt', 'measure/*.final.*',
+    'endstation_ax7101_8x8.yaml',
+]
+files = {p for pat in patterns for p in w.glob(pat) if p.is_file() and '.Xil' not in p.parts}
+files.update(w / n for n in ['phys8_rest.py', 'render_job.py', 'render_slices.py', 'render_pieces.py',
+                             'render_combine.py', 'phys8.py', 'gates.py', 'docswf.py', 'measure_soc.py', 'summarize.py', 'pack.py',
+                             'audit.py'] if (w / n).exists())
+rows = []
+for p in sorted(files):
+    raw = p.read_bytes()
+    data = raw.decode('utf-8', errors='replace')
+    scope = 'complete text; paths and host fields normalized'
+    if p.suffix == '.log':
+        lines = data.splitlines(True)
+        data = ''.join(line for line in lines if not re.match(
+            r'^(g\+\+|c\+\+|gcc|clang\+\+|cc|ar|rm -f|make\[?\d*\]?: (Entering|Leaving)) ', line))
+        scope = 'native compilation chatter omitted; other output retained; paths and host fields normalized'
+    data = data.replace(str(w), '$SCRATCH').replace(str(root), '$CHECKOUT')
+    data = data.replace(socket.gethostname(), '$HOST')
+    data = re.sub(r'(?m)^(\s*(?:Host|Hostname)\s*:\s*)\S+', r'\1$HOST', data)
+    data = re.sub(r'\.Xil/[A-Za-z][^/\s"]*-\d+-[^/\s"]+', '.Xil/$RUN', data)
+    header = (f'Candidate head: {head}\nPrior reviewed head: {PRIOR}\nSource: {p.relative_to(w)}\n'
+              f'Original SHA256: {hashlib.sha256(raw).hexdigest()}\nScope: {scope}\n\n')
+    parts, chunk = [], header
+    for line in data.splitlines(True):
+        for offset in range(0, len(line), 40000):
+            piece = line[offset:offset + 40000]
+            if len((chunk + piece).encode()) > 180000:
+                parts.append(chunk)
+                chunk = header
+            chunk += piece
+    if chunk != header:
+        parts.append(chunk)
+    stem = str(p.relative_to(w)).replace('/', '--')
+    for i, part in enumerate(parts):
+        name = stem + (f'.part{i + 1:03d}' if len(parts) > 1 else '') + '.txt'
+        blob = part.encode()
+        assert len(blob) < 200000
+        (out / name).write_bytes(blob)
+        rows.append(dict(file=name, source=str(p.relative_to(w)), bytes=len(blob),
+                         sha256=hashlib.sha256(blob).hexdigest(), original_sha256=hashlib.sha256(raw).hexdigest()))
+for i in range(0, len(rows), 150):
+    blob = ''.join(json.dumps(r, sort_keys=True) + '\n' for r in rows[i:i + 150]).encode()
+    assert len(blob) < 200000
+    (out / f'manifest-{i // 150 + 1:03d}.jsonl').write_bytes(blob)
+index = ['# Round 5 receipts', '', f'Exact candidate head: {head}.', f'Prior reviewed head: {PRIOR}.', '',
+         'Plain text only; each file is smaller than 200,000 bytes; nothing is compressed.',
+         'Logs retain diagnostics and test output; native compilation chatter is omitted.',
+         'Original SHA256 values precede path/host normalization and filtering.',
+         'The manifest-*.jsonl files bind every receipt by size and SHA256.', '',
+         '- [Source binding: changed files, trees read by the route](source-binding.json.txt)',
+         '- [Collected status](status.json.txt)',
+         '- [Enabled 8x8 route summary](route-summary.json.txt), [driver](phys8.py.txt), [events](phys8.events.txt)',
+         '- [Planner self-test](gates--planner-selftest.log.txt), '
+         '[19 shard listings](gates--ci-pieces-list.log.txt), [suite timings](measure--input_loopback_dp.time.txt)',
+         '- [Parent campaign results](gates--parent-plants--results.json.txt), '
+         '[reviewer plant log](gates--parent-plants--missing_output_8x8_stream7.log.txt)',
+         '- [Docs workflow replay](docswf--results.json.txt)',
+         '- [Gate groups](gates--quick.json.txt), [regressions](gates--regressions.json.txt), '
+         '[remaining](gates--remaining.json.txt), [builder](gates--builder.json.txt)',
+         '', '| Index part | Receipts |', '|---|---|']
+for i in range(0, len(rows), 100):
+    name = f'INDEX-{i // 100 + 1:03d}.md'
+    table = [f'# Receipt index part {i // 100 + 1}', '', '| Receipt | Bytes | Source |', '|---|---:|---|']
+    table += [f"| [{r['file']}]({r['file']}) | {r['bytes']} | `{r['source']}` |" for r in rows[i:i + 100]]
+    (out / name).write_text('\n'.join(table) + '\n')
+    index.append(f'| [{name}]({name}) | {i + 1}-{min(i + 100, len(rows))} |')
+(out / 'INDEX.md').write_text('\n'.join(index) + '\n')
+assert all(p.stat().st_size < 200000 and p.suffix != '.gz' for p in out.iterdir() if p.is_file())
+print('PACKED', len(rows), 'text receipts at', head)

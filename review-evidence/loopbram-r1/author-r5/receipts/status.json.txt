@@ -1,0 +1,777 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: status.json
+Original SHA256: 59b0f1e7e7b0a72e5818da71f5e24eb3c2d055f7479b0f2c6e39259b23c82a15
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+  "gates": {
+    "quick": [
+      {
+        "name": "anchors",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+          "$CHECKOUT",
+          "$CHECKOUT",
+          "3cda030c",
+          "9acb9b828b29aba71bd51303a4836f86c2278267"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.6
+      },
+      {
+        "name": "planner-selftest",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/suite_shards.py",
+          "--selftest"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 5.8
+      },
+      {
+        "name": "ci-pieces-list",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "echo \"== shard 0/19\" && scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list && echo \"== shard 1/19\" && scripts/run_all_suites.sh --ci-pieces --shard 1/19 --list && echo \"== shard 2/19\" && scripts/run_all_suites.sh --ci-pieces --shard 2/19 --list && echo \"== shard 3/19\" && scripts/run_all_suites.sh --ci-pieces --shard 3/19 --list && echo \"== shard 4/19\" && scripts/run_all_suites.sh --ci-pieces --shard 4/19 --list && echo \"== shard 5/19\" && scripts/run_all_suites.sh --ci-pieces --shard 5/19 --list && echo \"== shard 6/19\" && scripts/run_all_suites.sh --ci-pieces --shard 6/19 --list && echo \"== shard 7/19\" && scripts/run_all_suites.sh --ci-pieces --shard 7/19 --list && echo \"== shard 8/19\" && scripts/run_all_suites.sh --ci-pieces --shard 8/19 --list && echo \"== shard 9/19\" && scripts/run_all_suites.sh --ci-pieces --shard 9/19 --list && echo \"== shard 10/19\" && scripts/run_all_suites.sh --ci-pieces --shard 10/19 --list && echo \"== shard 11/19\" && scripts/run_all_suites.sh --ci-pieces --shard 11/19 --list && echo \"== shard 12/19\" && scripts/run_all_suites.sh --ci-pieces --shard 12/19 --list && echo \"== shard 13/19\" && scripts/run_all_suites.sh --ci-pieces --shard 13/19 --list && echo \"== shard 14/19\" && scripts/run_all_suites.sh --ci-pieces --shard 14/19 --list && echo \"== shard 15/19\" && scripts/run_all_suites.sh --ci-pieces --shard 15/19 --list && echo \"== shard 16/19\" && scripts/run_all_suites.sh --ci-pieces --shard 16/19 --list && echo \"== shard 17/19\" && scripts/run_all_suites.sh --ci-pieces --shard 17/19 --list && echo \"== shard 18/19\" && scripts/run_all_suites.sh --ci-pieces --shard 18/19 --list"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 6.3
+      },
+      {
+        "name": "py-idiom",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_py_idiom.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 13.4
+      },
+      {
+        "name": "py-idiom-selftest",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_py_idiom.py",
+          "--selftest"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 13.4
+      },
+      {
+        "name": "lint",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/lint_rtl.py",
+          "--check"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 6.3
+      },
+      {
+        "name": "docs",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/docs_check.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 16.2
+      },
+      {
+        "name": "doc-style",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_doc_style.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.2
+      },
+      {
+        "name": "em-dash",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3",
+          "scripts/check_em_dash.py",
+          "--base",
+          "3cda030c"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 7.5
+      },
+      {
+        "name": "xvlog",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/xvlog_gate.py",
+          "--check"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 265.4
+      },
+      {
+        "name": "parent-plants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback_dp/mutants.py",
+          "--output",
+          "$SCRATCH/gates/parent-plants"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 480.8
+      },
+      {
+        "name": "leaf-plants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback/mutants.py",
+          "--output",
+          "$SCRATCH/gates/leaf-plants"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 77.2
+      },
+      {
+        "name": "bounds",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback/bounds.py",
+          "--output",
+          "$SCRATCH/gates/bounds"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 25.5
+      }
+    ],
+    "regressions": [
+      {
+        "name": "input8",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback",
+          "VERILATOR_JOBS=4",
+          "run",
+          "MDIR=$SCRATCH/gates/regressions/input8"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 9.8
+      },
+      {
+        "name": "input1",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback",
+          "VERILATOR_JOBS=4",
+          "run",
+          "STREAMS=1",
+          "FIRST=8",
+          "CHANNELS=8",
+          "LEAD=2",
+          "MDIR=$SCRATCH/gates/regressions/input1"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 10.0
+      },
+      {
+        "name": "input_loopback_dp",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback_dp",
+          "VERILATOR_JOBS=4",
+          "WORK=$SCRATCH/gates/regressions/parent"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 59.5
+      },
+      {
+        "name": "queue",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/render_queue",
+          "VERILATOR_JOBS=4",
+          "all"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 253.6
+      },
+      {
+        "name": "capture",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/chmap_capture",
+          "VERILATOR_JOBS=4",
+          "run",
+          "MDIR=$SCRATCH/gates/regressions/capture"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 207.6
+      },
+      {
+        "name": "milan_dp",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/milan_dp",
+          "VERILATOR_JOBS=4",
+          "run"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 5278.8
+      },
+      {
+        "name": "coherence",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/capture_coherence",
+          "VERILATOR_JOBS=4",
+          "run",
+          "dp"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 662.5
+      }
+    ],
+    "remaining": [
+      {
+        "name": "coherence-mutants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "cd tb/verilator/capture_coherence && python3 mutants.py --jobs 2 --receipt $SCRATCH/gates/coherence-mutants-receipt"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 3037.1
+      },
+      {
+        "name": "portability",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "mkdir -p $SCRATCH/gates/yosys/tmp && TMPDIR=$SCRATCH/gates/yosys/tmp syn/yosys/run.sh --results $SCRATCH/gates/yosys/results"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 3515.7
+      },
+      {
+        "name": "reviewer-probes",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "/data-2/milan/tmp/loopbram-a826-r4-final/reviewer_probes.py",
+          "--tree",
+          "$CHECKOUT",
+          "--out",
+          "$SCRATCH/gates/reviewer-probes",
+          "--verilator",
+          "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+          "--pool",
+          "2",
+          "--jobs",
+          "4"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 67.3
+      },
+      {
+        "name": "leaf-off",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/leaf_off_incontext.sh",
+          "/data-2/milan/tmp/loopbram-a826-r3/base-wt",
+          "$CHECKOUT",
+          "$SCRATCH/gates/leaf-off"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 49.4
+      }
+    ],
+    "builder": [
+      {
+        "name": "builder-leg1",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "run",
+          "1",
+          "--receipt",
+          "$SCRATCH/gates/builder-union/leg1.json",
+          "--",
+          "python3",
+          "sw/builder/test_builder.py",
+          "--require-elaboration",
+          "--require-rv32"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 1093.9
+      },
+      {
+        "name": "builder-leg0",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "run",
+          "0",
+          "--receipt",
+          "$SCRATCH/gates/builder-union/leg0.json",
+          "--",
+          "python3",
+          "sw/builder/test_builder.py",
+          "--require-elaboration",
+          "--require-rv32"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 1701.7
+      },
+      {
+        "name": "builder-union",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "union",
+          "--workflow",
+          "elaborate",
+          "--head",
+          "9acb9b828b29aba71bd51303a4836f86c2278267",
+          "--tree",
+          "fd76b3610f374ccf589e220ef60e83d84a71f6e1",
+          "--output",
+          "$SCRATCH/gates/builder-union/union.json",
+          "$SCRATCH/gates/builder-union/leg0.json",
+          "$SCRATCH/gates/builder-union/leg1.json"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.8
+      }
+    ],
+    "render": [
+      {
+        "name": "render run, ship8 and the 32-arm tdm8render-mutants campaign in pieces",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "exit": 0,
+        "pass_gate": true,
+        "checks": 32,
+        "pass": 32
+      }
+    ],
+    "sweep": [
+      {
+        "name": "sweep-shard15",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "scripts/run_all_suites.sh",
+          "$SCRATCH/gates/sweep-shard15",
+          "--ci-pieces",
+          "--shard",
+          "15/19"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 2112.9
+      },
+      {
+        "name": "sweep-shard16",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "scripts/run_all_suites.sh",
+          "$SCRATCH/gates/sweep-shard16",
+          "--ci-pieces",
+          "--shard",
+          "16/19"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 2022.2
+      }
+    ]
+  },
+  "docs_workflow": {
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "base": "dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+    "steps": [
+      [
+        "wire-accountability",
+        "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+        0,
+        false
+      ],
+      [
+        "docs-check-no-git",
+        "Strip git metadata, then run the docs gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Build the validated HDL reference",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Link health, wording, dead-reference and local-info gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Added-line em-dash gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Concise audience documentation gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Audience diagram no-drift gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Product solution source-fact gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Verified submodule documentation gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "HDL timing diagram no-drift gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Published diagram PNG gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Milan feature-status consistency gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Traceability matrix no-drift gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Imported gPTP documentation gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Code-quality measurement self-tests",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Bare-metal scope gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Compiler-absent firmware controls",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Capture measurement census and clock gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Saved-state writer gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "SoC source-list gate (Vivado would fail 40 min in without this)",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "RTL source-list drift gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Boundary-unit naming ratchet",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Port contract gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Fail-fast ratchet",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "TODO ownership gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Test-evidence ratchet",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Mechanical hygiene ratchet",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "SystemVerilog idiom gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "C and C++ idiom gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Python idiom gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Shell idiom gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Doc cited-path gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Archive integrity gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Per-page contents gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Documentation inventory freshness gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "AEM store generator self-test",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Sweep/build shape gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Deploy shape gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Entity shape gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "Register reference freshness gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-0",
+        "CI scheduling and evidence controls",
+        0,
+        false
+      ],
+      [
+        "docs-gates-2",
+        "CI event and SHA contract gate",
+        0,
+        false
+      ],
+      [
+        "docs-gates-2",
+        "Local act runner contract gate",
+        0,
+        false
+      ]
+    ]
+  },
+  "route": [
+    {
+      "directive": "ExtraPostPlacementOpt",
+      "min_WNS_ns": 0.008,
+      "min_WHS_ns": 0.036,
+      "routing_errors": 0,
+      "floor_pass": false,
+      "selected": false,
+      "utilization": {
+        "Slice LUTs*": 48883.0,
+        "Slice Registers": 54671.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15806.0
+      }
+    },
+    {
+      "directive": "AltSpreadLogic_high",
+      "min_WNS_ns": 0.223,
+      "min_WHS_ns": 0.036,
+      "routing_errors": 0,
+      "floor_pass": true,
+      "selected": true,
+      "utilization": {
+        "Slice LUTs*": 48901.0,
+        "Slice Registers": 54672.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15774.0
+      }
+    },
+    {
+      "directive": "ExtraTimingOpt",
+      "min_WNS_ns": 0.003,
+      "min_WHS_ns": 0.036,
+      "routing_errors": 0,
+      "floor_pass": false,
+      "selected": false,
+      "utilization": {
+        "Slice LUTs*": 48960.0,
+        "Slice Registers": 54671.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15790.0
+      }
+    }
+  ],
+  "all_gates_pass": true
+}

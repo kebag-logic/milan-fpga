@@ -1,0 +1,14 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/render-mutants-slice3.log
+Original SHA256: 01c9c61921d014491facfd76dd7f6a1a06322a44afa1b192fc9c9d2d235f93de
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+slice 3/4: 5 of 21 mutations: ['one-bit phase slip: the bit for position p, not p + 1', 'the serial reset rebuilt from two reconverged levels, with arrival skew', "the render FIFO's distributed storage read at the write pointer", 'A2-a removed: the aligner is not engaged at INTERNAL', "the lane's stream set ignores the mapping's stream field"]
+[PASS] mutant caught (ship --serial-only): one-bit phase slip: the bit for position p, not p + 1 - breaks "T6 PADDING: the eight pad bits of every slot are zero"
+[PASS] mutant caught (ship --epoch-only): the serial reset rebuilt from two reconverged levels, with arrival skew - breaks "T18 RESET: the reset epoch reopened EXACTLY once"
+[PASS] mutant caught (ship --serial-only): the render FIFO's distributed storage read at the write pointer - breaks "T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps" and 1 more
+[PASS] mutant caught (ship --law-only): A2-a removed: the aligner is not engaged at INTERNAL - breaks "T30 INTERNAL LAW +0: the aligner held its settled report through the phase" and 17 more
+[PASS] mutant caught (multi whole): the lane's stream set ignores the mapping's stream field - breaks "M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did"
+
+5 checks: 5 PASS, 0 FAIL (slice 3/4)

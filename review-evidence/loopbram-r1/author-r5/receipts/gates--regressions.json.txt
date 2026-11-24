@@ -1,0 +1,121 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/regressions.json
+Original SHA256: b5ca2ccd9355196bb07429ec1194f9e3f2953e94b0db47c5c4c380fa0bbb03f8
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "input8",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "VERILATOR_JOBS=4",
+      "run",
+      "MDIR=$SCRATCH/gates/regressions/input8"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 9.8
+  },
+  {
+    "name": "input1",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback",
+      "VERILATOR_JOBS=4",
+      "run",
+      "STREAMS=1",
+      "FIRST=8",
+      "CHANNELS=8",
+      "LEAD=2",
+      "MDIR=$SCRATCH/gates/regressions/input1"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 10.0
+  },
+  {
+    "name": "input_loopback_dp",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/input_loopback_dp",
+      "VERILATOR_JOBS=4",
+      "WORK=$SCRATCH/gates/regressions/parent"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 59.5
+  },
+  {
+    "name": "queue",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/render_queue",
+      "VERILATOR_JOBS=4",
+      "all"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 253.6
+  },
+  {
+    "name": "capture",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/chmap_capture",
+      "VERILATOR_JOBS=4",
+      "run",
+      "MDIR=$SCRATCH/gates/regressions/capture"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 207.6
+  },
+  {
+    "name": "milan_dp",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/milan_dp",
+      "VERILATOR_JOBS=4",
+      "run"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 5278.8
+  },
+  {
+    "name": "coherence",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "make",
+      "-s",
+      "-C",
+      "$CHECKOUT/tb/verilator/capture_coherence",
+      "VERILATOR_JOBS=4",
+      "run",
+      "dp"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 662.5
+  }
+]

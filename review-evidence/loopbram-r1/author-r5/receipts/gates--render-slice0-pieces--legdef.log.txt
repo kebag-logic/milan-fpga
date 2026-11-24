@@ -1,0 +1,11 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/render-slice0-pieces/legdef.log
+Original SHA256: 01a3f592e290dec99cc90c3aedf8e0927a821cbd8177ed5eebffcc6d49cfc774
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+
+3 checks: 3 PASS, 0 FAIL (leg defects)

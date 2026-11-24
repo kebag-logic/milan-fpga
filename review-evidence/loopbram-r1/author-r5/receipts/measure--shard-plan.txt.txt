@@ -1,0 +1,27 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: measure/shard-plan.txt
+Original SHA256: e8054f6dbb5abdb3f12e828a46cbb161c2cf9e3f823036f9cdf6cf75f054c290
+Scope: complete text; paths and host fields normalized
+
+worker  0: predicted  1615 s of limit 2700 s (60% bound 1620 s): follow_ring
+worker  1: predicted  1512 s of limit 2700 s (60% bound 1620 s): capture_coherence__3 milan_dp__1 milan_dp_render__1 aaf_audio_loop cdc gptp_txts ifg tdm_render tsn_fuzz
+worker  2: predicted  1558 s of limit 2700 s (60% bound 1620 s): capture_coherence__0
+worker  3: predicted  1531 s of limit 2700 s (60% bound 1620 s): maap__1 milan_dp_render__3 chmap_capture gptp_tables
+worker  4: predicted  1551 s of limit 2700 s (60% bound 1620 s): milan_dp__0
+worker  5: predicted  1522 s of limit 2700 s (60% bound 1620 s): media_phase
+worker  6: predicted  1508 s of limit 2700 s (60% bound 1620 s): milan_dp__3 chmap_render fw_service_budget lat_history_ring ptp ptp_sync tkdiag
+worker  7: predicted  1535 s of limit 2700 s (60% bound 1620 s): pp_shadow__0 mmcm_servo
+worker  8: predicted  1541 s of limit 2700 s (60% bound 1620 s): capture_coherence__1 maap__0
+worker  9: predicted  1506 s of limit 2700 s (60% bound 1620 s): maap__2 aaf_clock_meter classifier mmcm_servo_autorepair
+worker 10: predicted  1508 s of limit 2700 s (60% bound 1620 s): milan_dp__2 avtp_rxmon clkvalid crf_tx milan_dp_gm_steps pcmlpf tcam tdm
+worker 11: predicted  1536 s of limit 2700 s (60% bound 1620 s): maap__3 crf_rx media_grid_align
+worker 12: predicted  1555 s of limit 2700 s (60% bound 1620 s): milan_dp_render__2 pp_shadow__1 csr
+worker 13: predicted  1560 s of limit 2700 s (60% bound 1620 s): pp_shadow__2 nvm_cosim reboot_ctrl
+worker 14: predicted  1510 s of limit 2700 s (60% bound 1620 s): aes3 eth_tx_reset gptp_plane gptp_shadow mac_rmon media_nco nvm_backend ptp_ts shaper_core
+worker 15: predicted  1508 s of limit 2700 s (60% bound 1620 s): milan_dp_mclk__1 pp_shadow__3 aaf_latency_taps avtp_stream datapath input_loopback_dp mbx queues
+worker 16: predicted  1507 s of limit 2700 s (60% bound 1620 s): milan_dp_mclk__2 milan_dp_mclk__3 adp_tx cls input_loopback link_guard pair_fill render_queue rx_filter
+worker 17: predicted  1511 s of limit 2700 s (60% bound 1620 s): capture_coherence__2 milan_dp_render__0 aaf aaf_latency_tap_bank avtp_parser cbs controller_rate i2spb tcam_csr
+worker 18: predicted  1110 s of limit 3600 s (60% bound 2160 s): milan_dp_mclk__0
+input_loopback -> 16 input_loopback_dp -> 15
+max predicted 1615 s; 30-minute mark 1800 s

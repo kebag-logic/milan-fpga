@@ -1,0 +1,116 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates.py
+Original SHA256: 733bce1a40817033b679d93ac845abbf044a3d53e5f678b617233ea302ec04a7
+Scope: complete text; paths and host fields normalized
+
+"""Exact-head gates for round 5. Usage: gates.py <group>; writes <group>.json and per-gate logs."""
+import concurrent.futures
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+root = Path('$CHECKOUT')
+w = Path(__file__).resolve().parent / 'gates'
+w.mkdir(exist_ok=True)
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True)
+if dirty:
+    raise SystemExit('dirty checkout:\n' + dirty)
+py = sys.executable
+mdv = '/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3'
+reg = w / 'regressions'
+reg.mkdir(exist_ok=True)
+VJ = 'VERILATOR_JOBS=4'
+
+
+def mk(directory, *extra):
+    return ['make', '-s', '-C', str(root / 'tb/verilator' / directory), VJ, *extra]
+
+
+shards = ' && '.join(f'echo "== shard {i}/19" && scripts/run_all_suites.sh --ci-pieces --shard {i}/19 --list'
+                     for i in range(19))
+GROUPS = {
+    'quick': (1, [
+        ('anchors', [py, '$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py',
+                     str(root), str(root), '3cda030c', head]),
+        ('planner-selftest', [py, 'scripts/suite_shards.py', '--selftest']),
+        ('ci-pieces-list', ['bash', '-c', shards]),
+        ('py-idiom', [py, 'scripts/check_py_idiom.py']),
+        ('py-idiom-selftest', [py, 'scripts/check_py_idiom.py', '--selftest']),
+        ('lint', [py, 'scripts/lint_rtl.py', '--check']),
+        ('docs', [py, 'scripts/docs_check.py']),
+        ('doc-style', [py, 'scripts/check_doc_style.py']),
+        ('em-dash', [mdv, 'scripts/check_em_dash.py', '--base', '3cda030c']),
+        ('xvlog', [py, 'scripts/xvlog_gate.py', '--check']),
+        ('parent-plants', [py, 'tb/verilator/input_loopback_dp/mutants.py', '--output', str(w / 'parent-plants')]),
+        ('leaf-plants', [py, 'tb/verilator/input_loopback/mutants.py', '--output', str(w / 'leaf-plants')]),
+        ('bounds', [py, 'tb/verilator/input_loopback/bounds.py', '--output', str(w / 'bounds')]),
+    ]),
+    'regressions': (2, [
+        ('queue', mk('render_queue', 'all')),
+        ('input8', mk('input_loopback', 'run', 'MDIR=' + str(reg / 'input8'))),
+        ('input1', mk('input_loopback', 'run', 'STREAMS=1', 'FIRST=8', 'CHANNELS=8', 'LEAD=2',
+                      'MDIR=' + str(reg / 'input1'))),
+        ('input_loopback_dp', mk('input_loopback_dp', 'WORK=' + str(reg / 'parent'))),
+        ('capture', mk('chmap_capture', 'run', 'MDIR=' + str(reg / 'capture'))),
+        ('milan_dp', mk('milan_dp', 'run')),
+        ('render', mk('milan_dp_render', 'run', 'ship8', 'tdm8render-mutants')),
+        ('coherence', mk('capture_coherence', 'run', 'dp')),
+    ]),
+    'remaining': (1, [
+        ('coherence-mutants', ['bash', '-c', 'cd tb/verilator/capture_coherence && python3 mutants.py --jobs 2 '
+                               '--receipt ' + str(w / 'coherence-mutants-receipt')]),
+        ('portability', ['bash', '-c', 'mkdir -p ' + str(w / 'yosys/tmp') + ' && TMPDIR=' + str(w / 'yosys/tmp') +
+                         ' syn/yosys/run.sh --results ' + str(w / 'yosys/results')]),
+        ('reviewer-probes', [py, '/data-2/milan/tmp/loopbram-a826-r4-final/reviewer_probes.py', '--tree', str(root),
+                             '--out', str(w / 'reviewer-probes'), '--verilator',
+                             '$VALIDATION_TOOLS/verilator-v5.050/bin/verilator', '--pool', '2', '--jobs', '4']),
+        ('leaf-off', ['bash', '$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/leaf_off_incontext.sh',
+                      '/data-2/milan/tmp/loopbram-a826-r3/base-wt', str(root), str(w / 'leaf-off')]),
+    ]),
+}
+GROUPS['sweep'] = (1, [
+    (f'sweep-shard{i}', ['scripts/run_all_suites.sh', str(w / f'sweep-shard{i}'), '--ci-pieces', '--shard', f'{i}/19'])
+    for i in (15, 16)])
+bu = w / 'builder-union'
+bu.mkdir(exist_ok=True)
+benv = {'LITEX_PYTHON': '$WORKSPACE_HOME/litex-milan/venv/bin/python3', 'PYTHONHASHSEED': '0'}
+GROUPS['builder'] = (2, [
+    (f'builder-leg{leg}', ['python3', 'scripts/ci_builder_legs.py', 'run', str(leg), '--receipt',
+                           str(bu / f'leg{leg}.json'), '--', 'python3', 'sw/builder/test_builder.py',
+                           '--require-elaboration', '--require-rv32']) for leg in (0, 1)])
+
+group = sys.argv[1]
+workers, cases = GROUPS[group]
+results = []
+
+
+def run(case):
+    name, cmd = case
+    env = dict(os.environ, **(benv if group == 'builder' else {}))
+    t = time.time()
+    with (w / (name + '.log')).open('w') as f:
+        r = subprocess.run(cmd, cwd=root, env=env, stdout=f, stderr=subprocess.STDOUT, timeout=43200)
+    ok = r.returncode == 0
+    if name == 'anchors':
+        ok = ok and (w / 'anchors.log').read_text().rstrip().endswith('ANCHORS INTACT 0')
+    res = dict(name=name, head=head, command=cmd, exit=r.returncode, pass_gate=ok, seconds=round(time.time() - t, 1))
+    results.append(res)
+    (w / (group + '.json')).write_text(json.dumps(results, indent=2) + '\n')
+    print(name, 'PASS' if ok else 'FAIL', r.returncode, flush=True)
+    return ok
+
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+    oks = list(pool.map(run, cases))
+if group == 'builder' and all(oks):
+    tree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], cwd=root, text=True).strip()
+    oks.append(run(('builder-union', ['python3', 'scripts/ci_builder_legs.py', 'union', '--workflow', 'elaborate',
+                                      '--head', head, '--tree', tree, '--output', str(bu / 'union.json'),
+                                      str(bu / 'leg0.json'), str(bu / 'leg1.json')])))
+print(group, 'ALL PASS' if all(oks) else 'FAILURES', flush=True)
+raise SystemExit(0 if all(oks) else 1)

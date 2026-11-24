@@ -1,0 +1,70 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/builder.json
+Original SHA256: 44e20c7f3d4038c78204fd6c6098abef5bfbd31415d28379f1a372dda7b1b948
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "builder-leg1",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "python3",
+      "scripts/ci_builder_legs.py",
+      "run",
+      "1",
+      "--receipt",
+      "$SCRATCH/gates/builder-union/leg1.json",
+      "--",
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-elaboration",
+      "--require-rv32"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 1093.9
+  },
+  {
+    "name": "builder-leg0",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "python3",
+      "scripts/ci_builder_legs.py",
+      "run",
+      "0",
+      "--receipt",
+      "$SCRATCH/gates/builder-union/leg0.json",
+      "--",
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-elaboration",
+      "--require-rv32"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 1701.7
+  },
+  {
+    "name": "builder-union",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "python3",
+      "scripts/ci_builder_legs.py",
+      "union",
+      "--workflow",
+      "elaborate",
+      "--head",
+      "9acb9b828b29aba71bd51303a4836f86c2278267",
+      "--tree",
+      "fd76b3610f374ccf589e220ef60e83d84a71f6e1",
+      "--output",
+      "$SCRATCH/gates/builder-union/union.json",
+      "$SCRATCH/gates/builder-union/leg0.json",
+      "$SCRATCH/gates/builder-union/leg1.json"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 0.8
+  }
+]

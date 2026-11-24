@@ -1,0 +1,114 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: summarize.py
+Original SHA256: 6d759c2aba0a681b790bd0a093551d556b184446afc4d7996be55c4cd804d699
+Scope: complete text; paths and host fields normalized
+
+"""Summarize the round-5 route, slot use, control memory and every gate into status.json."""
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+root = Path('$CHECKOUT')
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+
+
+def util(p):
+    text = p.read_text()
+    ans = {}
+    for k in ['Slice LUTs*', 'Slice Registers', 'Block RAM Tile', 'RAMB36/FIFO*', 'RAMB18', 'F7 Muxes', 'F8 Muxes',
+              'DSPs']:
+        m = re.search(r'^\| +' + re.escape(k.rstrip('*')) + r'\*? +\| +([0-9.]+) +\|', text, re.M)
+        ans[k] = float(m.group(1))
+    m = re.search(r'^\| +Slice +\| +([0-9.]+) +\|', text, re.M)
+    if m:
+        ans['Occupied slices'] = float(m[1])
+    return ans
+
+
+def timing(p):
+    text = p.read_text()
+    m = re.search(r'WNS\(ns\).*?\n[^\n]*\n\s*(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)\s+(-?\d+\.\d+)', text, re.S)
+    values = text[m.start():].splitlines()[2].split()
+    return {'WNS_ns': float(m[1]), 'TNS_ns': float(m[2]), 'WHS_ns': float(m[5]),
+            'setup_failing_endpoints': int(values[2]), 'hold_failing_endpoints': int(values[6]),
+            'WPWS_ns': float(values[8]), 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
+
+
+gate = w / 'route/endstation_ax7101_8x8/gateware'
+rows = []
+for directive in ['ExtraPostPlacementOpt', 'AltSpreadLogic_high', 'ExtraTimingOpt']:
+    d = gate / directive
+    if not d.exists():
+        rows.append({'shape': 'endstation_ax7101_8x8', 'directive': directive, 'run': 'NOT RUN'})
+        continue
+    row = {'shape': 'endstation_ax7101_8x8', 'directive': directive}
+    if (d / 'measure_route.json').exists():
+        row['run'] = json.loads((d / 'measure_route.json').read_text())
+    if (d / 'routed_util.rpt').exists():
+        row['utilization'] = util(d / 'routed_util.rpt')
+    row['corners'] = {p.name: timing(p) for p in sorted(d.glob('*signoff*_*C_timing.rpt'))}
+    st = d / 'alinx_ax7101_route_status.rpt'
+    if st.exists():
+        text = st.read_text()
+        row['routing_errors'] = int(re.search(r'nets with routing errors[^:]*:\s*(\d+)', text)[1])
+        row['fully_routed_nets'] = int(re.search(r'fully routed nets[^:]*:\s*(\d+)', text)[1])
+    row['complete'] = len(row['corners']) == 4 and 'utilization' in row
+    if row['complete']:
+        row['min_WNS_ns'] = min(c['WNS_ns'] for c in row['corners'].values())
+        row['min_WHS_ns'] = min(c['WHS_ns'] for c in row['corners'].values())
+        row['floor_pass'] = (row['min_WNS_ns'] >= .030 and row['min_WHS_ns'] >= 0
+                             and row['run']['exit'] == 0 and row.get('routing_errors') == 0
+                             and all(c['setup_failing_endpoints'] == 0 and c['hold_failing_endpoints'] == 0
+                                     for c in row['corners'].values()))
+    rows.append(row)
+passing = [r for r in rows if r.get('floor_pass')]
+selected = max(passing, key=lambda r: (r['min_WNS_ns'], r['min_WHS_ns']))['directive'] if passing else None
+for r in rows:
+    r['selected'] = r['directive'] == selected
+(w / 'route-summary.json').write_text(json.dumps(rows, indent=2) + '\n')
+
+slots = []
+for log in sorted(w.glob('route/**/measure_*.log')):
+    for line in log.read_text(errors='replace').splitlines():
+        m = re.match(r'vivado-slot: slot (\d+) \((\S+)\), MemAvailable (\d+) GB, (\S+)', line)
+        if m:
+            slots.append({'log': str(log.relative_to(w)), 'slot': int(m[1]), 'mem_available_gb': int(m[3]),
+                          'start': m[4]})
+runs = [json.loads(p.read_text()) for p in sorted(w.glob('route/**/measure_*.json'))]
+(w / 'slot-usage.json').write_text(json.dumps({
+    'vendor_runs': len(runs), 'sequential': True, 'min_mem_available_gb': min(s['mem_available_gb'] for s in slots),
+    'slots': slots, 'runs': [{'cwd': r['cwd'], 'exit': r['exit'], 'seconds': round(r['seconds'], 1)} for r in runs],
+}, indent=2) + '\n')
+
+export = (w / 'route/endstation_ax7101_8x8/export.log').read_text()
+alloc = json.loads(re.search(r'^S14 MEASURED ALLOCATION: (.*)$', export, re.M)[1])
+refusal = re.search(r'^MEASUREMENT ONLY; PRODUCT REFUSAL RETAINED: (.*)$', export, re.M)[1]
+elf = w / 'builds/endstation_ax7101_8x8-on/ctrl_app.elf'
+(w / 'firmware-memory.json').write_text(json.dumps({
+    'shape': 'endstation_ax7101_8x8', 'elf_sha256': hashlib.sha256(elf.read_bytes()).hexdigest(),
+    'product_refused': True, 'refusal': refusal, 'allocation': alloc,
+    'ledger_tiles': 59, 'debt_over_ledger_tiles': alloc['tiles'] - 59,
+    'debt_over_default_budget_tiles': alloc['tiles'] - alloc['budget_tiles']}, indent=2) + '\n')
+
+status = {'head': head, 'gates': {}}
+for group in ['quick', 'regressions', 'remaining', 'builder']:
+    p = w / 'gates' / (group + '.json')
+    status['gates'][group] = json.loads(p.read_text()) if p.exists() else 'MISSING'
+r = json.loads((w / 'gates/render-campaign.json').read_text())
+status['gates']['render'] = [{'name': 'render run, ship8 and the 32-arm tdm8render-mutants campaign in pieces',
+                              'head': r['head'], 'exit': r['run_ship8_exit'], 'pass_gate': r['pass_gate'],
+                              'checks': r['checks'], 'pass': r['pass']}]
+status['gates']['sweep'] = json.loads((w / 'gates/sweep.json').read_text())
+docs = json.loads((w / 'docswf/results.json').read_text())
+status['docs_workflow'] = {'head': docs['head'], 'base': docs['base'],
+                           'steps': [(s['job'], s['name'], s['exit'], s['lane_dirty_after']) for s in docs['steps']]}
+status['route'] = [{k: r.get(k) for k in ('directive', 'min_WNS_ns', 'min_WHS_ns', 'routing_errors', 'floor_pass', 'selected',
+                                          'utilization')} for r in rows]
+status['all_gates_pass'] = all(isinstance(v, list) and all(c['pass_gate'] for c in v)
+                               for v in status['gates'].values()) and all(s['exit'] == 0 for s in docs['steps'])
+(w / 'status.json').write_text(json.dumps(status, indent=2) + '\n')
+print(json.dumps({'all_gates_pass': status['all_gates_pass'], 'route': status['route']}, indent=1))

@@ -1,0 +1,9 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/render-slice0-pieces/mut16.log
+Original SHA256: 50301a00bc2745e5cb875e4389fb988d95e435d8d221ad1b6d0e20f2485c52f0
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks "T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps" and 17 more
+
+1 checks: 1 PASS, 0 FAIL (mutation 16)

@@ -1,0 +1,144 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/render-campaign.json
+Original SHA256: cc0afa6fe19861492d6c059563cae5e259148dbf1e488b708fdbc45460f484bf
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+  "run_ship8_exit": 0,
+  "parts": {
+    "positive control 0": {
+      "log": "gates/render-slice0-pieces/controls.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "positive control 1": {
+      "log": "gates/render-slice0-pieces/controls.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "positive control 2": {
+      "log": "gates/render-slice0-pieces/controls.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "positive control 3": {
+      "log": "gates/render-slice0-pieces/controls.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "positive control 4": {
+      "log": "gates/render-slice0-pieces/controls.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "leg defects": {
+      "log": "gates/render-slice0-pieces/legdef.log",
+      "checks": 3,
+      "pass": 3,
+      "fail": 0
+    },
+    "clean control 0": {
+      "log": "gates/render-slice0-pieces/clean0.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "clean control 1": {
+      "log": "gates/render-slice0-pieces/clean1.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "clean control 2": {
+      "log": "gates/render-slice0-pieces/clean2.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutations slice 1/4": {
+      "log": "gates/render-mutants-slice1.log",
+      "checks": 5,
+      "pass": 5,
+      "fail": 0
+    },
+    "mutations slice 2/4": {
+      "log": "gates/render-mutants-slice2.log",
+      "checks": 5,
+      "pass": 5,
+      "fail": 0
+    },
+    "mutations slice 3/4": {
+      "log": "gates/render-mutants-slice3.log",
+      "checks": 5,
+      "pass": 5,
+      "fail": 0
+    },
+    "mutation 0": {
+      "log": "gates/render-slice0-pieces/mut0.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutation 4": {
+      "log": "gates/render-slice0-pieces/mut4.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutation 8": {
+      "log": "gates/render-slice0-pieces/mut8.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutation 12": {
+      "log": "gates/render-slice0-pieces/mut12.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutation 16": {
+      "log": "gates/render-slice0-pieces/mut16.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    },
+    "mutation 20": {
+      "log": "gates/render-slice0-pieces/mut20.log",
+      "checks": 1,
+      "pass": 1,
+      "fail": 0
+    }
+  },
+  "expected": {
+    "positive control 0": 1,
+    "positive control 1": 1,
+    "positive control 2": 1,
+    "positive control 3": 1,
+    "positive control 4": 1,
+    "leg defects": 3,
+    "clean control 0": 1,
+    "clean control 1": 1,
+    "clean control 2": 1,
+    "mutations slice 1/4": 5,
+    "mutations slice 2/4": 5,
+    "mutations slice 3/4": 5,
+    "mutation 0": 1,
+    "mutation 4": 1,
+    "mutation 8": 1,
+    "mutation 12": 1,
+    "mutation 16": 1,
+    "mutation 20": 1
+  },
+  "checks": 32,
+  "pass": 32,
+  "runner_total": 32,
+  "pass_gate": true
+}

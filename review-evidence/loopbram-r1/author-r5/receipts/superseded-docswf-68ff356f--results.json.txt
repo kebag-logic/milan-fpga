@@ -1,0 +1,442 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: superseded-docswf-68ff356f/results.json
+Original SHA256: 98f580a42eeaac90b563b59c10fbd0e5a6fd45ac4390a87e97bec6783cbe0fac
+Scope: complete text; paths and host fields normalized
+
+{
+  "head": "68ff356fccc0be4b7f9063d7d926ca425ddef857",
+  "base": "dd163e41438acb86e0c4d4e76df90f3f91ace1c0",
+  "steps": [
+    {
+      "n": 0,
+      "job": "wire-accountability",
+      "step": 4,
+      "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+      "exit": 0,
+      "seconds": 1.6,
+      "log": "00-wire-accountability-4.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 1,
+      "job": "docs-check-no-git",
+      "step": 3,
+      "name": "Strip git metadata, then run the docs gate",
+      "exit": 0,
+      "seconds": 19.3,
+      "log": "01-docs-check-no-git-3.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 2,
+      "job": "docs-gates-0",
+      "step": 3,
+      "name": "Build the validated HDL reference",
+      "exit": 0,
+      "seconds": 5.2,
+      "log": "02-docs-gates-0-3.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 3,
+      "job": "docs-gates-0",
+      "step": 11,
+      "name": "Link health, wording, dead-reference and local-info gate",
+      "exit": 0,
+      "seconds": 16.4,
+      "log": "03-docs-gates-0-11.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 4,
+      "job": "docs-gates-0",
+      "step": 12,
+      "name": "Added-line em-dash gate",
+      "exit": 0,
+      "seconds": 6.6,
+      "log": "04-docs-gates-0-12.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 5,
+      "job": "docs-gates-0",
+      "step": 13,
+      "name": "Concise audience documentation gate",
+      "exit": 0,
+      "seconds": 1.6,
+      "log": "05-docs-gates-0-13.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 6,
+      "job": "docs-gates-0",
+      "step": 14,
+      "name": "Audience diagram no-drift gate",
+      "exit": 0,
+      "seconds": 2.5,
+      "log": "06-docs-gates-0-14.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 7,
+      "job": "docs-gates-0",
+      "step": 15,
+      "name": "Product solution source-fact gate",
+      "exit": 0,
+      "seconds": 10.3,
+      "log": "07-docs-gates-0-15.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 8,
+      "job": "docs-gates-0",
+      "step": 16,
+      "name": "Verified submodule documentation gate",
+      "exit": 0,
+      "seconds": 3.1,
+      "log": "08-docs-gates-0-16.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 9,
+      "job": "docs-gates-0",
+      "step": 17,
+      "name": "HDL timing diagram no-drift gate",
+      "exit": 0,
+      "seconds": 1.9,
+      "log": "09-docs-gates-0-17.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 10,
+      "job": "docs-gates-0",
+      "step": 18,
+      "name": "Published diagram PNG gate",
+      "exit": 0,
+      "seconds": 8.8,
+      "log": "10-docs-gates-0-18.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 11,
+      "job": "docs-gates-0",
+      "step": 19,
+      "name": "Milan feature-status consistency gate",
+      "exit": 0,
+      "seconds": 2.7,
+      "log": "11-docs-gates-0-19.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 12,
+      "job": "docs-gates-0",
+      "step": 20,
+      "name": "Traceability matrix no-drift gate",
+      "exit": 1,
+      "seconds": 3.0,
+      "log": "12-docs-gates-0-20.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 13,
+      "job": "docs-gates-0",
+      "step": 22,
+      "name": "Imported gPTP documentation gate",
+      "exit": 0,
+      "seconds": 2.7,
+      "log": "13-docs-gates-0-22.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 14,
+      "job": "docs-gates-0",
+      "step": 23,
+      "name": "Code-quality measurement self-tests",
+      "exit": 0,
+      "seconds": 0.4,
+      "log": "14-docs-gates-0-23.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 15,
+      "job": "docs-gates-0",
+      "step": 26,
+      "name": "Bare-metal scope gate",
+      "exit": 0,
+      "seconds": 65.4,
+      "log": "15-docs-gates-0-26.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 16,
+      "job": "docs-gates-0",
+      "step": 29,
+      "name": "Compiler-absent firmware controls",
+      "exit": 0,
+      "seconds": 860.6,
+      "log": "16-docs-gates-0-29.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 17,
+      "job": "docs-gates-0",
+      "step": 31,
+      "name": "Capture measurement census and clock gate",
+      "exit": 0,
+      "seconds": 1.2,
+      "log": "17-docs-gates-0-31.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 18,
+      "job": "docs-gates-0",
+      "step": 32,
+      "name": "Saved-state writer gate",
+      "exit": 0,
+      "seconds": 231.7,
+      "log": "18-docs-gates-0-32.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 19,
+      "job": "docs-gates-0",
+      "step": 33,
+      "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+      "exit": 0,
+      "seconds": 3.5,
+      "log": "19-docs-gates-0-33.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 20,
+      "job": "docs-gates-0",
+      "step": 34,
+      "name": "RTL source-list drift gate",
+      "exit": 0,
+      "seconds": 7.2,
+      "log": "20-docs-gates-0-34.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 21,
+      "job": "docs-gates-0",
+      "step": 35,
+      "name": "Boundary-unit naming ratchet",
+      "exit": 0,
+      "seconds": 1.5,
+      "log": "21-docs-gates-0-35.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 22,
+      "job": "docs-gates-0",
+      "step": 36,
+      "name": "Port contract gate",
+      "exit": 0,
+      "seconds": 8.5,
+      "log": "22-docs-gates-0-36.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 23,
+      "job": "docs-gates-0",
+      "step": 37,
+      "name": "Fail-fast ratchet",
+      "exit": 0,
+      "seconds": 5.4,
+      "log": "23-docs-gates-0-37.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 24,
+      "job": "docs-gates-0",
+      "step": 38,
+      "name": "TODO ownership gate",
+      "exit": 0,
+      "seconds": 7.6,
+      "log": "24-docs-gates-0-38.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 25,
+      "job": "docs-gates-0",
+      "step": 39,
+      "name": "Test-evidence ratchet",
+      "exit": 1,
+      "seconds": 11.5,
+      "log": "25-docs-gates-0-39.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 26,
+      "job": "docs-gates-0",
+      "step": 40,
+      "name": "Mechanical hygiene ratchet",
+      "exit": 0,
+      "seconds": 1.4,
+      "log": "26-docs-gates-0-40.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 27,
+      "job": "docs-gates-0",
+      "step": 41,
+      "name": "SystemVerilog idiom gate",
+      "exit": 0,
+      "seconds": 1.4,
+      "log": "27-docs-gates-0-41.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 28,
+      "job": "docs-gates-0",
+      "step": 42,
+      "name": "C and C++ idiom gate",
+      "exit": 1,
+      "seconds": 3.6,
+      "log": "28-docs-gates-0-42.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 29,
+      "job": "docs-gates-0",
+      "step": 43,
+      "name": "Python idiom gate",
+      "exit": 0,
+      "seconds": 14.9,
+      "log": "29-docs-gates-0-43.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 30,
+      "job": "docs-gates-0",
+      "step": 44,
+      "name": "Shell idiom gate",
+      "exit": 0,
+      "seconds": 0.5,
+      "log": "30-docs-gates-0-44.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 31,
+      "job": "docs-gates-0",
+      "step": 45,
+      "name": "Doc cited-path gate",
+      "exit": 0,
+      "seconds": 0.2,
+      "log": "31-docs-gates-0-45.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 32,
+      "job": "docs-gates-0",
+      "step": 46,
+      "name": "Archive integrity gate",
+      "exit": 0,
+      "seconds": 0.9,
+      "log": "32-docs-gates-0-46.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 33,
+      "job": "docs-gates-0",
+      "step": 47,
+      "name": "Per-page contents gate",
+      "exit": 1,
+      "seconds": 14.5,
+      "log": "33-docs-gates-0-47.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 34,
+      "job": "docs-gates-0",
+      "step": 48,
+      "name": "Documentation inventory freshness gate",
+      "exit": 1,
+      "seconds": 2.2,
+      "log": "34-docs-gates-0-48.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 35,
+      "job": "docs-gates-0",
+      "step": 49,
+      "name": "AEM store generator self-test",
+      "exit": 0,
+      "seconds": 0.1,
+      "log": "35-docs-gates-0-49.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 36,
+      "job": "docs-gates-0",
+      "step": 50,
+      "name": "Sweep/build shape gate",
+      "exit": 0,
+      "seconds": 21.6,
+      "log": "36-docs-gates-0-50.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 37,
+      "job": "docs-gates-0",
+      "step": 51,
+      "name": "Deploy shape gate",
+      "exit": 0,
+      "seconds": 0.5,
+      "log": "37-docs-gates-0-51.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 38,
+      "job": "docs-gates-0",
+      "step": 52,
+      "name": "Entity shape gate",
+      "exit": 0,
+      "seconds": 109.6,
+      "log": "38-docs-gates-0-52.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 39,
+      "job": "docs-gates-0",
+      "step": 53,
+      "name": "Register reference freshness gate",
+      "exit": 0,
+      "seconds": 136.2,
+      "log": "39-docs-gates-0-53.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 40,
+      "job": "docs-gates-0",
+      "step": 55,
+      "name": "CI scheduling and evidence controls",
+      "exit": 0,
+      "seconds": 50.0,
+      "log": "40-docs-gates-0-55.log",
+      "lane_dirty_after": false
+    },
+    {
+      "n": 41,
+      "job": "docs-gates-2",
+      "step": 15,
+      "name": "CI event and SHA contract gate",
+      "exit": 0,
+      "seconds": 358.6,
+      "log": "41-docs-gates-2-15.log",
+      "lane_dirty_after": true
+    },
+    {
+      "n": 42,
+      "job": "docs-gates-2",
+      "step": 16,
+      "name": "Local act runner contract gate",
+      "exit": 0,
+      "seconds": 119.2,
+      "log": "42-docs-gates-2-16.log",
+      "lane_dirty_after": true
+    }
+  ]
+}

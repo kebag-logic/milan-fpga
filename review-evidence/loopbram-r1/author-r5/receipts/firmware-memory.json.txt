@@ -1,0 +1,43 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: firmware-memory.json
+Original SHA256: 5fab724b00194f8be0cb1d45fd3b7c3f32841b960de57fc2003e75dba23707a5
+Scope: complete text; paths and host fields normalized
+
+{
+  "shape": "endstation_ax7101_8x8",
+  "elf_sha256": "f9470e29d9a1050b00a78220dcf16e72cac9281d764a4fbdd1ac1df197030165",
+  "product_refused": true,
+  "refusal": "allocation over budget: 70.5 RAMB36 (rom 160024 bytes in 161792, sram 125104 bytes in 126976) exceeds the 56-RAMB36 budget",
+  "allocation": {
+    "rom": {
+      "bytes": 160024,
+      "banks": [
+        131072,
+        16384,
+        8192,
+        4096,
+        2048
+      ],
+      "RAMB36": 39,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 125104,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "tiles": 70.5,
+    "budget_tiles": 56
+  },
+  "ledger_tiles": 59,
+  "debt_over_ledger_tiles": 11.5,
+  "debt_over_default_budget_tiles": 14.5
+}

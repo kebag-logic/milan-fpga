@@ -1,0 +1,50 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: render_job.py
+Original SHA256: a53ce5e7fcfafe103fb7ff3162086ac23b2c6a8ce64f841952f4e536bb160b4f
+Scope: complete text; paths and host fields normalized
+
+"""Exact-head render regression: `make run ship8` plus the campaign's builds, then four campaign slices."""
+import concurrent.futures
+import json
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+root = Path('$CHECKOUT')
+w = Path(__file__).resolve().parent
+g = w / 'gates'
+head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+assert not subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).strip()
+result = {'head': head, 'steps': []}
+
+
+def record(name, cmd, cwd):
+    t = time.time()
+    with (g / f'{name}.log').open('w') as f:
+        r = subprocess.run(cmd, cwd=cwd, stdout=f, stderr=subprocess.STDOUT, timeout=7000)
+    result['steps'].append({'name': name, 'command': cmd, 'exit': r.returncode, 'seconds': round(time.time() - t, 1)})
+    (g / 'render.json').write_text(json.dumps(result, indent=2) + '\n')
+    print(name, r.returncode, flush=True)
+    return r.returncode
+
+
+d = root / 'tb/verilator/milan_dp_render'
+if record('render-run-ship8', ['make', '-s', '-C', str(d), 'VERILATOR_JOBS=4', 'run', 'ship8',
+                               'tdm8render-build', 'tdm8render-multi-build'], root):
+    sys.exit(1)
+K = 4
+with concurrent.futures.ThreadPoolExecutor(max_workers=K) as pool:
+    codes = list(pool.map(lambda k: record(f'render-mutants-slice{k}', [sys.executable, str(w / 'render_slices.py'),
+                                                                         str(k), str(K)], d), range(K)))
+checks = passed = failed = 0
+for k in range(K):
+    m = re.search(r'^(\d+) checks: (\d+) PASS, (\d+) FAIL \(slice', (g / f'render-mutants-slice{k}.log').read_text(), re.M)
+    checks += int(m[1]); passed += int(m[2]); failed += int(m[3])
+result['campaign'] = {'checks': checks, 'pass': passed, 'fail': failed}
+result['pass_gate'] = not any(codes) and checks == 32 and failed == 0
+(g / 'render.json').write_text(json.dumps(result, indent=2) + '\n')
+print('render campaign', checks, 'checks', passed, 'PASS', failed, 'FAIL', 'gate', result['pass_gate'], flush=True)
+sys.exit(0 if result['pass_gate'] else 1)

@@ -1,0 +1,1405 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.log
+Original SHA256: 97dc75ee9b6eb9a3e6e6a05bbb88204532cab2549fedfd91c97613195661d0fe
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+vivado-slot: slot 0 ($VIVADO_LOCK), MemAvailable 68 GB, 2026-11-24T10:00:29+01:00
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Tue Nov 24 10:00:30 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $SCRATCH/route/endstation_ax7101_8x8/gateware/AltSpreadLogic_high/measure_route.tcl
+# set_param general.maxThreads 16
+# open_checkpoint ../measure_opt.dcp
+Command: open_checkpoint ../measure_opt.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 1448.293 ; gain = 6.938 ; free physical = 26557 ; free virtual = 92433
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.39 ; elapsed = 00:00:00.39 . Memory (MB): peak = 1979.426 ; gain = 0.000 ; free physical = 24329 ; free virtual = 90419
+INFO: [Netlist 29-17] Analyzing 7207 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.15 . Memory (MB): peak = 2115.551 ; gain = 11.750 ; free physical = 24227 ; free virtual = 90326
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2614.520 ; gain = 0.000 ; free physical = 22275 ; free virtual = 88508
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2614.520 ; gain = 0.000 ; free physical = 22290 ; free virtual = 88522
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2614.520 ; gain = 0.000 ; free physical = 22286 ; free virtual = 88518
+Read placeStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2710.566 ; gain = 0.000 ; free physical = 22280 ; free virtual = 88513
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2710.566 ; gain = 0.000 ; free physical = 22271 ; free virtual = 88504
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2710.566 ; gain = 0.000 ; free physical = 22264 ; free virtual = 88497
+Read Physdb Files: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2710.566 ; gain = 96.047 ; free physical = 22264 ; free virtual = 88497
+Restored from archive | CPU: 0.070000 secs | Memory: 1.226723 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.13 . Memory (MB): peak = 2710.566 ; gain = 96.047 ; free physical = 22264 ; free virtual = 88497
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.04 . Memory (MB): peak = 2710.566 ; gain = 0.000 ; free physical = 22086 ; free virtual = 88327
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 365 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+  RAM128X1D => RAM128X1D (MUXF7(x2), RAMD64E(x4)): 7 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 9 instances
+  RAM16X1S => RAM32X1S (RAMS32): 32 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 183 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 18 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 50 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 1 instance 
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:33 ; elapsed = 00:00:24 . Memory (MB): peak = 2710.602 ; gain = 1275.184 ; free physical = 21845 ; free virtual = 88096
+# source {$CHECKOUT/sw/litex/timing_grade.tcl}
+## proc kl_timing_grade_configure {part grade min_c max_c corners} {
+##     set expected [get_property NAME [get_parts $part]]
+##     set actual [get_property PART [current_design]]
+##     if {$expected eq "" || $actual ne $expected} {
+##         error "TIMING-GRADE part mismatch: expected $part, found $actual"
+##     }
+##     set ::kl_timing_grade [dict create part $expected grade $grade \
+##         min_c $min_c max_c $max_c corners $corners]
+##     set_operating_conditions -grade $grade -junction_temp $max_c
+##     foreach corner $corners {
+##         config_timing_corners -corner $corner -delay_type min_max
+##     }
+## }
+## proc kl_timing_grade_check {} {
+##     set spec $::kl_timing_grade
+##     if {[get_property PART [current_design]] ne [dict get $spec part]} {
+##         error "TIMING-GRADE part changed after configuration"
+##     }
+##     set conditions [report_operating_conditions -grade -junction_temp -return_string]
+##     if {![regexp {Device Grade = (\S+)} $conditions -> grade] ||
+##         $grade ne [dict get $spec grade] ||
+##         ![regexp {Junction Temp = ([0-9.]+)} $conditions -> temp] ||
+##         $temp != [dict get $spec max_c]} {
+##         error "TIMING-GRADE operating conditions changed: $conditions"
+##     }
+##     set settings [report_config_timing -return_string]
+##     foreach corner [dict get $spec corners] {
+##         if {![regexp -line "^ *$corner +Yes +Yes *$" $settings]} {
+##             error "TIMING-GRADE requires setup and hold at $corner: $settings"
+##         }
+##     }
+## }
+## proc kl_timing_grade_reports {prefix} {
+##     kl_timing_grade_check
+##     set spec $::kl_timing_grade
+##     set info [open ${prefix}_grade.txt w]
+##     puts $info $spec
+##     puts $info "Fixed Slow/Fast timing models cover the declared range."
+##     puts $info "Endpoint Tj settings below are power metadata, not independent timing models."
+##     close $info
+##     # Analyse each supported model at both declared Tj endpoints, explicitly
+##     # retaining the identical results rather than claiming four PVT models.
+##     try {
+##         foreach temp [list [dict get $spec min_c] [dict get $spec max_c]] {
+##             set_operating_conditions -junction_temp $temp
+##             foreach corner [dict get $spec corners] {
+##                 config_timing_corners -corner $corner -delay_type min_max
+##                 foreach other [dict get $spec corners] {
+##                     if {$other ne $corner} {
+##                         config_timing_corners -corner $other -delay_type none
+##                     }
+##                 }
+##                 set stem ${prefix}_${corner}_${temp}C
+##                 report_operating_conditions -file ${stem}_operating.rpt
+##                 report_timing_summary -delay_type min_max -report_unconstrained \
+##                     -max_paths 5 -file ${stem}_timing.rpt
+##                 report_timing -delay_type min_max -slack_lesser_than 0 \
+##                     -max_paths 100 -file ${stem}_negative.rpt
+##             }
+##         }
+##     } finally {
+##         set_operating_conditions -junction_temp [dict get $spec max_c]
+##         foreach corner [dict get $spec corners] {
+##             config_timing_corners -corner $corner -delay_type min_max
+##         }
+##     }
+##     kl_timing_grade_check
+##     report_timing_summary -delay_type min_max -report_unconstrained \
+##         -check_timing_verbose -max_paths 5 -file ${prefix}_all_timing.rpt
+##     report_clock_interaction -delay_type min_max -file ${prefix}_clock_interaction.rpt
+##     report_cdc -details -file ${prefix}_cdc.rpt
+##     check_timing -verbose -file ${prefix}_check_timing.rpt
+## }
+# kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+# place_design -directive AltSpreadLogic_high
+Command: place_design -directive AltSpreadLogic_high
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Vivado_Tcl 4-2302] The placer was invoked with the 'AltSpreadLogic_high' directive.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 16 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors, 42 Warnings
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 16 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3018.973 ; gain = 0.000 ; free physical = 16776 ; free virtual = 83420
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 11b3dec5b
+
+Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.06 . Memory (MB): peak = 3018.973 ; gain = 0.000 ; free physical = 16776 ; free virtual = 83419
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3018.973 ; gain = 0.000 ; free physical = 16761 ; free virtual = 83405
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: 1f3d01ca7
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:06 . Memory (MB): peak = 3139.031 ; gain = 120.059 ; free physical = 19975 ; free virtual = 86812
+
+Phase 1.3 Build Placer Netlist Model
+Phase 1.3 Build Placer Netlist Model | Checksum: 216b06edb
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:28 . Memory (MB): peak = 3538.105 ; gain = 519.133 ; free physical = 20599 ; free virtual = 87856
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 216b06edb
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:28 . Memory (MB): peak = 3538.105 ; gain = 519.133 ; free physical = 20926 ; free virtual = 88183
+Phase 1 Placer Initialization | Checksum: 216b06edb
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:28 . Memory (MB): peak = 3538.105 ; gain = 519.133 ; free physical = 20991 ; free virtual = 88249
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+Phase 2.1 Floorplanning | Checksum: 207d099a0
+
+Time (s): cpu = 00:01:07 ; elapsed = 00:00:35 . Memory (MB): peak = 3554.473 ; gain = 535.500 ; free physical = 22030 ; free virtual = 89305
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 2903493e2
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:41 . Memory (MB): peak = 3733.473 ; gain = 714.500 ; free physical = 19906 ; free virtual = 87523
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: 2903493e2
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:41 . Memory (MB): peak = 3733.473 ; gain = 714.500 ; free physical = 19926 ; free virtual = 87587
+
+Phase 2.4 Global Place Phase1
+Phase 2.4 Global Place Phase1 | Checksum: 2377ee08d
+
+Time (s): cpu = 00:04:37 ; elapsed = 00:02:18 . Memory (MB): peak = 3844.926 ; gain = 825.953 ; free physical = 19812 ; free virtual = 88301
+
+Phase 2.5 Global Place Phase2
+
+Phase 2.5.1 UpdateTiming Before Physical Synthesis
+Phase 2.5.1 UpdateTiming Before Physical Synthesis | Checksum: 257f45c40
+
+Time (s): cpu = 00:04:54 ; elapsed = 00:02:24 . Memory (MB): peak = 3844.926 ; gain = 825.953 ; free physical = 20075 ; free virtual = 88628
+
+Phase 2.5.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 203 LUTNM shape to break, 3120 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 83, two critical 120, total 203, new lutff created 7
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 1410 nets or LUTs. Breaked 203 LUTs, combined 1207 existing LUTs and moved 0 existing LUT
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3844.926 ; gain = 0.000 ; free physical = 16331 ; free virtual = 84903
+INFO: [Physopt 32-65] No nets found for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1123] No candidate cells found for Shift Register to Pipeline optimization
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3844.926 ; gain = 0.000 ; free physical = 19717 ; free virtual = 88291
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |          203  |           1207  |                  1410  |           0  |           1  |  00:00:04  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Very High Fanout                                 |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  DSP Register                                     |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |          203  |           1207  |                  1410  |           0  |           9  |  00:00:05  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.5.2 Physical Synthesis In Placer | Checksum: 27c5ac853
+
+Time (s): cpu = 00:05:16 ; elapsed = 00:02:36 . Memory (MB): peak = 3867.230 ; gain = 848.258 ; free physical = 21174 ; free virtual = 88498
+Phase 2.5 Global Place Phase2 | Checksum: 2c278eb27
+
+Time (s): cpu = 00:05:26 ; elapsed = 00:02:39 . Memory (MB): peak = 3867.230 ; gain = 848.258 ; free physical = 18613 ; free virtual = 85947
+Phase 2 Global Placement | Checksum: 2c278eb27
+
+Time (s): cpu = 00:05:26 ; elapsed = 00:02:39 . Memory (MB): peak = 3867.230 ; gain = 848.258 ; free physical = 18613 ; free virtual = 85946
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 309d16bd2
+
+Time (s): cpu = 00:05:42 ; elapsed = 00:02:43 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 19033 ; free virtual = 86376
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 2137ca7ae
+
+Time (s): cpu = 00:06:10 ; elapsed = 00:02:52 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 20178 ; free virtual = 87618
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 24f900b78
+
+Time (s): cpu = 00:06:12 ; elapsed = 00:02:54 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 19339 ; free virtual = 86779
+
+Phase 3.4 Pipeline Register Optimization
+Phase 3.4 Pipeline Register Optimization | Checksum: 2bc591918
+
+Time (s): cpu = 00:06:13 ; elapsed = 00:02:54 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 19263 ; free virtual = 86704
+
+Phase 3.5 Fast Optimization
+Phase 3.5 Fast Optimization | Checksum: 28594a1e8
+
+Time (s): cpu = 00:06:47 ; elapsed = 00:03:04 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 19061 ; free virtual = 86452
+
+Phase 3.6 Small Shape Detail Placement
+Phase 3.6 Small Shape Detail Placement | Checksum: 2cdd00ffe
+
+Time (s): cpu = 00:07:38 ; elapsed = 00:04:00 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 18032 ; free virtual = 85859
+
+Phase 3.7 Re-assign LUT pins
+Phase 3.7 Re-assign LUT pins | Checksum: 29ddd38fe
+
+Time (s): cpu = 00:07:43 ; elapsed = 00:04:05 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 14836 ; free virtual = 82843
+
+Phase 3.8 Pipeline Register Optimization
+Phase 3.8 Pipeline Register Optimization | Checksum: 33bd3dbe9
+
+Time (s): cpu = 00:07:45 ; elapsed = 00:04:06 . Memory (MB): peak = 3887.230 ; gain = 868.258 ; free physical = 18134 ; free virtual = 86143
+
+Phase 3.9 Fast Optimization
+Phase 3.9 Fast Optimization | Checksum: 26ee4270e
+
+Time (s): cpu = 00:08:38 ; elapsed = 00:04:23 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 19971 ; free virtual = 87518
+Phase 3 Detail Placement | Checksum: 26ee4270e
+
+Time (s): cpu = 00:08:38 ; elapsed = 00:04:23 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 19681 ; free virtual = 87228
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 4.1.1 Post Placement Optimization
+Post Placement Optimization Initialization | Checksum: 27f1afc75
+
+Phase 4.1.1.1 BUFG Insertion
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 16 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-3.746 | TNS=-3699.996 |
+Phase 1 Physical Synthesis Initialization | Checksum: 1b652784a
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:01 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 19963 ; free virtual = 87542
+INFO: [Place 46-33] Processed net KL_mbx_cdc/u_fw_req/E[0], BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-33] Processed net KL_mbx_cdc/u_pub/req_edge, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-33] Processed net KL_mbx_cdc/u_pub/req_tog_i_1__7_n_0, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-56] BUFG insertion identified 3 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 3, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 20659da86
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:02 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 21438 ; free virtual = 89019
+Phase 4.1.1.1 BUFG Insertion | Checksum: 27f1afc75
+
+Time (s): cpu = 00:09:34 ; elapsed = 00:04:36 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 22763 ; free virtual = 90344
+
+Phase 4.1.1.2 Post Placement Timing Optimization
+INFO: [Place 30-746] Post Placement Timing Summary WNS=-1.944. For the most accurate timing information please run report_timing.
+Phase 4.1.1.2 Post Placement Timing Optimization | Checksum: 2a1a835b4
+
+Time (s): cpu = 00:11:04 ; elapsed = 00:06:08 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 17969 ; free virtual = 86562
+
+Time (s): cpu = 00:11:04 ; elapsed = 00:06:08 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 17969 ; free virtual = 86562
+Phase 4.1 Post Commit Optimization | Checksum: 2a1a835b4
+
+Time (s): cpu = 00:11:05 ; elapsed = 00:06:09 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 19173 ; free virtual = 87767
+
+Phase 4.2 Post Placement Cleanup
+Phase 4.2 Post Placement Cleanup | Checksum: 2a1a835b4
+
+Time (s): cpu = 00:11:06 ; elapsed = 00:06:09 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 21010 ; free virtual = 89606
+
+Phase 4.3 Placer Reporting
+
+Phase 4.3.1 Print Estimated Congestion
+INFO: [Place 30-612] Post-Placement Estimated Congestion 
+ ____________________________________________________
+|           | Global Congestion | Short Congestion  |
+| Direction | Region Size       | Region Size       |
+|___________|___________________|___________________|
+|      North|                4x4|                8x8|
+|___________|___________________|___________________|
+|      South|                4x4|                8x8|
+|___________|___________________|___________________|
+|       East|                4x4|              16x16|
+|___________|___________________|___________________|
+|       West|                2x2|                8x8|
+|___________|___________________|___________________|
+
+Phase 4.3.1 Print Estimated Congestion | Checksum: 2a1a835b4
+
+Time (s): cpu = 00:11:07 ; elapsed = 00:06:10 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 20605 ; free virtual = 89202
+Phase 4.3 Placer Reporting | Checksum: 2a1a835b4
+
+Time (s): cpu = 00:11:07 ; elapsed = 00:06:10 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 20425 ; free virtual = 89023
+
+Phase 4.4 Final Placement Cleanup
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 20360 ; free virtual = 88957
+
+Time (s): cpu = 00:11:07 ; elapsed = 00:06:10 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 20352 ; free virtual = 88949
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 346f71ba5
+
+Time (s): cpu = 00:11:08 ; elapsed = 00:06:10 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 20149 ; free virtual = 88747
+Ending Placer Task | Checksum: 29eca0385
+
+Time (s): cpu = 00:11:08 ; elapsed = 00:06:10 . Memory (MB): peak = 4059.184 ; gain = 1040.211 ; free physical = 19944 ; free virtual = 88543
+38 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:11:22 ; elapsed = 00:06:17 . Memory (MB): peak = 4059.184 ; gain = 1348.582 ; free physical = 19837 ; free virtual = 88436
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:44 ; elapsed = 00:00:08 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17631 ; free virtual = 86510
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 48.25s |  WALL: 9.09s
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 18058 ; free virtual = 86939
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 16 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.944 | TNS=-3075.450 |
+Phase 1 Physical Synthesis Initialization | Checksum: 1f565fa0e
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:08 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 14953 ; free virtual = 83963
+
+Phase 2 SLR Crossing Optimization
+Phase 2 SLR Crossing Optimization | Checksum: 1f565fa0e
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:09 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 14783 ; free virtual = 83794
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.944 | TNS=-3075.450 |
+
+Phase 3 Fanout Optimization
+INFO: [Physopt 32-76] Pass 1. Identified 50 candidate nets for fanout optimization.
+INFO: [Physopt 32-572] Net KL_mbx/u_evt/KL_mbx_evt_net_283 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/u_evt/KL_mbx_evt_net_236 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_0. Replicated 1 times.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/u_evt/rec_r[2][31]_i_6_1 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/u_evt/avb_cnt_r[0][15]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/ring_addr_r_reg[1]_5[0]. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/u_rx/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_15[0]. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/ring_addr_r_reg[1]_4[0]. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_9[0]. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/u_evt/KL_mbx_evt_net_65 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/face_f_pt_offset_r[0][0][31]_i_2_n_0. Replicated 3 times.
+INFO: [Physopt 32-601] Processed net KL_mbx_dma/ring_addr_r_reg[1]_51[0]. Net driver KL_mbx_dma/KL_mbx_dma_LUT2_26 was replaced.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_5[0]. Replicated 1 times.
+INFO: [Physopt 32-601] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_6[0]. Net driver KL_mbx_dma/dl_r[10][31]_i_1 was replaced.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_13[0]. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_8[0]. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_14[0]. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx_dma/hold_wdata_r_reg[31]_10[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/ring_addr_r_reg[1]_2[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-232] Optimized 12 nets. Created 12 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 12 nets or cells. Created 12 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.944 | TNS=-3087.025 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.11 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 18864 ; free virtual = 88015
+Phase 3 Fanout Optimization | Checksum: 1ca039572
+
+Time (s): cpu = 00:01:37 ; elapsed = 00:00:21 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 18828 ; free virtual = 87988
+
+Phase 4 Single Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 250 candidate nets for placement-based optimization.
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_283.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT2_24
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/tick_cnt_r[15]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][33]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][33]_i_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_27.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][4]_i_11_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][4]_i_11
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_20_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_20
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[0][2]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[0][2]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[2][0]_i_5_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[2][0]_i_5
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_20_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_20
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][17]_i_8
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/busy_r_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_12
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_16_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/tick_cnt_r[15]_i_4
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_15_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_15
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_276.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_4
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[15]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[15]_i_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][16]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][16]_i_8
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/pend_r_reg_n_0_[0].  Re-placed instance KL_mbx/u_evt/pend_r_reg[0]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[1].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[1]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[2].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[2]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[3].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[3]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[4].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[4]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_21_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_21
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[7]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[7]_i_4
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in170_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[3]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/pend_r_reg_n_0_[1].  Re-placed instance KL_mbx/u_evt/pend_r_reg[1]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_236.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_10
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/amap_cnt_r[0][15]_i_8
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][34]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][34]_i_6
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[13].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[13]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[14].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[14]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tick_cnt_r[15].  Re-placed instance KL_mbx/u_evt/tick_cnt_r_reg[15]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[10].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[11].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[12].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[12]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[9].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[9]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_16
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][18]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][18]_i_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][23]_i_5_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][23]_i_5
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_34
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in182_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[7]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in179_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[5].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[5]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[6].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[7].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[8].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_0_repN.  Did not re-place instance KL_mbx/u_evt/rec_r[1][14]_i_5_replica
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][16]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_5
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/milansoc_ctrlmailbox_ctrlmailbox0.  Did not re-place instance KL_mbx_cdc/m_link_up_o_reg
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in167_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[2]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_15.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_3
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_13.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_46.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_13
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[6].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_19.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_8
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_12_n_0.  Re-placed instance KL_mbx/u_evt/amap_cnt_r[0][15]_i_12
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/posted_up_r__0[0].  Re-placed instance KL_mbx/u_evt/posted_up_r_reg[0]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/gm_pend_r[0].  Re-placed instance KL_mbx/u_evt/gm_pend_r_reg[0]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in188_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[9]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[15]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[15]_i_8
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[0].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[0]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in191_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_14.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in176_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[5]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][7]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_285.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_8
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_45.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_23
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_264.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_31
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][7]_i_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r_reg[0][34]_0[0].  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][4]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_48.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_24
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][7]_i_7
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/ctr_pend_r_reg[0][34][0].  Did not re-place instance KL_mbx_cdc/KL_mbx_cdc_LUT5_5
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in173_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[4]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][17]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][18]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][18]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_11_n_0.  Re-placed instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_11
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_260.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT2_64
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][26]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_258
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_5_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_33
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][26].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][26]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_16
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/source[2]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_15
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_5
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[20]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0].  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/maskLocked_1_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_12
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_19.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_9
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_21.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_11
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_reg.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids[0]_i_1__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_33.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_9
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_63.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT4_5
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][18]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][18]_i_8
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/rec_r[1][19]_i_10_n_0.  Re-placed instance KL_mbx/u_evt/rec_r[1][19]_i_10
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[21]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[14].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][14]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids_reg[0]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/rec_r[0][3]_i_3_n_0.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT6_7
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/amap_cnt_r[14].  Re-placed instance KL_mbx/u_evt/amap_cnt_r_reg[0][14]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_17.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT6_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_254.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_254
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][1].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][1]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_257.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT2_62
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][1]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_256
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_18.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_10
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_20.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT5_3
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[21].  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[23]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[0][15]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/asp_cnt_r[0][15]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[0][15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/asp_cnt_r[0][15]_i_4
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/asp_cnt_r[1].  Re-placed instance KL_mbx/u_evt/asp_cnt_r_reg[0][1]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/asp_cnt_r[2].  Re-placed instance KL_mbx/u_evt/asp_cnt_r_reg[0][2]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/asp_cnt_r[3].  Re-placed instance KL_mbx/u_evt/asp_cnt_r_reg[0][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[4].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][4]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[20].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[22]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[1].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[1]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_3
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_258.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_12
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/ctr_pend_r_reg[0][34][2].  Did not re-place instance KL_mbx_cdc/KL_mbx_cdc_LUT6_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r_reg[0][34]_0[2].  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][24]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[10].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][10]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_18.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT4_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in194_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[2][31]_i_6_1.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_13
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][5]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][5]_i_4
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][5]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_361
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/w1_w[5].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_366
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r_reg[1]_60[5].  Did not re-place instance KL_mbx/u_evt/rec_r_reg[1][5]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/rec_r[1][17]_i_7_n_0.  Re-placed instance KL_mbx/u_evt/rec_r[1][17]_i_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][2].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][2]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_448.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT4_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_1_in27_in.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_n_w20_out[7].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_45
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[0][15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT2_57
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/rec_r[1][14]_i_3_n_0.  Re-placed instance KL_mbx/u_evt/rec_r[1][14]_i_3
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/w1_w[14].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_326
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r_reg[1]_60[14].  Did not re-place instance KL_mbx/u_evt/rec_r_reg[1][14]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][3].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_249.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_245
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_252.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT2_59
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_16_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_16
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][4]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][4]_i_8
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/rec_r[1][16]_i_14_n_0.  Re-placed instance KL_mbx/u_evt/rec_r[1][16]_i_14
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in185_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_51.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_27
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_25_n_0.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT4_10
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][30]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_262
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][30].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][30]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[0][15]_i_1_n_0.  Re-placed instance KL_mbx/u_evt/avb_cnt_r[0][15]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0].  Did not re-place instance KL_mbx/u_evt/amap_cnt_r_reg[0][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[13].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[15].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][15]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][5].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][5]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][5]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_265
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_47.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_4
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_6_n_0.  Re-placed instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_54.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_29
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][4]_i_7_n_0.  Re-placed instance KL_mbx/u_evt/ctr_pend_r[0][4]_i_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[5].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][5]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/asp_cnt_r[6].  Re-placed instance KL_mbx/u_evt/asp_cnt_r_reg[0][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[7].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[8].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[11].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[13].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[14].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][14]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[15].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][15]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_18_n_0.  Re-placed instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_18
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_449.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[5].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][5]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[7].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[8].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][4].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][4]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][4]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_50
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][3]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_264
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_1_in23_in.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_n_w20_out[6].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_44
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][7].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][7]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_267
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_pend_r[0][23]_i_2_n_0.  Re-placed instance KL_mbx/u_evt/ctr_pend_r[0][23]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][15]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_seen_r[0][15]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][15].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][15]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_14_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_14
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[1].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][1]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[2].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][2]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[3].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][3]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/avb_cnt_r[4].  Re-placed instance KL_mbx/u_evt/avb_cnt_r_reg[0][4]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_6
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][2]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_261
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_15.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_6
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_451.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT6_11
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_20.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_9
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][19]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][19]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_263.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT2_67
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][6].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][6]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_266
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_32.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_15
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[12].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/avb_cnt_r[9].  Did not re-place instance KL_mbx/u_evt/avb_cnt_r_reg[0][9]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_seen_r[0][11]_i_1_n_0.  Re-placed instance KL_mbx/u_evt/ctr_seen_r[0][11]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][11].  Re-placed instance KL_mbx/u_evt/ctr_seen_r_reg[0][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][17]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][17]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/amap_cnt_r[15].  Re-placed instance KL_mbx/u_evt/amap_cnt_r_reg[0][15]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][16]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][16]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_n_w[0]_0[0].  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][8]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/ctr_seen_r[0][8]_i_1_n_0.  Re-placed instance KL_mbx/u_evt/ctr_seen_r[0][8]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][8].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_261.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT2_65
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_n_w20_out[30].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_41
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][27]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_259
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_1_in119_in.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][30]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][27].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][27]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_57.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_7
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_58.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_32
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r_reg_n_0_[0][0].  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][0]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/KL_mbx_evt_net_447.  Re-placed instance KL_mbx/u_evt/KL_mbx_evt_LUT4
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[10].  Did not re-place instance KL_mbx/u_evt/amap_cnt_r_reg[0][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[11].  Did not re-place instance KL_mbx/u_evt/amap_cnt_r_reg[0][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_16.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_5
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_53.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_28
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r[0][24]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_47
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_seen_r_reg_n_0_[0][24].  Did not re-place instance KL_mbx/u_evt/ctr_seen_r_reg[0][24]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_1_in7_in.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][2]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_n_w20_out[2].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_250
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[3].  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[0][15]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_233
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_1_in11_in.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r_reg[0][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_n_w20_out[3].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_253
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][3]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][3]_i_3
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][3]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_350
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/w1_w[3].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_355
+INFO: [Physopt 32-661] Optimized 60 nets.  Re-placed 60 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 60 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 60 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.797 | TNS=-3068.954 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.08 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17058 ; free virtual = 86916
+Phase 4 Single Cell Placement Optimization | Checksum: 162a9c34c
+
+Time (s): cpu = 00:06:11 ; elapsed = 00:00:56 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17042 ; free virtual = 86900
+
+Phase 5 Multi Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 100 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_283.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT2_24/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/tick_cnt_r[15]_i_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][33]_i_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][33]_i_6/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_27.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][4]_i_11_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][4]_i_11/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[0][2]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[0][2]_i_2/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[2][0]_i_5_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[2][0]_i_5/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_20_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_20/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][17]_i_8/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_20_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_20/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/busy_r_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_12/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_16_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT5_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/tick_cnt_r[15]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_15_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_15/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_276.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[15]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[15]_i_6/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][16]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][16]_i_8/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r_reg_n_0_[0].  Did not re-place instance KL_mbx/u_evt/pend_r_reg[0]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[10].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[10]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[11].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[11]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[11].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[11]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[12].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[12]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[12].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[12]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[13].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[13]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[14].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[14]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[15]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[9].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[9]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[9].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[9]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][19]_i_21_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][19]_i_21/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[7]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/pend_r[7]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r_reg_n_0_[1].  Did not re-place instance KL_mbx/u_evt/pend_r_reg[1]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_236.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_10/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/amap_cnt_r[0][15]_i_8/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][34]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][34]_i_6/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[1].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[1]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[2].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[2]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[3].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[3]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[4].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[4]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[5].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[5]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[5].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[5]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[6].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[6]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[6].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[6]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[7].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[7]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[7].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[7]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[8].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[8]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[8].  Did not re-place instance KL_mbx/u_evt/tick_cnt_r_reg[8]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_2_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_34/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_16/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][18]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][18]_i_7/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][23]_i_5_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][23]_i_5/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in182_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[7]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_0_repN.  Did not re-place instance KL_mbx/u_evt/rec_r[1][14]_i_5_replica/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_285.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT4_8/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_45.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_23/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_264.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_31/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_6_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][7]_i_6/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_48.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_24/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][7]_i_7/O
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/ctr_pend_r_reg[0][34][0].  Did not re-place instance KL_mbx_cdc/KL_mbx_cdc_LUT5_5/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][16]_i_7_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_5/O
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/milansoc_ctrlmailbox_ctrlmailbox0.  Did not re-place instance KL_mbx_cdc/m_link_up_o_reg/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in167_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[2]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_15.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_3/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_13.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in170_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[3]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_16/O
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/source[2]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_15/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_5/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[20]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12/O
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/maskLocked_1_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_12/O
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_1.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_2/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_19.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_9/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_21.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_11/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1/O
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[1].  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[1]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_reg.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids[0]_i_1__0/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[0][15]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/asp_cnt_r[0][15]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/asp_cnt_r[4].  Did not re-place instance KL_mbx/u_evt/asp_cnt_r_reg[0][4]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[21]_i_1/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/p_0_in179_in.  Did not re-place instance KL_mbx/u_evt/pend_r_reg[6]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_3_n_0.  Did not re-place instance KL_mbx/u_evt/ctr_pend_r[0][31]_i_3/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/KL_mbx_evt_net_258.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_12/O
+INFO: [Physopt 32-662] Processed net KL_mbx_cdc/ctr_pend_r_reg[0][34][2].  Did not re-place instance KL_mbx_cdc/KL_mbx_cdc_LUT6_7/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[2][31]_i_6_1.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT3_13/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][5]_i_4_n_0.  Did not re-place instance KL_mbx/u_evt/rec_r[1][5]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/rec_r[1][5]_i_8_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_361/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/w1_w[5].  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_366/O
+INFO: [Physopt 32-661] Optimized 4 nets.  Re-placed 8 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 4 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 8 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.797 | TNS=-3048.958 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17304 ; free virtual = 87641
+Phase 5 Multi Cell Placement Optimization | Checksum: 1354a1c94
+
+Time (s): cpu = 00:13:59 ; elapsed = 00:01:41 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17264 ; free virtual = 87601
+
+Phase 6 Rewire
+INFO: [Physopt 32-246] Starting Signal Push optimization...
+INFO: [Physopt 32-77] Pass 1. Identified 39 candidate nets for rewire optimization.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/pend_r[7]_i_4_n_0. Rewired (signal push) KL_mbx/u_evt/pend_r_reg_n_0_[0] to 1 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][16]_i_8_n_0. Rewired (signal push) KL_mbx/u_evt/pend_r[7]_i_4_n_0 to 6 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][17]_i_8_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][19]_i_21_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_8_n_0 to 2 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][19]_i_15_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_8_n_0 to 4 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][19]_i_20_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][19]_i_15_n_0 to 4 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][17]_i_16_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/ctr_pend_r[0][31]_i_20_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_16_n_0 to 4 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/ctr_pend_r[0][4]_i_11_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_16_n_0 to 7 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_27. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/busy_r_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[2][0]_i_5_n_0. Rewired (signal push) KL_mbx/u_evt/busy_r_i_3_n_0 to 4 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][33]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/tick_cnt_r[15]_i_4_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][34]_i_6_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_8_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][18]_i_7_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][17]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_6_n_0. Rewired (signal push) KL_mbx/u_evt/KL_mbx_evt_net_27 to 2 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_48. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_285. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_264. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/pend_r[15]_i_8_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][17]_i_5_n_0. Rewired (signal push) KL_mbx/u_evt/KL_mbx_evt_net_58 to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/rec_r[1][17]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][17]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][7]_i_3_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][18]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44. Rewired (signal push) VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18] to 2 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net KL_mbx/u_evt/rec_r[1][3]_i_6_n_0. Rewired (signal push) KL_mbx/u_evt/rec_r[1][17]_i_3_0_repN to 1 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_19. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/amap_cnt_r[0][15]_i_7_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[5]_i_3_n_0. Rewired (signal push) VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/sram_bank0_reg_0_0_i_4_n_0 to 2 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net KL_mbx_dma/pub_idle_slope_r[0][31]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/ctr_pend_r[0][19]_i_2_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_63. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_evt/KL_mbx_evt_net_451. Rewiring did not optimize the net.
+INFO: [Physopt 32-232] Optimized 13 nets. Created 5 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 13 nets or cells. Created 5 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.12 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16735 ; free virtual = 87263
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.330 | TNS=-2212.147 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16602 ; free virtual = 87130
+Phase 6 Rewire | Checksum: 2c1d56a71
+
+Time (s): cpu = 00:15:25 ; elapsed = 00:01:59 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16516 ; free virtual = 87044
+
+Phase 7 Critical Cell Optimization
+INFO: [Physopt 32-46] Identified 30 candidate nets for critical-cell optimization.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8 was not replicated.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready. Replicated 1 times.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44. Replicated 1 times.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[1]. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[20]. Replicated 1 times.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[21] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/milansoc_timer_update_value_wr_stb_i_3_n_0. Replicated 2 times.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/csr_bankarray_interface3_bank_bus_dat_r[0]_i_2_n_0 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/subfragments_next_state was not replicated.
+INFO: [Physopt 32-601] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_2_n_0. Net driver VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_LUT5 was replaced.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/csr_bankarray_interface5_bank_bus_dat_r[8]_i_3_n_0 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/subfragments_state_reg_2 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[3]_i_2_n_0 was not replicated.
+INFO: [Physopt 32-571] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/D[5] was not replicated.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[2]_i_3_n_0. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/KL_mbx_dma_net_106. Replicated 3 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/KL_mbx_dma_net_88. Replicated 2 times.
+INFO: [Physopt 32-232] Optimized 9 nets. Created 12 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 9 nets or cells. Created 12 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.259 | TNS=-2020.953 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.05 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16188 ; free virtual = 86767
+Phase 7 Critical Cell Optimization | Checksum: 298c3b052
+
+Time (s): cpu = 00:16:19 ; elapsed = 00:02:10 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16163 ; free virtual = 86742
+
+Phase 8 Fanout Optimization
+INFO: [Physopt 32-76] Pass 1. Identified 12 candidate nets for fanout optimization.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready. Replicated 1 times.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/ring_addr_r_reg[1]_4[0]_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/u_rx/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_15[0]_repN. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx_dma/face_f_pt_offset_r[0][0][31]_i_2_n_0_repN. Replicated 4 times.
+INFO: [Physopt 32-572] Net KL_mbx_dma/hold_wdata_r_reg[31]_6[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-601] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_5[0]_repN. Net driver KL_mbx_dma/dl_r[11][31]_i_1_replica was replaced.
+INFO: [Physopt 32-572] Net KL_mbx_dma/hold_wdata_r_reg[31]_14[0]_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/hold_wdata_r_reg[31]_8[0]_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-601] Processed net KL_mbx_dma/ring_addr_r_reg[1]_51[0]. Net driver KL_mbx_dma/KL_mbx_dma_LUT2_26 was replaced.
+INFO: [Physopt 32-232] Optimized 5 nets. Created 6 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 5 nets or cells. Created 6 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.232 | TNS=-1927.607 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 14804 ; free virtual = 85846
+Phase 8 Fanout Optimization | Checksum: 161af1216
+
+Time (s): cpu = 00:17:15 ; elapsed = 00:02:20 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 14903 ; free virtual = 85946
+
+Phase 9 Single Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 250 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_16
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/source[2]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_15
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[20]_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[22]_i_1_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_5
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_rewire
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_12
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/maskLocked_1_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_19.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_9
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_21.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_11
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3_rewire_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_reg.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids[0]_i_1__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[1]_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[1]_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[21]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids_reg[0]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bus_aw_rValid_reg
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_18.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_10
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_20.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT5_3
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[21].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[23]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15_rewire
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_15.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_6
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3_rewire
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/ring_addr_r_reg[1]_4[0]_repN.  Did not re-place instance KL_mbx_dma/pub_src_sid_lo_r[0][4][31]_i_1_replica
+INFO: [Physopt 32-663] Processed net KL_mbx/u_rx/FSM_onehot_socbushandler_axilite2wishbone_state_reg[1].  Re-placed instance KL_mbx/u_rx/KL_mbx_rx_LUT2_1
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/pub_src_sid_lo_r[0][0][31]_i_3_n_0.  Re-placed instance KL_mbx_dma/pub_src_sid_lo_r[0][0][31]_i_3
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/pub_idle_slope_r[0][31]_i_2_n_0.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_183
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/sram_bank0_reg_0_0_i_4_n_0.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_LUT2_15
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_37.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/milansoc_ctrlmailboxdma0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/cpu_wait_r_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/mem_r_reg_i_6__1_n_0.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT2_11
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_103.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_182
+INFO: [Physopt 32-662] Processed net milansoc_master_adapted_interface_we.  Did not re-place instance FSM_onehot_socbushandler_axilite2wishbone_state_reg[1]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/milansoc_master_adapted_interface_adr[14].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/storage_11_reg_0_3_12_17_i_9
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/KL_mbx_dma_net_70.  Re-placed instance KL_mbx_dma/KL_mbx_dma_LUT2_15
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_4_rewire
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/D[4].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/socbushandler_slave_sel_r[4]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[912].  Re-placed instance KL_mbx/pub_src_sid_lo_r_reg[0][4][5]
+INFO: [Physopt 32-663] Processed net FSM_onehot_socbushandler_axilite2wishbone_state_reg_n_0_[3].  Re-placed instance FSM_onehot_socbushandler_axilite2wishbone_state_reg[3]
+INFO: [Physopt 32-663] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[908].  Re-placed instance KL_mbx/pub_src_sid_lo_r_reg[0][4][1]
+INFO: [Physopt 32-663] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[909].  Re-placed instance KL_mbx/pub_src_sid_lo_r_reg[0][4][2]
+INFO: [Physopt 32-663] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[919].  Re-placed instance KL_mbx/pub_src_sid_lo_r_reg[0][4][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[933].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][26]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[923].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][16]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[928].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][21]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[929].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[930].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[932].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][25]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[936].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][29]
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/ring_addr_r_reg[1]_5[0].  Re-placed instance KL_mbx_dma/pub_src_sid_lo_r[0][5][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[1000].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][29]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[1002].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][31]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[976].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][5]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[985].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][14]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[988].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[989].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][18]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[993].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[994].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[996].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][25]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[999].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][28]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[3].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[978].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][7]
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[28]_0.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[28]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_18_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_18
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_14.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT5_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_17.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_8
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_21_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_21
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[2].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_84.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT4_5
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_5.  Did not re-place instance KL_mbx_dma/dl_r[5][31]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/evt_tail_r[15]_i_3_n_0.  Re-placed instance KL_mbx_dma/evt_tail_r[15]_i_3
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in176_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[5]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/own_mac_lo_r[0][31]_i_2_n_0.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_44
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_83.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_46
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[5]_i_1__0_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_283
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/dl_r[0][31]_i_4_n_0.  Did not re-place instance KL_mbx_dma/dl_r[0][31]_i_4
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_10[0].  Re-placed instance KL_mbx_dma/dl_r[5][31]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[5]_31[6].  Re-placed instance KL_mbx/u_evt/dl_r_reg[5][6]
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/face_f_fmt_in_lo_r[0][0][31]_i_2_n_0.  Re-placed instance KL_mbx_dma/KL_mbx_dma_LUT2_21
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/ring_addr_r_reg[1]_24[0].  Did not re-place instance KL_mbx_dma/face_f_fmt_in_lo_r[0][8][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/face_f_restore_r[0][13]_i_2_n_0.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_36
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/face_ctr_req_r[0][31]_i_4_n_0.  Did not re-place instance KL_mbx_dma/face_ctr_req_r[0][31]_i_4
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/milansoc_ctrlmailboxdma9[6].  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_27
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/rd_q_r_i_3_n_0.  Did not re-place instance KL_mbx_dma/rd_q_r_i_3
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_88.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT2_18
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/face_gsi_req_r[0][31]_i_3_n_0.  Did not re-place instance KL_mbx_dma/face_gsi_req_r[0][31]_i_3
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_net_20.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_LUT2_6
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_net_4.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/peripheral_toAxiLite4_logic_bridge/AxiLite4Bridge_LUT2_14
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/face_gsi_req_r[0][31]_i_2_n_0.  Re-placed instance KL_mbx_dma/face_gsi_req_r[0][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_56.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_34
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_59.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_35
+INFO: [Physopt 32-663] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[543].  Re-placed instance KL_mbx/face_f_fmt_in_lo_r_reg[0][8][1]
+INFO: [Physopt 32-663] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[573].  Re-placed instance KL_mbx/face_f_fmt_in_lo_r_reg[0][8][31]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/ring_addr_r_reg[1]_2[0].  Did not re-place instance KL_mbx_dma/pub_src_sid_lo_r[0][1][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[716].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][1]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[727].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[973].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][2]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[975].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][4]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[979].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[983].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[986].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][15]
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_3[0].  Re-placed instance KL_mbx_dma/dl_r[14][31]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_2.  Re-placed instance KL_mbx_dma/dl_r[14][31]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[14]_40[30].  Re-placed instance KL_mbx/u_evt/dl_r_reg[14][30]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[14]_40[3].  Re-placed instance KL_mbx/u_evt/dl_r_reg[14][3]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tag_r_reg[14]_58[11].  Re-placed instance KL_mbx/u_evt/tag_r_reg[14][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[731].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][16]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[732].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[733].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][18]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[742].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][27]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[907].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[911].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][4]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[915].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][8]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[922].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][15]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_13[0]_repN.  Did not re-place instance KL_mbx_dma/dl_r[3][31]_i_1_replica
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_4.  Re-placed instance KL_mbx_dma/dl_r[3][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[16].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[3][16]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[23].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[3][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[3]_47[12].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[3][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[3]_47[7].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[3][7]
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header[0].  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_11[0].  Re-placed instance KL_mbx_dma/dl_r[6][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_6.  Did not re-place instance KL_mbx_dma/dl_r[6][31]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[6]_32[1].  Re-placed instance KL_mbx/u_evt/dl_r_reg[6][1]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[1].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/size[1]_i_1
+INFO: [Physopt 32-663] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/frontend_allocateSlot_split_aligner_LEN_reg[2]_0.  Re-placed instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/io_up_a_tracker_beat[3]_i_16
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[6]_32[6].  Re-placed instance KL_mbx/u_evt/dl_r_reg[6][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[913].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][6]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[914].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[917].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[918].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[921].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][14]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[935].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][4][28]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_1.  Did not re-place instance KL_mbx_dma/dl_r[10][31]_i_2
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/p_0_in191_in.  Re-placed instance KL_mbx/u_evt/pend_r_reg[10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/pend_r[10]_i_1_n_0.  Did not re-place instance KL_mbx/u_evt/KL_mbx_evt_LUT6_273
+INFO: [Physopt 32-663] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_12[0].  Re-placed instance KL_mbx_dma/dl_r[7][31]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_7.  Did not re-place instance KL_mbx_dma/dl_r[7][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[7]_33[23].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[7][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[7]_33[26].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[7][26]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[7]_51[0].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[7][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[7]_51[13].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[7][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[1001].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][30]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[987].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][16]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[991].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][20]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[12].  Re-placed instance KL_mbx/u_evt/dl_r_reg[3][12]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[20].  Re-placed instance KL_mbx/u_evt/dl_r_reg[3][20]
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[21].  Re-placed instance KL_mbx/u_evt/dl_r_reg[3][21]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[2].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[3][2]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_6[0].  Did not re-place instance KL_mbx_dma/dl_r[10][31]_i_1
+INFO: [Physopt 32-663] Processed net KL_mbx/u_evt/tag_r_reg[10]_54[8].  Re-placed instance KL_mbx/u_evt/tag_r_reg[10][8]
+INFO: [Common 17-14] Message 'Physopt 32-663' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_15[0]_repN_1.  Did not re-place instance KL_mbx_dma/dl_r[1][31]_i_1_replica_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_6.  Did not re-place instance KL_mbx_dma/dl_r[1][31]_i_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/size[0]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[3]_29[22].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[3][22]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[3]_47[2].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[3][2]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/face_gsi_prop_lo_r[0][31]_i_2_n_0.  Did not re-place instance KL_mbx_dma/face_gsi_prop_lo_r[0][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_48.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT6_32
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[20]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_2.  Did not re-place instance KL_mbx_dma/dl_r[9][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[9]_35[10].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[9][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[9]_35[13].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[9][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[9]_35[2].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[9][2]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[9]_53[3].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[9][3]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/face_f_pt_offset_r[0][0][31]_i_2_n_0_repN_3.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT3_34_replica_3
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1427].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][7][3]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1435].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][7][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1436].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][7][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1447].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][7][23]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[3]_1.  Did not re-place instance KL_mbx_dma/dl_r[13][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[13]_39[29].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[13][29]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[13]_57[12].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[13][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[971].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][0]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[972].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][1]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[982].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][11]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[995].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][5][24]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1359].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][4][31]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[15].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[17]_i_1
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[31]_14[0]_repN.  Did not re-place instance KL_mbx_dma/dl_r[2][31]_i_1_replica
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_5.  Did not re-place instance KL_mbx_dma/dl_r[2][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[21].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][21]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[28].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][28]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[2]_46[12].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[2][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[2]_46[13].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[2][13]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/hold_wdata_r_reg[2]_7.  Did not re-place instance KL_mbx_dma/dl_r[0][31]_i_2
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[10].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[13].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[17].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[18].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][18]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[2].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][2]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[5].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][5]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[0]_26[7].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[0][7]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1449].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][7][25]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[717].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][2]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[720].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][5]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[729].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][14]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[738].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][23]
+INFO: [Physopt 32-662] Processed net KL_mbx/pub_da_gate_r_reg[0][8]_0[746].  Did not re-place instance KL_mbx/pub_src_sid_lo_r_reg[0][1][31]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[10].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][10]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[12].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][12]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[17].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][17]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[2]_28[20].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[2][20]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/tag_r_reg[2]_46[2].  Did not re-place instance KL_mbx/u_evt/tag_r_reg[2][2]
+INFO: [Physopt 32-662] Processed net KL_mbx_dma/KL_mbx_dma_net_106_repN.  Did not re-place instance KL_mbx_dma/KL_mbx_dma_LUT4_52_replica
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1260].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][1][28]
+INFO: [Physopt 32-662] Processed net KL_mbx/face_f_clock_r_reg[0][15]_0[1262].  Did not re-place instance KL_mbx/face_f_pt_offset_r_reg[0][1][30]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[7]_33[13].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[7][13]
+INFO: [Physopt 32-662] Processed net KL_mbx/u_evt/dl_r_reg[7]_33[15].  Did not re-place instance KL_mbx/u_evt/dl_r_reg[7][15]
+INFO: [Physopt 32-661] Optimized 65 nets.  Re-placed 65 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 65 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 65 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.232 | TNS=-729.147 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17159 ; free virtual = 88459
+Phase 9 Single Cell Placement Optimization | Checksum: 1d3557e52
+
+Time (s): cpu = 00:21:30 ; elapsed = 00:02:59 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17144 ; free virtual = 88444
+
+Phase 10 Multi Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 100 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_16/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1_replica/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_15/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[20]_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[22]_i_1_replica/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_5/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_rewire/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0_replica/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_12/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/maskLocked_1_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_1.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_2/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_19.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_9/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_21.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_11/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3_rewire_replica/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_reg.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids[0]_i_1__0/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[1]_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[1]_replica/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[21]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/pendings_valids_reg[0]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_18.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_10/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_20.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT5_3/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_i_1__0/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[21].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[23]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_15.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_6/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_3_rewire/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[3].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[3]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_21_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_21/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[2].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[2]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[28]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[28]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_18_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_18/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_17.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_8/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[20]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[15].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[17]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/compactor/io_up_aw_fork2/logic_linkEnable_1_i_1_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/compactor/io_up_aw_fork2/logic_linkEnable_1_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header[1].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[1]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/rd_off_r[8].  Did not re-place instance KL_mbx/rd_off_r_reg[8]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[30]_i_18_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[30]_i_18/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[11]_i_52_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[11]_i_52/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[11]_i_27_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[11]_i_27/O
+INFO: [Physopt 32-662] Processed net KL_mbx/KL_mbx_net_1535.  Did not re-place instance KL_mbx/KL_mbx_LUT6_1616/O
+INFO: [Physopt 32-662] Processed net KL_mbx/KL_mbx_net_35.  Did not re-place instance KL_mbx/KL_mbx_LUT4_9/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[9]_i_3_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT6_1617/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_324.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_298/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_325.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_299/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_327.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_300/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_330.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_301/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_331.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT5_63/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_335.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_302/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/KL_mbx_rx_net_337.  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_303/O
+INFO: [Physopt 32-662] Processed net KL_mbx/u_rx/amap_data_r_reg[0][31][9].  Did not re-place instance KL_mbx/u_rx/KL_mbx_rx_LUT6_305/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[1].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/size[1]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[2].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/size[2]_i_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_22_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_22/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/frontend_allocateSlot_valid_reg_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/ptr_cmd[2]_i_4/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[22]_i_7_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT5_14/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[9]_i_9_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[9]_i_9/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[10]_i_25_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[10]_i_25/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header[3].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[3]/Q
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[24]_i_14_n_0.  Did not re-place instance KL_mbx/reg_rdata_r[24]_i_14/O
+INFO: [Physopt 32-662] Processed net KL_mbx/KL_mbx_net_1573.  Did not re-place instance KL_mbx/KL_mbx_LUT6_1642/O
+INFO: [Physopt 32-662] Processed net KL_mbx/reg_rdata_r[9]_i_6_n_0.  Did not re-place instance KL_mbx/KL_mbx_LUT6_1654/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/ptr_rsp[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/ptr_rsp_reg[0]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/_zz_frontend_allocateSlot_haltRequest_Axi4Aligner_l136__0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_1/O
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/_zz_frontend_split_spliter_boundedEnd_1[2].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_bufferize_AW_len_reg[0]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/_zz_frontend_split_spliter_boundedEnd_1[6].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_bufferize_AW_len_reg[4]/Q
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/size[0]_i_1/O
+INFO: [Physopt 32-661] Optimized 13 nets.  Re-placed 28 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 13 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 28 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.194 | TNS=-725.315 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16315 ; free virtual = 87853
+Phase 10 Multi Cell Placement Optimization | Checksum: 1eabe5e5c
+
+Time (s): cpu = 00:24:58 ; elapsed = 00:03:19 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16371 ; free virtual = 87909
+
+Phase 11 Rewire
+INFO: [Physopt 32-246] Starting Signal Push optimization...
+INFO: [Physopt 32-77] Pass 1. Identified 10 candidate nets for rewire optimization.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_9. Rewired (signal push) VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8 to 6 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_44. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/reg_rdata_r[11]_i_52_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net KL_mbx/u_rx/KL_mbx_rx_net_330. Rewiring did not optimize the net.
+INFO: [Physopt 32-232] Optimized 1 net. Created 1 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 1 net or cell. Created 1 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17361 ; free virtual = 88915
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.045 | TNS=-714.646 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17360 ; free virtual = 88915
+Phase 11 Rewire | Checksum: 234c60dde
+
+Time (s): cpu = 00:25:14 ; elapsed = 00:03:23 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 17358 ; free virtual = 88912
+
+Phase 12 Critical Cell Optimization
+INFO: [Physopt 32-46] Identified 30 candidate nets for critical-cell optimization.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-601] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready_repN. Net driver VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0_replica was replaced.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[20]_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[21] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_15_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[3] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_21_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[2] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[1] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[2] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[18] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/reg_rdata_r[28]_i_17_n_0. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[31]_i_29_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-81] Processed net KL_mbx/reg_rdata_r[20]_i_15_n_0. Replicated 1 times.
+INFO: [Physopt 32-81] Processed net KL_mbx/rd_off_r[8]. Replicated 1 times.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[11]_i_52_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx/reg_rdata_r[11]_i_27_n_0 was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[15] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-232] Optimized 4 nets. Created 3 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 4 nets or cells. Created 3 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.019 | TNS=-715.738 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 15342 ; free virtual = 87208
+Phase 12 Critical Cell Optimization | Checksum: 22563e2fd
+
+Time (s): cpu = 00:26:30 ; elapsed = 00:03:40 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 15305 ; free virtual = 87170
+
+Phase 13 SLR Crossing Optimization
+Phase 13 SLR Crossing Optimization | Checksum: 22563e2fd
+
+Time (s): cpu = 00:26:30 ; elapsed = 00:03:40 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 15285 ; free virtual = 87151
+
+Phase 14 Fanout Optimization
+INFO: [Physopt 32-76] Pass 1. Identified 4 candidate nets for fanout optimization.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/ring_addr_r_reg[1]_51[0] was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-572] Net KL_mbx_dma/hold_wdata_r_reg[31]_5[0]_repN was not replicated.
+Resolution: phys_opt_design can be forced to replicate a net driver using the option -force_replication_on_nets <list of net objects>.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16152 ; free virtual = 88020
+Phase 14 Fanout Optimization | Checksum: 173a6a548
+
+Time (s): cpu = 00:26:41 ; elapsed = 00:03:42 . Memory (MB): peak = 4059.184 ; gain = 0.000 ; free physical = 16155 ; free virtual = 88024
+
+Phase 15 Single Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 250 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_split_ready_output.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_16_rewire
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_1_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_down_arbiter_core_io_down_a_payload_opcode[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_down_arbiter_core/a_arbiter/source[2]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_15
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_address[19].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_filter_down_to_splited_wc_cBus_up_bus_a_rData_address[21]_i_1
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/compactor_io_up_aw_ready.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_5
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_n_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/io_up_a_tracker_beat[3]_i_12_rewire
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/dma_filter_logic_core_io_up_a_ready_repN.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_filter_logic_core/ptr_cmd[2]_i_3__0_replica
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0].  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/downW_header_reg[0]
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_addr_reg[24]_0.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_12
+INFO: [Physopt 32-662] Processed net VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/dma_bridge_write_bridge_io_down_a_valid.  Did not re-place instance VexiiRiscvLitex_191cc5939ce3852a6aea2e352ce86e51/dma_bridge_write_bridge/aligner/maskLocked_1_i_4

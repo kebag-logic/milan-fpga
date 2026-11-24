@@ -1,0 +1,168 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/quick.json
+Original SHA256: 7d60e66830ba0eda1c7e73c2d7803cfd3b45d0e834edd429c2248c1f2e903bb4
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "anchors",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+      "$CHECKOUT",
+      "$CHECKOUT",
+      "3cda030c",
+      "9acb9b828b29aba71bd51303a4836f86c2278267"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 0.6
+  },
+  {
+    "name": "planner-selftest",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 5.8
+  },
+  {
+    "name": "ci-pieces-list",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "bash",
+      "-c",
+      "echo \"== shard 0/19\" && scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list && echo \"== shard 1/19\" && scripts/run_all_suites.sh --ci-pieces --shard 1/19 --list && echo \"== shard 2/19\" && scripts/run_all_suites.sh --ci-pieces --shard 2/19 --list && echo \"== shard 3/19\" && scripts/run_all_suites.sh --ci-pieces --shard 3/19 --list && echo \"== shard 4/19\" && scripts/run_all_suites.sh --ci-pieces --shard 4/19 --list && echo \"== shard 5/19\" && scripts/run_all_suites.sh --ci-pieces --shard 5/19 --list && echo \"== shard 6/19\" && scripts/run_all_suites.sh --ci-pieces --shard 6/19 --list && echo \"== shard 7/19\" && scripts/run_all_suites.sh --ci-pieces --shard 7/19 --list && echo \"== shard 8/19\" && scripts/run_all_suites.sh --ci-pieces --shard 8/19 --list && echo \"== shard 9/19\" && scripts/run_all_suites.sh --ci-pieces --shard 9/19 --list && echo \"== shard 10/19\" && scripts/run_all_suites.sh --ci-pieces --shard 10/19 --list && echo \"== shard 11/19\" && scripts/run_all_suites.sh --ci-pieces --shard 11/19 --list && echo \"== shard 12/19\" && scripts/run_all_suites.sh --ci-pieces --shard 12/19 --list && echo \"== shard 13/19\" && scripts/run_all_suites.sh --ci-pieces --shard 13/19 --list && echo \"== shard 14/19\" && scripts/run_all_suites.sh --ci-pieces --shard 14/19 --list && echo \"== shard 15/19\" && scripts/run_all_suites.sh --ci-pieces --shard 15/19 --list && echo \"== shard 16/19\" && scripts/run_all_suites.sh --ci-pieces --shard 16/19 --list && echo \"== shard 17/19\" && scripts/run_all_suites.sh --ci-pieces --shard 17/19 --list && echo \"== shard 18/19\" && scripts/run_all_suites.sh --ci-pieces --shard 18/19 --list"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 6.3
+  },
+  {
+    "name": "py-idiom",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 13.4
+  },
+  {
+    "name": "py-idiom-selftest",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 13.4
+  },
+  {
+    "name": "lint",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 6.3
+  },
+  {
+    "name": "docs",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 16.2
+  },
+  {
+    "name": "doc-style",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 0.2
+  },
+  {
+    "name": "em-dash",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "3cda030c"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 7.5
+  },
+  {
+    "name": "xvlog",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 265.4
+  },
+  {
+    "name": "parent-plants",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback_dp/mutants.py",
+      "--output",
+      "$SCRATCH/gates/parent-plants"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 480.8
+  },
+  {
+    "name": "leaf-plants",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback/mutants.py",
+      "--output",
+      "$SCRATCH/gates/leaf-plants"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 77.2
+  },
+  {
+    "name": "bounds",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+      "tb/verilator/input_loopback/bounds.py",
+      "--output",
+      "$SCRATCH/gates/bounds"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 25.5
+  }
+]

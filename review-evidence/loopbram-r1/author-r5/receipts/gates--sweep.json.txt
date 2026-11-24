@@ -1,0 +1,36 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/sweep.json
+Original SHA256: 645680505ee2ac16bccaba8a8cf1cf0d00d7c440014e9fea210b5b2aaf1ce4bb
+Scope: complete text; paths and host fields normalized
+
+[
+  {
+    "name": "sweep-shard15",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "scripts/run_all_suites.sh",
+      "$SCRATCH/gates/sweep-shard15",
+      "--ci-pieces",
+      "--shard",
+      "15/19"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 2112.9
+  },
+  {
+    "name": "sweep-shard16",
+    "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+    "command": [
+      "scripts/run_all_suites.sh",
+      "$SCRATCH/gates/sweep-shard16",
+      "--ci-pieces",
+      "--shard",
+      "16/19"
+    ],
+    "exit": 0,
+    "pass_gate": true,
+    "seconds": 2022.2
+  }
+]

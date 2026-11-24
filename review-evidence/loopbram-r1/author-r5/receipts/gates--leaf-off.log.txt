@@ -1,0 +1,147 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/leaf-off.log
+Original SHA256: 2ec81e6b4c8fdeee90085a2738fe4ebaca20a20e3aeda13acb4487fc16401827
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+Warning: Replacing memory \cand_w with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:673
+Warning: Replacing memory \tdm_walk_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:647
+Warning: Replacing memory \act_drop_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:492
+Warning: Replacing memory \rc_drop_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:491
+Warning: Replacing memory \rc_hold_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:490
+Warning: Replacing memory \tdm_frame_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_chan_map_capture/KL_chan_map_capture.v:175
+Warning: Resizing cell port KL_chan_map_capture.lb_q_r.0.0.ADDRBWRADDR from 17 bits to 16 bits.
+Warning: Resizing cell port KL_chan_map_capture.lb_q_r.0.0.ADDRARDADDR from 17 bits to 16 bits.
+Warning: Replacing memory \cand_w with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:674
+Warning: Replacing memory \tdm_walk_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:648
+Warning: Replacing memory \act_drop_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:493
+Warning: Replacing memory \rc_drop_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:492
+Warning: Replacing memory \rc_hold_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:491
+Warning: Replacing memory \tdm_frame_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_chan_map_capture/KL_chan_map_capture.v:176
+Warning: Resizing cell port KL_chan_map_capture.lb_q_r.0.0.ADDRBWRADDR from 17 bits to 16 bits.
+Warning: Resizing cell port KL_chan_map_capture.lb_q_r.0.0.ADDRARDADDR from 17 bits to 16 bits.
+Warning: Selection "input_capture_o" did not match any object.
+Warning: Selection "input_read_o" did not match any object.
+Warning: Selection "input_addr_o" did not match any object.
+Warning: Selection "input_sample_i" did not match any object.
+== KL_chan_map_capture (cell: base head delta)
+BUFG             1       1     +0
+CARRY4          58      58     +0
+FDRE          3956    3956     +0
+FDSE             5       5     +0
+INV           1727    1727     +0
+LUT1            41      41     +0
+LUT2           465     465     +0
+LUT3           580     580     +0
+LUT4           822     822     +0
+LUT5           771     771     +0
+LUT6          1660    1660     +0
+MUXF7          949     949     +0
+MUXF8          154     154     +0
+RAM32M          12      12     +0
+RAMB36E1         1       1     +0
+LUT(all)      4339    4339     +0
+FF(all)       3961    3961     +0
+Warning: Replacing memory \lead_s_w with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:734, $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:733
+Warning: Replacing memory \converged_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:616
+Warning: Replacing memory \conv_ms_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:615
+Warning: Replacing memory \live_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:614
+Warning: Replacing memory \lwv_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:613
+Warning: Replacing memory \lw_r with list of registers. See $SCRATCH/gates/leaf-off/base-KL_render_queue/KL_render_queue.v:612
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOADO from 64 bits to 32 bits.
+Warning: Replacing memory \lead_s_w with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:919, $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:918
+Warning: Replacing memory \converged_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:801
+Warning: Replacing memory \conv_ms_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:800
+Warning: Replacing memory \live_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:799
+Warning: Replacing memory \lwv_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:798
+Warning: Replacing memory \lw_r with list of registers. See $SCRATCH/gates/leaf-off/head-KL_render_queue/KL_render_queue.v:797
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.0.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank1_r.0.1.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.2.DOADO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPBDOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOBDO from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIPADIP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DIADI from 64 bits to 32 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOPADOP from 8 bits to 4 bits.
+Warning: Resizing cell port KL_render_queue.bank0_r.0.1.DOADO from 64 bits to 32 bits.
+Warning: Selection "input_map_i" did not match any object.
+Warning: Selection "input_invalidate_i" did not match any object.
+Warning: Selection "input_capture_i" did not match any object.
+Warning: Selection "input_read_i" did not match any object.
+Warning: Selection "input_addr_i" did not match any object.
+Warning: Selection "input_capture_ns_i" did not match any object.
+Warning: Selection "input_sample_o" did not match any object.
+== KL_render_queue (cell: base head delta)
+BUFG             1       1     +0
+CARRY4         140     140     +0
+FDRE           396     396     +0
+FDSE            10      10     +0
+INV            300     301     +1
+LUT2           370     383    +13
+LUT3           231     233     +2
+LUT4            95      93     -2
+LUT5           149     140     -9
+LUT6           172     166     -6
+MUXF7           20      20     +0
+MUXF8            7       8     +1
+RAMB36E1         6       6     +0
+LUT(all)      1017    1015     -2
+FF(all)        406     406     +0

@@ -1,0 +1,37 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: render_slices.py
+Original SHA256: 7ab51cd69d00ab8598ca91eb716f342bab578fb93f5e46c009e258189170232b
+Scope: complete text; paths and host fields normalized
+
+"""Run the tdm8render-mutants campaign in disjoint slices so each fits the job wall clock.
+
+Usage: render_slices.py <k> <K>. Every slice runs the runner's own run_mutations over
+MUTATIONS[k::K] in its own temporary directory. Slice 0 also runs the positive controls, the
+leg-defect arms and the clean controls, exactly as the runner's main() does. The union of
+the K slices is the full campaign (5 + 3 + 3 + 21 = 32 checks at this head).
+"""
+import sys
+import tempfile
+from pathlib import Path
+
+sys.path.insert(0, '$CHECKOUT/tb/verilator/milan_dp_render')
+import tdm8_render_mutants as m  # noqa: E402
+
+k, total = int(sys.argv[1]), int(sys.argv[2])
+mine = m.MUTATIONS[k::total]
+print(f'slice {k}/{total}: {len(mine)} of {len(m.MUTATIONS)} mutations: {[x[0] for x in mine]}', flush=True)
+rounds = []
+with tempfile.TemporaryDirectory(prefix=f'tdm8-render-slice{k}-') as td:
+    work = Path(td)
+    if k == 0:
+        clean = m.clean_legs(work, False)
+        rounds.append(m.run_positive_controls(clean, m.control_modes(False)))
+        rounds.append(m.run_leg_defects(clean))
+        rounds.append(m.run_clean_controls(work))
+    m.MUTATIONS = mine
+    rounds.append(m.run_mutations(work))
+passes = sum(p for p, _ in rounds)
+fails = sum(f for _, f in rounds)
+print(f'\n{passes + fails} checks: {passes} PASS, {fails} FAIL (slice {k}/{total})', flush=True)
+sys.exit(1 if fails else 0)

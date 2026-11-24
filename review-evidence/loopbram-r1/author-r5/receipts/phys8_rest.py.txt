@@ -1,0 +1,41 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: phys8_rest.py
+Original SHA256: c7f954c0e1ae37c67cf94978d928e92e2601bd5ea4552b5a1085ca870a6b3de4
+Scope: complete text; paths and host fields normalized
+
+"""Best of three: route every prescribed directive phys8.py did not reach, from the same checkpoint."""
+import json
+import os
+import subprocess
+import time
+from pathlib import Path
+
+w = Path(__file__).resolve().parent
+gate = w / 'route/endstation_ax7101_8x8/gateware'
+slot = '$MANAGEMENT/2026-09-23/vivado-slot.sh'
+vivado = '$WORKSPACE_HOME/Xilinx2/2026.1/Vivado/bin/vivado'
+env = dict(os.environ, VIVADO_SLOTS='2', VIVADO_MIN_GB='20')
+original = (gate / 'alinx_ax7101.tcl').read_text()
+post = original.split('# Add pre-placement commands', 1)[1]
+with (w / 'phys8.events').open('a') as log:
+    for directive in ['ExtraPostPlacementOpt', 'AltSpreadLogic_high', 'ExtraTimingOpt']:
+        d = gate / directive
+        if (d / 'measure_route.json').exists():
+            continue
+        d.mkdir(exist_ok=True)
+        rest = post.split('# Bitstream generation')[0].replace(
+            'place_design -directive ExtraPostPlacementOpt', 'place_design -directive ' + directive)
+        rest += '\nreport_utilization -hierarchical -file routed_hier.rpt\nreport_utilization -file routed_util.rpt\nquit\n'
+        tcl = d / 'measure_route.tcl'
+        tcl.write_text('set_param general.maxThreads 16\nopen_checkpoint ../measure_opt.dcp\n' + rest)
+        c = [slot, vivado, '-mode', 'batch', '-nojournal', '-nolog', '-source', str(tcl)]
+        start = time.time()
+        with tcl.with_suffix('.log').open('w') as s:
+            r = subprocess.run(c, cwd=d, env=env, stdout=s, stderr=subprocess.STDOUT, timeout=14400)
+        res = {'command': c, 'cwd': str(d), 'exit': r.returncode, 'seconds': time.time() - start}
+        tcl.with_suffix('.json').write_text(json.dumps(res, indent=2))
+        log.write(json.dumps({'step': 'vivado-best-of-three', 'tcl': str(tcl), 'exit': r.returncode,
+                              'seconds': res['seconds'], 'time': time.strftime('%Y-%m-%dT%H:%M:%S')}) + '\n')
+        log.flush()
+        print(directive, 'EXIT', r.returncode, flush=True)

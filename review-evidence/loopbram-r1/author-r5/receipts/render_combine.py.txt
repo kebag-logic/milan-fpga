@@ -1,0 +1,66 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: render_combine.py
+Original SHA256: b13cfee30636fffe57ce14fd8ab07bd076c8957945ae52efd0ea7255a39e1dc3
+Scope: complete text; paths and host fields normalized
+
+"""Combine the render campaign's pieces into one verdict; the union must be the runner's 32 arms."""
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, '$CHECKOUT/tb/verilator/milan_dp_render')
+import tdm8_render_mutants as m  # noqa: E402
+
+w = Path(__file__).resolve().parent
+g = w / 'gates'
+p = g / 'render-slice0-pieces'
+render = json.loads((g / 'render.json').read_text())
+parts = {}
+
+
+def tally(path, label):
+    text = path.read_text()
+    found = re.search(r'^(\d+) checks: (\d+) PASS, (\d+) FAIL', text, re.M)
+    parts[label] = {'log': str(path.relative_to(w)), 'checks': int(found[1]), 'pass': int(found[2]),
+                    'fail': int(found[3])} if found else None
+
+
+# Positive controls: the controls piece prints each one as it completes (unbuffered).
+controls = (p / 'controls.log').read_text()
+positive_pass = controls.count('[PASS] the unmutated gateware still passes')
+positive_fail = controls.count('[FAIL] the unmutated gateware does NOT pass')
+# The controls piece printed modes 0-2; modes 3 and 4 also ran as their own pieces.
+modes = m.control_modes(False)
+for i, (leg, mode) in enumerate(modes):
+    line = f'still passes the render lane leg ({leg} {mode or "whole"})'
+    piece = p / f'positive{i}.log'
+    if line in controls:
+        parts[f'positive control {i}'] = {'log': str((p / 'controls.log').relative_to(w)), 'checks': 1, 'pass': 1,
+                                          'fail': 0}
+    elif piece.exists():
+        tally(piece, f'positive control {i}')
+    else:
+        parts[f'positive control {i}'] = None
+assert not positive_fail
+tally(p / 'legdef.log', 'leg defects')
+for i in range(len(m.CLEAN_CONTROLS)):
+    tally(p / f'clean{i}.log', f'clean control {i}')
+for k in (1, 2, 3):
+    tally(g / f'render-mutants-slice{k}.log', f'mutations slice {k}/4')
+for i in range(0, len(m.MUTATIONS), 4):
+    tally(p / f'mut{i}.log', f'mutation {i}')
+expected = {f'positive control {i}': 1 for i in range(len(m.control_modes(False)))}
+expected['leg defects'] = len(m.LEG_DEFECTS)
+expected.update({f'clean control {i}': 1 for i in range(len(m.CLEAN_CONTROLS))})
+expected.update({f'mutations slice {k}/4': len(m.MUTATIONS[k::4]) for k in (1, 2, 3)})
+expected.update({f'mutation {i}': 1 for i in range(0, len(m.MUTATIONS), 4)})
+ok = all(parts.get(k) and parts[k]['checks'] == n and parts[k]['fail'] == 0 for k, n in expected.items())
+total = sum(v['checks'] for v in parts.values() if v)
+passed = sum(v['pass'] for v in parts.values() if v)
+run_ok = render['steps'][0]['name'] == 'render-run-ship8' and render['steps'][0]['exit'] == 0
+result = {'head': render['head'], 'run_ship8_exit': render['steps'][0]['exit'], 'parts': parts, 'expected': expected,
+          'checks': total, 'pass': passed, 'runner_total': 5 + 3 + 3 + 21, 'pass_gate': ok and run_ok and total == 32}
+(g / 'render-campaign.json').write_text(json.dumps(result, indent=2) + '\n')
+print('render campaign', total, 'checks', passed, 'PASS', 'gate', result['pass_gate'])

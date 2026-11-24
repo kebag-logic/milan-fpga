@@ -1,0 +1,140 @@
+Candidate head: 9acb9b828b29aba71bd51303a4836f86c2278267
+Prior reviewed head: dc78aedae34c25a97125ecd6816a1f645db5575f
+Source: gates/sweep-shard15/input_loopback_dp.log
+Original SHA256: fa144607900ae1887de75f353bc96511f223b5049a7b92a1b22a5892a47d9c64
+Scope: native compilation chatter omitted; other output retained; paths and host fields normalized
+
+python3 run.py --shape 1 --work $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/sw/builder/endstation_builder.py $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/endstation_ax7101_1x1_tdm8.yaml -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/gen
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 41 clusters (role-pools), model_id 0x001BC5FB6EA4D2F5 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/nvm_split.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/avdecc/gen_aemi_image.py --overlay $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/aemi.bin
+[gen_aemi_image] $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8/aem_overlay.json: 58 descriptors -> $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/aemi.bin, 10072 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 55
+index_off 0x000020  names_off 0x001998  image_bytes 10072  desc_max_len 452
+checksum 0xBCE6716E
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      3        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x000728          -
+    0  0x000D      0      1       452     456  0x000770          -
+    0  0x000E      0      1        20      24  0x000938          -
+    0  0x000F      0      1        20      24  0x000950          -
+    0  0x0014      0     41        90      96  0x000968         12
+    0  0x001A      0      1       113     120  0x0018C8         53
+    0  0x0024      0      1        82      88  0x001940         54
+
+semantic lint: on (07 §3.1 rules L1 to L12)
+lint waivers applied: 0
+ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+  entity_model_id_i  0x001BC5FB6EA4D2F5
+  talker_sources_i   2
+  listener_sinks_i   2
+  identify_index_i   0
+model digest sha256 18cc8ff81aa2d0b6f872cdaa6dbc6da2107a881c8476ff8aed176f5203d15652 (IEEE 1722.1-2021 §6.2.2.8)
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/sw/firmware/ctrl/aecp/aecp_entity.py $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/endstation_ax7101_1x1_tdm8.yaml -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/aecp_entity_gen.h
+verilator +incdir+$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/gen/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS '-std=c++17 -O2 -Wall -Wextra' -GGPTP_PLANE_EN_P=0 --Mdir $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/obj -CFLAGS '-I$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include' -LDFLAGS $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/libaecp.a $CHECKOUT/tb/verilator/input_loopback_dp/probes.vlt -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=24576000 -GAUDIO_IF_RENDER_SLOTS_P=8 -GLOOPBACK_P=0 -GI2SPB_P=0 -GLPF_P=0 -GINPUT_LOOPBACK_P=1 -GCTRL_SPLIT_P=1 ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/milan/KL_ctrl_split.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv $CHECKOUT/tb/verilator/input_loopback_dp/sim_main.cpp -o parent_loopback
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 2.624 s (elab=0.000, cvt=0.000, bld=2.621); cpu 0.003 s on 4 threads; allocated 29.680 MB
+$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/one/obj/parent_loopback
+phase edits stream 0 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase clipped stream 0 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+parent loopback streams=1 words=4248 nonzero=3391 silence=857 packets=88 walks=604 max_walk_cycles=89 first_eligible=5 max_backlog=48
+== input_loopback_dp: checks: 16173   failures: 0 ==
+RESULT: PASS
+python3 run.py --shape 8 --work $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/sw/builder/endstation_builder.py $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/endstation_ax7101_8x8.yaml -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/gen
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 199 clusters (role-pools), model_id 0x001BC56D83BB4A56 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/soc_params.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/aem_overlay.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/build_plan.md
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/lwsrp_table.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/nvm_split.json
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/aecp_aem_rom.svh
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/avdecc/gen_aemi_image.py --overlay $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/aem_overlay.json --line-bytes 576 -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/aemi.bin
+[gen_aemi_image] $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8/aem_overlay.json: 251 descriptors -> $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/aemi.bin, 39840 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 234
+index_off 0x000020  names_off 0x006120  image_bytes 39840  desc_max_len 452
+checksum 0xBCE5B4EB
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      8       154     160  0x000350          4
+    0  0x0005      8      1       146     152  0x000850         12
+    0  0x0006      0      9       146     152  0x0008E8         13
+    0  0x0009      0      1       102     104  0x000E40         22
+    0  0x000A      0     10        86      88  0x000EA8         23
+    0  0x000C      0      1        72      72  0x001218          -
+    0  0x000D      0      1       452     456  0x001260          -
+    0  0x000E      0      8        20      24  0x001428          -
+    0  0x000F      0      8        20      24  0x0014E8          -
+    0  0x0014      0    199        90      96  0x0015A8         33
+    0  0x001A      0      1       113     120  0x006048        232
+    0  0x0024      0      1        96      96  0x0060C0        233
+
+semantic lint: on (07 §3.1 rules L1 to L12)
+lint waivers applied: 0
+ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+  entity_model_id_i  0x001BC56D83BB4A56
+  talker_sources_i   9
+  listener_sinks_i   9
+  identify_index_i   0
+model digest sha256 2e1985ba4c3b76d76bd78ea3a13296320d10ce9ddd6a10b280abac219f1b79bc (IEEE 1722.1-2021 §6.2.2.8)
+$WORKSPACE_HOME/litex-milan/venv/bin/python3 $CHECKOUT/sw/firmware/ctrl/aecp/aecp_entity.py $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/endstation_ax7101_8x8.yaml -o $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/aecp_entity_gen.h
+verilator +incdir+$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/gen/endstation_ax7101_8x8 --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS '-std=c++17 -O2 -Wall -Wextra' -GGPTP_PLANE_EN_P=0 --Mdir $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/obj -CFLAGS '-I$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include' -LDFLAGS $CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/libaecp.a $CHECKOUT/tb/verilator/input_loopback_dp/probes.vlt -GN_STREAMS=8 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=32 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GAUDIO_IF_RENDER_SLOTS_P=1 -GLOOPBACK_P=0 -GI2SPB_P=0 -GLPF_P=0 -GINPUT_LOOPBACK_P=1 -GCTRL_SPLIT_P=1 ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/milan/KL_ctrl_split.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv $CHECKOUT/tb/verilator/input_loopback_dp/sim_main.cpp -o parent_loopback
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 2.671 s (elab=0.000, cvt=0.000, bld=2.668); cpu 0.003 s on 4 threads; allocated 29.680 MB
+$CHECKOUT/tb/verilator/input_loopback_dp/obj_tests/eight/obj/parent_loopback
+phase edits stream 0 captured=3096 delivered=3072 packets=64 tail=24 max_backlog=48
+phase edits stream 1 captured=3096 delivered=3072 packets=64 tail=24 max_backlog=48
+phase edits stream 2 captured=3092 delivered=3072 packets=64 tail=20 max_backlog=48
+phase edits stream 3 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 4 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 5 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 6 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase edits stream 7 captured=3088 delivered=3072 packets=64 tail=16 max_backlog=48
+phase clipped stream 0 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 1 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 2 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 3 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 4 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 5 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 6 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+phase clipped stream 7 captured=1160 delivered=1152 packets=24 tail=8 max_backlog=48
+parent loopback streams=8 words=34004 nonzero=30597 silence=3407 packets=704 walks=606 max_walk_cycles=873 first_eligible=5 max_backlog=48
+== input_loopback_dp: checks: 122549   failures: 0 ==
+RESULT: PASS
