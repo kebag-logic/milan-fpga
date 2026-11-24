@@ -1,0 +1,19 @@
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (21 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (1586 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (155 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (705 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (1 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (48 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (48 s)
+    make -C tb/verilator/mbx: exit 2 (133 s)
+REFUSED: tb/verilator/mbx/Makefile exited 2 under the capture, so it may have compiled less than it does:                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: "make[1]: Entering directory '/data-2/milan/lanes/lwsrp-pin/tb/verilator/mbx'"
+make: *** [Makefile:170: dma-mutants] Error 1
+make: Leaving directory '/data-2/milan/lanes/lwsrp-pin/tb/verilator/mbx'

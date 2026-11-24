@@ -1,0 +1,11 @@
+manifest ctrl_firmware: {"path": "sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf", "sha256": "cec11d4fa1ddddde5ea26486bc6049afd3dfda958aa7c22f528d3e13ee664639", "bytes": 176348}
+manifest bitstream: null
+image ELF    cec11d4fa1ddddde5ea26486bc6049afd3dfda958aa7c22f528d3e13ee664639 /data-2/milan/tmp/lwsrppin-a834/route/base/route8/image/ctrl_app.elf
+recipe ELF   cec11d4fa1ddddde5ea26486bc6049afd3dfda958aa7c22f528d3e13ee664639 /data-2/milan/tmp/lwsrppin-a834/base/sw/builder/out/endstation_ax7101_8x8/ctrl_app.elf
+export       8d470babf6637d8d994e572cba03358cdfba1573a5455e5e558c9771347a1819 alinx_ax7101_rom_bank0.init 294912
+export       4e21e9954a112d42061061ff77838a0512cff2ddd3c96ebad2e3dc3b1a81d021 alinx_ax7101_rom_bank1.init 18432
+export       0c4fc641ad9d524abe947283d6a235cc618ac1259d852cc03613cb8af4031ce2 alinx_ax7101_rom_bank2.init 5292
+export       5922241e0d2fed8958a3119545ed4c18fa233749fd6a729fc40b3735dc682a67 alinx_ax7101.v 835629
+repo HEAD    2509db684b58b920e215b0d5d327b4a845bac3f4
+lwSRP HEAD   08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+mrp_mad.o .text bytes 8136

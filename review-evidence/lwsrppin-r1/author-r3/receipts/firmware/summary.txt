@@ -1,0 +1,13 @@
+shard 0/4 rc=0 2026-11-24T11:35:12+01:00 -> 2026-11-24T12:00:00+01:00 head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698
+shard 1/4 rc=0 2026-11-24T11:35:12+01:00 -> 2026-11-24T12:39:20+01:00 head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698
+shard 2/4 rc=0 2026-11-24T11:35:12+01:00 -> 2026-11-24T12:15:51+01:00 head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698
+shard 3/4 rc=0 2026-11-24T11:35:12+01:00 -> 2026-11-24T12:24:46+01:00 head 507bce7f9fe50fcaf7b0abe6a198bdb4d0ea4698
+command: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard k/4 --jobs 4 --build-dir <scratch>/fw3/build-k
+shard 0: [ok] lines 98; lines starting [FAIL/[MISSED/[ESCAPED/[REFUSED 0; last line: test_ctrl_firmware: PASS
+shard 1: [ok] lines 844; lines starting [FAIL/[MISSED/[ESCAPED/[REFUSED 0; last line: test_ctrl_firmware: PASS
+shard 2: [ok] lines 398; lines starting [FAIL/[MISSED/[ESCAPED/[REFUSED 0; last line: test_ctrl_firmware: PASS
+shard 3: [ok] lines 664; lines starting [FAIL/[MISSED/[ESCAPED/[REFUSED 0; last line: test_ctrl_firmware: PASS
+shard 0: 98 arms, all [ok]; 85 verdicts, 3,001 cases in PASS verdicts, 0 failing verdicts; 47 SRP arms (srpcmp, srp-* ), all [ok], among them srp-srp_own_leaveall-if1 at 8x8 and 1x1 and srp-srp_link_pass-if1 at 1x1 and 8x8
+shard 1: mutants: 844 of 844 caught
+shard 3: pin controls: 2 [ok] lines naming the pinned d1bb4f4e (edited src/ refused; 97677fcb refused)
+inventory (each shard's self-test): PASS: 2005 live invocations in exactly one shard; shard sizes [98, 845, 399, 663]

@@ -1,0 +1,6 @@
+post-route hierarchy (baseline_hierarchy.rpt), base 2509db68 -> merge head 507bce7f: the top, and every instance at depth <= 3 moving by >= 10 LUT or FF
+header: |                             Instance                            |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+depth 0 alinx_ax7101 ((top)): LUT 45982 -> 45958 (-24), FF 53337 -> 53337 (+0)
+depth 1 KL_mbx_dma (KL_mbx_dma): LUT 820 -> 800 (-20), FF 713 -> 713 (+0)
+depth 2 peripheral_toAxiLite4_logic_bridge (AxiLite4Bridge): LUT 930 -> 912 (-18), FF 102 -> 102 (+0)
+depth 3 (peripheral_toAxiLite4_logic_bridge) (AxiLite4Bridge): LUT 549 -> 524 (-25), FF 100 -> 100 (+0)
