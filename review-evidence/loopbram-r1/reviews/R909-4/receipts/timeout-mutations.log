@@ -1,0 +1,7 @@
+control: PLANT-NOT-APPLIED
+fig-299: suite_shards-selftest rc=1 runner_contract rc=0 ::   FAIL head: input_loopback: provisional figure 299 s is not the 300 s that run_all_suites.sh's suite_timeout gives it
+fig-dp-1800: suite_shards-selftest rc=1 runner_contract rc=0 ::   FAIL head: input_loopback_dp: provisional figure 1800 s is not the 300 s that run_all_suites.sh's suite_timeout gives it
+arm-removed: suite_shards-selftest rc=1 runner_contract rc=1 ::   FAIL head: input_loopback: provisional figure 300 s is not the 1800 s that run_all_suites.sh's suite_timeout gives it
+arm-dp-301: suite_shards-selftest rc=1 runner_contract rc=1 ::   FAIL head: input_loopback_dp: provisional figure 300 s is not the 301 s that run_all_suites.sh's suite_timeout gives it
+unprovisional: suite_shards-selftest rc=0 runner_contract rc=0 ::   ok   head provisional figures {'reboot_ctrl': 300} are what run_all_suites.sh's suite_timeout gives
+control-unmodified-copy: suite_shards-selftest rc=0 runner_contract rc=0

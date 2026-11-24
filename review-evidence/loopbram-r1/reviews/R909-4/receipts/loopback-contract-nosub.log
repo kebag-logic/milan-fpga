@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_input_loopback as t; print('module import ok'); t.test_input_loopback_contract(); print('UNEXPECTED PASS')
+                                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/test_input_loopback.py", line 48, in test_input_loopback_contract
+    original = derive(raw)
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/test_input_loopback.py", line 46, in derive
+    return eb._derive_artifacts(path)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/endstation_builder.py", line 6233, in _derive_artifacts
+    cfg = load_config(config_path)
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/endstation_builder.py", line 4749, in load_config
+    gptp = _load_gptp(cfg)
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/endstation_builder.py", line 4378, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/endstation_builder.py", line 3840, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$REVIEWS/loopbram-r909-4-packet/scratch/nosub-c413d33a/sw/builder/endstation_builder.py", line 3777, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
+module import ok
