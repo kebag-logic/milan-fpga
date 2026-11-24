@@ -1,0 +1,22 @@
+PUBLIC HASHES: 1835 verified; no mismatches
+EXACT HEAD SOURCE: 86 qualified source files match 248d85c1453213b0f1642967a4046f395c82c56b
+SERVICE CASES: 145 VARIANTS: {'answering-every-port': 16, 'answering-later': 8, 'answering-ports': 4, 'declaring-outputs': 5, 'none': 99, 'shutdown-entry': 2, 'talker-notices': 8, 'valid-destinations': 3}
+WORST WHOLE PASS: (134507, 'build-corrected-final-census-declaring-outputs-aecp-largest-notice.json') ms 1.6813375
+RECORDED PROBE MISSES: [["none", "backlog.owed.if0", 62.79239, 0.0], ["none", "backlog.owed_behind0.if0", 62.92862, 0.0], ["none", "backlog.owed_behind1.if0", 63.0649, 0.0], ["none", "backlog.owed_behind2.if0", 63.19966, 0.0], ["none", "backlog.owed_behind3.if0", 63.33355, 0.0], ["none", "backlog-owed.service.acmp.last.if0", 62.10374, 0.0], ["none", "backlog-owed.service.aecp.last.if0", 61.8872, 0.0]]
+QUALIFICATION CHECKS: {'owner-model': 'PASS', 'share': 'PASS', 'record-classes': 'PASS', 'retry-costs': 'PASS', 'transmit-costs': 'PASS', 'egress-ledger': 'PASS'}
+MODEL: {"status": "PASS", "evidence": "stated-cost model only", "cpu_hz": 80000000, "shape": [1, 1, 2], "load": 0.49667711403508774, "load_terms": {"rec.aecp": 0.057, "rec.acmp": 0.048, "rec.adp": 0.012, "rec.maap": 0.006, "srp": 0.18, "item.reclaim": 0.020421052631578947, "item.aecp": 0.04388, "notices": 0.0017749999999999999, "item.acmp": 0.018600000000000002, "item.acmp_declined": 0.012400000000000001, "ticks": 0.0195, "item.walk": 0.0033157894736842108, "builds": 0.006947368421052632, "item.mrpdu": 0.013894736842105264, "steps": 0.035333333333333335, "timers": 0.0175165, "gm": 9.333333333333334e-05}, "rows_ms": {"R4": 13.95, "R5": 72.17, "R6": 68.36, "first": 14.46, "last": 121.84, "R4L": 203.36, "ACMP": 28.82, "ADP": 26.92, "MAAP": 27.04, "tx": 29.96, "txL": 48.74}, "slice_us": 950, "slice_margin": 0.005306122448979551, "pace_ms": 9}
+BUILD CLOCKS: all eight variants are sys/CPU 80 MHz, datapath 50 MHz, one interface
+ROUTE SUMMARY: ExtraPostPlacementOpt FAIL [('Slow', 0, 0.009, 0.102), ('Slow', 85, 0.009, 0.102), ('Fast', 0, 1.606, 0.021), ('Fast', 85, 1.606, 0.021)]
+ROUTE SUMMARY: AltSpreadLogic_high PASS [('Slow', 0, 0.589, 0.102), ('Slow', 85, 0.589, 0.102), ('Fast', 0, 1.613, 0.017), ('Fast', 85, 1.613, 0.017)]
+ROUTE SUMMARY: ExtraTimingOpt PASS [('Slow', 0, 0.617, 0.102), ('Slow', 85, 0.617, 0.102), ('Fast', 0, 1.613, 0.017), ('Fast', 85, 1.613, 0.017)]
+PLACED RESOURCE: Slice LUTs 33411 / 63400 52.7 percent
+PLACED RESOURCE: Slice Registers 40479 / 126800 31.92 percent
+PLACED RESOURCE: Block RAM Tile 78.5 / 135 58.15 percent
+PLACED RESOURCE: Slice 14119 / 15850 89.08 percent
+MISSING RAW SIGNOFF TIMING REPORTS: 12 ["build-corrected-images-ExtraPostPlacementOpt-digilent_arty_signoff_Slow_0C_timing.rpt", "build-corrected-images-ExtraPostPlacementOpt-digilent_arty_signoff_Slow_85C_timing.rpt", "build-corrected-images-ExtraPostPlacementOpt-digilent_arty_signoff_Fast_0C_timing.rpt", "build-corrected-images-ExtraPostPlacementOpt-digilent_arty_signoff_Fast_85C_timing.rpt", "build-corrected-images-AltSpreadLogic_high-digilent_arty_signoff_Slow_0C_timing.rpt", "build-corrected-images-AltSpreadLogic_high-digilent_arty_signoff_Slow_85C_timing.rpt", "build-corrected-images-AltSpreadLogic_high-digilent_arty_signoff_Fast_0C_timing.rpt", "build-corrected-images-AltSpreadLogic_high-digilent_arty_signoff_Fast_85C_timing.rpt", "build-corrected-images-ExtraTimingOpt-digilent_arty_signoff_Slow_0C_timing.rpt", "build-corrected-images-ExtraTimingOpt-digilent_arty_signoff_Slow_85C_timing.rpt", "build-corrected-images-ExtraTimingOpt-digilent_arty_signoff_Fast_0C_timing.rpt", "build-corrected-images-ExtraTimingOpt-digilent_arty_signoff_Fast_85C_timing.rpt"]
+PUBLIC RAW .log / .log.gz FILES: 2 0
+RECEIPT INDEX EXISTS: False
+IDENTITY RECEIPT: build-corrected-identity-final-compare.json 42 comparisons all identical
+IDENTITY RECEIPT: build-corrected-identity-final-export-compare.json 13 comparisons all identical
+FIRMWARE MEMORY: {"rom": {"bytes": 124412, "banks": [65536, 32768, 16384, 8192, 2048], "RAMB36": 30, "RAMB18": 1}, "sram": {"bytes": 53392, "banks": [32768, 16384, 4096, 2048], "RAMB36": 13, "RAMB18": 1}, "tiles": 44.0, "budget_tiles": 56}
+AUDIT PASS: published grades and summaries consistent; raw timing/native trace absence is an evidence limit

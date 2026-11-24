@@ -1,0 +1,80 @@
+[
+  {
+    "name": "owner-model",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/arty_grade.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.766
+  },
+  {
+    "name": "owner-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/arty_grade.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.465
+  },
+  {
+    "name": "service-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/selftest.py"
+    ],
+    "rc": 124,
+    "elapsed_s": 480.005
+  },
+  {
+    "name": "egress-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/egress_ledger.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 6.325
+  },
+  {
+    "name": "record-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/verilator/ctrl_service_budget/record_classes.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.214
+  },
+  {
+    "name": "host-focused",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-c",
+      "import sys\nfrom pathlib import Path\nroot, out = map(Path, sys.argv[1:3])\nsys.path.insert(0, str(root/'sw/firmware/ctrl/test'))\nimport ctrl_build as c, plat_arms\ntree = c.Tree(c.CTRL, out/'build', out/'reuse', c.fw_gtest.Build(jobs=4))\nresults = [plat_arms.arm_plat(tree), plat_arms.arm_platboot(tree, 1, mii=True)]\nfor result in results:\n print(result.arm, result.rc, result.log, flush=True)\nraise SystemExit(max(r.rc for r in results))\n",
+      "$SOURCE",
+      "$PACKET/scratch/host"
+    ],
+    "rc": 0,
+    "elapsed_s": 22.756
+  },
+  {
+    "name": "pll-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-c",
+      "import sys\nsys.path.insert(0, 'sw/builder')\nimport test_timing_grade\ntest_timing_grade.test_pll_grade(sys.argv[1])\nprint('PASS exact PLL and rejection controls')\n",
+      "$INTEGRATION_PYTHON"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.515
+  }
+]

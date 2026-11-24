@@ -1,0 +1,117 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:02 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+plat 0 [==========] Running 13 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 13 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+[       OK ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores (0 ms)
+[ RUN      ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+[       OK ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[ RUN      ] Plat.K8MilanLatIsNoCommandWithoutTheKey
+[       OK ] Plat.K8MilanLatIsNoCommandWithoutTheKey (0 ms)
+[----------] 13 tests from Plat (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 13 tests.
+== ctrl split platform CSR window and console (host bus): checks: 13   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (13 tests, 0 failures, exit 0)
+[==========] Running 13 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 13 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores
+[       OK ] Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores (0 ms)
+[ RUN      ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero
+[       OK ] Plat.C6SinkContextIsAnAafInputAboveZeroOnInterfaceZero (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (1 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[ RUN      ] Plat.K7MilanLatWritesThePairAndReadsItBack
+[       OK ] Plat.K7MilanLatWritesThePairAndReadsItBack (0 ms)
+[----------] 13 tests from Plat (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 1 test suite ran. (4 ms total)
+[  PASSED  ] 13 tests.
+== ctrl split platform CSR window and console, gptp.latency_writable (host bus): checks: 13   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (13 tests, 0 failures, exit 0)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+platboot 0 [==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from ArtyPhy
+[ RUN      ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters
+[       OK ] ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters (0 ms)
+[ RUN      ] ArtyPhy.TenOnlyPartnerNeverPublishesUp
+[       OK ] ArtyPhy.TenOnlyPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp
+[       OK ] ArtyPhy.HalfDuplexPartnerNeverPublishesUp (0 ms)
+[ RUN      ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart
+[       OK ] ArtyPhy.LatchedLossRechecksWithoutAnotherRestart (0 ms)
+[ RUN      ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated
+[       OK ] ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated (0 ms)
+[ RUN      ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback
+[       OK ] ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback (0 ms)
+[ RUN      ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing
+[       OK ] ArtyPhy.UnacknowledgedAdvertisementWritesNothing (0 ms)
+[ RUN      ] ArtyPhy.NoFrameWithoutStepBudget
+[       OK ] ArtyPhy.NoFrameWithoutStepBudget (0 ms)
+[----------] 8 tests from ArtyPhy (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 8 tests.
+== platboot-mii: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
