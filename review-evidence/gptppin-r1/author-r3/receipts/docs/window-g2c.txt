@@ -1,0 +1,17 @@
+# tools/docs_steps.py window g2c at fc6870cab13f74149864b80b6480ddb3641cb936 (STEP_FILTER per window; SKIP lines name their reason)
+01-docs-gates-2-Set_CPU_derived_job_budgets	rc=0	# head fc6870cab13f74149864b80b6480ddb3641cb936 job docs-gates-2 step: Set CPU-derived job budgets
+02-docs-gates-2-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+03-docs-gates-2-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+04-docs-gates-2-Resolve_exact_package_downloads_4	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+05-docs-gates-2-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+06-docs-gates-2-Fetch_the_builder_source_dependencies	rc=0	# origin restored: gptp-processor -> https://github.com/Mister-M-alt/FPGA-gPTP.git
+07-docs-gates-2-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+08-docs-gates-2-Install_and_verify_the_pinned_RV32_SDK	SKIP	outside this window's STEP_FILTER; run in another window
+09-docs-gates-2-End_station_builder_gates_leg_1_of_2	SKIP	outside this window's STEP_FILTER; run in another window
+10-docs-gates-2-CI_event_and_SHA_contract_gate	SKIP	outside this window's STEP_FILTER; run in another window
+11-docs-gates-2-Local_act_runner_contract_gate	rc=0	selftest: PASS
+12-docs-gates-2-Record_executed_gate_outcomes	SKIP	the hosted runner's evidence recorders need the run's artifacts
+13-docs-gates-2-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+tree porcelain: 0
+DONE failed 0
+g2c rc=0

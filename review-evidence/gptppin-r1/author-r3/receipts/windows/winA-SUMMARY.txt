@@ -1,0 +1,12 @@
+# tools/win.sh window winA: each command's clone head, rc and seconds (rc 124 = the window's timeout)
+mutants-2-4 clone c3 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+mutants-0-2 clone c2 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_shadow-lifecycle clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+mutants-4-6 clone c4 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_shadow-run clone legs head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_shadow-lifecycle rc=0 seconds=142 porcelain-after 0
+gptp_shadow-run rc=0 seconds=238 porcelain-after 0
+mutants-4-6 rc=0 seconds=462 porcelain-after 0
+mutants-2-4 rc=0 seconds=484 porcelain-after 0
+mutants-0-2 rc=124 seconds=586 porcelain-after 0
+DONE

@@ -1,0 +1,4 @@
+# mutants.py main() on MUTATIONS[6:8] (tools/mutants_slice.py) at fc6870cab13f74149864b80b6480ddb3641cb936 (clean shared clone, pinned Verilator 5.050): the 585 s window ended it after its first control; 7-8 ran in window C
+slice 6:8 of 13: no_fence, unseal_without_echo
+CANCELLED: signal 15; no mutation verdict
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"

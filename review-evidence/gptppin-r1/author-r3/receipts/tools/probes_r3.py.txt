@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Replay the reviewers' disposable probes against this round's head.
+Usage: probes_r3.py REPO HEAD R916_PACKET R915_PACKET OUT CASE...
+
+Each case is a fresh shared clone of REPO at HEAD with gptp-processor and
+verilog-axis at their pins. One edit is applied, and `make run` of
+tb/verilator/gptp_shadow is recorded with its exit code under OUT.
+
+  order-stall           R916-2's order_probe.py stall, its first edit verbatim:
+                        the wide lane's ready held low across the race's
+                        queued Announce. Its second edit (a print beside the
+                        old count) has no anchor at this head; the run's own
+                        INFO line now prints both clocks.
+  r916-delayed-announce R916's delayed-announce.patch on gptp-processor
+  r916-retained-rate    R916's retained-slave-rate.patch on gptp-processor
+  r915-p106-nocredit    R915-2's p106-nocredit probe diff on gptp-processor
+  r915-p106-beat        R915-2's p106-beat probe diff on gptp-processor
+No input tree is edited; everything is written under OUT.
+"""
+import os
+import pathlib
+import re
+import subprocess
+import sys
+
+repo, head, r916, r915, out = sys.argv[1:6]
+cases = sys.argv[6:]
+repo, r916, r915, out = (pathlib.Path(p).resolve() for p in (repo, r916, r915, out))
+(out / "scratch").mkdir(parents=True, exist_ok=True)
+DIFFS = r915 / "receipts" / "published" / "probe-diffs"
+PATCHES = {"r916-delayed-announce": r916 / "delayed-announce.patch",
+           "r916-retained-rate": r916 / "retained-slave-rate.patch",
+           "r915-p106-nocredit": DIFFS / "p106-nocredit.probe.diff",
+           "r915-p106-beat": DIFFS / "p106-beat.probe.diff"}
+STALL_OLD = """        run_to(t0 + a1_after);
+        announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
+        a1_due = false;"""
+STALL_NEW = """        dut->tx_tready_i = 0;
+        run_to(t0 + a1_after);
+        announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
+        dut->tx_tready_i = 1;
+        a1_due = false;"""
+
+
+def redact(text):
+    for path, name in ((out, "<out>"), (repo, "<source>"), (r916, "<r916>"), (r915, "<r915>")):
+        text = text.replace(str(path), name)
+    return text
+
+
+case = cases[0]
+tree = out / "scratch" / case
+log = out / f"probe-{case}.log"
+with log.open("w") as f:
+    def cmd(args, cwd=repo, env=None):
+        f.write("COMMAND " + redact(" ".join(map(str, args))) + "\n")
+        f.flush()
+        return subprocess.run(list(map(str, args)), cwd=cwd, env=env, stdout=f,
+                              stderr=subprocess.STDOUT).returncode
+    assert cmd(["git", "clone", "--quiet", "--shared", "--no-checkout", repo, tree]) == 0
+    assert cmd(["git", "checkout", "--quiet", "--detach", head], tree) == 0
+    for sub in ("gptp-processor", "third_party/verilog-axis"):
+        assert cmd(["git", "config", f"submodule.{sub}.url", repo / sub], tree) == 0
+        assert cmd(["git", "-c", "protocol.file.allow=always", "submodule", "update",
+                    "--init", sub], tree) == 0
+    if case == "order-stall":
+        sim = tree / "tb/verilator/gptp_shadow/sim_main.cpp"
+        text = sim.read_text()
+        assert text.count(STALL_OLD) == 1
+        sim.write_text(text.replace(STALL_OLD, STALL_NEW))
+        cmd(["git", "diff"], tree)
+    else:
+        lines = PATCHES[case].read_text().splitlines(True)
+        #: R915's probe diffs end with the submodule's revision line
+        if lines and re.fullmatch(r"[0-9a-f]{40}\n?", lines[-1]):
+            lines = lines[:-1]
+        patch = out / f"{case}.patch"
+        patch.write_text("".join(lines))
+        assert cmd(["git", "apply", patch], tree / "gptp-processor") == 0
+        cmd(["git", "diff"], tree / "gptp-processor")
+    env = dict(os.environ, MAKEFLAGS="--no-print-directory", PYTHONDONTWRITEBYTECODE="1")
+    rc = cmd(["make", "-C", "tb/verilator/gptp_shadow", "run"], tree, env)
+(out / f"probe-{case}.rc").write_text(f"{rc}\n")
+print(case, rc, flush=True)

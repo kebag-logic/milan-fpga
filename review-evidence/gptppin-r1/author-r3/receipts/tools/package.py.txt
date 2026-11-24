@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+"""package.py: copy this round's receipts into the packet with host paths
+replaced by placeholders, refuse any file at 200 KB or any agent or vendor
+model name, then write INDEX.md (path, size, sha256 prefix, first line)."""
+import hashlib
+import re
+import shutil
+from pathlib import Path
+
+S = Path("<scratch>")
+O = Path("<mgmt>/gptppin-a835/round3/receipts")
+HEAD = "fc6870cab13f74149864b80b6480ddb3641cb936"
+SUBS = ((str(S), "<scratch>"),
+        ("<lane>", "<lane>"),
+        ("<mgmt>", "<mgmt>"),
+        ("<mgmt-root>", "<mgmt-root>"),
+        ("<tools>", "<tools>"),
+        ("<home>", "<home>"),
+        ("<data2>", "<data2>"),
+        ("<data>", "<data>"))
+#: words that must not appear in a published receipt, stored reversed so
+#: this file passes its own screen
+_WORDS = [w[::-1] for w in ("edualc", "ciporhtna", "ianepo", "tpgtahc", "xedoc", "supo", "tennos", "ukiah")]
+BANNED = re.compile("|".join([r"\b" + w + r"\b" for w in _WORDS] + [r"\bgpt-\d"]), re.I)
+FILES = []
+
+
+def add(dest, src, header=None):
+    FILES.append((dest, S / src, header))
+
+
+H = f"at {HEAD} (clean shared clone, pinned Verilator 5.050)"
+add("rtl/gptp_shadow-run.log", "winA/gptp_shadow-run.log", f"# make -C tb/verilator/gptp_shadow run {H}")
+add("rtl/gptp_shadow-lifecycle.log", "winA/gptp_shadow-lifecycle.log", f"# make -C tb/verilator/gptp_shadow lifecycle {H}")
+for w, sl, note in (("winA", "0-2", "the 585 s window ended it after its first control; 1-2 ran in window B"),
+                    ("winA", "2-4", None), ("winA", "4-6", None),
+                    ("winB", "1-2", None),
+                    ("winB", "6-8", "the 585 s window ended it after its first control; 7-8 ran in window C"),
+                    ("winB", "8-10", None), ("winB", "10-12", None), ("winB", "12-13", None),
+                    ("winC", "7-8", None)):
+    a, b = sl.split("-")
+    add(f"rtl/gptp_shadow-mutants-{sl}.log", f"{w}/mutants-{sl}.log",
+        f"# mutants.py main() on MUTATIONS[{a}:{b}] (tools/mutants_slice.py) {H}"
+        + (f": {note}" if note else ""))
+for w in ("winA", "winB", "winC", "winD", "winE", "winF", "winG", "winH", "winI", "winK", "winL"):
+    add(f"windows/{w}-SUMMARY.txt", f"{w}/SUMMARY.txt",
+        f"# tools/win.sh window {w}: each command's clone head, rc and seconds (rc 124 = the window's timeout)")
+for c in ("order-stall", "r916-delayed-announce", "r916-retained-rate", "r915-p106-nocredit", "r915-p106-beat"):
+    add(f"probes/probe-{c}.log", f"probes/probe-{c}.log",
+        f"# tools/probes_r3.py case {c}: gptp_shadow run {H}, with that one edit")
+    add(f"probes/probe-{c}.rc", f"probes/probe-{c}.rc")
+for c in ("r916-delayed-announce", "r916-retained-rate", "r915-p106-nocredit", "r915-p106-beat"):
+    add(f"probes/{c}.patch", f"probes/{c}.patch")
+add("rtl/gptp_plane-run.log", "winD/gptp_plane-run.log", f"# make -C tb/verilator/gptp_plane run {H}")
+add("rtl/gptp_plane-phc-step-arms1-4.log", "winF/gptp_plane-phc-step-arms1-4.log",
+    f"# phc_step_slice.py --mutants, arms clean,nocease-control,stale-rate-window,crossing-exchange {H}: clean completed (62 checks), then the 585 s window ended it")
+add("rtl/gptp_plane-phc-step-arms5-8.log", "winF/gptp_plane-phc-step-arms5-8.log",
+    f"# phc_step_slice.py --mutants, arms never-rearm-measurement,liveness-not-marked,r571-no-liveness,credit-on-step {H}: two completed, then the 585 s window ended it")
+for arm in ("nocease-control", "stale-rate-window", "crossing-exchange", "r571-no-liveness", "credit-on-step"):
+    add(f"rtl/gptp_plane-phc-step-{arm}.log", f"winG/phc-step-{arm}.log",
+        f"# phc_step_slice.py --mutants, arm {arm} alone {H}")
+add("rtl/gptp_tables-limits-run.log", "winD/gptp_tables-limits-run.log", f"# make -C tb/verilator/gptp_tables limits && run {H}")
+for sl in ("0-3", "3-6", "6-9", "9-12", "12-15", "15-18", "18-21", "21-24", "24-26"):
+    a, b = sl.split("-")
+    add(f"rtl/gptp_tables-mutants-{sl}.log", f"winH/tables-{sl}.log",
+        f"# gptp_tables mutants.py main() on MUTATIONS[{a}:{b}] (tools/suite_mutants_slice.py) {H}")
+add("rtl/gptp_txts.log", "winD/gptp_txts.log", f"# make -C tb/verilator/gptp_txts (all: mutants) {H}")
+for w in ("winD", "winE", "winF", "winG", "winI", "winL"):
+    for leg in ("gptp", "gptp-lat"):
+        add(f"rtl/milan_dp-{leg}-{w}.log", f"{w}/milan_dp-{leg}.log",
+            f"# make -C tb/verilator/milan_dp {leg} {H}: NOT COMPLETED, the window's timeout ended the simulation (it prints only at exit)")
+add("rtl/milan_dp-inputs.txt", "out/milan_dp-inputs.txt")
+add("rtl/sim-seconds.txt", "winK/SUMMARY.txt",
+    "# the gptp_shadow simulation alone (./obj_dir/Vgptp_shadow_sim, built by make run) at bbfdb674, f97e49fe and the head, run at once")
+for h in ("bbfdb674", "f97e49fe", "fc6870ca"):
+    add(f"rtl/sim-{h}.txt", f"winK/sim-{h}.log", f"# gptp_shadow simulation alone at {h}: tally and wall seconds")
+add("rtl/shard-projection.txt", "out/shard-projection.txt")
+add("ledger/plat-ledger.txt", "out/plat-ledger.txt",
+    f"# tools/ledger.sh: plat_ledger.py on a clean clone {H}, then each image's sha256")
+add("ledger/images-unchanged.txt", "out/images-unchanged.txt")
+for d in sorted((S / "docs").iterdir()):
+    if d.suffix == ".txt":
+        add(f"docs/window-{d.stem}.txt", f"docs/{d.name}",
+            f"# tools/docs_steps.py window {d.stem} at {HEAD} (STEP_FILTER per window; SKIP lines name their reason)")
+    elif d.is_dir() and (d / "logs").is_dir():
+        for log in sorted((d / "logs").iterdir()):
+            add(f"docs/{d.name}/{log.name}", f"docs/{d.name}/logs/{log.name}")
+for t in ("win.sh", "probes_r3.py", "mutants_slice.py", "suite_mutants_slice.py", "docs_steps.py",
+          "mkclone.sh", "ledger.sh", "package.py"):
+    add(f"tools/{t}.txt", f"tools/{t}")
+add("tools/phc_step_slice.py.txt", "clones/c3/tb/verilator/gptp_plane/phc_step_slice.py")
+
+
+def clean(text):
+    for a, b in SUBS:
+        text = text.replace(a, b)
+    return text
+
+
+if O.exists():
+    shutil.rmtree(O)
+rows = []
+for dest, src, header in FILES:
+    text = clean(src.read_text(errors="replace"))
+    if header:
+        text = header + "\n" + text
+    hit = BANNED.search(text)
+    assert not hit, (dest, hit.group(0))
+    data = text.encode()
+    assert len(data) < 200 * 1024, (dest, len(data))
+    path = O / dest
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    first = text.splitlines()[0] if text.strip() else ""
+    rows.append((dest, len(data), hashlib.sha256(data).hexdigest()[:16], first[:160].replace("|", "\\|")))
+lines = ["# Receipts (generated from the files present)", "",
+         f"{len(rows)} files, {sum(r[1] for r in rows):,} bytes, none at 200 KB, no .gz; host paths are placeholders.", "",
+         "| File | Bytes | sha256 | First line |", "|---|---:|---|---|"]
+lines += [f"| `{d}` | {n:,} | `{h}` | {f} |" for d, n, h, f in rows]
+(O / "INDEX.md").write_text("\n".join(lines) + "\n")
+print(len(rows), "files", sum(r[1] for r in rows), "bytes")

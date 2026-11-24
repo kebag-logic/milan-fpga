@@ -1,0 +1,114 @@
+# tools/probes_r3.py case r916-delayed-announce: gptp_shadow run at fc6870cab13f74149864b80b6480ddb3641cb936 (clean shared clone, pinned Verilator 5.050), with that one edit
+COMMAND git clone --quiet --shared --no-checkout <source> <out>/scratch/r916-delayed-announce
+COMMAND git checkout --quiet --detach fc6870cab13f74149864b80b6480ddb3641cb936
+COMMAND git config submodule.gptp-processor.url <source>/gptp-processor
+COMMAND git -c protocol.file.allow=always submodule update --init gptp-processor
+Cloning into '<scratch>/probes/scratch/r916-delayed-announce/gptp-processor'...
+done.
+Submodule path 'gptp-processor': checked out '1213ac5b9e09b8759ba76cc70c53652b5e108996'
+COMMAND git config submodule.third_party/verilog-axis.url <source>/third_party/verilog-axis
+COMMAND git -c protocol.file.allow=always submodule update --init third_party/verilog-axis
+Cloning into '<scratch>/probes/scratch/r916-delayed-announce/third_party/verilog-axis'...
+done.
+Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+COMMAND git apply <out>/r916-delayed-announce.patch
+COMMAND git diff
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index ce7b6ed..2860da9 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2024,6 +2024,8 @@ def prog_become(base: int) -> Prog:
+     # this mastership's first Announce in this same handler, so it leaves
+     # before any event queued behind the role change (802.1AS-2011 Figure
+     # 10-15, TRANSMIT_ANNOUNCE on newInfo), and arms the 1 s cadence from it
++    p.emit("MOVE", rd=RT, ra=0, imm=2)
++    p.emit("WRST", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)
+     p.emit("WRST", ra=0, imm=RG_TMR | 2, fmt=FMT_Q)   # stop the watch
+     # The port's Sync watches run on (#89). syncReceiptTimeoutTime is the
+     # port's, so an expiry after this still marks it (10.3.11). A parked
+@@ -2062,7 +2064,7 @@ def prog_self(base: int) -> Prog:
+     # transaction: the path {thisClock}, every later entry erased.
+     p.emit("WRST", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)
+     p.emit("COMMIT")
+-    p.emit("BR", label=LB["ANNTX"])
++    p.emit("END")
+     return p
+ 
+ 
+COMMAND make -C tb/verilator/gptp_shadow run
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1015 real (99.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@975 BECGATE@941 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@988 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@999 NOTEN@1009
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 8 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<scratch>/probes/scratch/r916-delayed-announce/tb/verilator/gptp_shadow -Wall -Wextra -DOUR_CQ_TB=0xf822436a" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_enable_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_arm_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/probes/scratch/r916-delayed-announce/tb/verilator/gptp_shadow -Wall -Wextra -DOUR_CQ_TB=0xf822436a   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/probes/scratch/r916-delayed-announce/tb/verilator/gptp_shadow -Wall -Wextra -DOUR_CQ_TB=0xf822436a   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/probes/scratch/r916-delayed-announce/tb/verilator/gptp_shadow -Wall -Wextra -DOUR_CQ_TB=0xf822436a   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_shadow_wrap.cpp Vgptp_shadow_wrap___024root__0.cpp Vgptp_shadow_wrap__ConstPool__0__Slow.cpp Vgptp_shadow_wrap___024root__Slow.cpp Vgptp_shadow_wrap___024root__0__Slow.cpp Vgptp_shadow_wrap__Syms__Slow.cpp > Vgptp_shadow_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/probes/scratch/r916-delayed-announce/tb/verilator/gptp_shadow -Wall -Wextra -DOUR_CQ_TB=0xf822436a   -c -o Vgptp_shadow_wrap__ALL.o Vgptp_shadow_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_shadow_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_shadow_sim
+rm Vgptp_shadow_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.882 MB sources in 18 modules, into 0.889 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 27.168 s (elab=0.159, cvt=0.508, bld=26.261); cpu 0.276 s on 8 threads; allocated 495.297 MB
+./obj_dir/Vgptp_shadow_sim
+INFO #107 settled +100 ppm: trim 13402, offset 0, slew 0
+INFO #107 settled +100 ppm: trim 13402 units, TLV frequency change -3513254, expected -3513253 +- 175663
+INFO #107 settled -100 ppm: trim -13366, offset -1, slew 0
+INFO #107 settled -100 ppm: trim -13366 units, TLV frequency change 3517186, expected 3503816 +- 175191
+INFO #107 slewing -100 ppm: offset -1473, trim 86482, slew 1
+INFO #107 slewing -100 ppm: trim 86482 units, TLV frequency change -3235644
+INFO #107 repeated, no slave rate: trim 0 units, TLV frequency change 0, expected 0 +- 1
+INFO #106: the instant is 5999366 clocks after the Announce
+INFO #106: the first master Announce ends 4184 clocks after the instant
+FAIL #106: the first master Announce leaves at once got 0000000000000000 exp 0000000000000001
+INFO #106 race: master at +5999366, re-elected at +6000647
+INFO #106 race: the first master Announce's last beat at +0, the re-election at +1281, after the takeover
+FAIL #106 race: one master Announce reaches the lane before the re-election got 0000000000000000 exp 0000000000000001
+INFO #106 reserve: 5 frames outstanding
+INFO #106 reserve: released 500081 clocks after the instant
+FAIL #106 reserve: two master Announces once the credit returns got 0000000000000001 exp 0000000000000002
+INFO #106 reserve: the first master Announce ends 2004099 clocks after the instant
+FAIL #106 reserve: the withheld Announce leaves 1 s after the instant got 0000000000000000 exp 0000000000000001
+INFO #106 seal: unsealed 500101 clocks after the instant
+FAIL #106 seal: two master Announces once the credit returns got 0000000000000001 exp 0000000000000002
+INFO #106 seal: the first master Announce ends 2004099 clocks after the instant
+FAIL #106 seal: the withheld Announce leaves 1 s after the instant got 0000000000000000 exp 0000000000000001
+TX flags Sync: 91 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 84 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 37 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+422 checks: 416 PASS, 6 FAIL
+make: *** [Makefile:48: run] Error 1

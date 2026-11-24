@@ -1,0 +1,27 @@
+# tools/docs_steps.py window g0b at fc6870cab13f74149864b80b6480ddb3641cb936 (STEP_FILTER per window; SKIP lines name their reason)
+01-docs-gates-0-Set_CPU_derived_job_budgets	rc=0	# head fc6870cab13f74149864b80b6480ddb3641cb936 job docs-gates-0 step: Set CPU-derived job budgets
+02-docs-gates-0-Build_the_validated_HDL_reference	SKIP	outside this window's STEP_FILTER; run in another window
+03-docs-gates-0-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+04-docs-gates-0-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+05-docs-gates-0-Resolve_exact_package_downloads_6	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+06-docs-gates-0-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+07-docs-gates-0-Link_health_wording_dead_reference_and_local_inf	SKIP	outside this window's STEP_FILTER; run in another window
+08-docs-gates-0-Added_line_em_dash_gate	SKIP	outside this window's STEP_FILTER; run in another window
+09-docs-gates-0-Concise_audience_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+10-docs-gates-0-Audience_diagram_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+11-docs-gates-0-Product_solution_source_fact_gate	SKIP	outside this window's STEP_FILTER; run in another window
+12-docs-gates-0-Verified_submodule_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+13-docs-gates-0-HDL_timing_diagram_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+14-docs-gates-0-Published_diagram_PNG_gate	SKIP	outside this window's STEP_FILTER; run in another window
+15-docs-gates-0-Milan_feature_status_consistency_gate	SKIP	outside this window's STEP_FILTER; run in another window
+16-docs-gates-0-Traceability_matrix_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+17-docs-gates-0-Fetch_the_builder_source_dependencies	rc=0	# origin restored: gptp-processor -> https://github.com/Mister-M-alt/FPGA-gPTP.git
+18-docs-gates-0-Imported_gPTP_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+19-docs-gates-0-Code_quality_measurement_self_tests	SKIP	outside this window's STEP_FILTER; run in another window
+20-docs-gates-0-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+21-docs-gates-0-Bare_metal_scope_gate	SKIP	outside this window's STEP_FILTER; run in another window
+22-docs-gates-0-Install_and_verify_the_pinned_RV32_SDK	SKIP	outside this window's STEP_FILTER; run in another window
+23-docs-gates-0-Compiler_absent_firmware_controls	SKIP	outside this window's STEP_FILTER; run in another window
+24-docs-gates-0-NVM_record_space_gate	rc=0	split saved-state reference (#823): OK across 5 shape(s), layout 3, 1129 ids, NAME 222 to 1128, and all 6 planted defects caught
+25-docs-gates-0-Capture_measurement_census_and_clock_gate	rc=0	PASS: capture census, clocks, both timing arms and receipt agree
+g0b rc=124

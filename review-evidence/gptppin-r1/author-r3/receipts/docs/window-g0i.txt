@@ -1,0 +1,55 @@
+# tools/docs_steps.py window g0i at fc6870cab13f74149864b80b6480ddb3641cb936 (STEP_FILTER per window; SKIP lines name their reason)
+01-docs-gates-0-Set_CPU_derived_job_budgets	rc=0	# head fc6870cab13f74149864b80b6480ddb3641cb936 job docs-gates-0 step: Set CPU-derived job budgets
+02-docs-gates-0-Build_the_validated_HDL_reference	SKIP	outside this window's STEP_FILTER; run in another window
+03-docs-gates-0-Install_the_python_gate_dependencies	SKIP	pip install of packages the venv carries
+04-docs-gates-0-Install_the_pinned_Markdown_renderer	SKIP	the venv carries the pinned renderer
+05-docs-gates-0-Resolve_exact_package_downloads_6	SKIP	apt package resolution; the host has librsvg2's rsvg-convert
+06-docs-gates-0-Install_diagram_gate_dependencies	SKIP	apt install; the host has the packages
+07-docs-gates-0-Link_health_wording_dead_reference_and_local_inf	SKIP	outside this window's STEP_FILTER; run in another window
+08-docs-gates-0-Added_line_em_dash_gate	SKIP	outside this window's STEP_FILTER; run in another window
+09-docs-gates-0-Concise_audience_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+10-docs-gates-0-Audience_diagram_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+11-docs-gates-0-Product_solution_source_fact_gate	SKIP	outside this window's STEP_FILTER; run in another window
+12-docs-gates-0-Verified_submodule_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+13-docs-gates-0-HDL_timing_diagram_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+14-docs-gates-0-Published_diagram_PNG_gate	SKIP	outside this window's STEP_FILTER; run in another window
+15-docs-gates-0-Milan_feature_status_consistency_gate	SKIP	outside this window's STEP_FILTER; run in another window
+16-docs-gates-0-Traceability_matrix_no_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+17-docs-gates-0-Fetch_the_builder_source_dependencies	rc=0	# origin restored: gptp-processor -> https://github.com/Mister-M-alt/FPGA-gPTP.git
+18-docs-gates-0-Imported_gPTP_documentation_gate	SKIP	outside this window's STEP_FILTER; run in another window
+19-docs-gates-0-Code_quality_measurement_self_tests	SKIP	outside this window's STEP_FILTER; run in another window
+20-docs-gates-0-Install_the_pinned_sv2v_release	SKIP	the host carries sv2v v0.0.12 on PATH
+21-docs-gates-0-Bare_metal_scope_gate	SKIP	outside this window's STEP_FILTER; run in another window
+22-docs-gates-0-Install_and_verify_the_pinned_RV32_SDK	SKIP	outside this window's STEP_FILTER; run in another window
+23-docs-gates-0-Compiler_absent_firmware_controls	SKIP	outside this window's STEP_FILTER; run in another window
+24-docs-gates-0-NVM_record_space_gate	SKIP	outside this window's STEP_FILTER; run in another window
+25-docs-gates-0-Capture_measurement_census_and_clock_gate	SKIP	outside this window's STEP_FILTER; run in another window
+26-docs-gates-0-Saved_state_writer_gate	SKIP	outside this window's STEP_FILTER; run in another window
+27-docs-gates-0-SoC_source_list_gate_Vivado_would_fail_40_min_in	SKIP	outside this window's STEP_FILTER; run in another window
+28-docs-gates-0-RTL_source_list_drift_gate	SKIP	outside this window's STEP_FILTER; run in another window
+29-docs-gates-0-Boundary_unit_naming_ratchet	rc=0	66 checks: 66 PASS, 0 FAIL
+30-docs-gates-0-Port_contract_gate	SKIP	outside this window's STEP_FILTER; run in another window
+31-docs-gates-0-Fail_fast_ratchet	SKIP	outside this window's STEP_FILTER; run in another window
+32-docs-gates-0-TODO_ownership_gate	SKIP	outside this window's STEP_FILTER; run in another window
+33-docs-gates-0-Test_evidence_ratchet	SKIP	outside this window's STEP_FILTER; run in another window
+34-docs-gates-0-Mechanical_hygiene_ratchet	SKIP	outside this window's STEP_FILTER; run in another window
+35-docs-gates-0-SystemVerilog_idiom_gate	SKIP	outside this window's STEP_FILTER; run in another window
+36-docs-gates-0-C_and_C_idiom_gate	SKIP	outside this window's STEP_FILTER; run in another window
+37-docs-gates-0-Python_idiom_gate	SKIP	outside this window's STEP_FILTER; run in another window
+38-docs-gates-0-Shell_idiom_gate	SKIP	outside this window's STEP_FILTER; run in another window
+39-docs-gates-0-Doc_cited_path_gate	SKIP	outside this window's STEP_FILTER; run in another window
+40-docs-gates-0-Archive_integrity_gate	SKIP	outside this window's STEP_FILTER; run in another window
+41-docs-gates-0-Per_page_contents_gate	SKIP	outside this window's STEP_FILTER; run in another window
+42-docs-gates-0-Documentation_inventory_freshness_gate	SKIP	outside this window's STEP_FILTER; run in another window
+43-docs-gates-0-AEM_store_generator_self_test	SKIP	outside this window's STEP_FILTER; run in another window
+44-docs-gates-0-Sweep_build_shape_gate	SKIP	outside this window's STEP_FILTER; run in another window
+45-docs-gates-0-Deploy_shape_gate	SKIP	outside this window's STEP_FILTER; run in another window
+46-docs-gates-0-Entity_shape_gate	SKIP	outside this window's STEP_FILTER; run in another window
+47-docs-gates-0-Register_reference_freshness_gate	SKIP	outside this window's STEP_FILTER; run in another window
+48-docs-gates-0-Fetch_inventory_dependencies	SKIP	outside this window's STEP_FILTER; run in another window
+49-docs-gates-0-CI_scheduling_and_evidence_controls	SKIP	outside this window's STEP_FILTER; run in another window
+50-docs-gates-0-Record_executed_gate_outcomes	SKIP	the hosted runner's evidence recorders need the run's artifacts
+51-docs-gates-0-Record_actual_job_execution	SKIP	the hosted runner's evidence recorders need the run's artifacts
+tree porcelain: 0
+DONE failed 0
+g0i rc=0

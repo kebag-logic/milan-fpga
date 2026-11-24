@@ -1,0 +1,22 @@
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index ce7b6ed..862b6b9 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2020,6 +2020,8 @@ def prog_become(base: int) -> Prog:
+     e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)  # sync now
++    p.emit("MOVE", rd=RT, ra=0, imm=2)
++    p.emit("WRST", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)  # announce now
+     # #106: no Announce beat is armed here. SELF ends in ANNTX, which sends
+     # this mastership's first Announce in this same handler, so it leaves
+     # before any event queued behind the role change (802.1AS-2011 Figure
+@@ -2062,7 +2064,7 @@ def prog_self(base: int) -> Prog:
+     # transaction: the path {thisClock}, every later entry erased.
+     p.emit("WRST", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)
+     p.emit("COMMIT")
+-    p.emit("BR", label=LB["ANNTX"])
++    p.emit("END")
+     return p
+ 
+ 

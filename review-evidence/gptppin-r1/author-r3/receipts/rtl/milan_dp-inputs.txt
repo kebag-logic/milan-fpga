@@ -1,0 +1,21 @@
+# do the milan_dp gptp/gptp-lat legs read any path f97e49fe..fc6870ca changed? (at fc6870cab13f74149864b80b6480ddb3641cb936)
+## changed paths
+CHANGELOG.md
+docs/reference/SUBMODULES.md
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+## every file the two legs' recipes name (make -n -B build-gptp build-gptp-lat, file arguments)
+127 distinct file arguments
+## of them, under tb/verilator/gptp_shadow or a changed path:
+../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+## local includes of sim_gptp.cpp
+30:#include "../../common/verilator_harness.hpp"
+31:#include "../../common/gptp_tx_flags.hpp"
+32:#include "../../common/gptp_launch_observer.hpp"
+33:#include "Vmilan_datapath.h"
+34:#include "Vmilan_datapath___024root.h"
+(the one match is the product RTL hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv, which no commit since f97e49fe changes; the harness directory is tb/verilator/gptp_shadow)
+## tracked files under tb/verilator/milan_dp naming tb/verilator/gptp_shadow
+none

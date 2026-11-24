@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# win.sh <outdir> <name>=<clone>:<command>...: run each command in its clone at once, each under
+# timeout WIN_TIMEOUT (default 585 s), pinned Verilator 5.050 first on PATH; one line per
+# command (rc, seconds) in <outdir>/SUMMARY.txt, with each clone's head and porcelain before and after.
+set -u
+O=$1; shift
+S=<scratch>
+export PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:$PATH
+export VERILATOR=<tools>/pinned-verilator-5.050/verilator MAKEFLAGS=--no-print-directory PYTHONHASHSEED=0
+export VERILATOR_JOBS=${VERILATOR_JOBS:-8}
+mkdir -p "$O" "$O/tmp"; export TMPDIR="$O/tmp"
+: > "$O/SUMMARY.txt"
+one() {
+  local n=$1 c=$2 cmd=$3 t0 rc
+  echo "$n clone $(basename "$c") head $(git -C "$c" rev-parse HEAD) porcelain $(git -C "$c" status --porcelain --untracked-files=no | wc -l)" >> "$O/SUMMARY.txt"
+  t0=$(date +%s)
+  (cd "$c" && timeout "${WIN_TIMEOUT:-585}" bash -c "$cmd") > "$O/$n.log" 2>&1; rc=$?
+  echo "$n rc=$rc seconds=$(( $(date +%s) - t0 )) porcelain-after $(git -C "$c" status --porcelain --untracked-files=no | wc -l)" >> "$O/SUMMARY.txt"
+}
+for spec in "$@"; do
+  n=${spec%%=*}; rest=${spec#*=}; c=$S/clones/${rest%%:*}; cmd=${rest#*:}
+  one "$n" "$c" "$cmd" &
+done
+wait
+echo DONE >> "$O/SUMMARY.txt"
+cat "$O/SUMMARY.txt"

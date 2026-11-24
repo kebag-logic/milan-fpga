@@ -1,0 +1,12 @@
+# tools/win.sh window winD: each command's clone head, rc and seconds (rc 124 = the window's timeout)
+milan_dp-gptp-lat clone c2 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_tables-limits-run clone c5 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_txts clone c3 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_plane-run clone c4 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+milan_dp-gptp clone legs head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+gptp_plane-run rc=0 seconds=31 porcelain-after 0
+gptp_tables-limits-run rc=0 seconds=101 porcelain-after 0
+gptp_txts rc=0 seconds=535 porcelain-after 0
+milan_dp-gptp-lat rc=124 seconds=585 porcelain-after 0
+milan_dp-gptp rc=124 seconds=585 porcelain-after 0
+DONE
