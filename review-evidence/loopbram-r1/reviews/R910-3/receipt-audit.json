@@ -1,0 +1,1009 @@
+{
+  "campaign": [
+    {
+      "name": "control1",
+      "exit": 0,
+      "checked_runtime_tags": [
+        "RESULT: PASS"
+      ]
+    },
+    {
+      "name": "control8",
+      "exit": 0,
+      "checked_runtime_tags": [
+        "RESULT: PASS"
+      ]
+    },
+    {
+      "name": "missing_edit_invalidation",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "missing_edit_invalidation_1x1",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "disconnected_map",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "disconnected_map_1x1",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "overwritten_capture_page",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "truncated_claim_page",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] PARENT_SAMPLE"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream0",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream1",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 1",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 1",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 1",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 1"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream2",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 2",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 2",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 2",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 2"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream3",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 3",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 3",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 3",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 3"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream4",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 4",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 4",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 4",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 4"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream5",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 5",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 5",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 5",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 5"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream6",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 6",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 6",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 6",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 6"
+      ]
+    },
+    {
+      "name": "missing_output_8x8_stream7",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 7",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 7",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 7",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 7"
+      ]
+    },
+    {
+      "name": "missing_output_1x1_stream0",
+      "exit": 1,
+      "checked_runtime_tags": [
+        "[FAIL] WIRE_STREAM_DELIVERY edits stream 0",
+        "[FAIL] WIRE_STREAM_DELIVERY clipped stream 0",
+        "[FAIL] WIRE_STREAM_COMPLETE edits stream 0",
+        "[FAIL] WIRE_STREAM_COMPLETE clipped stream 0"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "directive": "ExtraPostPlacementOpt",
+      "utilization": {
+        "Slice LUTs*": 48883.0,
+        "Slice Registers": 54671.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15806.0
+      },
+      "corners": [
+        {
+          "corner": "alinx_ax7101_signoff_Fast_0C_timing.rpt",
+          "wns": 1.636,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Fast_85C_timing.rpt",
+          "wns": 1.636,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_0C_timing.rpt",
+          "wns": 0.008,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_85C_timing.rpt",
+          "wns": 0.008,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        }
+      ],
+      "worst_path": "  Source:                 KL_mbx/u_evt/pend_r_reg[0]/C\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Destination:            KL_mbx/u_evt/ctr_seen_r_reg[0][4]/D\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Path Group:             milansoc_crg_clkout0\n  Path Type:              Setup (Max at Slow Process Corner)\n  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)\n  Data Path Delay:        9.680ns  (logic 2.289ns (23.647%)  route 7.391ns (76.353%))\n  Logic Levels:           16  (LUT2=1 LUT3=1 LUT4=4 LUT5=3 LUT6=7)\n  Clock Path Skew:        -0.027ns (DCD - SCD + CPR)\n    Destination Clock Delay (DCD):    6.696ns = ( 16.696 - 10.000 ) \n    Source Clock Delay      (SCD):    7.101ns\n    Clock Pessimism Removal (CPR):    0.378ns\n  Clock Uncertainty:      0.055ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE\n    Total System Jitter     (TSJ):    0.071ns\n    Discrete Jitter          (DJ):    0.083ns\n    Phase Error              (PE):    0.000ns",
+      "floor_pass": false
+    },
+    {
+      "directive": "AltSpreadLogic_high",
+      "utilization": {
+        "Slice LUTs*": 48901.0,
+        "Slice Registers": 54672.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15774.0
+      },
+      "corners": [
+        {
+          "corner": "alinx_ax7101_signoff_Fast_0C_timing.rpt",
+          "wns": 1.436,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Fast_85C_timing.rpt",
+          "wns": 1.436,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_0C_timing.rpt",
+          "wns": 0.223,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_85C_timing.rpt",
+          "wns": 0.223,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        }
+      ],
+      "worst_path": "  Source:                 KL_mbx/u_rx/hrd_r_reg/C\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Destination:            KL_mbx/reg_rdata_r_reg[21]/D\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Path Group:             milansoc_crg_clkout0\n  Path Type:              Setup (Max at Slow Process Corner)\n  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)\n  Data Path Delay:        9.703ns  (logic 1.962ns (20.221%)  route 7.741ns (79.779%))\n  Logic Levels:           10  (LUT3=2 LUT5=2 LUT6=5 MUXF7=1)\n  Clock Path Skew:        -0.049ns (DCD - SCD + CPR)\n    Destination Clock Delay (DCD):    6.611ns = ( 16.611 - 10.000 ) \n    Source Clock Delay      (SCD):    7.038ns\n    Clock Pessimism Removal (CPR):    0.378ns\n  Clock Uncertainty:      0.055ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE\n    Total System Jitter     (TSJ):    0.071ns\n    Discrete Jitter          (DJ):    0.083ns\n    Phase Error              (PE):    0.000ns",
+      "floor_pass": true
+    },
+    {
+      "directive": "ExtraTimingOpt",
+      "utilization": {
+        "Slice LUTs*": 48960.0,
+        "Slice Registers": 54671.0,
+        "Block RAM Tile": 111.0,
+        "RAMB36/FIFO*": 94.0,
+        "RAMB18": 34.0,
+        "F7 Muxes": 2971.0,
+        "F8 Muxes": 734.0,
+        "DSPs": 11.0,
+        "Occupied slices": 15790.0
+      },
+      "corners": [
+        {
+          "corner": "alinx_ax7101_signoff_Fast_0C_timing.rpt",
+          "wns": 1.436,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Fast_85C_timing.rpt",
+          "wns": 1.436,
+          "whs": 0.036,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_0C_timing.rpt",
+          "wns": 0.003,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        },
+        {
+          "corner": "alinx_ax7101_signoff_Slow_85C_timing.rpt",
+          "wns": 0.003,
+          "whs": 0.102,
+          "setup_failing": 0,
+          "hold_failing": 0
+        }
+      ],
+      "worst_path": "  Source:                 KL_mbx/u_evt/pend_r_reg[11]/C\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Destination:            KL_mbx/u_evt/asp_cnt_r_reg[0][15]/R\n                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})\n  Path Group:             milansoc_crg_clkout0\n  Path Type:              Setup (Max at Slow Process Corner)\n  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)\n  Data Path Delay:        9.375ns  (logic 1.744ns (18.604%)  route 7.631ns (81.397%))\n  Logic Levels:           13  (LUT2=1 LUT3=4 LUT4=4 LUT5=1 LUT6=3)\n  Clock Path Skew:        -0.216ns (DCD - SCD + CPR)\n    Destination Clock Delay (DCD):    6.694ns = ( 16.694 - 10.000 ) \n    Source Clock Delay      (SCD):    7.228ns\n    Clock Pessimism Removal (CPR):    0.318ns\n  Clock Uncertainty:      0.055ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE\n    Total System Jitter     (TSJ):    0.071ns\n    Discrete Jitter          (DJ):    0.083ns\n    Phase Error              (PE):    0.000ns",
+      "floor_pass": false
+    }
+  ],
+  "canonical": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "sha256": "18af89e620ea88ee2a745550bd25b1645702cec071bcba36decced2b5376d9af",
+      "bytes": 20626655
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "sha256": "fe344bba8709f7b8e72075b38aa81619c316c2207f948e0adaea1540e36da767",
+      "bytes": 29443265
+    }
+  ],
+  "docs_steps": [
+    {
+      "n": 0,
+      "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+      "exit": 0
+    },
+    {
+      "n": 1,
+      "name": "Strip git metadata, then run the docs gate",
+      "exit": 0
+    },
+    {
+      "n": 2,
+      "name": "Build the validated HDL reference",
+      "exit": 0
+    },
+    {
+      "n": 3,
+      "name": "Link health, wording, dead-reference and local-info gate",
+      "exit": 0
+    },
+    {
+      "n": 4,
+      "name": "Added-line em-dash gate",
+      "exit": 0
+    },
+    {
+      "n": 5,
+      "name": "Concise audience documentation gate",
+      "exit": 0
+    },
+    {
+      "n": 6,
+      "name": "Audience diagram no-drift gate",
+      "exit": 0
+    },
+    {
+      "n": 7,
+      "name": "Product solution source-fact gate",
+      "exit": 0
+    },
+    {
+      "n": 8,
+      "name": "Verified submodule documentation gate",
+      "exit": 0
+    },
+    {
+      "n": 9,
+      "name": "HDL timing diagram no-drift gate",
+      "exit": 0
+    },
+    {
+      "n": 10,
+      "name": "Published diagram PNG gate",
+      "exit": 0
+    },
+    {
+      "n": 11,
+      "name": "Milan feature-status consistency gate",
+      "exit": 0
+    },
+    {
+      "n": 12,
+      "name": "Traceability matrix no-drift gate",
+      "exit": 0
+    },
+    {
+      "n": 13,
+      "name": "Imported gPTP documentation gate",
+      "exit": 0
+    },
+    {
+      "n": 14,
+      "name": "Code-quality measurement self-tests",
+      "exit": 0
+    },
+    {
+      "n": 15,
+      "name": "Bare-metal scope gate",
+      "exit": 0
+    },
+    {
+      "n": 16,
+      "name": "Compiler-absent firmware controls",
+      "exit": 0
+    },
+    {
+      "n": 17,
+      "name": "Capture measurement census and clock gate",
+      "exit": 0
+    },
+    {
+      "n": 18,
+      "name": "Saved-state writer gate",
+      "exit": 0
+    },
+    {
+      "n": 19,
+      "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+      "exit": 0
+    },
+    {
+      "n": 20,
+      "name": "RTL source-list drift gate",
+      "exit": 0
+    },
+    {
+      "n": 21,
+      "name": "Boundary-unit naming ratchet",
+      "exit": 0
+    },
+    {
+      "n": 22,
+      "name": "Port contract gate",
+      "exit": 0
+    },
+    {
+      "n": 23,
+      "name": "Fail-fast ratchet",
+      "exit": 0
+    },
+    {
+      "n": 24,
+      "name": "TODO ownership gate",
+      "exit": 0
+    },
+    {
+      "n": 25,
+      "name": "Test-evidence ratchet",
+      "exit": 0
+    },
+    {
+      "n": 26,
+      "name": "Mechanical hygiene ratchet",
+      "exit": 0
+    },
+    {
+      "n": 27,
+      "name": "SystemVerilog idiom gate",
+      "exit": 0
+    },
+    {
+      "n": 28,
+      "name": "C and C++ idiom gate",
+      "exit": 0
+    },
+    {
+      "n": 29,
+      "name": "Python idiom gate",
+      "exit": 0
+    },
+    {
+      "n": 30,
+      "name": "Shell idiom gate",
+      "exit": 0
+    },
+    {
+      "n": 31,
+      "name": "Doc cited-path gate",
+      "exit": 0
+    },
+    {
+      "n": 32,
+      "name": "Archive integrity gate",
+      "exit": 0
+    },
+    {
+      "n": 33,
+      "name": "Per-page contents gate",
+      "exit": 0
+    },
+    {
+      "n": 34,
+      "name": "Documentation inventory freshness gate",
+      "exit": 0
+    },
+    {
+      "n": 35,
+      "name": "AEM store generator self-test",
+      "exit": 0
+    },
+    {
+      "n": 36,
+      "name": "Sweep/build shape gate",
+      "exit": 0
+    },
+    {
+      "n": 37,
+      "name": "Deploy shape gate",
+      "exit": 0
+    },
+    {
+      "n": 38,
+      "name": "Entity shape gate",
+      "exit": 0
+    },
+    {
+      "n": 39,
+      "name": "Register reference freshness gate",
+      "exit": 0
+    },
+    {
+      "n": 40,
+      "name": "CI scheduling and evidence controls",
+      "exit": 0
+    },
+    {
+      "n": 41,
+      "name": "CI event and SHA contract gate",
+      "exit": 0
+    },
+    {
+      "n": 42,
+      "name": "Local act runner contract gate",
+      "exit": 0
+    }
+  ],
+  "sweep": [
+    {
+      "name": "sweep-shard15",
+      "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+      "command": [
+        "scripts/run_all_suites.sh",
+        "$SCRATCH/gates/sweep-shard15",
+        "--ci-pieces",
+        "--shard",
+        "15/19"
+      ],
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 2112.9
+    },
+    {
+      "name": "sweep-shard16",
+      "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+      "command": [
+        "scripts/run_all_suites.sh",
+        "$SCRATCH/gates/sweep-shard16",
+        "--ci-pieces",
+        "--shard",
+        "16/19"
+      ],
+      "exit": 0,
+      "pass_gate": true,
+      "seconds": 2022.2
+    }
+  ],
+  "shard15_tail": "shard: 15/19   selected suites: 8\nPASS     milan_dp_mclk__1\nPASS     pp_shadow__3\nPASS     aaf_latency_taps\nPASS     avtp_stream\nPASS     datapath\nPASS     input_loopback_dp\nPASS     mbx\nPASS     queues\n----------------------------------------------------------------\nsuites: 8   passed: 8   failed: 0   timed out: 0\nchecks: 662439   in-suite failures: 0\nlogs: $SCRATCH/gates/sweep-shard15\n",
+  "shard16_tail": "shard: 16/19   selected suites: 9\nPASS     milan_dp_mclk__2\nPASS     milan_dp_mclk__3\nPASS     adp_tx\nPASS     cls\nPASS     input_loopback\nPASS     link_guard\nPASS     pair_fill\nPASS     render_queue\nPASS     rx_filter\n----------------------------------------------------------------\nsuites: 9   passed: 9   failed: 0   timed out: 0\nchecks: 356128   in-suite failures: 0\nlogs: $SCRATCH/gates/sweep-shard16\n",
+  "source_groups": {
+    "quick": [
+      {
+        "name": "anchors",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/anchor_counts.py",
+          "$CHECKOUT",
+          "$CHECKOUT",
+          "3cda030c",
+          "9acb9b828b29aba71bd51303a4836f86c2278267"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.6
+      },
+      {
+        "name": "planner-selftest",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/suite_shards.py",
+          "--selftest"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 5.8
+      },
+      {
+        "name": "ci-pieces-list",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "echo \"== shard 0/19\" && scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list && echo \"== shard 1/19\" && scripts/run_all_suites.sh --ci-pieces --shard 1/19 --list && echo \"== shard 2/19\" && scripts/run_all_suites.sh --ci-pieces --shard 2/19 --list && echo \"== shard 3/19\" && scripts/run_all_suites.sh --ci-pieces --shard 3/19 --list && echo \"== shard 4/19\" && scripts/run_all_suites.sh --ci-pieces --shard 4/19 --list && echo \"== shard 5/19\" && scripts/run_all_suites.sh --ci-pieces --shard 5/19 --list && echo \"== shard 6/19\" && scripts/run_all_suites.sh --ci-pieces --shard 6/19 --list && echo \"== shard 7/19\" && scripts/run_all_suites.sh --ci-pieces --shard 7/19 --list && echo \"== shard 8/19\" && scripts/run_all_suites.sh --ci-pieces --shard 8/19 --list && echo \"== shard 9/19\" && scripts/run_all_suites.sh --ci-pieces --shard 9/19 --list && echo \"== shard 10/19\" && scripts/run_all_suites.sh --ci-pieces --shard 10/19 --list && echo \"== shard 11/19\" && scripts/run_all_suites.sh --ci-pieces --shard 11/19 --list && echo \"== shard 12/19\" && scripts/run_all_suites.sh --ci-pieces --shard 12/19 --list && echo \"== shard 13/19\" && scripts/run_all_suites.sh --ci-pieces --shard 13/19 --list && echo \"== shard 14/19\" && scripts/run_all_suites.sh --ci-pieces --shard 14/19 --list && echo \"== shard 15/19\" && scripts/run_all_suites.sh --ci-pieces --shard 15/19 --list && echo \"== shard 16/19\" && scripts/run_all_suites.sh --ci-pieces --shard 16/19 --list && echo \"== shard 17/19\" && scripts/run_all_suites.sh --ci-pieces --shard 17/19 --list && echo \"== shard 18/19\" && scripts/run_all_suites.sh --ci-pieces --shard 18/19 --list"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 6.3
+      },
+      {
+        "name": "py-idiom",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_py_idiom.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 13.4
+      },
+      {
+        "name": "py-idiom-selftest",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_py_idiom.py",
+          "--selftest"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 13.4
+      },
+      {
+        "name": "lint",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/lint_rtl.py",
+          "--check"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 6.3
+      },
+      {
+        "name": "docs",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/docs_check.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 16.2
+      },
+      {
+        "name": "doc-style",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/check_doc_style.py"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.2
+      },
+      {
+        "name": "em-dash",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "/data-2/milan/tmp/loopbram-a826/markdown-venv/bin/python3",
+          "scripts/check_em_dash.py",
+          "--base",
+          "3cda030c"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 7.5
+      },
+      {
+        "name": "xvlog",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "scripts/xvlog_gate.py",
+          "--check"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 265.4
+      },
+      {
+        "name": "parent-plants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback_dp/mutants.py",
+          "--output",
+          "$SCRATCH/gates/parent-plants"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 480.8
+      },
+      {
+        "name": "leaf-plants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback/mutants.py",
+          "--output",
+          "$SCRATCH/gates/leaf-plants"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 77.2
+      },
+      {
+        "name": "bounds",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "tb/verilator/input_loopback/bounds.py",
+          "--output",
+          "$SCRATCH/gates/bounds"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 25.5
+      }
+    ],
+    "regressions": [
+      {
+        "name": "input8",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback",
+          "VERILATOR_JOBS=4",
+          "run",
+          "MDIR=$SCRATCH/gates/regressions/input8"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 9.8
+      },
+      {
+        "name": "input1",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback",
+          "VERILATOR_JOBS=4",
+          "run",
+          "STREAMS=1",
+          "FIRST=8",
+          "CHANNELS=8",
+          "LEAD=2",
+          "MDIR=$SCRATCH/gates/regressions/input1"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 10.0
+      },
+      {
+        "name": "input_loopback_dp",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/input_loopback_dp",
+          "VERILATOR_JOBS=4",
+          "WORK=$SCRATCH/gates/regressions/parent"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 59.5
+      },
+      {
+        "name": "queue",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/render_queue",
+          "VERILATOR_JOBS=4",
+          "all"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 253.6
+      },
+      {
+        "name": "capture",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/chmap_capture",
+          "VERILATOR_JOBS=4",
+          "run",
+          "MDIR=$SCRATCH/gates/regressions/capture"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 207.6
+      },
+      {
+        "name": "milan_dp",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/milan_dp",
+          "VERILATOR_JOBS=4",
+          "run"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 5278.8
+      },
+      {
+        "name": "coherence",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "make",
+          "-s",
+          "-C",
+          "$CHECKOUT/tb/verilator/capture_coherence",
+          "VERILATOR_JOBS=4",
+          "run",
+          "dp"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 662.5
+      }
+    ],
+    "remaining": [
+      {
+        "name": "coherence-mutants",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "cd tb/verilator/capture_coherence && python3 mutants.py --jobs 2 --receipt $SCRATCH/gates/coherence-mutants-receipt"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 3037.1
+      },
+      {
+        "name": "portability",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "-c",
+          "mkdir -p $SCRATCH/gates/yosys/tmp && TMPDIR=$SCRATCH/gates/yosys/tmp syn/yosys/run.sh --results $SCRATCH/gates/yosys/results"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 3515.7
+      },
+      {
+        "name": "reviewer-probes",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+          "/data-2/milan/tmp/loopbram-a826-r4-final/reviewer_probes.py",
+          "--tree",
+          "$CHECKOUT",
+          "--out",
+          "$SCRATCH/gates/reviewer-probes",
+          "--verilator",
+          "$VALIDATION_TOOLS/verilator-v5.050/bin/verilator",
+          "--pool",
+          "2",
+          "--jobs",
+          "4"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 67.3
+      },
+      {
+        "name": "leaf-off",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "bash",
+          "$MANAGEMENT/2026-09-23/loopbram-r909-1/scripts/leaf_off_incontext.sh",
+          "/data-2/milan/tmp/loopbram-a826-r3/base-wt",
+          "$CHECKOUT",
+          "$SCRATCH/gates/leaf-off"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 49.4
+      }
+    ],
+    "builder": [
+      {
+        "name": "builder-leg1",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "run",
+          "1",
+          "--receipt",
+          "$SCRATCH/gates/builder-union/leg1.json",
+          "--",
+          "python3",
+          "sw/builder/test_builder.py",
+          "--require-elaboration",
+          "--require-rv32"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 1093.9
+      },
+      {
+        "name": "builder-leg0",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "run",
+          "0",
+          "--receipt",
+          "$SCRATCH/gates/builder-union/leg0.json",
+          "--",
+          "python3",
+          "sw/builder/test_builder.py",
+          "--require-elaboration",
+          "--require-rv32"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 1701.7
+      },
+      {
+        "name": "builder-union",
+        "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+        "command": [
+          "python3",
+          "scripts/ci_builder_legs.py",
+          "union",
+          "--workflow",
+          "elaborate",
+          "--head",
+          "9acb9b828b29aba71bd51303a4836f86c2278267",
+          "--tree",
+          "fd76b3610f374ccf589e220ef60e83d84a71f6e1",
+          "--output",
+          "$SCRATCH/gates/builder-union/union.json",
+          "$SCRATCH/gates/builder-union/leg0.json",
+          "$SCRATCH/gates/builder-union/leg1.json"
+        ],
+        "exit": 0,
+        "pass_gate": true,
+        "seconds": 0.8
+      }
+    ],
+    "render": {
+      "head": "9acb9b828b29aba71bd51303a4836f86c2278267",
+      "steps": [
+        {
+          "name": "render-run-ship8",
+          "command": [
+            "make",
+            "-s",
+            "-C",
+            "$CHECKOUT/tb/verilator/milan_dp_render",
+            "VERILATOR_JOBS=4",
+            "run",
+            "ship8",
+            "tdm8render-build",
+            "tdm8render-multi-build"
+          ],
+          "exit": 0,
+          "seconds": 1286.3
+        },
+        {
+          "name": "render-mutants-slice2",
+          "command": [
+            "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+            "$SCRATCH/render_slices.py",
+            "2",
+            "4"
+          ],
+          "exit": 0,
+          "seconds": 592.1
+        },
+        {
+          "name": "render-mutants-slice3",
+          "command": [
+            "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+            "$SCRATCH/render_slices.py",
+            "3",
+            "4"
+          ],
+          "exit": 0,
+          "seconds": 1397.4
+        },
+        {
+          "name": "render-mutants-slice1",
+          "command": [
+            "$WORKSPACE_HOME/litex-milan/venv/bin/python3",
+            "$SCRATCH/render_slices.py",
+            "1",
+            "4"
+          ],
+          "exit": 0,
+          "seconds": 2713.2
+        }
+      ]
+    }
+  }
+}

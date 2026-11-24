@@ -1,0 +1,22 @@
+{
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "command": [
+    "/usr/bin/python3",
+    "$CHECKOUT/tb/verilator/input_loopback_dp/run.py",
+    "--shape",
+    "8",
+    "--work",
+    "$PACKET/scratch/probes/talker7",
+    "--dp-source",
+    "$PACKET/scratch/probes/talker7.sv"
+  ],
+  "exit": 1,
+  "built": true,
+  "required": [
+    "[FAIL] WIRE_STREAM_DELIVERY edits stream 7",
+    "[FAIL] WIRE_STREAM_DELIVERY clipped stream 7",
+    "[FAIL] WIRE_STREAM_COMPLETE edits stream 7",
+    "[FAIL] WIRE_STREAM_COMPLETE clipped stream 7"
+  ],
+  "detected": true
+}

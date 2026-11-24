@@ -1,0 +1,50 @@
+[
+  {
+    "input": null,
+    "exit": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "input": "1000",
+    "exit": 0,
+    "stdout": "1000\n",
+    "stderr": ""
+  },
+  {
+    "input": "abc",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "STAMP_PPM=abc is not a decimal integer\n"
+  },
+  {
+    "input": "1000x",
+    "exit": 2,
+    "stdout": "",
+    "stderr": "STAMP_PPM=1000x is not a decimal integer\n"
+  },
+  {
+    "input": "2147483648",
+    "exit": 0,
+    "stdout": "-2147483648\n",
+    "stderr": ""
+  },
+  {
+    "input": "4294967296",
+    "exit": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "input": "-4294967296",
+    "exit": 0,
+    "stdout": "0\n",
+    "stderr": ""
+  },
+  {
+    "input": "99999999999999999999999999999",
+    "exit": 0,
+    "stdout": "-1\n",
+    "stderr": ""
+  }
+]
