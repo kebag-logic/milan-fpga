@@ -441,7 +441,7 @@ Its hosted window is owed by the first hosted run of a head that carries it.
 #979 adds two default suites, `input_loopback` and `input_loopback_dp`.
 Their `scripts/suite_shards.py` figures, 38 s and 107 s, are not hosted windows.
 Each is the sweep's own `make -C tb/verilator/<suite>` command, run cold on four pinned CPUs.
-Those runs took 23.8 s and 67.7 s, each scaled by 1.58 and rounded up.
+The longer of two such runs took 23.8 s and 67.7 s, each scaled by 1.58 and rounded up.
 Their hosted windows are owed by the first hosted run of a head that carries them.
 
 #645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
