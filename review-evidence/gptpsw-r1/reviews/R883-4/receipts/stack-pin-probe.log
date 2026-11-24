@@ -1,0 +1,37 @@
+Note: switching to '715589c1db7cf67e2f3259fd7083ebc7f0923376'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+== 1 pristine copy: stack-pin
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+rc=0
+== 2 dry-run build names the supplied include dir
+7
+0
+== 3 edited header: stack-pin
+REFUSED: tsn-c-stack differs from the pinned 715589c1: include/adp.h
+make: *** [Makefile:48: stack-pin] Error 2
+rc=2
+== 4 edited header: build stops before any compile
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin $REVIEWS/gptpsw-r883-4-packet/scratch/stack-copy
+REFUSED: tsn-c-stack differs from the pinned 715589c1: include/adp.h
+make: *** [Makefile:48: stack-pin] Error 2
+make: Leaving directory '$REVIEWS/r883-4-gptpsw/tb/verilator/gptp_sw'
+objects: 0
+== 5 another revision: stack-pin
+REFUSED: tsn-c-stack at 9deb0ddb299013fcf2d9df7ad3d31961a33013cd is not the pinned 715589c1db7cf67e2f3259fd7083ebc7f0923376
+make: *** [Makefile:48: stack-pin] Error 2
+rc=2

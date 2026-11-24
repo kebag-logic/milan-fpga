@@ -1,0 +1,30 @@
+# git diff --stat 165476c7..44c56639 -- product paths (empty = none changed)
+# end
+# full delta, raw
+:100644 100644 3052074f32 4700b90eb0 M	sw/firmware/ctrl/README.md
+:100644 100644 75384b29be 8ad1bb6f91 M	sw/firmware/ctrl/test/aecp_face_mutants.py
+:100644 100644 4cd80ec203 f17eb52528 M	sw/firmware/ctrl/test/ctrl_configs.py
+:100644 100644 bc7eb6f114 d96891232c M	sw/firmware/ctrl/test/ctrl_mutants.py
+:000000 100644 0000000000 fbfda0ed2a A	sw/firmware/ctrl/test/gptp_driver_mutants.py
+:100644 100644 207c673eec 3c38d51c8b M	sw/firmware/ctrl/test/test_aecp.cpp
+:100644 100644 325770eac1 3309e1dede M	sw/firmware/ctrl/test/test_unit_driver.cpp
+:100644 100644 0fe38ba507 fc59b19a9b M	sw/firmware/gtest/README.md
+:100644 100644 55df3b2bb9 6b39d3da39 M	sw/firmware/gtest/coverage.ratchet
+:100644 100644 e88fb6dec7 6e9365ebab M	tb/verilator/gptp_sw/Makefile
+# ratchet rows changed
+-sw/firmware/ctrl/aecp/aecp_face.c  lines 219/219  branches 196/196
++sw/firmware/ctrl/aecp/aecp_face.c  lines 229/229  branches 204/204
++sw/firmware/ctrl/gptp/gptp.c  lines 665/704  branches 346/437
++sw/firmware/ctrl/gptp/gptp.h  lines 2/2  branches 0/0
+-sw/firmware/ctrl/mbx/mbx.c  lines 367/367  branches 188/188
++sw/firmware/ctrl/mbx/mbx.c  lines 384/384  branches 202/202
+-sw/firmware/ctrl/plat/ctrl_plat.c  lines 188/188  branches 79/79
++sw/firmware/ctrl/plat/ctrl_plat.c  lines 224/224  branches 110/110
+# delta from shard launch head 17bd60c6
+ sw/firmware/ctrl/README.md                   |  7 ++++---
+ sw/firmware/ctrl/test/ctrl_configs.py        |  9 ++++++++-
+ sw/firmware/ctrl/test/ctrl_mutants.py        | 10 ++--------
+ sw/firmware/ctrl/test/gptp_driver_mutants.py | 16 ++++++++++++++++
+ sw/firmware/gtest/README.md                  |  8 +++++---
+ tb/verilator/gptp_sw/Makefile                | 13 ++++++++++---
+ 6 files changed, 45 insertions(+), 18 deletions(-)

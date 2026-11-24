@@ -1,0 +1,8 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+wrote $REVIEWS/gptpsw-r883-4-packet/scratch/mut-baseline/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/gptpsw-r883-4-packet/scratch/mut-baseline/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/gptpsw-r883-4-packet/scratch/mut-baseline/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+baseline unit: rc=0 DriverUnit.TimestampEventDecodesFlagsAndBothTimeWordsAcrossWrap: named=True failed=False
+baseline unit: rc=0 DriverUnit.GptpPublicationCommitsAfterItsIdentityWords: named=True failed=False
+baseline app: rc=0 Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass: named=True failed=False
+baseline app: rc=0 Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead: named=True failed=False
