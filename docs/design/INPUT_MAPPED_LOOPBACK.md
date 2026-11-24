@@ -10,6 +10,20 @@ Examined base: `3cda030c174b325e36c26af6420487ff91346d15`.
 
 The manager authorized implementation behind a default-off build option.
 
+## Contents
+
+- **[Selected topology](#selected-topology)** -- The approved option B: 63 mono loopback destinations beside the physical one in 64 keys at 8x8, sixteen keys at 1x1, and the per-port input counts
+- **[Implementation status](#implementation-status)** -- What is built behind the default-off option, and the enabled 8x8 control memory that remains refused as S14 debt
+- **[Authority and existing behavior](#authority-and-existing-behavior)** -- The Milan and IEEE 1722.1 clauses for mono clusters and mapping commands, and how the existing render path already behaves
+- **[Memory-port finding](#memory-port-finding)** -- Why the copy reads the render queue's existing synchronous bank ports rather than adding new ones
+- **[Proposed datapath](#proposed-datapath)** -- The pipeline from accepted received samples through the mapped copy into capture bucket 6 and the talker
+- **[Latency and rate contract](#latency-and-rate-contract)** -- Exactly one media frame of added delay, the received-frame definition and the copy deadline
+- **[Mapping changes](#mapping-changes)** -- How committed map edits invalidate a fill so that a mixed map never publishes
+- **[Build and descriptor contract](#build-and-descriptor-contract)** -- The RTL parameter, the config fact that derives it and the descriptor pools that must agree with it
+- **[Validation and measurement contract](#validation-and-measurement-contract)** -- The tests, plants, per-stream delivery checks, builds and route floors the change must meet
+- **[Completion disposition](#completion-disposition)** -- What completion requires, and that the topology ruling relaxes no resource or timing ceiling
+- **[Retention and capture-clock bounds](#retention-and-capture-clock-bounds)** -- The two-frame lead limit, eight sample pages, the derived timestamp window and the five guards left untested
+
 ## Selected topology
 
 The manager selected option B on Issue #979.

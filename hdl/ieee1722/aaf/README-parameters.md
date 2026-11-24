@@ -20,6 +20,7 @@ TDM/AES3/SPDIF ser/des families sibling selections of this module.
 - **[Config-driven ports (not parameters, still schema-owned)](#config-driven-ports-not-parameters-still-schema-owned)** -- Three inputs that behave like configuration but arrive as ports, including `wire_chans_i` - which is explicitly *not* config: the render mapping follows channels-per-frame off the last accepted PDU regardless of declared format.
 - **[Cross-parameter / cross-module pairings (STRICT)](#cross-parameter--cross-module-pairings-strict)** -- Three must-match pairs and the failure each produces, all of them quiet: a wrong `CLK_FREQ_HZ` skews the convergence window silently, a wrong audio clock drifts the FIFO to a permanent rail, and a `SETPOINT_P` at or above the FIFO depth means playback never restarts after a rail event.
 - **[Validation](#validation)** -- What the builder actually checks versus what it does not: clock consistency raises `ConfigError`, but the `FIFO_LOG2` and `SETPOINT_P` bounds have no elaboration assert today.
+- **[Optional input-mapped loopback](#optional-input-mapped-loopback)** -- The default-off `INPUT_LOOPBACK_P` copy, its map-slice parameters and the two approved shapes, with the packed port fields it adds when enabled
 
 ## Parameters
 
