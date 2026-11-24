@@ -739,6 +739,12 @@ MUTANTS: dict[str, Patches] = {
         whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, stepped=[]), n))],
     'stated: in bus cycles, not CPU time': lambda: [patch.object(
         whole_grade, 'held', lambda log, n, f=whole_grade.held: f(dataclasses.replace(log, cpu_hz=2 * log.cpu_hz), n))],
+    're-declared: no re-declaring build pass is held to its cost': lambda: [patch.object(
+        whole_grade, 'redeclared', lambda log, n, g, f=whole_grade.redeclared: dict(f(log, n, g), over=[]))],
+    're-declared: a frame without a Listener Message re-declares': lambda: [patch.object(
+        whole_grade, 'listener_message', lambda frame: True)],
+    're-declared: held at every shape': lambda: [patch.object(whole_grade, 'declared_in_build', lambda shape: True)],
+    're-declared: no group registers': lambda: [patch.object(whole_grade, 'REDECLARING', ())],
     "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
     'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
     'save: the phase read off the last save, not the first': lambda: [patch.object(

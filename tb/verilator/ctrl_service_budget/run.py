@@ -199,6 +199,8 @@ def stated_misses(results: list[dict]) -> list[str]:
     return ([f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated "
              f"{g['passes']['stated']['limits'][o['kind']]:,}"
              for g in results for o in g['passes'].get('stated', {}).get('over', [])] +
+            [f"{g['group']}: a {o['kind']} pass of {o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
+             for g in results for o in g['passes'].get('redeclared', {}).get('over', [])] +
             [f"{g['group']}: a round of {o['notices']} notice(s) and {o['refused']} refused attempt(s), "
              f"{o['cycles']:,} CPU cycles, over its stated {o['limit']:,}"
              for g in results for o in g['passes'].get('rounds', {}).get('over', [])] +

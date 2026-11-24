@@ -110,7 +110,8 @@ FIRST, LAST, ITEMS = poll_items.FIRST, poll_items.LAST, poll_items.ITEMS
 #: srp-register-burst, a registrar walk after a record that replaced both inputs' Talkers, 80 us by the rule (7,025 at
 #: the base, dd163e41); every other item's measurement is within this table's, the AECP notice item's 14,370 cycles
 #: in the answering-every-port arm's notice-every-0 (14,084 at the base) within its 150 us, not restated: with the
-#: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the owner's 130 ms.
+#: rule's 5 % it would state 155, which moves the last queued notice's row past AECP_QUEUED_MS, the stated 130 ms
+#: (the queued rule's figure; the owner's bound is 140 ms).
 ONE = dict(base=225, withdraw=90, rebuild=290, walk=80, reclaim=25, retained=285, mrpdu=0, acmp=55, aecp=150,
            aecp_long=315, acmp_declined=20)
 TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=365, mrpdu=0, acmp=70, aecp=275,
