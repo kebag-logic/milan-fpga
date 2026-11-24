@@ -671,6 +671,19 @@ multiply-owned suite before trusting the combined tally.
 deterministic selection without building it; sharding is a scheduling detail,
 not permission to validate only one nineteenth locally.
 
+**Case start order in a piece.** `scripts/ci_make_cases.py` runs a piece's
+cases on two workers. It starts them longest first by its `CASE_SECONDS`
+table, and prints and records every result in driver order. So a piece's
+transcript and receipt do not depend on the table, and a stale figure can only
+slow a piece, never change a verdict. A case missing from the table starts
+last, in driver order. The figures are each case's `exec-<case>` alone on one
+core of its own, in CPU seconds; only their order is used. Retake them after a
+change that moves a case's cost by more than its neighbours': build every case
+(`make -C tb/verilator/milan_dp ci-prepare build-<case>...`), then time each
+`make -s -C tb/verilator/milan_dp exec-<case>` pinned to one core.
+`scripts/ci_make_cases_selftest.py` refuses a table entry that names no live
+case.
+
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
 > `aempatch`, `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`,
