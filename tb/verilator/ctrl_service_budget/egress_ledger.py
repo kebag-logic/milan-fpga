@@ -12,7 +12,7 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 
 The ledger is derived at 8x8/1if, the one point that has one (#894's ledger ruling, items 2 and
 3): each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
-service behind it at its measurement (MEASURED, the largest of three images') plus 5 %, rounded up to 0.01 ms (figure).
+service behind it at its measurement (MEASURED, the largest of five images') plus 5 %, rounded up to 0.01 ms (figure).
 Section 13's table states those figures, and the self-test holds the two together and the derivation to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
 bus cycles' time to 10 ns, one cycle at 100 MHz, beside its run's results.json, whose refusals fail; or a run's log,
@@ -75,11 +75,21 @@ COMPOSED = {'backlog.owed.if0': 63.67337, 'backlog.owed_behind0.if0': 63.90106, 
 LISTENED = {'backlog.owed.if0': 63.51129, 'backlog.owed_behind0.if0': 63.74479, 'backlog.owed_behind1.if0': 64.02681,
             'backlog.owed_behind2.if0': 64.24822, 'backlog.owed_behind3.if0': 64.48987,
             'backlog-owed.service.acmp.last.if0': 62.40080, 'backlog-owed.service.aecp.last.if0': 62.04905}
-#: The measurement each figure derives from, the largest of the three (#894's ruling of 2026-11-16 on the composition
-#: with #901, item 1, and its ruling of 2026-11-17 on the Listener copies): the six rows that grew on the composed
-#: image at their composed measurement, and service.aecp.last, which shrank there and grew with the Listener copies,
-#: at the latter's.
-MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row]) for row in MERGED}}
+#: And on the image of dev-soft-core 2509db68, the flip train (#988), whose growth of every row is recorded debt
+#: attributed apart (#1005), and on the image that merges it into the lwSRP d1bb4f4e pin (#992, 507bce7f's), which
+#: adds 0.086 to 0.094 ms to six rows and takes 0.223 ms off service.aecp.last (#992's ruling of 2026-11-24, item 1).
+TRAIN = {'backlog.owed.if0': 64.01426, 'backlog.owed_behind0.if0': 64.20677, 'backlog.owed_behind1.if0': 64.39672,
+         'backlog.owed_behind2.if0': 64.58746, 'backlog.owed_behind3.if0': 64.77829,
+         'backlog-owed.service.acmp.last.if0': 63.03567, 'backlog-owed.service.aecp.last.if0': 63.07053}
+PINNED = {'backlog.owed.if0': 64.09994, 'backlog.owed_behind0.if0': 64.29245, 'backlog.owed_behind1.if0': 64.48319,
+          'backlog.owed_behind2.if0': 64.67393, 'backlog.owed_behind3.if0': 64.86397,
+          'backlog-owed.service.acmp.last.if0': 63.12992, 'backlog-owed.service.aecp.last.if0': 62.84763}
+#: The measurement each figure derives from, the largest of the five (#894's ruling of 2026-11-16 on the composition
+#: with #901, item 1, its ruling of 2026-11-17 on the Listener copies, and #992's ruling of 2026-11-24, item 1): the
+#: six rows that grew again on the pin's merge at its measurement, and service.aecp.last, which shrank there, at the
+#: train's.
+MEASURED = {'8x8-1if': {row: max(MERGED[row], COMPOSED[row], LISTENED[row], TRAIN[row], PINNED[row])
+                        for row in MERGED}}
 
 
 def figure(measured_ms: float, hold: int = HOLD_MS) -> float:
@@ -258,29 +268,33 @@ def main(argv: list[str] | None = None) -> int:
 # ---- the self-test -----------------------------------------------------------------------------------------------
 
 #: Section 13's table of the rows the egress decides at 8x8/1if: the row, the measurement at 716a8ae7, the merged
-#: image's, the composed image's, the Listener copies' image's, and the ledger figure derived from the largest of
-#: those three.
+#: image's, the composed image's, the Listener copies' image's, the train's, the pin merge's, and the ledger figure
+#: derived from the largest of those five.
 DOC_HEAD = ('| Row the egress decides (at 8x8/1if) | Measured at 716a8ae7, ms | '
             'Measured on #902\'s 234bc149 merged, ms | Measured on dev-soft-core 70f4056f composed, ms '
-            '| Measured with the Listener copies (#930) 46cf2a7d, ms | Ledger, ms |')
+            '| Measured with the Listener copies (#930) 46cf2a7d, ms | Measured on the flip train (#988) 2509db68, ms '
+            '| Measured on the lwSRP d1bb4f4e pin merged (#992) 507bce7f, ms | Ledger, ms |')
+#: One row of that table: its name, the 716a8ae7 measurement, the five it derives from, and its figure.
+DOC_ROW = re.compile(r'^\| `([^`]+)` \| [\d.]+' + r' \| ([\d.]+)' * 5 + r' \| ([\d.]+) \|$', re.M)
+
+
+def doc_rows(text: str) -> list[tuple[str, ...]]:
+    """Section 13's table's rows, each its name, its five measurements and its figure."""
+    return DOC_ROW.findall(text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0])
 
 
 def doc_ledger(text: str) -> tuple[dict[str, float], dict[str, float]]:
     """Section 13's table of the rows the egress decides at 8x8/1if: each row's ledger figure and the measurement it
-    derives from."""
-    merged, composed, listened = doc_measurements(text)
-    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
-    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| [\d.]+ \| [\d.]+ \| [\d.]+ \| ([\d.]+) \|$', block, re.M)
-    return {n: float(f) for n, f in rows}, {n: max(merged[n], composed[n], listened[n]) for n, _ in rows}
+    derives from, the largest of its five."""
+    rows = doc_rows(text)
+    return {r[0]: float(r[-1]) for r in rows}, {r[0]: max(float(m) for m in r[1:-1]) for r in rows}
 
 
-def doc_measurements(text: str) -> tuple[dict[str, float], dict[str, float], dict[str, float]]:
-    """Section 13's table's three measurements of each row: the merged image's, the composed image's and the Listener
-    copies' image's."""
-    block = text.split(DOC_HEAD, 1)[1].split('\n\n', 1)[0]
-    rows = re.findall(r'^\| `([^`]+)` \| [\d.]+ \| ([\d.]+) \| ([\d.]+) \| ([\d.]+) \| [\d.]+ \|$', block, re.M)
-    return ({n: float(m) for n, m, _, _ in rows}, {n: float(c) for n, _, c, _ in rows},
-            {n: float(s) for n, _, _, s in rows})
+def doc_measurements(text: str) -> tuple[dict[str, float], ...]:
+    """Section 13's table's five measurements of each row: the merged image's, the composed image's, the Listener
+    copies' image's, the train's and the pin merge's."""
+    rows = doc_rows(text)
+    return tuple({r[0]: float(r[1 + k]) for r in rows} for k in range(5))
 
 
 def grade_dir(base: Path, name: str, figures: dict[str, float], extra: tuple[dict, ...] = (),
@@ -350,8 +364,9 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]]) -> list[tu
     out = [("the ledger is section 13's table, row for row and figure for figure", doc_figures == ledger,
             str(doc_figures)),
            ("section 13's measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
-           ("section 13's three measurements are the three images'",
-            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED), str(doc_measurements(DOC.read_text()))),
+           ("section 13's five measurements are the five images'",
+            doc_measurements(DOC.read_text()) == (MERGED, COMPOSED, LISTENED, TRAIN, PINNED),
+            str(doc_measurements(DOC.read_text()))),
            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
             str(rule)),
            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",
@@ -435,6 +450,15 @@ MUTANTS = {
         m.MEASURED['8x8-1if'], dict(m.MERGED)),
     "a figure at the composed image's measurement where the Listener copies' is larger": lambda m: patch.dict(
         m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row]) for row in m.MERGED}),
+    "a figure at the earlier images' measurements where the train's and the pin merge's are larger": lambda m: (
+        patch.dict(m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row])
+                                           for row in m.MERGED})),
+    "a figure at the train's measurement where the pin merge's is larger": lambda m: patch.dict(
+        m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row], m.TRAIN[row])
+                                for row in m.MERGED}),
+    "service.aecp.last at the pin merge's measurement where the train's is larger": lambda m: patch.dict(
+        m.MEASURED['8x8-1if'], {row: max(m.MERGED[row], m.COMPOSED[row], m.LISTENED[row], m.PINNED[row])
+                                for row in m.MERGED}),
     "a run's refusals not read": lambda m: patch.object(m, 'run_refusals', lambda path: []),
     "a ledger row's name taken in any group": lambda m: patch.object(
         m, 'is_row', lambda p, ledger: p['probe'] in ledger),
