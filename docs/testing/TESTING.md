@@ -166,6 +166,16 @@ The directory inventory includes one environment-dependent measurement exception
 It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
 Its README provides measurement commands and the complete receipt.
 
+Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller set `OBJCACHE`.
+Mutant rebuilds then reuse the Verilator runtime and testbench objects.
+A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
+`--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
+A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
+Use `probes.vlt` only where no simulated module has an input port with a default value.
+Once such a port is optimised, Verilator 5.050 initialises the connected net to the default.
+That overwrites a top-level input the harness set before its first `eval()`.
+`--public-flat-rw` prevents it, so `follow_ring` and `media_phase` keep that flag.
+
 Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
