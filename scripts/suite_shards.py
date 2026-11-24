@@ -73,18 +73,18 @@ VERILATOR_JOB = "verilator-shards"
 #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
 #: (job 120983200812, whose suite step ran 655 s for its four suites), while
 #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
-#: #799: the ruled replay set (see CI_WORKFLOWS.md), except media_phase, carries its
-#: largest window in runs 40724689169 and 40740015218; follow_ring 1493 s, dev run 40460559108.
+#: #799: the ruled replay set (CI_WORKFLOWS.md) but media_phase carries its largest window in runs 40724689169 and
+#: 40740015218; follow_ring 1493 s, dev run 40460559108. #998 raises any runs 45383854694/45457006166 exceeded.
 SUITE_SECONDS = {
-    "aaf": 75,
+    "aaf": 77,
     "aaf_audio_loop": 7,
     "aaf_clock_meter": 1055,
     "aaf_latency_tap_bank": 16,
-    "aaf_latency_taps": 6,
+    "aaf_latency_taps": 15,
     "adp_tx": 12,
     "aes3": 6,
     "avtp_parser": 27,
-    "avtp_rxmon": 73,
+    "avtp_rxmon": 455,
     "avtp_stream": 11,
     "capture_coherence": 1737,
     "cbs": 6,
@@ -105,14 +105,14 @@ SUITE_SECONDS = {
     "gptp_plane": 784,
     "gptp_shadow": 393,
     "gptp_tables": 568,
-    "gptp_txts": 72,
+    "gptp_txts": 105,
     "i2spb": 6,
     "ifg": 6,
     "lat_history_ring": 6,
     "link_guard": 7,
     "maap": 1375,
-    "mac_rmon": 11,
-    "mbx": 73,
+    "mac_rmon": 12,
+    "mbx": 232,
     "media_grid_align": 255,
     "media_nco": 17,
     "media_phase": 1400,
@@ -132,15 +132,15 @@ SUITE_SECONDS = {
     "ptp_ts": 127,
     "queues": 6,
     "reboot_ctrl": 300,
-    "render_queue": 93,
+    "render_queue": 125,
     "rx_filter": 18,
     "shaper_core": 6,
     "tcam": 27,
     "tcam_csr": 6,
     "tdm": 7,
-    "tdm_render": 6,
+    "tdm_render": 21,
     "tkdiag": 28,
-    "tsn_fuzz": 60,
+    "tsn_fuzz": 62,
 }
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
@@ -156,13 +156,13 @@ WORKER_OVERHEAD_SECONDS = (122,) * 19
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
-# Hosted leg windows, as SUITE_SECONDS' #799 figures. Keyed by leg index while the driver
-# deals cases round-robin, so an inserted case re-targets them (#804). See CI_WORKFLOWS.md.
+# Hosted leg windows, as SUITE_SECONDS' figures; #998 re-keyed milan_dp's four and raised the legs its runs exceeded.
+# Keyed by leg index while the driver deals cases round-robin, so an inserted case re-targets them (#804).
 PIECE_SECONDS = {
-    "milan_dp": (1429, 508, 325, 1307),
-    "milan_dp_mclk": (988, 742, 717, 488),
-    "capture_coherence": (1436, 1108, 695, 642),
-    "maap": (311, 425, 317, 327),
+    "milan_dp": (1309, 1313, 275, 399),
+    "milan_dp_mclk": (1408, 742, 717, 488),
+    "capture_coherence": (1436, 1195, 695, 724),
+    "maap": (377, 425, 317, 327),
     "milan_dp_render": (549, 83, 812, 240),  # leg 3, #584's ship8: a scaled local run (TESTING.md)
     "pp_shadow": (268, 292, 337, 435),
 }

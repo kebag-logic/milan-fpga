@@ -505,9 +505,10 @@ run before it is lowered.
 `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
 installs. Worker 18 owns only media-clock leg A, whose continuous history is
 indivisible under #737's ruling. Eighteen workers project at most 1615 seconds
-including a conservative 122-second setup allowance. Leg A projects to 988
-seconds before setup and 1110 seconds with it, its largest window in #799's
-hosted runs; #737's round-one projection was 1910 and 2032 seconds. Its
+including a conservative 122-second setup allowance. Leg A projects to 1408
+seconds before setup and 1530 seconds with it, its largest window in #998's
+hosted runs (#799's was 988 seconds); #737's round-one projection was 1910 and
+2032 seconds. Its
 dedicated worker is the explicit round-one exception; the coordinating role
 measures the actual hosted head before the owner decides any remaining
 acceleration. Regular workers have 45-minute
@@ -564,6 +565,18 @@ hosted leg windows from #799's pull-request runs, measured with
 `scripts/suite_shards.py --measure`. They replaced the earlier apportionment of
 baseline `7032bca5` windows by local leg durations. Refresh them from the next
 complete hosted run. The ordinary unsharded scheduling mode remains available.
+
+#998 refreshed them from two complete pull-request runs, 45383854694 at
+`fcbc31f3` and 45457006166 at `13e6d869`, measuring all 38 worker logs with
+`--measure`. An inventory change had re-targeted `milan_dp`'s legs (#804): leg 1
+ran 995 seconds against its 508-second figure and leg 3 ran 396 against 1307.
+So worker 1/19 took that leg beside eight other suites. It ran 27.3 minutes, and
+38.6 minutes on a runner whose identical model builds took 1.39 times as long.
+All four `milan_dp` legs now carry the larger window of the two runs. Every
+other figure that a window in them exceeded carries that window, nine suites
+and four legs. No other figure is lowered. Every figure is then at or above
+every window the two runs measured, and on those windows the slowest regular
+worker takes 1549 seconds with its 122-second allowance.
 
 Every selected leg writes source-bound case receipts. Each of six union jobs
 waits for the native worker matrix, independently enumerates its suite's
@@ -3347,31 +3360,31 @@ which is their 45-minute limit itself (#737).
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
 | `verilator-shards 0/19` | 1615 | 1620 | 5 |
-| `verilator-shards 1/19` | 1445 | 1620 | 175 |
+| `verilator-shards 1/19` | 1579 | 1620 | 41 |
 | `verilator-shards 2/19` | 1558 | 1620 | 62 |
-| `verilator-shards 3/19` | 1448 | 1620 | 172 |
-| `verilator-shards 4/19` | 1551 | 1620 | 69 |
-| `verilator-shards 5/19` | 1522 | 1620 | 98 |
-| `verilator-shards 6/19` | 1447 | 1620 | 173 |
-| `verilator-shards 7/19` | 1522 | 1620 | 98 |
-| `verilator-shards 8/19` | 1541 | 1620 | 79 |
-| `verilator-shards 9/19` | 1494 | 1620 | 126 |
-| `verilator-shards 10/19` | 1445 | 1620 | 175 |
-| `verilator-shards 11/19` | 1443 | 1620 | 177 |
-| `verilator-shards 12/19` | 1531 | 1620 | 89 |
-| `verilator-shards 13/19` | 1552 | 1620 | 68 |
-| `verilator-shards 14/19` | 1444 | 1620 | 176 |
-| `verilator-shards 15/19` | 1443 | 1620 | 177 |
-| `verilator-shards 16/19` | 1444 | 1620 | 176 |
-| `verilator-shards 17/19` | 1444 | 1620 | 176 |
-| `verilator-shards 18/19` | 1110 | 2160 | 1050 |
+| `verilator-shards 3/19` | 1593 | 1620 | 27 |
+| `verilator-shards 4/19` | 1534 | 1620 | 86 |
+| `verilator-shards 5/19` | 1533 | 1620 | 87 |
+| `verilator-shards 6/19` | 1533 | 1620 | 87 |
+| `verilator-shards 7/19` | 1549 | 1620 | 71 |
+| `verilator-shards 8/19` | 1584 | 1620 | 36 |
+| `verilator-shards 9/19` | 1533 | 1620 | 87 |
+| `verilator-shards 10/19` | 1531 | 1620 | 89 |
+| `verilator-shards 11/19` | 1591 | 1620 | 29 |
+| `verilator-shards 12/19` | 1566 | 1620 | 54 |
+| `verilator-shards 13/19` | 1556 | 1620 | 64 |
+| `verilator-shards 14/19` | 1573 | 1620 | 47 |
+| `verilator-shards 15/19` | 1532 | 1620 | 88 |
+| `verilator-shards 16/19` | 1533 | 1620 | 87 |
+| `verilator-shards 17/19` | 1533 | 1620 | 87 |
+| `verilator-shards 18/19` | 1530 | 2160 | 630 |
 
 Verilator figures already include their 122-second overhead allowance.
-Worker 3 carries `gptp_tables` at 1448 seconds: 172 inside its bound and 352
-inside 30 minutes, before downstream collection. Worker 5 carries
-`media_phase`'s kept 1400-second budget at 1522 seconds: 98 inside its bound.
+Worker 3 carries `gptp_tables` at 1593 seconds: 27 inside its bound and 207
+inside 30 minutes, before downstream collection. Worker 4 carries
+`media_phase`'s kept 1400-second budget at 1534 seconds: 86 inside its bound.
 Worker 0 carries `follow_ring` alone at 1615 seconds (#799).
-The continuous media-clock exception remains explicit at 1110 seconds.
+The continuous media-clock exception remains explicit at 1530 seconds (#998).
 Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1665 seconds,
