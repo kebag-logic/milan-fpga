@@ -20,6 +20,10 @@ capture - live with `tb/verilator/gptp_txts`, which pays for a converted MAC
 to carry them. Two more restore defects of the pinned engine the parent
 adopted a repair for: the first master Announce waiting for a beat
 (FPGA-gPTP #106), and a mastership keeping a settled slave's rate (#107).
+A third drops the Announce leg's transmit-credit gate. One more is planted
+in this suite's own harness: its lane, held across the race, delivers the
+master Announce only after the re-election. It shows the race check grades
+that order, not only that the Announce exists.
 
 Each control names the check it must break, and the run prints whether that
 check really failed rather than only that something did.
@@ -61,6 +65,14 @@ SELF_TAIL = ("    p.emit(\"COMMIT\")\n"
 #: BECOME's Sync arm, behind which the old engine also armed the Announce beat
 BECOME_SYNC = ("    p.emit(\"WRST\", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)"
                "  # sync now\n")
+#: ANNTX's gates, whose credit gate the third control drops
+ANNTX_GATES = ("    e_flag_gate(p, FL_ASCAP_C, FL_ASCAP_C, \"ac\", \"skip\")\n"
+               "    e_credit_gate(p, \"skip\")\n"
+               "    p.emit(\"RDST\", rd=RA, imm=RG_SCR | S_ASEQ, fmt=FMT_Q)\n")
+#: this suite's own harness, and the race arm's queued Announce in it
+HARNESS = HERE / "sim_main.cpp"
+RACE_ANNOUNCE = ("        run_to(t0 + a1_after);\n"
+                 "        announce(tk_seq++, 100, GMID, PEER_CID, 0x00);\n")
 #: the engine's PHC word-3 rate write
 WORD3 = ("                phc_addend_we_o <= 1'b1;\n"
          "                phc_addend_o    <= st_wdata_w[31:0];\n"
@@ -170,6 +182,27 @@ MUTATIONS = [
         "                end\n"
         "                phc_slew_left_r   <= 2'd0;\n",
         "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0",
+    ),
+    (
+        #: the Announce leg without its credit gate: with the credit
+        #: withheld by the ticket reserve, which no fence backs, the first
+        #: master Announce then reaches the lane
+        "announce_leg_ignores_the_credit",
+        GENERATOR,
+        ANNTX_GATES,
+        ANNTX_GATES.replace("    e_credit_gate(p, \"skip\")\n", ""),
+        "#106 reserve: no master Announce reaches the lane without credit",
+    ),
+    (
+        #: the bench's lane held from before the takeover until the queued
+        #: Announce is sent: the master Announce still leaves, but its last
+        #: beat follows the re-election
+        "master_announce_reaches_the_lane_after_the_re_election",
+        HARNESS,
+        RACE_ANNOUNCE,
+        "        dut->tx_tready_i = 0;\n" + RACE_ANNOUNCE +
+        "        dut->tx_tready_i = 1;\n",
+        "#106 race: one master Announce reaches the lane before the re-election",
     ),
 ]
 

@@ -2365,7 +2365,7 @@ class GptpShadowHarness {
     expect("phc: and it clears again afterwards", dut->dbg_phc_dirtcyc_o, 0);
   }
 
-  // ---- 18-20: FPGA-gPTP #107 and #106 through this slice and the real PHC
+  // ---- 19-21: FPGA-gPTP #107 and #106 through this slice and the real PHC
   // The adopted engine changes two platform behaviours. Each mastership runs
   // on this oscillator (#107): BECOME writes rate 0 and the engine always
   // applies it. And the first master Announce leaves at once (#106), before
@@ -2584,7 +2584,7 @@ class GptpShadowHarness {
     return unsealed && master && quiet;
   }
 
-  //! #107 (phase 18): four masterships, each from a different slave. A
+  //! #107 (phase 19): four masterships, each from a different slave. A
   //! grandmaster 100 ppm fast, then one 100 ppm slow, each followed until
   //! settled; the slow one again, left while a slew corrects a 1,500 ns
   //! offset; and one elected and lost before any pair, so no slave rate is
@@ -2658,7 +2658,7 @@ class GptpShadowHarness {
     take_mastership_on_this_oscillator(tag, trim, 5, off);
   }
 
-  //! #106 (phase 19) scaffold, from mastership: GMID's Announce at a
+  //! #106 (phase 20) scaffold, from mastership: GMID's Announce at a
   //! one-second interval elects it, its pairs keep coming each sync
   //! interval and its Announces stop, so the announce receipt timeout (3 s,
   //! 10.3.9.1) ages the port. `a1_after`, when nonzero, sends GMID's next
@@ -2748,27 +2748,54 @@ class GptpShadowHarness {
                              static_cast<int64_t>(lat), kMsTicks), 1);
     expect("#106 race: the Announce queued at 3.000 s then re-elects GMID",
            fall != 0 && fall - rise <= 2 * kMsTicks, 1);
-    size_t between = 0;
-    for (size_t i : master_announces(rise ? rise : cyc))
-      if (txf_cyc[i] < rise + 2 * kSyncTicks) between++;
+    //! The boundary is the lane's handshake: a frame reaches the lane on
+    //! the clock its last beat is accepted (tx_tvalid_o && tx_tready_i),
+    //! which `txf_cyc` records. The re-election is the clock the published
+    //! master bit fell, `fall`. Both count the same bench clock, so an
+    //! Announce queued past the re-election, by the engine or by a stalled
+    //! lane, counts nothing here; and with no recorded fall nothing counts.
+    size_t before_fall = 0;
+    uint64_t last_beat = 0;
+    for (size_t i : master_announces(rise ? rise : cyc)) {
+      if (!last_beat) last_beat = txf_cyc[i];
+      if (fall != 0 && txf_cyc[i] < fall) before_fall++;
+    }
+    std::printf("INFO #106 race: the first master Announce's last beat at "
+                "+%llu, the re-election at +%llu, after the takeover\n",
+                static_cast<unsigned long long>(last_beat ? last_beat - rise : 0),
+                static_cast<unsigned long long>(fall ? fall - rise : 0));
     expect("#106 race: one master Announce reaches the lane before the "
-           "re-election", between, 1);
+           "re-election", before_fall, 1);
     expect("#106 race: the sync receipt timeout restores mastership",
            wait_flags(FL_AMGM, FL_AMGM, 6 * kSyncTicks), 1);
   }
 
-  //! #106 (phase 20): the first master Announce leaves at once only with
-  //! transmit credit, and a withheld one is retried a whole announceInterval
-  //! later, because ANNTX re-arms its cadence ahead of its gates. The
-  //! credit is withheld the way the product withholds it, by the ledger's
-  //! seal: a refused record raises a barrier, and the observer is held in
-  //! reset so the seal outlasts the recovery episode until released.
+  //! #106 (phase 21): a takeover without transmit credit sends no master
+  //! Announce, and ANNTX retries the withheld one a whole announceInterval
+  //! later, because it re-arms its cadence ahead of its gates. The plane
+  //! withholds credit for two reasons (KL_gptp_txticket: `tx_credit_o`),
+  //! and each arm takes one. The ticket reserve is the first, with no
+  //! fence behind it: there an Announce sent without credit would reach
+  //! the lane, so the reserve arm grades the gate itself. The seal is the
+  //! second, but its fence also holds the lane, so that arm grades the
+  //! retry and not the gate. Both arms check the retry, 1 s after the
+  //! instant, and the cadence after it. The reserve arm runs first: a leg
+  //! that ignores the credit leaves the sealed arm a result owed, and the
+  //! reserve arm's quiet start would then stop it before its own check.
   void check_withheld_credit_postpones_the_first_announce() {
-    if (!start_from_a_quiet_master("#106 credit")) return;
+    check_the_reserve_withholds_the_first_announce();
+    check_a_sealed_takeover_postpones_the_first_announce();
+  }
+
+  //! The seal arm. The ledger's seal withholds the credit the way the
+  //! product does: a refused record raises a barrier, and the observer is
+  //! held in reset so the seal outlasts the recovery episode until released.
+  void check_a_sealed_takeover_postpones_the_first_announce() {
+    if (!start_from_a_quiet_master("#106 seal")) return;
     drop_epoch();
     const ModelGm m = model_gm(0, 0);
     elect_gm(m);
-    expect("#106 credit: GMID is elected", dut->pub_gm_id_o, GMID);
+    expect("#106 seal: GMID is elected", dut->pub_gm_id_o, GMID);
     const uint16_t barr0 = dut->dbg_txts_barr_o;
     dut->recfault_mode_i = 1;
     dut->recfault_en_i = 1;
@@ -2783,39 +2810,125 @@ class GptpShadowHarness {
     dut->obs_rst_i = 1;
     dut->recfault_en_i = 0;
     dut->recfault_mode_i = 0;
-    expect("#106 credit: a refused record raises a barrier",
+    expect("#106 seal: a refused record raises a barrier",
            fired && wait_barrier(barr0, 400000) ? 1 : 0, 1);
-    expect("#106 credit: the barrier seals the plane", sealed() ? 1 : 0, 1);
+    expect("#106 seal: the barrier seals the plane", sealed() ? 1 : 0, 1);
     const uint64_t c0 = cyc;
-    expect("#106 credit: the sync receipt timeout makes it master, sealed",
+    expect("#106 seal: the sync receipt timeout makes it master, sealed",
            wait_flags(FL_AMGM, FL_AMGM, 4 * kSyncTicks), 1);
     const uint64_t inst = first_at_or_after(gm_rise_cyc, c0);
-    expect("#106 credit: the plane is sealed at the instant", sealed() ? 1 : 0, 1);
+    expect("#106 seal: the plane is sealed at the instant", sealed() ? 1 : 0, 1);
     idle(2 * kSyncTicks);
-    expect("#106 credit: no master Announce while the credit is withheld",
+    expect("#106 seal: no master Announce reaches the lane while sealed",
            master_announces(inst).size(), 0);
     dut->obs_rst_i = 0;
-    expect("#106 credit: releasing the observer unseals the plane",
+    expect("#106 seal: releasing the observer unseals the plane",
            wait_unsealed(kAnnTicks / 2) ? 1 : 0, 1);
-    std::printf("INFO #106 credit: unsealed %llu clocks after the instant\n",
+    std::printf("INFO #106 seal: unsealed %llu clocks after the instant\n",
                 static_cast<unsigned long long>(cyc - inst));
+    grade_the_retried_announce("#106 seal", inst);
+    drop_epoch();
+  }
+
+  //! The ticket's outstanding count: ledger entries plus queued results,
+  //! KL_gptp_txret's conservation equation, from `dbg_txts_state_o`.
+  unsigned outstanding() const {
+    return (dut->dbg_txts_state_o & 0xF) + ((dut->dbg_txts_state_o >> 4) & 0xF);
+  }
+  //! The most outstanding frames an initiating leg may commit at: the
+  //! ticket's TXTS_CAP_N_P (8) less MAND_RSV_C (4), the wrapper's defaults.
+  static constexpr unsigned kCreditMaxOutstanding = 8 - 4;
+
+  //! The reserve arm. One Sync's launch record is held at the head of the
+  //! ordered record queue, so no result returns and every frame committed
+  //! after it stays outstanding. Sync and Pdelay_Req then wait on their
+  //! owed result (their claim, S_TXQ_TMR), so the master's own Announces
+  //! fill the ticket: each commits while the credit lasts, one a second.
+  //! Past the reserve the credit falls, with the plane unsealed and its
+  //! lane open; GMID is elected only then, and its silence makes the
+  //! takeover. An aged head is a diagnostic, not a barrier ("aged head:
+  //! an expiry is not a barrier"), so the plane stays unsealed.
+  void check_the_reserve_withholds_the_first_announce() {
+    if (!start_from_a_quiet_master("#106 reserve")) return;
+    drop_epoch();
+    const uint16_t barr0 = dut->dbg_txts_barr_o;
+    dut->rechold_type_i = 0x0;
+    dut->rechold_en_i = 1;
+    bool held = false;
+    for (uint64_t k = 0; k < 2 * kSyncTicks && !held; k += 16) {
+      idle(16);
+      held = dut->dbg_rec_held_o != 0;
+    }
+    expect("#106 reserve: a Sync's launch record is held back", held ? 1 : 0, 1);
+    //! the reserve is four frames past the held one, so four Announces
+    bool past = false;
+    for (uint64_t k = 0; k < 5 * kAnnTicks && !past; k += 16) {
+      idle(16);
+      past = outstanding() > kCreditMaxOutstanding;
+    }
+    std::printf("INFO #106 reserve: %u frames outstanding\n", outstanding());
+    expect("#106 reserve: the outstanding frames pass the reserve",
+           past ? 1 : 0, 1);
+    const ModelGm m = model_gm(0, 0);
+    elect_gm(m);
+    expect("#106 reserve: GMID is elected", dut->pub_gm_id_o, GMID);
+    const uint64_t c0 = cyc;
+    expect("#106 reserve: the sync receipt timeout makes it master",
+           wait_flags(FL_AMGM, FL_AMGM, 4 * kSyncTicks), 1);
+    const uint64_t inst = first_at_or_after(gm_rise_cyc, c0);
+    expect("#106 reserve: the plane is unsealed at the instant",
+           sealed() ? 0 : 1, 1);
+    expect("#106 reserve: the reserve still withholds the credit at the instant",
+           outstanding() > kCreditMaxOutstanding ? 1 : 0, 1);
+    //! the leg's other gates stay open, so only the credit can refuse it
+    expect("#106 reserve: the port is asCapable at the instant",
+           (dut->pub_flags_o & FL_ASCAP) ? 1 : 0, 1);
+    idle(2 * kSyncTicks);
+    expect("#106 reserve: no master Announce reaches the lane without credit",
+           master_announces(inst).size(), 0);
+    expect("#106 reserve: the lane stayed open, unsealed and with no barrier",
+           !sealed() && dut->dbg_txts_barr_o == barr0 ? 1 : 0, 1);
+    //! disarm before the release, as every other hold does
+    dut->rechold_en_i = 0;
+    dut->rechold_release_i = 1;
+    idle(64);
+    dut->rechold_release_i = 0;
+    bool drained = false;
+    for (uint64_t k = 0; k < kSyncTicks && !drained; k += 16) {
+      idle(16);
+      drained = outstanding() <= kCreditMaxOutstanding;
+    }
+    expect("#106 reserve: released, the results drain below the reserve",
+           drained ? 1 : 0, 1);
+    std::printf("INFO #106 reserve: released %llu clocks after the instant\n",
+                static_cast<unsigned long long>(cyc - inst));
+    grade_the_retried_announce("#106 reserve", inst);
+    drop_epoch();
+  }
+
+  //! The withheld Announce is retried 1 s after the instant, the cadence
+  //! ANNTX armed before its gates, and the next follows 1 s after it.
+  void grade_the_retried_announce(const char *tag, uint64_t inst) {
+    char n[160];
+    const auto say = [&](const char *tail) {
+      std::snprintf(n, sizeof n, "%s: %s", tag, tail);
+      return n;
+    };
     if (cyc < inst + 2 * kAnnTicks + kMsTicks)
       run_svc(inst + 2 * kAnnTicks + kMsTicks - cyc);
     const std::vector<size_t> ann = master_announces(inst);
-    expect("#106 credit: two master Announces once the credit returns",
-           ann.size(), 2);
+    expect(say("two master Announces once the credit returns"), ann.size(), 2);
     if (!ann.empty()) {
       const uint64_t first = txf_cyc[ann[0]] - inst;
-      std::printf("INFO #106 credit: the first master Announce ends %llu clocks "
-                  "after the instant\n", static_cast<unsigned long long>(first));
-      expect("#106 credit: the withheld Announce leaves 1 s after the instant",
+      std::printf("INFO %s: the first master Announce ends %llu clocks after "
+                  "the instant\n", tag, static_cast<unsigned long long>(first));
+      expect(say("the withheld Announce leaves 1 s after the instant"),
              first >= kAnnTicks && first < kAnnTicks + kMsTicks, 1);
     }
     if (ann.size() >= 2)
-      expect("#106 credit: and the cadence runs 1 s on from it",
+      expect(say("and the cadence runs 1 s on from it"),
              near(static_cast<int64_t>(txf_cyc[ann[1]] - txf_cyc[ann[0]]),
                   static_cast<int64_t>(kAnnTicks), kMsTicks), 1);
-    drop_epoch();
   }
 
   //! Measurements delivered since the PHC-loss count was `pl0`. Every
