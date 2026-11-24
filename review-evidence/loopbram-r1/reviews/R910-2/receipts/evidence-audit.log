@@ -1,0 +1,104 @@
+{
+  "published_manifest": {
+    "checked": 1645,
+    "mismatches": []
+  },
+  "receipt_manifests": [
+    {
+      "folder": "author-r3",
+      "checked": 913,
+      "publisher_normalized": 80,
+      "publisher_revised_scripts": [],
+      "unexplained_mismatches": []
+    },
+    {
+      "folder": "author-r4",
+      "checked": 418,
+      "publisher_normalized": 60,
+      "publisher_revised_scripts": [
+        {
+          "file": "audit_packet.py.txt",
+          "inner_manifest_sha256": "ffca7e98ec9a0d82d83faabbee6335289f016a0235873addd67f3145a147db30",
+          "published_sha256": "90f8781bc2f658c0cff82b94ed3741bd551d2ebe8c578bfbfc3bc4e5d8943cb9",
+          "reason": "Evidence commit explicitly redacts audit-script token list; inner manifest predates that revision. Not an executable gate receipt."
+        }
+      ],
+      "unexplained_mismatches": []
+    }
+  ],
+  "source_binding": {
+    "checked": 1958,
+    "mismatches": []
+  },
+  "canonical_netlists": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "chunks": 115,
+      "bytes": 20626655,
+      "sha256": "18af89e620ea88ee2a745550bd25b1645702cec071bcba36decced2b5376d9af",
+      "chunks_valid": true,
+      "matches_both_published_sides": true,
+      "independent_elaboration": false
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "chunks": 164,
+      "bytes": 29443265,
+      "sha256": "fe344bba8709f7b8e72075b38aa81619c316c2207f948e0adaea1540e36da767",
+      "chunks_valid": true,
+      "matches_both_published_sides": true,
+      "independent_elaboration": false
+    }
+  ],
+  "disabled_utilization": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "base": {
+        "Slice LUTs*": 33792.0,
+        "Slice Registers": 42649.0,
+        "F7 Muxes": 723.0,
+        "F8 Muxes": 79.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 33792.0,
+        "Slice Registers": 42649.0,
+        "F7 Muxes": 723.0,
+        "F8 Muxes": 79.0,
+        "Block RAM Tile": 80.0,
+        "RAMB36/FIFO*": 62.0,
+        "RAMB18": 36.0,
+        "DSPs": 11.0
+      },
+      "equal": true
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "base": {
+        "Slice LUTs*": 45199.0,
+        "Slice Registers": 53086.0,
+        "F7 Muxes": 2540.0,
+        "F8 Muxes": 615.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "DSPs": 11.0
+      },
+      "head": {
+        "Slice LUTs*": 45199.0,
+        "Slice Registers": 53086.0,
+        "F7 Muxes": 2540.0,
+        "F8 Muxes": 615.0,
+        "Block RAM Tile": 99.0,
+        "RAMB36/FIFO*": 82.0,
+        "RAMB18": 34.0,
+        "DSPs": 11.0
+      },
+      "equal": true
+    }
+  ],
+  "evidence_commit_signature": "N"
+}

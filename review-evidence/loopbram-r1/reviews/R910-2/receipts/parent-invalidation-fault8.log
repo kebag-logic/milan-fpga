@@ -1,0 +1,2028 @@
+/usr/bin/python3 $CHECKOUT/sw/builder/endstation_builder.py $PACKET/scratch/parent-probe/parent-invalidation-fault8/endstation_ax7101_8x8.yaml -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+[endstation_builder] endstation_ax7101_8x8: 8x8 AAF + CRF, tdm32, 199 clusters (role-pools), model_id 0x001BC56D83BB4A56 (hash); 5 planned element(s); resources OVER (worst LUT 85.4%)
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/soc_params.json
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/aem_overlay.json
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/build_plan.md
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/lwsrp_table.json
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/lwsrp_table.svh
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/lwsrp_csr_defaults.svh
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/adp_shape_defaults.svh
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/nvm_split.json
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/gptp_ucode.hex
+  wrote $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/aecp_aem_rom.svh
+/usr/bin/python3 $CHECKOUT/avdecc/gen_aemi_image.py --overlay $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/aem_overlay.json --line-bytes 576 -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aemi.bin
+[gen_aemi_image] $PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8/aem_overlay.json: 251 descriptors -> $PACKET/scratch/parent-probe/parent-invalidation-fault8/aemi.bin, 39840 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 234
+index_off 0x000020  names_off 0x006120  image_bytes 39840  desc_max_len 452
+checksum 0xBCE5B4EB
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      8       154     160  0x000350          4
+    0  0x0005      8      1       146     152  0x000850         12
+    0  0x0006      0      9       146     152  0x0008E8         13
+    0  0x0009      0      1       102     104  0x000E40         22
+    0  0x000A      0     10        86      88  0x000EA8         23
+    0  0x000C      0      1        72      72  0x001218          -
+    0  0x000D      0      1       452     456  0x001260          -
+    0  0x000E      0      8        20      24  0x001428          -
+    0  0x000F      0      8        20      24  0x0014E8          -
+    0  0x0014      0    199        90      96  0x0015A8         33
+    0  0x001A      0      1       113     120  0x006048        232
+    0  0x0024      0      1        96      96  0x0060C0        233
+
+semantic lint: on (07 §3.1 rules L1 to L12)
+lint waivers applied: 0
+ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+  entity_model_id_i  0x001BC56D83BB4A56
+  talker_sources_i   9
+  listener_sinks_i   9
+  identify_index_i   0
+model digest sha256 2e1985ba4c3b76d76bd78ea3a13296320d10ce9ddd6a10b280abac219f1b79bc (IEEE 1722.1-2021 §6.2.2.8)
+/usr/bin/python3 $CHECKOUT/sw/firmware/ctrl/aecp/aecp_entity.py $PACKET/scratch/parent-probe/parent-invalidation-fault8/endstation_ax7101_8x8.yaml -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_entity_gen.h
+cc -std=c11 -O2 -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include -c $CHECKOUT/sw/firmware/ctrl/aecp/aecp.c -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp.c.o
+cc -std=c11 -O2 -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include -c $CHECKOUT/sw/firmware/ctrl/aecp/aecp_commands.c -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_commands.c.o
+cc -std=c11 -O2 -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include -c $CHECKOUT/sw/firmware/ctrl/aecp/aecp_maps.c -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_maps.c.o
+cc -std=c11 -O2 -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include -c $CHECKOUT/sw/firmware/ctrl/aecp/aecp_image.c -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_image.c.o
+cc -std=c11 -O2 -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include -c $CHECKOUT/sw/firmware/ctrl/aecp/aecp_state.c -o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_state.c.o
+ar rcs $PACKET/scratch/parent-probe/parent-invalidation-fault8/libaecp.a $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp.c.o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_commands.c.o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_maps.c.o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_image.c.o $PACKET/scratch/parent-probe/parent-invalidation-fault8/aecp_state.c.o
+$SIMULATOR +incdir+$PACKET/scratch/parent-probe/parent-invalidation-fault8/gen/endstation_ax7101_8x8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS '-std=c++17 -O2 -Wall -Wextra' -GGPTP_PLANE_EN_P=0 --Mdir $PACKET/scratch/parent-probe/parent-invalidation-fault8/obj -CFLAGS '-I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include' -LDFLAGS $PACKET/scratch/parent-probe/parent-invalidation-fault8/libaecp.a $CHECKOUT/tb/verilator/input_loopback_dp/probes.vlt -GN_STREAMS=8 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=32 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GAUDIO_IF_RENDER_SLOTS_P=1 -GLOOPBACK_P=0 -GI2SPB_P=0 -GLPF_P=0 -GINPUT_LOOPBACK_P=1 -GCTRL_SPLIT_P=1 ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/milan/KL_ctrl_split.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv $CHECKOUT/tb/verilator/input_loopback_dp/sim_main.cpp -o parent_loopback
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1067:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1067 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1071:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1071 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1074:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1114:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1114 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1118:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1165:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1165 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1168:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1168 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1171:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1171 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1174:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1174 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1180:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1180 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d on a codec-driven (slave) bus. The slave render serializer frames its bank as the whole bus frame, so a SLAVE render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. Only a MASTER lane (BUS_SLOTS_P) may be narrower.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:1982:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1982 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+      |                                                                    ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:91:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:66:68: Procedural assignment to declaration with initial value: 'rx_fifo_overflow_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   66 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:92:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   92 |   rx_fifo_overflow_cnt <= counters[RX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:67:69: Procedural assignment to declaration with initial value: 'rx_fifo_bad_frame_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   67 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:93:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   93 |   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:68:70: Procedural assignment to declaration with initial value: 'rx_fifo_good_frame_cnt'
+                                                                                                            : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                            : ... Location of variable initialization
+   68 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../hdl/common/csr/../../../hdl/common/eth_event_counter/ethernet_events.sv:94:3: ... Location of variable process write
+                                                                                                           : ... Perhaps should initialize instead using a reset in this process
+   94 |   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/csr/milan_csr.sv:2316:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                          : ... note: In instance 'milan_datapath.csr'
+                                                                                          : ... Location of variable initialization
+ 2316 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../hdl/common/csr/../../../hdl/common/csr/milan_csr.sv:2838:34: ... Location of variable process write
+                                                                                          : ... Perhaps should initialize instead using a reset in this process
+ 2838 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../hdl/common/csr/milan_csr.sv:2835:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                          : ... note: In instance 'milan_datapath.csr'
+                                                                                          : ... Location of variable initialization
+ 2835 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../hdl/common/csr/../../../hdl/common/csr/milan_csr.sv:2837:5: ... Location of variable process write
+                                                                                         : ... Perhaps should initialize instead using a reset in this process
+ 2837 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                      : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                      : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                      : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:509:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:3983:10: ... Location of async usage
+ 3983 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       $PACKET/scratch/parent-probe/integration-fault/milan_datapath.sv:976:10: ... Location of sync usage
+  976 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make: Entering directory '$PACKET/scratch/parent-probe/parent-invalidation-fault8/obj'
+g++  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -Os  -c -o sim_main.o $CHECKOUT/tb/verilator/input_loopback_dp/sim_main.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -c -o verilated.o $SIMULATOR_ROOT/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -c -o verilated_dpi.o $SIMULATOR_ROOT/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -c -o verilated_threads.o $SIMULATOR_ROOT/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__1.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__2.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__3.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__4.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__5.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+g++ -Os  -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__0__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__1__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I$SIMULATOR_ROOT/usr/share/verilator/include -I$SIMULATOR_ROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/parent-probe/parent-invalidation-fault8 -I$CHECKOUT/sw/firmware/ctrl/aecp -I$CHECKOUT/sw/firmware/ctrl/loop -I$CHECKOUT/sw/firmware/ctrl/mbx -I$CHECKOUT/third_party/tsn-c-stack/include   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a   $PACKET/scratch/parent-probe/parent-invalidation-fault8/libaecp.a  -pthread -lpthread -latomic   -o parent_loopback
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make: Leaving directory '$PACKET/scratch/parent-probe/parent-invalidation-fault8/obj'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 156.625 MB sources in 123 modules, into 8.761 MB in 18 C++ files needing 0.006 MB
+- Verilator: Walltime 15.904 s (elab=0.572, cvt=2.786, bld=11.874); cpu 4.179 s on 8 threads; allocated 926.125 MB
+$PACKET/scratch/parent-probe/parent-invalidation-fault8/obj/parent_loopback
+  [FAIL] PARENT_SAMPLE                            got=0x840078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x860078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x880078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x900078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x920078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x940078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x960078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x980078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0077 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x800079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x820079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x840079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x860079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x880079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x900079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x920079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x940079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x960079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x980079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0078 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x80007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e007a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x840078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x860078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x880078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x800079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x820079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x840079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x860079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x880079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x80007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x900078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x920078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x940078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x960078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x980078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x900079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x920079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x940079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x960079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x980079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e007a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0077 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0078 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0079 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0079 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfe00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf000d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf200d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf400d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf600d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf800d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc00d8 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfe00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf000d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf200d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf400d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf600d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf800d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc00d9 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfe00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8200db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8400db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8600db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8800db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9000db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9200db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9400db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9600db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9800db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e00db exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf000da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf200da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf400da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf600da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf800da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfe00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfe00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfe00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8200db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8400db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8600db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8800db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9000db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9200db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9400db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9600db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9800db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e00db exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf000d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf200d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf400d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf600d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf800d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc00d8 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf000d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf200d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf400d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf600d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf800d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc00d9 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf000da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf200da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf400da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf600da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf800da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa00da exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc00da exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0108 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0109 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf0010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf2010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf4010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf6010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf8010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc010a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e010c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf0010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf2010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf4010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf6010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf8010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e010c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0108 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0109 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf0010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf2010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf4010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf6010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf8010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc010a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf0010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf2010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf4010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf6010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf8010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa010b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc010b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf00139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf20139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf40139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf60139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf80139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc0139 exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf0013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf2013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf4013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf6013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf8013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc013a exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x82013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x84013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x86013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x88013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8a013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8c013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x8e013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x90013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x92013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x94013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x96013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x98013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9a013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9c013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0x9e013c exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xa8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xaa013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xac013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xae013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xb8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xba013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbc013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xbe013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xc8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xca013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xcc013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xce013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xd8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xda013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xdc013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xde013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xe8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xea013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xec013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xee013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf0013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf2013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf4013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf6013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xf8013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfa013b exp=0x0
+  [FAIL] PARENT_SAMPLE                            got=0xfc013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x82013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x84013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x86013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x88013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8a013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8c013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x8e013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x90013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x92013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x94013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x96013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x98013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9a013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9c013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0x9e013c exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xa8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xaa013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xac013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xae013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xb8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xba013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbc013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xbe013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xc8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xca013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xcc013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xce013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xd8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xda013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xdc013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xde013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xe8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xea013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xec013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xee013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf00139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf20139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf40139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf60139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf80139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc0139 exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf0013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf2013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf4013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf6013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf8013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc013a exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf0013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf2013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf4013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf6013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xf8013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfa013b exp=0x0
+  [FAIL] PARENT_WIRE_SAMPLE                       got=0xfc013b exp=0x0
+parent loopback streams=8 words=34004 nonzero=30597 silence=3407 packets=704 walks=606 max_walk_cycles=873 first_eligible=5
+== input_loopback_dp: checks: 122517   failures: 1544 ==
+RESULT: FAIL
+Traceback (most recent call last):
+  File "$CHECKOUT/tb/verilator/input_loopback_dp/run.py", line 80, in <module>
+    main()
+    ~~~~^^
+  File "$CHECKOUT/tb/verilator/input_loopback_dp/run.py", line 76, in main
+    run([w / "obj/parent_loopback"], w)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CHECKOUT/tb/verilator/input_loopback_dp/run.py", line 36, in run
+    subprocess.run(list(map(str, cmd)), cwd=cwd, check=True, timeout=7200)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['$PACKET/scratch/parent-probe/parent-invalidation-fault8/obj/parent_loopback']' returned non-zero exit status 1.
