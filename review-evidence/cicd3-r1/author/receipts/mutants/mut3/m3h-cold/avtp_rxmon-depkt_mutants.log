@@ -1,0 +1,25 @@
+[PASS] the unmutated depacketizer still passes its frame-boundary contract
+[PASS] mutant caught: a tail left in the hold: the frame's last word is popped with the beat before it, so the pass ends and the read side resynchronises without the final beat (the #948 frame-boundary defect) - breaks "[DT1] a 65-octet payload: 9 beats, tlast on the last"
+    it broke 4534 check(s); first: [DT1] a 65-octet payload: one output frame
+[PASS] mutant caught: a tail left in the hold behind a C-VLAN tag is sized for an untagged frame - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+    it broke 2263 check(s); first: [DT2] 27 octets tagged, inputs 1, no stall: output frames, one per accepting input
+[PASS] mutant caught: a frame short of its payload is committed and read out in part - breaks "[DT3] 192 octets, 40 short, inputs 3: ...each its beats, its tlast, its index and its bytes, in order"
+    it broke 73 check(s); first: [DT3] 192 octets, 1 short, inputs 3: output frames, one per accepting input
+[PASS] mutant caught: a frame short of its payload is dropped but counted for none of its accepting inputs - breaks "[DT3] 192 octets, 1 short, inputs 3: drop_p_o names each short frame's accepting inputs"
+    it broke 26 check(s); first: [DT3] 192 octets, 1 short, inputs 3: drop_p_o names each short frame's accepting inputs
+[PASS] mutant caught: drops_o leaves out a frame short of its payload - breaks "[DT3] 192 octets, 1 short, inputs 3: drops_o counts each short frame"
+    it broke 52 check(s); first: [DT3] 192 octets, 1 short, inputs 3: drops_o counts each short frame
+[PASS] mutant caught: the length check reads a tagged frame's data_len where an untagged frame carries it - breaks "[DT2] cases whose every output frame is whole, in order, under its index"
+    it broke 10803 check(s); first: [DT2] 1 octets tagged, inputs 1, no stall: output frames, one per accepting input
+[PASS] mutant caught: the length check takes a short last beat for a full one - breaks "[DT3] 192 octets, 1 short, inputs 3: output frames, one per accepting input"
+    it broke 49 check(s); first: [DT3] 192 octets, 1 short, inputs 3: output frames, one per accepting input
+[PASS] mutant caught: the store's write side takes the tap as it comes, so a frame of ten beats or fewer ends before its enqueue pulse (the #948 short-frame defect) - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+    it broke 11492 check(s); first: [DT1] a 64-octet payload: one output frame
+[PASS] mutant caught: a pulse is taken only while its frame is still on the tap, so one after a nine- or ten-beat frame's tlast is lost - breaks "[DT4] cases whose every output frame is whole, in order, under its index"
+    it broke 920 check(s); first: [DT4] 27 octets, 9 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+[PASS] mutant caught: the verdict at the stored eighth beat misses a pulse that lands in that same cycle - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+    it broke 4262 check(s); first: [DT4] 1 octets, 8 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+[PASS] mutant caught: the write side runs two cycles behind the tap, one short of the enqueue pulse's latency - breaks "[DT4] the 1-channel 48 kHz Base PDU (a 62-octet frame): one output frame"
+    it broke 4262 check(s); first: [DT4] 1 octets, 8 beats, inputs 1, pulse 3 on: output frames, one per accepting input
+
+12 checks: 12 PASS, 0 FAIL

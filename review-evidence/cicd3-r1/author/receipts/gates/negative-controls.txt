@@ -1,0 +1,11 @@
+Negative controls for the preflight-mode controls (scripts/suite_preflight_controls.py), 2026-11-24, lane tree before
+commit 66b092e1. Each planted defect was put into scripts/run_all_suites.sh, the control was run alone through
+receipts/tools/mutctl.py (test_suite_cancellation.py's fixture as the harness), and the driver was then restored
+byte for byte (diffstat unchanged afterwards).
+
+1. --no-preflight still runs run_preflight_gates (the if/else replaced by an unconditional call):
+   no_preflight -> CONTROL FAILED (mutant caught): a no-preflight worker ran the self-tests
+2. --preflight-only swallows a failing self-test (run_preflight_gates || true, and the cancellation-test abort
+   returning 0 under --preflight-only):
+   preflight_only(fail=True) -> CONTROL FAILED (mutant caught): status 0 and "preflight: every self-test passed"
+   printed after "ABORTING: sweep cancellation controls failed."

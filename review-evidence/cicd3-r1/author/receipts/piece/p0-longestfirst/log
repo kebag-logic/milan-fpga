@@ -1,0 +1,402 @@
+# transcript: 643390 bytes, 6543 lines; first 200 and last 200 lines kept
+tsn-c-stack at 715589c1db7cf67e2f3259fd7083ebc7f0923376
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1066:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1066 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1070:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1070 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1073:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1113:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1113 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1117:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1164:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1164 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1167:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1167 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1170:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1170 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1173:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1173 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1179:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1179 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is NARROWER than AUDIO_IF_SLOTS_P=%0d on a codec-driven (slave) bus. The slave render serializer frames its bank as the whole bus frame, so a SLAVE render lane is the FULL bus width: declare AUDIO_IF_RENDER_SLOTS_P=%0d, or 0 to prune the lane. Only a MASTER lane (BUS_SLOTS_P) may be narrower.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1974:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1974 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:62:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   62 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                                                          : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                          : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+# ...
+  [ok]   RENDER-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-CRF: no slip inside the window                      = 0
+  [ok]   RENDER-CRF: nothing refused inside the window              = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-ARRIVE-CRF] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-CRF (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-CRF (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-CRF] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-CRF: the domain's instants moved 65532 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-CRF: the step reached the domain's instants    = 1
+  RENDER-STEP-CRF: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 12.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-CRF: PDUs graded                               = 1
+  [ok]   RENDER-STEP-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-CRF: no slip across the step                   = 0
+  [ok]   RENDER-STEP-CRF: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-CRF: presenting throughout (converged)         = 1
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23873557-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 0 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 2883664
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 1
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 0
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 0
+  [ok]   MR: align loop stays engaged back at INTERNAL (A2-a)       = 1
+
+[RENDER-LIVE-INT] the deselect under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-INT: no slip across the deselect               = 0
+  [ok]   RENDER-LIVE-INT: nothing refused across the deselect       = 0
+  RENDER-LIVE-INT: 720 PDUs, 4320 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-INT: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-INT: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-INT: converged                                 = 1
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x002C0050 (tap 0x002C0050)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 2883664
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 2883664
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 131648
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131648
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 131647
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131647
+
+----------------------------------------------------------------------
+media_aclk: 182 checks, 0 failures
+RESULT: PASS
+======== milan_dp/bootsa ========
+bootsa: 2 MHz fabric, one processor ms = 100 cycles, station MAC 024b4c4b4c01
+[BOOTSA] BIOS window: 400 processor ms with no CSR access
+[BOOTSA] milan_init(): configure_fabric()
+[BOOTSA] configure_fabric() completed the station MAC at cycle 40088
+[BOOTSA] milan_init(): load_aem_image()
+[BOOTSA] milan_init(): nvm_boot()
+  [ ok ] [BOOTSA] nvm_boot(): the restore walk ends COMPLETE (done 1, CLOSED 0) got=0x4 exp=0x4
+[BOOTSA] milan_init(): entity_advertise()
+Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.
+  [ ok ] [BOOTSA] the first ENTITY_AVAILABLE leaves after entity_advertise()
+[BOOTSA] first ENTITY_AVAILABLE at cycle 196252, frame #5
+  [ ok ] [BOOTSA] the processor answers READ_DESCRIPTOR (an AECP frame leaves)
+  [ ok ] [BOOTSA] the processor answers GET_TX_STATE_COMMAND (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE
+  [ ok ] [BOOTSA] the talker answers PROBE_TX_COMMAND with SUCCESS (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the probed talker joins its VLAN by MVRP (an MVRP frame leaves)
+[BOOTSA] 855 frames: MSRP 37 MVRP 4 gPTP 1 ADP 5 AECP 1 ACMP 3 MAAP 5 AAF 38 CRF 761
+[BOOTSA]   #0 MSRP  cycle    40112 source 024b4c4b4c01
+[BOOTSA]   #1 MAAP  cycle    40632 source 024b4c4b4c01
+[BOOTSA]   #2 MSRP  cycle    41170 source 024b4c4b4c01
+[BOOTSA]   #5 ADP   cycle   196252 source 024b4c4b4c01
+[BOOTSA]   #6 AECP  cycle   198037 source 024b4c4b4c01
+[BOOTSA]   #7 ACMP  cycle   198620 source 024b4c4b4c01
+[BOOTSA]   #8 CRF   cycle   200074 source 024b4c4b4c01
+[BOOTSA]   #9 CRF   cycle   204074 source 024b4c4b4c01
+[BOOTSA]   #160 ADP   cycle   781352 source 024b4c4b4c01
+[BOOTSA]   #224 MVRP  cycle  1020931 source 024b4c4b4c01
+[BOOTSA]   #243 MAAP  cycle  1096073 source 024b4c4b4c01
+[BOOTSA]   #588 gPTP  cycle  2400690 source 024b4c4b4c01
+[BOOTSA]   #595 MVRP  cycle  2420731 source 024b4c4b4c01
+[BOOTSA]   #805 AAF   cycle  3216658 source 024b4c4b4c01
+[BOOTSA]   #806 ACMP  cycle  3217176 source 024b4c4b4c01
+[BOOTSA]   #807 AAF   cycle  3217300 source 024b4c4b4c01
+  [ ok ] [BOOTSA] the processor offered a frame before the station MAC was written
+  [ ok ] [BOOTSA] no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AAF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every CRF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every other frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's destination address is the controller's MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's destination address is its protocol's got=0 exp=0
+  [ ok ] [BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's got=0 exp=0
+  [ ok ] [BOOTSA] MSRP frames were sent and graded
+  [ ok ] [BOOTSA] MVRP frames were sent and graded
+  [ ok ] [BOOTSA] gPTP frames were sent and graded
+  [ ok ] [BOOTSA] ADP frames were sent and graded
+  [ ok ] [BOOTSA] AECP frames were sent and graded
+  [ ok ] [BOOTSA] ACMP frames were sent and graded
+  [ ok ] [BOOTSA] MAAP frames were sent and graded
+  [ ok ] [BOOTSA] AAF frames were sent and graded
+  [ ok ] [BOOTSA] CRF frames were sent and graded
+  [ ok ] [BOOTSA] A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_LO releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_LO boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_HI releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_HI boot carries the station MAC got=0 exp=0
+[BOOTSA] early-enable, MAAP on: MAAP_CTRL 0x00000201, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 3361553, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP on: offered with the pair unwritten: MAAP yes, AAF no, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP on: the station MAC is complete at cycle 3401557
+[BOOTSA] early-enable, MAAP on: 850 frames after the pair: MSRP 36 MVRP 2 gPTP 1 MAAP 5 AAF 1 CRF 805
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: MAAP frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP on: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: every frame of the boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP on: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] early-enable, MAAP off: MAAP_CTRL 0x00000000, AAF_CTRL 0x00020003, CRFT_CTRL 0x00000003 written at cycle 6620265, then 400 processor ms with the pair unwritten
+[BOOTSA] early-enable, MAAP off: offered with the pair unwritten: MAAP no, AAF yes, CRF yes; 0 frames left
+[BOOTSA] early-enable, MAAP off: the station MAC is complete at cycle 6660269
+[BOOTSA] early-enable, MAAP off: 3 frames after the pair: MSRP 1 AAF 1 CRF 1
+  [ ok ] [BOOTSA] early-enable, MAAP off: the AAF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: AAF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: the CRF talker offered a frame while the station MAC was unwritten
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: CRF frames leave once the station MAC is written
+  [ ok ] [BOOTSA] early-enable, MAAP off: no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: every frame of the boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] early-enable, MAAP off: A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+[BOOTSA] control lane through the stamp: 101 frames, 3819 octets outside 6 to 11 compared, 0 changed
+  [ ok ] [BOOTSA] control-lane frames passed through the stamp
+  [ ok ] [BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered got=0 exp=0
+simulated_cycles=6660318
+== bootsa: checks: 67   failures: 0 ==
+RESULT: PASS

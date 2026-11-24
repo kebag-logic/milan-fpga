@@ -1,0 +1,38 @@
+avtp_rxmon-depkt_mutants: m3b-cold vs m3b-warm: IDENTICAL (25 normalised lines, 12 verdict lines)
+avtp_rxmon-depkt_mutants: m3b-cold vs m3h-cold: IDENTICAL (25 normalised lines, 12 verdict lines)
+avtp_rxmon-depkt_mutants: m3b-cold vs m3h-warm: IDENTICAL (25 normalised lines, 12 verdict lines)
+avtp_rxmon-depkt_mutants: m3b-cold vs m3x-warm: IDENTICAL (25 normalised lines, 12 verdict lines)
+crf_rx-mutants: m3b-cold vs m3b-warm: IDENTICAL (44 normalised lines, 44 verdict lines)
+crf_rx-mutants: m3b-cold vs m3h-cold: IDENTICAL (44 normalised lines, 44 verdict lines)
+crf_rx-mutants: m3b-cold vs m3h-warm: IDENTICAL (44 normalised lines, 44 verdict lines)
+crf_rx-mutants: m3b-cold vs m3x-warm: IDENTICAL (44 normalised lines, 44 verdict lines)
+mmcm_servo-slew_mutants: m3b-cold vs m3b-warm: DIFFER
+--- 
++++ 
+@@ -1,19 +0,0 @@
+-[PASS] clean: rc=0
+-[PASS] clean_unit: rc=0
+-[PASS] discard_removed: rc=1
+-  named rejection: [S1] overlapped window is discarded
+-[PASS] level_tied_low: rc=1
+-  named rejection: [S1] overlapped window is discarded
+-[PASS] partial_tail_trusted: rc=1
+-  named rejection: [S1] overlapped window is discarded
+-[PASS] discard_not_counted: rc=1
+mmcm_servo-slew_mutants: m3b-cold vs m3h-cold: DIFFER
+--- 
++++ 
+@@ -17,3 +16,0 @@
+-[PASS] slew_discard_counts_as_guard_trip: rc=1
+-  named rejection: [U15] four fresh guard trips precede re-base
+-== mmcm_servo slew mutants: checks: 10   failures: 0 ==
+mmcm_servo-slew_mutants: m3h-warm: MISSING
+mmcm_servo-slew_mutants: m3x-warm: MISSING
+rx_filter-binding_mutant: m3b-cold vs m3b-warm: IDENTICAL (6 normalised lines, 5 verdict lines)
+rx_filter-binding_mutant: m3b-cold vs m3h-cold: IDENTICAL (6 normalised lines, 5 verdict lines)
+rx_filter-binding_mutant: m3b-cold vs m3h-warm: IDENTICAL (6 normalised lines, 5 verdict lines)
+rx_filter-binding_mutant: m3b-cold vs m3x-warm: IDENTICAL (6 normalised lines, 5 verdict lines)
+tcam-mutants: m3b-cold vs m3b-warm: IDENTICAL (6 normalised lines, 4 verdict lines)
+tcam-mutants: m3b-cold vs m3h-cold: IDENTICAL (6 normalised lines, 4 verdict lines)
+tcam-mutants: m3b-cold vs m3h-warm: IDENTICAL (6 normalised lines, 4 verdict lines)
+tcam-mutants: m3b-cold vs m3x-warm: IDENTICAL (6 normalised lines, 4 verdict lines)

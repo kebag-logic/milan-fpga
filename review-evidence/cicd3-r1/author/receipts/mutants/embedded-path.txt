@@ -1,0 +1,13 @@
+# crf_rx RTL verilated twice, identical source staged at r3/exp/a/m.sv and r3/exp/b/m.sv (pinned Verilator 5.050, same flags). diff of the generated __024root__0.cpp:
+784c784
+<             VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/a/m.sv", 168, "", "DIDNOTCONVERGE: Input combinational region did not converge after '--converge-limit' of 10000 tries");
+---
+>             VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/b/m.sv", 168, "", "DIDNOTCONVERGE: Input combinational region did not converge after '--converge-limit' of 10000 tries");
+796c796
+<             VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/a/m.sv", 168, "", "DIDNOTCONVERGE: NBA region did not converge after '--converge-limit' of 10000 tries");
+---
+>             VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/b/m.sv", 168, "", "DIDNOTCONVERGE: NBA region did not converge after '--converge-limit' of 10000 tries");
+805c805
+<                 VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/a/m.sv", 168, "", "DIDNOTCONVERGE: Active region did not converge after '--converge-limit' of 10000 tries");
+---
+>                 VL_FATAL_MT("/data-2/milan/tmp/cicd-a839/r3/exp/b/m.sv", 168, "", "DIDNOTCONVERGE: Active region did not converge after '--converge-limit' of 10000 tries");

@@ -1,0 +1,204 @@
+[A839] round 3, item 4: SMT-aware local booking. A PATCH for the manager to review and apply; not applied.
+
+Apply from $MANAGEMENT/2026-09-23:   patch -p1 --dry-run < cicd-a839/round3/smt-booking.patch
+(dry-run checked against the live files, md5 cpu_ranges.py c5ea50e8, native-shards.py f27413f0, start-act.py 57c38e74)
+
+WHY. Round 2 measured that a Verilator simulation whose SMT sibling runs another simulation needs ~2.3x the
+cycles for the same instructions (milan_dp's gPTP leg: 2.50 T instructions in 1.14-1.22 T cycles with its core to
+itself, 2.79 T with a busy sibling). This host's siblings are 2k and 2k+1 (sysfs thread_siblings_list, read by the
+patch, not assumed).
+
+WHAT.
+1. cpu_ranges.py
+   - threads(<range>) and `cpu_ranges.py threads <range>`: one CPU per physical core of a booked range (the lower
+     sibling), and a refusal for a range that splits a core. 56-63 -> 56,58,60,62.
+   - busy() counts both siblings of every CPU a unit is pinned to (whole_cores). A unit pinned to 56,58,60,62
+     holds 56-63, so no other booking lands on 57. Every existing booking is an aligned 8/12/16 range, so whole
+     cores already, and nothing that books today changes.
+   - unpinned(), printed by `show`: the active milan-* units whose main process keeps the full 0-95 mask (the
+     queue daemons excepted). busy() cannot count them (they would make every CPU busy), and their work runs on
+     every core, booked or not.
+2. native-shards.py: each <cpus-k> must be whole cores; the shard unit is pinned to threads(<cpus-k>) with
+   MAKEFLAGS=-j<cores>. An 8-CPU booking (4 cores) keeps -j4, as today, on 4 threads instead of 8.
+3. start-act.py: refuses a range that splits a core. The act job containers keep their whole range. Their CPU
+   budget step caps simulations and campaigns at 4 (SIM_JOBS, CI_CAMPAIGN_JOBS) on 8 cores, so each simulation can
+   already have a core of its own, and the builds keep both threads.
+Not covered: the CPU budget rounds and gate units launched by other scripts (run-when-cpus.sh, daily-area.sh,
+prepare-consumer.py, the 2026-09-22 launchers). They book through cpu_ranges and can adopt threads() the same way.
+
+MEASURED BEFORE/AFTER ON ONE LOCAL SHARD (2026-11-24 17:45-18:20, head f6c11a25's tree, shard 8/19 =
+capture_coherence__1 + maap__0, `run_all_suites.sh --ci-pieces --no-preflight`, hosted budgets (4 jobs), no
+ccache, SUITE_TIMEOUT=7200, two clones run concurrently):
+   before  2 cores, both siblings used (84-87), the 4-CPU hosted shape:  3102.1 s wall, 3101.6 CPU-s,
+           10.97 T cycles, 13.75 T instructions, IPC 1.25
+   after   4 cores booked (72-75, 88-91), one thread each (72,74,88,90):  3256.7 s wall, 3114.7 CPU-s,
+           11.01 T cycles, 13.75 T instructions, IPC 1.25
+   both:   2/2 PASS; capture_coherence__1 (184 lines) and maap__0 (282 lines) logs IDENTICAL
+RESULT: no gain on this host today, and the counters say why. The same instructions took the same cycles in both
+arms, so the "idle" siblings were not idle: `cpu_ranges.py show` with this patch lists ten unpinned units (seven
+sessions launched with taskset -c 0-95, outside lane-queue's session_pool(), and gate units:
+lwsrppin-a834-r4-h-1x1, lwsrppin-a834-r4-h-8x8-1if, qual1124-a840-chain8), and every CPU read 100 % busy (5 s
+/proc/stat sample, load 195-230). Their threads ran on the siblings this patch leaves idle. pool-spill.sh, which
+widens every pinned process to 0-95, was not running (its last action was 2026-11-18), and every pin held.
+So the patch is necessary and not sufficient. Its gain (round 2's 2.3x cycles per simulation) appears only once
+nothing floats: confine every session to session_pool() and every gate unit to a booking, then re-measure. The
+units to fix are the ones `show` prints.
+
+--- the patch ---
+--- a/cpu_ranges.py
++++ b/cpu_ranges.py
+@@ -9,8 +9,20 @@
+   in 20*N .. 20*N+19; #737 round 2 replaces this with ranges the manager passes in);
+ - the cpuset of every container on the act slot daemons.
+ 
++2026-11-24 (A839 round 3): a Verilator simulation whose SMT sibling runs another simulation needs ~2.3x the cycles for
++the same instructions (milan_dp's gPTP leg: 1.14-1.22 T cycles with its core to itself, 2.79 T with a busy sibling). So
++a booking is whole physical cores (this host's siblings are 2k and 2k+1, read from sysfs, not assumed), and a simulation
++unit runs on one thread of each booked core (`threads`), its sibling booked and left idle. busy() therefore counts both
++siblings of every CPU a unit is pinned to: a unit on 56,58,60,62 holds 56-63, and no other booking lands on 57.
++An idle sibling stays idle only if nothing floats onto it: a unit whose main process keeps the full 0-95 mask is not
++counted as busy (it is a daemon to busy()) and its work runs on every core, booked or not. On 2026-11-24 ten active
++units held that mask, sessions started outside lane-queue's session_pool() and gate units among them, and a shard run
++on four booked cores, one thread each, ran no faster than on two cores' four threads (cycles 11.01 T vs 10.97 T).
++`show` therefore names them, so each can be confined to the session pool or a booking.
++
+ usage: cpu_ranges.py pick [--width 16|12|8]  -> prints a free aligned range (default: pick8) or exits 1
+        cpu_ranges.py show                   -> prints the busy set and the free ranges
++       cpu_ranges.py threads <range>        -> prints one CPU per physical core of a booked range (refuses a split core)
+ """
+ from pathlib import Path
+ import os
+@@ -25,6 +37,35 @@
+ SESSION_POOL = f'{NCPU - 32}-{NCPU - 1}'  # the top 32 CPUs: 64-95 on the 96-CPU VM (2026-11-17), 96-127 before
+ 
+ 
++def _siblings():
++    """cpu -> the set of logical CPUs on its physical core, from sysfs; a CPU it cannot read is its own core."""
++    out = {}
++    for cpu in range(NCPU):
++        try:
++            text = Path(f'/sys/devices/system/cpu/cpu{cpu}/topology/thread_siblings_list').read_text().strip()
++            out[cpu] = frozenset(expand(text))
++        except (OSError, ValueError):
++            out[cpu] = frozenset({cpu})
++    return out
++
++
++def whole_cores(cpus):
++    """`cpus` with every SMT sibling of each of them: what a unit pinned to `cpus` keeps from other bookings."""
++    siblings = _siblings()
++    return set().union(*(siblings.get(c, {c}) for c in cpus)) if cpus else set()
++
++
++def threads(spec):
++    """One logical CPU per physical core of a booked range, the lowest of each core, as a taskset list. A range that
++    splits a core is refused: half a core is not a booking a simulation can run on alone."""
++    cpus = expand(spec)
++    siblings = _siblings()
++    split = sorted(c for c in cpus if not siblings.get(c, {c}) <= cpus)
++    if split:
++        raise ValueError(f'{spec} splits the physical core(s) of CPU(s) {split}: book whole cores')
++    return ','.join(str(c) for c in sorted(cpus) if c == min(siblings.get(c, {c})))
++
++
+ def expand(spec):
+     out = set()
+     for part in filter(None, spec.replace(' ', '').split(',')):
+@@ -83,7 +124,24 @@
+                                   capture_output=True, text=True).stdout.split()
+             for s in sets:
+                 cpus |= expand(s)
+-    return cpus | expand(SESSION_POOL)
++    return whole_cores(cpus | expand(SESSION_POOL))
++
++
++def unpinned():
++    """Active milan-* units whose main process may run on every CPU, besides the queue daemons: their work floats
++    onto booked cores, whose idle siblings are then not idle."""
++    listing = subprocess.run(['systemctl', '--user', 'list-units', 'milan-*', '--no-legend', '--state=active', '--plain'],
++                             capture_output=True, text=True).stdout.split('\n')
++    out = []
++    for name in (line.split(' ')[0] for line in listing):
++        if not name.endswith('.service') or name in ('milan-lane-queue.service', 'milan-review-queue.service'):
++            continue
++        pid = subprocess.run(['systemctl', '--user', 'show', '-p', 'MainPID', '--value', name],
++                             capture_output=True, text=True).stdout.strip()
++        aff = subprocess.run(['taskset', '-cp', pid], capture_output=True, text=True).stdout.rpartition(': ')[2].strip()
++        if pid and pid != '0' and aff and expand(aff) == set(range(NCPU)):
++            out.append(name.removesuffix('.service'))
++    return out
+ 
+ 
+ def free_ranges(width=16, taken=None):
+@@ -153,6 +211,9 @@
+ 
+ if __name__ == '__main__':
+     cmd = sys.argv[1] if len(sys.argv) > 1 else 'show'
++    if cmd == 'threads':
++        print(threads(sys.argv[2]))
++        raise SystemExit(0)
+     if cmd == 'pick':
+         w = int(sys.argv[sys.argv.index('--width') + 1]) if '--width' in sys.argv else None
+         r = pick((w,)) if w else pick8()
+@@ -160,3 +221,6 @@
+         raise SystemExit(0 if r else 1)
+     t = busy()
+     print('busy', len(t), 'cpus;', 'free16', free_ranges(16, t), 'free12', free_ranges(12, t), 'half8', packed8(t))
++    floating = unpinned()
++    if floating:
++        print(f'unpinned {len(floating)} (on every core, booked or not):', ' '.join(floating))
+--- a/native-shards.py
++++ b/native-shards.py
+@@ -4,17 +4,23 @@
+ The spec's suite command (`... scripts/run_all_suites.sh <logs> --wait`) is re-issued per shard k as
+ `... scripts/run_all_suites.sh <out>/shard-k/logs --wait --shard k/N`, with the spec's own env prefix (pinned tools,
+ VERILATOR_ROOT), through 2026-09-21/run-recorded-gates.py, in $LANES/<label>-shard<k> (a --shared clone of
+-the spec's cwd at the spec's head, submodules from that clone). Units milan-<label>-shard<k>, MemoryMax=10G, -j4.
++the spec's cwd at the spec's head, submodules from that clone). Units milan-<label>-shard<k>, MemoryMax=10G.
++2026-11-24 (A839 round 3): each <cpus-k> must be whole physical cores; the shard runs on one thread of each
++(cpu_ranges.threads) with make -j<cores>, the siblings booked and idle, because a simulation beside a busy SMT sibling
++needs ~2.3x the cycles. An 8-CPU booking is 4 cores: -j4 as before, on 4 threads instead of 8.
+ 2026-10-02: the serial sweep was 1h45m of a 2h32m native bank at 1.8 of 8 cores busy (owner asked why runs are
+ slow); hosted CI already runs these shards on separate runners, so separate clones keep generated files apart.
+ """
+ from pathlib import Path
+ import json, subprocess, sys
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++from cpu_ranges import threads  # noqa: E402
+ 
+ label, spec_path, out, n = sys.argv[1:5]
+ cpus = sys.argv[5:]
+ n = int(n)
+ assert len(cpus) == n, 'one cpu list per shard'
++pinned = [threads(c) for c in cpus]  # refuses a list that splits a physical core, before any clone or unit
+ spec = json.loads(Path(spec_path).read_text())
+ src, head, out = Path(spec['cwd']), spec['head'], Path(out)
+ suite = [c for c in spec['commands'] if 'scripts/run_all_suites.sh' in c]
+@@ -54,9 +60,10 @@
+     shard_spec = shard_dir / 'spec.json'
+     shard_spec.write_text(json.dumps(dict(cwd=str(clone), head=head, base=spec.get('base'), commands=[cmd]), indent=1) + '\n')
+     unit = f'milan-{label}-shard{k}'
++    cores = len(pinned[k].split(','))
+     subprocess.run(['systemd-run', '--user', f'--unit={unit}', '--collect', '--property=MemoryMax=10G',
+-                    '--setenv=HOME=$WORKSPACE_HOME', '--setenv=MAKEFLAGS=-j4',
++                    '--setenv=HOME=$WORKSPACE_HOME', f'--setenv=MAKEFLAGS=-j{cores}',
+                     '--setenv=PATH=$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin',
+-                    '/usr/bin/taskset', '-c', cpus[k], '/usr/bin/python3', str(RUNNER), str(shard_spec)], check=True)
++                    '/usr/bin/taskset', '-c', pinned[k], '/usr/bin/python3', str(RUNNER), str(shard_spec)], check=True)
+     units.append(unit)
+ print(json.dumps(dict(label=label, head=head, shards=n, out=str(out), units=units)))
+--- a/start-act.py
++++ b/start-act.py
+@@ -40,6 +40,12 @@
+ if __import__('os').environ.get('ACT_CPU_RANGES'):
+     _free = __import__('os').environ['ACT_CPU_RANGES'].split(',')
+ assert len(_free) >= 4, f'act needs 4 free 16-CPU ranges, only {_free} free: wait for lanes to finish'
++# 2026-11-24 (A839 round 3): each range must be whole physical cores (cpu_ranges.threads refuses a split one). The act
++# job containers keep the whole range: their CPU budget step caps simulations and campaigns at 4 (SIM_JOBS,
++# CI_CAMPAIGN_JOBS) on 8 cores, so the scheduler already gives each simulation a core, and the builds keep both threads.
++import cpu_ranges as _cr  # noqa: E402
++for _r in _free[:4]:
++    _cr.threads(_r)
+ # 2026-10-30 21:1x: the out dir is made only after the range check, so a refused start leaves nothing behind
+ out = Path(f'$VALIDATION_STORAGE/{LANE}-act-{HEAD[:8]}')
+ out.mkdir(exist_ok=False)

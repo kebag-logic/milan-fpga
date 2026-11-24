@@ -1,0 +1,10 @@
+# rx_filter suite build (make run) through ccache, fresh cache: run1 same checkout cold, run2 same checkout, run3 another checkout
+run1: 0 direct hits, 4 misses; sources: sim_main.cpp Source file: Vrx_mac_filter__ALL.cpp verilated.cpp verilated_threads.cpp 
+run2: 4 direct hits, 0 misses; sources: sim_main.cpp Source file: Vrx_mac_filter__ALL.cpp verilated.cpp verilated_threads.cpp 
+run3: 4 direct hits, 0 misses; sources: sim_main.cpp Source file: Vrx_mac_filter__ALL.cpp verilated.cpp verilated_threads.cpp 
+
+# three verilations of rx_filter into rx1 rx2 rx3: files that differ
+Files rx1/Vrx_mac_filter__ver.d and rx2/Vrx_mac_filter__ver.d differ
+Files rx1/Vrx_mac_filter__verFiles.dat and rx2/Vrx_mac_filter__verFiles.dat differ
+Files rx1/Vrx_mac_filter__ver.d and rx3/Vrx_mac_filter__ver.d differ
+Files rx1/Vrx_mac_filter__verFiles.dat and rx3/Vrx_mac_filter__verFiles.dat differ
