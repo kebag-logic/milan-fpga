@@ -17,7 +17,7 @@ a command's terminator, caught by AddressSanitizer in the test that sent the
 line; the boot's order of Milan v1.2 5.6.1, caught by the step order, the
 saved state's place among the steps by the flash's accesses in that order;
 and the saved state's write-back, caught by a bind after ready reaching the
-flash; and the console's milan_lat under gptp.latency_writable (#878), caught
+flash; and the console's lat under gptp.latency_writable (#878), caught
 by its write list and its answer, and the key reaching a build that leaves it
 off, caught by that build's refusal.
 """
@@ -43,7 +43,7 @@ K7 = "Plat.K7MilanLatWritesThePairAndReadsItBack"
 #: The reorder plant's two writes, as ctrl_plat_csr.c holds them and swapped.
 EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
        "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
-#: milan_lat's two writes, as ctrl_plat_csr.c holds them (#878).
+#: lat's two writes, as ctrl_plat_csr.c holds them (#878).
 LAT = ("\twr(csr, CTRL_PLAT_CSR_PTP_ILAT, ingress_ns);\n", "\twr(csr, CTRL_PLAT_CSR_PTP_ELAT, egress_ns);\n")
 #: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
 SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
@@ -90,10 +90,15 @@ def csr_mutants(mutant: type) -> tuple:
 
 
 def lat_mutants(mutant: type) -> tuple:
-    """The console's milan_lat under gptp.latency_writable (#878): a direction crossed, a value or a field past the
+    """The console's lat under gptp.latency_writable (#878): a direction crossed, a value or a field past the
     command accepted, an answer that is not the read back, and the key reaching a build that leaves it off."""
     m = mutant
     return (
+        m("plat-lat-length-unchecked", CONSOLE, "if (c->len != 15u) {", "if (false) {",
+          "plat", "Plat.K9LatencyCommandFitsFifoAndRefusesLostDigits", "K9 a dropped digit is refused"),
+        m("plat-lat-first-width-unchecked", CONSOLE, " || at != 9u", " || at == c->len",
+          "plat", "Plat.K9LatencyCommandFitsFifoAndRefusesLostDigits",
+          "K9 over-length or unequal fields are refused"),
         m("plat-lat-directions-crossed", CSR, LAT[0] + LAT[1],
           LAT[0].replace("ILAT", "ELAT") + LAT[1].replace("ELAT", "ILAT"),
           "plat", K7, "K7 ingress to 0x540, egress to 0x544"),
@@ -106,7 +111,7 @@ def lat_mutants(mutant: type) -> tuple:
           "plat", K7, "K7 the answer is GPTP_LAT read back"),
         m("plat-lat-key-reaches-every-build", "plat/ctrl_plat_csr.h", "#define CTRL_PLAT_CSR_H\n",
           "#define CTRL_PLAT_CSR_H\n#define CTRL_PLAT_LAT_WRITABLE 1\n",
-          "plat", "Plat.K8MilanLatIsNoCommandWithoutTheKey", "K8 without the key milan_lat is refused"),
+          "plat", "Plat.K8MilanLatIsNoCommandWithoutTheKey", "K8 without the key lat is refused"),
     )
 
 

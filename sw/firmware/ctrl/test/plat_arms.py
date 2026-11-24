@@ -6,7 +6,7 @@
             host bus (test_plat.cpp, test_plat_mmio.cpp); the CSR window and the
             console under AddressSanitizer, whose report fails the test it is in,
             once as every image compiles them and once under the build key
-            gptp.latency_writable, which adds the console's milan_lat (#878);
+            gptp.latency_writable, which adds the console's lat (#878);
   platboot  the boot and composition of ctrl_plat.c, at the shipping shape with
             one and with two AVB interfaces, on the mailbox model, F1's flash
             model and the host bus (test_plat_boot.cpp), and the PHY poll on a

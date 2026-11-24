@@ -86,7 +86,7 @@ def builder_inputs(config: Path) -> tuple[dict, dict]:
 
 
 def latency_writable(config: Path) -> bool:
-    """The build key gptp.latency_writable (#829), as the end-station builder loads it: the console's milan_lat
+    """The build key gptp.latency_writable (#829), as the end-station builder loads it: the console's lat
     command is compiled only under it (#878), so a config that leaves it off compiles the image it compiled before."""
     sys.path.insert(0, str(ROOT / "sw/builder"))
     import endstation_builder as eb  # noqa: E402

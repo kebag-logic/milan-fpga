@@ -165,14 +165,20 @@ static bool number(const struct ctrl_plat_console *c, unsigned *at, uint16_t *va
 	return true;
 }
 
-// milan_lat INGRESS EGRESS (#878): the runtime latency pair of a build with
-// gptp.latency_writable (#829), decimal nanoseconds, one space before each;
+// lat IIIII EEEEE (#878): five decimal digits per correction, exactly one
+// space before each. All 16 bytes including CR fit the receive FIFO; losing
+// a digit cannot leave another valid pair. Send one command, await its reply.
+// The runtime latency pair of a build with gptp.latency_writable (#829);
 // the answer is GPTP_LAT read back. Any other spelling writes nothing and is
 // refused. A build without the key compiles none of this, so its console
 // keeps decision D6's two commands (#665).
 static bool lat(struct ctrl_plat_console *c)
 {
-	static const char name[] = "milan_lat ";
+	_Static_assert(15u + 1u <= CTRL_PLAT_RX_PER_PASS, "lat and CR fit the receive FIFO");
+	if (c->len != 15u) {
+		return false;
+	}
+	static const char name[] = "lat ";
 	unsigned at = 0;
 	while (name[at] != '\0') {
 		if (at == c->len || c->line[at] != name[at]) {
@@ -182,7 +188,7 @@ static bool lat(struct ctrl_plat_console *c)
 	}
 	uint16_t ingress = 0;
 	uint16_t egress = 0;
-	if (!number(c, &at, &ingress) || at == c->len) {
+	if (!number(c, &at, &ingress) || at != 9u) {
 		return false;
 	}
 	++at;

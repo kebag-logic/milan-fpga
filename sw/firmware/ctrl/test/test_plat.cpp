@@ -29,10 +29,10 @@
 //       command per pass, run only with room for the longest response
 //   K5  the ring: text past its room is dropped and counted
 //   K6  numbers: %08lx and %lu at their edges
-//   K7  milan_lat, compiled under gptp.latency_writable (#829, #878): ingress
+//   K7  lat, compiled under gptp.latency_writable (#829, #878): ingress
 //       to PTP_INGRESS_LAT then egress to PTP_EGRESS_LAT, the answer GPTP_LAT
 //       read back, 0 and 65535 accepted; any other spelling writes nothing
-//   K8  without that key milan_lat is no command and writes nothing, so the
+//   K8  without that key lat is no command and writes nothing, so the
 //       console keeps decision D6's two commands (#665)
 
 #include <gtest/gtest.h>
@@ -315,7 +315,7 @@ TEST_F(Plat, K6NumbersAtTheirEdges) {
 #ifdef PLAT_TEST_LATW
 TEST_F(Plat, K7MilanLatWritesThePairAndReadsItBack) {
     bus().csr[CTRL_PLAT_CSR_GPTP_LAT] = 0x0581abcdu;
-    EXPECT_EQ(answer("milan_lat 1409 581\r"), "GPTP_LAT=0581abcd\r\n") << "K7 the answer is GPTP_LAT read back";
+    EXPECT_EQ(answer("lat 01409 00581\r"), "GPTP_LAT=0581abcd\r\n") << "K7 the answer is GPTP_LAT read back";
     const std::vector<std::pair<std::uint32_t, std::uint32_t>> pair = {{0x540u, 1409u}, {0x544u, 581u}};
     EXPECT_EQ(bus().writes(), pair) << "K7 ingress to 0x540, egress to 0x544";
     std::vector<std::pair<bool, std::uint32_t>> window;
@@ -327,34 +327,64 @@ TEST_F(Plat, K7MilanLatWritesThePairAndReadsItBack) {
     const std::vector<std::pair<bool, std::uint32_t>> order = {{true, 0x540u}, {true, 0x544u}, {false, 0x7f0u}};
     EXPECT_EQ(window, order) << "K7 two writes, then the read back";
     bus().log.clear();
-    EXPECT_EQ(answer("milan_lat 0 65535\r").rfind("GPTP_LAT=", 0), 0u) << "K7 0 and 65535 are accepted";
+    EXPECT_EQ(answer("lat 00000 65535\r").rfind("GPTP_LAT=", 0), 0u) << "K7 0 and 65535 are accepted";
     const std::vector<std::pair<std::uint32_t, std::uint32_t>> edges = {{0x540u, 0u}, {0x544u, 65535u}};
     EXPECT_EQ(bus().writes(), edges) << "K7 0 and 65535 are accepted";
     bus().log.clear();
-    EXPECT_EQ(answer("milan_lat 00100 007\r").rfind("GPTP_LAT=", 0), 0u) << "K7 leading zeros are digits";
+    EXPECT_EQ(answer("lat 00100 00007\r").rfind("GPTP_LAT=", 0), 0u) << "K7 leading zeros are digits";
     const std::vector<std::pair<std::uint32_t, std::uint32_t>> zeros = {{0x540u, 100u}, {0x544u, 7u}};
     EXPECT_EQ(bus().writes(), zeros) << "K7 leading zeros are digits";
     EXPECT_EQ(console.commands, 3u) << "K7 each line ran once";
     bus().log.clear();
-    EXPECT_EQ(answer("milan_lat 65536 0\r"), "?\r\n") << "K7 a value past 65535 is refused";
-    EXPECT_EQ(answer("milan_lat 1 2 3\r"), "?\r\n") << "K7 a third field is refused";
-    const char* refused[] = {"milan_la\r", "milan_lot 1 2\r", "milan_lat x 2\r", "milan_lat 1/ 2\r",
-                             "milan_lat  1 2\r", "milan_lat 1\r", "milan_lat 1 \r", "milan_lat\r",
-                             "milan_lat -1 2\r", "milan_lat 1 2x\r"};
+    EXPECT_EQ(answer("lat 65536 00000\r"), "?\r\n") << "K7 a value past 65535 is refused";
+    EXPECT_EQ(answer("lat 00001 002 3\r"), "?\r\n") << "K7 a third field is refused";
+    const char* refused[] = {"la\r", "lot 00001 00002\r", "lat 0000x 00002\r", "lat 0001/ 00002\r",
+                             "lat  0001 00002\r", "lat 00001\r", "lat 00001 \r", "lat\r",
+                             "lat -0001 00002\r", "lat 00001 0002x\r"};
     for (const char* line : refused) {
         EXPECT_EQ(answer(line), "?\r\n") << "K7 any other spelling is refused: " << line;
     }
     // a NUL inside a field: refused, read no further than the line (this binary runs under AddressSanitizer)
-    EXPECT_EQ(answer(std::string("milan_lat 1\0 2\r", 15)), "?\r\n") << "K7 any other spelling is refused";
+    EXPECT_EQ(answer(std::string("lat 0001\0 00002\r", 16)), "?\r\n") << "K7 any other spelling is refused";
     EXPECT_TRUE(bus().writes().empty()) << "K7 a refused line writes nothing";
     EXPECT_EQ(console.refused, 13u) << "K7 refusals are counted";
     EXPECT_EQ(console.commands, 3u) << "K7 a refused line runs nothing";
 }
+
+TEST_F(Plat, K9LatencyCommandFitsFifoAndRefusesLostDigits) {
+    const std::string exact = "lat 01409 00100\r";
+    ASSERT_EQ(exact.size(), 16u) << "K9 the whole command fits the receive FIFO";
+    EXPECT_EQ(answer(exact).rfind("GPTP_LAT=", 0), 0u) << "K9 exact-length command accepted";
+    const std::vector<std::pair<std::uint32_t, std::uint32_t>> pair = {{0x540u, 1409u}, {0x544u, 100u}};
+    EXPECT_EQ(bus().writes(), pair);
+    const auto commands = console.commands;
+    bus().log.clear();
+    // Every lost data byte, including a leading zero and the final digit.
+    for (std::size_t at = 0; at < exact.size() - 1u; ++at) {
+        std::string lost = exact;
+        lost.erase(at, 1u);
+        EXPECT_EQ(answer(lost), "?\r\n") << "K9 a dropped digit is refused at " << at;
+    }
+    for (const char* line : {"lat 01409 001000\r", "lat 001409 00100\r",
+                             "lat 1409 000100\r", "milan_lat 1409 100\r", "milan_lat 1409 10\r"}) {
+        EXPECT_EQ(answer(line), "?\r\n") << "K9 over-length or unequal fields are refused";
+    }
+    EXPECT_TRUE(bus().writes().empty()) << "K9 refused input never writes a different valid pair";
+    EXPECT_EQ(console.commands, commands);
+    // A burst longer than the real FIFO loses its tail. The retained prefix
+    // contains an extra byte, so a later terminator still cannot apply it.
+    bus().type("lat 01409 001000");
+    drain();
+    EXPECT_TRUE(bus().writes().empty());
+    EXPECT_EQ(answer("\r"), "?\r\n") << "K9 over-length or unequal fields are refused";
+    EXPECT_TRUE(bus().writes().empty());
+    EXPECT_EQ(answer(exact).rfind("GPTP_LAT=", 0), 0u) << "K9 valid input recovers after refusals";
+}
 #else
 TEST_F(Plat, K8MilanLatIsNoCommandWithoutTheKey) {
-    EXPECT_EQ(answer("milan_lat 1409 581\r"), "?\r\n") << "K8 without the key milan_lat is refused";
-    EXPECT_TRUE(bus().writes().empty()) << "K8 without the key milan_lat writes nothing";
-    EXPECT_EQ(console.commands, 0u) << "K8 without the key milan_lat runs nothing";
+    EXPECT_EQ(answer("lat 01409 00581\r"), "?\r\n") << "K8 without the key lat is refused";
+    EXPECT_TRUE(bus().writes().empty()) << "K8 without the key lat writes nothing";
+    EXPECT_EQ(console.commands, 0u) << "K8 without the key lat runs nothing";
 }
 #endif
 

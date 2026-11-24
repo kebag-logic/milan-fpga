@@ -473,7 +473,7 @@ It is not a product surface.
 
 A release board states its pair, with the key off.
 
-On the Arty, the split console's `milan_lat` writes the pair (#878).
+On the Arty, the split console's `lat` writes the pair (#878).
 
 #### What is measured, and what is assigned
 

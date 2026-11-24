@@ -160,7 +160,7 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
     lwsrp_pin(lw)
     flags = [f for f in image.layout_flags("split")[1] if not PLACEHOLDER.fullmatch(f)]
     flags += ["-DLWSRP_MILAN=1", "-include", str(out / "ctrl_plat_map_gen.h")]
-    # the console's milan_lat under the build key gptp.latency_writable alone (#829, #878): off, the flags are
+    # the console's lat under the build key gptp.latency_writable alone (#829, #878): off, the flags are
     # the ones every other image is compiled with
     if lat_writable(args.config):
         flags += [LAT_WRITABLE]
