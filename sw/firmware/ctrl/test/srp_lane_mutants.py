@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The sink index (#977, its ruling of 2026-11-23, item 5; srp_mbx.c index_sinks): every bound sink in the lane of its
 StreamID's last byte, rebuilt by every binding, which a Talker's indication, the receive filter, the kept count and the
-walk look a StreamID's sinks up in, and the walk a Listener declaration owes only where a source talks its StreamID.
+walk look a StreamID's sinks up in, the walk a Listener declaration owes only where a source talks its StreamID, and
+the kept list's and the held table's searches, each comparing a StreamID's last octet before the rest.
 Each defect and the test whose words must fail on it; both hold at every shape, so test_ctrl_firmware.py plants them
 in every SRP campaign."""
 from __future__ import annotations
@@ -36,6 +37,12 @@ DECLARATION = ("        if (desired != s->declared) {\n"
 WALKLESS = "Srp.ADeclarationOfAStreamNoSourceTalksOwesNoWalk"
 #: A lane's head only: each visit stops at its lane's first sink.
 HEAD_ONLY = ("n = i->lane_next[n - 1u]) {", "n = 0u) {")
+#: The kept list's search (keep_talker) and the held table's (held_stream), each entering same only where the last
+#: octets agree, and the tests a StreamID of another's last octet fails when the last octet alone decides.
+KEPT_SAME = "            same(kept[n].stream_id.bytes,stream_id,8)) {\n"
+HELD_SAME = "same(held,stream_id,8)"
+KEPT_TWIN = "SrpEarlyTalker.AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound"
+HELD_TWIN = "SrpEarlyTalker.ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -57,4 +64,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "the walk finds c's Advertise for its lane's second"),
         kind(PREFIX + "declaration-walks-always", WALKLESS, DECLARED, "            i->stale = true;\n",
              "a declaration of a StreamID no source talks owes no walk"),
+        kind(PREFIX + "kept-last-octet-only", KEPT_TWIN, KEPT_SAME, "            true) {\n",
+             "stream 0's twin is kept as its own"),
+        kind(PREFIX + "held-last-octet-only", HELD_TWIN, HELD_SAME, "true",
+             "stream 0 keeps its latest Advertise past its twin's binding"),
     )

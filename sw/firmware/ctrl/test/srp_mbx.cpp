@@ -2467,6 +2467,13 @@ protected:
     // stream s, one for each STREAM_INPUT and one past them: its StreamID, destination and Talker record
     static msrp_stream_id stream(unsigned s) { return {{2,1,2,3,4,5,0x40,static_cast<uint8_t>(s)}}; }
     static std::array<uint8_t,6> dest(unsigned s) { return {0x91,0xe0,0xf0,0,1,static_cast<uint8_t>(s)}; }
+    // stream s's twin: a StreamID of the same talker whose unique ID differs in its first octet alone, so both end in
+    // the same octet, which the kept list's and the held table's searches compare first (#977)
+    static msrp_stream_id twin(unsigned s) { auto id=stream(s); id.bytes[6]=0x41; return id; }
+    std::vector<uint8_t> twin_advertise(unsigned s) {
+        const auto d=dest(s);
+        return frame(1u,talker_value(twin(s),d.data(),2),kJoinIn,0,false);
+    }
     std::vector<uint8_t> talker(unsigned s, unsigned kind, unsigned event, bool la=false, uint32_t latency=0u) {
         const auto d=dest(s);
         auto v=talker_value(stream(s),d.data(),2);
@@ -2691,6 +2698,29 @@ TEST_F(SrpEarlyTalker, AnUnbindingAtTheBoundIsCountedPastIt) {
     EXPECT_EQ(ctrl_pool_in_use(&pool),full)<<"a kept one refreshed takes no block";
     quiet(400);
     expect_bound_declares(1,mine,kAdvertise,"the registration an unbinding left past the bound, bound again");
+}
+
+// A StreamID whose last octet a kept one's shares is kept as its own, against the bound (#969): the kept list's search
+// enters same only where the last octets agree (#977), so a Talker past the bound in the same MRPDU is refused.
+TEST_F(SrpEarlyTalker, AStreamIDOfAKeptOnesLastOctetIsKeptAsItsOwnAgainstTheBound) {
+    settle(); advance(400);
+    for (unsigned k=0;k+1u<CTRL_SRP_SINKS;++k) offer(talker(k,kAdvertise,kJoinIn));
+    quiet(400);
+    const unsigned before=ctrl_pool_in_use(&pool);
+    offer(then(twin_advertise(0),talker(CTRL_SRP_SINKS,kAdvertise,kJoinIn)));
+    EXPECT_EQ(ctrl_pool_in_use(&pool),before+1u)
+        <<"stream 0's twin is kept as its own: the one past the bound is refused";
+}
+
+// A binding of a StreamID whose last octet a held one's shares takes none of it (#925): the held table's search enters
+// same only where the last octets agree (#977), so the held StreamID's binding made later takes its own latest.
+TEST_F(SrpEarlyTalker, ABindingOfAStreamIDOfAHeldOnesLastOctetTakesNoneOfIt) {
+    settle(); advance(400);
+    offer(talker(0,kFailed,kJoinIn)); offer(talker(0,kAdvertise,kNew)); quiet(1000);
+    const auto other=twin(0); const auto d=dest(0);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&other,d.data(),2)); settle(); advance(kJoinMs);
+    EXPECT_EQ(sink(0).declared,0u)<<"stream 0's twin, never registered, declares nothing";
+    expect_bound_declares(1,0,kAdvertise,"stream 0 keeps its latest Advertise past its twin's binding");
 }
 
 // Past the held table's bound, a registration kept for a StreamID no binding has holds nothing: a binding made later

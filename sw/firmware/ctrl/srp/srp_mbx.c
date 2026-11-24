@@ -255,11 +255,13 @@ static uint8_t listener_kind(const struct srp_sink *s)
     return (kinds & 1u) != 0u ? 1u : kinds;
 }
 
-// The held entry of an interface's StreamID, or NULL (#925, srp_held).
+// The held entry of an interface's StreamID, or NULL (#925, srp_held). same is entered only where the last bytes
+// agree, as in sources_of: one talker's StreamIDs differ in their unique ID (#977).
 static struct srp_held *held_stream(struct srp_mbx *m, unsigned interface, const uint8_t *stream_id)
 {
     for (unsigned n = 0; n < m->held_count; ++n) {
-        if (m->held[n].interface == interface && same(m->held[n].stream_id.bytes,stream_id,8)) {
+        const uint8_t *held = m->held[n].stream_id.bytes;
+        if (held[7] == stream_id[7] && m->held[n].interface == interface && same(held,stream_id,8)) {
             return &m->held[n];
         }
     }
@@ -506,7 +508,7 @@ static uint8_t talker_kind(uint8_t type)
 // (count_kept), and each one kept since adds one. One kept now may end with no registration (a Leave lwSRP creates
 // it for, or an allocation refused), so the count is pending until a count sees it. Past the bound the receive
 // ignores it, as for every StreamID before #969. The filter reads no walk's result, so the walk's schedule moves no
-// answer of it (#930).
+// answer of it (#930). same is entered only where the last bytes agree, as in sources_of (#977).
 static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *stream_id)
 {
     struct srp_mbx *m = i->owner;
@@ -515,7 +517,8 @@ static bool keep_talker(struct srp_interface *i, uint8_t type, const uint8_t *st
     uint8_t *count = &m->kept_count[i->index];
     const unsigned listed = *count < SRP_KEPT_TALKERS ? *count : SRP_KEPT_TALKERS;
     for (unsigned n = 0; n < listed; ++n) {
-        if (kept[n].kind == kind && same(kept[n].stream_id.bytes,stream_id,8)) {
+        if (kept[n].kind == kind && kept[n].stream_id.bytes[7] == stream_id[7] &&
+            same(kept[n].stream_id.bytes,stream_id,8)) {
             return true;
         }
     }

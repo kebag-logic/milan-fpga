@@ -47,7 +47,8 @@ SEARCH = ("        for (unsigned n = i->lane_first[id[7] % SRP_SINK_LANES]; n !=
           "same(i->sinks[n - 1u].stream_id.bytes,id,8)) {\n")
 #: keep_talker's bound, its search of the kept list, its listing of one kept now and the count it leaves pending.
 FULL = "    if (*count >= SRP_KEPT_TALKERS) {\n        return false;\n    }\n"
-KIND = "        if (kept[n].kind == kind && same(kept[n].stream_id.bytes,stream_id,8)) {\n"
+KIND = ("        if (kept[n].kind == kind && kept[n].stream_id.bytes[7] == stream_id[7] &&\n"
+        "            same(kept[n].stream_id.bytes,stream_id,8)) {\n")
 LISTS = "    memcpy(kept[*count].stream_id.bytes,stream_id,8);\n    kept[(*count)++].kind = kind;\n"
 KEPT_PENDING = "    kept[(*count)++].kind = kind;\n    m->kept_due[i->index] |= SRP_KEPT_PENDING;\n"
 #: count_kept's count before a receive: when it is owed (a binding changed, or a block returned while one may have

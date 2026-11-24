@@ -36,6 +36,8 @@ FILTER_HOLDS = "        if (s->desired != previous) {\n            hold(i);\n   
 STORE = "            if (old.stream_kinds == 3u && m->held_count < SRP_HELD_STREAMS) {"
 HELD = KINDS + "AFinalUnbindingKeepsTheLatestWhileBothStayRegistered"
 ENDS = KINDS + "AHeldStreamEndsWithEitherRegistrationOrAReset"
+#: held_stream's match of an interface's StreamID, the last byte first (#977).
+OWN_STREAM = "held[7] == stream_id[7] && m->held[n].interface == interface && same(held,stream_id,8)"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -94,8 +96,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("feedback-latest-held-not-taken", HELD, "            replacement.latest_kind = h->latest_kind;\n", "",
              "a final unbinding keeps the latest registration"),
         # the talker's MAC alone compared: another StreamID of the same talker takes it
-        kind("feedback-latest-held-for-another-stream", HELD, "same(m->held[n].stream_id.bytes,stream_id,8)",
-             "same(m->held[n].stream_id.bytes,stream_id,6)", "another StreamID takes none of it"),
+        kind("feedback-latest-held-for-another-stream", HELD, OWN_STREAM,
+             "m->held[n].interface == interface && same(held,stream_id,6)", "another StreamID takes none of it"),
         kind("feedback-latest-held-with-one-kind", ENDS, "old.stream_kinds == 3u &&", "old.stream_kinds != 0u &&",
              "one kind registered holds nothing"),
         kind("feedback-latest-held-past-a-leave", ENDS,
