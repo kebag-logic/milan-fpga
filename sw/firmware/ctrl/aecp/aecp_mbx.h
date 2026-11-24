@@ -74,7 +74,8 @@ extern "C" {
 // composition with #894's SET_CONFIGURATION cut, its row 135.43 ms (#895's ruling of 2026-11-15 on that
 // composition, item 1), and 130 ms on the SRP cut's head, its row 127.31 ms at the slice rule's 950 us once the AECP
 // notice item and the long notice were restated from their measurement there, as the owner decided on 2026-11-20
-// (#665, ruling item 4); 140 ms stays the owner's bound. The rows by every source hold both at
+// (#665, ruling item 4), and 135 ms on the composed train with #977's restated walk, its row 132.78 ms at the
+// same slice, by the same rule; 140 ms stays the owner's bound. The rows by every source hold both at
 // the built design's slice (tb/verilator/ctrl_service_budget/rows_tiers.py, flip_grade.py --design built), and the
 // CPU budget harness holds every measured queue to them. At 8x8/2if the stated 22 and 62 ms stand: its rows by every
 // source do not fit and are reported, not held (#894, the owner's decision of 2026-11-12, owed to #872). The last

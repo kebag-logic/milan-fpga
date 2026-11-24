@@ -399,7 +399,7 @@ extern "C" {
 #define CTRL_LOOP_SRP_UNIT_US 285u
 #define CTRL_LOOP_RETRY_COLD_US 85u
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
-#define CTRL_LOOP_QUEUED_MS 130u
+#define CTRL_LOOP_QUEUED_MS 135u
 #define CTRL_LOOP_TX_MS 35u
 #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
 #define CTRL_LOOP_SLICE_US 1475u
