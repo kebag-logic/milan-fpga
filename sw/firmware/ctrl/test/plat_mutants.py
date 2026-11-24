@@ -611,7 +611,12 @@ def mii_mutants(mutant: type) -> tuple:
     """The MII-only policy, including loss, readback and THE STEP's room (#878)."""
     m = mutant
     advertised = "const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL;"
+    publish_guard = ("\tif (status != 0u && status != up(CTRL_PLAT_PHY_SPEED_100, 1u)) {\n"
+                     "\t\tstatus = 0u;\n"
+                     "\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED | CTRL_PLAT_PHY_ADV_RENEGOTIATE;\n\t}\n")
     return (
+        m("mii-publish-guard-removed", PHY, publish_guard, "",
+          "platmii", "ArtyPhy.ForcedTenWithDroppedRestartNeverPublishesUp", "MII forced 10 Mb/s must stay down"),
         m("mii-advertises-ten", PHY, advertised,
           "const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL | CTRL_PLAT_PHY_AN_10_FULL;",
           "platmii", "ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters", "MII only 100 full advertised",

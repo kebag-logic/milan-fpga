@@ -91,6 +91,22 @@ TEST_F(ArtyPhy, HalfDuplexPartnerNeverPublishesUp) {
     EXPECT_EQ(peer.word, 0u);
 }
 
+TEST_F(ArtyPhy, ForcedTenWithDroppedRestartNeverPublishesUp) {
+    // A forced 10BASE-T full-duplex link ignores the attempted AN restart.
+    // Advertisement alone cannot reject the mode resolved from BMCR.
+    peer.regs[0] = 0x0100u;
+    peer.regs[1] = 0x0004u;
+    peer.ignored = 0u;
+    poll();
+    next();
+    EXPECT_EQ(peer.regs[0], 0x0100u);
+    EXPECT_EQ(peer.word, 0u) << "MII forced 10 Mb/s must stay down";
+    for (const auto& p : peer.published) {
+        EXPECT_EQ(p.word, 0u) << "MII forced 10 Mb/s must stay down";
+    }
+    EXPECT_NE(phy.adv, 0u) << "MII unsupported mode keeps negotiation owed";
+}
+
 TEST_F(ArtyPhy, LatchedLossRechecksWithoutAnotherRestart) {
     poll();
     peer.latched_down = true;
