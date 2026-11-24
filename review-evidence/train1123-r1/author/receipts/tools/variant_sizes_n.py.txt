@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+"""variant_sizes.py <repo> <out>: every size-fixture image the CPU budget harness and the split saved-state harness
+build at the 8x8 points (each labelled variant, each arm of nvm_split_target, each planted mutation), its plan read
+with no budget. One line each; the largest per point last."""
+import sys
+from pathlib import Path
+repo = Path(sys.argv[1]).resolve(); out = Path(sys.argv[2]).resolve()
+for d in ('tb/verilator/ctrl_service_budget', 'tb/verilator/nvm_split_target', 'sw/litex'):
+    sys.path.insert(0, str(repo / d))
+import build, ctrl_memory, target_cases
+worst = {}
+for n_if in tuple(int(x) for x in sys.argv[3].split(",")):
+    combos = [('none', 'none')] + [('none', v) for v in sorted(build.VARIANTS)]
+    combos += [('none', v) for k, v in target_cases.ARMS.items() if v != 'none']
+    combos += [(m, 'none') for m in sorted(build.MUTATIONS)]
+    for mutation, variant in combos:
+        label = f"8x8-if{n_if} mutation={mutation} variant={getattr(variant, 'name', variant)}"
+        try:
+            elf = build.firmware(out / f"if{n_if}-{len(worst)}-{abs(hash(label)) % 10**8}", 'endstation_ax7101_8x8',
+                                 n_if, mutation, variant)
+            plan = ctrl_memory.plan(ctrl_memory.read_elf(Path(elf)), budget=1e9)
+            print(f"{label}: rom {plan.rom_bytes} sram {plan.ram_bytes} -> {plan.tiles} RAMB36", flush=True)
+            worst[n_if] = max(worst.get(n_if, (0, '')), (plan.tiles, label))
+        except Exception as e:
+            print(f"{label}: REFUSED {type(e).__name__}: {str(e)[:200]}", flush=True)
+for n_if, (tiles, label) in sorted(worst.items()):
+    print(f"WORST 8x8-if{n_if}: {tiles} RAMB36 ({label})")

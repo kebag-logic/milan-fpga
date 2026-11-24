@@ -1,0 +1,19 @@
+# tools/mut_variant_sizes.py.txt on a clean clone of c2b2ba1a: each CPU budget harness mutation that needs a labelled variant, built with it at both 8x8 points, planned with no budget
+8x8-if1 mutation=brief-completed variant=declaring-outputs: rom 133112 sram 98848 -> 57.0 RAMB36
+8x8-if1 mutation=completion-dearer variant=declaring-outputs: rom 133168 sram 98848 -> 57.5 RAMB36
+8x8-if1 mutation=completion-unexecuted variant=declaring-outputs: rom 133032 sram 98848 -> 57.0 RAMB36
+8x8-if1 mutation=declared-notice-delayed variant=talker-notices: rom 132592 sram 98848 -> 57.0 RAMB36
+8x8-if1 mutation=declared-notice-dropped variant=talker-notices: rom 132480 sram 98848 -> 57.0 RAMB36
+8x8-if1 mutation=retry-ageless variant=answering-later: rom 132488 sram 98832 -> 57.0 RAMB36
+8x8-if1 mutation=slow-adp-shutdown variant=shutdown-entry: rom 132504 sram 98832 -> 57.0 RAMB36
+8x8-if1 mutation=srp-compared-by-memcmp variant=answering-every-port: rom 132660 sram 98896 -> 57.0 RAMB36
+8x8-if1 mutation=transmit-aged variant=answering-later: rom 132528 sram 98848 -> 57.0 RAMB36
+8x8-if2 mutation=brief-completed variant=declaring-outputs: rom 134832 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=completion-dearer variant=declaring-outputs: rom 134888 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=completion-unexecuted variant=declaring-outputs: rom 134752 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=declared-notice-delayed variant=talker-notices: rom 134312 sram 116384 -> 61.5 RAMB36
+8x8-if2 mutation=declared-notice-dropped variant=talker-notices: rom 134200 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=retry-ageless variant=answering-later: rom 134176 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=slow-adp-shutdown variant=shutdown-entry: rom 134168 sram 116368 -> 61.5 RAMB36
+8x8-if2 mutation=srp-compared-by-memcmp variant=answering-every-port: rom 134348 sram 116432 -> 61.5 RAMB36
+8x8-if2 mutation=transmit-aged variant=answering-later: rom 134208 sram 116368 -> 61.5 RAMB36

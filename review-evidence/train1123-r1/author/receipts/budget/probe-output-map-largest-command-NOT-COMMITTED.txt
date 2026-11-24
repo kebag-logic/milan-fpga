@@ -1,0 +1,54 @@
+# A scratch probe, NOT committed: the answering-ports arm's aecp-largest-notice with the output map's 63-mapping edit (long_notice.groups trying port type 15 before 14), on a clone of c2b2ba1a carrying only this test-code diff; built and run as the formal legs are (legs.py, run.py --record-budget-findings --record-share-findings), then record_classes.py over the one group (its RESULT is FAIL only for the groups a one-group pass omits).
+
+## The diff
+diff --git a/tb/verilator/ctrl_service_budget/long_notice.py b/tb/verilator/ctrl_service_budget/long_notice.py
+index 5eae39178c..5cee63b0bd 100644
+--- a/tb/verilator/ctrl_service_budget/long_notice.py
++++ b/tb/verilator/ctrl_service_budget/long_notice.py
+@@ -94,8 +94,8 @@ def refused_edits(build: dict, port: int, edit: bytes) -> dict[str, bytes]:
+ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+     """The largest legal notice from a registered requester to every other registration, removed then added back."""
+     answering = build.get('variant') == 'answering-ports'
+-    port, edit = next(((t, e) for t, e in ((14, scenario.map_edit(build, 14, MAPPINGS)),
+-                                           (15, scenario.map_edit(build, 15, MAPPINGS) if answering else None)) if e),
++    port, edit = next(((t, e) for t, e in ((15, scenario.map_edit(build, 15, MAPPINGS) if answering else None),
++                                           (14, scenario.map_edit(build, 14, MAPPINGS))) if e),
+                       (0, None))
+     if edit is None:
+         return []
+
+## 8x8-1if
+HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da diff  1 file changed, 2 insertions(+), 2 deletions(-) 8x8-1if start 21:16:45
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+STEPS 78 passes carry the store's step; the longest 23,073 CPU cycles (0.231 ms), aecp-largest-notice; the longest step 3,096 (0.031 ms), aecp-largest-notice
+SLICES 5041 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 27,405, THE RETRY's round 2,667 CPU cycles, against the stated slice 147,500 (THE TIERS)
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 0 of 104 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 21:26:01
+part0: 8x8/1if answering-ports, 1 groups, 21 AECP records
+8x8/1if held long: the dearest 136,201 CPU cycles, 1435 us by the rule, stated 1720 us (answering-ports aecp-largest-notice: the largest legal command's)
+REFUSED the pass runs no arm A leg at 8x8/1if
+RESULT: FAIL
+END rc=0 21:26:03
+image 6fc878502d988b52 (the formal answering-ports leg's: 6fc878502d988b52)
+largest records (aecp_mbx:frame spans, CPU cycles): 119609 130829 136201 
+
+## 1x1
+HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da diff  1 file changed, 2 insertions(+), 2 deletions(-) 1x1 start 21:16:45
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+SHARE aecp-largest-notice: 2 of 105 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 229,513 (2.295 ms)
+STEPS 78 passes carry the store's step; the longest 18,701 CPU cycles (0.187 ms), aecp-largest-notice; the longest step 3,037 (0.030 ms), aecp-largest-notice
+SLICES 6423 tier-2 slices; the longest SRP's records 0, THE TRANSMIT's build 28,063, THE RETRY's round 2,373 CPU cycles, against the stated slice 95,000 (THE TIERS)
+1 groups graded, 0 refusals, 0 budget misses (0 of 5 probe instances, 0 of 5 paths), 2 of 105 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+END rc=0 21:26:13
+part0: 1x1/1if answering-ports, 1 groups, 21 AECP records
+1x1/1if held long: the dearest 176,099 CPU cycles, 1850 us by the rule, stated 975 us (answering-ports aecp-largest-notice: the largest legal command's)
+REFUSED the pass runs no arm A leg at 1x1/1if
+REFUSED 1x1/1if answering-ports aecp-largest-notice: a record of 176,099 CPU cycles, 1850 us by the rule, over the long record's 975 us (the largest legal command's)
+REFUSED 1x1/1if answering-ports aecp-largest-notice: a record of 171,743 CPU cycles, 1805 us by the rule, over the long record's 975 us (the largest legal command's)
+REFUSED 1x1/1if answering-ports aecp-largest-notice: a record of 158,897 CPU cycles, 1670 us by the rule, over the long record's 975 us (the largest legal command's)
+RESULT: FAIL
+END rc=0 21:26:14
+image a71e34dfffabee4a (the formal answering-ports leg's: a71e34dfffabee4a)
+largest records (aecp_mbx:frame spans, CPU cycles): 158897 171743 176099 

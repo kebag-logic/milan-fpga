@@ -1,0 +1,9 @@
+#!/bin/bash
+. <scratch>/bin/env.sh
+cd "$1/tb/verilator/milan_dp" || exit 2
+echo "HEAD $(git rev-parse --short=8 HEAD) start $(date +%T)"
+rc=0
+for t in twin twin-plants twin-maps twin-maps-plants; do
+  echo "== make $t $(date +%T)"; make -j8 $t; r=$?; echo "== $t rc=$r $(date +%T)"; [ $r = 0 ] || rc=1
+done
+echo "END rc=$rc $(date +%T)"; exit $rc

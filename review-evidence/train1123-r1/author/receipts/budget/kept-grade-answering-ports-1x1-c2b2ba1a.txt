@@ -1,0 +1,21 @@
+# python3 -I tb/verilator/ctrl_service_budget/kept_grade.py <answering-ports build> --results <view of the arm's srp-kept and srp-bound logs, which the legs' parts split> at 1x1, on the formal measurement's answering-ports legs of c2b2ba1a
+POINT endstation_ax7101_1x1_tdm8, 1 interface(s): shape (1, 2, 2)
+RECORD srp.kept_advertise.if0: the dearest 33,656 CPU cycles, 355 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_recount.if0: the dearest 31,297 CPU cycles, 330 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.kept_failed.if0: the dearest 35,435 CPU cycles, 375 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+RECORD srp.bound_advertise.if0: the dearest 38,746 CPU cycles, 410 us by the rule, against CTRL_LOOP_SRP_UNIT_US 285 us
+KEPT <= BOUND srp.kept_advertise.if0: 33,656 against 38,746 CPU cycles
+KEPT <= BOUND srp.kept_recount.if0: 31,297 against 38,746 CPU cycles
+KEPT <= BOUND srp.kept_failed.if0: 35,435 against 38,746 CPU cycles
+SHARE srp-kept: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 1909 work pass(es) and 1861 idle run(s) in its log
+SHARE srp-bound: 0 work pass(es) and 0 idle run(s) over THE SHARE, of 515 work pass(es) and 500 idle run(s) in its log
+BUILD srp-kept build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-kept build-one: the heaviest pass 37,785 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+BUILD srp-bound build: the heaviest pass 0 CPU cycles, against its stated 101,000 (CTRL_LOOP_BUILD_PASS_US)
+BUILD srp-bound build-one: the heaviest pass 53,605 CPU cycles, against its stated 73,500 (CTRL_LOOP_BUILD_ONE_PASS_US)
+OWED srp.kept_advertise.if0: a record of 33,656 CPU cycles, 355 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_recount.if0: a record of 31,297 CPU cycles, 330 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.kept_failed.if0: a record of 35,435 CPU cycles, 375 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+OWED srp.bound_advertise.if0: a record of 38,746 CPU cycles, 410 us by the rule, over CTRL_LOOP_SRP_UNIT_US 285 us, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+rc=0

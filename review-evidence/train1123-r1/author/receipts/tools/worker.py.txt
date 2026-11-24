@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""worker.py QUEUE CLONE MEAS WORKER: take legs from QUEUE (a JSON list of [point, variant, nparts, part]) one at a time
+under a lock, build each (point, variant) once (legs.py build, under that build's own lock) and run its part (legs.py
+run, --jobs 8) into MEAS/<point>/<variant>/part<k>; each leg's log in MEAS/<point>/<variant>.part<k>.log with its rc.
+Ends when the queue is empty."""
+import fcntl, json, subprocess, sys, time
+from pathlib import Path
+queue, clone, meas, me = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3]), sys.argv[4]
+legs = Path(__file__).with_name('legs.py')
+def take():
+    with open(str(queue) + '.lock', 'a') as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        q = json.loads(queue.read_text())
+        if not q:
+            return None
+        t = q.pop(0); queue.write_text(json.dumps(q, indent=1)); return t
+while (t := take()) is not None:
+    point, variant, nparts, part = t
+    b = meas / point / variant; b.mkdir(parents=True, exist_ok=True)
+    log = meas / point / f'{variant}.part{part}.log'
+    with open(log, 'a') as out:
+        print(f'WORKER {me} HEAD {subprocess.run(["git", "-C", str(clone), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()} '
+              f'{point} {variant} part {part}/{nparts} start {time.strftime("%H:%M:%S")}', file=out, flush=True)
+        with open(str(b) + '.build.lock', 'a') as lk:
+            fcntl.flock(lk, fcntl.LOCK_EX)
+            if not (b / 'parts.json').is_file():
+                rc = subprocess.run([sys.executable, '-B', str(legs), 'build', str(clone), str(b), point, variant, str(nparts)],
+                                    stdout=open(str(b) + '.build.log', 'a'), stderr=subprocess.STDOUT).returncode
+                print(f'build rc={rc}', file=out, flush=True)
+        rc = subprocess.run([sys.executable, '-B', str(legs), 'run', str(clone), str(b), point, variant, str(part), '8'],
+                            stdout=out, stderr=subprocess.STDOUT).returncode
+        print(f'LEG rc={rc} end {time.strftime("%H:%M:%S")}', file=out, flush=True)
+    (meas / point / f'{variant}.part{part}.rc').write_text(f'{rc}\n')
+print(f'worker {me} done {time.strftime("%H:%M:%S")}')

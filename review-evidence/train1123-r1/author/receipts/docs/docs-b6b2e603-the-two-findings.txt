@@ -1,0 +1,9 @@
+# the early docs run's two real findings at b6b2e603 (docs_check's bare reference; the Python idiom gate's long module and over-long lines), each step's log tail
+== 15-docs-gates-0-Link_health_wording_dead_reference_and_local_inf.log
+# head b6b2e60384cc83b493b6ef5825afc3bceff4b0ae job docs-gates-0 step: Link health, wording, dead-reference and local-info gate
+sw/firmware/ctrl/srp/README.md:357: bare reference to docs/design/SPLIT_CONTROL_MEMORY.md — make it a link
+docs_check: 1 finding(s) across 223 md files + 1937 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== 45-docs-gates-0-Python_idiom_gate.log
+# head b6b2e60384cc83b493b6ef5825afc3bceff4b0ae job docs-gates-0 step: Python idiom gate
+FAIL: long module 11 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: over-long line 2 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.

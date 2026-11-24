@@ -1,0 +1,31 @@
+# tb/verilator/ctrl_split_boot/run.py on a clean clone of c2b2ba1a: 1x1, 8x8, 8x8 --interfaces 2, --placement-controls, --native-controls, --self-test; each command and rc, and the RESULT/PASS/FAIL lines
+HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da porcelain 0 start 09:04:17
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/boot-1x1 (09:04:17)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+== rc=0 (09:07:41)
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/boot-8x8 --shape endstation_ax7101_8x8 (09:07:41)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+== rc=0 (09:11:11)
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/boot-8x8-if2 --shape endstation_ax7101_8x8 --interfaces 2 (09:11:11)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+== rc=0 (09:14:55)
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/boot-1x1 --placement-controls (09:14:55)
+== rc=0 (09:14:57)
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/native --native-controls (09:14:57)
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+== rc=0 (09:15:05)
+== python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <scratch>/sb/plants --self-test (09:15:05)
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+== rc=0 (09:41:09)
+porcelain-after 0 END rc=0 09:41:09

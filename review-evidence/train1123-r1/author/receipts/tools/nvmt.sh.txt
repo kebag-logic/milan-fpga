@@ -1,0 +1,13 @@
+#!/bin/bash
+# nvmt.sh: the split saved-state target harness (tb/verilator/nvm_split_target/run.py, its README's commands) on the
+# clean clone nt: the self-test, then each point
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/nt; cd $C || exit 3; B=$S/nt; rm -rf $B; mkdir -p $B
+export MAKEFLAGS="-j8 --no-print-directory"
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+rc=0; R=tb/verilator/nvm_split_target/run.py
+run(){ echo "== $* ($(date +%T))"; "$@"; r=$?; echo "== rc=$r ($(date +%T))"; [ $r = 0 ] || rc=1; }
+run python3 -B $R --self-test
+run python3 -B $R --point 1x1 --build-dir $B/nvm-target-1x1
+run python3 -B $R --point 8x8 --build-dir $B/nvm-target-8x8
+run python3 scripts/check_nvm_capture.py
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date +%T)"; exit $rc

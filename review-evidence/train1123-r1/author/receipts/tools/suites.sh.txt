@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# suites.sh <clone> <outdir> <suite...>: each named suite of the clone the way scripts/run_all_suites.sh runs one
+# (timeout, make -C tb/verilator/<suite>, the log's masked-verdict check), the CI image's Verilator first on PATH as
+# in round 1's sweep, SUITE_TIMEOUT 7200 s; one line per suite in <outdir>/SUMMARY.txt, then suite_tally's total.
+set -u
+C=$1; O=$2; shift 2
+mkdir -p "$O" "$O/tmp"
+export PATH=<data>/tmp/948-candidate-0923/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin
+export VERILATOR_ROOT=<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator
+export TMPDIR="$O/tmp"
+unset VERILATOR
+: > "$O/SUMMARY.txt"
+for s in "$@"; do
+  t0=$(date +%s)
+  # capture_coherence's mutation arm starts one datapath build per CPU it may use: four, to keep the unit under 12 GB
+  pin=""
+  if [ "$s" = capture_coherence ]; then pin="taskset -c $(python3 -c "import os; print(','.join(map(str, sorted(os.sched_getaffinity(0))[:4])))")"; fi
+  $pin timeout 7200 make -C "$C/tb/verilator/$s" > "$O/$s.log" 2>&1
+  rc=$?
+  if [ "$rc" -eq 0 ] && ! python3 "$C/scripts/suite_tally.py" --verdict "$O/$s.log" > "$O/$s.verdict" 2>&1; then rc=93; fi
+  echo "$s rc=$rc seconds=$(( $(date +%s) - t0 ))" >> "$O/SUMMARY.txt"
+done
+python3 "$C/scripts/suite_tally.py" "$O" --quiet >> "$O/SUMMARY.txt" 2>&1
+echo "tally rc=$?" >> "$O/SUMMARY.txt"

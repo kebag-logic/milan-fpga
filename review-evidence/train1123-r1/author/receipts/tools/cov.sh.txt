@@ -1,0 +1,8 @@
+#!/bin/bash
+. <scratch>/bin/env.sh
+cd "$1" || exit 2
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+python3 sw/firmware/gtest/fw_coverage.py --selftest; a=$?; echo "selftest rc=$a $(date +%T)"
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4; b=$?; echo "check rc=$b $(date +%T)"
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l)"
+[ $a = 0 ] && [ $b = 0 ]

@@ -1,0 +1,7 @@
+#!/bin/bash
+# cb.sh: ctrl_boundary.py --require-rv32 --selftest (every builder, Verilator's included) on the clean clone cb
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/cb; cd $C || exit 3
+export MAKEFLAGS="-j8 --no-print-directory"
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+python3 -B sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest; rc=$?
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date +%T)"; exit $rc

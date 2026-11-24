@@ -1,0 +1,20 @@
+# scripts/run_all_suites.sh's per-suite recipe (timeout, make -C tb/verilator/<suite>, suite_tally's verdict) on a clean clone of c2b2ba1a, the CI image's Verilator; one line per suite, then the tally
+ctrl_split_boot rc=2 seconds=0
+nvm_backend rc=0 seconds=30
+nvm_capture_cpu rc=2 seconds=0
+nvm_split_target rc=2 seconds=0
+fw_service_budget rc=0 seconds=2
+checks: 849   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 3 suite log(s):
+  NOCOUNT  ctrl_split_boot: printed no tally line at all
+  NOCOUNT  nvm_capture_cpu: printed no tally line at all
+  NOCOUNT  nvm_split_target: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+tally rc=1

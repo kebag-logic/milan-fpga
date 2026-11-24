@@ -1,0 +1,6 @@
+#!/bin/bash
+# fwgate.sh K: the firmware gate's shard K of 4, with its plants, on the clean clone fwK
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/fw$1; cd $C || exit 3
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) shard $1/4 cpus $(taskset -cp $$ | sed 's/.*: //') start $(date +%T)"
+python3 -B sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard $1/4; rc=$?
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date +%T)"; exit $rc

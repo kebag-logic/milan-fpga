@@ -1,0 +1,15 @@
+#!/bin/bash
+# splitboot.sh: the split boot simulation (tb/verilator/ctrl_split_boot/run.py, its README's commands) on the clean
+# clone sb: 1x1, 8x8, 8x8 with two interfaces, the placement controls on the 1x1 run, the native controls, the self-test
+S=<scratch>; . $S/bin/env.sh; C=$S/clones/sb; cd $C || exit 3; B=$S/sb; rm -rf $B; mkdir -p $B
+export MAKEFLAGS="-j8 --no-print-directory"
+echo "HEAD $(git rev-parse HEAD) porcelain $(git status --porcelain --untracked-files=no | wc -l) start $(date +%T)"
+rc=0; R=tb/verilator/ctrl_split_boot/run.py
+run(){ echo "== $* ($(date +%T))"; "$@"; r=$?; echo "== rc=$r ($(date +%T))"; [ $r = 0 ] || rc=1; }
+run python3 -B $R --build-dir $B/boot-1x1
+run python3 -B $R --build-dir $B/boot-8x8 --shape endstation_ax7101_8x8
+run python3 -B $R --build-dir $B/boot-8x8-if2 --shape endstation_ax7101_8x8 --interfaces 2
+run python3 -B $R --build-dir $B/boot-1x1 --placement-controls
+run python3 -B $R --build-dir $B/native --native-controls
+run python3 -B $R --build-dir $B/plants --self-test
+echo "porcelain-after $(git status --porcelain --untracked-files=no | wc -l) END rc=$rc $(date +%T)"; exit $rc

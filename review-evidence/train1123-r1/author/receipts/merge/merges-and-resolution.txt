@@ -1,0 +1,1261 @@
+# The composition train's merges: each merge commit, its parents, the PR head merged, the files each side changed, the conflicted files and the combined diff (git show --cc) of each conflicted file as resolved.
+
+## ee58b4999a627c19168f3ae5daea4d7c368fa7b2 Merge PR #959 (948-rx-fanout, 64117b77) into the post-flip composition train
+parents: 078c60fbb17bd412c9ac1480c3744878809c3900 64117b77cb9e5c421717835b5be032b5905c447d
+merge base: 15168e14a1fe709b9ab5336acd6daf54e4d6e0a4
+files changed by the PR since the merge base: 36; by the train since it: 113; by both: 7
+both sides changed:
+  docs/DOCUMENTATION_AUDIT.md
+  docs/fpga/DATAPLANE_WALKTHROUGH.md
+  docs/fpga/FPGA_DESIGN.md
+  docs/reference/REGISTER_MAP.md
+  docs/testing/TESTING.md
+  hdl/milan/milan_datapath.sv
+  tb/verilator/milan_dp/sim_main.cpp
+
+## 8fac1fd23969669d39faa0ba1186098e058caad2 Merge PR #975 (584-input-port-clusters, 3cda030c) into the post-flip composition train, keeping both sides' plants and ledger entries
+parents: ee58b4999a627c19168f3ae5daea4d7c368fa7b2 3cda030c174b325e36c26af6420487ff91346d15
+merge base: dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+files changed by the PR since the merge base: 54; by the train since it: 77; by both: 14
+both sides changed:
+  docs/design/SPLIT_CONTROL_MEMORY.md
+  docs/DOCUMENTATION_AUDIT.md
+  docs/testing/TESTING.md
+  hdl/milan/milan_datapath.sv
+  scripts/measure_test_evidence_readers.py
+  sw/firmware/ctrl/aecp/README.md
+  sw/firmware/ctrl/test/aecp_mutants.py
+  sw/firmware/ctrl/test/test_aecp.cpp
+  sw/litex/ctrl_memory_ledger.py
+  sw/litex/ctrl_memory.py
+  sw/litex/test_ctrl_memory.py
+  tb/verilator/ctrl_service_budget/build.py
+  tb/verilator/milan_dp/README.md
+  tb/verilator/milan_dp/sim_nxn.cpp
+
+## 23ee95296bf3e4d72193615f95c4eff583411c3b Merge PR #971 (969-srp-kept-talkers, c113018d) into the post-flip composition train, keeping both sides' sink tests, plants and ledger entries
+parents: 8fac1fd23969669d39faa0ba1186098e058caad2 c113018d3cd4e70a7d3b66940a3a88fb93f0421a
+merge base: dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+files changed by the PR since the merge base: 23; by the train since it: 117; by both: 14
+both sides changed:
+  docs/design/SPLIT_CONTROL_MEMORY.md
+  sw/firmware/ctrl/plat/README.md
+  sw/firmware/ctrl/srp/README.md
+  sw/firmware/ctrl/srp/srp_mbx.c
+  sw/firmware/ctrl/srp/srp_mbx.h
+  sw/firmware/ctrl/test/sink_mutants.py
+  sw/firmware/ctrl/test/srp_mbx.cpp
+  sw/firmware/ctrl/test/test_ctrl_firmware.py
+  sw/firmware/ctrl/test/test_plat_sinks.cpp
+  sw/litex/ctrl_memory_ledger.py
+  sw/litex/ctrl_memory.py
+  sw/litex/test_ctrl_memory.py
+  tb/verilator/ctrl_service_budget/README.md
+  tb/verilator/ctrl_split_boot/README.md
+
+## b04610c299e9af284134b719d6e8e589f887da06 Merge PR #978 (973-srp-link-carried, 87b2fc0f) into the post-flip composition train, keeping both sides' SRP plants and changelog entries
+parents: 23ee95296bf3e4d72193615f95c4eff583411c3b 87b2fc0f2867ef132b9388e22ec262fc626cbb57
+merge base: dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+files changed by the PR since the merge base: 11; by the train since it: 126; by both: 7
+both sides changed:
+  CHANGELOG.md
+  sw/firmware/ctrl/srp/README.md
+  sw/firmware/ctrl/srp/srp_mbx.c
+  sw/firmware/ctrl/srp/srp_mbx.h
+  sw/firmware/ctrl/test/srp_arms.py
+  sw/firmware/ctrl/test/srp_mutants.py
+  sw/firmware/ctrl/test/test_ctrl_firmware.py
+
+## d6c398c8c8f506dee7f512d2f8b8d1b2caed6b73 Merge PR #974 (972-link-once, 77a74b2f) into the post-flip composition train, keeping both sides' changelog entries
+parents: b04610c299e9af284134b719d6e8e589f887da06 77a74b2f4e289c5a5a89687e07a6925cfedf6860
+merge base: dd163e41438acb86e0c4d4e76df90f3f91ace1c0
+files changed by the PR since the merge base: 29; by the train since it: 130; by both: 10
+both sides changed:
+  CHANGELOG.md
+  docs/design/MAILBOX_SPLIT.md
+  docs/DOCUMENTATION_AUDIT.md
+  docs/reference/FR_NFR.md
+  docs/reference/REGISTER_MAP.md
+  scripts/register_descriptions.json
+  sw/firmware/ctrl/plat/README.md
+  tb/verilator/ctrl_split_boot/README.md
+  tb/verilator/milan_dp/Makefile
+  tb/verilator/milan_dp/README.md
+
+## Combined diffs of the conflicted files as resolved (git show --cc)
+
+### 8fac1fd2
+diff --cc sw/firmware/ctrl/test/aecp_mutants.py
+index 2710d0ecfd,f1cccace2f..b7a3ef456c
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@@ -9,9 -9,9 +9,10 @@@ import shuti
+  from dataclasses import dataclass, asdict
+  from pathlib import Path
+  
+ +import aecp_again_mutants
+  import aecp_arms
+  import aecp_configuration_mutants
++ import aecp_input_mutants
+  import aecp_index_mutants
+  import aecp_map_mutants
+  import aecp_face_mutants
+@@@ -887,9 -886,8 +888,10 @@@ DEFECTS = 
+      + tuple(defect(*row) for row in aecp_map_mutants.ROWS) + tuple(defect(*row) for row in aecp_face_mutants.ROWS) \
+      + tuple(defect(*row) for row in aecp_notice_mutants.ROWS) \
+      + tuple(defect(*row) for row in aecp_output_mutants.ROWS) \
+ +    + tuple(defect(*row) for row in aecp_registration_mutants.ROWS) \
+ +    + tuple(defect(*row) for row in aecp_again_mutants.ROWS) \
+-     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS)
++     + tuple(defect(*row) for row in aecp_configuration_mutants.ROWS) \
++     + tuple(defect(*row) for row in aecp_input_mutants.ROWS)
+  
+  
+  def caught(test: str, words: str, result: Outcome) -> bool:
+diff --cc sw/litex/ctrl_memory.py
+index 4eeabc3403,9db2ad9b55..abd8edfdb7
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@@ -346,11 -360,11 +361,15 @@@ LEDGERED: dict[str, Ledgered] = 
+                                             "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
+                                             "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
+                                             "with each AAF Stream Input's current format written (#946), "
+ -                                           "138,432 B of rom, ctrl_plat unchanged; 59.0 with each 8x8 "
+ +                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with a waiting "
+ +                                           "SET_STREAM_FORMAT's running check made again (#950) and ACMP's "
+ +                                           "source port's Listener Asking Failed (#954), 139,304 B of rom, 40 B "
+ +                                           "past the 139,264 B 58.0 holds, ctrl_plat unchanged, by the same rule: "
+-                                            "ROM debt of 2.5 RAMB36 owed to S14"),
+++                                           "ROM debt of 2.5 RAMB36 owed to S14; 59.0 with each 8x8 "
++                                            "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), 140,544 B of rom and 99,904 B "
++                                            "of sram against 139,208 B and 98,160 B at its base, the stage 14,250 B, "
++                                            "ctrl_plat unchanged, by the same rule: ROM debt of 3.0 RAMB36 owed to "
++                                            "S14"),
+  }
+  
+  
+
+### 23ee9529
+diff --cc docs/design/SPLIT_CONTROL_MEMORY.md
+index 2bc99ece0a,25e77c1702..ab52982dc3
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@@ -134,10 -134,9 +134,10 @@@ Two are 8x8 with two interfaces; the th
+  
+  | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+  |---|---|---|---:|
+ -| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,594 B, `image_allocation` of 16 B | 60.5 |
+ -| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,594 B, `ctrl_plat` of 21,824 B | 63.5 |
+ -| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 13,594 B, `ctrl_plat` of 19,072 B | 58.5 |
+ +| `8x8-one-interface` | the size fixture's, one interface | `nvm_stage` of 14,250 B, `image_allocation` of 8 B | 57.0 |
+ +| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 14,250 B, `image_allocation` of 16 B | 61.5 |
+- | `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,568 B | 64.0 |
+- | `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 18,944 B | 59.0 |
+++| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 14,250 B, `ctrl_plat` of 21,824 B | 64.0 |
+++| `platform-8x8-one-interface` | the target platform's, one interface | `nvm_stage` of 14,250 B, `ctrl_plat` of 19,072 B | 59.0 |
+  
+  The size fixture's entry is 58.0 RAMB36, half a tile past the 57.5 of rulings 6412739248 and 6425357821 (#665): a TX record's commit judges its own move, which adds 112 to 120 B of `rom` to every image, and with tsn-c-stack `715589c` the fixture's 8x8 image with two interfaces passes the 122,880 B of `rom` that 57.5 holds ([section 5](#5-fit)).
+  The platform's entry is 60.0 RAMB36, refused at 60.5, by the owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) for the flip: ROM debt of 4.0 RAMB36 owed to S14 ([section 5](#5-fit)).
+@@@ -159,9 -158,9 +159,10 @@@ In the composed flip train (#665's [rul
+  With the largest legal record's cut ([section 13](#the-largest-legal-record-on-the-composed-flip-train-665)) the entry is 60.5, by the same rule and #665's [ruling of 2026-11-17, amended](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6959600243): the harness's `answering-ports` arm needs 131,128 B of `rom`, 56 B past the 131,072 B that 60.0 holds, and the other five arms 130,624 to 130,948 B, within it; ROM debt of 4.5 RAMB36 owed to S14.
+  The platform's two-interface entry is 63.0 with each AAF Stream Input's current format written into its receive-monitor context (#946): its `rom` is 140,008 B, 744 B past the 139,264 B that 62.5 holds beside its 115,504 B of `sram`, with `ctrl_plat` unchanged.
+  It is 62.5 before #946, with `ctrl_plat` at 21,568 B since #936 (21,504 B before it): its `sram` is 115,440 B, 752 B past 56 granules, and its `rom` 138,560 B (62.0 with the commit before #925's changes, `ctrl_plat` at 20,672 B and 137,888 B of `rom`, 672 B past the 137,216 B that 61.5 holds).
+ -Its one-interface entry is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
+ +Its one-interface entry is 58.5 with a waiting SET_STREAM_FORMAT's running check made again (#950) and ACMP's source port's Listener Asking Failed (#954): its `rom` is 139,304 B, 40 B past the 139,264 B that 58.0 holds, with `ctrl_plat` unchanged, by the owner's rule of 2026-11-15.
+ +It is 58.0 with the largest legal record's cut and the hot list relearned on it on the train with #936, and still 58.0 with #946's writes, 138,432 B of `rom`; it is 137,472 B before them, 256 B past the 137,216 B that 57.5 holds; it is 57.5 before them, with `ctrl_plat` at 18,944 B and 136,984 B of `rom` (18,496 B and 136,304 B before #925's changes, 1,136 B past the 135,168 B that 57.0 holds).
++ With the Talkers SRP keeps for StreamIDs no binding holds (#969), the two-interface entry is 63.5, 408 B of `rom` past the 141,312 B that 63.0 holds beside its 115,760 B of `sram`, and the one-interface entry 58.5, 872 B of `rom` past the 139,264 B that 58.0 holds, by the same rule (below, with the kept Talkers).
+ -Each image is refused half a tile past its entry, at 61.0, 64.0 and 59.0.
+ +Each image is refused half a tile past its entry, at 61.0, 63.5 and 59.0.
+  
+  Each override recognises its image by the image's own symbols.
+  `nvm_stage` is the 8x8 shape's staging buffer.
+@@@ -301,24 -300,11 +302,24 @@@ At #923's head the entries are
+  - the target platform's 8x8 image with one interface, a product image, 56.5, a debt of 0.5 RAMB36, 1,280 B of `rom`, its own entry, which the product SoC build plans it at by its symbols;
+  - every other point stays at or under 56.
+  
+ -In the composed flip train (measured [below](#5-fit)) the entries are:
+ +**Since #584** each 8x8 STREAM_PORT_INPUT owns one AUDIO_CLUSTER (Milan v1.2 5.3.3.8): 8 more descriptors and writable names, a descriptor image 1,280 B larger (20,800 B) and a stage 656 B larger (14,250 B). Every 8x8 image was linked again at that head and at its base, the flip's reviewed head `dd163e41`, with one runtime for both; the 1x1 points are unchanged to the byte:
+ +
+ +| Point | Base `rom` / `sram`, B | #584 `rom` / `sram`, B | RAMB36, base to #584 | Entry |
+ +|---|---:|---:|---:|---|
+ +| the target platform's 8x8, one interface (product) | 139,208 / 98,160 | 140,544 / 99,904 | 58.0 to 59.0 | 59.0, a debt of 3.0 RAMB36 owed to S14 |
+ +| the target platform's 8x8, two interfaces | 140,784 / 115,504 | 142,120 / 117,312 | 63.0 to 64.0 | 64.0, a debt of 8.0 |
+ +| the size fixture's 8x8, one interface | 130,032 / 96,928 | 131,368 / 98,672 | 56.0 to 57.0 | 57.0, a new entry, a debt of 1.0 |
+ +| the size fixture's 8x8, two interfaces | 131,536 / 114,320 | 132,880 / 116,064 | 60.5 to 61.0 | 61.5, a debt of 5.5: its arms (answering-ports, declaring-outputs, the saved-state harness's guard probe) plan 61.5 |
+ +
+ +The growth is not uniform. `rom` grows 1,336 B at three points and 1,344 B at the size fixture's two-interface image; `sram` grows 1,744 B at three points and 1,808 B at the target platform's two-interface image. What grows is the descriptor image and its names (1,280 B), the stage (656 B) and the input ports' map rows; how each image's linker places them between `rom` and `sram` was not measured symbol by symbol, so no share is stated per section. Each entry is the most any image of its point plans: every labelled variant of the CPU budget harness, every arm of the split saved-state harness and every planted mutation was linked at both 8x8 points, at the head and at the base (56.0 and 60.5 at the base, 57.0 and 61.5 at the head).
+ +
+ +Each entry is the image's measured tiles by the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): the ROM may overflow as recorded debt, and the physical fit and the timing floor gate every built image.
+ +
+ +In the composed flip train (measured [below](#5-fit)) the entries were:
+  
+- - the target platform's 8x8 image with two interfaces, 63.0 RAMB36, a debt of 7.0, 28,672 B of cold code to move;
++ - the target platform's 8x8 image with two interfaces, 63.5 RAMB36 with the Talkers SRP keeps for StreamIDs no binding holds (#969), a debt of 7.5, 30,720 B of cold code to move;
+  - the size fixture's 8x8 image with two interfaces, 60.5, a debt of 4.5;
+- - the target platform's 8x8 image with one interface, a product image, 58.5, a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
++ - the target platform's 8x8 image with one interface, a product image, 58.5 with the kept Talkers (#969), a debt of 2.5, 10,240 B, its own entry, which the product SoC build plans it at by its symbols;
+  - every other point stays at or under 56.
+  
+  S14 is the first lane after the flip.
+@@@ -704,28 -690,17 +705,39 @@@ The platform's 8x8 image with two inter
+  
+  The writes add 960 to 968 B of `rom` an image and 64 B of `sram` at 8x8 with one interface, with every `ctrl_plat` unchanged. The 8x8 two-interface image needs 744 B past the 139,264 B of `rom` that 62.5 holds beside its `sram`, so its entry is 63.0 as debt owed to S14 by the owner's rule of 2026-11-15. The size fixture's images do not change: 130,952 to 131,448 B of `rom` over the six arms, within its 60.5.
+  
+ +**With a waiting SET_STREAM_FORMAT's running check made again and the source port's Listener Asking Failed** (#950, #954, on the flip train's head `15168e14`), planned the same way (`plat_ledger.py`):
+ +
+ +| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+ +|---|---:|---:|---:|---|
+ +| 1x1, one interface (shipping) | 126,536 / 56,736 | 45.0 | 18,048 | within 56 |
+ +| 1x1, two interfaces | 128,136 / 59,040 | 46.0 | 19,712 | within 56 |
+ +| 8x8, one interface (shipping) | 139,304 / 98,160 | 58.5 | 18,944 | at its entry's 58.5, S14's debt, 2,008 B of `rom` left |
+ +| 8x8, two interfaces (largest) | 140,880 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 432 B of `rom` left |
+ +
+ +The two changes add 96 to 104 B of `rom` an image (126,432, 128,032, 139,208 and 140,784 B on the train's head), with every `ctrl_plat` and `sram` unchanged. The 8x8 one-interface image needs 40 B past the 139,264 B of `rom` that 58.0 holds, so its entry is 58.5 as debt owed to S14 by the owner's rule of 2026-11-15.
+ +
+ +**With those and a withdrawn Talker's hold-off inside its two periods and a Listener registration's notice** (#956, #957 stacked on #950, #954, merged with `dev-soft-core` `854bd723`), planned the same way (`plat_ledger.py`):
+ +
+ +| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
+ +|---|---:|---:|---:|---|
+ +| 1x1, one interface (shipping) | 126,456 / 56,736 | 45.0 | 18,048 | within 56 |
+ +| 1x1, two interfaces | 128,216 / 59,040 | 46.0 | 19,712 | within 56 |
+ +| 8x8, one interface (shipping) | 139,240 / 98,160 | 58.0 | 18,944 | within its entry's 58.5, 2,072 B of `rom` left; 24 B under the 139,264 B that 58.0 holds |
+ +| 8x8, two interfaces (largest) | 140,960 / 115,504 | 63.0 | 21,568 | at its entry's 63.0, S14's debt, 352 B of `rom` left |
+ +
+ +Each image is the sum of the two changes' own, within 8 B by alignment: #956's and #957's alone are 126,360, 128,112, 139,136 and 140,864 B, and #950's and #954's add 96 to 104 B to each. Every `ctrl_plat` and `sram` is unchanged. Together the 8x8 one-interface image needs 58.0 again; its entry stays 58.5, the raise #950's image needed alone; whether to restore 58.0 is the owner's to decide, not this merge's.
+ +
++ **With the kept Talkers (#969)**, on the flip PR's head `dd163e41`, the Talkers SRP keeps for StreamIDs no binding holds (`srp_mbx.c` `keep_talker`, `count_kept`) add 928 to 952 B of `rom` to every platform image: in cold code, and 16 B in `reset_interface`, which zeroes the kept count with the participants a reset destroys. Of the hot list's 261 functions in the 1x1 and 8x8 one-interface platform images, 152 change in offset or size: `reset_interface` grows 16 B at its own offset, the 151 functions the hot list places after it each start 16 B later at their own size, and the 109 before it do not move; and to `ctrl_plat` 64 B at 1x1 with two interfaces, 128 B at 8x8 with one and 256 B at 8x8 with two, and none at 1x1 with one, where they take its padding: the kept list and its count, and the StreamIDs held, half the kept bound more. They take no SRP pool block of their own: the pool's fixed 16 blocks an interface fund them (`srp_mbx.h`, `SRP_KEPT_TALKERS`). Planned by `plat_ledger.py` against the base's:
++ 
++ | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Platform `ctrl_plat`, B | Against its limit |
++ |---|---:|---:|---:|---|
++ | 1x1, one interface (shipping) | 127,376 (126,432) / 56,736 | 45.5 (45.0) | 18,048 | within 56 |
++ | 1x1, two interfaces | 128,984 (128,032) / 59,104 (59,040) | 46.0 | 19,776 (19,712) | within 56 |
++ | 8x8, one interface (shipping) | 140,136 (139,208) / 98,288 (98,160) | 58.5 (58.0) | 19,072 (18,944) | at its entry's 58.5, S14's debt, 1,176 B of `rom` left |
++ | 8x8, two interfaces (largest) | 141,720 (140,784) / 115,760 (115,504) | 63.5 (63.0) | 21,824 (21,568) | at its entry's 63.5, S14's debt, 1,640 B of `rom` left |
++ 
++ The base left 544 B of `rom` before the next granule at 1x1 with one interface and 56 B at 8x8 with one, so the shipping images each take half a tile more. The size fixture's 8x8 image with one interface, which the split SoC's export plans as the stand-in within 56, holds 130,960 B of `rom` (130,032 at the base) in 131,072 and 97,072 B of `sram` (96,928) in 98,304: 56.0, as before.
++ 
+  Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+  One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
+  The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
+diff --cc sw/firmware/ctrl/plat/README.md
+index b8004ae0ed,d7b0d47f98..4d1606e4f1
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@@ -156,7 -155,7 +156,7 @@@ Every 1x1 point is within 56 ([split co
+  - `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick. With a pin-level Clause-22 PHY behind that bus (`phy_peer.hpp`), the PHY poll alone (`test_plat_phy.cpp`, P1 to P18: the probe, the pace, the latched loss, every resolved mode, the error paths, the frame, THE STEP's room, the owed report, the half period, the clock's wrap; and the advertisement: its writes at boot, each property by its own name from start values in opposite states as the release's host test grades them, a 10/100 PHY never written, written and read back after every loss with no restart where the PHY held it, a reset PHY, or one that lost register 4 or register 9 alone, restarted once, an advertisement that does not read back owed again and negotiation restarted after each repaired write, an unacknowledged read writing nothing, and P17, the abilities in force latched at each restart by the peer: register 4's writes dropped through a try, at boot and after a loss, a 100BASE-TX-only partner has no link once the repair reads back, the repair's own restart doing it; and THE OUTCOME, P18: a restart write the PHY lost, so the earlier 100 Mb/s negotiation stays in force, is published down and restarted once by the next poll, counted (saturating), one restart a poll until one takes, none while the negotiation is incomplete, none at 1000BASE-T, none on a PHY the advertisement is not for) and composed (`test_plat_boot.cpp`, B11, B12 and L1 to L6: armed past the identity check, THE STEP's client, and the published word's consumers, the datapath's link modelled as the RTL builds it: each edge counted, notified by AECP, and the gPTP plane's port enable rising with the first poll after the link's return; a loss and a return each published within one poll period through a save in flight, and a save durable within its stated worst case under a probe that always misses); GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
+  - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
+  - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+- - `platsinks`: the receive monitor's formats (#946) and the streams beside them (#950, #954) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). Beside the contexts, at the same shapes: at input 0 and the CRF input, which have no context, a waiting SET_STREAM_FORMAT whose input is bound meanwhile refused STREAM_IS_RUNNING once acknowledged, and taken once unbound (S13, #950); the same at every STREAM_OUTPUT started meanwhile by a Listener Ready for its stream, and taken once it has stopped (S14); and GET_TX_STATE's REGISTERING_FAILED at every output while a Listener Asking Failed is registered for its stream, not for Ready or Ready Failed nor at another output, dropped once the registration goes (T1, #954). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 35 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if), the shipped core's waiting SET_STREAM_FORMAT done again without its running check and the shipped source port's REGISTERING_FAILED never reported among them.
+ -- `platsinks`: the receive monitor's formats (#946) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). The same suite holds SRP's Talkers kept before a binding (#969): every STREAM_INPUT's saved binding restored at power-on, its talker declaring before it is discovered and probed, then quiet, declares its Listener in THE TRANSMIT's next MRPDU once the probe is answered and shows GET_STREAM_INFO's REGISTERING and REGISTERING_FAILED (S13), and so does a bind while bound to a stream declared all along (S14). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 30 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if) and the SRP filter before #969 (S13 and S14 at both shapes) among them.
+++- `platsinks`: the receive monitor's formats (#946) and the streams beside them (#950, #954) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). Beside the contexts, at the same shapes: at input 0 and the CRF input, which have no context, a waiting SET_STREAM_FORMAT whose input is bound meanwhile refused STREAM_IS_RUNNING once acknowledged, and taken once unbound (S13, #950); the same at every STREAM_OUTPUT started meanwhile by a Listener Ready for its stream, and taken once it has stopped (S14); and GET_TX_STATE's REGISTERING_FAILED at every output while a Listener Asking Failed is registered for its stream, not for Ready or Ready Failed nor at another output, dropped once the registration goes (T1, #954). The same suite holds SRP's Talkers kept before a binding (#969), in its Early fixture: every STREAM_INPUT's saved binding restored at power-on, its talker declaring before it is discovered and probed, then quiet, declares its Listener in THE TRANSMIT's next MRPDU once the probe is answered and shows GET_STREAM_INFO's REGISTERING and REGISTERING_FAILED (S13), and so does a bind while bound to a stream declared all along (S14). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 36 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if), the shipped core's waiting SET_STREAM_FORMAT done again without its running check, the shipped source port's REGISTERING_FAILED never reported and the SRP filter before #969 (Early's S13 and S14 at both shapes) among them.
+  
+  The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 121 defects, each caught by a named test on its own words.
+  They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop. The PHY's 53 (the poll's 22, the link counters' notification, the bus map's 3 and the advertisement's 27) include the four #919 names, each reproducing a bench symptom: no poll, the latched loss not published, an edge not counted (a whole poll in one call, its loss and its recovery in the same turn), and the cease not ended on link-up (the second BMSR read dropped, so the link's return is published a poll late). They also include #840's named defect, 100BASE-TX left advertised, and one per write property and per rule: written once only, restarted after every loss, a PHY that lost register 4 or register 9 alone not restarted, a restart marked taken before the read-back verifies (the repair of a dropped write then never negotiated), not read back, written before its reads are answered; and THE OUTCOME's: unchecked, owing the advertisement without its restart, uncounted, its count wrapping, judging a link at 1000BASE-T or a PHY the advertisement is not for, and resolving from the BMSR read before a restart.
+diff --cc sw/firmware/ctrl/test/sink_mutants.py
+index b1017d25c0,f6de219c88..72520beaf3
+--- a/sw/firmware/ctrl/test/sink_mutants.py
++++ b/sw/firmware/ctrl/test/sink_mutants.py
+@@@ -22,10 -22,9 +22,14 @@@ back); the AECP refusal the race argume
+  state's format restore reading the verdict's survival bit against the map store's reset set, which loses a
+  narrowed input at every boot where that set maps its channels (REQUIREMENTS.md, the persisted inventory).
+  
+ -The suite's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
+ +The streams beside the contexts (Streams): a waiting SET_STREAM_FORMAT done again without its running check, the
+ +shipped core's (#950), at input 0, the CRF input and every STREAM_OUTPUT at both shapes, or its check made of
+ +stream 0; and GET_TX_STATE's REGISTERING_FAILED from the platform's source port never reported, the shipped
+ +platform's (#954), reported for any Listener, with none, or from output 0's Listener.
+++
+++The Early fixture's S13 and S14 (#969) are the platform's view of SRP's Talker registrations kept for a StreamID no binding
++ holds: the defect is the filter before #969, which ignores them, so a saved binding restored at power-on, or a bind
++ while bound, whose talker declared before the probe was answered declares no Listener and shows no REGISTERING.
+  """
+  from __future__ import annotations
+  
+@@@ -45,21 -44,14 +49,30 @@@ S9 = "Sinks.S9AChangeWhoseInputIsUnboun
+  S10 = "Sinks.S10SetConfigurationWritesEveryContextAndOneWaitingIsNotDoneAgainOntoABoundInput"
+  S11 = "Sinks.S11AChangeOfAnotherTypeOrKindAtAContextsIndexIsTakenAndWritesNoContext"
+  S12 = "Sinks.S12ANarrowedInputFormatIsKeptAcrossAPowerCut"
+ -S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+ -S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
+ +S13 = "Streams.S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile"
+ +S14 = "Streams.S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile"
+ +T1 = "Streams.T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered"
+ +#: #950's refusal checks' words, each followed by the stream's index, and the core's check as aecp.c and
+ +#: aecp_commands.c hold it.
+ +S13_WORDS = ("S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once "
+ +             "acknowledged: input ")
+ +S14_WORDS = ("S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once "
+ +             "acknowledged: output ")
+ +AGAIN = "unsigned status = taken ? aecp_again(a) : AECP_ENTITY_MISBEHAVING;"
+ +AGAIN_CHECK = "running(a, a->noted_type, a->noted_index) : AECP_SUCCESS;"
+ +#: #954's source port, as ctrl_plat.c holds it, and T1's words for an Asking Failed Listener's flag.
+ +ASKING = "\tout->asking_failed = srp->listener_present[n] && !srp->registered[n];\n"
+ +T1_WORDS = ("T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for Ready or "
+ +            "Ready Failed (Table 5.47): output ")
+++#: #969's two tests (Early), named apart from the Streams fixture's S13 and S14 above, whose numbers they share.
+++EARLY_S13 = "Early.S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled"
+++EARLY_S14 = "Early.S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit"
++ #: srp_mbx.c's receive filter for a Talker no binding holds (#969), as it holds it.
++ KEEPS = "    return keep_talker(i,type,value);\n"
++ POWER_ON = ("S13 a Talker Advertise registered before the restored binding settled: the Listener is declared in THE "
++             "TRANSMIT's next MRPDU, input 0")
++ REBOUND = ("S14 a BIND_RX while bound to a stream declared all along: the Listener is declared in THE TRANSMIT's next "
++            "MRPDU, input 0")
+  #: SET_STREAM_FORMAT's verdict test, as aecp_face.c holds it: before the open, supported alone.
+  VERDICT = "((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;"
+  C5 = "Plat.C5SinkFormatSelectsTheInputWritesItsFormatAndRestores"
+@@@ -182,32 -169,8 +195,37 @@@ def contexts(mutant: type) -> tuple
+          # reads the verdict's bit 1 against it refuses the saved format
+          m("restore-format-survival-read", "aecp/aecp_face.c", VERDICT, "(verdict & 0xFFu) == 3u;",
+            "platsinks1", S12, "S12 input 0's narrowed format is restored after the cut"),
++         # #969: the filter before it, which ignores a Talker of a StreamID no binding holds
++         m("early-talker-ignored", "srp/srp_mbx.c", KEEPS, KEEPS.replace("return ", "return false && "), "platsinks8",
+ -          S13, POWER_ON,
+ -          also=(("platsinks1", S13, POWER_ON), ("platsinks8", S14, REBOUND), ("platsinks1", S14, REBOUND))),
+++          EARLY_S13, POWER_ON,
+++          also=(("platsinks1", EARLY_S13, POWER_ON), ("platsinks8", EARLY_S14, REBOUND),
+++                ("platsinks1", EARLY_S14, REBOUND))),
+ +    )
+ +
+ +
+ +def streams(mutant: type) -> tuple:
+ +    """The streams' rows beside the contexts (Streams; #950, #954)."""
+ +    m = mutant
+ +    return (
+ +        # #950: a waiting SET_STREAM_FORMAT done again without its running check (the shipped core), at input 0, the
+ +        # CRF input and every output at both shapes; its check made of another stream
+ +        m("again-unchecked-onto-a-stream", "aecp/aecp.c", AGAIN,
+ +          "unsigned status = taken ? AECP_SUCCESS : AECP_ENTITY_MISBEHAVING;",
+ +          "platsinks8", S13, S13_WORDS + "0",
+ +          also=(("platsinks8", S14, S14_WORDS + "0"), ("platsinks1", S13, S13_WORDS + "0"),
+ +                ("platsinks1", S14, S14_WORDS + "0"))),
+ +        m("again-of-stream-zero", "aecp/aecp_commands.c", AGAIN_CHECK,
+ +          "running(a, a->noted_type, 0u) : AECP_SUCCESS;",
+ +          "platsinks1", S13, S13_WORDS + "1", also=(("platsinks1", S14, S14_WORDS + "1"),)),
+ +        # #954: GET_TX_STATE's REGISTERING_FAILED from the source port: never (the shipped platform), for any
+ +        # Listener, with none, or from output 0's
+ +        m("asking-failed-unreported", PLAT, ASKING, "\t(void)srp;\n\tout->asking_failed = false;\n",
+ +          "platsinks8", T1, T1_WORDS + "0, declaration 1", also=(("platsinks1", T1, T1_WORDS + "0, declaration 1"),)),
+ +        m("asking-failed-any-listener", PLAT, ASKING, "\tout->asking_failed = srp->listener_present[n];\n",
+ +          "platsinks8", T1, T1_WORDS + "0, declaration 2"),
+ +        m("asking-failed-without-a-listener", PLAT, ASKING, "\tout->asking_failed = !srp->registered[n];\n",
+ +          "platsinks8", T1, "T1 no REGISTERING_FAILED with no Listener registered: output 0"),
+ +        m("asking-failed-of-output-zero", PLAT, ASKING,
+ +          "\tout->asking_failed = srp->listener_present[0] && !srp->registered[0];\n",
+ +          "platsinks8", T1, "T1 no other output carries output 0's Listener: output 1, Asking Failed"),
+      )
+diff --cc sw/firmware/ctrl/test/test_plat_sinks.cpp
+index 6452da6209,a77fe59273..fc2724b434
+--- a/sw/firmware/ctrl/test/test_plat_sinks.cpp
++++ b/sw/firmware/ctrl/test/test_plat_sinks.cpp
+@@@ -56,20 -56,15 +56,31 @@@
+  //       persisted inventory; Milan v1.2 5.3.8.1, 5.3.13). At 1x1/1if that set
+  //       maps input 0's channels; at 8x8/1if it maps none. The far model keeps
+  //       the store and judges the verdict from it, as the datapath does
+ +//
+ +// The streams beside the contexts (Streams), at the same shapes:
+ +//   S13 at input 0 and at the CRF input, which have no context, a
+ +//       SET_STREAM_FORMAT waits and its input is bound meanwhile; acknowledged,
+ +//       its running check is made again and refuses it STREAM_IS_RUNNING at
+ +//       once, notifying no one (#950; IEEE 1722.1-2021 7.4.9, 8.2); unbound,
+ +//       the same change is taken
+ +//   S14 at every STREAM_OUTPUT, the same with the output started meanwhile (a
+ +//       Listener Ready for its stream, so SRP declares its Talker and licenses
+ +//       it; Milan v1.2 5.3.7.3); once it has stopped, the same change is taken
+ +//   T1  at every STREAM_OUTPUT, GET_TX_STATE carries REGISTERING_FAILED while a
+ +//       Listener Asking Failed is registered for its stream on its interface,
+ +//       not for Ready or Ready Failed nor at another output, and drops it once
+ +//       the registration goes (#954; Milan v1.2 Table 5.47)
+++//
+++// A Talker registered before its input's binding settles (Early), at the same shapes:
++ //   S13 every STREAM_INPUT's saved binding is restored at power-on; its
++ //       talker declares the stream's Talker Advertise (or Failed) before it
++ //       is discovered and probed, and is then quiet; once the probe is
++ //       answered the input declares its Listener Ready (Asking Failed) in
++ //       THE TRANSMIT's next MRPDU, within a JoinTime, and GET_STREAM_INFO
++ //       shows REGISTERING (and REGISTERING_FAILED) (#969; Milan v1.2 5.3.8.5,
++ //       5.5.3.5.18 step 4, Tables 5.9, 5.10)
++ //   S14 as S13 after BIND_RX while bound: each input is re-bound to another
++ //       stream, whose Talker has been declared all along
+  
+  #include <gtest/gtest.h>
+  
+@@@ -1073,250 -1069,255 +1086,501 @@@ TEST_F(Sinks, S12ANarrowedInputFormatIs
+      EXPECT_TRUE(input_rows(0).empty()) << "S12 the mappings removed before the cut stay removed";
+  }
+  
+ +// The platform's streams beside the contexts: every STREAM_INPUT with no context of its own and every STREAM_OUTPUT
+ +// (#950), and each output's Talker as ACMP reports it (#954).
+ +struct Streams : Sinks {
+ +    // The current configuration's STREAM_OUTPUTs, by index: their current formats.
+ +    std::map<unsigned, std::uint64_t> outputs() const {
+ +        std::map<unsigned, std::uint64_t> out;
+ +        const aecp_model* model = ctrl_plat.aecp.core.cfg.model;
+ +        for (std::size_t n = 0; n < model->count; ++n) {
+ +            const aecp_descriptor& d = model->descriptors[n];
+ +            if (d.type == kStreamOutput && d.configuration == ctrl_plat.aecp.core.configuration) {
+ +                out[d.index] = be(d.value + kFormatAt, 8);
+ +            }
+ +        }
+ +        return out;
+ +    }
+ +    // The current configuration's STREAM_INPUTs with no receive-monitor context: input 0 and the CRF input.
+ +    std::vector<unsigned> uncontexted() const {
+ +        std::vector<unsigned> out;
+ +        const auto with = contexts();
+ +        for (const auto& [n, in] : inputs()) {
+ +            (void)in;
+ +            if (std::find(with.begin(), with.end(), n) == with.end()) out.push_back(n);
+ +        }
+ +        return out;
+ +    }
+ +    // STREAM_OUTPUT n's Talker's stream_id: the entity's MAC and the output's unique ID (ctrl_plat.c, stream_id).
+ +    static std::uint64_t talker_stream(unsigned n) {
+ +        return ctrl_plat.config.entity->mac << 16 | kStreams[n].unique_id;
+ +    }
+ +    static unsigned home(unsigned n) { return ctrl_plat.acmp.source_interface[n]; }
+ +    // MAAP holds every interface's range, the clock moved until it does (Milan v1.2 5.5.4.1).
+ +    bool allocated() {
+ +        for (unsigned k = 0; k < 1000u; ++k) {
+ +            bool all = true;
+ +            for (unsigned i = 0; i < MBX_N_IF; ++i) all = all && ctrl_plat.allocation[i].valid;
+ +            if (all) return true;
+ +            mbx_model_advance_ms(&fabric, 10u);
+ +            steps(4);
+ +        }
+ +        return false;
+ +    }
+ +    // A bridge's MSRP Listener vector for STREAM_OUTPUT n's stream on its interface: one value, its event (1
+ +    // JoinIn, 5 Lv) and its declaration (1 Asking Failed, 2 Ready, 3 Ready Failed; IEEE 802.1Q-2018 35.2.2.7.2,
+ +    // 35.2.2.7.4), then the passes it takes.
+ +    bool listener(unsigned n, unsigned event, unsigned declaration) {
+ +        std::vector<std::uint8_t> f(60, 0);
+ +        const auto put = [&](std::size_t at, std::uint64_t v, unsigned bytes) {
+ +            for (unsigned k = 0; k < bytes; ++k) f[at + k] = static_cast<std::uint8_t>(v >> (8u * (bytes - 1u - k)));
+ +        };
+ +        put(0, 0x0180c200000eull, 6);
+ +        put(6, 0x020304010203ull, 6);
+ +        put(12, 0x22eau, 2);
+ +        f[15] = 3u;   // Listener
+ +        f[16] = 8u;   // its FirstValue, a StreamID
+ +        f[18] = 14u;  // the attribute list's length
+ +        f[20] = 1u;   // one value
+ +        put(21, talker_stream(n), 8);
+ +        f[29] = static_cast<std::uint8_t>(event * 36u);
+ +        f[30] = static_cast<std::uint8_t>(declaration * 64u);
+ +        // a refill of the SRP channel's receive rate first, so the frame is taken whatever came before it
+ +        mbx_model_advance_ms(&fabric, MBX_CH_SRP_RATE_REFILL_MS);
+ +        if (!mbx_model_rx(&fabric, f.data(), f.size(), home(n))) return false;
+ +        steps(20);
+ +        return true;
+ +    }
+ +    // STREAM_OUTPUT n streams: SRP's licence of its source, as the datapath holds it (aecp_face.c, stream; Milan
+ +    // v1.2 5.3.7.3).
+ +    bool streaming(unsigned n) {
+ +        mbx_model_pub v{};
+ +        mbx_model_pub_view(&fabric, home(n), &v);
+ +        return ((v.licence >> n) & 1u) != 0u;
+ +    }
+ +    // Stepped, the clock moved a millisecond a turn for at most `ms`, until output n streams as `on` says.
+ +    bool streams(unsigned n, bool on, unsigned ms) {
+ +        for (unsigned k = 0; k < ms && streaming(n) != on; ++k) {
+ +            mbx_model_advance_ms(&fabric, 1u);
+ +            steps(4);
+ +        }
+ +        return streaming(n) == on;
+ +    }
+ +    // A controller's GET_TX_STATE of the entity's talker n (IEEE 1722.1-2021 8.2.1; Milan v1.2 5.5.4.3), its
+ +    // response; status 0xff when none leaves within the turns.
+ +    acmp_test::Pdu tx_state(unsigned n, std::uint16_t seq) {
+ +        acmp_test::Pdu c;
+ +        c.msg = spec::MSG_GET_TX_STATE_COMMAND;
+ +        c.controller = acmp_test::kCtl1;
+ +        c.talker = ctrl_plat.config.entity->entity_id;
+ +        c.talker_uid = static_cast<std::uint16_t>(n);
+ +        c.listener = acmp_test::kTkA;
+ +        c.seq = seq;
+ +        const auto frame = acmp_test::acmpdu(c);
+ +        const std::uint32_t since = fabric.tx_sent;
+ +        // a refill of the ACMP channel's receive rate first, so the command is taken whatever came before it
+ +        mbx_model_advance_ms(&fabric, MBX_CH_ACMP_RATE_REFILL_MS);
+ +        if (mbx_model_rx(&fabric, frame.data(), frame.size(), home(n))) {
+ +            for (unsigned turn = 0; turn < 400u; ++turn) {
+ +                ctrl_plat_step();
+ +                for (std::uint32_t k = since; k < fabric.tx_sent; ++k) {
+ +                    const auto* t = mbx_model_tx_frame(&fabric, k);
+ +                    if (t != nullptr && t->len >= 68u && t->bytes[14] == 0xfcu &&
+ +                        (t->bytes[15] & 15u) == spec::MSG_GET_TX_STATE_RESPONSE && be(t->bytes + 62, 2) == seq) {
+ +                        return acmp_test::read(t->bytes);
+ +                    }
+ +                }
+ +            }
+ +        }
+ +        acmp_test::Pdu none;
+ +        none.status = 0xffu;
+ +        return none;
+ +    }
+ +    // The responses and notifications of SET_STREAM_FORMAT the entity sent from frame `since` on: {notices,
+ +    // responses}.
+ +    std::pair<unsigned, unsigned> format_frames(std::uint32_t since) const {
+ +        unsigned notices = 0, responses = 0;
+ +        for (std::uint32_t k = since; k < fabric.tx_sent; ++k) {
+ +            const auto* t = mbx_model_tx_frame(&fabric, k);
+ +            if (t == nullptr || t->len < 38u || t->bytes[14] != 0xfbu || (t->bytes[15] & 0xfu) != 1u) continue;
+ +            const auto cmd = be(t->bytes + 36, 2);
+ +            notices += cmd == (0x8000u | kSetStreamFormat);
+ +            responses += cmd == kSetStreamFormat;
+ +        }
+ +        return {notices, responses};
+ +    }
+ +};
+ +
+ +// S13 (#950; IEEE 1722.1-2021 7.4.9, 8.2): at input 0 and at the CRF input, which have no context, a SET_STREAM_FORMAT
+ +// waits for its acknowledgement; the input is bound meanwhile; acknowledged, the change makes its running check again
+ +// and is refused STREAM_IS_RUNNING at once, the input keeping its format and no one notified. Unbound, the same
+ +// change is taken.
+ +TEST_F(Streams, S13AWaitingFormatChangeIsRefusedOntoAnInputWithNoContextBoundMeanwhile) {
+ +    ASSERT_TRUE(ready());
+ +    const auto all = inputs();
+ +    const auto none = uncontexted();
+ +    ASSERT_GE(none.size(), 2u) << "S13 input 0 and the CRF input have no context (" PLAT_TEST_SHAPE ")";
+ +    EXPECT_EQ(none.front(), 0u) << "S13 input 0 has no context";
+ +    EXPECT_NE(all.at(none.back()).format >> 56, kAaf) << "S13 the CRF input has no context";
+ +    std::uint16_t seq = 0x0d01u;
+ +    for (const unsigned n : none) {
+ +        const std::uint64_t was = all.at(n).format;
+ +        const std::size_t from = bus().log.size();
+ +        const std::uint32_t frames = fabric.tx_sent;
+ +        ASSERT_TRUE(hold_format(n, was, seq)) << "S13 input " << n << "'s change waits, IN_PROGRESS";
+ +        ASSERT_TRUE(bind(n, true)) << "S13 input " << n << " is bound while its change waits";
+ +        acknowledge();
+ +        EXPECT_EQ(final_status(kSetStreamFormat, seq), static_cast<int>(kStreamIsRunning))
+ +            << "S13 a waiting SET_STREAM_FORMAT of an input bound meanwhile is refused STREAM_IS_RUNNING once "
+ +               "acknowledged: input "
+ +            << n;
+ +        steps(20);
+ +        EXPECT_EQ(format_frames(frames).first, 0u) << "S13 a refused change notifies no one: input " << n;
+ +        EXPECT_EQ(inputs().at(n).format, was) << "S13 input " << n << " keeps its format";
+ +        EXPECT_FALSE(ctrl_plat.aecp.core.waiting) << "S13 input " << n << ": the refusal ends the wait";
+ +        EXPECT_TRUE(window(from, kOtherSelection).selected.empty()) << "S13 input " << n << " writes no context";
+ +        ASSERT_TRUE(bind(n, false)) << "S13 input " << n << " is unbound";
+ +        EXPECT_EQ(set_format(n, was, static_cast<std::uint16_t>(seq + 1u)), static_cast<int>(kSuccess))
+ +            << "S13 unbound, input " << n << "'s change is taken";
+ +        seq = static_cast<std::uint16_t>(seq + 2u);
+ +    }
+ +    coherent("S13");
+ +}
+ +
+ +// S14 (#950; IEEE 1722.1-2021 7.4.9; Milan v1.2 5.3.7.3): at every STREAM_OUTPUT, a SET_STREAM_FORMAT waits for its
+ +// acknowledgement; the output starts streaming meanwhile (a Listener Ready for its stream, so SRP declares its Talker
+ +// and licenses its source); acknowledged, the change is refused STREAM_IS_RUNNING at once, no one notified. Once the
+ +// Listener has left and the output stopped, the same change is taken.
+ +TEST_F(Streams, S14AWaitingFormatChangeIsRefusedOntoAnOutputStartedMeanwhile) {
+ +    ASSERT_TRUE(ready());
+ +    ASSERT_TRUE(allocated()) << "S14 MAAP holds every interface's range";
+ +    const auto all = outputs();
+ +    ASSERT_EQ(all.size(), static_cast<std::size_t>(CTRL_SRP_SOURCES)) << "S14 every STREAM_OUTPUT is a source";
+ +    std::uint16_t seq = 0x0e01u;
+ +    for (const auto& [n, format] : all) {
+ +        ASSERT_FALSE(streaming(n)) << "S14 output " << n << " is stopped";
+ +        const std::uint32_t frames = fabric.tx_sent;
+ +        far.ack = false;
+ +        ASSERT_TRUE(send(kSetStreamFormat, format_payload(kStreamOutput, n, format), seq))
+ +            << "S14 output " << n << "'s SET_STREAM_FORMAT reaches the mailbox";
+ +        ASSERT_TRUE(held(kSetStreamFormat, seq)) << "S14 output " << n << "'s change waits, IN_PROGRESS";
+ +        ASSERT_TRUE(listener(n, 1u, 2u)) << "S14 output " << n << "'s Listener Ready reaches the mailbox";
+ +        ASSERT_TRUE(streams(n, true, AECP_WAIT_MS / 2u)) << "S14 output " << n << " starts while its change waits";
+ +        ASSERT_TRUE(ctrl_plat.aecp.core.waiting) << "S14 output " << n << "'s change still waits";
+ +        acknowledge();
+ +        EXPECT_EQ(final_status(kSetStreamFormat, seq), static_cast<int>(kStreamIsRunning))
+ +            << "S14 a waiting SET_STREAM_FORMAT of an output started meanwhile is refused STREAM_IS_RUNNING once "
+ +               "acknowledged: output "
+ +            << n;
+ +        steps(20);
+ +        EXPECT_EQ(format_frames(frames).first, 0u) << "S14 a refused change notifies no one: output " << n;
+ +        EXPECT_EQ(outputs().at(n), format) << "S14 output " << n << " keeps its format";
+ +        // the Listener leaves and the output stops: the same change is taken
+ +        ASSERT_TRUE(listener(n, 5u, 2u)) << "S14 output " << n << "'s Listener leaves";
+ +        ASSERT_TRUE(streams(n, false, 2000u)) << "S14 output " << n << " stops once its Listener has left";
+ +        EXPECT_EQ(set_format(kStreamOutput, n, format, static_cast<std::uint16_t>(seq + 1u)),
+ +                  static_cast<int>(kSuccess))
+ +            << "S14 stopped, output " << n << "'s change is taken";
+ +        seq = static_cast<std::uint16_t>(seq + 2u);
+ +    }
+ +    coherent("S14");
+ +}
+ +
+ +// T1 (#954; Milan v1.2 5.5.4.3, Table 5.47): at every STREAM_OUTPUT, GET_TX_STATE's flags carry REGISTERING_FAILED
+ +// while a Listener Asking Failed is registered for its Talker's stream on its interface, the registration SRP's
+ +// registrar holds (as GET_STREAM_INFO reads it, #943), and not for a Listener Ready or Ready Failed nor at another
+ +// output; it drops once the registration goes.
+ +TEST_F(Streams, T1GetTxStateCarriesRegisteringFailedWhileAListenerAskingFailedIsRegistered) {
+ +    constexpr std::uint16_t kRegisteringFailed = spec::FLAG_REGISTERING_FAILED;
+ +    ASSERT_TRUE(ready());
+ +    const auto all = outputs();
+ +    ASSERT_EQ(all.size(), static_cast<std::size_t>(CTRL_SRP_SOURCES)) << "T1 every STREAM_OUTPUT is a source";
+ +    std::uint16_t seq = 0x1001u;
+ +    const auto flags = [&](unsigned n) {
+ +        const acmp_test::Pdu r = tx_state(n, seq++);
+ +        EXPECT_EQ(r.status, 0u) << "T1 GET_TX_STATE of output " << n << " is answered SUCCESS";
+ +        EXPECT_EQ(r.stream_id, talker_stream(n)) << "T1 GET_TX_STATE of output " << n << " carries its stream";
+ +        return static_cast<std::uint16_t>(r.flags & kRegisteringFailed);
+ +    };
+ +    // every other output's GET_TX_STATE, with output n's Listener registered
+ +    const auto quiet = [&](unsigned n, const char* step) {
+ +        for (const auto& [m, format] : all) {
+ +            (void)format;
+ +            if (m == n) continue;
+ +            EXPECT_EQ(flags(m), 0u) << "T1 no other output carries output " << n << "'s Listener: output " << m << ", "
+ +                                    << step;
+ +        }
+ +    };
+ +    for (const auto& [n, format] : all) {
+ +        (void)format;
+ +        EXPECT_EQ(flags(n), 0u) << "T1 no REGISTERING_FAILED with no Listener registered: output " << n;
+ +        for (const auto& [declaration, failed] : {std::pair{1u, true}, std::pair{2u, false}, std::pair{3u, false},
+ +                                                  std::pair{1u, true}}) {
+ +            ASSERT_TRUE(listener(n, 1u, declaration)) << "T1 output " << n << "'s Listener reaches the mailbox";
+ +            EXPECT_EQ(flags(n), failed ? kRegisteringFailed : 0u)
+ +                << "T1 REGISTERING_FAILED while a Listener Asking Failed is registered for its stream, and not for "
+ +                   "Ready or Ready Failed (Table 5.47): output "
+ +                << n << ", declaration " << declaration;
+ +            quiet(n, failed ? "Asking Failed" : "Ready or Ready Failed");
+ +        }
+ +        ASSERT_TRUE(listener(n, 5u, 1u)) << "T1 output " << n << "'s Listener leaves";
+ +        for (unsigned k = 0; k < 1500u; ++k) {
+ +            mbx_model_advance_ms(&fabric, 1u);
+ +            steps(1);
+ +        }
+ +        EXPECT_EQ(flags(n), 0u) << "T1 REGISTERING_FAILED drops once the Listener's registration goes: output " << n;
+ +    }
+ +}
+ +
++ // ---- #969: a Talker registered before its input's binding settles -------------------------------------------------
++ // The talker's MSRP Talker Advertise (Failed: failure code 1) of stream v, JoinIn, to interface 0 (IEEE 802.1Q-2018
++ // 35.2.2.8, 10.8): StreamID kSid + v, destination kDa + v, VID 2, as answer_probe's PROBE_TX_RESPONSE carries them.
++ std::vector<std::uint8_t> talker_declaration(unsigned v, bool failed) {
++     std::vector<std::uint8_t> value(failed ? 34u : 25u, 0);
++     const auto put = [&](std::size_t at, std::uint64_t x, unsigned bytes) {
++         for (unsigned k = 0; k < bytes; ++k) value[at + k] = static_cast<std::uint8_t>(x >> (8u * (bytes - 1u - k)));
++     };
++     put(0, acmp_test::kSid + v, 8);
++     put(8, acmp_test::kDa + v, 6);
++     put(14, 2u, 2);
++     put(16, 224u, 2);
++     put(18, 1u, 2);
++     value[20] = 0x60u;
++     if (failed) value[33] = 1u;
++     std::vector<std::uint8_t> f = {0x01, 0x80, 0xc2, 0x00, 0x00, 0x0e, 0x02, 0x03, 0x04, 0x01, 0x02, 0x03, 0x22, 0xea,
++                                    0x00, static_cast<std::uint8_t>(failed ? 2u : 1u),
++                                    static_cast<std::uint8_t>(value.size())};
++     const unsigned list = 2u + static_cast<unsigned>(value.size()) + 1u + 2u;
++     f.push_back(static_cast<std::uint8_t>(list >> 8));
++     f.push_back(static_cast<std::uint8_t>(list));
++     f.push_back(0x00);
++     f.push_back(0x01);  // no LeaveAll, one value
++     f.insert(f.end(), value.begin(), value.end());
++     f.push_back(36u);  // JoinIn
++     f.insert(f.end(), {0, 0, 0, 0});
++     return f;
++ }
++ 
++ // The Listener declaration of StreamID `sid` in MSRP frame `t`: 2 Ready, 1 Asking Failed, 0 none or withdrawn (a
++ // Message's type, attribute length and list length; a Listener vector's values, their events three to a byte and
++ // their declarations four to one, IEEE 802.1Q-2018 10.8, 35.2.2).
++ unsigned listener_of(const mbx_model_tx* t, std::uint64_t sid) {
++     const std::uint8_t* end = t->bytes + t->len;
++     for (const std::uint8_t* p = t->bytes + 15; p + 4 <= end && p[0] != 0; p += 4 + be(p + 2, 2)) {
++         const std::uint8_t* last = p + 4 + be(p + 2, 2);
++         for (const std::uint8_t* q = p + 4; p[0] == 3u && q + 2 <= last && be(q, 2) != 0u;) {
++             const unsigned count = static_cast<unsigned>(be(q, 2) % 8192u);
++             for (unsigned v = 0; v < count; ++v) {
++                 const unsigned packed = q[10 + v / 3];
++                 const unsigned event = v % 3 == 0 ? packed / 36 : v % 3 == 1 ? packed / 6 % 6 : packed % 6;
++                 const unsigned declaration = q[10 + (count + 2) / 3 + v / 4] >> (6 - 2 * (v % 4)) & 3u;
++                 if (be(q + 2, 8) + v == sid) return event == 5u ? 0u : declaration;
++             }
++             q += 10 + (count + 2) / 3 + (count + 3) / 4;
++         }
++     }
++     return 0u;
++ }
++ 
++ struct Early : Sinks {
++     static constexpr std::uint16_t kGetStreamInfo = 0x000fu;   // IEEE 1722.1-2021 Table 7-125
++     static constexpr unsigned kJoinMs = CTRL_LOOP_JOIN_CS * 10u;
++     // `ms` milliseconds pass, a pass a millisecond
++     void pass(unsigned ms) {
++         for (unsigned k = 0; k < ms; ++k) {
++             mbx_model_advance_ms(&fabric, 1);
++             ctrl_plat_step();
++         }
++     }
++     // The first MSRP MRPDU the entity sent from frame `from` on, or nullptr
++     static const mbx_model_tx* first_msrp(std::uint32_t from) {
++         for (std::uint32_t k = from; k < fabric.tx_sent; ++k) {
++             const auto* t = mbx_model_tx_frame(&fabric, k);
++             if (t != nullptr && t->channel == MBX_CH_SRP && be(t->bytes + 12, 2) == 0x22eau) return t;
++         }
++         return nullptr;
++     }
++     // Whether the entity's MSRP MRPDUs from frame `from` on, by `by` ms, declare `sid`'s Listener as `kind`
++     static bool declared_by(std::uint32_t from, std::uint64_t sid, unsigned kind, std::uint32_t by) {
++         for (std::uint32_t k = from; k < fabric.tx_sent; ++k) {
++             const auto* t = mbx_model_tx_frame(&fabric, k);
++             if (t != nullptr && t->channel == MBX_CH_SRP && be(t->bytes + 12, 2) == 0x22eau && t->now_ms <= by &&
++                 listener_of(t, sid) == kind) {
++                 return true;
++             }
++         }
++         return false;
++     }
++     // GET_STREAM_INFO of STREAM_INPUT n (IEEE 1722.1-2021 7.4.16): its SUCCESS response's flags and flags_ex
++     bool stream_info(unsigned n, std::uint16_t seq, std::uint32_t* flags, std::uint32_t* flags_ex) {
++         std::vector<std::uint8_t> payload(4, 0);
++         payload[1] = static_cast<std::uint8_t>(kStreamInput);
++         payload[3] = static_cast<std::uint8_t>(n);
++         if (!send(kGetStreamInfo, payload, seq) || final_status(kGetStreamInfo, seq) != static_cast<int>(kSuccess)) {
++             return false;
++         }
++         for (std::uint32_t k = fabric.tx_sent; k-- > 0;) {
++             const auto* t = mbx_model_tx_frame(&fabric, k);
++             if (t != nullptr && t->len >= 38u + 52u && t->bytes[14] == 0xfbu && be(t->bytes + 34, 2) == seq &&
++                 be(t->bytes + 36, 2) == kGetStreamInfo) {
++                 *flags = static_cast<std::uint32_t>(be(t->bytes + 42, 4));
++                 *flags_ex = static_cast<std::uint32_t>(be(t->bytes + 86, 4));
++                 return true;
++             }
++         }
++         return false;
++     }
++     // The talker's answer to listener n's outstanding probe (PRB_W_RESP or PRB_W_RESP2) with stream v, then until
++     // the binding reaches SRP: the time the answer met, the frame count when SRP took the binding, and whether it
++     // settled and was delivered. What was owed before (a BIND_RX while bound owes its withdrawal) may leave first.
++     bool answer_outstanding(unsigned n, unsigned v, std::uint32_t* from, std::uint32_t* at) {
++         *at = fabric.now_ms;
++         const srp_sink& s = ctrl_plat.srp.ifs[0].sinks[n];
++         const auto taken = [&] { return s.bound && be(s.stream_id.bytes, 8) == acmp_test::kSid + v; };
++         if (!answer_probe(n, 0u, v)) return false;
++         for (unsigned turn = 0; turn < 400u && !taken(); ++turn) ctrl_plat_step();
++         *from = fabric.tx_sent;
++         return taken();
++     }
++     // Input n, its probe answered with stream v at `at`, SRP taking the binding at frame `from`: its Listener `kind`
++     // (2 Ready, 1 Asking Failed) in THE TRANSMIT's next MRPDU, within a JoinTime of the answer, and GET_STREAM_INFO's
++     // REGISTERING (flags_ex bit 31) and REGISTERING_FAILED (flags bit 25) (Milan v1.2 Tables 5.9, 5.10).
++     void expect_declares(unsigned n, unsigned v, std::uint32_t from, std::uint32_t at, bool failed,
++                          const std::string& what, std::uint16_t seq) {
++         const unsigned kind = failed ? 1u : 2u;
++         const auto* first = first_msrp(from);
++         ASSERT_NE(first, nullptr) << what << ": an MRPDU follows the probe's answer, input " << n;
++         EXPECT_EQ(listener_of(first, acmp_test::kSid + v), kind)
++             << what << ": the Listener is declared in THE TRANSMIT's next MRPDU, input " << n;
++         EXPECT_TRUE(declared_by(from, acmp_test::kSid + v, kind, at + kJoinMs))
++             << what << ": the Listener is declared within a JoinTime of the probe's answer, input " << n;
++         std::uint32_t flags = 0, flags_ex = 0;
++         ASSERT_TRUE(stream_info(n, seq, &flags, &flags_ex)) << what << ": GET_STREAM_INFO of input " << n;
++         EXPECT_EQ(flags_ex & 1u, 1u) << what << ": GET_STREAM_INFO shows REGISTERING, input " << n;
++         EXPECT_EQ((flags & 0x40u) != 0u, failed)
++             << what << ": GET_STREAM_INFO's REGISTERING_FAILED follows the kind registered, input " << n;
++     }
++     // Every listener answered as soon as its probe is outstanding, each with its own stream, then each judged
++     void answer_every_probe(const std::vector<unsigned>& all, unsigned offset, bool failed, const std::string& what,
++                             std::uint16_t seq) {
++         std::map<unsigned, std::pair<std::uint32_t, std::uint32_t>> answered;
++         for (unsigned ms = 0; ms < 6000u && answered.size() < all.size(); ++ms) {
++             for (const unsigned n : all) {
++                 const auto state = sink(n).state;
++                 if (answered.count(n) == 0u && (state == ACMP_PRB_W_RESP || state == ACMP_PRB_W_RESP2)) {
++                     std::uint32_t from = 0, at = 0;
++                     ASSERT_TRUE(answer_outstanding(n, n + offset, &from, &at))
++                         << what << ": input " << n << "'s probe is answered and its binding reaches SRP";
++                     answered[n] = {from, at};
++                     pass(6);
++                 }
++             }
++             pass(1);
++         }
++         ASSERT_EQ(answered.size(), all.size()) << what << ": every input probes";
++         pass(kJoinMs + 10u);
++         for (const unsigned n : all) {
++             expect_declares(n, n + offset, answered[n].first, answered[n].second, failed, what,
++                             static_cast<std::uint16_t>(seq + n));
++         }
++     }
++     std::vector<unsigned> every_input() const {
++         std::vector<unsigned> out;
++         for (const auto& [n, in] : inputs()) {
++             if (in.interface == 0u) out.push_back(n);
++         }
++         return out;
++     }
++ };
++ 
++ TEST_F(Early, S13ASavedBindingRestoredAtPowerOnDeclaresATalkerRegisteredBeforeItSettled) {
++     for (const bool failed : {false, true}) {
++         const char* what = failed ? "S13 a Talker Failed registered before the restored binding settled"
++                                   : "S13 a Talker Advertise registered before the restored binding settled";
++         for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_gm(&fabric, i, acmp_test::kGm0, 0);
++         ASSERT_TRUE(ready());
++         const auto all = every_input();
++         ASSERT_FALSE(all.empty());
++         for (const unsigned n : all) {
++             const std::uint32_t since = fabric.tx_sent;
++             ASSERT_TRUE(bind(n, true)) << what << ": input " << n << " is bound";
++             ASSERT_TRUE(answer_probe(n, since, n)) << what << ": input " << n << " settles";
++             pass(12);  // the ACMP channel's bucket refills (mbx_model.h, MBX_CH_ACMP_RATE_REFILL_MS)
++         }
++         // the saved state written back by the store's service on the loop's tick, both clocks 10 ms a pass (S12)
++         const unsigned commits = nvm_store_status()->commits_ok;
++         for (unsigned k = 0; k < 3000u && (nvm_store_status()->commits_ok == commits ||
++                                            ctrl_plat.state.pending_count != 0u ||
++                                            nvm_store_status()->phase != NVM_P_IDLE); ++k) {
++             mbx_model_advance_ms(&fabric, 10u);
++             nvm_fmodel_advance_us(10000u);
++             ctrl_plat_step();
++             ctrl_plat_step();
++         }
++         ASSERT_EQ(ctrl_plat.state.pending_count, 0u) << what << ": the bindings are saved";
++         // the power cut, as S12's: the flash keeps its contents
++         seen.on = false;
++         srp_mbx_destroy(&ctrl_plat.srp);
++         bus().reset();
++         bus().csr[CTRL_PLAT_CSR_STRM_SEL] = kOtherSelection;
++         mailbox.clear();
++         mbx_model_reset(&fabric);
++         mbx_model_far_bind(&fabric, &side);
++         for (unsigned i = 0; i < MBX_N_IF; ++i) {
++             mbx_model_set_link(&fabric, i, true);
++             mbx_model_set_gm(&fabric, i, acmp_test::kGm0, 0);
++         }
++         nvm_fmodel_power_on();
++         far.power_on();
++         ASSERT_TRUE(ready()) << what << ": the boot after the cut reaches READY";
++         for (const unsigned n : all) {
++             ASSERT_TRUE(sink(n).bound) << what << ": input " << n << "'s binding is restored";
++             ASSERT_FALSE(sink(n).settled) << what << ": input " << n << " probes again";
++         }
++         pass(400);
++         // the talker declares every stream, then is quiet: no LeaveAll, no declaration again
++         for (const unsigned n : all) {
++             const auto f = talker_declaration(n, failed);
++             ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0)) << what << ": the Talker reaches the mailbox";
++             pass(2);
++         }
++         pass(1000);
++         // the talker is discovered (Milan v1.2 5.6.4), so every restored binding probes it
++         const auto avail = acmp_test::adpdu(acmp_test::Adp{});
++         ASSERT_TRUE(mbx_model_rx(&fabric, avail.data(), avail.size(), 0)) << what << ": ENTITY_AVAILABLE";
++         answer_every_probe(all, 0u, failed, what, failed ? 0x0d40u : 0x0d00u);
++         TearDown();
++         SetUp();
++     }
++ }
++ 
++ TEST_F(Early, S14ABindWhileBoundToAStreamDeclaredAllAlongIsDeclaredWithinOneTransmit) {
++     ASSERT_TRUE(ready());
++     const auto all = every_input();
++     ASSERT_FALSE(all.empty());
++     const unsigned other = 0x40u;  // the streams the inputs are re-bound to: kSid + 0x40 + n
++     for (const unsigned n : all) {
++         const std::uint32_t since = fabric.tx_sent;
++         ASSERT_TRUE(bind(n, true)) << "S14 input " << n << " is bound";
++         ASSERT_TRUE(answer_probe(n, since, n)) << "S14 input " << n << " settles";
++         pass(12);  // the ACMP channel's bucket refills (mbx_model.h, MBX_CH_ACMP_RATE_REFILL_MS)
++         const auto f = talker_declaration(n, false);
++         ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
++         pass(kJoinMs + 10u);
++         ASSERT_EQ(ctrl_plat.srp.ifs[0].sinks[n].declared, 2u) << "S14 input " << n << " declares its first stream";
++     }
++     // every other stream's Talker is declared, and stays so, while the inputs are bound to their first
++     for (const unsigned n : all) {
++         const auto f = talker_declaration(n + other, false);
++         ASSERT_TRUE(mbx_model_rx(&fabric, f.data(), f.size(), 0));
++         pass(2);
++     }
++     pass(1000);
++     for (const unsigned n : all) {
++         ASSERT_TRUE(acmp(spec::MSG_BIND_RX_COMMAND, n, 1u)) << "S14 BIND_RX of input " << n << " while bound";
++         pass(6);
++     }
++     answer_every_probe(all, other, false, "S14 a BIND_RX while bound to a stream declared all along", 0x0e00u);
++ }
++ 
+  }  // namespace
+diff --cc sw/litex/ctrl_memory.py
+index abd8edfdb7,6000617da7..dae3e21ff8
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@@ -254,10 -255,9 +255,10 @@@ class Ledgered
+  #: declarations on the tiers, #897's ruling of 2026-11-15 takes for the image with GET_AS_PATH's read on them and the
+  #: owner's decision of 2026-11-15 for AECP's REBOOT on them (#871), 61.0 with the PHY poll (#919), and 61.5 measured
+  #: on the composed flip train before the commit (#665). Its 8x8 one-interface image, a product image, is refused at
+ -#: 59.0, its entry at 58.5 by the same rule with the Talkers SRP keeps (#969): 56.5 with #895's declarations and the
+ -#: PHY poll (#919), 57.0 on the composed train before the commit, 57.5 with it, 58.0 with the largest legal record's
+ -#: cut and the hot list relearned on it (#665). The platform's image is linked at
+ +#: 59.0, its entry at 58.5 by the same rule with a waiting SET_STREAM_FORMAT's check made again and the source port's
+- #: Asking Failed (#950, #954): 56.5 with #895's declarations and the PHY poll (#919), 57.0 on the composed train
+- #: before the commit, 57.5 with it, 58.0 with the largest legal record's cut and the hot list relearned on it (#665).
+- #: The platform's image is linked at
+++#: Asking Failed (#950, #954), and by the same rule with the Talkers SRP keeps (#969): 56.5 with #895's declarations
+++#: and the PHY poll (#919), 57.0 on the composed train before the commit, 57.5 with it, 58.0 with the largest legal
+++#: record's cut and the hot list relearned on it (#665). The platform's image is linked at
+  #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
+  #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
+  LEDGERED: dict[str, Ledgered] = {
+@@@ -291,14 -284,9 +292,14 @@@
+                                           "the largest legal record's cut on that train (#665): the harness's "
+                                           "answering-ports arm needs 131,128 B of rom, 56 B past the 131,072 B "
+                                           "60.0 holds, by the same rule (#665's ruling of 2026-11-17, amended): "
+ -                                         "ROM debt of 4.5 RAMB36 owed to S14"),
+ +                                         "ROM debt of 4.5 RAMB36 owed to S14; 61.5 with each 8x8 "
+ +                                         "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584): the fixture needs 132,880 B of "
+ +                                         "rom and 116,064 B of sram, its arms up to 133,696 B and 116,080 B "
+ +                                         "(declaring-outputs; answering-ports and the saved-state harness's guard "
+ +                                         "probe also past 61.0), the stage 14,250 B, by the same rule: ROM debt of "
+ +                                         "5.5 RAMB36 owed to S14"),
+      "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+-                                             ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_568)), 64.0,
+ -                                            ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 21_824)), 63.5,
+++                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 21_824)), 64.0,
+                                              "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                              "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                              "image); 60.0, capped at 60.5, by the owner's decision of 2026-11-12 "
+@@@ -337,12 -325,13 +338,16 @@@
+                                              "context (#946) on that train, 140,008 B of rom and 115,504 B of sram, "
+                                              "744 B past the 139,264 B of rom 62.5 holds beside them, ctrl_plat "
+                                              "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
+-                                             "S14; and 64.0 with each 8x8 STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), "
+ -                                            "S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
+ -                                            "holds (#969) on that train, 141,720 B of rom, 408 B past the "
+++                                            "S14; 64.0 with each 8x8 STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), "
+ +                                            "142,120 B of rom and 117,312 B of sram against 140,784 B and "
+ +                                            "115,504 B at its base, ctrl_plat unchanged, by the same rule: debt of "
+-                                             "8.0 RAMB36 owed to S14"),
+++                                            "8.0 RAMB36 owed to S14; and 63.5 with the Talkers SRP keeps for StreamIDs no binding "
+++                                            "holds (#969) on the flip train, 141,720 B of rom, 408 B past the "
++                                             "141,312 B of rom 63.0 holds beside 115,760 B of sram, ctrl_plat at "
++                                             "its measured 21,824 B, by the same rule: debt of 7.5 RAMB36 owed to "
++                                             "S14"),
+      "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
+-                                            ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 18_944)), 59.0,
+ -                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 19_072)), 58.5,
+++                                           ((STAGE_SYMBOL, 14_250), ("ctrl_plat", 19_072)), 59.0,
+                                             "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
+                                             "a product image, with SRP's Talker declarations (#895) and the PHY "
+                                             "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
+@@@ -361,15 -350,11 +366,19 @@@
+                                             "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
+                                             "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
+                                             "with each AAF Stream Input's current format written (#946), "
+ -                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with the Talkers SRP "
+ -                                           "keeps for StreamIDs no binding holds (#969) on that train, 140,136 B "
+ -                                           "of rom, 872 B past the 139,264 B 58.0 holds, and 98,288 B of sram, "
+ -                                           "ctrl_plat at its measured 19,072 B, by the same rule: ROM debt of "
+ -                                           "2.5 RAMB36 owed to S14"),
+ +                                           "138,432 B of rom, ctrl_plat unchanged; 58.5 with a waiting "
+ +                                           "SET_STREAM_FORMAT's running check made again (#950) and ACMP's "
+ +                                           "source port's Listener Asking Failed (#954), 139,304 B of rom, 40 B "
+ +                                           "past the 139,264 B 58.0 holds, ctrl_plat unchanged, by the same rule: "
+ +                                           "ROM debt of 2.5 RAMB36 owed to S14; 59.0 with each 8x8 "
+ +                                           "STREAM_PORT_INPUT's AUDIO_CLUSTER (#584), 140,544 B of rom and 99,904 B "
+ +                                           "of sram against 139,208 B and 98,160 B at its base, the stage 14,250 B, "
+ +                                           "ctrl_plat unchanged, by the same rule: ROM debt of 3.0 RAMB36 owed to "
+++                                           "S14; and 58.5 with the Talkers SRP keeps for StreamIDs no binding "
+++                                           "holds (#969) on the flip train, 140,136 B of rom, 872 B past the "
+++                                           "139,264 B 58.0 holds, and 98,288 B of sram, ctrl_plat at its "
+++                                           "measured 19,072 B, by the same rule: ROM debt of 2.5 RAMB36 owed to "
+ +                                           "S14"),
+  }
+  
+  
+diff --cc sw/litex/ctrl_memory_ledger.py
+index 82eed55f11,ab3635feb8..1a7a0f3dcd
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@@ -3,21 -3,18 +3,22 @@@
+  """The memory test's ledgered points (#665): each override's own image, the images it must refuse, the
+  planted ledgers that widen one, and the out-of-context mapper's override.
+  
+ -`ctrl_memory.LEDGERED` lets three images plan past the 56-RAMB36 budget, each only as its own point, under #665's
+ -documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16): at 8x8 with two
+ +`ctrl_memory.LEDGERED` lets four images plan past the 56-RAMB36 budget, each only as its own point, under #665's
+ +documented memory exceptions and the owner's rule of 2026-11-15 (#923's ruling of 2026-11-16). Since #584 gave each
+ +8x8 STREAM_PORT_INPUT an AUDIO_CLUSTER (its eight more descriptors and names, the stage 656 B longer at 14,250 B), the
+ +size fixture's 8x8 images plan 57.0 with one interface, its own point since then, and 61.5 with two (its arms' most),
+ +the platform's 64.0 with two and 59.0 with one, each half a tile past its entry refused; before it: at 8x8 with two
+  interfaces the size fixture's at 60.5 RAMB36 (59.0 before GET_AS_PATH's read composed with SRP's Talker declarations,
+  #897, 59.5 before the map edits' commit through the EDIT window, #923, 60.0 before the largest legal record's cut,
+- #665) and the target platform's at 63.0 (60.5, the
++ #665) and the target platform's at 63.5 (60.5, the
+  owner's decision's cap of 2026-11-12, with SRP's Talker declarations, #895, and AECP's REBOOT, #871, 61.0 with the PHY
+  poll and its advertisement, #919, 61.5 on the composed flip train, #665, 62.0 with the commit, #923, 62.5 with the
+- StreamIDs held with their latest Talker kind, #925, and 63.0 with each AAF Stream Input's format written into its
+- receive-monitor context, #946), and the
++ StreamIDs held with their latest Talker kind, #925, 63.0 with each AAF Stream Input's format written into its
++ receive-monitor context, #946, and 63.5 with the Talkers SRP keeps for StreamIDs no binding holds, #969), and the
+  target platform's 8x8 image with one interface, a product image, at 58.5 (56.5 with the PHY poll, 57.0 on the composed
+ -train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with the
+ +train, 57.5 with the commit, 58.0 with the largest legal record's cut and the hot list relearned on it, 58.5 with a
+- waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954); each is refused
+++waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed, #950, #954, and 58.5 with the
++ Talkers SRP keeps, #969); each is refused
+  half a tile past. A measurement names its point, and the product SoC build plans an image at the point whose symbols it
+  carries (`ctrl_memory.own_point`; #665's ruling of 2026-11-17 keeps it for the composed train). A `Case` here is what
+  the ledger reads of one image. test_ctrl_memory.py writes each as an ELF, through the `write` callable every function
+@@@ -42,13 -39,11 +43,13 @@@ from typing import NamedTupl
+  
+  import ctrl_memory
+  
+ -STAGE_1X1, STAGE_8X8 = 3454, 13594
+ +STAGE_1X1, STAGE_8X8 = 3454, 14250
+  FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces", "platform-8x8-one-interface"
+ +#: The size fixture's 8x8 image with one interface, ledgered since #584 gave each 8x8 STREAM_PORT_INPUT a cluster.
+ +FIXTURE1 = "8x8-one-interface"
+  #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
+  #: it: 1x1 with one and two interfaces, 8x8 with one and two.
+- PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_712, 18_944, 21_568
++ PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_776, 19_072, 21_824
+  
+  
+  class Case(NamedTuple):
+diff --cc tb/verilator/ctrl_split_boot/README.md
+index 31ea4d71d6,2ecd075691..be8ee259a3
+--- a/tb/verilator/ctrl_split_boot/README.md
++++ b/tb/verilator/ctrl_split_boot/README.md
+@@@ -130,7 -130,7 +130,7 @@@ The prior measurements at `a68536fa`, o
+  Both boots at this head are within the 20 s ADP valid time.
+  Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
+  A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
+- The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, and each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with a waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed (#950, #954), 58.0 with the largest legal record's cut and the hot list relearned on it, and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+ -The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0, and the Talkers SRP keeps for StreamIDs no binding holds (#969) to 63.5. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with #969's kept Talkers, 58.0 with the largest legal record's cut and the hot list relearned on it and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+++The 8x8 image with two interfaces plans 63.0 RAMB36 in the composed flip train (#665). The owner's [decision of 2026-11-12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6824896581) ledgers 60.0 by name for the flip, capped at 60.5. The PHY poll and its advertisement (#919, #840) take the image past that cap, and on the composed train the map edits' commit through the `EDIT` window (#923) to 62.0 and the StreamIDs held with their latest Talker kind (#925), its `sram` a 57th granule, to 62.5, each AAF Stream Input's current format written into its receive-monitor context (#946) to 63.0, and the Talkers SRP keeps for StreamIDs no binding holds (#969) to 63.5. The owner's rule of 2026-11-15 ([#923's ruling](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024)) ledgers each image at its measured tiles, owed to lane S14. The 8x8 image with one interface plans 58.5 with a waiting SET_STREAM_FORMAT's check made again and the source port's Asking Failed (#950, #954), and 58.5 with #969's kept Talkers, 58.0 with the largest legal record's cut and the hot list relearned on it, and with #946's writes, 57.5 before them, at its own entry, which the product SoC build plans by the image's symbols.
+  At that point the simulation names the platform's override ([A gate at every sync](#a-gate-at-every-sync)).
+  
+  The smoke grader's verdicts on the simulated UART:
+
+### b04610c2
+diff --cc CHANGELOG.md
+index 2a70fc3b8c,d88d9a234a..b1d87d7890
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@@ -8,7 -8,7 +8,8 @@@ The [archived throughput record](docs/h
+  
+  ## Contents
+  
++ - **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
+ +- **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
+  - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+  - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+  - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@@ -59,38 -59,15 +60,47 @@@
+  - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+  - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+  
++ ## Unreleased - a link-up inside a loop pass
++ 
++ - #973: SRP's poll takes an UP the loop dispatched.
++ - A link-up after a pass's events no longer resets twice.
++ - A first UP keeps the clean startup participants.
++ - A DOWN still fails closed from the LINK register.
++ - Re-attach follows an up link with no LINK owed.
++ - An UP elided by a DOWN authorizes no later UP.
++ 
+ +## Unreleased - 8x8 input clusters
+ +
+ +- #584: every STREAM_PORT_INPUT owns an AUDIO_CLUSTER.
+ +- Milan clause 5.3.3.8 requires one.
+ +- The 8x8's port 0 owns the first TDM render channel.
+ +- `TDM32 Out 0` renders on slot 0 of `tdm.dout`.
+ +- The render master frames the bus, storing that slot alone.
+ +- `BUS_SLOTS_P` is the bus; later slots carry zero.
+ +- Ports 1 to 7 own one `Unrouted S<p>` cluster.
+ +- Their mappings are stored but route nothing.
+ +- `render_ports: first` binds it to STREAM_PORT_INPUT 0.
+ +- The builder refuses a port with no cluster.
+ +- Its refusal is named `STREAM_PORT_CLUSTER_MINIMUM`.
+ +- The 8x8 model ID becomes `0x001BC5CFD464421E`.
+ +- The 1x1 TDM8 and Arty artifacts are unchanged.
+ +- Each 8x8 control image plans one more tile.
+ +- That tile is recorded ROM debt owed to S14.
+ +- No input cluster is backed by the loopback lane.
+ +- The 8x8 builds no loopback lane, as before.
+ +- `TDM32 Out 0` stands for the decision's first TDM8 channel.
+ +- The owner approved all three points on #584 (2026-11-23).
+ +- `milan_dp_render` gains `ship8`, the 8x8 at its pins.
+ +- It elaborates the builder's own render parameters.
+ +- Eight listeners feed it; slot 0 renders port 0's source.
+ +- Slots 1-31 stay zero.
+ +- Ports 1-7's mappings reach no slot.
+ +- One record spans each fall or reset to its rebind.
+ +- Only post-loss or post-reset events may render in it.
+ +- `ship8-mutants` plants projection, adapter and bus faults.
+ +- It also replays stale events, which the record refuses.
+ +- The 8x8's build plan now lists `Unrouted S<p>`.
+ +
+  ## Unreleased - the Mark II split ships
+  
+  - #665 S13 flips the AX7101 configs to the split.
+diff --cc sw/firmware/ctrl/test/srp_mutants.py
+index 63cc9afc64,ec88f1a731..4283564e59
+--- a/sw/firmware/ctrl/test/srp_mutants.py
++++ b/sw/firmware/ctrl/test/srp_mutants.py
+@@@ -15,7 -15,7 +15,8 @@@ import srp_talker_mutant
+  import srp_listener_mutants
+  import srp_kind_mutants
+  import srp_reclaim_mutants
+ +import srp_early_mutants
++ import srp_link_mutants
+  def caught(test: str, needle: str, outcome: Outcome) -> bool:
+      """Match the named FT failure and its complete GoogleTest diagnostic.
+  
+@@@ -956,7 -956,7 +957,8 @@@ DEFECTS += srp_talker_mutants.defects(D
+  DEFECTS += srp_listener_mutants.defects(Defect)
+  DEFECTS += srp_kind_mutants.defects(Defect)
+  DEFECTS += srp_reclaim_mutants.defects(Defect)
+ +DEFECTS += srp_early_mutants.defects(Defect)
++ DEFECTS += srp_link_mutants.defects(Defect)
+  
+  def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2, entity: str = "") -> bool:
+      """Run every mutation in a reusable isolated checkout; true means a failure. `entity` plants every defect at that
+diff --cc sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 5a3491c177,3dac6df980..3d5e872ca7
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@@ -162,7 -162,7 +165,8 @@@ import srp_mutants  # noqa: E40
+  import srp_pub_mutants  # noqa: E402
+  import srp_listener_mutants  # noqa: E402
+  import srp_reclaim_mutants  # noqa: E402
+ +import srp_early_mutants  # noqa: E402
++ import srp_link_mutants  # noqa: E402
+  import aecp_arms  # noqa: E402
+  import aecp_mutants  # noqa: E402
+  import plat_arms  # noqa: E402
+@@@ -230,13 -231,13 +235,13 @@@ def run_srp_mutants(args: argparse.Name
+                                                          "p11-", "srp-bound-", "srp-term-",
+                                                          "srp-poll-extra", "srp-send-extra", "talker-",
+                                                          srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+-                                                         *srp_pub_mutants.ROUND5)))
++                                                         srp_link_mutants.PREFIX, *srp_pub_mutants.ROUND5)))
+          failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
+-         # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the
+-         # Talkers kept for StreamIDs no binding holds (#969)
+ -        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), and the link
+ -        # level in a loop pass (#973)
+++        # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
+++        # Talkers kept for StreamIDs no binding holds (#969) and the link level in a loop pass (#973)
+          srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                      if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
+-                                                           srp_early_mutants.PREFIX)))
+ -                                                          srp_link_mutants.PREFIX)))
+++                                                          srp_early_mutants.PREFIX, srp_link_mutants.PREFIX)))
+          failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
+                                        srp_listener_mutants.ENTITY) or failed
+      finally:
+
+### d6c398c8
+diff --cc CHANGELOG.md
+index b1d87d7890,cf07bc9927..c5a5ca2780
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@@ -8,8 -8,7 +8,9 @@@ The [archived throughput record](docs/h
+  
+  ## Contents
+  
++ - **[Unreleased - the boot forms its link once](#unreleased---the-boot-forms-its-link-once)** -- No boot restart.
+ +- **[Unreleased - a link-up inside a loop pass](#unreleased---a-link-up-inside-a-loop-pass)** -- SRP resets once.
+ +- **[Unreleased - 8x8 input clusters](#unreleased---8x8-input-clusters)** -- Every input port owns one.
+  - **[Unreleased - the Mark II split ships](#unreleased---the-mark-ii-split-ships)** -- Firmware control, major 3.
+  - **[Unreleased - processor pin 801ef228](#unreleased---processor-pin-801ef228)** -- Two News, LeaveAll and available_index.
+  - **[Unreleased - control-frame drop count](#unreleased---control-frame-drop-count)** -- Lost control frames are counted.
+@@@ -60,47 -59,18 +61,59 @@@
+  - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+  - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+  
++ ## Unreleased - the boot forms its link once
++ 
++ - #972: the split's boot forms its link once.
++ - A PHY holding the advertisement is not restarted.
++ - Holding it needs BMCR negotiating, as #840 asks.
++ - A forced or isolated PHY is renegotiated, never published up.
++ - The split's link word now resets to link down.
++ - Boards without an MDIO pair keep link up.
++ - So nothing is sent before the PHY's verified link.
++ - A datapath leg checks it from reset at both shapes.
++ - FR_NFR derives the declared 6.0 s discovery time.
++ 
+ +## Unreleased - a link-up inside a loop pass
+ +
+ +- #973: SRP's poll takes an UP the loop dispatched.
+ +- A link-up after a pass's events no longer resets twice.
+ +- A first UP keeps the clean startup participants.
+ +- A DOWN still fails closed from the LINK register.
+ +- Re-attach follows an up link with no LINK owed.
+ +- An UP elided by a DOWN authorizes no later UP.
+ +
+ +## Unreleased - 8x8 input clusters
+ +
+ +- #584: every STREAM_PORT_INPUT owns an AUDIO_CLUSTER.
+ +- Milan clause 5.3.3.8 requires one.
+ +- The 8x8's port 0 owns the first TDM render channel.
+ +- `TDM32 Out 0` renders on slot 0 of `tdm.dout`.
+ +- The render master frames the bus, storing that slot alone.
+ +- `BUS_SLOTS_P` is the bus; later slots carry zero.
+ +- Ports 1 to 7 own one `Unrouted S<p>` cluster.
+ +- Their mappings are stored but route nothing.
+ +- `render_ports: first` binds it to STREAM_PORT_INPUT 0.
+ +- The builder refuses a port with no cluster.
+ +- Its refusal is named `STREAM_PORT_CLUSTER_MINIMUM`.
+ +- The 8x8 model ID becomes `0x001BC5CFD464421E`.
+ +- The 1x1 TDM8 and Arty artifacts are unchanged.
+ +- Each 8x8 control image plans one more tile.
+ +- That tile is recorded ROM debt owed to S14.
+ +- No input cluster is backed by the loopback lane.
+ +- The 8x8 builds no loopback lane, as before.
+ +- `TDM32 Out 0` stands for the decision's first TDM8 channel.
+ +- The owner approved all three points on #584 (2026-11-23).
+ +- `milan_dp_render` gains `ship8`, the 8x8 at its pins.
+ +- It elaborates the builder's own render parameters.
+ +- Eight listeners feed it; slot 0 renders port 0's source.
+ +- Slots 1-31 stay zero.
+ +- Ports 1-7's mappings reach no slot.
+ +- One record spans each fall or reset to its rebind.
+ +- Only post-loss or post-reset events may render in it.
+ +- `ship8-mutants` plants projection, adapter and bus faults.
+ +- It also replays stale events, which the record refuses.
+ +- The 8x8's build plan now lists `Unrouted S<p>`.
+ +
+  ## Unreleased - the Mark II split ships
+  
+  - #665 S13 flips the AX7101 configs to the split.
+diff --cc sw/firmware/ctrl/plat/README.md
+index 4d1606e4f1,754b79db19..7dd76b2920
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@@ -153,10 -154,10 +155,10 @@@ Every 1x1 point is within 56 ([split co
+  `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs five arms ([`plat_arms.py`](../test/plat_arms.py)):
+  
+  - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
+- - `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick. With a pin-level Clause-22 PHY behind that bus (`phy_peer.hpp`), the PHY poll alone (`test_plat_phy.cpp`, P1 to P18: the probe, the pace, the latched loss, every resolved mode, the error paths, the frame, THE STEP's room, the owed report, the half period, the clock's wrap; and the advertisement: its writes at boot, each property by its own name from start values in opposite states as the release's host test grades them, a 10/100 PHY never written, written and read back after every loss with no restart where the PHY held it, a reset PHY, or one that lost register 4 or register 9 alone, restarted once, an advertisement that does not read back owed again and negotiation restarted after each repaired write, an unacknowledged read writing nothing, and P17, the abilities in force latched at each restart by the peer: register 4's writes dropped through a try, at boot and after a loss, a 100BASE-TX-only partner has no link once the repair reads back, the repair's own restart doing it; and THE OUTCOME, P18: a restart write the PHY lost, so the earlier 100 Mb/s negotiation stays in force, is published down and restarted once by the next poll, counted (saturating), one restart a poll until one takes, none while the negotiation is incomplete, none at 1000BASE-T, none on a PHY the advertisement is not for) and composed (`test_plat_boot.cpp`, B11, B12 and L1 to L6: armed past the identity check, THE STEP's client, and the published word's consumers, the datapath's link modelled as the RTL builds it: each edge counted, notified by AECP, and the gPTP plane's port enable rising with the first poll after the link's return; a loss and a return each published within one poll period through a save in flight, and a save durable within its stated worst case under a probe that always misses); GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
++ - `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; a controller's bind after ready, written back to the flash by the store's service on the loop's tick. With a pin-level Clause-22 PHY behind that bus (`phy_peer.hpp`), the PHY poll alone (`test_plat_phy.cpp`, P1 to P21: the probe, the pace, the latched loss, every resolved mode, the error paths, the frame, THE STEP's room, the owed report, the half period, the clock's wrap; and the advertisement: its writes at boot, each property by its own name from start values in opposite states as the release's host test grades them, a 10/100 PHY never written, written and read back after every loss with no restart where the PHY held it, a reset PHY, or one that lost register 4 or register 9 alone, restarted once, an advertisement that does not read back owed again and negotiation restarted after each repaired write, an unacknowledged read writing nothing, and P17, the abilities in force latched at each restart by the peer: register 4's writes dropped through a try, at boot and after a loss, a 100BASE-TX-only partner has no link once the repair reads back, the repair's own restart doing it; and THE OUTCOME, P18: a restart write the PHY lost, so the earlier 100 Mb/s negotiation stays in force, is published down and restarted once by the next poll, counted (saturating), one restart a poll until one takes, none while the negotiation is incomplete, none at 1000BASE-T, none on a PHY the advertisement is not for; and #972, P19 to P21: a PHY that holds the advertisement, its link up before the boot, written and read back and never restarted, its link published once; link down published as the poll arms, before any frame; THE OUTCOME restarting a held advertisement's 100 Mb/s negotiation the boot left in force) and composed (`test_plat_boot.cpp`, B11, B12 and L1 to L6: armed past the identity check, THE STEP's client, and the published word's consumers, the datapath's link modelled as the RTL builds it: each edge counted, notified by AECP, and the gPTP plane's port enable rising with the first poll after the link's return; a loss and a return each published within one poll period through a save in flight, and a save durable within its stated worst case under a probe that always misses); GET_AS_PATH answered SUCCESS with the sequence the datapath serves (B24, #897); and the REBOOT (B11 to B23): its order with rings held or full, each refusal, no port, the reset and the boot after it, a REBOOT during a journal write, nothing taken or sent after the port, a frame on each of the five channels left in its ring from the SUCCESS and while its SUCCESS cannot be handed over, and the MAAP, SRP and AECP frames queued with the REBOOT left in the pass that takes it, no ACMP, AECP, MAAP or SRP transmission after ENTITY_DEPARTING, and the DEPARTING held while the ACMP, MAAP or SRP ring holds a frame. AECP's check after the DEPARTING has no defect of its own, because AECP starts no frame after its SUCCESS; its three layers each carry one: the loop's stop (`plat-reboot-transmits-after-the-departing`), the receive gate (`plat-reboot-takes-aecp-frames-after-the-success`) and AECP's own silence (`reboot-serves-after-its-success`, `reboot-probes-after-its-success`, `reboot-retries-after-its-success`);
+  - `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
+  - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+ -- `platsinks`: the receive monitor's formats (#946) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 29 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input and the restore reading the reset set's survival (at 1x1/1if) among them.
+ +- `platsinks`: the receive monitor's formats (#946) and the streams beside them (#950, #954) at 8x8/1if, whose AAF inputs 1 to 7 each have a context, and the shipping 1x1/1if, which has none (`test_plat_sinks.cpp`), every mailbox access watched for a published stream whose context does not hold its input's current format: every input at READY after the open's acknowledged publication; an acknowledged SET_STREAM_FORMAT moving its input's context alone, and a bound input refusing it; nothing written for a commit never acknowledged or while a change waits IN_PROGRESS, and the change done again written before its SUCCESS; a change of another kind, or a pass with no change, writing nothing; a waiting change whose input is bound meanwhile (settled, or its probe unanswered, or never acknowledged within the wait) not done again, answered ENTITY_MISBEHAVING at the wait's bound, then taken once unbound and rebound on; one whose input is unbound again before its acknowledgement done again before a rebind; SET_CONFIGURATION writing every context, and one waiting refused the same way; at a bound input's own index, its STREAM_OUTPUT's waiting SET_STREAM_FORMAT taken and its SET_NAME taken, neither writing a context; every format an input with a context advertises AAF; and input 0 narrowed to one channel, its mappings removed first, kept across a power cut, the boot's restore taking it while the datapath's map store still holds its reset set (S12; at 1x1/1if that set maps input 0's channels, at 8x8/1if none; the far model keeps the store and judges the verdict from it). Beside the contexts, at the same shapes: at input 0 and the CRF input, which have no context, a waiting SET_STREAM_FORMAT whose input is bound meanwhile refused STREAM_IS_RUNNING once acknowledged, and taken once unbound (S13, #950); the same at every STREAM_OUTPUT started meanwhile by a Listener Ready for its stream, and taken once it has stopped (S14); and GET_TX_STATE's REGISTERING_FAILED at every output while a Listener Asking Failed is registered for its stream, not for Ready or Ready Failed nor at another output, dropped once the registration goes (T1, #954). The same suite holds SRP's Talkers kept before a binding (#969), in its Early fixture: every STREAM_INPUT's saved binding restored at power-on, its talker declaring before it is discovered and probed, then quiet, declares its Listener in THE TRANSMIT's next MRPDU once the probe is answered and shows GET_STREAM_INFO's REGISTERING and REGISTERING_FAILED (S13), and so does a bind while bound to a stream declared all along (S14). `test_plat.cpp`'s C5 and C6 hold the window's writes and which inputs have a context. [`sink_mutants.py`](../test/sink_mutants.py)'s 36 defects are in the control campaign, each caught by a named test on its own words, the shipped firmware's state (nothing written after the open, no change followed), a waiting change done again onto a bound input, the restore reading the reset set's survival (at 1x1/1if), the shipped core's waiting SET_STREAM_FORMAT done again without its running check, the shipped source port's REGISTERING_FAILED never reported and the SRP filter before #969 (Early's S13 and S14 at both shapes) among them.
+  
+  The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 121 defects, each caught by a named test on its own words.
+  They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop. The PHY's 53 (the poll's 22, the link counters' notification, the bus map's 3 and the advertisement's 27) include the four #919 names, each reproducing a bench symptom: no poll, the latched loss not published, an edge not counted (a whole poll in one call, its loss and its recovery in the same turn), and the cease not ended on link-up (the second BMSR read dropped, so the link's return is published a poll late). They also include #840's named defect, 100BASE-TX left advertised, and one per write property and per rule: written once only, restarted after every loss, a PHY that lost register 4 or register 9 alone not restarted, a restart marked taken before the read-back verifies (the repair of a dropped write then never negotiated), not read back, written before its reads are answered; and THE OUTCOME's: unchecked, owing the advertisement without its restart, uncounted, its count wrapping, judging a link at 1000BASE-T or a PHY the advertisement is not for, and resolving from the BMSR read before a restart.
+diff --cc tb/verilator/milan_dp/README.md
+index 752669ca93,64aab38eca..58d490cd59
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@@ -112,8 -112,8 +112,9 @@@ The separate `milan_dp_gptp` suite reus
+  - **[The two-placement simulation (obj_twin_\*, #665)](#the-two-placement-simulation-obj_twin_-665)** -- One stimulus on the all-fabric and the split datapath, the split with its own firmware, compared protocol by protocol, with its ledger and owed rows, its per-half grades, fifteen plants and what it finds
+  - **[The split build's SRP transmit path (obj_srptx, #867)](#the-split-builds-srp-transmit-path-obj_srptx-867)** -- lwSRP's MRPDUs from the SRP ring to the MAC in the split build: their form, source address and timer spacing, a held MAC, the #608 stop, the licence at the policer and the stream frames' stream_id, with the egress error per MRP timer, twenty-seven plants, four controls, two off-grid controls and thirteen code mutants
+  - **[The split image's audio maps on the render store (obj_twin_maps, #923)](#the-split-images-audio-maps-on-the-render-store-obj_twin_maps-923)** -- The platform firmware's ADD and REMOVE_AUDIO_MAPPINGS on the render map store through the EDIT window, the format verdict that follows them, a saved map restored at the next boot, and the planted defect #923 found
+ +- **[One stream bound to several Stream Inputs on the split half (obj_twin8_\*, #948)](#one-stream-bound-to-several-stream-inputs-on-the-split-half-obj_twin8_-948)** -- The split half at the 8x8 shape with its own firmware: a controller binds two, then three Stream Inputs to one peer talker's stream over ACMP and unbinds one, each bound input counting and receiving every PDU, and the planted defect #948 found
+  - **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
++ - **[The #972 link from reset (obj_linkreset_\*)](#the-972-link-from-reset-obj_linkreset_)** -- The split datapath at 1x1/1if and 8x8/1if from reset with the PHY's link retained: no frame before the firmware's publication, the gPTP plane's frames after it, a refused boot that sends nothing, and a planted reset at link up caught
+  - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+  - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+  - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost

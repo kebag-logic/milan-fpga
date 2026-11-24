@@ -1,0 +1,19 @@
+#!/bin/bash
+# analyse.sh LABEL CLONE POINT...: the statement survey (survey_point4.py) and the AECP records by class over the legs in meas/LABEL/POINT
+set -u
+T=<scratch>; . $T/bin/env.sh
+L=$1 C=$T/$2; shift 2; M=$T/meas/$L; O=$T/meas/out-$L; mkdir -p $O
+declare -A SP=([1x1]=1x1/1if [8x8-1if]=8x8/1if) NIF=([1x1]=1 [8x8-1if]=1)
+for P in "$@"; do
+  V=$M/views-$P; rm -rf $V; mkdir -p $V; parts=()
+  for d in $M/$P/*/part*; do
+    [ -f $d/results.json ] || continue
+    a=$(basename $(dirname $d)); k=$(basename $d); parts+=($d)
+    mkdir -p $V/$a-$k; ln -s $d $V/$a-$k/results; ln -s $M/$P/$a/build.json $V/$a-$k/build.json
+  done
+  SURVEY_POINT=${SP[$P]} SURVEY_NIF=${NIF[$P]} python3 -I $T/bin/survey_point4.py $C $T/bin/survey $O/survey-$P $V/* > $O/survey-$P.out 2>&1
+  echo "survey $P rc=$?" | tee $O/survey-$P.rc
+  python3 -I $C/tb/verilator/ctrl_service_budget/record_classes.py "${parts[@]}" > $O/record-classes-$P.txt 2>&1
+  echo "record_classes $P rc=$?" | tee $O/record-classes-$P.rc
+  grep -h -E '^(BUDGET|STATED|REFUSED|NOTICE|SAVE|AGED)' $M/$P/*.run.log | cut -c1-240 > $O/findings-$P.txt
+done
