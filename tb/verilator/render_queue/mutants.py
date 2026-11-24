@@ -142,7 +142,7 @@ MUTATIONS = [
        "  assign b_slip_w = 1'b0;"),),
      "[slip] gaps and overlaps counted", ()),
     ("lead_o kept after the stream drains",
-     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
+     (("        if (lwv_r[s] && (sst_r == S_SCRUB_S && !copy_active_w) && (lead_s_w[s][FW_C-1] || (lead_s_w[s] == '0)))\n"
        "          lwv_r[s] <= 1'b0;",
        "        if (1'b0)\n          lwv_r[s] <= 1'b0;"),),
      "[place] lead_o and idle_o follow the model at every frame end", ()),
