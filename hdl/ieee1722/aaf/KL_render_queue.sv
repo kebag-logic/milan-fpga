@@ -215,7 +215,7 @@ module KL_render_queue #(
   input  wire                      hdr_tv_i,     //! tv
 
   //! --- depacketizer payload clone (accepted beats, never backpressured) --
-  input  wire [63:0]               s_tdata_i,    //! 2 consecutive S32BE
+  input  wire [63+(INPUT_KEYS_P*8+41)*(INPUT_LOOPBACK_P != 0):0] s_tdata_i,    //! 2 consecutive S32BE
                                                  //! samples, wire order
   input  wire                      s_tvalid_i,   //! accepted-beat strobe
   input  wire                      s_tlast_i,    //! one AXIS frame per PDU
@@ -232,7 +232,7 @@ module KL_render_queue #(
                                                  //! bind loss, empty it
 
   //! --- to the render crossbars (KL_chan_map_render s_* and tick_i) ------
-  output logic [63:0]              m_tdata_o,    //! S32BE sample pair, wire
+  output logic [63+24*(INPUT_LOOPBACK_P != 0):0] m_tdata_o,    //! S32BE sample pair, wire
                                                  //! order; empty lanes zero
   output logic [N_IF_P-1:0]        m_tvalid_o,   //! beat strobe, per
                                                  //! interface
@@ -242,14 +242,6 @@ module KL_render_queue #(
                                                  //! 2 x PAIRS_C lanes
   output logic [N_IF_P-1:0]        render_tick_p_o, //! per interface: its
                                                  //! events are in, render
-
-  input wire [INPUT_KEYS_P*8-1:0] input_map_i = '0, //! committed logical map
-  input wire input_invalidate_i = 1'b0, //! accepted map change or clock loss
-  input wire input_capture_i = 1'b0, //! claim a frame once for a capture walk
-  input wire input_read_i = 1'b0, //! synchronous mono source request
-  input wire [5:0] input_addr_i = '0, //! destination, independent of stream
-  input wire [31:0] input_capture_ns_i = '0, //! capture frame's instant
-  output wire [23:0] input_sample_o, //! return next cycle, zero if unavailable
 
   //! --- observability (#443 RENDER_STAT) ---------------------------------
   output logic [N_STREAMS_P-1:0]   pop_p_o,      //! one-cycle per stream:
@@ -684,7 +676,7 @@ module KL_render_queue #(
   //! this event had a sample on some beat
   wire         any_w  = rany_r || rd0_r[24] || rd1_r[24];
 
-  assign m_tdata_o = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
+  assign m_tdata_o[63:0] = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
                       8'h00, even_w[7:0], even_w[15:8], even_w[23:16]};
   assign m_tlast_o = rlast_r;
   assign m_tuser_o = rs_r;
@@ -790,7 +782,18 @@ module KL_render_queue #(
   if (INPUT_LOOPBACK_P != 0 && KMIN_C > 2) begin : g_input_loop_lead_refused
     $error("input loopback eight-page retention requires KMIN_C <= 2");
   end
+  //! The optional extension leaves the disabled port list and widths intact.
+  //! Above s_tdata_i[63:0]: {map, invalidate, claim, read, address, stamp}.
+  //! m_tdata_o[87:64] returns the synchronous mono sample.
   if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
+    wire [INPUT_KEYS_P*8-1:0] input_map_i = s_tdata_i[105 +: INPUT_KEYS_P*8];
+    wire input_invalidate_i = s_tdata_i[104];
+    wire input_capture_i = s_tdata_i[103];
+    wire input_read_i = s_tdata_i[102];
+    wire [5:0] input_addr_i = s_tdata_i[101:96];
+    wire [31:0] input_capture_ns_i = s_tdata_i[95:64];
+    wire [23:0] input_sample_o;
+    assign m_tdata_o[87:64] = input_sample_o;
     localparam int SAMPLE_PAGES_C = 8;
     localparam int META_PAGES_C = 4;
     localparam int META_W_C = $clog2(META_PAGES_C);
@@ -933,7 +936,6 @@ module KL_render_queue #(
     assign copy_channel_w = '0;
     assign copy_done_w = 1'b0;
     assign copy_active_w = 1'b0;
-    assign input_sample_o = '0;
   end
 
 

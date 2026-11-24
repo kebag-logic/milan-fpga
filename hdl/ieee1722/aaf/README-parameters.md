@@ -77,6 +77,18 @@ At one, `KL_render_queue` reads each committed logical input destination after
 physical rendering and before scrubbing the consumed source frame.
 `INPUT_KEYS_P`, `INPUT_FIRST_P`, and `INPUT_CH_P` describe that map slice.
 The two approved tuples are `(16,8,8)` and `(64,1,63)`.
+
+Enabled ports append these fields; disabled widths retain their originals:
+
+| Module port | Original field | Enabled extension, high to low |
+|---|---|---|
+| Capture `lb_tdata_i` | `[63:0]` payload | `[87:64]` synchronous mono return |
+| Capture `tdm_walk_ns_o` | `[31:0]` instant | `[39]` claim, `[38]` read, `[37:32]` destination |
+| Queue `s_tdata_i` | `[63:0]` payload | `[105 +: INPUT_KEYS_P*8]` map, `[104]` invalidate, `[103]` claim, `[102]` read, `[101:96]` destination, `[95:64]` capture instant |
+| Queue `m_tdata_o` | `[63:0]` payload | `[87:64]` synchronous mono return |
+
+Both instance names remain unchanged.
+
 An eight-page, 512 by 24-bit sample RAM has one write port and one synchronous read port.
 Four metadata slots cover unclaimed frames at the supported leads.
 A claim saves the full RAM page before metadata reuse.

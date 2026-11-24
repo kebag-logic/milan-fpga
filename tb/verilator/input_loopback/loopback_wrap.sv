@@ -78,16 +78,16 @@ module loopback_wrap #(
   wire capture_w, read_w;
   wire [5:0] addr_w;
   wire [23:0] sample_w;
+  wire [63:0] unused_render_w;
   wire [31:0] walk_ns_w;
   KL_render_queue #(.N_STREAMS_P(N_STREAMS_P), .N_CH_P(8),
     .IF_LEAD_P(32'(LEAD_P)), .CLK_FREQ_HZ_P(49_152_000),
     .INPUT_LOOPBACK_P(1), .INPUT_KEYS_P(64),
     .INPUT_FIRST_P(INPUT_FIRST_P), .INPUT_CH_P(INPUT_CH_P)) queue (
     .clk_i(clk), .rst_n(rst_n), .hdr_p_i(hdr_w), .hdr_ts_ns_i(hdr_ts_w), .hdr_tv_i(hdr_tv_w),
-    .s_tdata_i(pcm_w), .s_tvalid_i(pcm_valid_w), .s_tlast_i(pcm_last_w), .s_tuser_i(pcm_stream_w),
+    .s_tdata_i({map_i, invalidate_i, capture_w, read_w, addr_w, walk_ns_w, pcm_w}), .s_tvalid_i(pcm_valid_w), .s_tlast_i(pcm_last_w), .s_tuser_i(pcm_stream_w),
     .wire_chans_i({N_STREAMS_P{4'd8}}), .ev_p_i(ev_i), .ev_ns_i(frame_ns_i), .flush_i(flush_i),
-    .input_map_i(map_i), .input_invalidate_i(invalidate_i), .input_capture_i(capture_w),
-    .input_read_i(read_w), .input_addr_i(addr_w), .input_capture_ns_i(walk_ns_w), .input_sample_o(sample_w)
+    .m_tdata_o({sample_w, unused_render_w})
   );
   KL_chan_map_capture #(.N_SLOTS_P(4), .N_TDM_P(2), .N_LB_STREAMS_P(1),
     .N_LB_CH_P(2), .INPUT_LOOPBACK_P(1)) capture (
@@ -96,8 +96,8 @@ module loopback_wrap #(
     .i2s_pair_valid_i(1'b0), .i2s_l_i('0), .i2s_r_i('0),
     .tdm_pair_valid_i(close_i), .tdm_pair_slot_i('0), .tdm_l_i('0), .tdm_r_i('0),
     .tdm_close_ns_i(frame_ns_i), .tone_smp_i('0), .tick_i(tick_i),
-    .input_capture_o(capture_w), .input_read_o(read_w), .input_addr_o(addr_w),
-    .input_sample_i(sample_w), .tdm_walk_ns_o(walk_ns_w),
+    .lb_tdata_i({sample_w, 64'd0}),
+    .tdm_walk_ns_o({capture_w, read_w, addr_w, walk_ns_w}),
     .pair_valid_o(pair_valid_o), .pair_slot_o(pair_slot_o), .pair_l_o(pair_l_o), .pair_r_o(pair_r_o)
   );
   KL_aaf_packetizer #(.N_TALKERS_P(1), .WIRE_CHANS_P(8)) packetizer (

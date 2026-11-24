@@ -321,8 +321,8 @@ MUTATIONS = [
      "F1: col 0 carries its own pair-0 frame (L)"),
     ("chmap", "the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick "
               "cycle with none pending names the frame before (#632)",
-     (("        tdm_walk_ns_o <= tdm_frame_ns_r;\n      end",
-       "      end\n      if (tdm_snap_w) tdm_walk_ns_o <= tdm_frame_ns_r;"),),
+     (("        tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;\n      end",
+       "      end\n      if (tdm_snap_w) tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;"),),
      "F: tick-cycle: col 1 walk instant is frame 2's"),
 ]
 

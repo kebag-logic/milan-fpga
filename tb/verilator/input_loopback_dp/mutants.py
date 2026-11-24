@@ -20,10 +20,10 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     dp = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
     queue = (ROOT / "hdl/ieee1722/aaf/KL_render_queue.sv").read_text()
-    pulse = "if (amap_edit_context_w && amap_edit_in_change_w) begin\n              input_loop_invalidate_r <= 1'b1;"
+    pulse = "else invalidate_r <= edit_change_w || direct_change_w || restore_change_w;"
     plants = [("control1", 1, None, None), ("control8", 8, None, None),
-              ("missing_edit_invalidation", 8, "dp", [(pulse, pulse.replace("1'b1", "1'b0"))]),
-              ("disconnected_map", 8, "dp", [(".input_map_i (amap_in_store_r)", ".input_map_i ('0)")]),
+              ("missing_edit_invalidation", 8, "dp", [(pulse, pulse.replace("edit_change_w", "1'b0"))]),
+              ("disconnected_map", 8, "dp", [("{(INPUT_LOOPBACK_P != 0){amap_in_store_r,", "{(INPUT_LOOPBACK_P != 0){(AMAP_IN_KEYS_C*8)'(0),")]),
               ("overwritten_capture_page", 1, "queue", [
                   ("cons_w[2:0]", "{1'b0, cons_w[1:0]}"),
                   ("page_frame_r[read_page_w][2:0]", "{1'b0, read_page_w}")]),

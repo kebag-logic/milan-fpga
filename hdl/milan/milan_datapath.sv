@@ -1479,12 +1479,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! cycle), and the instant of the frame the capture walk reads, which the
   //! crossbar banks with the frame itself: the AAF talkers' time base
   wire [63:0] dom_mark_ns_w;
-  wire [31:0] cmap_walk_ns_w;
-  wire input_loop_capture_w;
-  wire input_loop_read_w;
-  wire [5:0] input_loop_addr_w;
-  wire [23:0] input_loop_sample_w;
-  logic input_loop_invalidate_r;
+  wire [31+8*(INPUT_LOOPBACK_P != 0):0] cmap_walk_ns_w;
+  wire input_loop_invalidate_w;
   localparam int INPUT_LOOP_FIRST_C = (N_STREAMS == 1) ? 8 : 1;
   localparam int INPUT_LOOP_CH_C = (N_STREAMS == 1) ? 8 : 63;
 
@@ -1556,7 +1552,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! task #65: the LOOP bucket's feed - the depacketizer payload clone,
     //! same accepted-beat discipline as the render crossbar's tap
     //! (tvalid && tready; this port never backpressures).
-    .lb_tdata_i (lb_tap_tdata_w), .lb_tvalid_i (lb_tap_tvalid_w),
+    .lb_tdata_i ({{(INPUT_LOOPBACK_P != 0){24'(rq_tdata_w >> 64)}}, lb_tap_tdata_w}),
+    .lb_tvalid_i (lb_tap_tvalid_w),
     .lb_tlast_i (lb_tap_tlast_w), .lb_tuser_i (lb_tap_tuser_w),
     .lb_wire_chans_i (lb_tap_chans_w),
     //! 0x0036 paced-replay rework: a sink's bind wipe (task #32 eviction
@@ -1566,10 +1563,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! #645: every stream's queues take the settle recentre the render
     //! stage takes, at the same PDU end
     .lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),
-    .input_capture_o (input_loop_capture_w),
-    .input_read_o (input_loop_read_w),
-    .input_addr_o (input_loop_addr_w),
-    .input_sample_i (input_loop_sample_w),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
@@ -5178,6 +5171,29 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
   end : amap_boot_slot
 
+  if (INPUT_LOOPBACK_P != 0) begin : g_input_invalidation
+    logic invalidate_r;
+    wire edit_change_w = pp_amap_edit_req_w && amap_edit_beat_w
+        && (pp_amap_edit_phase_w == 3'd5)
+        && amap_edit_context_w && amap_edit_in_change_w;
+    wire direct_change_w = !pp_amap_edit_req_w && !amap_edit_txn_active_r
+        && !amap_boot_busy_w && !aecp_locked
+        && cfg_chmap_wr_en && !cfg_chmap_wr_side
+        && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)
+        && (amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+            != {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+                cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]});
+    wire restore_change_w = (amap_boot_r || amr_rb_r)
+        && (amap_in_store_r != amap_in_boot_w);
+    always_ff @(posedge axis_clk or negedge axis_resetn) begin : invalidate_input
+      if (!axis_resetn) invalidate_r <= 1'b1;
+      else invalidate_r <= edit_change_w || direct_change_w || restore_change_w;
+    end : invalidate_input
+    assign input_loop_invalidate_w = invalidate_r;
+  end else begin : g_no_input_invalidation
+    assign input_loop_invalidate_w = 1'b0;
+  end
+
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
     if (!axis_resetn) begin
       amap_edit_seen_r <= 1'b0;
@@ -5198,7 +5214,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_oclaim_cluster_r <= '0;
       amap_edit_out_resv_r <= '0;
       amap_in_store_r <= AMAP_IN_IMAGE_C;
-      input_loop_invalidate_r <= 1'b1;
       amap_out_owner_v_r <= AMAP_OUT_IMAGE_C;
       amap_out_owner_r <= amap_out_owner_of(AMAP_OUT_IMAGE_C);
       amap_out_cluster_r <= amap_out_cluster_of(AMAP_OUT_IMAGE_C);
@@ -5209,7 +5224,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_owr_slot_r <= 6'd0;
       amap_edit_owr_word_r <= 13'd0;
     end else begin
-      input_loop_invalidate_r <= 1'b0;
       amap_edit_iwr_p_r <= 1'b0;
       amap_edit_owr_p_r <= 1'b0;
       //! #658 boot writer: never beside a phase-5 write, which cannot run
@@ -5282,7 +5296,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end
           3'd5: begin
             if (amap_edit_context_w && amap_edit_in_change_w) begin
-              input_loop_invalidate_r <= 1'b1;
               amap_in_store_r[amap_edit_in_key_w*8 +: 8]
                 <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
               if (ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][6]) begin
@@ -5328,10 +5341,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           && !amap_boot_busy_w && !aecp_locked
           && cfg_chmap_wr_en && !cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
-        if (amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
-            != {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
-                cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]})
-          input_loop_invalidate_r <= 1'b1;
         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
           <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
@@ -5341,7 +5350,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! a transport failure inside its walk (D3 8.6): every port returns to
       //! its reset set, whatever the walk had applied.
       if (amap_boot_r || amr_rb_r) begin
-        if (amap_in_store_r != amap_in_boot_w) input_loop_invalidate_r <= 1'b1;
         amap_in_store_r <= amap_in_boot_w;
         amap_out_owner_v_r <= amap_out_boot_w;
         amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);
@@ -7621,7 +7629,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! .md, Talker capture handoff). A time base latched at the tick named the
   //! frame before on the first of these, a whole sample off. So the crossbar
   //! banks each frame's instant with the frame and hands the walk's out.
-  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;
+  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w[31:0]} : ptp_now_w;
 
   // ==========================================================================
   //  Media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo. It
@@ -8431,7 +8439,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! public: the render legs decode the presented event's identity off its
   //! beats (its samples name their PDU, event and channel)
-  wire [TDATA_WIDTH-1:0] rq_tdata_w  /* verilator public_flat_rd */;
+  wire [TDATA_WIDTH+24*(INPUT_LOOPBACK_P != 0)-1:0] rq_tdata_w  /* verilator public_flat_rd */;
   wire                   rq_tvalid_w /* verilator public_flat_rd */;
   wire                   rq_tlast_w;
   wire [3:0]             rq_tuser_w;
@@ -8477,20 +8485,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .MAX_EV_P       (RENDER_MAX_EV_C),
     .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
   ) render_queue (
-    .input_map_i (amap_in_store_r),
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .input_invalidate_i (input_loop_invalidate_r || !dom_live_w),
-    .input_capture_i (input_loop_capture_w),
-    .input_read_i (input_loop_read_w),
-    .input_addr_i (input_loop_addr_w),
-    .input_capture_ns_i (cmap_walk_ns_w),
-    .input_sample_o (input_loop_sample_w),
     .hdr_p_i      (dpkt_hdr_p_w),
     .hdr_ts_ns_i  (dpkt_hdr_ts_w),
     .hdr_tv_i     (dpkt_hdr_tv_w),
     //! the clone the crossbar consumed directly before #386: accepted
     //! beats, never backpressured
-    .s_tdata_i    (dpkt_pcm_tdata_w),
+    .s_tdata_i    ({{(INPUT_LOOPBACK_P != 0){amap_in_store_r,
+                     (input_loop_invalidate_w || !dom_live_w),
+                     8'(cmap_walk_ns_w >> 32), cmap_walk_ns_w[31:0]}}, dpkt_pcm_tdata_w}),
     .s_tvalid_i   (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
     .s_tlast_i    (dpkt_pcm_tlast_w),
     .s_tuser_i    (dpkt_pcm_tuser_w),
@@ -8533,7 +8536,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! #632: the presentation stage's event beats, one event per stream per
     //! domain event, in the clone format (never backpressured)
-    .s_tdata_i  (rq_tdata_w),
+    .s_tdata_i  (rq_tdata_w[63:0]),
     .s_tvalid_i (rq_tvalid_w),
     .s_tlast_i  (rq_tlast_w),
     .s_tuser_i  (rq_tuser_w),

@@ -473,7 +473,7 @@ module KL_chan_map_capture #(
   //! ALL DEFAULTED: an integration that has not wired the listener side
   //! leaves them off and gets a bucket that is permanently silent - a
   //! DEFINED state, not a dangling pin.
-  input  wire [63:0]  lb_tdata_i  = 64'd0, //! 2 consecutive S32BE samples,
+  input  wire [63+24*(INPUT_LOOPBACK_P != 0):0] lb_tdata_i  = 64'd0, //! 2 consecutive S32BE samples,
                                          //! wire (channel-interleaved) order
   input  wire         lb_tvalid_i = 1'b0, //! accepted-beat strobe
   input  wire         lb_tlast_i  = 1'b0, //! one AXIS frame per PDU
@@ -492,10 +492,6 @@ module KL_chan_map_capture #(
   input  wire [N_LB_STREAMS_P-1:0] lb_recentre_i = '0,
 
   //! --- media sample tick (one walk of the enabled slots per pulse) -------
-  output wire input_capture_o, //! claim one buffer frame per capture walk
-  output wire input_read_o, //! one mono request per synchronous source read
-  output wire [5:0] input_addr_o, //! buffered input destination
-  input wire [23:0] input_sample_i = '0, //! one-cycle RAM return
   input  wire         tick_i,
 
   //! --- pair injection to the shared packetizer (its capture contract) ----
@@ -520,7 +516,7 @@ module KL_chan_map_capture #(
   output logic [15:0] tdm_skip_cnt_o,    //! frame over unread frame (grid slow)
   //! #632: the instant of the frame the walk reads (tdm_close_ns_i), held
   //! for the whole walk with the walk bank
-  output logic [31:0] tdm_walk_ns_o
+  output logic [31+8*(INPUT_LOOPBACK_P != 0):0] tdm_walk_ns_o
 );
 
   // ---------------------------------------------------------------------- //
@@ -1291,7 +1287,7 @@ module KL_chan_map_capture #(
     if (!rst_n) begin
       tdm_snap_late_r <= 1'b0;
       for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= '0;
-      tdm_walk_ns_o <= '0;
+      tdm_walk_ns_o[31:0] <= '0;
     end
     else begin
       tdm_snap_late_r <= tdm_snap_take_w;
@@ -1299,7 +1295,7 @@ module KL_chan_map_capture #(
       //! can never name a frame the walk does not read (#632)
       if ((tdm_snap_w && !tdm_snap_take_w) || tdm_snap_late_r) begin
         for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
-        tdm_walk_ns_o <= tdm_frame_ns_r;
+        tdm_walk_ns_o[31:0] <= tdm_frame_ns_r;
       end
     end
   end : tdm_walk_snapshot
@@ -1374,7 +1370,14 @@ module KL_chan_map_capture #(
   wire input_step_done_w;
   wire [23:0] input_pair_l_w, input_pair_r_w;
   //! Only the enabled branch owns the two extra synchronous-read phases.
+  //! Enabled-only extensions: lb_tdata_i[87:64] returns the mono sample;
+  //! tdm_walk_ns_o[39:32] carries {claim, read, destination[5:0]}.
+  //! With the option off both ports retain their original widths.
   if (INPUT_LOOPBACK_P != 0) begin : g_input_loopback
+    wire [23:0] input_sample_i = lb_tdata_i[87:64];
+    wire input_capture_o, input_read_o;
+    wire [5:0] input_addr_o;
+    assign tdm_walk_ns_o[39:32] = {input_capture_o, input_read_o, input_addr_o};
     typedef enum logic [1:0] { INPUT_REQ_S, INPUT_LEFT_S, INPUT_RIGHT_S } input_state_t;
     input_state_t input_state_r;
     logic [23:0] input_left_r, input_right_r;
@@ -1420,9 +1423,6 @@ module KL_chan_map_capture #(
     assign input_step_done_w = 1'b1;
     assign input_pair_l_w = '0;
     assign input_pair_r_w = '0;
-    assign input_capture_o = 1'b0;
-    assign input_read_o = 1'b0;
-    assign input_addr_o = '0;
   end
 
   logic [$clog2(GAP_CYC_P+1)-1:0] gap_r;

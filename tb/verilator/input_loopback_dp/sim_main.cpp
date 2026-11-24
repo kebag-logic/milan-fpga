@@ -436,7 +436,7 @@ void Harness::observe_audio() {
         publications.push_back({event_ns+(kLead+1)*62500.0/3,copy_routes,generation});
         while (publications.size()>4) publications.pop_front();
     }
-    if (r->milan_datapath__DOT__input_loop_capture_w) {
+    if (((r->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) {
         expected.fill(0);
         active_eligible=false;
         const uint32_t when=r->milan_datapath__DOT__cmap_walk_ns_w;
@@ -586,7 +586,7 @@ void Harness::clip_at_boot() {
     output_buffered(false);
     for(auto& queue:pending_wire) queue.clear();
     tx.clear(); publications.clear(); expected.fill(0);
-    while(!dut->rootp->milan_datapath__DOT__input_loop_capture_w) step();
+    while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
     grade=true; axi_write(0x654,0x00020003);
     check.dec("AAF_ENABLED_AFTER_CLIP",axi_read(0x654)&3,3);
     long before_packets=packets;
@@ -691,7 +691,7 @@ int Harness::run() {
     output_buffered(true);
     start_the_feeds(); windows(12);
     // Start packet capture from a complete walk with the packetizer disabled.
-    while(!dut->rootp->milan_datapath__DOT__input_loop_capture_w) step();
+    while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
     grade=true;
     axi_write(0x654,0x00020003);
     windows(12);

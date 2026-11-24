@@ -130,6 +130,28 @@ The occupied ports would serve an additional scheduled reader.
 
 The disabled branch retains the existing scheduler unchanged.
 
+Disabled leaves retain their original ports and widths.
+
+Enabled connections extend existing buses above their original fields.
+
+Capture extends `lb_tdata_i` with the synchronous sample return.
+
+Capture extends `tdm_walk_ns_o` with claim, read, and destination.
+
+Queue extends `s_tdata_i` with map and capture controls.
+
+Queue extends `m_tdata_o` with the synchronous mono return.
+
+Disabled concatenations contain zero copies of these extensions.
+
+Only the enabled generate branch owns the invalidation register.
+
+The original map writer remains structurally unchanged.
+
+Canonical release elaboration compares identifiers, widths, cells, and connections.
+
+Only comments, attributes, and whitespace are excluded.
+
 This route avoids another raw 64-channel sample-hold bank.
 
 Dense two-sample beats need no additional serialization.
