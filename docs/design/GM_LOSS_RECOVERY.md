@@ -43,6 +43,14 @@ Receipt state machines infer each transition.
 
 A Sync timeout ages the port only while gmPresent holds.
 
+When this station takes the grandmaster role, its first Announce leaves in that handler (FPGA-gPTP #106).
+
+With transmit credit, it leaves before an Announce queued at the timeout instant re-elects a grandmaster.
+
+Without credit, the next 1 s beat tries again.
+
+The mastership then runs on this oscillator, not on the departed grandmaster's rate (FPGA-gPTP #107).
+
 The rule is IEEE 802.1AS-2011 Figure 10-13 with Cor1.
 
 FPGA-gPTP #89 adopted it.

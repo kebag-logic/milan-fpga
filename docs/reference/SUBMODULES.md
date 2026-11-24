@@ -946,6 +946,74 @@ Against it, `check` and `check-baseline` exit 0.
 
 The [area budget](../design/AREA_BUDGET.md) gives the figures.
 
+Issue #994 moves the gPTP gitlink to `1213ac5b`.
+
+It fast-forwards `1616fc8f` on the donor's `main`.
+
+The processor stays at `801ef228`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #102, the engine mutation arm at once | [103](https://github.com/Mister-M-alt/FPGA-gPTP/pull/103) | Test infrastructure only: the engine suite's mutants run concurrently. No `hdl/` or `syn/` change |
+| #104, the engine builds' ccache | [105](https://github.com/Mister-M-alt/FPGA-gPTP/pull/105) | Test infrastructure only: the engine suite and its mutants compile through ccache. No `hdl/` or `syn/` change |
+| #106, a new master's first Announce at once | [108](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108) | The handler that takes the grandmaster role sends the first Announce and arms the 1 s cadence from it (IEEE 802.1AS-2011 Figure 10-15). Before, it armed a 2 ms beat, and an Announce at the receipt-timeout instant re-elected its grandmaster first, so the aged port's mastership never reached the wire. The role, asCapable and transmit-credit gates stay. The ROM shrinks by two words, to 1,013 of 1,024 |
+| #107, each mastership on this oscillator | [108](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108) | Taking the role always writes rate 0, so the time base runs on its LocalClock (IEEE 802.1AS-2020 10.1.2.1, 10.2.4.14). Before, the write applied only during a slew, so a mastership kept the slave's last trim, which a phase transient can wind to the +200 ppm rail. scaledLastGmFreqChange is the negated slave estimate, 0 when no slave rate was written since reset or the last mastership (10.2.8.2.1 l), 11.4.4.3.9) |
+
+No engine port or parameter changes.
+
+No top-level port, parameter or register changes.
+
+The generator's options are unchanged, so the builder is too.
+
+`gptp_ucode.hex` changes; its new ledger row matches the donor's tracked image.
+
+The donor's reviewed head `331e27de` has the merged tree, `7b579e33`.
+
+The release images were routed at lane commit `973f2f20`, the gitlink move.
+
+Later commits change no synthesis input.
+
+The base is `300da99b`, whose image inputs were routed at `c2b2ba1a`.
+
+Both use the release recipe: the split image, one interface, Vivado 2026.1.
+
+Each takes the first directive that meets the build floor, in the recipe's order.
+
+At 1x1 the first missed, as on the base, so all three were routed.
+
+| Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | BRAM tiles | DSP |
+|---|---|---:|---:|---:|---:|---:|
+| 8x8/1if base, ExtraPostPlacementOpt | +0.105 / +0.036 ns | 46,621 | 53,338 | 15,570 | 98.5 | 13 |
+| 8x8/1if, ExtraPostPlacementOpt, selected | +0.066 / +0.036 ns | 46,246 | 53,381 | 15,622 | 98.5 | 13 |
+| 1x1/1if base, ExtraTimingOpt | +0.384 / +0.036 ns | 32,680 | 42,805 | 14,297 | 80.5 | 13 |
+| 1x1/1if, ExtraPostPlacementOpt, misses the floor | +0.007 / +0.036 ns | 32,555 | 42,803 | 13,598 | 80.5 | 13 |
+| 1x1/1if, ExtraTimingOpt, selected | +0.170 / +0.024 ns | 32,639 | 42,805 | 14,147 | 80.5 | 13 |
+| 1x1/1if, AltSpreadLogic_high | +0.072 / +0.024 ns | 32,633 | 42,803 | 14,142 | 80.5 | 13 |
+
+Every route completes with no routing error and no failing endpoint.
+
+Each selected image meets the build floor at every corner.
+
+The 8x8/1if image is 375 LUTs smaller, with 43 more FFs and 52 more slices.
+
+The 1x1/1if image is 41 LUTs smaller, with equal FFs and 150 fewer slices.
+
+BRAM and DSP are equal at both shapes.
+
+The donor measured +455 LUTs at 8x8/1if against an older parent.
+
+The [owner accepted that growth](https://github.com/Mister-M-alt/FPGA-gPTP/pull/108#issuecomment-7121892317) as a recorded exception.
+
+On this base the growth does not appear.
+
+The 8x8 worst setup path is `KL_mbx` read data.
+
+The selected 1x1 image's is the SoC bus bridge into the UART FIFO.
+
+Its worst hold path is in `chan_map_render`.
+
+None is in the gPTP plane.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
