@@ -1,0 +1,8 @@
+manifest: 33 fetched files match published_sha256, 0 mismatch
+crf_rx mutants user: cold -47.39 %  warm -53.95 %  (wall cold -34.36 %, warm -41.74 %)
+avtp_rxmon user: cold -65.51 %  (wall -19.10 %)
+crf_rx verdict lines: {'nocc': 23, 'cold': 23, 'warm': 23} identical | non-PASS case lines: 0 | == crf_rx mutants: checks: 23   failures: 0 ==
+pair "unsuffixed": L1d 3,946,517,051 -> 3,374,059,598 = 14.51 % lower; task-clock 4.87 % lower
+pair "-2": L1d 3,741,671,160 -> 3,411,296,019 = 8.83 % lower; task-clock 2.61 % lower
+pair "-3": L1d 3,654,245,643 -> 3,457,482,933 = 5.38 % lower; task-clock 2.50 % lower
+L1d range 5.38..14.51 %, median 8.83 %

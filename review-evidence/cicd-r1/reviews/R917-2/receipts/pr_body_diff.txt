@@ -1,0 +1,17 @@
+2a3,4
+> Relates to #998. Findings filed as #996, #999 and #1000.
+> 
+21,22c23
+< Relates to # (the CICD improvement lane's Issue, owner directive 2026-11-24: Verilator simulations faster with no
+< verdict change, every hosted job within 30 minutes)
+---
+> Relates to #998
+37,38c38,39
+< | `OBJCACHE=ccache` in the suite runner where ccache is installed | Every build and mutant rebuild recompiles the Verilator runtime (most of a small model's compile) and the unchanged testbench | crf_rx's 23 mutants: CPU -47 % on a cold cache, results identical; no effect where ccache is absent (the hosted runner today) |
+< | `OPT_FAST=-O3` for the CPU budget harness's testbench | Verilator's rule for the testbench C++ ends with its `-Os` default, after the suite's `-CFLAGS`; this harness's testbench is hot | CPU -2.5..-5 %, L1d misses -7..-9 %, output md5-identical |
+---
+> | `OBJCACHE=ccache` in the suite runner where ccache is installed | Every build and mutant rebuild recompiles the Verilator runtime (most of a small model's compile) and the unchanged testbench | crf_rx's 23 mutants: CPU -47 % on a cold cache (-54 % warm), results identical; avtp_rxmon -65 % cold (receipts re-attributed in the `author-r1b` packet); no effect where ccache is absent (the hosted runner today) |
+> | `OPT_FAST=-O3` for the CPU budget harness's testbench | Verilator's rule for the testbench C++ ends with its `-Os` default, after the suite's `-CFLAGS`; this harness's testbench is hot | CPU -2.5..-5 %, L1d misses 5-15 % lower in three paired runs (median 8.8 %), output md5-identical |
+112a114,115
+> 
+> 
