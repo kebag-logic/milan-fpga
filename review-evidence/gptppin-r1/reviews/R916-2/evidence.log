@@ -1,0 +1,195 @@
+Published manifest: 245 files; mismatches: []
+Packet commit has embedded cryptographic signature: False
+Firmware image comparison: 24/24 SHA-256 and path pairs equal
+Independent extraction from both raw ledger receipts: 24 identical image digests
+Unchanged diagram docs/diagrams/submodule_boundaries.png f5768392ef1ef67e7432aa7247e2cc7b0e61266fc764318b9fc5b8994c04ee66
+Unchanged diagram docs/diagrams/timesync_chain.png d209354a3748c15dd2f7f865462e4a9234d93317de24b4dddd04011fe08b7655
+Train merge is tree-identical to prior reviewed head
+Changes from d616b1c6 to reviewed head:
+CHANGELOG.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/SUBMODULES.md
+tb/verilator/gptp_shadow/README.md
+
+Consumer receipts (tail excerpts; interrupted windows are not passes):
+
+gptp_plane-all-window1-f97e49fe.log
+LOSS cycle=489600097 delay=500 since_step_ns=4999853375 unanswered=4
+ARM unanswered crossing drops=1 unanswered=6 unanswered_at_drop=4
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS
+PASS control nocease-control: every check passes
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+make: *** [Makefile:34: phc-step] Terminated
+
+gptp_plane-phc-step-arms1-4-f97e49fe.log
+LOSS cycle=489600097 delay=500 since_step_ns=4999853375 unanswered=4
+ARM unanswered crossing drops=1 unanswered=6 unanswered_at_drop=4
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS
+PASS control nocease-control: every check passes
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+make: *** [Makefile:34: phc-step] Terminated
+
+gptp_plane-phc-step-arms5-8-f97e49fe.log
+# phc_step_slice.py --mutants (phc_step.py plus the PHC_STEP_ARMS filter) at f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21: the four arms window 1 did not reach
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the fourth unanswered request after an unanswered crossing request
+phc_step campaign: 4 checks: 4 PASS, 0 FAIL
+
+gptp_plane-run-f97e49fe.log
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 96 threads; allocated 16.496 MB
+./obj_dir/Vgptp_plane_sim
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 5 frames, 0 wrong, expected 0x0000
+31 checks: 31 PASS, 0 FAIL
+
+gptp_shadow-legs-SUMMARY-f97e49fe.txt
+head f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21 porcelain 0
+gptp_shadow-run rc=0 seconds=60
+gptp_shadow-lifecycle rc=0 seconds=82
+porcelain-after 0
+
+gptp_shadow-mutants-slice-0-4-d616b1c6.log
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 4   failures: 0
+RESULT: PASS
+
+gptp_shadow-mutants-slice-4-8-d616b1c6.log
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 4   failures: 0
+RESULT: PASS
+
+gptp_shadow-mutants-slice-8-11-d616b1c6.log
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 3   failures: 0
+RESULT: PASS
+
+gptp_tables-all-window1-f97e49fe.log
+[ ok ] timer_wrong_depth: caught by "timer lockstep"
+[ ok ] timer_wrong_read_latency: caught by "timer lockstep"
+[ ok ] timer_index_alias: caught by "timer lockstep"
+[ ok ] rx_fifo_lane_stuck: caught by "rx_fifo values: lane"
+[ ok ] tx_fifo_count_stuck: caught by "tx_fifo values: count"
+[ ok ] ledger_type_stuck: caught by "ledger values: type"
+[ ok ] results_seq_stuck: caught by "results values: seq"
+make: *** [Makefile:66: mutants] Error 143
+
+gptp_tables-limits-f97e49fe.log
+# make -C tb/verilator/gptp_tables limits at f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21
+python3 ../../../scripts/gen_one_valued_table.py --check
+README.md: the one-valued table is current
+
+gptp_tables-mutants-0-13-f97e49fe.log
+[ ok ] ledger_wrong_depth: caught by "ledger lockstep"
+[ ok ] ledger_wrong_read_latency: caught by "ledger lockstep"
+[ ok ] ledger_index_alias: caught by "ledger lockstep"
+[ ok ] results_wrong_depth: caught by "results lockstep"
+[ ok ] results_wrong_read_latency: caught by "results lockstep"
+[ ok ] results_index_alias: caught by "results lockstep"
+controls: 13   failures: 0
+RESULT: PASS
+
+gptp_tables-mutants-13-26-f97e49fe.log
+[ ok ] results_seq_stuck: caught by "results values: seq"
+[ ok ] timer_deadline_stuck: caught by "timer values: deadline"
+[ ok ] declaration_missing: caught by "ledger values: tag"
+[ ok ] declaration_wrong_value: caught by "ledger values: tag"
+[ ok ] declaration_many_valued: caught by "ledger values: type"
+[ ok ] declaration_stray: caught by "values: declarations that name no censused column"
+controls: 13   failures: 0
+RESULT: PASS
+
+gptp_txts-f97e49fe.log
+[ ok ] mii_first_symbol_term_dropped: caught by "bias: the mean error is within 1.754 ns of zero"
+[ ok ] mii_transmit_tick_left_at_gmii: caught by "launch: every reconstruction is inside the published bound"
+[ ok ] mii_history_guard_left_at_the_gmii_floor: caught by "phc window, first symbol: that frame's own result is an explicit loss"
+[ ok ] mii_history_guard_short_of_the_window: caught by "phc window, first symbol: that frame's own result is an explicit loss"
+[ ok ] mii_history_guard_just_below_its_need: caught by "phc window, first symbol: the guard reloaded to the interval and its margin"
+[ ok ] mii_delta_forced_not_measured: caught by "fragment: the observer refused it, by measurement"
+controls: 13   failures: 0
+RESULT: PASS
+
+legs1-SUMMARY-f97e49fe.txt
+tsn_fuzz rc=0 seconds=82
+gptp_txts rc=0 seconds=193
+milan_dp-gptp rc=0 seconds=519
+gptp_plane rc=124 seconds=585
+milan_dp-gptp-lat rc=124 seconds=585
+gptp_tables rc=124 seconds=585
+porcelain-after 2
+DONE
+
+legs2-SUMMARY-f97e49fe.txt
+head f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21 porcelain 0
+gptp_tables-limits rc=0 seconds=0
+gptp_plane-run rc=0 seconds=3
+milan_dp-gptp-lat rc=0 seconds=519
+gptp_plane-phc-step rc=124 seconds=585
+porcelain-after 0
+DONE
+
+legs3-SUMMARY-f97e49fe.txt
+head f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21 porcelain 0
+gptp_plane-phc-step-arms5-8 rc=0 seconds=442
+gptp_tables-mutants rc=124 seconds=585
+porcelain-after 0
+DONE
+
+legs4-SUMMARY-f97e49fe.txt
+head f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21 porcelain 0
+gptp_tables-mutants-13-26 rc=0 seconds=357
+gptp_tables-mutants-0-13 rc=0 seconds=359
+porcelain-after 0
+
+milan_dp-gptp-f97e49fe.log
+[T-LAT] egress: observed launch 1730653 ns, t3 1730653 ns, gap 0 ns = 0 cycles (configured 0 ns)
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF822436A, expected clockAccuracy 0x22
+TX flags Sync: 80 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 80 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 30 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+212 checks: 212 PASS, 0 FAIL
+
+milan_dp-gptp-lat-f97e49fe.log
+[T-LAT] egress: observed launch 1730949 ns, t3 1731053 ns, gap 104 ns = 13 cycles (configured 104 ns)
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF8FE436A, expected clockAccuracy 0xFE
+TX flags Sync: 80 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 80 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 30 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+212 checks: 212 PASS, 0 FAIL
+
+milan_dp-gptp-lat-window1-f97e49fe.log
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 169.881 MB sources in 123 modules, into 17.684 MB in 25 C++ files needing 0.007 MB
+- Verilator: Walltime 47.060 s (elab=0.936, cvt=5.631, bld=39.008); cpu 7.033 s on 96 threads; allocated 1624.555 MB
+make --no-print-directory exec-gptp-lat
+./obj_gptplat/Vmilan_dp_gptplat
+make[1]: *** [Makefile:602: exec-gptp-lat] Terminated
+make: *** [Makefile:590: gptp-lat] Terminated

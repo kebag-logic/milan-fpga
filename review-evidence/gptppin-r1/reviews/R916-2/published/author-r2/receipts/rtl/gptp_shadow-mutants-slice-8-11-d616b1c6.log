@@ -1,0 +1,13 @@
+# mutants.py main() on MUTATIONS[8:11], lane at d616b1c6 (campaign inputs equal f97e49fe's): the two new controls
+slice 8:11 of 11: credit_never_withheld, first_master_announce_waits_for_a_beat, word3_applies_only_during_a_slew
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['#106 credit: the plane starts with no egress result owed', '#106: the plane starts with no egress result owed', '#107: the plane starts with no egress result owed']
+[ ok ] first_master_announce_waits_for_a_beat: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[ ok ] word3_applies_only_during_a_slew: caught by "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 3   failures: 0
+RESULT: PASS

@@ -1,0 +1,6 @@
+# phc_step_slice.py --mutants (phc_step.py plus the PHC_STEP_ARMS filter) at f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21: the four arms window 1 did not reach
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the fourth unanswered request after an unanswered crossing request
+phc_step campaign: 4 checks: 4 PASS, 0 FAIL

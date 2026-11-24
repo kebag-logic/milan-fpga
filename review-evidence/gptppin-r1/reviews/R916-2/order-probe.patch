@@ -1,0 +1,27 @@
+--- a/tb/verilator/gptp_shadow/sim_main.cpp
++++ b/tb/verilator/gptp_shadow/sim_main.cpp
+@@ -2682,8 +2682,10 @@
+     for (;;) {
+       const bool pairs_on = next_pair < t0 + quiet_after;
+       if (a1_due && (!pairs_on || t0 + a1_after <= next_pair)) {
++        dut->tx_tready_i = 0;
+         run_to(t0 + a1_after);
+         announce(tk_seq++, 100, GMID, PEER_CID, 0x00);
++        dut->tx_tready_i = 1;
+         a1_due = false;
+       } else if (pairs_on) {
+         run_to(next_pair);
+@@ -2749,8 +2751,12 @@
+     expect("#106 race: the Announce queued at 3.000 s then re-elects GMID",
+            fall != 0 && fall - rise <= 2 * kMsTicks, 1);
+     size_t between = 0;
+-    for (size_t i : master_announces(rise ? rise : cyc))
++    for (size_t i : master_announces(rise ? rise : cyc)) {
++      std::printf("ORDER PROBE: Announce last beat %llu, re-election %llu, before=%d\n",
++        static_cast<unsigned long long>(txf_cyc[i]),
++        static_cast<unsigned long long>(fall), txf_cyc[i] < fall);
+       if (txf_cyc[i] < rise + 2 * kSyncTicks) between++;
++    }
+     expect("#106 race: one master Announce reaches the lane before the "
+            "re-election", between, 1);
+     expect("#106 race: the sync receipt timeout restores mastership",

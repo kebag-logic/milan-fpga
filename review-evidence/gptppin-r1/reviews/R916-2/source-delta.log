@@ -1,0 +1,45 @@
+$ git rev-parse HEAD HEAD^{tree}
+f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21
+90eef089759111d73b0316ded772250ee95a9735
+$ git diff --stat bbfdb674 HEAD
+ CHANGELOG.md                                      |   6 +-
+ docs/guides/gptp/TEST_DEVELOPER.md                |   2 +-
+ docs/reference/SUBMODULES.md                      |  34 +-
+ tb/verilator/gptp_shadow/README.md                |   9 +-
+ tb/verilator/gptp_shadow/gptp_shadow_wrap.sv      |   8 +-
+ tb/verilator/gptp_shadow/mutants.py               |  71 +++-
+ tb/verilator/gptp_shadow/sim_main.cpp             | 486 +++++++++++++++++++++-
+ tb/verilator/gptp_shadow/test_mutant_lifecycle.py |  22 +-
+ 8 files changed, 615 insertions(+), 23 deletions(-)
+$ git diff --name-only 973f2f20 HEAD
+CHANGELOG.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/STRICTER_READINGS.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+syn/yosys/rom_digests.tsv
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+$ git log --first-parent --oneline 973f2f20..HEAD
+f97e49fec4 Record the gptp_shadow takeover grading and #997 in the 1213ac5b records, and state the release routes' selection rule as #818 does
+d616b1c635 Grade FPGA-gPTP #106 and #107 through the gptp_shadow slice and the real PHC, with both donor defects planted in its campaign
+3a8bdbf063 Merge dev-soft-core 2509db68 (PR #988 train) into the 1213ac5b pin lane
+bbfdb6746d Keep the 1213ac5b records within the audience style's ten-word sentence
+8c5a51e197 Record FPGA-gPTP 1213ac5b's behaviour and its release routes: the first master Announce at once, each mastership on this oscillator, both images within the build floor
+39e9c9d247 Carry FPGA-gPTP 1213ac5b to every pin site: the pin row, the engine guide permalinks, both diagrams through their generators and the gptp_ucode.hex ledger row

@@ -1,0 +1,14 @@
+# mutants.py main() on MUTATIONS[0:4] (tools/mutants_slice.py), lane at d616b1c6, whose campaign inputs equal f97e49fe's
+slice 0:4 of 11: abort_counts_as_completion, no_generation_check, no_tag_check, age_never_expires
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 4   failures: 0
+RESULT: PASS
