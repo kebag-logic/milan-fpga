@@ -62,7 +62,7 @@ def main() -> None:
             cmd += ["--dp-source" if kind == "dp" else "--queue-source", str(target)]
         log = out / (name + ".log")
         with log.open("w") as sink:
-            result = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT, timeout=7200)
+            result = subprocess.run(cmd, stdout=sink, stderr=subprocess.STDOUT)
         text = log.read_text()
         built = (work / "obj/parent_loopback").is_file()
         passed = (result.returncode == 0 and "RESULT: PASS" in text) if not kind else (

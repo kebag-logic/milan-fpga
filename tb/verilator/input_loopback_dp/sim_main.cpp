@@ -347,17 +347,24 @@ private:
     long walks = 0;
     long pair_count = 0;
     long max_walk_cycles = 0;
-    long words = 0, nonzero = 0, silent = 0;
-    long commands = 0, copy_edits = 0;
+    long words = 0;
+    long nonzero = 0;
+    long silent = 0;
+    long commands = 0;
+    long copy_edits = 0;
     bool grade = false;
     std::array<uint32_t,64> expected{};
     std::array<std::deque<uint32_t>,kStreams> pending_wire;
     // Per-stream delivery accounting for one traffic phase.
-    std::array<long,kStreams> phase_captured{}, phase_delivered{}, phase_packets{}, phase_backlog{};
+    std::array<long,kStreams> phase_captured{};
+    std::array<long,kStreams> phase_delivered{};
+    std::array<long,kStreams> phase_packets{};
+    std::array<long,kStreams> phase_backlog{};
     long max_backlog = 0;
     std::vector<uint8_t> tx;
     long packets = 0;
-    int pending_key = -1, pending_value = 0;
+    int pending_key = -1;
+    int pending_value = 0;
     bool pending_change = false;
     int last_commit_phase = -1;
     bool clipped = false;
@@ -458,7 +465,8 @@ void Harness::observe_audio() {
             for (int d=0;d<kDestinations;++d) {
                 int source=pub.routes[kFirst+d];
                 if (source<0) continue;
-                int stream=source/8, channel=source%8;
+                int stream=source/8;
+                int channel=source%8;
                 const double presentation=pub.capture_ns-62500.0/3;
                 const long ord=std::lround((presentation-anchor_ns[stream])/ps_phc)+anchor_ord[stream];
                 if (anchored[stream] && ord>=0 && ord<injected[stream] &&
@@ -521,7 +529,9 @@ void Harness::grade_wire() {
     tx.clear();
 }
 void Harness::edit(uint16_t command,int dest,int stream,int channel,long status) {
-    int key=kFirst+dest,port=0,cluster=key;
+    int key=kFirst+dest;
+    int port=0;
+    int cluster=key;
     for(int p=0;p<kStreams;++p)
         if(key>=kInputBase[p] && key<kInputBase[p]+kInputWidth[p]) {
             port=p; cluster=key-kInputBase[p]; break;
@@ -678,7 +688,8 @@ bool Harness::edit_beat(unsigned phase,unsigned record,uint64_t value) {
     dut->i_ctl_edit_phase=phase; dut->i_ctl_edit_rec=record; dut->i_ctl_edit_record=value;
     lo(); hi();
     dut->i_ctl_edit_req=1;
-    bool accepted=false,answered=false;
+    bool accepted=false;
+    bool answered=false;
     for(int n=0;n<4096;++n) {
         lo(); bool ready=!dut->o_ctl_edit_wait; uint64_t answer=dut->o_ctl_edit_data; hi();
         if(ready) { accepted=(answer&1)!=0; answered=true; break; }

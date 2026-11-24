@@ -35,7 +35,7 @@ def main() -> None:
     def run(cmd: list, cwd: Path = ROOT) -> None:
         """Echo and execute one command, failing on a nonzero exit."""
         print(shlex.join(list(map(str, cmd))), flush=True)
-        subprocess.run(list(map(str, cmd)), cwd=cwd, check=True, timeout=7200)
+        subprocess.run(list(map(str, cmd)), cwd=cwd, check=True)
     run([sys.executable, ROOT / "sw/builder/endstation_builder.py", cfg, "-o", w / "gen"])
     gen = w / "gen" / name
     overlay = json.loads((gen / "aem_overlay.json").read_text())

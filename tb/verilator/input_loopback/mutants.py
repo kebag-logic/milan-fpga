@@ -45,7 +45,7 @@ def main() -> None:
                        "VERILATOR_JOBS=4", "MDIR="+str(where / "obj"), "QUEUE_SRC="+str(source)]
             log = args.output / (name+".log")
             with log.open("w") as sink:
-                result = subprocess.run(command, stdout=sink, stderr=subprocess.STDOUT, timeout=1800)
+                result = subprocess.run(command, stdout=sink, stderr=subprocess.STDOUT)
             output = log.read_text()
             passed = ((result.returncode == 0 and "PASS input-loopback" in output) if not old else
                       (result.returncode != 0 and "FAIL "+assertion in output

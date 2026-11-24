@@ -278,6 +278,15 @@ DUT_READER_DISPOSITIONS = {
         "structural CDC check; it elaborates KL_mbx_cdc and its window, judges each sink's clock "
         "domain from the netlist, and plants raw crossings into isolated copies, each refused by its "
         "own words; no expected value is read from the text",
+    "tb/verilator/input_loopback/mutants.py":
+        "mutation campaign (#979); it plants one of seven mapped-copy and capture defects into copies of "
+        "KL_render_queue.sv or KL_chan_map_capture.sv and requires the unchanged sample scoreboard to "
+        "fail after a clean control; no expected value is read from the text",
+    "tb/verilator/input_loopback_dp/mutants.py":
+        "mutation campaign (#979); it plants one connection, retention or held-output defect into a copy "
+        "of milan_datapath.sv or KL_render_queue.sv and requires that plant's named runtime checks to "
+        "fail after both clean controls; expected values come from command intent and injected "
+        "samples, never from the text",
     "tb/verilator/milan_dp/srptx_mutants.py":
         "mutation campaign (#867); it plants one defect of the split build's SRP transmit path from its "
         "own table into an isolated copy of lwSRP, the SRP adapter or the datapath, and requires "

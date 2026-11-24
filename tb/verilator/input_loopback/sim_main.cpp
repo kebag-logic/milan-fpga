@@ -17,6 +17,18 @@ using Frame = std::array<uint32_t, 8>;
 uint32_t sample(int s, int c, int f) {
     return 0x800000u | (unsigned(s) << 20) | (unsigned(c) << 17) | unsigned(f);
 }
+// An unset control reads as zero; a malformed one stops the run instead.
+int env_int(const char* name) {
+    const char* text = std::getenv(name);
+    if (!text) return 0;
+    char* end = nullptr;
+    const long value = std::strtol(text, &end, 10);
+    if (end == text || *end != '\0') {
+        std::fprintf(stderr, "%s=%s is not a decimal integer\n", name, text);
+        std::exit(2);
+    }
+    return int(value);
+}
 uint32_t stamp(int f) { return uint32_t(0xFFF00000ull + uint64_t(f)*62500/3); }
 struct Beat { uint64_t data; uint8_t keep; bool last; };
 class Bench {
@@ -39,8 +51,8 @@ class Bench {
     bool events = true;
     // Sweep the prediction-horizon rate error with worst-sign marker jitter.
     // Environment controls leave the standard mutation oracle unchanged.
-    int stamp_ppm = std::getenv("STAMP_PPM") ? std::atoi(std::getenv("STAMP_PPM")) : 0;
-    int stamp_jitter = std::getenv("STAMP_JITTER_NS") ? std::atoi(std::getenv("STAMP_JITTER_NS")) : 0;
+    int stamp_ppm = env_int("STAMP_PPM");
+    int stamp_jitter = env_int("STAMP_JITTER_NS");
     int capture_offset(int frame) const {
         if (!stamp_ppm && !stamp_jitter) return 0;
         int ramp = (frame % 65) - 32;

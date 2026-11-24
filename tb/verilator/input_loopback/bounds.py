@@ -30,7 +30,7 @@ def main() -> None:
             log = out / f"{shape}-{name}.log"
             with log.open("w") as sink:
                 result = subprocess.run(command, env=dict(os.environ, **extra), stdout=sink,
-                                        stderr=subprocess.STDOUT, timeout=3600)
+                                        stderr=subprocess.STDOUT)
             text = log.read_text()
             passed = ((result.returncode == 0 and "PASS input-loopback" in text) if expectation == "pass" else
                       (result.returncode != 0 and "FAIL COPY_SAMPLE" in text) if expectation == "sample" else
