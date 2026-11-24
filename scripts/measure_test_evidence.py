@@ -669,6 +669,8 @@ def runner_contract(text: str) -> list[str]:
     budget = '''suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\\n' "${SUITE_TIMEOUT:-2400}" ;;
+    input_loopback)    printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
+    input_loopback_dp) printf '%s\\n' "${SUITE_TIMEOUT:-300}" ;;
     milan_dp)          printf '%s\\n' "${SUITE_TIMEOUT:-4800}" ;;
     milan_dp_gptp)     printf '%s\\n' "${SUITE_TIMEOUT:-6900}" ;;
     milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
