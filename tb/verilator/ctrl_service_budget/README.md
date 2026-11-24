@@ -795,18 +795,24 @@ and #977 charges it: the drain charges each record the unit plus `CTRL_LOOP_SRP_
 frame carries. [`kept_grade.py`](kept_grade.py) owes nothing and holds both groups to every condition, each breach a
 finding by name: both groups' logs are present and finished (no incomplete simulation, trap or bus error); every
 probe the point makes is marked, none other, and each has its record, its dearest within its charge
-(`poll_grade.record_limits`, from the group's own tagged frames); every kept record costs no more than the bound
-record of its own interface on the same image within the measurement rule's 5 % (`record_classes.rule`; kept <=
-bound x 1.05), that record present, printed with both figures and the margin; no work pass of either group is over
-THE SHARE, nor any idle run's longest pass; every pass of both given whole to THE TRANSMIT's build, and every build of
-one MRPDU, is within its stated cost. THE SHARE is read from the logs graded, never from a result file beside them,
-so a stale, empty or absent `<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the
-same grade (`kept_grade.Disposition`, which owes nothing), and one of the two groups graded alone is a finding.
-`--selftest` breaks each condition in synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone
-entry point (29 checks), and each must be the finding it names: a record over its charge, kept 4 % over bound holds
-and 6 % over breaks, kept exactly bound + 5 % (105,000 against 100,000) holds and one cycle more breaks, a pass of
-either group over THE SHARE and a build of one over its stated cost are findings, nothing owed, and a pass given whole
-to THE TRANSMIT's build over the slice stays a failure (`run.py`'s own STATED lines).
+(`poll_grade.record_limits`, from the group's own tagged frames, the record its own handler's span); every kept record
+costs no more than the bound record of its own interface on the same image within the measurement rule's 5 %
+(`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both figures and the margin; no work
+pass of either group is over THE SHARE, nor any idle run's longest pass; every pass of both given whole to THE
+TRANSMIT's build, and every build of one MRPDU, is within its stated cost. A tier-2 slice of THE TRANSMIT's build is a
+build of one's only where `whole_grade.held` itself classes its pass so, by the pass's start (its round idle, not an
+aged step, at most one SRP frame); with nothing owed every slice over the slice stays a failure, a build of one's, one
+whose round did work or that is an aged step's, and a pass given whole to the build. THE SHARE is read from the logs
+graded, never from a result file beside them, so a stale, empty or absent `<group>.json` neither clears nor hides it.
+`run.py` gives its STATED and SHARE lines the same grade (`kept_grade.Disposition`, which owes nothing), and one of
+the two groups graded alone is a finding. `--selftest` breaks each condition in synthetic logs at 1x1/1if, through
+`held`, `Disposition` and the standalone entry point (33 checks), and each must be the finding it names: a record over
+its charge, a record whose tagged frame carries Talker values charged them (held at that charge, one cycle more a
+finding), kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against 100,000) holds and
+one cycle more breaks, a pass of either group over THE SHARE and a build of one over its stated cost are findings,
+nothing owed, and a pass given whole to THE TRANSMIT's build over the slice, a bound build of one over it whose round
+did work or that is an aged step's, and a build of one as long as a pass given whole each keep their slice lines
+failing (`run.py`'s own STATED lines).
 
 ### Backlog rows
 
