@@ -10,15 +10,17 @@ import endstation_builder as eb
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / "avdecc"), str(ROOT / "protocol-processor/hdl/aecp/desc")]
-import aem_assemble
-import aem_specs
-import gen_aem_store
-import gen_aemi_image
-import gen_desc_image
 
 
 def image(overlay: dict) -> bytes:
     """The shipping descriptor image, including identity and writable names."""
+    # Imported here, not at module scope: gen_aemi_image exits 2 without the
+    # protocol-processor submodule, and test_builder.py imports this module
+    # before it answers --list in checkouts that have no submodules.
+    import gen_aem_store
+    import gen_aemi_image
+    import gen_desc_image
+
     model = gen_aem_store.build_model(gen_aem_store.spec_from_overlay(overlay))
     document = gen_aemi_image.model_to_document(model, gen_aemi_image.identity_from_overlay(overlay))
     return gen_desc_image.build(document, 576)[0]
@@ -26,6 +28,10 @@ def image(overlay: dict) -> bytes:
 
 def test_input_loopback_contract() -> None:
     """Nine clusters/page crossing, 64-key ceiling, independent physical key, and source bucket 6."""
+    import aem_assemble
+    import aem_specs
+    import gen_aem_store
+
     with tempfile.TemporaryDirectory(prefix="input-loopback-builder-") as tmp:
         directory = Path(tmp)
         for name, widths, first, channels in (
