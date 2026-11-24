@@ -1,0 +1,8 @@
+control: PASS rc=0: twin_mrp selftest: OK (11 checks)
+old-rla-before-after: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-lv-after-own-leaveall, mvrp-lv-after-own-leaveall, mt-at-own-leaveall, omission-with-room (11 checks)
+no-txlaf: CAUGHT rc=1: twin_mrp selftest: FAILED omission-from-full, omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+no-fourpacked: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-full-for-a-listener (11 checks)
+room-1499: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-octets, msrp-room-for-a-domain (11 checks)
+mvrp-walk-off: CAUGHT rc=1: twin_mrp selftest: FAILED mvrp-octets (11 checks)
+r1_faults: 5 faults, 0 escaped or failed
+rc=0

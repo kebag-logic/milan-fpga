@@ -1,0 +1,13 @@
+$ git diff --stat dbba60e6..HEAD -- sw/firmware/ctrl/srp "sw/firmware/ctrl/*.c" hdl configs third_party
+(empty above = no change)
+$ git diff --stat dbba60e6..HEAD
+ sw/firmware/ctrl/test/test_ctrl_firmware.py |  7 ++++++-
+ tb/verilator/milan_dp/README.md             |  9 ++++++---
+ tb/verilator/milan_dp/twin_mrp.py           | 28 ++++++++++++++++++++++------
+ 3 files changed, 34 insertions(+), 10 deletions(-)
+$ git diff --stat 402834ac..HEAD -- sw hdl configs third_party
+ sw/firmware/ctrl/test/test_ctrl_firmware.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+$ git log --format="%H %s" dbba60e6..HEAD
+ed7df79c6f87a4172c885f268ad67629bd56c4eb Describe the own-LeaveAll arms in the firmware gate's srp entry
+4ad6c164b70da4c7a48c342cb19fd164d4ef7f49 Count the twin grade self-test's checks as they run, and check that the sLA's rLA! takes a Registrar IN to LV at txLAF!

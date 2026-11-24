@@ -1,0 +1,14 @@
+selftest failures: []
+actual named checks: 11 ['msrp-lv-after-own-leaveall', 'mvrp-lv-after-own-leaveall', 'mt-at-own-leaveall', 'omission-with-room', 'omission-from-full', 'omission-from-full-registrar-in', 'joinin-after-omission-from-full', 'msrp-octets', 'msrp-full-for-a-listener', 'msrp-room-for-a-domain', 'mvrp-octets']
+advertised success: []
+table probes: 72 Applicant/Registrar/application combinations passed
+independent minimum vectors: MSRP 28/37/12/7, MVRP 5
+decoded omission: 1492 octets; full= False
+decoded omission: 1497 octets; full= True
+mutation drop-txlaf caught by ['omission-from-full', 'omission-from-full-registrar-in', 'joinin-after-omission-from-full']
+mutation drop-listener-fourpacked caught by ['msrp-full-for-a-listener']
+mutation capacity-off-by-one caught by ['msrp-octets', 'msrp-room-for-a-domain']
+mutation mvrp-endmark-missing caught by ['mvrp-octets']
+mutation extra-applicant-rla caught by ['msrp-lv-after-own-leaveall', 'mvrp-lv-after-own-leaveall']
+five independent grade mutations caught
+rc=0
