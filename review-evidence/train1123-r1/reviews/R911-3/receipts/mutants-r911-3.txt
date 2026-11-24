@@ -1,0 +1,17 @@
+unpatched: 0 fail
+frame-count-only: 2 of 32 checks fail
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+no-round-filter: 1 of 32 checks fail
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+no-aged-filter: 1 of 32 checks fail
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+any-over-kind: 0 of 32 checks fail
+all-build-one: 5 of 32 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+    - srp-bound's build of one over the slice whose AECP round did work (1,001 cycles, past whole_grade.ROUND_IDLE_CYCLES): no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one over the slice that is an aged step's: no build-one pass, its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, of equal length (98,000): the build-one pass is owed, both slice lines FAIL (ambiguous, so failed closed)
+survivors: ['any-over-kind']
+rc=0

@@ -1,0 +1,17 @@
+# ctrl_loop.h at 300da99b, THE SHAPES chain: each listed shape's CTRL_LOOP_SLICE_US against CTRL_LOOP_BUILD_ONE_PASS_US
+355: #else
+361: #if CTRL_LOOP_SHAPE(1u, 2u, 2u)        // one interface, the 1x1's streams
+362: #define CTRL_LOOP_SLICE_US 950u
+364: #define CTRL_LOOP_BUILD_ONE_PASS_US 735u
+370: #elif CTRL_LOOP_SHAPE(1u, 9u, 9u)      // one interface, the 8x8's streams
+371: #define CTRL_LOOP_SLICE_US 1475u
+373: #define CTRL_LOOP_BUILD_ONE_PASS_US 1475u
+379: #elif CTRL_LOOP_SHAPE(2u, 2u, 2u)      // two interfaces, the 1x1's streams
+380: #define CTRL_LOOP_SLICE_US 1300u
+382: #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+388: #elif CTRL_LOOP_SHAPE(2u, 9u, 9u)      // two interfaces, the 8x8's streams
+389: #define CTRL_LOOP_SLICE_US 1300u
+391: #define CTRL_LOOP_BUILD_ONE_PASS_US 1215u
+397: #else
+398: #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
+pairs (slice, build-one): [(950, 735), (1475, 1475), (1300, 1215), (1300, 1215)] ; slice >= build-one at every listed shape: True

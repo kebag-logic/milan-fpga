@@ -1,0 +1,19 @@
+# round-3 vs round-4 re-grade receipts, below the '#' header lines (diff of non-# lines)
+kept-grade-1x1-answering-ports: diff rc=0 (r3 19 lines, r4 19 lines)
+kept-grade-1x1-arm-A: diff rc=0 (r3 19 lines, r4 19 lines)
+kept-grade-8x8-1if-answering-ports: diff rc=0 (r3 21 lines, r4 21 lines)
+kept-grade-8x8-1if-arm-A: diff rc=0 (r3 20 lines, r4 20 lines)
+run-regrade-1x1-answering-ports: diff rc=0 (r3 16 lines, r4 16 lines)
+run-regrade-1x1-none: diff rc=0 (r3 16 lines, r4 16 lines)
+run-regrade-8x8-1if-answering-ports: diff rc=0 (r3 20 lines, r4 20 lines)
+run-regrade-8x8-1if-none: diff rc=0 (r3 19 lines, r4 19 lines)
+# 171,645 lines in r4 re-grades
+author-r4/receipts/budget/run-regrade-8x8-1if-answering-ports-r4.txt:4:SLICES 156265 tier-2 slices; the longest SRP's records 143,155, THE TRANSMIT's build 171,645, THE RETRY's round 31,222 CPU cycles, against the stated slice 147,500 (THE TIERS)
+author-r4/receipts/budget/run-regrade-8x8-1if-answering-ports-r4.txt:14:OWED srp-bound: a build-one pass at bus cycle 606660065: 171,645 CPU cycles over its stated 147,500 (CTRL_LOOP_BUILD_ONE_PASS_US, not restated), the bound path's registrations, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+author-r4/receipts/budget/run-regrade-8x8-1if-answering-ports-r4.txt:15:OWED srp-bound: a build-one pass of 171,645 CPU cycles, over its stated 147,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+author-r4/receipts/budget/run-regrade-8x8-1if-answering-ports-r4.txt:21:OWED srp-bound: a tier-2 slice of THE TRANSMIT's build of 171,645 CPU cycles, over the stated slice 147,500, owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977)
+# result/owed lines
+1:# run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/ctrl_service_budget/ checked out from 3
+1:# run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/ctrl_service_budget/ checked out from 3
+1:# run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/ctrl_service_budget/ checked out from 3
+1:# run.py --regrade of srp-kept,srp-bound with --record-budget-findings --record-share-findings, from round 1's measurement clone at c2b2ba1a with tb/verilator/ctrl_service_budget/ checked out from 3

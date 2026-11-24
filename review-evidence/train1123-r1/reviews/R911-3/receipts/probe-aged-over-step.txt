@@ -1,0 +1,12 @@
+1x1/1if: slice 95,000, step 97,500; aged step pass of 97,501 with one build and one SRP frame
+--- head: whole_grade over [('step', 97501)]; transmit_slices {'build': {97501}, 'build-one': set()}
+  STATED: ['srp-bound: a step pass of 97,501 CPU cycles, over its stated 97,500', "srp-bound: a tier-2 slice of THE TRANSMIT's build of 97,501 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  still failing: ['srp-bound: a step pass of 97,501 CPU cycles, over its stated 97,500', "srp-bound: a tier-2 slice of THE TRANSMIT's build of 97,501 CPU cycles, over the stated slice 95,000"]
+RESULT head: slice line FAILS ; run fails: True
+--- no-kind-filter: whole_grade over [('step', 97501)]; transmit_slices {'build': set(), 'build-one': {97501}}
+  STATED: ['srp-bound: a step pass of 97,501 CPU cycles, over its stated 97,500', "srp-bound: a tier-2 slice of THE TRANSMIT's build of 97,501 CPU cycles, over the stated slice 95,000"]
+  findings: []
+  still failing: ['srp-bound: a step pass of 97,501 CPU cycles, over its stated 97,500']
+RESULT no-kind-filter: slice line OWED ; run fails: True
+rc=0

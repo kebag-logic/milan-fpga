@@ -1,0 +1,9 @@
+# (sha256, path) lines of the plat ledger receipts, adc13dbd (author-r3) vs 300da99b (author-r4)
+adc13dbd: 24 lines; 300da99b: 24 lines; identical: True
+POINT and verdict lines identical: True
+  POINT 1x1-if1: rom 127,512 B, sram 56,736 B, 45.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 18048 B: PASS
+  POINT 1x1-if2: rom 129,296 B, sram 59,168 B, 46.5 RAMB36 (the 56-RAMB36 budget), ctrl_plat 19840 B: PASS
+  POINT 8x8-if1: rom 141,616 B, sram 100,096 B, 59.5 RAMB36 (platform-8x8-one-interface), ctrl_plat 19136 B: PASS
+  POINT 8x8-if2: rom 143,368 B, sram 117,632 B, 64.5 RAMB36 (platform-8x8-two-interfaces), ctrl_plat 21888 B: PASS
+  plat_ledger: PASS (0 finding(s))
+  plat_ledger rc=0
