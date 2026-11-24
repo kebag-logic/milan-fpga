@@ -164,6 +164,7 @@ import srp_arms  # noqa: E402
 import srp_mutants  # noqa: E402
 import srp_pub_mutants  # noqa: E402
 import srp_drain_mutants  # noqa: E402
+import srp_lane_mutants  # noqa: E402
 import srp_listener_mutants  # noqa: E402
 import srp_reclaim_mutants  # noqa: E402
 import srp_early_mutants  # noqa: E402
@@ -240,16 +241,16 @@ def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
                                                         "srp-poll-extra", "srp-send-extra", "talker-",
                                                         srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
                                                         srp_drain_mutants.PREFIX, srp_link_mutants.PREFIX,
-                                                        *srp_pub_mutants.ROUND5))
+                                                        srp_lane_mutants.PREFIX, *srp_pub_mutants.ROUND5))
                                   and not d.name.startswith(srp_drain_mutants.PREFIX_8X8))
         failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
         # the Listener copies at 8x8/1if too (#930), the SRP cut (#665's ruling of 2026-11-20, item 3), the
         # Talkers kept for StreamIDs no binding holds (#969), the link level in a loop pass (#973) and #977's
-        # drain charge, THE SETTLE and the re-declarations' pass
+        # drain charge, THE SETTLE, the re-declarations' pass and the sink index
         srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
                                     if d.name.startswith((srp_listener_mutants.PREFIX, srp_reclaim_mutants.PREFIX,
                                                           srp_drain_mutants.PREFIX, srp_early_mutants.PREFIX,
-                                                          srp_link_mutants.PREFIX)))
+                                                          srp_link_mutants.PREFIX, srp_lane_mutants.PREFIX)))
         failed = srp_mutants.campaign(out / "srp-8x8-if1-mutants", lwsrp, args.jobs, 1,
                                       srp_listener_mutants.ENTITY) or failed
     finally:

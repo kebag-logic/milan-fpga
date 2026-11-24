@@ -548,6 +548,44 @@ TEST_F(Srp, ATalkerIsASinksOnlyForItsStreamIDByteForByte) {
     EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u) << "a's sink declares Ready";
     EXPECT_EQ(adapter.ifs[0].sinks[1].declared,0u) << "b's sink declares nothing";
 }
+// The sink index (#977, srp_mbx.c index_sinks): a and c share a lane, c bound first and a ahead of it in the lane once
+// bound, so c is its lane's second; each StreamID's Talker is found for its own sinks alone by the indication, the
+// receive filter, the kept count and the walk, a second binding of c is found beside the first, and a binding's end
+// leaves its lane.
+TEST_F(Srp, EveryBindingInASinkLaneTakesItsOwnStreamsTalkersAlone) {
+    settle();
+    const msrp_stream_id a{{2,1,2,3,4,5,6,0x05}};
+    const msrp_stream_id c{{2,1,2,3,4,5,6,0x15}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_EQ(a.bytes[7]%SRP_SINK_LANES,c.bytes[7]%SRP_SINK_LANES) << "a and c share a lane";
+    auto failed=talker_value(c,da,2);
+    failed.insert(failed.end(),{0x80,0,0x0e,0x0e,0x0e,0x0e,0x0e,0x01,1});
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&c,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(c,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "c's Advertise registers for its sink";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&a,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(a,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.kept_count[0],0u) << "the count before a's receive keeps no Talker of a bound StreamID";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "a's Advertise registers for its sink";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "the walk finds c's Advertise for its lane's second";
+    offer(frame(2,failed,1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,1u) << "c's Failed replaces its Advertise at its lane's second";
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "and a's sink keeps a's Advertise";
+    EXPECT_EQ(adapter.kept_count[0],0u) << "the filter keeps no Talker of a bound StreamID";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].declared,1u) << "c's sink declares Asking Failed";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&c,da,2));
+    settle(); advance(200);
+    offer(frame(1,talker_value(c,da,2),1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u) << "c's Advertise registers for both of its bindings";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,2u) << "the second of them too";
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
+    settle(); advance(200);
+    offer(frame(2,failed,1)); advance(200);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,1u) << "c's Failed registers for the binding left";
+    EXPECT_EQ(adapter.ifs[0].sinks[1].registered_kinds,0u) << "and for no ended binding";
+}
 // lwSRP's build options by shape (#977; srp_entity.py, LWSRP_OPTIONS, the shape header every unit force-includes): the
 // one-interface shapes build the lookup buckets, no MAP work at one port, the lean validation pass and no leave timer
 // event for a replaced Talker the rapid leave took to MT, 8x8/1if alone the merged Message build; every other shape

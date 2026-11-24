@@ -16,6 +16,7 @@ import srp_listener_mutants
 import srp_kind_mutants
 import srp_reclaim_mutants
 import srp_drain_mutants
+import srp_lane_mutants
 import srp_early_mutants
 import srp_link_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
@@ -959,6 +960,7 @@ DEFECTS += srp_listener_mutants.defects(Defect)
 DEFECTS += srp_kind_mutants.defects(Defect)
 DEFECTS += srp_reclaim_mutants.defects(Defect)
 DEFECTS += srp_drain_mutants.defects(Defect)
+DEFECTS += srp_lane_mutants.defects(Defect)
 DEFECTS += srp_early_mutants.defects(Defect)
 DEFECTS += srp_link_mutants.defects(Defect)
 
