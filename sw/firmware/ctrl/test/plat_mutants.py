@@ -57,7 +57,8 @@ OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
 
 def mutants(mutant: type) -> tuple:
     """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
-    return csr_mutants(mutant) + console_mutants(mutant) + lat_mutants(mutant) + boot_mutants(mutant) + phy_mutants(mutant) + mii_mutants(mutant)
+    return (csr_mutants(mutant) + console_mutants(mutant) + lat_mutants(mutant) + boot_mutants(mutant)
+            + phy_mutants(mutant) + mii_mutants(mutant))
 
 
 def csr_mutants(mutant: type) -> tuple:

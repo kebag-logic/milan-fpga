@@ -29,7 +29,8 @@ runs any leg, it runs arm A there, its arm A legs together ran every group of th
 cost measured over the arm depending on every one of them, and its answering-ports leg there ran aecp-fanout's
 accepted SET_CONFIGURATION and its SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such
 point is refused. So a pass of 8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if
-leg is held complete there too. At 1x1/1if and Arty its answering-ports leg must also have run aecp-reboot's accepted REBOOT
+leg is held complete there too. At 1x1/1if and Arty its answering-ports leg must also have run
+aecp-reboot's accepted REBOOT
 and a refused one, and in its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path port reads
 (#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so the
 response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that record,

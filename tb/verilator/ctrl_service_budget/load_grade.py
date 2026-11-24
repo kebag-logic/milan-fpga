@@ -113,7 +113,8 @@ TARGET = 0.70
 #: domain's; aecp.h, AECP_NOTICES_MOST's terms), at a point an image is built at the descriptors the shape header states
 #: (shape_costs.findings holds them to it: the 8x8's 18 streams, one AVB interface and one clock domain).
 POINTS = {
-    'arty-1x1': {'n_if': 1, 'sources': 1, 'sinks_per_if': 2, 'registrations': 16, 'counter_descriptors': 5},'1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
+    'arty-1x1': {'n_if': 1, 'sources': 1, 'sinks_per_if': 2, 'registrations': 16, 'counter_descriptors': 5},
+    '1x1/1if': dict(n_if=1, sinks_per_if=2, registrations=16, counter_descriptors=6),
           '8x8/2if': dict(n_if=2, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '8x8/1if': dict(n_if=1, sinks_per_if=8, registrations=16, counter_descriptors=20),
           '32x32/2if': dict(n_if=2, sinks_per_if=16, registrations=16, counter_descriptors=68)}
@@ -223,7 +224,11 @@ OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, u
 #: (15,976 in valid-destinations' srp-talker-held) and the AECP notice item 150 (14,084 in the declaring-outputs
 #: arm's aecp-fanout; 210 before).
 STATED_US = {
-    'arty-1x1': {'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120, 'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205, 'item.aecp.response': 45, 'item.aecp.probe': 45},
+    'arty-1x1': {
+        'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120,
+        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40,
+        'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+        'item.aecp.response': 45, 'item.aecp.probe': 45},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 280, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 185, 'event.MAAP': 165, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.retained': 285, 'item.aecp.notice': 150,
@@ -276,7 +281,11 @@ STATED_US = {
 #: cut's head, as STATED_US states (#665's owner decision of 2026-11-20, ruling item 4), and ADP's record
 #: at 1x1/1if 105 us here too (9,585 CPU cycles in the answering-ports arm's backlog-adp-refill).
 STATED_US_DONOR = {
-    'arty-1x1': {'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120, 'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40, 'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205, 'item.aecp.response': 45, 'item.aecp.probe': 45},
+    'arty-1x1': {
+        'record.srp': 300, 'record.aecp': 285, 'record.acmp': 240, 'record.adp': 120, 'record.maap': 120,
+        'event.ADP': 95, 'event.ACMP': 165, 'event.MAAP': 155, 'event.AECP': 85, 'event.TICK': 45, 'event.GM': 40,
+        'centisecond': 150, 'events_none': 40, 'item.retained': 300, 'item.aecp.notice': 205,
+        'item.aecp.response': 45, 'item.aecp.probe': 45},
     '1x1/1if': {'record.srp': 285, 'record.aecp': 250, 'record.acmp': 265, 'record.adp': 105, 'record.maap': 115,
                 'event.ADP': 115, 'event.ACMP': 170, 'event.MAAP': 170, 'event.AECP': 75, 'event.TICK': 55,
                 'event.GM': 40, 'centisecond': 170, 'events_none': 40, 'item.aecp.notice': 150,
@@ -647,7 +656,8 @@ def controls(root: Path) -> list[str]:
     over['1x1/1if']['record.acmp'] = 100_000
     pin = {p: dict(v) for p, v in STATED_US.items()}
     pin['8x8/2if']['record.acmp'] = 100_000
-    if CEILING != {'1x1/1if': 0.70, 'arty-1x1': 0.70} or not any('1x1/1if: the load' in f for f in findings(root, over)) or \
+    if CEILING != {'1x1/1if': 0.70, 'arty-1x1': 0.70} or \
+            not any('1x1/1if: the load' in f for f in findings(root, over)) or \
             flip_grade.FLIP.get('8x8/2if') != 0.70 or not any('8x8/2if: the load' in f
                                                               for f in flip_grade.findings(root, pin)):
         escaped.append('a held point not held')

@@ -50,7 +50,8 @@ if TYPE_CHECKING:
 #: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
 #: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
 PACED = {
-    'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 315},'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+    'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 315},
+    '1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.

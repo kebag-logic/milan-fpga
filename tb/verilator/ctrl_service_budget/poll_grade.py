@@ -136,7 +136,9 @@ STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_
              shape_costs.Shape(2, 9, 9): TWO}
 
 # Arty FPGA measurements at exactly 80 MHz; no interface-count fallback.
-STATED_US[shape_costs.Shape(1, 1, 2)] = {'base': 225, 'withdraw': 90, 'rebuild': 245, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0, 'acmp': 60, 'aecp': 200, 'aecp_long': 380, 'acmp_declined': 20}
+STATED_US[shape_costs.Shape(1, 1, 2)] = {
+    'base': 225, 'withdraw': 90, 'rebuild': 245, 'walk': 30, 'reclaim': 20, 'retained': 300, 'mrpdu': 0,
+    'acmp': 60, 'aecp': 200, 'aecp_long': 380, 'acmp_declined': 20}
 
 
 #: An SRP record's own apply (srp_mbx:apply_receive outside the polls), held to the retained item's stated cost.

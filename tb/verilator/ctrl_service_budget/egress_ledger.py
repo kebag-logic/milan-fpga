@@ -11,7 +11,8 @@ backpressure to the service budget. A new or larger miss fails the leg (#894's h
 - a budget miss of any other row is new, and fails.
 
 The ledgers are derived at 8x8/1if (#894) and at Arty's own 80 MHz point (#878, round 4),
-by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold (HOLD_MS, read from scenario.py's backlog-owed group) plus the
+by #894's ledger ruling, items 2 and 3: each row's figure is the scenario's egress hold
+(HOLD_MS, read from scenario.py's backlog-owed group) plus the
 service behind it at its measurement (MEASURED at each point's own clock) plus 5 %, rounded up to 0.01 ms (figure).
 Sections 13 and 15 state those figures, and the self-test holds each table and the derivation to the rule.
 The tool reads the harness's own output: a results directory's group grades (run.py's <group>.json), whose ms is the
@@ -366,7 +367,8 @@ def controls(base: Path, run: Callable[[list[str]], tuple[int, str]],
                                                 "f'wait cycles {59 * MS}', 'mark room', 'txready 1'")
     out = [(f"the ledger is section {section}'s table, row for row and figure for figure", doc_figures == ledger,
             str(doc_figures)),
-           (f"section {section}'s measurement is the one the ledger derives from", measured == MEASURED[point], str(measured)),
+           (f"section {section}'s measurement is the one the ledger derives from",
+            measured == MEASURED[point], str(measured)),
            ('each figure is the hold plus the service behind it plus 5 %, rounded up to 0.01 ms', ledger == rule,
             str(rule)),
            ("the hold is scenario.py's backlog-owed hold, and a planted hold of another length is read as it",

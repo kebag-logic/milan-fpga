@@ -334,7 +334,8 @@ def judge(probe: Probe, seg: Segment | None, want: int | None) -> str | None:
         return None if probe.address in commits else f'{at}: never committed'
     cause = 5 if probe.kind == K_LOAD else 1
     reported = (seg.reports(8), seg.reports(12), seg.reports(16))
-    bus = ([ln for ln in seg.tagged('BUS') if int(ln[2], 16) == (probe.address & ~63 if ln[1] == 'C' else probe.address)] if probe.kind == K_LOAD
+    bus = ([ln for ln in seg.tagged('BUS')
+            if int(ln[2], 16) == (probe.address & ~63 if ln[1] == 'C' else probe.address)] if probe.kind == K_LOAD
            else [ln for ln in seg.tagged('FETCH') if int(ln[1], 16) == probe.address & ~63])
     wrong = []
     if [int(t[2]) for t in traps] != [cause] or reported[0] != [cause] or reported[1] != [probe.address]:

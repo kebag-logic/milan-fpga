@@ -107,7 +107,8 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
             soc = milan_soc.MilanSoC(
                 platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
                 board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-                flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD, l2_bytes=clocks['l2_bytes'],
+                flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD,
+                l2_bytes=clocks['l2_bytes'],
                 extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
                 integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
             milan_soc.add_ctrl_memory(soc, elf)
@@ -126,7 +127,8 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': soc.cpu_clk_freq, 'cpu_cd': soc.cpu_cd, 'milan_hz': milan_hz, 'shape': shape, 'mutant': mutant,
+        'sys_hz': sys_hz, 'cpu_hz': soc.cpu_clk_freq, 'cpu_cd': soc.cpu_cd, 'milan_hz': milan_hz,
+        'shape': shape, 'mutant': mutant,
         'netlist': VexiiRiscv.netlist_name,
         'memory_regions': cpu.soc_regions,
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
