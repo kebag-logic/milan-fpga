@@ -355,6 +355,8 @@ Select a source stream different from the input port index.
 
 Verify transmitted payload values, channel identity, and event sequence.
 
+Grade each output stream's delivery separately; a missing output must fail.
+
 Cover ADD, REMOVE, replacement, fan-out, unmapped silence, and underrun.
 
 Cover reset, bind loss, format clipping, and buffer-fill edits.

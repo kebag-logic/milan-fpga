@@ -14,7 +14,8 @@ The default shape has eight streams and 63 independent loop destinations.
 The scoreboard covers cross-stream and reversed-channel mappings, every
 loop destination, out-of-range silence, input and output fan-out, REMOVE,
 replacement, edits during copying, live clock stop/restart, reset during
-activity, bind flush, timestamp wrap and prolonged absence across tag wraps.
+activity, bind flush together with map invalidation (the bind-only term is
+untested; see below), timestamp wrap and prolonged absence across tag wraps.
 The wrapper supplies committed logical maps directly.
 The [parent integration test](../input_loopback_dp/README.md) executes mapping commands.
 It also checks generated geometry and committed parent connections. This test does not claim a board audio soak.

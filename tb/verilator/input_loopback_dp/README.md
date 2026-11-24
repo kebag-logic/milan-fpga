@@ -19,15 +19,20 @@ The expected map comes exclusively from command intent.
 The parent commit pulse establishes the edit time.
 Neither stored mapping bits nor buffer samples supply expected values.
 Every capture sample and transmitted sample is graded.
+Each output stream's delivery is graded separately in both traffic phases.
+At each phase's end every stream must have sent packets of its own words.
+Its words not yet on the wire must not exceed one packet, the partial tail.
 Silence and the first eligible new frame are included.
 All 63 destinations and eight talkers run concurrently at 8x8.
 The final unused channel must remain silent.
 A walk deadline assertion covers the entire capture walk.
 
-`python3 mutants.py --output <scratch>` runs controls and four plants.
-Removing the edit invalidation or map connection must fail samples.
+`python3 mutants.py --output <scratch>` runs two controls and fifteen plants.
+Removing the edit invalidation or map connection must fail samples at both shapes.
 Reducing retention to four pages must fail at 1x1.
 Dropping the claimed page's upper address bit must also fail.
+Holding any one output stream off, each of the eight at 8x8 and the one at 1x1,
+must fail that stream's `WIRE_STREAM_DELIVERY` and `WIRE_STREAM_COMPLETE` in both phases.
 Compilation errors never count as successful detections.
 
 The [wire fixture](../input_loopback/README.md) adds isolated leaf coverage.

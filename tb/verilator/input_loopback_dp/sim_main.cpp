@@ -39,6 +39,12 @@ constexpr uint32_t kEventMask = 0x1FFFFu;
 constexpr int kFirst = kStreams == 1 ? 8 : 1;
 constexpr int kDestinations = kStreams == 1 ? 8 : 63;
 constexpr int kLead = kStreams == 1 ? 2 : 1;
+// One packet carries kEvents events of kChans words. A stream's packet leaves
+// once its sixth event is captured, so at most one packet's words wait.
+constexpr long kPacketWords = long(kEvents)*kChans;
+constexpr long kWireTail = kPacketWords;
+// The shorter, clipped phase carries 24 PDUs per stream.
+constexpr long kMinPhasePackets = 16;
 constexpr uint32_t sample_word(int s,int c,long e) {
     return kMarker | (unsigned(s)<<20) | (unsigned(c)<<17) | unsigned(e);
 }
@@ -346,6 +352,9 @@ private:
     bool grade = false;
     std::array<uint32_t,64> expected{};
     std::array<std::deque<uint32_t>,kStreams> pending_wire;
+    // Per-stream delivery accounting for one traffic phase.
+    std::array<long,kStreams> phase_captured{}, phase_delivered{}, phase_packets{}, phase_backlog{};
+    long max_backlog = 0;
     std::vector<uint8_t> tx;
     long packets = 0;
     int pending_key = -1, pending_value = 0;
@@ -376,6 +385,8 @@ private:
     void output_buffered(bool firmware);
     void windows(int pdus) { run_pdus(pdus); }
     void clip_at_boot();
+    void begin_phase();
+    void end_phase(const char* phase);
 };
 
 void Harness::bring_out_of_reset() {
@@ -468,7 +479,10 @@ void Harness::observe_audio() {
             uint32_t got=half ? r->milan_datapath__DOT__cmap_r_w : r->milan_datapath__DOT__cmap_l_w;
             uint32_t want=expected[channel];
             check.hex("PARENT_SAMPLE",got,want);
-            pending_wire[channel/8].push_back(want);
+            auto& queue=pending_wire[channel/8];
+            queue.push_back(want);
+            ++phase_captured[channel/8];
+            phase_backlog[channel/8]=std::max<long>(phase_backlog[channel/8],long(queue.size()));
             ++words;
             if (want) ++nonzero; else ++silent;
         }
@@ -498,7 +512,9 @@ void Harness::grade_wire() {
                 uint32_t got=(uint32_t(tx[o])<<16)|(uint32_t(tx[o+1])<<8)|tx[o+2];
                 check.hex("PARENT_WIRE_SAMPLE",got,q.front()); q.pop_front();
                 check.dec("WIRE_PAD",tx[o+3],0);
+                ++phase_delivered[stream];
             }
+            ++phase_packets[stream];
         }
         ++packets;
     }
@@ -565,7 +581,31 @@ void Harness::pages(bool firmware) {
         }
     }
 }
+void Harness::begin_phase() {
+    phase_captured.fill(0); phase_delivered.fill(0); phase_packets.fill(0); phase_backlog.fill(0);
+}
+// Every configured output stream must carry its own captured words. A stream's
+// words that have not reached the wire are bounded by kWireTail, the packet
+// still being assembled. An absent or stalled output grows that backlog
+// without limit, so the phase's completion point fails it by name.
+void Harness::end_phase(const char* phase) {
+    for(int s=0;s<kStreams;++s) {
+        const size_t i=size_t(s);
+        char what[96];
+        std::snprintf(what,sizeof what,"WIRE_STREAM_DELIVERY %s stream %d",phase,s);
+        check.that(what,phase_packets[i]>=kMinPhasePackets && phase_captured[i]>0 &&
+                   phase_delivered[i]>=phase_captured[i]-kWireTail);
+        std::snprintf(what,sizeof what,"WIRE_STREAM_COMPLETE %s stream %d",phase,s);
+        check.that(what,long(pending_wire[i].size())<=kWireTail && phase_backlog[i]<=kWireTail);
+        max_backlog=std::max(max_backlog,phase_backlog[i]);
+        std::printf("phase %s stream %d captured=%ld delivered=%ld packets=%ld tail=%zu max_backlog=%ld\n",
+                    phase,s,phase_captured[i],phase_delivered[i],phase_packets[i],
+                    pending_wire[i].size(),phase_backlog[i]);
+    }
+}
 void Harness::clip_at_boot() {
+    // Grade the first traffic phase before the reset discards its tail.
+    end_phase("edits");
     // Hold the restore open while its input format clips the factory image.
     grade=false; feed_mask=0;
     dut->axis_resetn=0; dut->gtx_resetn=0; steps(32);
@@ -587,12 +627,14 @@ void Harness::clip_at_boot() {
     for(auto& queue:pending_wire) queue.clear();
     tx.clear(); publications.clear(); expected.fill(0);
     while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
+    begin_phase();
     grade=true; axi_write(0x654,0x00020003);
     check.dec("AAF_ENABLED_AFTER_CLIP",axi_read(0x654)&3,3);
     long before_packets=packets;
     start_the_feeds(); windows(24);
     check.that("CLIPPED_WIRE_TRANSMITS",packets>before_packets+10*kStreams);
     pages(false);
+    end_phase("clipped");
     clipped=true;
 }
 void Harness::output_buffered(bool firmware) {
@@ -692,6 +734,7 @@ int Harness::run() {
     start_the_feeds(); windows(12);
     // Start packet capture from a complete walk with the packetizer disabled.
     while(!((dut->rootp->milan_datapath__DOT__cmap_walk_ns_w >> 39) & 1)) step();
+    begin_phase();
     grade=true;
     axi_write(0x654,0x00020003);
     windows(12);
@@ -713,8 +756,8 @@ int Harness::run() {
     check.that("EDIT_DURING_COPY",copy_edits==1);
     check.that("BOOT_CLIPPING_WRITER",clipped);
     check.that("ALL_TALKERS_TRANSMIT",packets>20*kStreams);
-    std::printf("parent loopback streams=%d words=%ld nonzero=%ld silence=%ld packets=%ld walks=%ld max_walk_cycles=%ld first_eligible=%ld\n",
-                kStreams,words,nonzero,silent,packets,walks,max_walk_cycles,first_eligible);
+    std::printf("parent loopback streams=%d words=%ld nonzero=%ld silence=%ld packets=%ld walks=%ld max_walk_cycles=%ld first_eligible=%ld max_backlog=%ld\n",
+                kStreams,words,nonzero,silent,packets,walks,max_walk_cycles,first_eligible,max_backlog);
     return check.report();
 }
 }
