@@ -10,7 +10,8 @@ import subprocess
 HERE = Path(__file__).resolve().parent
 
 
-def main():
+def main() -> None:
+    """Run the bound controls and refusals, writing results under --output."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()

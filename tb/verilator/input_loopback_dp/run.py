@@ -16,7 +16,8 @@ sys.path.insert(0, str(ROOT / "tb/verilator/milan_dp_render"))
 from ship8_params import derive, header, listener_format
 
 
-def main():
+def main() -> None:
+    """Generate the selected enabled shape, build the parent test and run it."""
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--shape", type=int, choices=(1, 8), required=True)
     p.add_argument("--work", type=Path, required=True)
@@ -31,7 +32,8 @@ def main():
     raw["audio_interface"]["cluster_mapping"]["fabric"].update(input_loopback_lane=True, loopback_lane=False)
     cfg = w / (name + ".yaml")
     cfg.write_text(yaml.safe_dump(raw))
-    def run(cmd, cwd=ROOT):
+    def run(cmd: list, cwd: Path = ROOT) -> None:
+        """Echo and execute one command, failing on a nonzero exit."""
         print(shlex.join(list(map(str, cmd))), flush=True)
         subprocess.run(list(map(str, cmd)), cwd=cwd, check=True, timeout=7200)
     run([sys.executable, ROOT / "sw/builder/endstation_builder.py", cfg, "-o", w / "gen"])
@@ -58,7 +60,8 @@ def main():
         run(["cc", "-std=c11", "-O2", *includes, "-c", ctrl / "aecp" / unit, "-o", obj])
         objects.append(obj)
     run(["ar", "rcs", w / "libaecp.a", *objects])
-    def make_words(target):
+    def make_words(target: str) -> list[str]:
+        """Return the milan_dp Makefile's words for one print target."""
         cmd = ["make", "-s", "--no-print-directory", "-C", str(ROOT / "tb/verilator/milan_dp"),
                target, "VERILATOR_JOBS=" + os.environ.get("VERILATOR_JOBS", "4")]
         if a.dp_source:
@@ -67,7 +70,8 @@ def main():
             cmd.append("RQ_SRC=" + str(a.queue_source.resolve()))
         return shlex.split(subprocess.check_output(cmd, text=True))
     cmd = [os.environ.get("VERILATOR", "verilator"), "+incdir+" + str(gen), *make_words("print-dp-vflags"),
-           "--Mdir", str(w / "obj"), "-CFLAGS", " ".join(includes), "-LDFLAGS", str(w / "libaecp.a"), str(HERE / "probes.vlt")]
+           "--Mdir", str(w / "obj"), "-CFLAGS", " ".join(includes), "-LDFLAGS", str(w / "libaecp.a"),
+           str(HERE / "probes.vlt")]
     cmd += ["-G" + k + "=" + str(v) for k, v in params.items()]
     cmd += make_words("print-srcs") + [str(HERE / "sim_main.cpp"), "-o", "parent_loopback"]
     (w / "build-command.json").write_text(json.dumps(cmd, indent=2) + "\n")
