@@ -1,0 +1,43 @@
+Exact source head and tree: PASS
+Published manifest SHA-256 matches: {"author": 89, "author-r2": 57, "author-r3": 176}
+Evidence commit signature header present: False
+Content hashes verified; no cryptographic signer authentication claimed.
+Delta: CHANGELOG.md, docs/reference/SUBMODULES.md, tb/verilator/gptp_shadow/README.md, tb/verilator/gptp_shadow/mutants.py, tb/verilator/gptp_shadow/sim_main.cpp, tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+291 image/gitlink entries identical: PASS
+f5768392ef1ef67e7432aa7247e2cc7b0e61266fc764318b9fc5b8994c04ee66  docs/diagrams/submodule_boundaries.png
+d209354a3748c15dd2f7f865462e4a9234d93317de24b4dddd04011fe08b7655  docs/diagrams/timesync_chain.png
+4eb21cefc8d769df4a764402aead970b59be96cb3fa267d25af9d1857935f083  gptp-processor/syn/ooc/work/gptp_ucode.hex
+Independent default ROM regeneration equals tracked default image and ledger: PASS
+24 published firmware hashes equal across rounds: PASS (receipt comparison, no firmware rebuild)
+milan_dp expanded recipe existing file inputs: 125; intersection with delta: empty
+No milan_dp local file references changed shadow harness directory: PASS
+author-r2/receipts/rtl/milan_dp-gptp-f97e49fe.log
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF822436A, expected clockAccuracy 0x22
+212 checks: 212 PASS, 0 FAIL
+author-r2/receipts/rtl/milan_dp-gptp-lat-f97e49fe.log
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF8FE436A, expected clockAccuracy 0xFE
+212 checks: 212 PASS, 0 FAIL
+author-r3/receipts/rtl/gptp_shadow-run.log
+INFO #106 race: the first master Announce's last beat at +285, the re-election at +1281, after the takeover
+INFO #106 reserve: 5 frames outstanding
+INFO #106 reserve: released 500081 clocks after the instant
+INFO #106 reserve: the first master Announce ends 2000103 clocks after the instant
+424 checks: 424 PASS, 0 FAIL
+author-r3/receipts/probes/probe-order-stall.log
+INFO #106 race: the first master Announce's last beat at +4659, the re-election at +1281, after the takeover
+FAIL #106 race: one master Announce reaches the lane before the re-election got 0000000000000000 exp 0000000000000001
+INFO #106 reserve: 5 frames outstanding
+INFO #106 reserve: released 500081 clocks after the instant
+INFO #106 reserve: the first master Announce ends 2000103 clocks after the instant
+424 checks: 423 PASS, 1 FAIL
+author-r3/receipts/probes/probe-r915-p106-nocredit.log
+INFO #106 race: the first master Announce's last beat at +279, the re-election at +1281, after the takeover
+INFO #106 reserve: 5 frames outstanding
+FAIL #106 reserve: no master Announce reaches the lane without credit got 0000000000000001 exp 0000000000000000
+INFO #106 reserve: released 500081 clocks after the instant
+FAIL #106 reserve: two master Announces once the credit returns got 0000000000000003 exp 0000000000000002
+INFO #106 reserve: the first master Announce ends 279 clocks after the instant
+FAIL #106 reserve: the withheld Announce leaves 1 s after the instant got 0000000000000000 exp 0000000000000001
+424 checks: 421 PASS, 3 FAIL

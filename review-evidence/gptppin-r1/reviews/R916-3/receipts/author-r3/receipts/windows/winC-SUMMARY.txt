@@ -1,0 +1,14 @@
+# tools/win.sh window winC: each command's clone head, rc and seconds (rc 124 = the window's timeout)
+probe-order-stall clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+probe-r915-p106-beat clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+mutants-7-8 clone c3 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+probe-r916-delayed-announce clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+probe-r915-p106-nocredit clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+probe-r916-retained-rate clone c1 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+mutants-7-8 rc=0 seconds=192 porcelain-after 0
+probe-r915-p106-beat rc=0 seconds=196 porcelain-after 0
+probe-r916-delayed-announce rc=0 seconds=204 porcelain-after 0
+probe-r915-p106-nocredit rc=0 seconds=206 porcelain-after 0
+probe-order-stall rc=0 seconds=231 porcelain-after 0
+probe-r916-retained-rate rc=0 seconds=242 porcelain-after 0
+DONE

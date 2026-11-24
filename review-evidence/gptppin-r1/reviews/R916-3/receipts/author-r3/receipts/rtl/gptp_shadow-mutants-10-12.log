@@ -1,0 +1,12 @@
+# mutants.py main() on MUTATIONS[10:12] (tools/mutants_slice.py) at fc6870cab13f74149864b80b6480ddb3641cb936 (clean shared clone, pinned Verilator 5.050)
+slice 10:12 of 13: word3_applies_only_during_a_slew, announce_leg_ignores_the_credit
+[ ok ] word3_applies_only_during_a_slew: caught by "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0"
+[ ok ] announce_leg_ignores_the_credit: caught by "#106 reserve: no master Announce reaches the lane without credit"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 2   failures: 0
+RESULT: PASS

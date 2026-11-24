@@ -1,0 +1,11 @@
+# mutants.py main() on MUTATIONS[12:13] (tools/mutants_slice.py) at fc6870cab13f74149864b80b6480ddb3641cb936 (clean shared clone, pinned Verilator 5.050)
+slice 12:13 of 13: master_announce_reaches_the_lane_after_the_re_election
+[ ok ] master_announce_reaches_the_lane_after_the_re_election: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 1   failures: 0
+RESULT: PASS

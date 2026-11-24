@@ -1,0 +1,12 @@
+# mutants.py main() on MUTATIONS[8:10] (tools/mutants_slice.py) at fc6870cab13f74149864b80b6480ddb3641cb936 (clean shared clone, pinned Verilator 5.050)
+slice 8:10 of 13: credit_never_withheld, first_master_announce_waits_for_a_beat
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['#106 reserve: the plane starts with no egress result owed', '#106 seal: the plane starts with no egress result owed', '#106: the plane starts with no egress result owed']
+[ ok ] first_master_announce_waits_for_a_beat: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 2   failures: 0
+RESULT: PASS

@@ -1,0 +1,16 @@
+# tools/win.sh window winG: each command's clone head, rc and seconds (rc 124 = the window's timeout)
+milan_dp-gptp-lat clone c2 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-stale-rate-window clone c4 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-credit-on-step clone c8 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-nocease-control clone c3 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+milan_dp-gptp clone legs head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-crossing-exchange clone c5 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-r571-no-liveness clone c6 head fc6870cab13f74149864b80b6480ddb3641cb936 porcelain 0
+phc-step-stale-rate-window rc=0 seconds=312 porcelain-after 0
+phc-step-credit-on-step rc=0 seconds=320 porcelain-after 0
+phc-step-r571-no-liveness rc=0 seconds=323 porcelain-after 0
+phc-step-crossing-exchange rc=0 seconds=325 porcelain-after 0
+phc-step-nocease-control rc=0 seconds=396 porcelain-after 0
+milan_dp-gptp-lat rc=124 seconds=585 porcelain-after 0
+milan_dp-gptp rc=124 seconds=585 porcelain-after 0
+DONE
