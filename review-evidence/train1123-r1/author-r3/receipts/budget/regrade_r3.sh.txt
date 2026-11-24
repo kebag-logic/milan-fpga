@@ -1,0 +1,24 @@
+#!/bin/bash
+# regrade_r3.sh HEAD: kept_grade standalone (lane worktree at HEAD) and run.py --regrade of srp-kept,srp-bound (round 1's
+# measurement clone at c2b2ba1a, tb/verilator/ctrl_service_budget/ checked out from HEAD, restored after) on copies of
+# round 1's formal legs' logs; no simulation
+set -u
+S=<scratch>; L=<lane>; C=$S/clones/cpu; H=$1; O=$S/r3/regrade
+export PYTHONDONTWRITEBYTECODE=1
+mkdir -p $O
+echo "lane HEAD $(git -C $L rev-parse HEAD) porcelain $(git -C $L status --porcelain | wc -l); clone HEAD $(git -C $C rev-parse HEAD) porcelain $(git -C $C status --porcelain | wc -l)"
+git -C $C fetch -q $L $H && git -C $C checkout $H -- tb/verilator/ctrl_service_budget || exit 3
+echo "clone harness from $H: $(git -C $C diff --cached --stat HEAD -- tb/verilator/ctrl_service_budget | tail -1)"
+for leg in "1x1 none kept-view-1x1" "1x1 answering-ports kept-view-ap-1x1" "8x8-1if none kept-view-8x8-1if" "8x8-1if answering-ports kept-view-ap-8x8-1if"; do
+  set -- $leg; P=$1 V=$2 VIEW=$S/meas/$3 B=$S/meas/$1/$2 D=$O/$1-$2
+  echo "=== $P $V"
+  for f in srp-kept srp-bound; do echo "  $f.log sha256 $(sha256sum < $(readlink -f $VIEW/$f.log) | cut -c1-16) <- $(readlink -f $VIEW/$f.log | sed "s|$S|<scratch>|")"; done
+  (cd $L && python3 -I tb/verilator/ctrl_service_budget/kept_grade.py $B --results $VIEW) > $D.kept.txt 2>&1; echo "  kept_grade rc=$? : $(tail -1 $D.kept.txt)"
+  rm -rf $D; mkdir -p $D
+  for f in srp-kept srp-bound; do cp $(readlink -f $VIEW/$f.log) $(readlink -f $VIEW/$f.txt) $D/; done
+  args=(--point $P --build-dir $B --regrade --out $D --groups srp-kept,srp-bound --record-budget-findings --record-share-findings)
+  [ $V != none ] && args+=(--variant $V)
+  (cd $C && python3 -B tb/verilator/ctrl_service_budget/run.py "${args[@]}") > $D.run.txt 2>&1; echo "  run.py --regrade rc=$? : $(grep -c '^OWED' $D.run.txt) OWED, $(grep -c '^STATED' $D.run.txt) STATED, $(grep -c '^REFUSED' $D.run.txt) REFUSED; $(grep 'groups graded' $D.run.txt)"
+done
+git -C $C checkout HEAD -- tb/verilator/ctrl_service_budget && git -C $C clean -fdq -- tb/verilator/ctrl_service_budget
+echo "clone restored: HEAD $(git -C $C rev-parse HEAD) porcelain $(git -C $C status --porcelain | wc -l)"

@@ -1,0 +1,73 @@
+# python3 -I -B <scratch>/r3/bin/kept_mutants_r3.py <lane> at head adc13dbdd1241b124c8877f1dda5318c1095e0df: scratch monkeypatches, nothing committed
+unpatched: PASS
+CAUGHT round 2: owe srp-bound THE TRANSMIT slice lines by prefix: 2 of 29 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+CAUGHT owe a whole-build slice as well as a build of one: 2 of 29 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+CAUGHT owe no THE TRANSMIT slice line: 3 of 29 checks fail
+    - both groups graded together: their #977 lines, srp-bound's build of one and its build slice with them, are owed by name and link, and srp-kept's build of one and its slice stay failures
+    - srp-bound's build of one over the slice (95,001 against 95,000): run.py's build-one and THE TRANSMIT slice lines are both owed, nothing fails
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+CAUGHT class every build slice a build of one: 2 of 29 checks fail
+    - a srp-bound pass given whole to THE TRANSMIT's build, over the slice and within CTRL_LOOP_BUILD_PASS_US (98,000 against 95,000 and 101,000): its slice line FAILS, never owed
+    - srp-bound's build of one and its pass given whole, in one log: the one's slice is owed, the whole's still fails
+CAUGHT kept <= bound strict (<): 1 of 29 checks fail
+    - kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive
+CAUGHT kept <= bound with a 6 % margin: 2 of 29 checks fail
+    - a kept record 6 % dearer than the bound one breaks kept <= bound, its own probe's, never owed
+    - kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive
+6 of 6 caught
+rc=0
+
+# the script:
+"""Planted defects for kept_grade's round-3 checks (scratch monkeypatches, nothing committed).
+usage: python3 -I -B kept_mutants_r3.py <repo-root>"""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]).resolve() / 'tb/verilator/ctrl_service_budget'))
+import kept_grade as k
+
+def run(name, patch):
+    saved = {a: getattr(target, a) for target, a, _ in patch}
+    for target, a, v in patch:
+        setattr(target, a, v)
+    try:
+        checks = k.selftest()
+    finally:
+        for target, a, _ in patch:
+            setattr(target, a, saved[a])
+    failed = [what for what, ok, _ in checks if not ok]
+    print(f'{"CAUGHT" if failed else "ESCAPED"} {name}: {len(failed)} of {len(checks)} checks fail')
+    for what in failed:
+        print(f'    - {what}')
+    return bool(failed)
+
+base = [w for w, ok, _ in k.selftest() if not ok]
+print(f'unpatched: {"PASS" if not base else "FAIL " + str(base)}')
+orig_owes = k.Disposition.owes
+def prefix_owes(self, line):   # round 2's: every srp-bound TRANSMIT slice line owed by its prefix
+    return not self.findings and any(line.startswith(f'{n}: {kind}') for n, kinds in k.OWED_KINDS.items()
+                                     for kind in kinds if n in self.ran)
+def whole_too(self, line):   # owes a slice of either kind
+    if line.startswith(f'{k.kept_window.BOUND}: {k.TRANSMIT_SLICE}') and not self.findings:
+        c = k.stated_cycles(line)
+        return c in self.slices['build-one'] | self.slices['build']
+    return orig_owes(self, line)
+def never_slice(self, line):   # owes no TRANSMIT slice at all
+    return False if line.startswith(f'{k.kept_window.BOUND}: {k.TRANSMIT_SLICE}') else orig_owes(self, line)
+orig_ts = k.transmit_slices
+def all_one(log, shape):   # every build slice classed a build of one
+    s = orig_ts(log, shape)
+    return {'build': set(), 'build-one': s['build'] | s['build-one']}
+results = [
+    run('round 2: owe srp-bound THE TRANSMIT slice lines by prefix', [(k.Disposition, 'owes', prefix_owes)]),
+    run('owe a whole-build slice as well as a build of one', [(k.Disposition, 'owes', whole_too)]),
+    run('owe no THE TRANSMIT slice line', [(k.Disposition, 'owes', never_slice)]),
+    run('class every build slice a build of one', [(k, 'transmit_slices', all_one)]),
+    run('kept <= bound strict (<)', [(k, 'kept_within', lambda kept, bound: kept * 100 < bound * 105)]),
+    run('kept <= bound with a 6 % margin', [(k, 'KEPT_MARGIN_PERCENT', 6)]),
+]
+print(f'{sum(results)} of {len(results)} caught')
+sys.exit(0 if all(results) and not base else 1)

@@ -1,0 +1,24 @@
+# regrade_r3.sh adc13dbdd1241b124c8877f1dda5318c1095e0df: log sha256s, exit codes and counts per leg
+lane HEAD adc13dbdd1241b124c8877f1dda5318c1095e0df porcelain 0; clone HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da porcelain 0
+clone harness from adc13dbdd1241b124c8877f1dda5318c1095e0df:  4 files changed, 215 insertions(+), 49 deletions(-)
+=== 1x1 none
+  srp-kept.log sha256 25dc6807a1b35c8f <- <scratch>/meas/1x1/none/part0/srp-kept.log
+  srp-bound.log sha256 2eaa323e1bb24a3f <- <scratch>/meas/1x1/none/part0/srp-bound.log
+  kept_grade rc=0 : kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+  run.py --regrade rc=0 : 9 OWED, 0 STATED, 0 REFUSED; 2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 3135 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+=== 1x1 answering-ports
+  srp-kept.log sha256 74c2880c830a63f0 <- <scratch>/meas/1x1/answering-ports/part0/srp-kept.log
+  srp-bound.log sha256 c4dc4e5a0a2bb482 <- <scratch>/meas/1x1/answering-ports/part0/srp-bound.log
+  kept_grade rc=0 : kept_grade: PASS (0 finding(s), 4 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+  run.py --regrade rc=0 : 9 OWED, 0 STATED, 0 REFUSED; 2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 0 of 2424 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+=== 8x8-1if none
+  srp-kept.log sha256 8c5dc29832c33856 <- <scratch>/meas/8x8-1if/none/part1/srp-kept.log
+  srp-bound.log sha256 62b4ffc82cdfba6a <- <scratch>/meas/8x8-1if/none/part1/srp-bound.log
+  kept_grade rc=0 : kept_grade: PASS (0 finding(s), 5 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+  run.py --regrade rc=0 : 12 OWED, 0 STATED, 0 REFUSED; 2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 1 of 7697 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+=== 8x8-1if answering-ports
+  srp-kept.log sha256 fe126d2e92ce987a <- <scratch>/meas/8x8-1if/answering-ports/part1/srp-kept.log
+  srp-bound.log sha256 7590cbb8b45ea66b <- <scratch>/meas/8x8-1if/answering-ports/part0/srp-bound.log
+  kept_grade rc=0 : kept_grade: PASS (0 finding(s), 6 owed to #977 (https://github.com/kebag-logic/milan-fpga/issues/977))
+  run.py --regrade rc=0 : 13 OWED, 0 STATED, 0 REFUSED; 2 groups graded, 0 refusals, 0 budget misses (0 of 4 probe instances, 0 of 4 paths), 1 of 2673 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+clone restored: HEAD c2b2ba1a4742335e0678ec1f00f9033d1913b1da porcelain 0
