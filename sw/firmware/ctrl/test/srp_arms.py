@@ -127,6 +127,12 @@ def link_pass_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
     return [arm_srp(tree, lwsrp, 1, test=LINK_PASS), arm_srp(tree, lwsrp, 1, test=LINK_PASS, config=ENTITY_8X8)]
 
 
+def own_leaveall_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
+    """lwSRP #20 at the board: a Listener withdrawn 5 to 200 ms after the board's own LeaveAll is sent as Lv within
+    240 ms, and no Listener is deregistered across LeaveAlls (srp_own_leaveall.cpp), at 8x8/1if on every input and at
+    1x1/1if."""
+    return [arm_srp(tree, lwsrp, 1, test="srp_own_leaveall.cpp", config=ENTITY_8X8),
+            arm_srp(tree, lwsrp, 1, test="srp_own_leaveall.cpp")]
 def mbx_entity_arms(tree: Tree, lwsrp: Path) -> list[Outcome]:
     """srp_mbx.cpp at the 8x8 entity at both interface counts (#929): its startup and dispatch tests hold every
     source of the compiled shape, and the two-interface campaign's 8x8 plants of them need this clean control."""

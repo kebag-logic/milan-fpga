@@ -88,7 +88,7 @@ PLANT_WORDS = {
                              "split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, "
                              "{Domain value 06030002} x1, {none} x3]",
     "leave-all-omission": "[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an "
-                          "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt",
+                          "Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt",
     "talker-failed-back": "MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise "
                           "stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the "
                           "split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1",

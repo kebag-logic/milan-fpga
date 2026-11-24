@@ -451,8 +451,8 @@ flowchart TB
   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
   implementation drives the mailbox model and counts every access.
 - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
-  of lwSRP `08ee86e812a0eb5e1dc6cd61b494d8baf3491348`, unchanged at the pin
-  `4d6e89a3eefe62b4ef999353d201ae3674bb81b5` (fetched from
+  of lwSRP `d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b`, unchanged at the pin
+  `63184bcc9fae557379f0146facf094c65ad238a8` (fetched from
   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
   the host test's lwSRP arm refuses another revision or an edited `src/`):
   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and

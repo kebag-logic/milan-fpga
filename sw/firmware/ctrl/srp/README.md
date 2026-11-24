@@ -77,8 +77,8 @@ Observation follows each wire AttributeEvent and centisecond tick.
 Talker indications copy registration kinds into per-sink adapter state.
 The receive-interest callback observes the preceding event from those copies.
 It never calls its owning application.
-This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
-and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
+This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/doc/integrator.md#L327-L329)
+and [filter contract](https://github.com/kebag-logic/lwSRP/blob/d1bb4f4e5954af6dabe7f210a6bf7adbb76bdd6b/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
 A visit walks the registrar only after a change to what it copies (#665).
 Such a change is a Talker's indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
@@ -508,7 +508,7 @@ A record that can register Talkers is charged more ([#977](https://github.com/ke
 The record starts only while its slice holds that charge, the records behind it waiting in ring order; one alone in its slice, the first of a pass that settled nothing, took no tier-1 record and dispatched no centisecond, starts on the unit, so none waits for good and none is dropped (`Loop.L23bTheDrainChargesARecordAndSettlesFirst`, `Srp.TheDrainChargesARecordTheTalkersItsVectorsCanRegister`).
 At both one-interface shapes ACMP's completion of the sinks a record's Talker indications changed (`ctrl_app_srp.c`, `complete`) is not made in the polls of the pass whose drain took the record: that delivery owes it to THE SETTLE, the next ordinary pass's first work, before its events, from each binding's latest kind (`CTRL_LOOP_SETTLE_ALONE`).
 At 8x8/1if a TRANSMIT call whose declarations re-declared a Listener or joined a VLAN ends after them, and the next pass given whole builds the MRPDU, SRP's records held until it does (`rx_order_ready`), so no record comes between the declarations and their frame (`CTRL_LOOP_DECLARE_ALONE`; ruling item 3).
-The one-interface shapes build lwSRP with its end-station options through the shape header (`srp_entity.py`): the lookup buckets, no MAP work at one port, no zeroing in the parser's validation pass, and at 8x8/1if alone the merged Message build ([lwSRP's integrator guide](https://github.com/kebag-logic/lwSRP/blob/opt-exec-2/doc/integrator.md#one-port-propagation)).
+The one-interface shapes build lwSRP with its end-station options through the shape header (`srp_entity.py`): the lookup buckets, no MAP work at one port, no zeroing in the parser's validation pass, and at 8x8/1if alone the merged Message build ([lwSRP's integrator guide](https://github.com/kebag-logic/lwSRP/blob/opt-exec-3/doc/integrator.md#one-port-propagation)).
 Without MAP work at one port, a receive whose only allocation was a propagation reservation is no longer refused when the pool is spent; a receive is still refused where an attribute cannot be created, after the values before it applied, and retried whole.
 The composed burst's last record is a row by every source against SRP's 90 ms (R5, R6; decision D, [`rows_tiers.py`](../../../../tb/verilator/ctrl_service_budget/rows_tiers.py)).
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
@@ -732,7 +732,8 @@ source MAAP has allocated, no split source holds a licence. Each source's
 [maap README](../maap/README.md)), and that check's `[SID]` holds a split
 talker's stream frames to the stream_id its Talker Advertise declares.
 
-The lwSRP pin is public `main` at `08ee86e8`.
+The lwSRP pin is its branch `opt-exec-3` at `63184bcc`: public `main` at `d1bb4f4e`, which merges PR #21 (an Applicant
+takes one event at its own LeaveAll, lwSRP #20), with the optimisation line's build options, every one off by default.
 Its PR #18 sends one Message per AttributeType in each MRPDU (IEEE 802.1Q-2018 10.8.1.2).
 Decoded events are unchanged; the H-SRP LeaveAll walk reads every vector to each EndMark.
 Round 6 adapts to its recoverable receive-allocation contract.

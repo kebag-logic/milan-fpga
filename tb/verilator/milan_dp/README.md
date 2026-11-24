@@ -1392,12 +1392,21 @@ can make, with all its notes.
 The grade reads, for each attribute:
 
 - **Each frame the half sent of the application.** A frame that carries a
-  LeaveAll is a txLA! for every attribute of the participant. Its sLA also
-  gives rise to rLA! against every one of them (10.7.6.6, 10.7.9), before or
-  after the txLA!. An attribute such a frame leaves out sent nothing there,
-  which only a state whose txLA! action is none or bracketed allows; the
-  `leave-all-omission` plant holds it. Any other frame is a tx! for each
-  attribute it carries.
+  LeaveAll is a txLA! (IEEE 802.1Q-2022 10.7.5.8) for every attribute it
+  carries, and the Applicant takes no rLA! with it. The sLA's rLA! reaches
+  only the Registrar (10.7.6.6, Table 10-4), where it changes nothing txLA!
+  has not. So a fitted declaration keeps its state, and a withdrawal just
+  after the LeaveAll sends its Lv (lwSRP #20).
+- **A value such a frame leaves out.** It took txLA!, which sends nothing
+  only from a state whose txLA! action is none or bracketed, or txLAF!
+  (10.7.5.9), which sends nothing from any state. txLAF! is allowed only where
+  the frame is full: the frame plus the smallest vector the value could add
+  exceeds 1500 octets (`MRPDU_ROOM`). That room is the split's lwSRP buffer
+  and no fabric MRPDU is larger, so either half's full frame is full here.
+  The `leave-all-omission` plant holds the txLA! case, and
+  `twin_mrp.py --selftest` holds both, the Lv after the own LeaveAll and the
+  octet counts.
+- **Any other frame.** It is a tx! for each attribute it carries.
 - **Each frame of the stimulus of the application, as received.** None
   reaches either half here, so the Registrar stays MT and
   `operPointToPointMAC` changes no transition. The grade still applies both,
@@ -1514,7 +1523,7 @@ or moved the traces of, the owed fabric defects #893's pin fixed.
 | `received-join` | a peer's Domain JoinIn received at 30500 ms, so the Registrar goes IN | `[MRP] split MSRP Domain value 06030002: JoinMt at ms 31000 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 | `leave-all-declaration` | the split's Domain withdrawn after 30 s by a legal trace (Lv, then Mt) | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x1, {none} x3]` |
 | `talker-failed-back` | the split's Talker declared as Talker Failed again, as before #895: each Talker Advertise vector re-encoded in place as Talker Failed of the same StreamID and events, code 2 | `MSRP declarations at the LeaveAll boundaries differ: the fabric's [{Talker Advertise stream_id 024b4c4b4c010000; Domain value 06030002} x1, {Domain value 06030002} x5], the split's [{Talker Failed stream_id 024b4c4b4c010000; Domain value 06030002} x1` |
-| `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt or Mt` |
+| `leave-all-omission` | the split's first MSRP LeaveAll frame after 20 s carrying the declared Domain, sent without the Domain's vector (its LeaveAll kept) | `[MRP] split MSRP Domain value 06030002: nothing at ms 27510 (a LeaveAll) is not an Applicant's message: from AA, QA, Table 10-3's txLA! sends JoinMt` |
 | `mvrp-join-in` | the split's second VID 2 message, a JoinMt with its Registrar MT, sent as JoinIn, as the fabric sends it | `[MRP] split MVRP VID 0002: JoinIn at ms 200 is not an Applicant's message: from AA, Table 10-3's tx! sends JoinMt` |
 | `mvrp-received-join` | a peer's VID 2 JoinIn received at 30500 ms, so MVRP's Registrar goes IN | `[MRP] split MVRP VID 0002: JoinMt at ms 31010 is not an Applicant's message: from AA with the Registrar IN, QA with the Registrar IN, Table 10-3's tx! sends JoinIn or nothing` |
 
