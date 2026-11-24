@@ -110,6 +110,9 @@ class Channel:
     refill_ms: int
     cite: str
     terms: tuple[Term, ...]
+    #: the burst an AVB interface, when the rate states it so (`burst_per_interface`): `burst` is then that many
+    #: times the contract's interfaces (_scaled); 0 when `burst` is the channel's own
+    burst_each: int = 0
 
 
 @dataclass(frozen=True)
@@ -364,8 +367,11 @@ def _channel(item: dict[str, Any], tests: dict[str, int], max_terms: int, max_tu
         rx_base=int(_need(rx, "base", where)), rx_words=int(_need(rx, "words", where)),
         tx_base=int(_need(tx, "base", where)), tx_words=int(_need(tx, "words", where)),
         max_frame_bytes=max_bytes, tuples=_tuples(_need(item, "match", where), where, max_tuples),
-        burst=int(_need(rate, "burst", where)), refill_ms=int(_need(rate, "refill_ms", where)),
-        cite=str(_need(item, "cite", where)), terms=terms)
+        burst=int(rate["burst_per_interface"] if "burst_per_interface" in rate else _need(rate, "burst", where)),
+        refill_ms=int(_need(rate, "refill_ms", where)), cite=str(_need(item, "cite", where)), terms=terms,
+        burst_each=int(rate.get("burst_per_interface", 0)))
+    if "burst" in rate and "burst_per_interface" in rate:
+        raise ContractError(f"{where}: a rate states its burst or its burst_per_interface, not both")
     if not (14 < max_bytes <= 1514) or max_bytes % 2:
         raise ContractError(f"{where}: max_frame_bytes {max_bytes} is not an even 16..1514")
     if not 1 <= channel.burst <= 255 or not 1 <= channel.refill_ms <= 65535:
@@ -402,6 +408,8 @@ def _check_channels(contract: Contract) -> None:
         raise ContractError(f"channel ids must be 0..N-1 with N <= 8, got {idents}")
     claims: dict[tuple[int, int | None], str] = {}
     for ch in contract.channels:
+        if not 1 <= ch.burst <= 255:
+            raise ContractError(f"{ch.name}: a burst of {ch.burst} at {contract.interfaces} interface(s) is not 1..255")
         mine: set[tuple[int, int | None]] = set()
         for m in ch.tuples:
             if m.ethertype in contract.tpids:
@@ -661,6 +669,7 @@ def load(path: Path = CONTRACT) -> Contract:
         tmr_ops=tuple((str(o["name"]), int(o["value"])) for o in flt["tmr_ops"]),
         channels=tuple(sorted((_channel(c, tests, max_terms, max_tuples)
                                for c in _need(raw, "channels", "contract")), key=lambda c: c.ident)))
+    contract = _scaled(contract)
     _check_contract(contract)
     return contract
 
@@ -671,9 +680,15 @@ def with_interfaces(contract: Contract, interfaces: int) -> Contract:
     The suite elaborates a two-interface variant into its build directory to
     grade the per-interface own MAC; the tracked outputs are always the
     contract's own count."""
-    variant = replace(contract, interfaces=interfaces)
+    variant = _scaled(replace(contract, interfaces=interfaces))
     _check_contract(variant)
     return variant
+
+
+def _scaled(contract: Contract) -> Contract:
+    """Each channel whose rate states its burst an interface at that times the contract's interfaces."""
+    return replace(contract, channels=tuple(replace(c, burst=c.burst_each * contract.interfaces) if c.burst_each
+                                            else c for c in contract.channels))
 
 
 def _check_contract(contract: Contract) -> None:
@@ -844,6 +859,15 @@ def _channel_constants(contract: Contract) -> list[Constant]:
     return out
 
 
+#: The publication block's gPTP words (minor 5): every interface register named GPTP_*, in offset order.
+GPTP_PREFIX = "GPTP_"
+
+
+def gptp_words(contract: Contract) -> list[Register]:
+    """The gPTP publication's registers, contiguous from the first, in offset order (pub_gptp_o's words)."""
+    return sorted((r for r in contract.pub_registers if r.name.startswith(GPTP_PREFIX)), key=lambda r: r.offset)
+
+
 def constants(contract: Contract) -> list[Constant]:
     """The one flat list every output carries, in a stable order."""
     out = [Constant("VERSION_MAJOR", contract.major, "contract major version", False),
@@ -858,6 +882,8 @@ def constants(contract: Contract) -> list[Constant]:
                     False),
            Constant("N_PUB_SINKS", contract.pub_sinks, "publication sink entries per interface (listener streams)",
                     False),
+           Constant("PUB_GPTP_WORDS", len(gptp_words(contract)),
+                    "gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o)", False),
            Constant("TICK_MS", contract.tick_ms, "NOW_MS milliseconds per TICK (one centisecond)", False),
            Constant("N_CH", len(contract.channels), "channels", False),
            Constant("INDEX_BITS", contract.index_bits, "ring counter width", False),
@@ -872,6 +898,9 @@ def constants(contract: Contract) -> list[Constant]:
     out += [Constant(f"TEST_{name.upper()}", value, doc, False) for name, value, doc in contract.tests]
     out += [Constant(f"TMR_OP_{name.upper()}", value, f"TMR_CMD.OP {name}", False)
             for name, value in contract.tmr_ops]
+    if any(t.name == "TIMESTAMP" for t in contract.event_types):
+        out.append(Constant("TS_REC_BITS", 86, "a timestamp unit's record on KL_mbx's ts_data_i: {EGRESS, OK, "
+                            "MSG_TYPE (4), SEQUENCE_ID (16), NS (64)}, NS lowest (minor 5)", False))
     out += _register_constants(contract)
     out += _record_constants(contract)
     out += _channel_constants(contract)

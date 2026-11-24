@@ -155,9 +155,10 @@ So does an invocation the compiler could not expand: the expansion failed, print
 So does a precompiled header read first that no compile in the capture made.
 So does a compiler run by a path no wrapper stands on: one a Python builder starts, which the audit hook sees, or one a Makefile builder's recipe names, which make's own dry run shows under the capture's `PATH`.
 Three such compilers are not seen, and no builder has one: one a shell runs by its path (a shell script's, or a command a builder runs through a shell), one a compiled helper runs by its path, and one a Python builder started with `-I` or `-E` runs by its path, since that process loads no audit hook.
-`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential and the AECP wire comparison) and names each; `firmware-boundary` has no Verilator.
-`--only verilator` judges those three alone, under the gate's own capture, and names the others.
+`--without verilator` leaves out the builders that need Verilator (the mailbox bench, the MAAP differential, the AECP wire comparison and the software gPTP simulation) and names each; `firmware-boundary` has no Verilator.
+`--only verilator` judges those four alone, under the gate's own capture, and names the others.
 Each runs every configuration its own list holds: the bench's default target, the differential with its self-test, and the wire comparison at each processor reference it pins (`--every`, one and two interfaces).
+The gPTP simulation's `build` target compiles its two-interface firmware and timestamp-unit model without running the scenarios.
 The required `firmware-verilator` job runs it with the pinned Verilator from the cache.
 The two jobs split the builders, never an invocation: each recorded compile is judged whole, in the job that ran it.
 The builders are also found by text, as a cross-check that can only refuse: every Python module and Makefile that names `sw/firmware/ctrl` or `ctrl_build`.
@@ -252,7 +253,7 @@ The datapath counter targets also require it before their recipes.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-185 pin controls follow the boundary controls.
+199 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
@@ -492,7 +493,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 | `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, its five named controls and its 18 named planted wire and comparison defects each present and caught; a report missing any of them fails the arm |
-| `hot` | [`ctrl_hot.py`](test/ctrl_hot.py) | the split link script's hot list ([`plat/ctrl_split.ld`](plat/ctrl_split.ld)) is the order [`plat/ctrl_split_hot.txt`](plat/ctrl_split_hot.txt) records with its traces, entry for entry; its self-test passes its control and refuses each of its eight named planted defects by its own rule, among them a stale name, a name absent from the image or only discarded, and a reordered, dropped or unrecorded entry. [`ctrl_srp_image.py`](test/ctrl_srp_image.py) applies both rules to every split image it links, the link map naming each entry's section (#665) |
+| `hot` | [`ctrl_hot.py`](test/ctrl_hot.py) | the split link script's hot list ([`plat/ctrl_split.ld`](plat/ctrl_split.ld)) is the order [`plat/ctrl_split_hot.txt`](plat/ctrl_split_hot.txt) records with its traces, entry for entry; its self-test passes its two controls and refuses each of its ten named planted defects by its own rule, among them a stale name, a name absent from the image or only discarded, a reordered, dropped or unrecorded entry, and an object named compiled out that the image links. [`ctrl_srp_image.py`](test/ctrl_srp_image.py) applies both rules to every split image it links, the link map naming each entry's section (#665); an entry of `gptp.c` or `gptp_mbx.c`, which it compiles only `--with-gptp`, places nothing without it and LINKED leaves it aside there (#884) |
 | `plat`, `platboot`, `platrv32`, `plattrace` | `test_plat.cpp`, `test_plat_mmio.cpp`, `test_plat_boot.cpp`, [`plat_trace.py`](test/plat_trace.py) | the split platform ([plat](plat/README.md#tests-and-evidence)): its CSR window, console and MMIO on host buses; its boot in step order and each refused stage, at one and two interfaces on the models; the whole platform built for RV32I; and its CSR initialisation against `milan_baremetal.c`'s for every shipped config, with three planted controls |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,

@@ -195,6 +195,20 @@ static bool next_source(const struct mbx_model *m, uint32_t w[4])
 			return true;
 		}
 	}
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		if (m->ts_count[i] != 0u) {
+			const struct mbx_model_ts *r = &m->ts[i][m->ts_head[i]];
+			w[0] = mbx_place(MBX_EV_TYPE_TIMESTAMP, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) |
+			       mbx_place(i, MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+			w[1] = mbx_place(r->seq, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH) |
+			       mbx_place(r->msg_type, MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB, MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH) |
+			       mbx_place(r->egress ? 1u : 0u, MBX_EV_TIMESTAMP_W1_EGRESS_LSB, MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH) |
+			       mbx_place(r->ok ? 1u : 0u, MBX_EV_TIMESTAMP_W1_OK_LSB, MBX_EV_TIMESTAMP_W1_OK_WIDTH);
+			w[2] = (uint32_t)r->ns;
+			w[3] = (uint32_t)(r->ns >> 32);
+			return true;
+		}
+	}
 	if (m->tick_count != 0u) {
 		w[0] = mbx_place(MBX_EV_TYPE_TICK, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH);
 		w[1] = mbx_place(m->tick_count, MBX_EV_TICK_W1_COUNT_LSB, MBX_EV_TICK_W1_COUNT_WIDTH);
@@ -218,6 +232,9 @@ static void source_posted(struct mbx_model *m, const uint32_t w[4])
 		m->timers[mbx_field(w[1], MBX_EV_TIMER_W1_SLOT_LSB, MBX_EV_TIMER_W1_SLOT_WIDTH)].pending = false;
 	} else if (type == MBX_EV_TYPE_TICK) {
 		m->tick_count = 0;
+	} else if (type == MBX_EV_TYPE_TIMESTAMP) {
+		m->ts_head[i] = (uint8_t)((m->ts_head[i] + 1u) % MBX_MODEL_TS_DEPTH);
+		m->ts_count[i]--;
 	} else {
 		face_source_posted(m, type, i, w);
 	}
@@ -585,6 +602,26 @@ void mbx_model_set_gm(struct mbx_model *m, unsigned interface, uint64_t gm_id, u
 	m->domain[interface] = domain;
 }
 
+void mbx_model_timestamp(struct mbx_model *m, unsigned interface, bool egress, bool ok, uint8_t msg_type,
+			 uint16_t seq, uint64_t ns)
+{
+	if (interface >= MBX_N_IF) {
+		return;
+	}
+	if (m->ts_count[interface] == MBX_MODEL_TS_DEPTH) {
+		m->ts_drop[interface] = sat16(m->ts_drop[interface]);
+		return;
+	}
+	struct mbx_model_ts *r = &m->ts[interface][(m->ts_head[interface] + m->ts_count[interface]) % MBX_MODEL_TS_DEPTH];
+	r->egress = egress;
+	r->ok = ok;
+	r->msg_type = msg_type;
+	r->seq = seq;
+	r->ns = ok ? ns : 0u;
+	m->ts_count[interface]++;
+	post(m);
+}
+
 void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain)
 {
 	mbx_model_set_gm(m, interface, gm_id, domain);
@@ -787,6 +824,17 @@ static uint32_t pub_mask(uint32_t rel)
 		}
 	}
 	switch (rel) {
+	case MBX_PUB_REG_GPTP_GM_LO:
+		return ones(MBX_GPTP_GM_LO_ID_LSB, MBX_GPTP_GM_LO_ID_WIDTH);
+	case MBX_PUB_REG_GPTP_GM_HI:
+		return ones(MBX_GPTP_GM_HI_ID_LSB, MBX_GPTP_GM_HI_ID_WIDTH);
+	case MBX_PUB_REG_GPTP_STATE:
+		return ones(MBX_GPTP_STATE_DOMAIN_LSB, MBX_GPTP_STATE_DOMAIN_WIDTH) |
+		       ones(MBX_GPTP_STATE_AS_CAPABLE_LSB, MBX_GPTP_STATE_AS_CAPABLE_WIDTH) |
+		       ones(MBX_GPTP_STATE_SYNC_OK_LSB, MBX_GPTP_STATE_SYNC_OK_WIDTH) |
+		       ones(MBX_GPTP_STATE_SLEW_LSB, MBX_GPTP_STATE_SLEW_WIDTH) |
+		       ones(MBX_GPTP_STATE_DISC_LSB, MBX_GPTP_STATE_DISC_WIDTH) |
+		       ones(MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH);
 	case MBX_PUB_REG_DA_GATE:
 		return ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
 	case MBX_PUB_REG_LICENCE:
@@ -833,6 +881,7 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 			out->sid[k] = ((uint64_t)e[MBX_PUB_SINK_REG_SID_HI / 4u] << 32) | e[MBX_PUB_SINK_REG_SID_LO / 4u];
 		}
 	}
+	memcpy(out->gptp, m->gptp_snap[interface], sizeof out->gptp);
 }
 
 // ---- the face block (contract 2.3) ------------------------------------------------
@@ -1355,7 +1404,14 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 	} else if (bound_at(off, &i, &e, &reg)) {
 		write_bound(m, i, e, reg, value);
 	} else if (pub_at(off, &i, &reg)) {
+		uint32_t gen0 = mbx_field(m->pub[i][MBX_PUB_REG_GPTP_STATE / 4u], MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH);
 		m->pub[i][reg / 4u] = value & pub_mask(reg);
+		// a GPTP_STATE write whose GEN moved publishes every GPTP_* word as one snapshot, held until the next
+		// such write, as KL_mbx_cdc's committed bank is: a word written after it reaches no snapshot (REQ-PTP-07)
+		if (reg == MBX_PUB_REG_GPTP_STATE &&
+		    mbx_field(value, MBX_GPTP_STATE_GEN_LSB, MBX_GPTP_STATE_GEN_WIDTH) != gen0) {
+			memcpy(m->gptp_snap[i], &m->pub[i][MBX_PUB_REG_GPTP_GM_LO / 4u], sizeof m->gptp_snap[i]);
+		}
 	} else if (face_at(off, &i, &reg)) {
 		face_write(m, i, reg, value);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {

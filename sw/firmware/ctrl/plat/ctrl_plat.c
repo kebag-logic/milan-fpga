@@ -359,6 +359,60 @@ static bool compose(struct ctrl_plat *p)
 	       ctrl_app_aecp_attach_face(&p->bridge, &p->face);
 }
 
+#ifdef CTRL_PLAT_GPTP
+// ---- gPTP in firmware (--sw-gptp; #884, #665 F6) ----------------------------
+//
+// One end station port an interface (Milan v1.2 8.3.4) on the gptp channel,
+// the TIMESTAMP and LINK events and a centisecond (gptp_mbx.h), its PHC the
+// CSR's PTP block. The datapath has one PTP block, interface 0's: a port on
+// another interface steers none, the second MAC's PHC being #884's open item
+// (ruling item 5).
+static void phc_rate(void *ctx, unsigned port, int32_t addend)
+{
+	const struct ctrl_plat *p = ctx;
+	if (port == 0u) {
+		ctrl_plat_csr_ptp_rate(p->env->csr, addend);
+	}
+}
+
+static void phc_step(void *ctx, unsigned port, int64_t delta_ns)
+{
+	const struct ctrl_plat *p = ctx;
+	if (port == 0u) {
+		ctrl_plat_csr_ptp_step(p->env->csr, delta_ns);
+	}
+}
+
+// a port's AVB_INFO and AS_PATH changes, raised from its snapshot as AVB_INTERFACE i's (descriptor type 9; the
+// datapath's detectors are off under gPTP in firmware, #884's ruling item 7)
+static void gptp_changed(void *ctx, unsigned i, unsigned events)
+{
+	ctrl_app_aecp_changed(ctx, 9u, (uint16_t)i, events);
+}
+
+// The ports, each the EUI-64 of its interface's MAC (IEEE 802.1AS-2020 8.5.2.2), the PHC's rate PTP_INCR's
+static bool gptp(struct ctrl_plat *p)
+{
+	const uint32_t hz = ctrl_plat_csr_ptp_hz(p->env->csr);
+	struct gptp_config cfg[MBX_N_IF];
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		const uint64_t mac = entity.mac + i;
+		cfg[i] = (struct gptp_config){.priority1 = GPTP_P1_DEFAULT, .priority2 = GPTP_P2_DEFAULT, .phc_clk_hz = hz};
+		cfg[i].clock_id = ((mac >> 24) << 40) | (0xFFFEull << 24) | (mac & 0xFFFFFFull);
+		for (unsigned b = 0; b < 6u; ++b) {
+			cfg[i].mac[b] = (uint8_t)(mac >> (8u * (5u - b)));
+		}
+	}
+	const struct gptp_mbx_phc phc = {p, phc_rate, phc_step};
+	if (hz == 0u || !gptp_mbx_attach(&p->gptp, &p->app.loop, cfg, &phc)) {
+		return false;
+	}
+	aecp_face_gptp(&p->face, &(const struct aecp_face_gptp){&p->gptp, gptp_mbx_avb, gptp_mbx_path});
+	gptp_mbx_notify(&p->gptp, &(const struct gptp_mbx_aecp){&p->bridge, gptp_changed});
+	return true;
+}
+#endif
+
 enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 {
 	struct ctrl_plat *p = &ctrl_plat;
@@ -398,6 +452,12 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	nvm_store_boot(env->flash, &p->binding.port);
 	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);
 	(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);
+#ifdef CTRL_PLAT_GPTP
+	// gPTP's channel, sink and centisecond, bound before the open, after the store's (#884)
+	if (!gptp(p)) {
+		return reach(p, CTRL_PLAT_COMPOSE, "Milan split: gPTP refused; entity disabled\r\n");
+	}
+#endif
 	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}

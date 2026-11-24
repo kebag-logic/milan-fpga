@@ -142,6 +142,38 @@ TEST(DriverUnit, D9UnknownEventTypeGrandmasterAndInterrupt) {
     EXPECT_EQ(w.at(MBX_REG_IRQ_STATUS), 1u << MBX_IRQ_STATUS_ERR_LSB) << "D9 the sticky error cleared by writing its bit";
 }
 
+TEST(DriverUnit, TimestampEventDecodesFlagsAndBothTimeWordsAcrossWrap) {
+    NiceMock<MockMbxHal> hal;
+    Window w(hal);
+    unsigned tail = MBX_EVT_WORDS - 2u;
+    w.words[MBX_REG_EVT_TAIL] = tail;
+    w.words[MBX_REG_EVT_HEAD] = tail;
+    ASSERT_TRUE(mbx_open());
+    for (unsigned flags = 0; flags < 4u; ++flags) {
+        const unsigned interface = flags % MBX_N_IF;
+        const unsigned sequence = flags == 0u ? 0u : 0xffffu;
+        const unsigned message = flags == 0u ? 0u : 0xfu;
+        w.evt(tail) = ev_w0(MBX_EV_TYPE_TIMESTAMP, interface);
+        // Contract 2.5: sequence[15:0], type[19:16], egress[20], valid[21].
+        w.evt(tail + 1u) = sequence | (message << 16) | (flags << 20) | 0xffc00000u;
+        w.evt(tail + 2u) = 0x89abcdefu;
+        w.evt(tail + 3u) = 0x81234567u;
+        tail += MBX_EV_WORDS;
+        w.words[MBX_REG_EVT_HEAD] = tail;
+        mbx_event event{};
+        ASSERT_TRUE(mbx_event_take(&event));
+        EXPECT_EQ(event.type, MBX_EV_TYPE_TIMESTAMP);
+        EXPECT_EQ(event.interface, interface);
+        EXPECT_EQ(event.ts_seq, sequence);
+        EXPECT_EQ(event.ts_msg_type, message);
+        EXPECT_EQ(event.ts_egress, (flags & 1u) != 0u);
+        EXPECT_EQ(event.ts_ok, (flags & 2u) != 0u);
+        EXPECT_EQ(event.ts_ns, 0x8123456789abcdefull) << "the timestamp keeps all 64 time bits";
+        EXPECT_EQ(w.at(MBX_REG_EVT_TAIL), tail);
+        EXPECT_FALSE(mbx_event_take(&event)) << "one record is consumed exactly once";
+    }
+}
+
 TEST(DriverUnit, D10LanesAndFieldsAtTheirBounds) {
     const std::uint8_t bytes[6] = {1, 2, 3, 4, 5, 6};
     EXPECT_EQ(ring_lanes_pack(bytes, 6), 0x04030201u) << "D10 a word packs four lanes, however many bytes are offered";
@@ -325,6 +357,28 @@ TEST(DriverUnit, D14PublicationBlock) {
                  mbx_pub_sink_binding(0, MBX_N_PUB_SINKS, true, true, true))
         << "D14 a sink past the block's is refused";
     EXPECT_EQ(w.writes.size(), writes) << "D14 and nothing is written";
+}
+
+TEST(DriverUnit, GptpPublicationCommitsAfterItsIdentityWords) {
+    NiceMock<MockMbxHal> hal;
+    Window w(hal);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t words[MBX_PUB_GPTP_WORDS] = {0x89abcdefu + i, 0x01234567u + i, 0x5a030105u + i};
+        const std::uint32_t block = MBX_PUB_BASE + MBX_PUB_STRIDE * i;
+        w.writes.clear();
+        ASSERT_TRUE(mbx_pub_gptp(i, words));
+        const std::vector<std::pair<std::uint32_t, std::uint32_t>> expected = {
+            {block + MBX_PUB_REG_GPTP_GM_LO, words[0]},
+            {block + MBX_PUB_REG_GPTP_GM_HI, words[1]},
+            {block + MBX_PUB_REG_GPTP_STATE, words[2]},
+        };
+        EXPECT_EQ(w.writes, expected) << "the generation commits the complete identity on its own interface";
+    }
+    const std::uint32_t words[MBX_PUB_GPTP_WORDS] = {};
+    w.writes.clear();
+    EXPECT_FALSE(mbx_pub_gptp(MBX_N_IF, words));
+    EXPECT_FALSE(mbx_pub_gptp(~0u, words));
+    EXPECT_TRUE(w.writes.empty()) << "an invalid interface writes no publication word";
 }
 
 const adp_entity kEntity = {0x1122334455667788ull, 0x99AABBCCDDEEFF01ull, 0x001B921122AAull, 0xC588u, 8u, 0x4801u,

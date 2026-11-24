@@ -35,6 +35,10 @@ extern "C" {
 #define CTRL_PLAT_CSR_MAC_ADDR_LO 0x108u
 #define CTRL_PLAT_CSR_MAC_ADDR_HI 0x10cu
 #define CTRL_PLAT_CSR_PTP_CTRL    0x500u
+#define CTRL_PLAT_CSR_PTP_INCR    0x504u
+#define CTRL_PLAT_CSR_PTP_ADJ     0x508u
+#define CTRL_PLAT_CSR_PTP_OFS_LO  0x518u
+#define CTRL_PLAT_CSR_PTP_OFS_HI  0x51cu
 #define CTRL_PLAT_CSR_PTP_CMD     0x520u
 #define CTRL_PLAT_CSR_TOD_RD_LO   0x530u
 #define CTRL_PLAT_CSR_TOD_RD_HI   0x534u
@@ -67,6 +71,8 @@ extern "C" {
 #define CTRL_PLAT_MILAN_ID 0x4d494c4eu
 // PTP_CMD's snapshot strobe: TOD_RD_LO/HI then hold the time it was taken.
 #define CTRL_PLAT_PTP_SNAPSHOT 0x4u
+// PTP_CMD's adjtime strobe: the PHC moves by PTP_OFFSET_LO/HI's signed delta.
+#define CTRL_PLAT_PTP_ADJUST 0x2u
 // LWSRP_CTRL[1:0], ORed onto the generated reset word: live admission enable
 // and live talker admission arm (REGISTER_MAP.md 0x680), as configure_fabric()
 // writes them.
@@ -137,6 +143,17 @@ void ctrl_plat_csr_status(uintptr_t csr, struct ctrl_plat_status *s);
 // HI, LO, HI until both HI agree, at most CTRL_PLAT_TOD_TRIES times. False,
 // with *ns unwritten, when they never agree.
 bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns);
+
+// gPTP in firmware's PHC on the PTP block (--sw-gptp, the fabric plane not
+// built; #884, REQ-PTP-02, REQ-PTP-03): the rate is PTP_ADJ's signed addend,
+// added to PTP_INCR's each tick; a step is PTP_OFFSET's signed delta, applied
+// at PTP_CMD's adjtime strobe, its two words written first.
+void ctrl_plat_csr_ptp_rate(uintptr_t csr, int32_t addend);
+void ctrl_plat_csr_ptp_step(uintptr_t csr, int64_t delta_ns);
+
+// The PHC's tick rate in Hz, from PTP_INCR's nominal period (Q8.24 ns, its
+// reset value the true clock period, milan_csr.sv); 0 when it reads 0.
+uint32_t ctrl_plat_csr_ptp_hz(uintptr_t csr);
 
 // STREAM_INPUT n's current format into its receive-monitor context (#946):
 // the stream window's listener selection of n, then FMT_LO and FMT_HI (the

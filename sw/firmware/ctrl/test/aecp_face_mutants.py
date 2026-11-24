@@ -22,6 +22,18 @@ VERDICT = '((verdict & 0xFFu) | (f->ready ? 0u : 2u)) == 3u;'
 BEFORE_OPEN = 'Face.BeforeOpenAFormatVerdictJudgesSupportAlone'
 
 ROWS = (
+    ('face-software-gptp-clears-link-flags', 'aecp_face.c', '(out->flags & ~1u)', '0u',
+     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "software gPTP keeps the datapath's link flags")),
+    # the datapath's live AS_CAPABLE bit leaking into the owner's answer: the mask dropped, its bit 0 OR'd in
+    ('face-software-gptp-keeps-datapath-capable', 'aecp_face.c',
+     'out->flags = (uint8_t)((out->flags & ~1u) | (as_capable ? 1u : 0u));',
+     'out->flags = (uint8_t)(out->flags | (as_capable ? 1u : 0u));',
+     ('Face.SoftwareGptpAvbKeepsTheDatapathsLinkAndClass', "AS_CAPABLE is the firmware gPTP owner's")),
+    ('face-software-gptp-ignores-path-refusal', 'aecp_face.c',
+     'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count);',
+     'return f->gptp.path(f->gptp.ctx, interface, out, capacity, count) || true;',
+     ('Face.SoftwareGptpPathForwardsCapacityAndRefusalWithoutAWindowRead',
+      "software gPTP forwards the path owner's refusal")),
     ('face-as-path-count-read-as-avb-info', 'aecp_face.c', AS_PATH_COUNT,
      AS_PATH_COUNT.replace('interface, 2u, AVB_INTERFACE', 'interface, 1u, AVB_INTERFACE'),
      (SEQUENCE, 'the count, then each entry once')),

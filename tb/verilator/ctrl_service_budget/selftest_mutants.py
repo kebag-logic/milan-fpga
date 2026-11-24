@@ -21,6 +21,7 @@ from unittest.mock import patch
 import answers
 import arm_path
 import build
+import channel_gate
 import flip_grade
 import grade
 import held
@@ -123,14 +124,15 @@ def _cut_pass_idle() -> list:
     return [patch.object(grade, 'parse', parse)]
 
 
-def _load_at_least(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
+def _load_at_least(group: scenario.Group, got: dict, refused: list, held: int = 0,
+                   opened: frozenset[str] | None = None, interfaces: int = 1) -> None:
     """A window refused only when it committed fewer records than its defined load."""
-    want = grade.defined_load(group.name)
+    want = grade.defined_load(group.name, opened, interfaces)
     if any(got[k] < want.get(k, 0) for k in got):
         raise grade.Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}')
 
 
-def _load_declared(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
+def _load_declared(group: scenario.Group, got: dict, refused: list, held: int = 0, *_: object) -> None:
     """A window checked against its stimulus's own declaration."""
     want = {name: group.load.get(name, 0) for name in got}
     if got != want:
@@ -611,7 +613,8 @@ MUTANTS: dict[str, Patches] = {
     'opening: the records released are not counted': lambda: [patch.object(
         grade.Grader, 'events_held', lambda self, start: sum(1 for c, _ in self.log.records if c < start))],
     'opening: the refusal does not name the records held': lambda: [patch.object(
-        grade, 'check_load', lambda group, got, refused, held=0, f=grade.check_load: f(group, got, refused))],
+        grade, 'check_load', lambda group, got, refused, held=0, *rest, f=grade.check_load: f(group, got, refused, 0,
+                                                                                               *rest))],
     'composition: the backlog stimulus omits SRP': _offer_without('srp', 'backlog'),
     'composition: the backlog stimulus omits MAAP': _offer_without('maap', 'backlog'),
     'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
@@ -680,6 +683,13 @@ MUTANTS: dict[str, Patches] = {
         run, 'severity', lambda r: (False, r['ms']))],
     'build: the 1x1 point names the ledgered override too': lambda: [patch.dict(
         build.LEDGERED_POINTS, {('endstation_ax7101_1x1_tdm8', 1): '8x8-two-interfaces'})],
+    'build: a gPTP image is planned at the ledgered point of an image without it': lambda: [patch.object(
+        build, 'GPTP_LEDGERED_POINTS', build.LEDGERED_POINTS)],
+    "grade: a burst stated an interface held at one interface's": lambda: [patch.object(
+        channel_gate, 'with_interfaces', lambda contract, interfaces: contract)],
+    "scenario: a gPTP image's composed windows carry no gptp records": lambda: [patch.object(
+        scenario, 'composed_load', lambda g, p, *a, f=scenario.composed_load, **k: f(
+            g, dataclasses.replace(p, gptp=False), *a, **k))],
     "build: arm B anchors the fixture's own observation callbacks (earlier rule)": lambda: [patch.dict(
         build.VARIANTS, {'answering-ports': [(
             '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',

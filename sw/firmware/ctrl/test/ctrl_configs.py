@@ -103,7 +103,7 @@ class Builder:
 #: --build-only: every arm's binaries and RV32 build, every shape's store binaries and RV32 build, and both
 #: gates' coverage builds, none run and no defect planted (the RV32 self-test compiles its planted header,
 #: ABI and runtime cases and runs no binary); the gate runs the stack's gate and the image builders itself on
-#: every run (ctrl_runs.owned); the last three need Verilator, and the hosted firmware-verilator job runs them
+#: every run (ctrl_runs.owned); the last four need Verilator, and the hosted firmware-verilator job runs them
 #: through the gate's own capture (--only verilator). Each runs every configuration its own list holds: the
 #: bench's default target, the differential with its self-test, the wire comparison at every reference it pins
 #: (--every); the differential and the comparison keep what they build in the run's directory, where a control
@@ -136,6 +136,9 @@ BUILDERS = (
     Builder("sw/firmware/ctrl/test/aecp_wire.py",
             (("{python}", "sw/firmware/ctrl/test/aecp_wire.py", "--every", "--output", "{work}/aecp-wire",
               "--verilator", "{verilator}"),), "verilator"),
+    Builder("tb/verilator/gptp_sw/Makefile",
+            (("make", "-C", "tb/verilator/gptp_sw", "build", "VERILATOR={verilator}",
+              "MDIR={work}/gptp-sw"),), "verilator"),
 )
 #: What a run may say it has none of: each builder that needs it is left out of the capture, and named.
 NEEDS = {"verilator": "Verilator"}
@@ -331,6 +334,10 @@ OUTSIDE = {
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
 #: checkout's own trees.
 SUITES = {
+    "sw/firmware/ctrl/test/gptp_mutants.py": "the gPTP campaign: planted copies of the port and its headers, "
+                                             "compiled by the normal and UBSan arms the control gate also builds",
+    "tb/verilator/gptp_sw/gptp_sw_mutants.py": "the gPTP closed-loop campaign: planted copies of the firmware "
+                                               "compiled by the separately captured gptp_sw Makefile",
     "sw/firmware/ctrl/test/ctrl_mutants.py": "the control campaign (test_ctrl_firmware.py --self-test): copies of "
                                              "the firmware's tree and the stack's src/ and include/ with a defect "
                                              "planted, and the checkout's tests and the stack's tests against them",

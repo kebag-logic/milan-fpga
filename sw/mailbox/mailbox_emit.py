@@ -225,7 +225,8 @@ def _channel_rows(contract: Contract) -> list[str]:
     for ch in contract.channels:
         out.append(f"| `{ch.name}` | {ch.ident} | `0x{ch.rx_base:04X}`, {ch.rx_words} words "
                    f"| `0x{ch.tx_base:04X}`, {ch.tx_words} words | {ch.max_frame_bytes} "
-                   f"| burst {ch.burst}, one token per {ch.refill_ms} ms "
+                   f"| burst {ch.burst}{f' ({ch.burst_each} an interface)' if ch.burst_each else ''}, "
+                   f"one token per {ch.refill_ms} ms "
                    f"| {ch.refill_ms + T_INGRESS_MS} ms: one refill period and `T_ingress` |")
     out += ["", f"A record that finds a token is published within 64 mailbox cycles of its last byte: its ingress "
                 f"allowance, `T_ingress`, is {T_INGRESS_MS} ms (FR_NFR.md 3.4.1). A held record is published at its "

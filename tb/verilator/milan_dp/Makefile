@@ -200,7 +200,8 @@ GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
        $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
-       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/ieee8021as/gptp_tsu/KL_gptp_tsu.sv
 
 SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_arb_mux.v \
@@ -762,10 +763,13 @@ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
 ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
 SUFFIX_CASES = render-mutants
+# #884: the split leg with gPTP in firmware (split-sw), the one bench of the product datapath's GPTP_SW_EN_P
+# wiring. Dealt last, so no case before it changes hosted piece (suite_shards.PIECE_SECONDS, #804).
+TAIL_CASES = split-sw
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
 RECEIPT_render-mutants = tally-stdout
-RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
+RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES) $(TAIL_CASES)
 CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
 CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
 CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
@@ -793,6 +797,7 @@ run: ci-prepare
 	$(foreach case,$(ORDINARY_CASES),$(MAKE) --no-print-directory build-$(case) &&) true
 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" $(foreach case,$(ORDINARY_CASES),$(CASE_OPTIONS_$(case)))
 	python3 render_mutants.py
+	$(MAKE) --no-print-directory $(addprefix run-,$(TAIL_CASES))
 
 ci-prepare: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 
@@ -936,6 +941,19 @@ exec-split:
 # split_parallel.py runs make -j8 split from a clean tree)
 split: build-split
 	$(MAKE) --no-print-directory exec-split
+
+# #884: the same leg with gPTP in firmware (GPTP_SW_EN_P): the timestamp unit in
+# the plane's place, the gptp tap with its trailer, the narrowed publication
+# decoded, plus sim_split.cpp's [GPTP] checks of that wiring
+SPLIT_SW_MDIR ?= obj_split_sw
+build-split-sw: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(subst --Mdir $(SPLIT_MDIR),--Mdir $(SPLIT_SW_MDIR) -GGPTP_SW_P=1 -CFLAGS "-DSPLIT_GPTP_SW -Wall -Wextra",$(SPLIT_BUILD))
+
+exec-split-sw:
+	./$(SPLIT_SW_MDIR)/Vmilan_dp_split
+
+split-sw: build-split-sw
+	$(MAKE) --no-print-directory exec-split-sw
 
 # the split leg's planted defects, each caught by the check it names
 split-mutants: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)

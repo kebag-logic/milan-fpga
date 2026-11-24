@@ -41,6 +41,21 @@
                 a full FIFO, saturating at 255 (PP_DIAG[15:8]). A FIFO that
                 drops when full never lowers tready, so the loss is read
                 from the FIFO's own overflow indication, not the handshake.
+
+                gPTP IN FIRMWARE (GPTP_P; contract 2.5): every IEEE 802.1AS
+                frame leaves with an eight-octet trailer after its last byte,
+                its ingress stamp, most significant octet first: the
+                timestamp unit's PHC at the frame's first beat less the
+                ingress latency, or all ones when the frame is no event
+                message. The stamp is taken at the frame's last beat into a
+                stamp FIFO that moves in step with the frame FIFO, one entry
+                a kept gPTP frame, and is emitted when the frame is. So a
+                frame the mailbox admits always carries its own stamp, and a
+                frame it refuses takes its stamp with it: no stamp of a
+                delivered frame is ever lost (#884's ruling of 2026-11-21,
+                item 2). A gPTP frame that finds the stamp FIFO full at
+                beat 1 is refused there and counted as a drop, as a frame
+                that finds the frame FIFO full is.
 ------------------------------------------------------------------------------
 */
 //---------------------------------------------------------------------------//
@@ -49,7 +64,14 @@
 module KL_ctrl_split #(
     parameter int unsigned TDATA_WIDTH_P   = 64,
     //! the tap's FIFO, in bytes: the wrapper's own (KL_pp_shadow)
-    parameter int unsigned RX_FIFO_BYTES_P = 4096
+    parameter int unsigned RX_FIFO_BYTES_P = 4096,
+    //! gPTP in firmware (#884, #665 F6; milan_datapath GPTP_SW_EN_P): the tap
+    //! also passes the IEEE 802.1AS frames, the mailbox's gptp channel
+    //! (contract 2.5). 0 keeps the fabric plane's: they never reach the mailbox.
+    parameter bit GPTP_P = 1'b0,
+    //! the stamp FIFO, entries (a power of two): the gPTP frames the frame
+    //! FIFO may hold at once before a gPTP frame is refused
+    parameter int unsigned STAMPS_P = 64
 ) (
     input  wire                        clk_i,        //! the datapath's clock
     input  wire                        rst_n,        //! synchronous active-low reset
@@ -59,6 +81,9 @@ module KL_ctrl_split #(
     input  wire                        rx_tvalid_i,
     input  wire                        rx_tready_i,
     input  wire                        rx_tlast_i,
+    //! ---- the timestamp unit's ingress stamp of the frame on the tap (GPTP_P; KL_gptp_tsu)
+    input  wire [63:0]                 rx_stamp_i,   //! read at a gPTP frame's last beat
+    input  wire                        rx_event_i,   //! the frame is an event message: the stamp is a measurement
     //! ---- the control frames' bytes, to the mailbox's ingress
     output logic                       rx_valid_o,   //! a byte is offered
     output logic [7:0]                 rx_data_o,    //! the byte, wire order
@@ -92,6 +117,8 @@ module KL_ctrl_split #(
   localparam logic [15:0] ET_1722_C = 16'h22F0;
   localparam logic [15:0] ET_MSRP_C = 16'h22EA;
   localparam logic [15:0] ET_MVRP_C = 16'h88F5;
+  localparam logic [47:0] DA_GPTP_C = 48'h01_80_C2_00_00_0E;   //! IEEE 802.1AS-2020 Table 11-3
+  localparam logic [15:0] ET_GPTP_C = 16'h88F7;                //! IEEE 802.1AS-2020 11.3.5
   //! the AVTP control subtypes the mailbox has a channel for
   localparam logic [7:0]  ST_ADP_C  = 8'hFA;
   localparam logic [7:0]  ST_AECP_C = 8'hFB;
@@ -119,55 +146,73 @@ module KL_ctrl_split #(
   tap_state_e tap_r;
   logic [47:0] da_r;
 
+  //! a gPTP frame, and one the stamp FIFO has no entry left for (refused)
+  logic gptp_w, no_room_w;
+  assign gptp_w = GPTP_P && (da_r == DA_GPTP_C) && (etype_w == ET_GPTP_C);
+
   logic accept_w;
   assign accept_w = ((etype_w == ET_1722_C)
                      && ((subtype_w == ST_ADP_C) || (subtype_w == ST_AECP_C)
                          || (subtype_w == ST_ACMP_C) || (subtype_w == ST_MAAP_C)))
                  || ((da_r == DA_MSRP_C) && (etype_w == ET_MSRP_C))
-                 || ((da_r == DA_MVRP_C) && (etype_w == ET_MVRP_C));
+                 || ((da_r == DA_MVRP_C) && (etype_w == ET_MVRP_C))
+                 || (GPTP_P && (da_r == DA_GPTP_C) && (etype_w == ET_GPTP_C));
 
-  logic                     fw_valid_w, fw_last_w, fw_user_w, fw_ready_w;
+  //! the FIFO's user bits: [0] a bad frame (reclaimed), [1] on a gPTP frame's
+  //! last beat (its trailer follows it)
+  logic                     fw_valid_w, fw_last_w, fw_ready_w;
+  logic [1:0]               fw_user_w;
   logic [TDATA_WIDTH_P-1:0] fw_data_w;
   logic [KEEP_W_C-1:0]      fw_keep_w;
+  logic                     gptp_frame_r;   //! the frame in TAP_BODY_S is a gPTP frame
 
   always_comb begin : tap_forward
     fw_valid_w = 1'b0;
     fw_data_w  = rx_tdata_i;
     fw_keep_w  = rx_tkeep_i;
     fw_last_w  = rx_tlast_i;
-    fw_user_w  = 1'b0;
+    fw_user_w  = 2'b00;
     unique case (tap_r)
       TAP_HEAD0_S: begin
         //! beat 0 is written before the verdict; a frame ending here is a
         //! runt and is dropped
         fw_valid_w = beat_w;
-        fw_user_w  = rx_tlast_i;
+        fw_user_w  = {1'b0, rx_tlast_i};
       end
       TAP_HEAD1_S: begin
         //! a refused frame ends here, marked bad, so the FIFO reclaims it
         fw_valid_w = beat_w;
-        if (!accept_w) begin
+        if (!accept_w || no_room_w) begin
           fw_last_w = 1'b1;
-          fw_user_w = 1'b1;
+          fw_user_w = 2'b01;
+        end else if (gptp_w && rx_tlast_i) begin
+          fw_user_w = 2'b10;
         end
       end
-      TAP_BODY_S: fw_valid_w = beat_w;
+      TAP_BODY_S: begin
+        fw_valid_w = beat_w;
+        fw_user_w  = {gptp_frame_r && rx_tlast_i, 1'b0};
+      end
       default:    fw_valid_w = 1'b0;   // the rest of a refused frame
     endcase
   end : tap_forward
 
   always_ff @(posedge clk_i) begin : tap_state
     if (!rst_n) begin
-      tap_r <= TAP_HEAD0_S;
-      da_r  <= 48'd0;
+      tap_r        <= TAP_HEAD0_S;
+      da_r         <= 48'd0;
+      gptp_frame_r <= 1'b0;
     end else if (beat_w) begin
       unique case (tap_r)
         TAP_HEAD0_S: begin
           da_r  <= da_num_w;
           tap_r <= rx_tlast_i ? TAP_HEAD0_S : TAP_HEAD1_S;
         end
-        TAP_HEAD1_S: tap_r <= rx_tlast_i ? TAP_HEAD0_S
-                                         : (accept_w ? TAP_BODY_S : TAP_SKIP_S);
+        TAP_HEAD1_S: begin
+          tap_r <= rx_tlast_i ? TAP_HEAD0_S
+                              : ((accept_w && !no_room_w) ? TAP_BODY_S : TAP_SKIP_S);
+          gptp_frame_r <= gptp_w;
+        end
         default:     if (rx_tlast_i) tap_r <= TAP_HEAD0_S;
       endcase
     end
@@ -185,13 +230,14 @@ module KL_ctrl_split #(
     if (!rst_n) begin
       last_kept_r <= 1'b0;
     end else if (fw_valid_w && fw_ready_w && fw_last_w) begin
-      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w);
+      last_kept_r <= (tap_r == TAP_BODY_S) || ((tap_r == TAP_HEAD1_S) && accept_w && !no_room_w);
     end
   end : drop_track
   assign drop_p_w = ff_overflow_w & last_kept_r;
 
   logic [TDATA_WIDTH_P-1:0] ff_data_w;
   logic [KEEP_W_C-1:0]      ff_keep_w;
+  logic [1:0]               ff_user_w;
   logic                     ff_valid_w, ff_last_w, ff_ready_w;
 
   axis_fifo #(
@@ -203,10 +249,10 @@ module KL_ctrl_split #(
     .ID_ENABLE           (0),
     .DEST_ENABLE         (0),
     .USER_ENABLE         (1),
-    .USER_WIDTH          (1),
+    .USER_WIDTH          (2),
     .FRAME_FIFO          (1),
-    .USER_BAD_FRAME_VALUE(1'b1),
-    .USER_BAD_FRAME_MASK (1'b1),
+    .USER_BAD_FRAME_VALUE(2'b01),
+    .USER_BAD_FRAME_MASK (2'b01),
     .DROP_BAD_FRAME      (1),
     .DROP_OVERSIZE_FRAME (1),
     .DROP_WHEN_FULL      (1)
@@ -228,7 +274,7 @@ module KL_ctrl_split #(
     .m_axis_tlast       (ff_last_w),
     .m_axis_tid         (),
     .m_axis_tdest       (),
-    .m_axis_tuser       (),
+    .m_axis_tuser       (ff_user_w),
     .status_overflow    (ff_overflow_w),
     .status_bad_frame   (),
     .status_good_frame  (),
@@ -243,8 +289,13 @@ module KL_ctrl_split #(
   // ======================================================================= //
   logic [TDATA_WIDTH_P-1:0] ser_data_r;
   logic [KEEP_W_C-1:0]      ser_keep_r;
-  logic                     ser_last_r, ser_busy_r;
+  logic                     ser_last_r, ser_busy_r, ser_gptp_r;
   logic [2:0]               ser_idx_r;
+  //! the trailer: the stamp FIFO's head, eight octets after a gPTP frame
+  logic                     trl_busy_r;
+  logic [2:0]               trl_idx_r;
+  logic [63:0]              stamp_head_w;
+  logic                     stamp_pop_w;
 
   //! the held word's last valid lane (keep is contiguous from lane 0)
   logic [2:0] ser_top_w;
@@ -255,10 +306,12 @@ module KL_ctrl_split #(
     end
   end : ser_top
 
-  assign ff_ready_w = ~ser_busy_r;
-  assign rx_valid_o = ser_busy_r;
-  assign rx_data_o  = ser_data_r[8*ser_idx_r +: 8];
-  assign rx_last_o  = ser_busy_r & ser_last_r & (ser_idx_r == ser_top_w);
+  assign ff_ready_w = ~ser_busy_r & ~trl_busy_r;
+  assign rx_valid_o = ser_busy_r | trl_busy_r;
+  assign rx_data_o  = trl_busy_r ? stamp_head_w[8*(3'd7 - trl_idx_r) +: 8] : ser_data_r[8*ser_idx_r +: 8];
+  assign rx_last_o  = trl_busy_r ? (trl_idx_r == 3'd7)
+                                 : (ser_busy_r & ser_last_r & ~ser_gptp_r & (ser_idx_r == ser_top_w));
+  assign stamp_pop_w = trl_busy_r & rx_ready_i & (trl_idx_r == 3'd7);
 
   always_ff @(posedge clk_i) begin : ser_step
     if (!rst_n) begin
@@ -267,19 +320,83 @@ module KL_ctrl_split #(
       ser_data_r <= '0;
       ser_keep_r <= '0;
       ser_last_r <= 1'b0;
+      ser_gptp_r <= 1'b0;
+      trl_busy_r <= 1'b0;
+      trl_idx_r  <= 3'd0;
+    end else if (trl_busy_r) begin
+      if (rx_ready_i) begin
+        if (trl_idx_r == 3'd7) trl_busy_r <= 1'b0;
+        trl_idx_r <= trl_idx_r + 3'd1;
+      end
     end else if (!ser_busy_r) begin
       if (ff_valid_w) begin
         ser_data_r <= ff_data_w;
         ser_keep_r <= ff_keep_w;
         ser_last_r <= ff_last_w;
+        ser_gptp_r <= GPTP_P && ff_last_w && ff_user_w[1];
         ser_idx_r  <= 3'd0;
         ser_busy_r <= 1'b1;
       end
     end else if (rx_ready_i) begin
-      if (ser_idx_r == ser_top_w) ser_busy_r <= 1'b0;
-      else                        ser_idx_r  <= ser_idx_r + 3'd1;
+      if (ser_idx_r == ser_top_w) begin
+        ser_busy_r <= 1'b0;
+        //! a gPTP frame's last byte is followed by its trailer
+        if (ser_last_r && ser_gptp_r) begin
+          trl_busy_r <= 1'b1;
+          trl_idx_r  <= 3'd0;
+        end
+      end else begin
+        ser_idx_r <= ser_idx_r + 3'd1;
+      end
     end
   end : ser_step
+
+  // ======================================================================= //
+  //  The stamp FIFO: one entry a kept gPTP frame, in the frame FIFO's order //
+  // ======================================================================= //
+  //! A kept gPTP frame's stamp is held at its last beat and enters the FIFO
+  //! on the next cycle unless the frame FIFO dropped the frame then
+  //! (status_overflow, as drop_track reads it), so the two FIFOs hold the
+  //! same frames. The room test at beat 1 counts that held stamp too.
+  logic stamp_drop_p_w;   //! a gPTP frame refused for want of a stamp entry
+  if (GPTP_P) begin : g_stamps
+    localparam int unsigned SW_C = $clog2(STAMPS_P);
+    if ((STAMPS_P & (STAMPS_P - 1)) != 0 || STAMPS_P < 2) begin : g_stamps_check
+      $error("KL_ctrl_split: STAMPS_P must be a power of two of at least 2, got %0d", STAMPS_P);
+    end
+    logic [63:0]   stamp_mem_r [STAMPS_P];
+    logic [SW_C:0] st_wp_r, st_rp_r;
+    logic          held_v_r;
+    logic [63:0]   held_r;
+    assign no_room_w = gptp_w && (((st_wp_r - st_rp_r) + (SW_C+1)'(held_v_r)) >= (SW_C+1)'(STAMPS_P));
+    assign stamp_head_w = stamp_mem_r[st_rp_r[SW_C-1:0]];
+    always_ff @(posedge clk_i) begin : stamps
+      if (!rst_n) begin
+        st_wp_r  <= '0;
+        st_rp_r  <= '0;
+        held_v_r <= 1'b0;
+        held_r   <= '0;
+      end else begin
+        held_v_r <= 1'b0;
+        if (fw_valid_w && fw_ready_w && fw_last_w && fw_user_w[1]) begin
+          held_v_r <= 1'b1;
+          held_r   <= rx_event_i ? rx_stamp_i : '1;
+        end
+        if (held_v_r && !ff_overflow_w) begin
+          stamp_mem_r[st_wp_r[SW_C-1:0]] <= held_r;
+          st_wp_r <= st_wp_r + (SW_C+1)'(1);
+        end
+        if (stamp_pop_w) st_rp_r <= st_rp_r + (SW_C+1)'(1);
+      end
+    end : stamps
+    assign stamp_drop_p_w = beat_w && (tap_r == TAP_HEAD1_S) && accept_w && no_room_w;
+  end else begin : g_no_stamps
+    assign no_room_w      = 1'b0;
+    assign stamp_head_w   = '0;
+    assign stamp_drop_p_w = 1'b0;
+    logic unused_stamp_w;
+    assign unused_stamp_w = ^{rx_stamp_i, rx_event_i};
+  end
 
   // ======================================================================= //
   //  Egress packer: bytes into beats, one completed beat held at a time     //
@@ -339,7 +456,7 @@ module KL_ctrl_split #(
       tx_frames_o <= 16'd0;
     end else begin
       if (rx_valid_o & rx_ready_i & rx_last_o) rx_frames_o <= rx_frames_o + 16'd1;
-      if (drop_p_w & (rx_drops_o != 8'hFF))    rx_drops_o  <= rx_drops_o + 8'd1;
+      if ((drop_p_w | stamp_drop_p_w) & (rx_drops_o != 8'hFF)) rx_drops_o <= rx_drops_o + 8'd1;
       if (tx_valid_i & tx_ready_o & tx_last_i) tx_frames_o <= tx_frames_o + 16'd1;
     end
   end : frame_counters

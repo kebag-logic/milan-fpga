@@ -75,6 +75,9 @@
 #include "maap_csr.h"
 #include "nvm_flash.h"
 #include "srp_mbx.h"
+#ifdef CTRL_PLAT_GPTP
+#include "gptp_mbx.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -152,6 +155,9 @@ struct ctrl_plat {
 	struct srp_mbx_config srp_config;
 	struct srp_source sources[MBX_N_IF][CTRL_SRP_SOURCES];
 	struct ctrl_plat_phy phy;
+#ifdef CTRL_PLAT_GPTP
+	struct gptp_mbx gptp;                       // gPTP in firmware, an end station port an interface (#884)
+#endif
 };
 
 // The image's one instance, with every pool the generated shape sizes.

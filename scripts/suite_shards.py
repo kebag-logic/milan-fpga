@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 r"""Balance the physical serial inventory and the case-partitioned CI inventory.
 
-The serial sweep still discovers every Makefile and excludes only the scheduled
-physical gPTP suite. CI expands six registered parents into driver-owned case
-partitions. Only leg counts and measured duration estimates are registered here;
-the case names come from each driver, and executed receipts prove their union.
+The serial sweep still discovers every Makefile and excludes only the scheduled physical gPTP suite. CI expands six
+registered parents into driver-owned case partitions. Only leg counts and measured duration estimates are registered
+here; the case names come from each driver, and executed receipts prove their union.
 
-Longest-first scheduling balances eighteen regular workers of nineteen (#781, #799). The tsn-gen owner
-stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
-history runs alone on the final worker under issue 737s explicit timing exception.
-Every other worker must project at most 1620 seconds including setup. The older
-60-percent timeout bound remains an additional gate, including for the exception.
+Longest-first scheduling balances eighteen regular workers of nineteen (#781, #799). The tsn-gen owner stays at
+worker 1 and the netlist owner at worker 3. One continuous media-clock history runs alone on the final worker under
+issue 737s explicit timing exception. Every other worker must project at most 1620 seconds including setup. The
+older 60-percent timeout bound remains an additional gate, including for the exception.
 
 New suites must enter both the discovered inventory and duration table. Until a
 hosted window is measured, register the exact run_all_suites.sh timeout as a
@@ -104,7 +102,9 @@ SUITE_SECONDS = {
     "fw_service_budget": 2,
     "gptp_plane": 784,
     "gptp_shadow": 393,
+    "gptp_sw": 860,
     "gptp_tables": 568,
+    "gptp_tsu": 120,
     "gptp_txts": 72,
     "i2spb": 6,
     "ifg": 6,
@@ -116,7 +116,7 @@ SUITE_SECONDS = {
     "media_grid_align": 255,
     "media_nco": 17,
     "media_phase": 1400,
-    "milan_dp": 2797,
+    "milan_dp": 2819,
     "milan_dp_gm_steps": 926,
     "milan_dp_mclk": 2038,
     "milan_dp_render": 1264,
@@ -145,8 +145,8 @@ SUITE_SECONDS = {
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps): reboot_ctrl.
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"reboot_ctrl"})
+#: measures it (step 3 of the module docstring's new-suite steps): reboot_ctrl, and gptp_sw and gptp_tsu (#884).
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"gptp_sw", "gptp_tsu", "reboot_ctrl"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
@@ -159,7 +159,7 @@ SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
 # Hosted leg windows, as SUITE_SECONDS' #799 figures. Keyed by leg index while the driver
 # deals cases round-robin, so an inserted case re-targets them (#804). See CI_WORKFLOWS.md.
 PIECE_SECONDS = {
-    "milan_dp": (1429, 508, 325, 1307),
+    "milan_dp": (1429, 508, 347, 1307),  # #884: leg 2 and the serial figure +22 s, split-sw (its last case)
     "milan_dp_mclk": (988, 742, 717, 488),
     "capture_coherence": (1436, 1108, 695, 642),
     "maap": (311, 425, 317, 327),

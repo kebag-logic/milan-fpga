@@ -54,20 +54,24 @@ class Point(NamedTuple):
     interfaces: int
     override: str | None
     plat: str
+    gptp: bool = False   # built --with-gptp: the image of an SoC built --sw-gptp (#884)
 
 
-#: The four points the ledger names (ctrl_memory_ledger.PLAT_*): the shipping 1x1 shape and the 8x8 one, each with
+#: The five points the ledger names (ctrl_memory_ledger.PLAT_*): the shipping 1x1 shape and the 8x8 one, each with
 #: one and two interfaces; each 8x8 image takes its own override, the one-interface one a product image's, which the
-#: product build plans by the image's symbols too (#919, #923's ruling of 2026-11-16).
+#: product build plans by the image's symbols too (#919, #923's ruling of 2026-11-16); and the 8x8 one-interface
+#: image with gPTP in firmware, the image of an SoC built --sw-gptp, its own override (#884's ruling of 2026-11-21,
+#: item 4). The two-interface 8x8 point stays last, the one the controls plant.
 POINTS = (Point('endstation_ax7101_1x1_tdm8', 1, None, 'PLAT_1X1_1'),
           Point('endstation_ax7101_1x1_tdm8', 2, None, 'PLAT_1X1_2'),
           Point('endstation_ax7101_8x8', 1, 'platform-8x8-one-interface', 'PLAT_8X8_1'),
+          Point('endstation_ax7101_8x8', 1, 'platform-8x8-one-interface-gptp', 'PLAT_8X8_1_GPTP', gptp=True),
           Point('endstation_ax7101_8x8', 2, 'platform-8x8-two-interfaces', 'PLAT_8X8_2'))
 
 
 def name(point: Point) -> str:
     """The point's directory and label: its shape and its interfaces."""
-    return f"{'8x8' if '8x8' in point.shape else '1x1'}-if{point.interfaces}"
+    return f"{'8x8' if '8x8' in point.shape else '1x1'}-if{point.interfaces}{'-gptp' if point.gptp else ''}"
 
 
 def run(argv: list[str], log: Path, cwd: Path = ROOT) -> int:
@@ -93,7 +97,8 @@ def link(out: Path, point: Point, csr_csv: Path, flash_map: Path, archives: tupl
     rc = run([sys.executable, '-B', str(IMAGE), '--config', str(ROOT / 'configs' / f'{point.shape}.yaml'),
               '--interfaces', str(point.interfaces), '--csr-csv', str(csr_csv), '--flash-map', str(flash_map),
               '--output', str(where), '--libc', str(archives[0]), '--compiler-runtime', str(archives[1]),
-              *([] if point.override is None else ['--ledgered-point', point.override])], where.with_suffix('.log'))
+              *([] if point.override is None else ['--ledgered-point', point.override]),
+              *(['--with-gptp'] if point.gptp else [])], where.with_suffix('.log'))
     where.with_suffix('.rc').write_text(f'{rc}\n')
     return rc
 
@@ -235,7 +240,7 @@ CONTROLS = {
                                   frozenset({('LINK', LAST), ('TILES', LAST), ('LEDGER', '')})),
     'product-override-not-taken': Control(lambda out: planted(sys.modules[__name__], 'POINTS',
                                                               (*POINTS[:2], POINTS[2]._replace(override=None),
-                                                               POINTS[3])),
+                                                               *POINTS[3:])),
                                           frozenset({('LINK', ONE8), ('TILES', ONE8), ('LEDGER', '')})),
     'override-unlinked': Control(lambda out: planted(ctrl_memory, 'LEDGERED', {
         **ctrl_memory.LEDGERED, 'platform-1x1-two-interfaces': dataclasses.replace(

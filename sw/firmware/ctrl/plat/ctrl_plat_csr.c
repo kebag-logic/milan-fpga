@@ -118,3 +118,40 @@ bool ctrl_plat_csr_tod(uintptr_t csr, uint64_t *ns)
 	}
 	return false;
 }
+
+#ifdef CTRL_PLAT_GPTP
+void ctrl_plat_csr_ptp_rate(uintptr_t csr, int32_t addend)
+{
+	wr(csr, CTRL_PLAT_CSR_PTP_ADJ, (uint32_t)addend);
+}
+
+void ctrl_plat_csr_ptp_step(uintptr_t csr, int64_t delta_ns)
+{
+	const uint64_t delta = (uint64_t)delta_ns;
+	wr(csr, CTRL_PLAT_CSR_PTP_OFS_LO, (uint32_t)delta);
+	wr(csr, CTRL_PLAT_CSR_PTP_OFS_HI, (uint32_t)(delta >> 32));
+	wr(csr, CTRL_PLAT_CSR_PTP_CMD, CTRL_PLAT_PTP_ADJUST);
+}
+
+// 10^9 x 2^24 over the period, by shifts and subtractions: the split's ISA has no divide, and the image calls no
+// software one (ctrl_srp_image.py's audit); once, at the boot
+uint32_t ctrl_plat_csr_ptp_hz(uintptr_t csr)
+{
+	const uint64_t incr = rd(csr, CTRL_PLAT_CSR_PTP_INCR);
+	const uint64_t num = 1000000000ull << 24;
+	uint64_t rem = 0;
+	uint64_t hz = 0;
+	if (incr == 0u) {
+		return 0u;
+	}
+	for (unsigned bit = 64u; bit-- != 0u;) {
+		rem = (rem << 1) | ((num >> bit) & 1u);
+		hz <<= 1;
+		if (rem >= incr) {
+			rem -= incr;
+			hz |= 1u;
+		}
+	}
+	return (uint32_t)hz;
+}
+#endif

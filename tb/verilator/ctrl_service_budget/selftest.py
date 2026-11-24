@@ -16,8 +16,8 @@ of an absent log, the reuse attestation, the instruction cache's observers and X
 arm the run builds, records and reuses run on temporary files. Then each rule is mutated in turn, and a named check
 must fail; a mutant of a headline figure (the worst pass, the composed maximum, a pass bound) fails on that figure.
 
-Regenerate the fixture only through its generator, from a fresh 'fixture' group run at 1x1 on the cacheless core it
-was recorded on (--fetch-l1 none):
+Regenerate the fixture only through its generator, from a fresh 'fixture' group run at 1x1 on the split SoC it was
+recorded on (the default --fetch-l1 split), whose FILTER_EN write is the gate #884's ruling A reads (OPEN):
 
     python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
 """
@@ -47,6 +47,8 @@ import selftest_mutants  # noqa: E402
 from selftest_answers import answer_checks  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_notice import notice_checks  # noqa: E402
+from selftest_opened import (fixture_clocks, fixture_kept, fixture_open, gptp_load_check,  # noqa: E402
+                             gptp_point_check, gptp_want, opened_checks, planted_probe)
 from selftest_polls import polls_checks  # noqa: E402
 from load_grade import ceiling_checks  # noqa: E402
 from selftest_held import held_checks  # noqa: E402
@@ -56,9 +58,9 @@ from selftest_share import (burst_checks, clock_checks, held_load_checks, save_c
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
-#: The grader's two clocks: the fixture's, recorded with the CPU on the Milan clock at half the bus
-#: clock, so a conversion that confuses them fails. The product's split CPU runs on the bus clock
-#: itself (#665; selftest_share.clock_checks).
+#: The synthetic logs' two clocks: the CPU at half the bus clock, so a conversion that confuses them fails. The
+#: committed trace is graded at the clocks it was recorded at (selftest_opened.fixture_clocks): the product's split
+#: CPU runs on the bus clock itself (#665; selftest_share.clock_checks).
 SYS_HZ, CPU_HZ = 100_000_000, 50_000_000
 PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_budget', 'within_ceiling',
           'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_budget',
@@ -66,8 +68,10 @@ PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'w
 #: FR_NFR.md 3.4.1's approved T_svc (owner, 2026-10-29), its ceilings, and each family's budget,
 #: min(T_svc, ceiling), restated here on purpose: a changed value or table must fail.
 T_SVC = 20.0
-CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 20.0}
-BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0}
+CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 20.0,
+            'gptp': 10.0}
+BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 20.0,
+           'gptp': 10.0}
 #: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
 #: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
@@ -86,9 +90,9 @@ def fixture_group(oracle: dict) -> scenario.Group:
     return scenario.fixture_groups(scenario.Point(**oracle['point']))[0]
 
 
-def regraded(oracle: dict, text: str | None = None) -> dict:
-    """The committed trace (or a planted copy of it), graded now."""
-    return grade.grade(text or FIXTURE_LOG.read_text(), fixture_group(oracle), SYS_HZ, CPU_HZ)
+def regraded(oracle: dict, text: str | None = None, group: scenario.Group | None = None) -> dict:
+    """The committed trace (or a planted copy of it), graded now, as its own group or as group."""
+    return grade.grade(text or FIXTURE_LOG.read_text(), group or fixture_group(oracle), *fixture_clocks(oracle))
 
 
 def headline(result: dict) -> dict:
@@ -103,8 +107,8 @@ def headline(result: dict) -> dict:
 
 
 def synthetic(lines: list[str]) -> str:
-    """A minimal log in the testbench's line format, completed."""
-    return '\n'.join([*lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
+    """A minimal log in the testbench's line format, completed, its image's gate the committed trace's (OPEN)."""
+    return '\n'.join([fixture_open(), *lines, 'SUMMARY passes=1', 'RESULT: PASS']) + '\n'
 
 
 def one(log: str, probe: scenario.Probe) -> dict:
@@ -174,12 +178,12 @@ def fixture_checks() -> list[Check]:
     got = headline(result)
     out.append(('fixture passes: worst pass and composed maximum', got == oracle['passes'],
                 differences(got, oracle['passes'])))
-    # A planted over-budget path in the recorded trace: the BIND_RX response moved past its 20 ms budget.
-    row = oracle['rows']['fixture.bind_rx.if0']
+    # A planted over-budget path in the recorded trace: a response moved past its 20 ms budget (planted_probe).
+    name, row = planted_probe(fixture_group(oracle), oracle['rows'], FIXTURE_LOG.read_text())
     late = row['start_sys'] + 2_000_001
     planted = re.sub(rf'^TXC {row["end_sys"]} ', f'TXC {late} ', FIXTURE_LOG.read_text(), count=1, flags=re.M)
     planted = re.sub(rf'\b{row["end_sys"]}:', f'{late}:', planted)
-    hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}['fixture.bind_rx.if0']
+    hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}[name]
     caught = hit.get('status') == 'measured' and hit.get('within_budget') is False and hit.get('sys_cycles', 0) > 2e6
     out.append(('planted over-budget path is caught', caught, str({k: hit.get(k) for k in PINNED})))
     # A composed load with one channel left out (the MAAP record's commit deleted) is refused by name.
@@ -198,10 +202,10 @@ def fixture_checks() -> list[Check]:
     group = fixture_group(oracle)
     group.load.pop('maap')
     out.append(('a window short of its defined load is refused although it declares it',
-                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, SYS_HZ, CPU_HZ)), ''))
+                "'maap': 0" in refusal(lambda: regraded(oracle, '\n'.join(dropped) + '\n', group)), ''))
     # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
     smaller = dict(grade.defined_load('fixture'), maap=0)
-    with patch.object(grade, 'defined_load', lambda name: smaller):
+    with patch.object(grade, 'defined_load', lambda name, *_: smaller):
         refused = refusal(lambda: regraded(oracle))
     out.append(('a composed window that committed more than its load is refused', "'maap': 1" in refused,
                 refused or 'accepted'))
@@ -401,7 +405,7 @@ def composition_checks() -> list[Check]:
         lines = ['MARK 1000 composed', *received(ACMP, '-', 1100), *received(ACMP, '-', second),
                  f'PASS 1 1500 750 100 instr=10 store_mbx=1 W 1550:{tail:x}:14',
                  f'PASS 2 2000 1000 100 instr=10 store_mbx=1 W 2050:{tail:x}:28', 'MARK 100000 composed_end']
-        with patch.object(grade, 'defined_load', lambda name: {'acmp': 2}):
+        with patch.object(grade, 'defined_load', lambda name, *_: {'acmp': 2}):
             rows = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['probes']
         got.append([(r['probe'].split('.', 1)[1], r['ahead']) for r in rows])
     want = [[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 1)],
@@ -438,7 +442,7 @@ def window_checks() -> list[Check]:
     lines = ['MARK 1000 composed', *[f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
                                      in enumerate(((2000, 100), (5000, 900), (20000, 300)), 1)],
              'MARK 100000 composed_end', 'PASS 4 200000 100000 5000 instr=10 store_mbx=1 W 200100:1:0']
-    with patch.object(grade, 'defined_load', lambda name: {}):
+    with patch.object(grade, 'defined_load', lambda name, *_: {}):
         passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
     got = (passes['composed']['cycles'], passes['composed']['passes'], passes['worst']['cycles'])
     out.append(("the composed maximum is the window's longest pass, wherever it falls", got[:2] == (900, 3), str(got)))
@@ -473,10 +477,10 @@ def window_checks() -> list[Check]:
 
 
 def channel_of(frame: bytes) -> str:
-    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype."""
+    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype (gptp's is 0x88F7)."""
     ethertype = int.from_bytes(frame[12:14], 'big')
-    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP):
-        return 'srp'
+    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP, 0x88F7):
+        return {0x88F7: 'gptp'}.get(ethertype, 'srp')
     if ethertype != scenario.f.ETH_AVTP:
         return '-'
     return {0xFA: 'adp', 0xFB: 'aecp', 0xFC: 'acmp', 0xFE: 'maap'}[frame[14]]
@@ -498,10 +502,10 @@ def stimulus(group: scenario.Group) -> dict[str, int]:
     return out
 
 
-def points(oracle: dict) -> list[scenario.Point]:
-    """The oracle's one-interface point and the same entity with two interfaces."""
-    one_if = scenario.Point(**oracle['point'])
-    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
+def points(oracle: dict, gptp: bool = False) -> list[scenario.Point]:
+    """The oracle's one-interface point and the same entity with two interfaces, their images with gPTP or not."""
+    one_if = scenario.Point(**dict(oracle['point'], gptp=gptp))
+    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2, gptp=gptp))]
 
 
 def load_checks() -> list[Check]:
@@ -510,12 +514,14 @@ def load_checks() -> list[Check]:
     out = []
     derived = {name: {k: v for k, v in grade.defined_load(name).items() if v} for name in DEFINED}
     out.append(('the defined loads, restated', derived == DEFINED, str(derived)))
+    out.append(gptp_load_check(DEFINED))
     sent, declared = {}, {}
-    for p in points(oracle):
+    # a gPTP image's windows carry the gptp channel's too, its burst in the rows and one in the fixture's
+    for p in [*points(oracle), *points(oracle, gptp=True)]:
         for g in [*scenario.backlog_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]:
-            sent[f'{g.name}@{p.interfaces}'] = stimulus(g)
-            declared[f'{g.name}@{p.interfaces}'] = {k: v for k, v in g.load.items() if v}
-    want = {key: DEFINED[key.split('@')[0]] for key in sent}
+            sent[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = stimulus(g)
+            declared[f'{g.name}@{p.interfaces}{"+gptp" * p.gptp}'] = {k: v for k, v in g.load.items() if v}
+    want = {key: {**DEFINED[key.split('@')[0]], **gptp_want(key)} for key in sent}
     out.append(("every composed window's stimulus is its defined load", sent == want,
                 ', '.join(f'{k} {v} (defined {want[k]})' for k, v in sent.items() if v != want[k])))
     out.append(('every composed window declares its defined load', declared == want,
@@ -738,7 +744,8 @@ def build_checks() -> list[Check]:
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
             named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
-            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
+            named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}'),
+           gptp_point_check(build, run.POINTS, ctrl_memory.LEDGERED)]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
         for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
@@ -919,7 +926,8 @@ def cache_build_checks() -> list[Check]:
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *window_checks(), *opened_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(),
+            *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),
@@ -935,14 +943,11 @@ def write_fixture(log: Path, build_json: Path) -> None:
     p = scenario.point('1x1', spec)
     if spec['interfaces'] != 1:
         raise SystemExit('the fixture is the one-interface point')
-    text = log.read_text()
-    records = re.findall(r'^EVW \d+ \d+ ([0-9a-f]+)$', text, re.M)
-    deadlines = {int(records[k + 2], 16) for k in range(0, len(records) - 3, 4)}
-    kept = [line for line in text.splitlines()
-            if not line.startswith(('MS ', 'PC ', 'FETCH ')) or int(line.split()[2]) in deadlines]
+    kept = fixture_kept(log.read_text())
     FIXTURE_LOG.write_text('\n'.join(kept) + '\n')
     oracle = dict(point=dict(label='fixture', shape=p.shape, interfaces=p.interfaces, entity_id=p.entity_id,
                              mac=p.mac, sources=p.sources, sinks=p.sinks),
+                  clocks=dict(sys_hz=spec['sys_hz'], cpu_hz=spec['cpu_hz']),
                   fixture_sha256=hashlib.sha256(FIXTURE_LOG.read_bytes()).hexdigest(), rows={})
     graded = grade.grade(FIXTURE_LOG.read_text(), scenario.fixture_groups(p)[0], spec['sys_hz'], spec['cpu_hz'])
     for r in graded['probes']:

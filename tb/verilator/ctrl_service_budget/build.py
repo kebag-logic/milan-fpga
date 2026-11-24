@@ -32,6 +32,7 @@ import observers
 import talker_notice
 import poll_items
 import save_window
+import ts_pads
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -315,18 +316,30 @@ def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
 #: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
 #: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
 LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
+#: A gPTP image's point at 8x8 (#884's ruling of 2026-11-21, item 4: its memory accepted as ledgered debt, so the
+#: 8x8 points are measured with gPTP in firmware); every other gPTP image is held to the budget.
+GPTP_LEDGERED_POINTS = {('endstation_ax7101_8x8', 1): '8x8-one-interface-gptp',
+                        ('endstation_ax7101_8x8', 2): '8x8-two-interfaces-gptp'}
 
 
-def ledgered_point(shape: str, n_if: int) -> str | None:
-    """The ledgered point's name when this build is that point, else None."""
-    return LEDGERED_POINTS.get((shape, n_if))
+def ledgered_point(shape: str, n_if: int, gptp: bool = False) -> str | None:
+    """The ledgered point's name when this build is that point, else None: a gPTP image's its own."""
+    return (GPTP_LEDGERED_POINTS if gptp else LEDGERED_POINTS).get((shape, n_if))
+
+
+@dataclasses.dataclass(frozen=True)
+class ImageArgs:
+    """An image's own arguments: its flash port's map (gen_flash_port.py's; the RV32 stand-ins without one), and
+    whether it carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884), planned at GPTP_LEDGERED_POINTS."""
+    flash_map: Path | None = None
+    gptp: bool = False
 
 
 def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', variant: str | Variant = 'none',
-             flash_map: Path | None = None) -> Path:
+             extra: ImageArgs | None = None) -> Path:
     """The runtime archives, then the linked split image (a planted copy for a control,
-    or the labelled variant arm), planned as the ledgered point at that point only, its flash
-    port on flash_map (gen_flash_port.py's) or, without one, on the RV32 stand-ins."""
+    or the labelled variant arm), planned as the ledgered point at that point only, with extra's arguments."""
+    extra = extra or ImageArgs()
     import pythondata_software_picolibc as picolibc
     import pythondata_software_compiler_rt as compiler_rt
     import litex
@@ -341,12 +354,12 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', v
     entry = [str(ROOT / 'sw/firmware/ctrl/test/ctrl_srp_image.py')]
     if variant != 'none':
         entry = [str(HERE / 'fixture_variant.py'), str(variant_fixture(out, variant))]
-    ledgered = ledgered_point(shape, n_if)
+    ledgered = ledgered_point(shape, n_if, extra.gptp)
     run([sys.executable, '-B', *entry,
          '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
-         '--with-aecp', '--layout', 'split', '--output', str(image), *source,
+         '--with-aecp', *(['--with-gptp'] if extra.gptp else []), '--layout', 'split', '--output', str(image), *source,
          *([] if ledgered is None else ['--ledgered-point', ledgered]),
-         *([] if flash_map is None else ['--flash-map', str(flash_map)]),
+         *([] if extra.flash_map is None else ['--flash-map', str(extra.flash_map)]),
          '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
         out / 'image.log', cwd=ROOT)
     return image / 'ctrl_app.elf'
@@ -385,8 +398,8 @@ def flash_map(generated: Path, shape: str) -> Path:
     work = generated.parent
     first = firmware(work / 'stand-ins', shape, 1)
     mapped = port_map(soc_export(work / 'stand-ins', shape, first), generated)
-    again = port_map(soc_export(work / 'mapped', shape, firmware(work / 'mapped', shape, 1, flash_map=generated)),
-                     work / 'flash-map-again')
+    again_elf = firmware(work / 'mapped', shape, 1, extra=ImageArgs(generated))
+    again = port_map(soc_export(work / 'mapped', shape, again_elf), work / 'flash-map-again')
     if again != mapped:
         raise RuntimeError(f'the split SoC exports another flash map with the image linked against it: '
                            f'{mapped} then {again}')
@@ -682,6 +695,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
               f"constexpr std::uint32_t step_pc = 0x{table[STEP_SYMBOL]:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
+              # contract 2.5: the gptp channel's id (n_ch when the contract has none) and the timestamp pads
+              f"constexpr unsigned gptp_ch = {spec.get('gptp_ch', spec['channels'])}u;",
+              f"constexpr bool has_ts = {'true' if spec.get('has_ts') else 'false'};",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
               f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
               f"constexpr unsigned ev_words = {spec['ev_words']}u;",
@@ -706,6 +722,7 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     if not any(name == 'lsu_cmd_id' for name, *_ in rows):
         lines += ['inline unsigned lsu_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned lsu_rsp_id(const Vsim&) { return 0u; }']
+    lines += ts_pads.cpp(bool(spec.get('has_ts')))   # contract 2.5's timestamp pads (#884)
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
@@ -834,6 +851,9 @@ class Core:
     fetch_l1: str = 'split'
     xip: bool = False
     cpu_cd: str | None = None
+    #: the image carries gPTP in firmware (ctrl_srp_image.py --with-gptp; #884, contract 2.5): it opens the gptp
+    #: channel, and the testbench's timestamp unit stamps its event messages
+    gptp: bool = False
 
 
 #: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30; milan_soc.CTRL_CPU_CD): the
@@ -880,12 +900,12 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     import split_soc
     build_dir.mkdir(parents=True, exist_ok=True)
     flash = flash_map(build_dir / split_soc.FLASH_MAP, shape)
-    elf = firmware(build_dir, shape, n_if, mutation, variant, flash)
+    elf = firmware(build_dir, shape, n_if, mutation, variant, ImageArgs(flash, core.gptp))
     rom_elf, flash_image = elf, None
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses(flash)['flash'])
     table = symbols(elf)
-    with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
+    with split_soc.ledgered_plan(ledgered_point(shape, n_if, core.gptp)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
     refused = cpu_clock_refusals(spec)
     if refused:
@@ -903,6 +923,9 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     regs = {r.name: r.offset for r in contract.registers}
     tick = next(e for e in contract.event_types if e.name == 'TICK')
     count = next(f for w in tick.words if w.index == 1 for f in w.fields if f.name == 'COUNT')
+    gptp_ch = next((c.ident for c in contract.channels if c.name == 'gptp'), len(contract.channels))
+    spec.update(gptp=core.gptp, gptp_ch=gptp_ch,
+                has_ts=any(e.name == 'TIMESTAMP' for e in contract.event_types))
     spec.update(channels=len(contract.channels), filter_en=regs['FILTER_EN'], tmr_cmd=regs['TMR_CMD'],
                 evt_tail=regs['EVT_TAIL'], ev_words=contract.ev_words,
                 ev_tick=dict(type=tick.value, count_lsb=count.lsb, count_width=count.width),

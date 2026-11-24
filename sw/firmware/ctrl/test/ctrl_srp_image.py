@@ -133,15 +133,20 @@ def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Pat
     return elf,mapfile
 
 
-def hot_list(src: Path, mapfile: Path, layout: str) -> None:
-    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665);
-    a tree from before the list has neither file's part and is not checked."""
+#: The objects only --with-gptp compiles (#884): without it their hot-list entries place nothing (ctrl_hot.py LINKED).
+GPTP_OBJECTS = frozenset({"gptp", "gptp_mbx"})
+
+
+def hot_list(src: Path, mapfile: Path, layout: str, without: frozenset[str] = frozenset()) -> None:
+    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665), but
+    an entry of an object it compiles none of (without); a tree from before the list has neither file's part and is
+    not checked."""
     if layout != "split":
         return
     script=(src/"plat/ctrl_split.ld").read_text(); order=src/"plat/ctrl_split_hot.txt"
     if not order.is_file() and ctrl_hot.START not in script:
         return
-    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text())
+    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text(),without)
     if found:
         raise Refusal("\n".join(found))
 
@@ -166,6 +171,8 @@ def arguments() -> argparse.Namespace:
                         help="the flash port's map generated from a split SoC's csr.csv (gen_flash_port.py)")
     parser.add_argument("--without-srp",action="store_true")
     parser.add_argument("--with-aecp",action="store_true")
+    parser.add_argument("--with-gptp",action="store_true",
+                        help="the gPTP end station ports on the gptp channel (contract 2.5; #884, #665 F6)")
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
     parser.add_argument("--layout",choices=("flat","split"),default="flat",
                         help="flat: one RAM region (ctrl_image.ld); split: rom and sram behind the reset entry")
@@ -183,6 +190,8 @@ def required_symbols(args: argparse.Namespace) -> set[str]:
         required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
                      "acmp_rx","acmp_poll","image_acmp","srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
                      "mrp_transmit","image_srp","image_sources"}
+    if args.with_gptp:
+        required |= {"gptp_mbx_attach","gptp_port_rx","gptp_port_ts","gptp_port_tick"}
     if args.with_aecp:
         required -= {"ctrl_app_start","ctrl_app_start_maap"}
         required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
@@ -225,6 +234,12 @@ def main() -> int:
             extra_inc, extra_sources = aecp_inputs(tree,args.config,out,nvm,flash_map)
             inc += extra_inc
             sources += extra_sources
+        if args.with_gptp:
+            if not args.with_aecp:
+                raise Refusal("--with-gptp attaches to the AECP composition's loop; it needs --with-aecp")
+            inc += [f"-I{tree.src/'gptp'}"]
+            flags += ["-DCTRL_IMAGE_GPTP"]
+            sources += [tree.src/"gptp/gptp.c",tree.src/"gptp/gptp_mbx.c"]
         libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
         if not args.without_srp:
             lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
@@ -243,7 +258,7 @@ def main() -> int:
         nm=cc.removesuffix("gcc")+"nm"
         memory_calls_nothing(nm,sources,objects)
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
-        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout)
+        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout,frozenset() if args.with_gptp else GPTP_OBJECTS)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")

@@ -82,10 +82,23 @@
 # dev added these entries as its own minor 3 over 2.2, without the face
 # block; they join this contract as minor 4 when dev's work merges here, and
 # dev reaches 2.4 by adding the face block (the ruling on #665).
+#
+# Minor 5 (#884, #665 F6; the owner's decision of 2026-11-21 on #872: gPTP all
+# in software, the hardware timestamps and the PHC kept in fabric): the gptp
+# channel takes the untagged IEEE 802.1AS frames of every AVB interface both
+# ways; the TIMESTAMP event carries the timestamp unit's record of each event
+# message it launched, in the order it timed them, and an event message's
+# ingress stamp rides in its own gptp record, an eight-octet trailer; and a
+# gPTP publication per interface carries the state the datapath's consumers
+# read (the clock validity verdict, the grandmaster's identity and counters),
+# written by the firmware's gPTP owner and taken by the datapath only as a
+# whole, when its GPTP_STATE.GEN moves. It only adds: a firmware
+# built against 2.4 never opens channel 5, never writes the GPTP_* words and
+# reads no event type it does not know; the rings and words sit in free space.
 
 version:
   major: 2
-  minor: 4
+  minor: 5
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
@@ -404,6 +417,50 @@ interface_publication_registers:
         declaration is destroyed.
       fields:
         - {name: DECLARED, lsb: 0, width: 16, doc: "bit s: source s has a Talker declaration"}
+    # THE gPTP PUBLICATION (minor 5; #884, #665 F6). The firmware's gPTP owner of
+    # the interface writes GPTP_GM_LO and GPTP_GM_HI, then GPTP_STATE with GEN
+    # moved; the datapath takes every GPTP_* word as one snapshot, crossed when GEN
+    # moves, so it never combines two publications (a grandmaster identity never
+    # moves through a half-written value). The words are contiguous from GPTP_GM_LO,
+    # in this order, and leave KL_mbx on one port, pub_gptp_o, word k at bits
+    # [32k +: 32]. They carry what fabric logic consumes, unchanged in meaning
+    # from the fabric gPTP plane's bank: the grandmaster's identity, the domain
+    # and the clock validity's inputs. The parent identity, the neighbor delay and
+    # the path trace stay with the firmware, which answers GET_AVB_INFO and
+    # GET_AS_PATH from the snapshot it published last (#884's ruling of 2026-11-21,
+    # item 7).
+    - name: GPTP_GM_LO
+      offset: 0x20
+      access: rw
+      doc: The grandmaster's ClockIdentity (gptp_grandmaster_id, Milan v1.2 5.4.2.23), low word; 0 while there is none.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[31:0]"}
+    - name: GPTP_GM_HI
+      offset: 0x24
+      access: rw
+      doc: The grandmaster's ClockIdentity, high word.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[63:32]"}
+    - name: GPTP_STATE
+      offset: 0x28
+      access: rw
+      doc: >-
+        The port's state, written LAST: a write whose GEN moved publishes every GPTP_*
+        word as one snapshot, which the datapath takes whole: a word written after it
+        reaches no snapshot, however long the crossing before is in flight, and a
+        snapshot a later one overtakes before it crosses is not taken. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1);
+        SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the
+        last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction
+        level (a measurement window of the PHC's rate that overlaps it is discarded);
+        DISC counts the discontinuities of the PHC's time (a step, a grandmaster change),
+        so each move of it is one.
+      fields:
+        - {name: DOMAIN, lsb: 0, width: 8, doc: gptp_domain_number}
+        - {name: AS_CAPABLE, lsb: 8, width: 1, doc: asCapable}
+        - {name: SYNC_OK, lsb: 9, width: 1, doc: the synchronization verdict}
+        - {name: SLEW, lsb: 10, width: 1, doc: a transient offset correction is in progress}
+        - {name: DISC, lsb: 16, width: 4, doc: discontinuities, modulo 16}
+        - {name: GEN, lsb: 24, width: 8, doc: "the publication's generation: moved by every write that publishes"}
   source_registers:
     - name: SRC_SID_LO
       offset: 0x0
@@ -1068,6 +1125,33 @@ event_types:
       - index: 3
         fields:
           - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: TIMESTAMP
+    value: 9
+    doc: >-
+      The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to
+      3) the interface launched, or could not: OK clear says the frame left with no
+      measurement, and NS is 0. The stamp is the frame's launch at the MAC's own transmit
+      stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE
+      802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md,
+      Timestamp boundaries). A received frame's stamp is not an event: it rides in the
+      frame's own gptp record (the channel's trailer). NOT COALESCED: each record is one
+      measurement, posted from the unit's FIFO in the order it timed them; a record the
+      FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. The event names no hart:
+      it is posted to the event ring every event goes to, and a contract that routes events
+      to rings routes it as any other (its credit flow and its order are the ring's).
+    words:
+      - index: 1
+        fields:
+          - {name: SEQUENCE_ID, lsb: 0, width: 16, doc: the message's sequenceId}
+          - {name: MSG_TYPE, lsb: 16, width: 4, doc: the message's messageType}
+          - {name: EGRESS, lsb: 20, width: 1, doc: "1: a transmitted frame's stamp, always (a received frame's rides in its record)"}
+          - {name: OK, lsb: 21, width: 1, doc: the stamp is a measurement}
+      - index: 2
+        fields:
+          - {name: NS_LO, lsb: 0, width: 32, doc: "the PHC's time, ns[31:0]"}
+      - index: 3
+        fields:
+          - {name: NS_HI, lsb: 0, width: 32, doc: "the PHC's time, ns[63:32]"}
   - name: AMAP_LIVE_WRITE
     value: 8
     doc: >-
@@ -1221,3 +1305,36 @@ channels:
     accept:
       - {test: any, field: MRPDU,
          doc: every MSRP and MVRP PDU; both are link-local to this port}
+  - name: gptp
+    id: 5
+    rx: {base: 0x5800, words: 512}
+    tx: {base: 0x3400, words: 256}
+    max_frame_bytes: 512
+    match:
+      - {dst: 0x0180C200000E, ethertype: 0x88F7,
+         doc: "IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5)"}
+    # The burst, an interface (#884's ruling of 2026-11-22, item 1): the worst legitimate
+    # coincidence of the 802.1AS message kinds in one refill window. A full-duplex port
+    # receives seven kinds from its one peer (IEEE 802.1AS-2020 Table 11-5: Sync,
+    # Pdelay_Req, Pdelay_Resp, Follow_Up, Pdelay_Resp_Follow_Up; Table 10-8: Announce,
+    # Signaling; no other messageType is used), and each at most once in 10 ms: Sync and
+    # its Follow_Up every 125 ms, Announce, the peer's Pdelay_Req and the Pdelay_Resp and
+    # Pdelay_Resp_Follow_Up answering the port's own request every second (Milan v1.2
+    # 4.2.6.2.2 Table 4.1), a gPTP-capable Signaling at its default second (10.7.2.5),
+    # with 90 % of the intervals within 30 % of nominal (10.7.2.2, 10.7.2.3), so the
+    # closest in-tolerance Sync pair is 87.5 ms apart. Seven an interface, times the
+    # interfaces; the refill, one every 10 ms, is 100 a second against a slave port's 20.
+    rate: {burst_per_interface: 7, refill_ms: 10}
+    cite: IEEE 802.1AS-2020 11.3.4, 11.3.5 and 11.4; Milan v1.2 4.2.6.2.2 Table 4.1
+    # The record carries the whole frame and, after it, an eight-octet trailer:
+    # the frame's ingress stamp, most significant octet first, the PHC at the
+    # frame's first beat less the board's ingress latency (IEEE 802.1AS-2020
+    # 11.3.9, docs/design/GPTP_PLANE.md), or all ones when the frame is no event
+    # message (KL_ctrl_split). So the PTP message (10.6.2, the common header first)
+    # is frame bytes 14 to LEN-9, a frame the channel admits always has its stamp,
+    # and one it refuses takes its stamp with it (#884's ruling of 2026-11-21,
+    # item 2). A TX record is the 14-byte header and a message the firmware's
+    # gPTP owner wrote, with no trailer.
+    accept:
+      - {test: any, field: PTPDU,
+         doc: every gPTP message; each is link-local to this port (IEEE 802.1AS-2020 11.3.4)}

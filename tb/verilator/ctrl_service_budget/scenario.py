@@ -51,7 +51,7 @@ import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
-from mailbox_model import load  # noqa: E402
+from mailbox_model import load, with_interfaces  # noqa: E402
 
 CONTRACT = load()
 CH = {ch.name: n for n, ch in enumerate(CONTRACT.channels)}
@@ -96,7 +96,7 @@ CEILING_MS = {
     'notify': 24.0,   # Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: the related 240 ms interval
     'maap': 50.0,     # IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms probe interval x 10 %
     'srp': 20.0,      # T_svc, the owner's ruling of 2026-11-06 (#665): over the 18 ms of JoinTime 180 ms x 10 %
-}
+    'gptp': 10.0}     # IEEE 802.1AS-2011 B.2.3's turnaround itself, #884's ruling of 2026-11-21 item 1 (gptp_group.py)
 
 
 @dataclass
@@ -141,11 +141,11 @@ class Group:
     admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
     save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
 
-    def offer(self, channel: str, step: str, frame: bytes) -> None:
-        """One record of the composed load: a frame (or a reply) step the channel must commit."""
+    def offer(self, channel: str, step: str, frame: bytes, interfaces: int = 1) -> None:
+        """One record of the composed load: a frame (or a reply) step the channel must commit, at `interfaces`."""
         self.steps.append(step)
         self.load[channel] = self.load.get(channel, 0) + 1
-        self.admission.setdefault(channel, admission(channel, frame))
+        self.admission.setdefault(channel, admission(channel, frame, interfaces))
 
     def add(self, *steps: str) -> None:
         """Steps with no probe."""
@@ -199,6 +199,7 @@ class Point:
     mac: int
     sources: int
     sinks: int
+    gptp: bool = False   # its image built --with-gptp: the gptp channel opened (contract 2.5, #884)
 
 
 def point(label: str, build: dict) -> Point:
@@ -207,7 +208,7 @@ def point(label: str, build: dict) -> Point:
     header = Path(build['elf']).with_name('adp_entity_gen.h').read_text()
     values = {k: int(v, 16) for k, v in re.findall(r'\.(\w+) = (0x[0-9A-Fa-f]+)', header)}
     return Point(label, build['shape'], build['interfaces'], values['entity_id'], values['mac'],
-                 values['talker_stream_sources'], values['listener_stream_sinks'])
+                 values['talker_stream_sources'], values['listener_stream_sinks'], bool(build.get('gptp')))
 
 
 CTL1 = 0x0A0B0C0D0E0F0001          # a controller entity
@@ -671,16 +672,16 @@ def srp_groups(p: Point) -> list[Group]:
     return [g]
 
 
-def admission(channel: str, frame: bytes) -> dict:
-    """What KL_mbx_rx admits of a channel's records of this frame's size.
+def admission(channel: str, frame: bytes, interfaces: int = 1) -> dict:
+    """What KL_mbx_rx admits of a channel's records of this frame's size, built at `interfaces` AVB interfaces.
 
     The token bucket starts full, passes burst records back to back and then refills one per refill_ms
     (KL_mbx_rx.sv, buckets); the ring holds room records of this size whatever the rate. So room bounds what
     the ring can hold, and at_once = min(burst, room) is what one instant admits. Where the burst is below the
     room (bounded False), sustained arrivals at the refill rate can fill the ring past its burst, so a backlog
-    of at_once records is an observation, never a bound.
+    of at_once records is an observation, never a bound. A burst stated an interface is that times interfaces.
     """
-    ch = CONTRACT.channels[CH[channel]]
+    ch = with_interfaces(CONTRACT, interfaces).channels[CH[channel]]
     words = len(CONTRACT.rx_header) + (len(frame) + 3) // 4
     room = ch.rx_words // words
     return dict(burst=ch.burst, refill_ms=ch.refill_ms, record_words=words, room=room,
@@ -725,12 +726,12 @@ def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = 
                   maap_select: int = f.MAAP_ANNOUNCE) -> None:
     """Every receive channel's admitted burst at once, but own's, which the row loads itself.
 
-    Each channel is offered admission()'s at_once records (counts overrides
-    a channel's number), alternating the interfaces; ACMP's go to sink 0,
-    on interface 0. MAAP's are conflicting PROBEs of each interface's own
-    range, so the range filter passes them; SRP's are srp_groups' Listener
-    Ready. grade.py requires the window to commit exactly this population.
+    Each channel is offered admission()'s at_once records (counts overrides a channel's number), alternating the
+    interfaces; ACMP's go to sink 0, on interface 0. MAAP's are conflicting PROBEs of each interface's own range, so
+    the range filter passes them; SRP's are srp_groups' Listener Ready; a gPTP image's are a peer's Pdelay_Req, each
+    answered twice (gptp_group.load_frame). grade.py requires the window to commit exactly this population.
     """
+    import gptp_group   # it imports this module
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
     read = lambda seq: f.read_descriptor(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq), 0, 0)
     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
@@ -739,13 +740,12 @@ def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = 
               'aecp': lambda n: (f'frame {n % p.interfaces} {read(0x7100 + n).hex()}', read(0)),
               'maap': lambda n: (maap_conflict(n % p.interfaces, maap_select), MAAP_PDU),
               'srp': lambda n: (f'frame {n % p.interfaces} {srp.hex()}', srp),
-              'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0))}
-    for channel, make in frames.items():
-        if channel == own:
-            continue
-        number = (counts or {}).get(channel, admission(channel, make(0)[1])['at_once'])
+              'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0)),
+              **({'gptp': gptp_group.load_frame(p)} if p.gptp else {})}
+    for channel, make in ((c, m) for c, m in frames.items() if c != own):
+        number = (counts or {}).get(channel, admission(channel, make(0)[1], p.interfaces)['at_once'])
         for n in range(number):
-            g.offer(channel, *make(n))
+            g.offer(channel, *make(n), p.interfaces)
 
 
 def announced(g: Group) -> None:
@@ -990,10 +990,11 @@ def fixture_groups(p: Point) -> list[Group]:
 
 def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
-    import held   # #917's held record: held.py imports this module
+    import gptp_group, held  # #884's gPTP groups and #917's held record: both modules import this one
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
               *reboot_group.groups(p, build), *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p),
-              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p)]
+              *save_window.groups(p, build), *datapath_window.groups(p), *long_notice.groups(p, build), *held.groups(p),
+              *gptp_group.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

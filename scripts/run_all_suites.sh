@@ -252,6 +252,9 @@ acquire_lock() {
 #! #803: FPGA-gPTP #90's fifth lost response lengthens the scheduled
 #! milan_dp_gptp scenario to 899637137 cycles; its README projects the hosted
 #! suite at 5347 to 5484 s, and 6900 s keeps that worst case at 79.5%.
+#! #884: gptp_sw (the closed loop's three runs) took 571 s and gptp_tsu 9 s on a
+#! loaded local host; 860 s and 120 s are provisional until the change's own
+#! hosted run measures them (suite_shards.py PROVISIONAL_SUITES).
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
@@ -260,6 +263,8 @@ suite_timeout() {
     milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
     media_phase)       printf '%s\n' "${SUITE_TIMEOUT:-1400}" ;;
     reboot_ctrl)       printf '%s\n' "${SUITE_TIMEOUT:-300}" ;;
+    gptp_sw)           printf '%s\n' "${SUITE_TIMEOUT:-860}" ;;
+    gptp_tsu)          printf '%s\n' "${SUITE_TIMEOUT:-120}" ;;
     *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }

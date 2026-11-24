@@ -53,8 +53,20 @@
 extern "C" {
 #endif
 
+// gPTP in firmware (contract 2.5; #884's ruling of 2026-11-21, item 7): the
+// snapshot the gPTP owner published last answers GET_AVB_INFO's gPTP fields
+// and GET_AS_PATH, so an answer is the publication the datapath holds.
+struct aecp_face_gptp {
+	void *ctx;
+	// the interface's grandmaster, served propagation delay, domain and asCapable (0 before a publication)
+	void (*avb)(void *ctx, unsigned interface, uint64_t *gm, uint32_t *pdelay, uint8_t *domain, bool *as_capable);
+	// the interface's served pathTrace (empty while there is no grandmaster); false past capacity
+	bool (*path)(void *ctx, unsigned interface, uint64_t *out, size_t capacity, size_t *count);
+};
+
 struct aecp_face {
 	struct aecp_ports ports;                // the environment ports this face answers
+	struct aecp_face_gptp gptp;             // a gPTP owner in firmware; avb NULL: the datapath's GSI answers
 	const struct aecp_ports *platform;      // random
 	struct aecp *core;                      // the values the settings carry
 	bool owed[MBX_N_IF];                    // a commit the datapath has not taken: publish again
@@ -71,6 +83,8 @@ struct aecp_face {
 void aecp_face_init(struct aecp_face *, const struct aecp_ports *platform);
 // The core whose settings the face publishes, once composed (before open).
 void aecp_face_attach(struct aecp_face *, struct aecp *core);
+// The gPTP owner whose snapshot answers GET_AVB_INFO's gPTP fields and GET_AS_PATH (before open).
+void aecp_face_gptp(struct aecp_face *, const struct aecp_face_gptp *gptp);
 // The saved-state store's restore and status words (F_RESTORE, F_NVM) and
 // whether a persisted setting is not saved yet (F_AECP.DYN_DIRTY). Published
 // at once once the face is open, else by aecp_face_open.

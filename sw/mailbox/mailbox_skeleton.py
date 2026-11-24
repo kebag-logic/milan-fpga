@@ -32,7 +32,7 @@ from dataclasses import dataclass
 
 import mailbox_face as face
 from mailbox_emit import GENERATOR, SOURCE
-from mailbox_model import Contract, ContractError, Register
+from mailbox_model import GPTP_PREFIX, Contract, ContractError, Register, gptp_words
 
 #: Read-only global fields: register -> field -> SystemVerilog source.
 RO_SOURCES = {
@@ -208,11 +208,16 @@ def _ports() -> list[str]:
     ]
 
 
-def _pub_ports() -> list[str]:
+def _pub_ports(contract: Contract | None = None) -> list[str]:
     """The publication block's outputs, which close the port list: interface i's
     field takes bits [width*i +: width], source s of interface i is entry
-    N_PUB_SOURCES*i + s, and sink k of interface i is entry N_PUB_SINKS*i + k."""
+    N_PUB_SOURCES*i + s, and sink k of interface i is entry N_PUB_SINKS*i + k.
+    The gPTP words (minor 5) leave on one port, word k of interface i at bits
+    [32*(MBX_PUB_GPTP_WORDS_C*i + k) +: 32]."""
     out = ["  // the publication block, what the firmware owner publishes for the datapath"]
+    if contract is not None and gptp_words(contract):
+        out.append("  output logic [MBX_N_IF_C*MBX_PUB_GPTP_WORDS_C*32-1:0] pub_gptp_o,   "
+                   "//! GPTP_GM_LO to GPTP_STATE per interface, word k at [32k +: 32]")
     for (reg, fld), (port, width) in PUB_OUTPUTS.items():
         out.append(f"  output logic [MBX_N_IF_C*{width}-1:0] {port},   //! {reg}.{fld} per interface")
     out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0] pub_src_sid_o,   "
@@ -425,6 +430,8 @@ def _pub_block(contract: Contract) -> list[str]:
     for (reg, fld), (port, width) in PUB_OUTPUTS.items():
         field = (f"mbx_field_f(32'(pub_{reg.lower()}_r[i]), MBX_{reg}_{fld}_LSB_C, MBX_{reg}_{fld}_WIDTH_C)")
         out.append(f"      {port}[{width}*i +: {width}] = {width}'({field});")
+    for k, r in enumerate(gptp_words(contract)):
+        out.append(f"      pub_gptp_o[32*(MBX_PUB_GPTP_WORDS_C*i + {k}) +: 32] = 32'(pub_{r.name.lower()}_r[i]);")
     valid = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_SID_VALID_LSB_C, MBX_BINDING_SID_VALID_WIDTH_C)"
     bound = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_BOUND_LSB_C, MBX_BINDING_BOUND_WIDTH_C)"
     started = "mbx_field_f(32'(pub_binding_r[i][k]), MBX_BINDING_STARTED_LSB_C, MBX_BINDING_STARTED_WIDTH_C)"
@@ -777,7 +784,16 @@ def _check_wiring(contract: Contract) -> None:
     if {r.name: tuple(f.name for f in r.fields) for r in contract.pub_source_registers} != PUB_SOURCE_FIELDS:
         raise ContractError("the skeleton wires the sources' SRC_SID_LO and SRC_SID_HI onto pub_src_sid_o; the "
                             "publication source registers changed")
-    fields = {(r.name, f.name): f for r in contract.pub_registers for f in r.fields}
+    words = gptp_words(contract)
+    if words:
+        if words[0].name != "GPTP_GM_LO" or any(w.offset != words[0].offset + 4 * k for k, w in enumerate(words)):
+            raise ContractError("the gPTP publication's words are contiguous from GPTP_GM_LO: pub_gptp_o carries "
+                                "word k at [32k +: 32]")
+        state = next((w for w in words if w.name == "GPTP_STATE"), None)
+        if state is None or not any(f.name == "GEN" for f in state.fields):
+            raise ContractError("GPTP_STATE.GEN publishes the gPTP words: KL_mbx_cdc crosses them when it moves")
+    fields = {(r.name, f.name): f for r in contract.pub_registers if not r.name.startswith(GPTP_PREFIX)
+              for f in r.fields}
     if set(fields) != set(PUB_OUTPUTS) or {r.name: tuple(f.name for f in r.fields)
                                            for r in contract.pub_sink_registers} != PUB_SINK_FIELDS:
         raise ContractError("the skeleton wires DA_GATE.OPEN, LICENCE.ACTIVE, IDLE_SLOPE.BPS, SR_DOMAIN's VID, "
@@ -878,6 +894,8 @@ def _leaves(contract: Contract) -> list[str]:
         "    .link_up_i         (link_up_i),", "    .gm_change_p_i     (gm_change_p_i),",
         "    .gm_id_i           (gm_id_i),", "    .gptp_domain_i     (gptp_domain_i),",
         *(f"    .{port:<17} ({src})," for port, src in face.EVT_CONNECTIONS),
+        *(f"    .{port:<17} ({src})," for port, src in (face.EVT_TS_CONNECTIONS if face.has_timestamp(contract)
+                                                       else ())),
         "    .evt_tail_words_i  (evt_tail_r[15:0]),", "    .evt_head_words_o  (evt_head_w),",
         "    .wr_en_o           (evw_en_w),", "    .wr_addr_o         (evw_addr_w),",
         "    .wr_data_o         (evw_data_w)",
@@ -903,7 +921,7 @@ def _leaves(contract: Contract) -> list[str]:
 def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
     _check_wiring(contract)
-    lines = (_banner() + _ports() + _pub_ports() + face.ports(contract) + _core() + _bound_decode(contract)
+    lines = (_banner() + _ports() + _pub_ports(contract) + face.ports(contract) + _core() + _bound_decode(contract)
              + _pub_decode(contract) + face.decode(contract) + _bound_decode(contract, *READ)
              + _pub_decode(contract, *READ) + face.decode(contract, *READ) + face.block(contract) + _storage(contract)
              + _write_block(contract) + _pub_block(contract) + _read_block(contract) + _ring_block(contract)

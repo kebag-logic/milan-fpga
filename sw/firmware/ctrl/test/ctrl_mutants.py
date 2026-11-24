@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """ctrl_mutants.py - planted defects the control-plane firmware's host test must catch.
 
-Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN
-stack's sources and headers (never the checkout or the submodule; a path
-named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the GoogleTest test that must fail (its
-full name, or the prefix every instance of a parameterised test shares) and a
-fragment of the failing assertion's own words, the name the check had in the
-hand-rolled suite this replaced. A mutant is caught only when that arm fails
-AND a `[FAIL]` line names that test with those words: a build that breaks, or
-another test failing, is reported as an escape, because neither proves the
-test can see the defect. A mutant may name further (arm, test, words) kills in
-`also`, each of which must hold too.
+Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN stack's sources and headers (never the
+checkout or the submodule; a path named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the
+GoogleTest test that must fail (its full name, or the prefix every instance of a parameterised test shares) and a
+fragment of the failing assertion's own words, the name the check had in the hand-rolled suite this replaced. A mutant
+is caught only when that arm fails AND a `[FAIL]` line names that test with those words: a build that breaks, or another
+test failing, is reported as an escape, because neither proves the test can see the defect. A mutant may name further
+(arm, test, words) kills in `also`, each of which must hold too.
 """
 
 from __future__ import annotations
@@ -33,6 +30,7 @@ import sink_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
 from ctrl_mutant import ACMP_C, ADP_C, WIRE_H, Mutant
+from gptp_driver_mutants import MUTANTS as GPTP_DRIVER
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -385,10 +383,12 @@ MUTANTS = (
            "\t} else if (ev->type == MBX_EV_TYPE_TICK || ev->type > MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
            "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
            "D9 an event of a type the contract does not define"),
+    # every type but the TIMESTAMP branch after it (contract 2.5) decoded as a face count, an undefined one too
     Mutant("unknown-event-decoded-as-a-face-count", "mbx/mbx.c",
            "\t} else if (ev->type == MBX_EV_TYPE_AVB_INFO_CHANGED || ev->type == MBX_EV_TYPE_AS_PATH_CHANGED ||\n"
            "\t\t   ev->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
-           "\t} else {", "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
+           "\t} else if (ev->type != MBX_EV_TYPE_TIMESTAMP) {", "unit",
+           "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
            "D9 an event of a type the contract does not define"),
     Mutant("whole-field-loses-its-top-bit", "mbx/mbx_wire.h",
            "\tuint32_t mask = width >= 32u ? 0xFFFFFFFFu : ((1u << width) - 1u);\n\treturn (word >> lsb) & mask;",
@@ -679,7 +679,7 @@ MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, m->published_gate[interface]);\n
 MAAP_REPORT = "\tm->allocation(m->allocation_ctx, interface, base, count, valid);"
 A31 = "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
 B10 = "AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse"
-MUTANTS += (
+MUTANTS += GPTP_DRIVER + (
     # the driver's encoding of each register
     Mutant("pub-sid-valid-set-first", "mbx/mbx.c", PUB_SINK_FIRST_WRITE,
            PUB_SINK_FIRST_WRITE.replace("binding);", "binding |\n\t\t\t(stream_id != 0u ? mbx_place(1u, "

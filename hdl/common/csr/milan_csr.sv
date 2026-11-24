@@ -778,7 +778,7 @@ module milan_csr #(
     A_PCMRX_CNT   = 'h6C4, A_PCMRX_TS   = 'h6C8,
     A_MAAP_CTRL   = 'h6CC, A_MAAP_STAT0 = 'h6D0, A_MAAP_STAT1 = 'h6D4,
     A_I2SPB_STAT  = 'h6D8, A_TONE_CTRL = 'h6DC, A_I2SPB_TRIM = 'h6E0,
-    A_GPTP_PDELAY = 'h6E4,   //! selected-owner neighbor propagation delay (fabric-live product; zero/inert option OFF)
+    A_GPTP_PDELAY = 'h6E4,   //! selected-owner neighbor propagation delay (fabric-live product; zero/inert option OFF; zero under --sw-gptp)
     A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
     A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
     A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
@@ -798,7 +798,7 @@ module milan_csr #(
   localparam [ADDR_WIDTH-1:0] A_ENT_NAME_LO = 'h724; //! entity_name chars 0-3 (board name; 0 = ROM name)
   localparam [ADDR_WIDTH-1:0] A_ENT_NAME_HI = 'h728; //! entity_name chars 4-7
   localparam [ADDR_WIDTH-1:0] A_LPF_CTRL   = 'h72C;  //! [0] playback biquad LPF enable (default 1)
-  localparam [ADDR_WIDTH-1:0] A_AS2_LO     = 'h730;  //! 802.1AS parent bridge ckid [31:0]
+  localparam [ADDR_WIDTH-1:0] A_AS2_LO     = 'h730;  //! 802.1AS parent bridge ckid [31:0] (zero under --sw-gptp)
   localparam [ADDR_WIDTH-1:0] A_AS2_HI     = 'h734;  //! ...[63:32] (0 = none/unknown)
   localparam [ADDR_WIDTH-1:0] A_CRF_CTRL   = 'h738;  //! [0] CRF sink en; RO [31] locked
   localparam [ADDR_WIDTH-1:0] A_CRF_SIDLO  = 'h73C;  //! CRF stream_id [31:0]

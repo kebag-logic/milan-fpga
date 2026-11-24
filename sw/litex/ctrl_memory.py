@@ -259,7 +259,33 @@ class Ledgered:
 #: on it (#665). The platform's image is linked at
 #: every point with the override its point takes, against this ledger, by tb/verilator/ctrl_split_boot/plat_ledger.py,
 #: so a stale ctrl_plat size or a plan past its tiles is refused where it happens.
+#: The gPTP-in-firmware images (#884's ruling of 2026-11-21, item 4: the memory at 8x8 and above accepted as debt
+#: with a ledger entry; fit and timing gate) come first, so `own_point` names them before the size fixture's entry,
+#: whose symbols two of them also carry. Those two are the size fixture's image built --with-gptp, known by the gPTP
+#: adapter's one static object (gptp/gptp_mbx.h, `struct gptp_mbx image_gptp`, sized by MBX_N_IF) at its size in
+#: that image; the third is the target platform's 8x8 one-interface image built --with-gptp (ctrl_plat_image.py,
+#: CTRL_PLAT_GPTP), the image of an SoC built --sw-gptp, known by its ctrl_plat, the adapter one of its members.
 LEDGERED: dict[str, Ledgered] = {
+    "8x8-one-interface-gptp": Ledgered("8x8, one interface, gPTP in firmware",
+                                       ((STAGE_SYMBOL, 13_594), ("image_allocation", 8), ("image_gptp", 1_104)),
+                                       59.0, "#884's ruling of 2026-11-21, item 4: the gPTP ports' 3.0 RAMB36 (about "
+                                             "12 KB of rom, 1 KB of sram) over the 56.0 this image plans without "
+                                             "them, accepted as debt owed to the cold-code-to-flash work (S14) or a "
+                                             "second hart's own memory; fit and timing gate"),
+    "8x8-two-interfaces-gptp": Ledgered("8x8, two interfaces, gPTP in firmware",
+                                        ((STAGE_SYMBOL, 13_594), ("image_allocation", 16), ("image_gptp", 2_152)),
+                                        64.0, "#884's ruling of 2026-11-21, item 4: the two gPTP ports' 3.5 RAMB36 "
+                                              "over the 60.5 of the size fixture's 8x8 two-interface entry, "
+                                              "accepted as debt owed to the cold-code-to-flash work (S14) or a "
+                                              "second hart's own memory; fit and timing gate"),
+    "platform-8x8-one-interface-gptp": Ledgered("target platform's 8x8, one interface, gPTP in firmware",
+                                                ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 20_160)), 62.0,
+                                                "#884's ruling of 2026-11-21, item 4: the gPTP port's 3.5 RAMB36 "
+                                                "(12,664 B of rom, 1,168 B of sram) over the 58.5 of the platform's "
+                                                "8x8 one-interface entry, 152,072 B of rom and 99,392 B of sram, "
+                                                "ctrl_plat at its measured 20,160 B, accepted as debt owed to the "
+                                                "cold-code-to-flash work (S14) or a second hart's own memory; fit "
+                                                "and timing gate"),
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_594), ("image_allocation", 16)),
                                    60.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821); 58.0 since a TX record's commit judges its own move, "
@@ -326,7 +352,7 @@ LEDGERED: dict[str, Ledgered] = {
                                             "unchanged at 21,568 B, by the same rule: debt of 7.0 RAMB36 owed to "
                                             "S14"),
     "platform-8x8-one-interface": Ledgered("target platform's 8x8, one interface",
-                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 18_944)), 58.0,
+                                           ((STAGE_SYMBOL, 13_594), ("ctrl_plat", 19_008)), 58.5,
                                            "lane S14, the hybrid XIP (#665 decision D3: cold code to flash); 56.5, "
                                            "a product image, with SRP's Talker declarations (#895) and the PHY "
                                            "poll and its 1000BASE-T-only advertisement (#919, #840), 1,132 B of "
@@ -345,7 +371,12 @@ LEDGERED: dict[str, Ledgered] = {
                                            "#936 (#665), 137,472 B of rom, 256 B past the 137,216 B 57.5 holds, "
                                            "by the same rule: ROM debt of 2.0 RAMB36 owed to S14; still 58.0 "
                                            "with each AAF Stream Input's current format written (#946), "
-                                           "138,432 B of rom, ctrl_plat unchanged"),
+                                           "138,432 B of rom, ctrl_plat unchanged, and 139,208 B of rom at "
+                                           "dev-soft-core-optimisation 59b09884; 58.5 with contract 2.5 (#884's "
+                                           "ruling of 2026-11-21, item 4: the gptp channel's table entries and the "
+                                           "face's gPTP answer port), 139,408 B of rom, 144 B past the 139,264 B "
+                                           "58.0 holds, ctrl_plat 64 B more at 19,008 B, by the same rule: ROM "
+                                           "debt of 2.5 RAMB36 owed to S14"),
 }
 
 

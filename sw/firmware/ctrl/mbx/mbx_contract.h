@@ -16,7 +16,7 @@
 /* contract major version */
 #define MBX_VERSION_MAJOR 2u
 /* contract minor version */
-#define MBX_VERSION_MINOR 4u
+#define MBX_VERSION_MINOR 5u
 /* ID.MAGIC */
 #define MBX_MAGIC 0x4D42u
 /* host window size */
@@ -33,10 +33,12 @@
 #define MBX_N_PUB_SOURCES 16u
 /* publication sink entries per interface (listener streams) */
 #define MBX_N_PUB_SINKS 16u
+/* gPTP publication words per interface, contiguous from GPTP_GM_LO (pub_gptp_o) */
+#define MBX_PUB_GPTP_WORDS 3u
 /* NOW_MS milliseconds per TICK (one centisecond) */
 #define MBX_TICK_MS 10u
 /* channels */
-#define MBX_N_CH 5u
+#define MBX_N_CH 6u
 /* ring counter width */
 #define MBX_INDEX_BITS 16u
 /* accept terms per channel */
@@ -75,6 +77,8 @@
 #define MBX_TMR_OP_ARM 1u
 /* TMR_CMD.OP cancel */
 #define MBX_TMR_OP_CANCEL 2u
+/* a timestamp unit's record on KL_mbx's ts_data_i: {EGRESS, OK, MSG_TYPE (4), SEQUENCE_ID (16), NS (64)}, NS lowest (minor 5) */
+#define MBX_TS_REC_BITS 86u
 /* Contract identity. Firmware checks MAGIC and MAJOR before it opens a channel. */
 #define MBX_REG_ID 0x0u
 /* ID: contract minor version */
@@ -337,6 +341,44 @@
 #define MBX_TALKER_DECL_DECLARED_LSB 0u
 /* TALKER_DECL: bit s: source s has a Talker declaration */
 #define MBX_TALKER_DECL_DECLARED_WIDTH 16u
+/* The grandmaster's ClockIdentity (gptp_grandmaster_id, Milan v1.2 5.4.2.23), low word; 0 while there is none. */
+#define MBX_PUB_REG_GPTP_GM_LO 0x20u
+/* GPTP_GM_LO: gptp_grandmaster_id[31:0] */
+#define MBX_GPTP_GM_LO_ID_LSB 0u
+/* GPTP_GM_LO: gptp_grandmaster_id[31:0] */
+#define MBX_GPTP_GM_LO_ID_WIDTH 32u
+/* The grandmaster's ClockIdentity, high word. */
+#define MBX_PUB_REG_GPTP_GM_HI 0x24u
+/* GPTP_GM_HI: gptp_grandmaster_id[63:32] */
+#define MBX_GPTP_GM_HI_ID_LSB 0u
+/* GPTP_GM_HI: gptp_grandmaster_id[63:32] */
+#define MBX_GPTP_GM_HI_ID_WIDTH 32u
+/* The port's state, written LAST: a write whose GEN moved publishes every GPTP_* word as one snapshot, which the datapath takes whole: a word written after it reaches no snapshot, however long the crossing before is in flight, and a snapshot a later one overtakes before it crosses is not taken. AS_CAPABLE is asCapable (IEEE 802.1AS-2020 10.2.5.1); SYNC_OK the synchronization verdict (a Sync and Follow_Up pair consumed since the last grandmaster change, or grandmaster duty); SLEW the servo's transient-correction level (a measurement window of the PHC's rate that overlaps it is discarded); DISC counts the discontinuities of the PHC's time (a step, a grandmaster change), so each move of it is one. */
+#define MBX_PUB_REG_GPTP_STATE 0x28u
+/* GPTP_STATE: gptp_domain_number */
+#define MBX_GPTP_STATE_DOMAIN_LSB 0u
+/* GPTP_STATE: gptp_domain_number */
+#define MBX_GPTP_STATE_DOMAIN_WIDTH 8u
+/* GPTP_STATE: asCapable */
+#define MBX_GPTP_STATE_AS_CAPABLE_LSB 8u
+/* GPTP_STATE: asCapable */
+#define MBX_GPTP_STATE_AS_CAPABLE_WIDTH 1u
+/* GPTP_STATE: the synchronization verdict */
+#define MBX_GPTP_STATE_SYNC_OK_LSB 9u
+/* GPTP_STATE: the synchronization verdict */
+#define MBX_GPTP_STATE_SYNC_OK_WIDTH 1u
+/* GPTP_STATE: a transient offset correction is in progress */
+#define MBX_GPTP_STATE_SLEW_LSB 10u
+/* GPTP_STATE: a transient offset correction is in progress */
+#define MBX_GPTP_STATE_SLEW_WIDTH 1u
+/* GPTP_STATE: discontinuities */
+#define MBX_GPTP_STATE_DISC_LSB 16u
+/* GPTP_STATE: discontinuities */
+#define MBX_GPTP_STATE_DISC_WIDTH 4u
+/* GPTP_STATE: the publication's generation: moved by every write that publishes */
+#define MBX_GPTP_STATE_GEN_LSB 24u
+/* GPTP_STATE: the publication's generation: moved by every write that publishes */
+#define MBX_GPTP_STATE_GEN_WIDTH 8u
 /* first source entry inside a publication block */
 #define MBX_PUB_SRC_BASE 0x80u
 /* bytes per publication source entry */
@@ -1069,6 +1111,32 @@
 #define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB 0u
 /* AS_PATH_CHANGED event word 3: NOW_MS at posting */
 #define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH 32u
+/* The interface's timestamp unit timed an IEEE 802.1AS event message (messageType 0 to 3) the interface launched, or could not: OK clear says the frame left with no measurement, and NS is 0. The stamp is the frame's launch at the MAC's own transmit stream, reconstructed to the first symbol after the start-of-frame delimiter (IEEE 802.1AS-2020 11.3.9), plus the board's egress latency (docs/design/GPTP_PLANE.md, Timestamp boundaries). A received frame's stamp is not an event: it rides in the frame's own gptp record (the channel's trailer). NOT COALESCED: each record is one measurement, posted from the unit's FIFO in the order it timed them; a record the FIFO could not hold counts in the CSR's GPTP_DROPW[31:16]. The event names no hart: it is posted to the event ring every event goes to, and a contract that routes events to rings routes it as any other (its credit flow and its order are the ring's). */
+#define MBX_EV_TYPE_TIMESTAMP 9u
+/* TIMESTAMP event word 1: the message's sequenceId */
+#define MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB 0u
+/* TIMESTAMP event word 1: the message's sequenceId */
+#define MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH 16u
+/* TIMESTAMP event word 1: the message's messageType */
+#define MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB 16u
+/* TIMESTAMP event word 1: the message's messageType */
+#define MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH 4u
+/* TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record) */
+#define MBX_EV_TIMESTAMP_W1_EGRESS_LSB 20u
+/* TIMESTAMP event word 1: 1: a transmitted frame's stamp, always (a received frame's rides in its record) */
+#define MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH 1u
+/* TIMESTAMP event word 1: the stamp is a measurement */
+#define MBX_EV_TIMESTAMP_W1_OK_LSB 21u
+/* TIMESTAMP event word 1: the stamp is a measurement */
+#define MBX_EV_TIMESTAMP_W1_OK_WIDTH 1u
+/* TIMESTAMP event word 2: the PHC's time, ns[31:0] */
+#define MBX_EV_TIMESTAMP_W2_NS_LO_LSB 0u
+/* TIMESTAMP event word 2: the PHC's time, ns[31:0] */
+#define MBX_EV_TIMESTAMP_W2_NS_LO_WIDTH 32u
+/* TIMESTAMP event word 3: the PHC's time, ns[63:32] */
+#define MBX_EV_TIMESTAMP_W3_NS_HI_LSB 0u
+/* TIMESTAMP event word 3: the PHC's time, ns[63:32] */
+#define MBX_EV_TIMESTAMP_W3_NS_HI_WIDTH 32u
 /* An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating. */
 #define MBX_EV_TYPE_AMAP_LIVE_WRITE 8u
 /* AMAP_LIVE_WRITE event word 1: live writes since the previous record */
@@ -1389,6 +1457,68 @@
 #define MBX_CH_SRP_T2_OFFSET 0u
 /* srp term 2 message types */
 #define MBX_CH_SRP_T2_MSG_MASK 0x0u
+/* channel gptp */
+#define MBX_CH_GPTP 5u
+/* gptp receive ring byte offset */
+#define MBX_CH_GPTP_RX_BASE 0x5800u
+/* gptp receive ring words */
+#define MBX_CH_GPTP_RX_WORDS 512u
+/* gptp transmit ring byte offset */
+#define MBX_CH_GPTP_TX_BASE 0x3400u
+/* gptp transmit ring words */
+#define MBX_CH_GPTP_TX_WORDS 256u
+/* gptp largest frame */
+#define MBX_CH_GPTP_MAX_FRAME_BYTES 512u
+/* gptp token bucket depth */
+#define MBX_CH_GPTP_RATE_BURST 7u
+/* gptp ms per refilled token */
+#define MBX_CH_GPTP_RATE_REFILL_MS 10u
+/* gptp tuple 0: IEEE 802.1AS: the gPTP destination address and EtherType of a full-duplex link (IEEE 802.1AS-2020 11.3.4 Table 11-3, 11.3.5) */
+#define MBX_CH_GPTP_M0_DST 1u
+/* gptp tuple 0 destination [47:32] */
+#define MBX_CH_GPTP_M0_DST_HI 0x180u
+/* gptp tuple 0 destination [31:0] */
+#define MBX_CH_GPTP_M0_DST_LO 0xC200000Eu
+/* gptp tuple 0 EtherType */
+#define MBX_CH_GPTP_M0_ETHERTYPE 0x88F7u
+/* gptp tuple 0 matches a subtype */
+#define MBX_CH_GPTP_M0_HAS_SUBTYPE 0u
+/* gptp tuple 0 AVTP subtype */
+#define MBX_CH_GPTP_M0_SUBTYPE 0x0u
+/* gptp tuple 0 message types */
+#define MBX_CH_GPTP_M0_MSG_MASK 0xFFFFu
+/* gptp tuple 1: unused */
+#define MBX_CH_GPTP_M1_DST 0u
+/* gptp tuple 1 destination [47:32] */
+#define MBX_CH_GPTP_M1_DST_HI 0x0u
+/* gptp tuple 1 destination [31:0] */
+#define MBX_CH_GPTP_M1_DST_LO 0x0u
+/* gptp tuple 1 EtherType */
+#define MBX_CH_GPTP_M1_ETHERTYPE 0x0u
+/* gptp tuple 1 matches a subtype */
+#define MBX_CH_GPTP_M1_HAS_SUBTYPE 0u
+/* gptp tuple 1 AVTP subtype */
+#define MBX_CH_GPTP_M1_SUBTYPE 0x0u
+/* gptp tuple 1 message types */
+#define MBX_CH_GPTP_M1_MSG_MASK 0x0u
+/* gptp term 0: every gPTP message; each is link-local to this port (IEEE 802.1AS-2020 11.3.4) */
+#define MBX_CH_GPTP_T0_TEST 1u
+/* gptp term 0 field byte */
+#define MBX_CH_GPTP_T0_OFFSET 0u
+/* gptp term 0 message types */
+#define MBX_CH_GPTP_T0_MSG_MASK 0xFFFFu
+/* gptp term 1: unused */
+#define MBX_CH_GPTP_T1_TEST 0u
+/* gptp term 1 field byte */
+#define MBX_CH_GPTP_T1_OFFSET 0u
+/* gptp term 1 message types */
+#define MBX_CH_GPTP_T1_MSG_MASK 0x0u
+/* gptp term 2: unused */
+#define MBX_CH_GPTP_T2_TEST 0u
+/* gptp term 2 field byte */
+#define MBX_CH_GPTP_T2_OFFSET 0u
+/* gptp term 2 message types */
+#define MBX_CH_GPTP_T2_MSG_MASK 0x0u
 /* interface index bits */
 #define MBX_IF_W 1u
 /* channel index bits */
@@ -1400,23 +1530,23 @@
 /* the largest max_frame_bytes of any channel */
 #define MBX_FRAME_BYTES_MAX 1514u
 
-#define MBX_CH_RX_BASE_TBL { MBX_CH_ADP_RX_BASE, MBX_CH_ACMP_RX_BASE, MBX_CH_AECP_RX_BASE, MBX_CH_MAAP_RX_BASE, MBX_CH_SRP_RX_BASE }
-#define MBX_CH_RX_WORDS_TBL { MBX_CH_ADP_RX_WORDS, MBX_CH_ACMP_RX_WORDS, MBX_CH_AECP_RX_WORDS, MBX_CH_MAAP_RX_WORDS, MBX_CH_SRP_RX_WORDS }
-#define MBX_CH_TX_BASE_TBL { MBX_CH_ADP_TX_BASE, MBX_CH_ACMP_TX_BASE, MBX_CH_AECP_TX_BASE, MBX_CH_MAAP_TX_BASE, MBX_CH_SRP_TX_BASE }
-#define MBX_CH_TX_WORDS_TBL { MBX_CH_ADP_TX_WORDS, MBX_CH_ACMP_TX_WORDS, MBX_CH_AECP_TX_WORDS, MBX_CH_MAAP_TX_WORDS, MBX_CH_SRP_TX_WORDS }
-#define MBX_CH_MAX_FRAME_BYTES_TBL { MBX_CH_ADP_MAX_FRAME_BYTES, MBX_CH_ACMP_MAX_FRAME_BYTES, MBX_CH_AECP_MAX_FRAME_BYTES, MBX_CH_MAAP_MAX_FRAME_BYTES, MBX_CH_SRP_MAX_FRAME_BYTES }
-#define MBX_CH_RATE_BURST_TBL { MBX_CH_ADP_RATE_BURST, MBX_CH_ACMP_RATE_BURST, MBX_CH_AECP_RATE_BURST, MBX_CH_MAAP_RATE_BURST, MBX_CH_SRP_RATE_BURST }
-#define MBX_CH_RATE_REFILL_MS_TBL { MBX_CH_ADP_RATE_REFILL_MS, MBX_CH_ACMP_RATE_REFILL_MS, MBX_CH_AECP_RATE_REFILL_MS, MBX_CH_MAAP_RATE_REFILL_MS, MBX_CH_SRP_RATE_REFILL_MS }
-#define MBX_TUPLE_DST_TBL { MBX_CH_ADP_M0_DST, MBX_CH_ADP_M1_DST, MBX_CH_ACMP_M0_DST, MBX_CH_ACMP_M1_DST, MBX_CH_AECP_M0_DST, MBX_CH_AECP_M1_DST, MBX_CH_MAAP_M0_DST, MBX_CH_MAAP_M1_DST, MBX_CH_SRP_M0_DST, MBX_CH_SRP_M1_DST }
-#define MBX_TUPLE_DST_HI_TBL { MBX_CH_ADP_M0_DST_HI, MBX_CH_ADP_M1_DST_HI, MBX_CH_ACMP_M0_DST_HI, MBX_CH_ACMP_M1_DST_HI, MBX_CH_AECP_M0_DST_HI, MBX_CH_AECP_M1_DST_HI, MBX_CH_MAAP_M0_DST_HI, MBX_CH_MAAP_M1_DST_HI, MBX_CH_SRP_M0_DST_HI, MBX_CH_SRP_M1_DST_HI }
-#define MBX_TUPLE_DST_LO_TBL { MBX_CH_ADP_M0_DST_LO, MBX_CH_ADP_M1_DST_LO, MBX_CH_ACMP_M0_DST_LO, MBX_CH_ACMP_M1_DST_LO, MBX_CH_AECP_M0_DST_LO, MBX_CH_AECP_M1_DST_LO, MBX_CH_MAAP_M0_DST_LO, MBX_CH_MAAP_M1_DST_LO, MBX_CH_SRP_M0_DST_LO, MBX_CH_SRP_M1_DST_LO }
-#define MBX_TUPLE_ETHERTYPE_TBL { MBX_CH_ADP_M0_ETHERTYPE, MBX_CH_ADP_M1_ETHERTYPE, MBX_CH_ACMP_M0_ETHERTYPE, MBX_CH_ACMP_M1_ETHERTYPE, MBX_CH_AECP_M0_ETHERTYPE, MBX_CH_AECP_M1_ETHERTYPE, MBX_CH_MAAP_M0_ETHERTYPE, MBX_CH_MAAP_M1_ETHERTYPE, MBX_CH_SRP_M0_ETHERTYPE, MBX_CH_SRP_M1_ETHERTYPE }
-#define MBX_TUPLE_HAS_SUBTYPE_TBL { MBX_CH_ADP_M0_HAS_SUBTYPE, MBX_CH_ADP_M1_HAS_SUBTYPE, MBX_CH_ACMP_M0_HAS_SUBTYPE, MBX_CH_ACMP_M1_HAS_SUBTYPE, MBX_CH_AECP_M0_HAS_SUBTYPE, MBX_CH_AECP_M1_HAS_SUBTYPE, MBX_CH_MAAP_M0_HAS_SUBTYPE, MBX_CH_MAAP_M1_HAS_SUBTYPE, MBX_CH_SRP_M0_HAS_SUBTYPE, MBX_CH_SRP_M1_HAS_SUBTYPE }
-#define MBX_TUPLE_SUBTYPE_TBL { MBX_CH_ADP_M0_SUBTYPE, MBX_CH_ADP_M1_SUBTYPE, MBX_CH_ACMP_M0_SUBTYPE, MBX_CH_ACMP_M1_SUBTYPE, MBX_CH_AECP_M0_SUBTYPE, MBX_CH_AECP_M1_SUBTYPE, MBX_CH_MAAP_M0_SUBTYPE, MBX_CH_MAAP_M1_SUBTYPE, MBX_CH_SRP_M0_SUBTYPE, MBX_CH_SRP_M1_SUBTYPE }
-#define MBX_TUPLE_MSG_MASK_TBL { MBX_CH_ADP_M0_MSG_MASK, MBX_CH_ADP_M1_MSG_MASK, MBX_CH_ACMP_M0_MSG_MASK, MBX_CH_ACMP_M1_MSG_MASK, MBX_CH_AECP_M0_MSG_MASK, MBX_CH_AECP_M1_MSG_MASK, MBX_CH_MAAP_M0_MSG_MASK, MBX_CH_MAAP_M1_MSG_MASK, MBX_CH_SRP_M0_MSG_MASK, MBX_CH_SRP_M1_MSG_MASK }
-#define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ADP_T2_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_ACMP_T2_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_AECP_T2_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_MAAP_T2_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST, MBX_CH_SRP_T2_TEST }
-#define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ADP_T2_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_ACMP_T2_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_AECP_T2_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_MAAP_T2_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET, MBX_CH_SRP_T2_OFFSET }
-#define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ADP_T2_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_ACMP_T2_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_AECP_T2_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_MAAP_T2_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK, MBX_CH_SRP_T2_MSG_MASK }
+#define MBX_CH_RX_BASE_TBL { MBX_CH_ADP_RX_BASE, MBX_CH_ACMP_RX_BASE, MBX_CH_AECP_RX_BASE, MBX_CH_MAAP_RX_BASE, MBX_CH_SRP_RX_BASE, MBX_CH_GPTP_RX_BASE }
+#define MBX_CH_RX_WORDS_TBL { MBX_CH_ADP_RX_WORDS, MBX_CH_ACMP_RX_WORDS, MBX_CH_AECP_RX_WORDS, MBX_CH_MAAP_RX_WORDS, MBX_CH_SRP_RX_WORDS, MBX_CH_GPTP_RX_WORDS }
+#define MBX_CH_TX_BASE_TBL { MBX_CH_ADP_TX_BASE, MBX_CH_ACMP_TX_BASE, MBX_CH_AECP_TX_BASE, MBX_CH_MAAP_TX_BASE, MBX_CH_SRP_TX_BASE, MBX_CH_GPTP_TX_BASE }
+#define MBX_CH_TX_WORDS_TBL { MBX_CH_ADP_TX_WORDS, MBX_CH_ACMP_TX_WORDS, MBX_CH_AECP_TX_WORDS, MBX_CH_MAAP_TX_WORDS, MBX_CH_SRP_TX_WORDS, MBX_CH_GPTP_TX_WORDS }
+#define MBX_CH_MAX_FRAME_BYTES_TBL { MBX_CH_ADP_MAX_FRAME_BYTES, MBX_CH_ACMP_MAX_FRAME_BYTES, MBX_CH_AECP_MAX_FRAME_BYTES, MBX_CH_MAAP_MAX_FRAME_BYTES, MBX_CH_SRP_MAX_FRAME_BYTES, MBX_CH_GPTP_MAX_FRAME_BYTES }
+#define MBX_CH_RATE_BURST_TBL { MBX_CH_ADP_RATE_BURST, MBX_CH_ACMP_RATE_BURST, MBX_CH_AECP_RATE_BURST, MBX_CH_MAAP_RATE_BURST, MBX_CH_SRP_RATE_BURST, MBX_CH_GPTP_RATE_BURST }
+#define MBX_CH_RATE_REFILL_MS_TBL { MBX_CH_ADP_RATE_REFILL_MS, MBX_CH_ACMP_RATE_REFILL_MS, MBX_CH_AECP_RATE_REFILL_MS, MBX_CH_MAAP_RATE_REFILL_MS, MBX_CH_SRP_RATE_REFILL_MS, MBX_CH_GPTP_RATE_REFILL_MS }
+#define MBX_TUPLE_DST_TBL { MBX_CH_ADP_M0_DST, MBX_CH_ADP_M1_DST, MBX_CH_ACMP_M0_DST, MBX_CH_ACMP_M1_DST, MBX_CH_AECP_M0_DST, MBX_CH_AECP_M1_DST, MBX_CH_MAAP_M0_DST, MBX_CH_MAAP_M1_DST, MBX_CH_SRP_M0_DST, MBX_CH_SRP_M1_DST, MBX_CH_GPTP_M0_DST, MBX_CH_GPTP_M1_DST }
+#define MBX_TUPLE_DST_HI_TBL { MBX_CH_ADP_M0_DST_HI, MBX_CH_ADP_M1_DST_HI, MBX_CH_ACMP_M0_DST_HI, MBX_CH_ACMP_M1_DST_HI, MBX_CH_AECP_M0_DST_HI, MBX_CH_AECP_M1_DST_HI, MBX_CH_MAAP_M0_DST_HI, MBX_CH_MAAP_M1_DST_HI, MBX_CH_SRP_M0_DST_HI, MBX_CH_SRP_M1_DST_HI, MBX_CH_GPTP_M0_DST_HI, MBX_CH_GPTP_M1_DST_HI }
+#define MBX_TUPLE_DST_LO_TBL { MBX_CH_ADP_M0_DST_LO, MBX_CH_ADP_M1_DST_LO, MBX_CH_ACMP_M0_DST_LO, MBX_CH_ACMP_M1_DST_LO, MBX_CH_AECP_M0_DST_LO, MBX_CH_AECP_M1_DST_LO, MBX_CH_MAAP_M0_DST_LO, MBX_CH_MAAP_M1_DST_LO, MBX_CH_SRP_M0_DST_LO, MBX_CH_SRP_M1_DST_LO, MBX_CH_GPTP_M0_DST_LO, MBX_CH_GPTP_M1_DST_LO }
+#define MBX_TUPLE_ETHERTYPE_TBL { MBX_CH_ADP_M0_ETHERTYPE, MBX_CH_ADP_M1_ETHERTYPE, MBX_CH_ACMP_M0_ETHERTYPE, MBX_CH_ACMP_M1_ETHERTYPE, MBX_CH_AECP_M0_ETHERTYPE, MBX_CH_AECP_M1_ETHERTYPE, MBX_CH_MAAP_M0_ETHERTYPE, MBX_CH_MAAP_M1_ETHERTYPE, MBX_CH_SRP_M0_ETHERTYPE, MBX_CH_SRP_M1_ETHERTYPE, MBX_CH_GPTP_M0_ETHERTYPE, MBX_CH_GPTP_M1_ETHERTYPE }
+#define MBX_TUPLE_HAS_SUBTYPE_TBL { MBX_CH_ADP_M0_HAS_SUBTYPE, MBX_CH_ADP_M1_HAS_SUBTYPE, MBX_CH_ACMP_M0_HAS_SUBTYPE, MBX_CH_ACMP_M1_HAS_SUBTYPE, MBX_CH_AECP_M0_HAS_SUBTYPE, MBX_CH_AECP_M1_HAS_SUBTYPE, MBX_CH_MAAP_M0_HAS_SUBTYPE, MBX_CH_MAAP_M1_HAS_SUBTYPE, MBX_CH_SRP_M0_HAS_SUBTYPE, MBX_CH_SRP_M1_HAS_SUBTYPE, MBX_CH_GPTP_M0_HAS_SUBTYPE, MBX_CH_GPTP_M1_HAS_SUBTYPE }
+#define MBX_TUPLE_SUBTYPE_TBL { MBX_CH_ADP_M0_SUBTYPE, MBX_CH_ADP_M1_SUBTYPE, MBX_CH_ACMP_M0_SUBTYPE, MBX_CH_ACMP_M1_SUBTYPE, MBX_CH_AECP_M0_SUBTYPE, MBX_CH_AECP_M1_SUBTYPE, MBX_CH_MAAP_M0_SUBTYPE, MBX_CH_MAAP_M1_SUBTYPE, MBX_CH_SRP_M0_SUBTYPE, MBX_CH_SRP_M1_SUBTYPE, MBX_CH_GPTP_M0_SUBTYPE, MBX_CH_GPTP_M1_SUBTYPE }
+#define MBX_TUPLE_MSG_MASK_TBL { MBX_CH_ADP_M0_MSG_MASK, MBX_CH_ADP_M1_MSG_MASK, MBX_CH_ACMP_M0_MSG_MASK, MBX_CH_ACMP_M1_MSG_MASK, MBX_CH_AECP_M0_MSG_MASK, MBX_CH_AECP_M1_MSG_MASK, MBX_CH_MAAP_M0_MSG_MASK, MBX_CH_MAAP_M1_MSG_MASK, MBX_CH_SRP_M0_MSG_MASK, MBX_CH_SRP_M1_MSG_MASK, MBX_CH_GPTP_M0_MSG_MASK, MBX_CH_GPTP_M1_MSG_MASK }
+#define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ADP_T2_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_ACMP_T2_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_AECP_T2_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_MAAP_T2_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST, MBX_CH_SRP_T2_TEST, MBX_CH_GPTP_T0_TEST, MBX_CH_GPTP_T1_TEST, MBX_CH_GPTP_T2_TEST }
+#define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ADP_T2_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_ACMP_T2_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_AECP_T2_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_MAAP_T2_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET, MBX_CH_SRP_T2_OFFSET, MBX_CH_GPTP_T0_OFFSET, MBX_CH_GPTP_T1_OFFSET, MBX_CH_GPTP_T2_OFFSET }
+#define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ADP_T2_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_ACMP_T2_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_AECP_T2_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_MAAP_T2_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK, MBX_CH_SRP_T2_MSG_MASK, MBX_CH_GPTP_T0_MSG_MASK, MBX_CH_GPTP_T1_MSG_MASK, MBX_CH_GPTP_T2_MSG_MASK }
 #define MBX_CTRCHG_TYPE_TBL { MBX_CTRCHG_STREAM_INPUT_TYPE, MBX_CTRCHG_STREAM_OUTPUT_TYPE, MBX_CTRCHG_AVB_INTERFACE_TYPE, MBX_CTRCHG_CLOCK_DOMAIN_TYPE }
 #define MBX_CTRCHG_COUNT_TBL { MBX_CTRCHG_STREAM_INPUT_COUNT, MBX_CTRCHG_STREAM_OUTPUT_COUNT, MBX_CTRCHG_AVB_INTERFACE_COUNT, MBX_CTRCHG_CLOCK_DOMAIN_COUNT }
 #define MBX_CTRCHG_FIRST_TBL { MBX_CTRCHG_STREAM_INPUT_FIRST, MBX_CTRCHG_STREAM_OUTPUT_FIRST, MBX_CTRCHG_AVB_INTERFACE_FIRST, MBX_CTRCHG_CLOCK_DOMAIN_FIRST }

@@ -253,6 +253,22 @@ bool mbx_pub_talker_decl(unsigned interface, uint32_t declared)
 	return true;
 }
 
+bool mbx_pub_gptp(unsigned interface, const uint32_t words[MBX_PUB_GPTP_WORDS])
+{
+	const unsigned state = (MBX_PUB_REG_GPTP_STATE - MBX_PUB_REG_GPTP_GM_LO) / 4u;
+	unsigned k;
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	for (k = 0; k < MBX_PUB_GPTP_WORDS; k++) {
+		if (k != state) {
+			mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_GPTP_GM_LO + 4u * k), words[k]);
+		}
+	}
+	mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_GPTP_STATE), words[state]);
+	return true;
+}
+
 bool mbx_pub_src_sid(unsigned interface, unsigned source, bool high, uint32_t word)
 {
 	if (interface >= MBX_N_IF || source >= MBX_N_PUB_SOURCES) {
@@ -663,6 +679,13 @@ static void event_decode(struct mbx_event *ev, uint32_t w1, uint32_t w2, uint32_
 			       "the counted face events share COUNT's place");
 		ev->count = (uint16_t)mbx_field(w1, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH);
 		ev->now_ms = w3;
+	} else if (ev->type == MBX_EV_TYPE_TIMESTAMP) {
+		ev->ts_seq = (uint16_t)mbx_field(w1, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_LSB, MBX_EV_TIMESTAMP_W1_SEQUENCE_ID_WIDTH);
+		ev->ts_msg_type = (uint8_t)mbx_field(w1, MBX_EV_TIMESTAMP_W1_MSG_TYPE_LSB, MBX_EV_TIMESTAMP_W1_MSG_TYPE_WIDTH);
+		ev->ts_egress = mbx_field(w1, MBX_EV_TIMESTAMP_W1_EGRESS_LSB, MBX_EV_TIMESTAMP_W1_EGRESS_WIDTH) != 0u;
+		ev->ts_ok = mbx_field(w1, MBX_EV_TIMESTAMP_W1_OK_LSB, MBX_EV_TIMESTAMP_W1_OK_WIDTH) != 0u;
+		ev->ts_ns = ((uint64_t)mbx_field(w3, MBX_EV_TIMESTAMP_W3_NS_HI_LSB, MBX_EV_TIMESTAMP_W3_NS_HI_WIDTH) << 32) |
+			    (uint64_t)mbx_field(w2, MBX_EV_TIMESTAMP_W2_NS_LO_LSB, MBX_EV_TIMESTAMP_W2_NS_LO_WIDTH);
 	}
 }
 

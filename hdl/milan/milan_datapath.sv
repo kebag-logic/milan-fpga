@@ -71,6 +71,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! KL_gptp_shadow onto the control TX (gasket-free, like CRF) and hands it
   //! the PHC's adjfine/adjtime; settime stays with the CSR face.
   parameter bit GPTP_PLANE_EN_P = 1'b1,
+  //! gPTP IN FIRMWARE (#884, #665 F6; the owner's decision of 2026-11-21 on
+  //! #872), the split placement only (CTRL_SPLIT_P = 1) and exclusive of
+  //! GPTP_PLANE_EN_P: the firmware's gPTP owner runs the protocol and the
+  //! servo, this datapath keeps the port's timestamp unit (KL_gptp_tsu) and
+  //! the PHC, and every consumer of the plane's publication bank reads the
+  //! firmware's gPTP publication (contract 2.5) in its place.
+  parameter bit GPTP_SW_EN_P = 1'b0,
   //! Absolute in SoC builds, relative in self-contained Verilator benches.
   //! The image bakes in the config's station MAC, priority1 and fabric clock.
   parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
@@ -806,7 +813,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   output wire [15:0] o_ctl_ctr_chg_index,
   output wire        o_ctl_avb_chg_p,
   output wire        o_ctl_asp_chg_p,
-  output wire        o_ctl_amap_wr_p
+  output wire        o_ctl_amap_wr_p,
+  //! gPTP in firmware (contract 2.5, GPTP_SW_EN_P): the firmware's gPTP
+  //! publication, one whole snapshot (GPTP_GM_LO, GPTP_GM_HI, GPTP_STATE, word
+  //! k at [32k +: 32]) and a pulse when one lands; and the timestamp unit's
+  //! egress record FIFO head, taken by the pulse. Driven 0 and read by nothing
+  //! otherwise.
+  input  wire [3*32-1:0] i_ctl_gptp_pub,
+  input  wire        i_ctl_gptp_pub_p,
+  output wire        o_ctl_ts_valid,
+  output wire [85:0] o_ctl_ts_data,
+  input  wire        i_ctl_ts_take
 );
   // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
@@ -1829,17 +1846,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [7*64-1:0] gptp_pub_path_tail_w = gptp_pub_path_w[8*64-1:64];
   wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
   wire        gptp_pub_disc_w;
+  //! the timestamp unit's ingress stamp of the frame on the tap, for
+  //! KL_ctrl_split's gptp trailer (GPTP_SW_EN_P; 0 under any other owner)
+  wire [63:0] gptp_rx_stamp_w;
+  wire        gptp_rx_event_w;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
   wire               gptp_slew_active_w /* verilator public_flat_rd */;
   wire        [63:0] gptp_step_w;
-  //! One owner for every consumer and the CSR live-read face. With the gPTP
-  //! engine absent every publication output is zero; no alternate publisher
-  //! exists.
-  wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
-                              ? gptp_pub_gm_w : 64'd0;
-  wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
-                              ? gptp_pub_pdelay_w : 32'd0;
+  //! One owner for every consumer and the CSR live-read face: the fabric
+  //! plane, or the firmware's gPTP publication (GPTP_SW_EN_P), which drives
+  //! the same gptp_pub_* nets. With neither every publication output is zero.
+  localparam bit GPTP_OWNER_C = (GPTP_PLANE_EN_P != 1'b0) || (GPTP_SW_EN_P != 1'b0);
+  wire [63:0] cfg_adp_gptp_gm = GPTP_OWNER_C ? gptp_pub_gm_w : 64'd0;
+  wire [31:0] cfg_gptp_pdelay = GPTP_OWNER_C ? gptp_pub_pdelay_w : 32'd0;
   //! THE APPLIED LATENCY CORRECTIONS, republished (issue #358). The plane's
   //! two elaboration constants, served at A_GPTP_LAT (0x7F0) so a
   //! controller host reads what the fabric IS applying rather than what a
@@ -1848,7 +1868,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! parameters, taken from the parameters and not from the plane, because
   //! there is nothing inside the plane to read them back from and a
   //! readback port would be a second copy of a constant.
-  wire [31:0] gptp_lat_ns_pub_w = (GPTP_PLANE_EN_P != 1'b0)
+  wire [31:0] gptp_lat_ns_pub_w = GPTP_OWNER_C
                              ? {16'(GPTP_INGRESS_LAT_NS_P),
                                 16'(GPTP_EGRESS_LAT_NS_P)} : 32'd0;
   //! Keep the notification and gather faces on the exact selected-owner
@@ -2368,7 +2388,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(
     .QTICK_CYC_P   (CLKV_QTICK_CYC_P),
-    .FABRIC_GPTP_P (GPTP_PLANE_EN_P)
+    .FABRIC_GPTP_P (GPTP_OWNER_C)
   ) ptp_clock_validity (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! A settime / adjtime IS a gPTP time discontinuity (4.4.4.7). In the
@@ -2494,8 +2514,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! head below is the exact entry-zero value GET_AS_PATH serves and the
   //! Table 5.22 comparator observes: the received head, which need not be
   //! the grandmaster (#88), or thisClock.
-  wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w : 4'd0;
-  wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w
+  wire [3:0] asp_owner_count_w = GPTP_OWNER_C ? asp_count_w : 4'd0;
+  wire [63:0] asp_owner_head_w = GPTP_OWNER_C ? gptp_pub_path_head_w
                                                  : 64'd0;
   wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
       : asp_owner_count_w;
@@ -2829,7 +2849,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
-    .GPTP_PLANE_EN_P(GPTP_PLANE_EN_P),
+    .GPTP_PLANE_EN_P(GPTP_OWNER_C),
     //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
@@ -9187,6 +9207,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [15:0] gptp_txts_lost_w;
 
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
+    assign gptp_rx_stamp_w = '0;
+    assign gptp_rx_event_w = 1'b0;
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
     wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
     wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
@@ -9304,6 +9326,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .dbg_txts_torn_o ()
     );
 
+    assign o_ctl_ts_valid = 1'b0;
+    assign o_ctl_ts_data  = '0;
     adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
       .clk_i (axis_clk), .rst_n (axis_resetn),
       .s_data_tdata (ctlg2_tdata),  .s_data_tkeep (ctlg2_tkeep),
@@ -9319,7 +9343,92 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
     );
 
+  end else if (GPTP_SW_EN_P) begin : g_gptp_sw
+    //! gPTP in firmware: gPTP frames reach the firmware through the mailbox
+    //! (KL_ctrl_split's tap passes them) and leave through the control lane,
+    //! so the lane passes straight through; the PHC keeps the CSR face, which
+    //! the firmware's servo drives (REQ-PTP-01..04); the port's timestamp
+    //! unit times every event message; the publication bank's nets carry
+    //! the firmware's gPTP publication, one whole snapshot at a time.
+    if (CTRL_SPLIT_P == 0) begin : g_sw_needs_split
+      $error("milan_datapath: GPTP_SW_EN_P needs the split placement (CTRL_SPLIT_P = 1)");
+    end
+    assign txarb_locked_w[4] = 1'b0;
+    assign txarb_abort_w [4] = 1'b0;
+    assign txarb_stall_w [4] = 1'b0;
+    assign ctlg3_tdata  = ctlg2_tdata;
+    assign ctlg3_tkeep  = ctlg2_tkeep;
+    assign ctlg3_tvalid = ctlg2_tvalid;
+    assign ctlg3_tlast  = ctlg2_tlast;
+    assign ctlg2_tready = ctlg3_tready;
+    wire signed [31:0] phc_adj_eff_ns_ts_w = signed'(phc_adj_ts_w);
+    KL_gptp_tsu #(
+        .TDATA_WIDTH_P      (TDATA_WIDTH),
+        .ETH_TICK_NS_P      (GPTP_ETH_TICK_NS_P),
+        .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
+        .DP_TICK_NS_P       ((GPTP_PHC_TICK_NS_P != 0) ? GPTP_PHC_TICK_NS_P : 1_000_000_000 / MILAN_CLK_FREQ_HZ),
+        .TXTS_DELTA_EXP_P   (45 * GPTP_ETH_CYC_PER_OCTET_P),
+        .PHC_CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
+        .INGRESS_LAT_NS_P   (GPTP_INGRESS_LAT_NS_P),
+        .EGRESS_LAT_NS_P    (GPTP_EGRESS_LAT_NS_P)
+    ) u_gptp_tsu (
+        .clk_i (axis_clk), .rst_n (axis_resetn),
+        .rx_tdata_i (rx_axis_fabric.tdata), .rx_tkeep_i (rx_axis_fabric.tkeep),
+        .rx_tvalid_i(rx_axis_fabric.tvalid), .rx_tready_i(rx_axis_fabric.tready),
+        .rx_tlast_i (rx_axis_fabric.tlast),
+        .phc_ns_i (ptp_now_w),
+        .phc_en_eff_i (phc_enable_ts_w), .phc_incr_eff_ns_i (phc_incr_ts_w),
+        .phc_adj_eff_ns_i (phc_adj_eff_ns_ts_w), .phc_load_eff_i (phc_load_ts_w),
+        .phc_adjust_eff_i (phc_adjust_ts_w),
+        .rec_valid_i (i_gptp_txrec_valid), .rec_kind_i (i_gptp_txrec_kind),
+        .rec_oidx_i (i_gptp_txrec_oidx), .rec_gen_i (i_gptp_txrec_gen),
+        .rec_type_i (i_gptp_txrec_type), .rec_seq_i (i_gptp_txrec_seq),
+        .rec_delta_i (i_gptp_txrec_delta), .rec_abort_i (i_gptp_txrec_abort),
+        .seal_req_o (o_gptp_txseal_req), .seal_gen_o (o_gptp_txseal_gen), .seal_ack_i (i_gptp_txseal_ack),
+        .rx_stamp_o (gptp_rx_stamp_w), .rx_event_o (gptp_rx_event_w),
+        .ts_valid_o (o_ctl_ts_valid), .ts_data_o (o_ctl_ts_data), .ts_take_p_i (i_ctl_ts_take),
+        .dbg_drop_o (gptp_tap_drop_w), .dbg_lost_o (gptp_txts_lost_w));
+    //! the publication's words (sw/mailbox/mailbox.yaml, GPTP_*), in their
+    //! contract order: GM, then STATE. THE NARROWED STATUS BLOCK (#884's ruling
+    //! of 2026-11-21, item 7): the parent identity, the neighbor delay and the
+    //! path trace stay with the firmware, which answers GET_AVB_INFO and
+    //! GET_AS_PATH from the snapshot it published last and raises their
+    //! changes itself; so here they are 0, milan_csr's GPTP_PARENT, GPTP_PDELAY
+    //! and AS_PATH words read 0 (docs/reference/REGISTER_MAP.md), and the two
+    //! change detectors below are off (o_ctl_avb_chg_p, o_ctl_asp_chg_p).
+    localparam int unsigned GW_STATE_C = (32'h28 - 32'h20) / 4;
+    wire [31:0] gw_state_w = i_ctl_gptp_pub[32*GW_STATE_C +: 32];
+    assign gptp_pub_gm_w     = {i_ctl_gptp_pub[32*1 +: 32], i_ctl_gptp_pub[32*0 +: 32]};
+    assign gptp_pub_parent_w = '0;
+    assign gptp_pub_pdelay_w = '0;
+    //! the plane's flags word as its consumers read it: bit 2 asCapable, bit 3
+    //! the synchronization verdict
+    assign gptp_pub_flags_w  = {28'd0, gw_state_w[9], gw_state_w[8], 2'b00};
+    assign gptp_slew_active_w = gw_state_w[10];
+    assign gptp_pub_path_count_w = 4'd0;
+    assign gptp_pub_path_gen_w   = 4'd0;
+    assign gptp_pub_path_w       = '0;
+    assign gptp_pub_annq_w   = '0;
+    assign gptp_pub_offset_w = '0;
+    //! a discontinuity: DISC moved between two whole snapshots
+    logic [3:0] gw_disc_q_r;
+    logic       gw_disc_p_r;
+    always_ff @(posedge axis_clk) begin : gw_disc
+      if (!axis_resetn) begin
+        gw_disc_q_r <= '0;
+        gw_disc_p_r <= 1'b0;
+      end else begin
+        gw_disc_p_r <= i_ctl_gptp_pub_p && (gw_state_w[19:16] != gw_disc_q_r);
+        if (i_ctl_gptp_pub_p) gw_disc_q_r <= gw_state_w[19:16];
+      end
+    end : gw_disc
+    assign gptp_pub_disc_w = gw_disc_p_r;
+    assign gptp_rx_drop_w   = '0;
+    assign gptp_ev_drop_w   = '0;
+    assign gptp_recov_req_w = 1'b0;
   end else begin : g_gptp_off
+    assign gptp_rx_stamp_w = '0;
+    assign gptp_rx_event_w = 1'b0;
     //! option off: the control lane passes straight through, the PHC
     //! knobs constant-fold to the CSR face, the publish words read zero
     assign txarb_locked_w[4] = 1'b0;
@@ -9330,10 +9439,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign ctlg3_tvalid = ctlg2_tvalid;
     assign ctlg3_tlast  = ctlg2_tlast;
     assign ctlg2_tready = ctlg3_tready;
-    assign gptp_adj_w = '0;
-    assign gptp_step_we_w = 1'b0;
     assign gptp_slew_active_w = 1'b0;
-    assign gptp_step_w = '0;
     assign gptp_pub_gm_w = '0;
     assign gptp_pub_parent_w = '0;
     assign gptp_pub_annq_w = '0;
@@ -9354,7 +9460,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign o_gptp_txseal_req = 1'b0;
     assign o_gptp_txseal_gen = '0;
     assign gptp_recov_req_w  = 1'b0;
+    assign o_ctl_ts_valid    = 1'b0;
+    assign o_ctl_ts_data     = '0;
   end endgenerate
+  //! the engine's PHC knobs, once for every build without the plane (gPTP in
+  //! firmware, whose servo drives the CSR face, or the option off): constant,
+  //! so the effective PHC is the CSR's, and the plane's port the one other
+  //! driver of each, in the exclusive arm
+  generate if (!GPTP_PLANE_EN_P) begin : g_gptp_engine_off
+    assign gptp_adj_w     = '0;
+    assign gptp_step_we_w = 1'b0;
+    assign gptp_step_w    = '0;
+  end endgenerate
+  //! the firmware's gPTP publication is read only by g_gptp_sw
+  logic gptp_pub_unused_w;
+  assign gptp_pub_unused_w = ^{i_ctl_gptp_pub, i_ctl_gptp_pub_p};
 
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
     .clk_i (axis_clk),
@@ -10210,8 +10330,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign o_ctl_ctr_chg_valid = pp_ctr_evt_valid_w;
     assign o_ctl_ctr_chg_type  = pp_ctr_evt_type_w;
     assign o_ctl_ctr_chg_index = pp_ctr_evt_index_w;
-    assign o_ctl_avb_chg_p     = gsi_avb_chg_w;
-    assign o_ctl_asp_chg_p     = gsi_asp_chg_w;
+    //! under gPTP in firmware the firmware raises both from its own
+    //! published snapshot (gptp_mbx.c), whose fields these compare
+    assign o_ctl_avb_chg_p     = gsi_avb_chg_w && !GPTP_SW_EN_P;
+    assign o_ctl_asp_chg_p     = gsi_asp_chg_w && !GPTP_SW_EN_P;
     assign o_ctl_amap_wr_p     = amap_edit_live_wr_p;
 
     //! M, the frame and event paths
@@ -10219,7 +10341,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     assign o_ctl_gm_change_p = pp_gm_change_p_w;
     assign o_ctl_gm_id       = cfg_adp_gptp_gm;
     assign o_ctl_gptp_domain = cfg_adp_gptp_domain;
-    KL_ctrl_split #(.TDATA_WIDTH_P(TDATA_WIDTH)) ctrl_split (
+    KL_ctrl_split #(.TDATA_WIDTH_P(TDATA_WIDTH), .GPTP_P(GPTP_SW_EN_P)) ctrl_split (
       .clk_i            (axis_clk),
       .rst_n            (axis_resetn),
       .rx_tdata_i       (rx_axis_fabric.tdata),
@@ -10227,6 +10349,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .rx_tvalid_i      (rx_axis_fabric.tvalid),
       .rx_tready_i      (rx_axis_fabric.tready),
       .rx_tlast_i       (rx_axis_fabric.tlast),
+      .rx_stamp_i       (gptp_rx_stamp_w),
+      .rx_event_i       (gptp_rx_event_w),
       .rx_valid_o       (o_ctl_rx_valid),
       .rx_data_o        (o_ctl_rx_data),
       .rx_last_o        (o_ctl_rx_last),

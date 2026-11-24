@@ -208,6 +208,12 @@ SPLIT_PORTS: dict[str, dict[str, Face]] = {
         "o_ctl_gm_change_p": Face(("gm_change_p_i",), "", ("gm_change_i",)),
         "o_ctl_gm_id": Face(("gm_id_i",), "", ("gm_id_i",)),
         "o_ctl_gptp_domain": Face(("gptp_domain_i",), "", ("gptp_domain_i",)),
+        # contract 2.5 (#884, #665 F6): the timestamp unit's records into KL_mbx, and the gPTP publication out
+        "o_ctl_ts_valid": Face(("ts_valid_i",), "", (), "the timestamp unit's head record waits"),
+        "o_ctl_ts_data": Face(("ts_data_i",), "", (), "the timestamp unit's head record"),
+        "i_ctl_ts_take": Face(("ts_take_p_o",), "", (), "KL_mbx posted the head record"),
+        "i_ctl_gptp_pub": Face(("pub_gptp_o",), "", (), "every GPTP_* word, crossed as one snapshot"),
+        "i_ctl_gptp_pub_p": Face(("pub_gptp_o",), "", (), "the GEN commit's take of pub_gptp_o (KL_mbx_cdc)"),
     },
 }
 
@@ -226,6 +232,18 @@ NOT_PORT_EVENTS = {
     "TIMER": "KL_mbx's own timers", "TICK": "KL_mbx's own tick",
     "LINK": "made by KL_mbx from its link_up_i (the M row o_ctl_link_up)",
     "GM": "made by KL_mbx from its gm_* inputs (the M rows o_ctl_gm_*)",
+    "TIMESTAMP": "made by KL_mbx from its ts_* inputs (the M rows o_ctl_ts_*; contract 2.5, #884)",
+}
+#: Contract 2.5's gPTP publication (#884, #665 F6): KL_mbx carries its words whole on pub_gptp_o, the M row
+#: i_ctl_gptp_pub, so no port carries a GPTP_* field by itself; the datapath decodes them onto the fabric plane's
+#: gptp_pub_* nets only where GPTP_SW_EN_P builds the timestamp unit in the plane's place.
+GPTP_PUB_PREFIX = "GPTP_"
+#: The gPTP split inputs read only under GPTP_SW_EN_P. The census's shapes elaborate the split with the fabric
+#: plane (GPTP_SW_EN_P = 0), where no block reads them, which split-consumed proves; a port read there is refused.
+GPTP_SW_ONLY = {
+    "i_ctl_gptp_pub": "decoded onto the plane's gptp_pub_* nets under GPTP_SW_EN_P only",
+    "i_ctl_gptp_pub_p": "the publication's commit, read under GPTP_SW_EN_P only",
+    "i_ctl_ts_take": "the timestamp unit's take, which exists under GPTP_SW_EN_P only",
 }
 
 #: The wrapper ports of a carried class that no split port stands for, each ruled.
@@ -417,7 +435,7 @@ def _table_findings(table: dict[str, dict[str, Face]], ports: dict, contract: An
     if live("split-every-field"):
         carried = {c for cls in CLASSES for row in table.get(cls, {}).values() for c in row.carrier}
         out += [f"the publication field {f} is carried by no port of the split datapath"
-                for f in sorted(pub) if f not in carried]
+                for f in sorted(pub) if f not in carried and not f.startswith(GPTP_PUB_PREFIX)]
         out += [f"the face field {f} is carried by no port of the split datapath, and is not ruled a non-port field"
                 for f in sorted(fields) if f not in carried and f not in NOT_PORTS]
         out += [f"the face event {e} is carried by no port of the split datapath"
@@ -647,7 +665,11 @@ def _consumed(ctx: _Ctx) -> tuple[int, list[str]]:
         reached = [isinstance(b, int) and b in live_bits for b in pbits[:keep]]
         consumed += sum(reached)
         what = row.carrier[0] if len(row.carrier) == 1 else " + ".join(row.carrier)
-        if port in UNREAD_BOTH:
+        if port in GPTP_SW_ONLY:
+            if any(reached) and live("split-consumed"):
+                out.append(f"split port {port} is consumed in the split with the fabric plane: drop it from "
+                           f"GPTP_SW_ONLY")
+        elif port in UNREAD_BOTH:
             af_read = sorted(s for s in row.stands if s in ctx.face.read)
             if any(reached) and live("split-consumed"):
                 out.append(f"split port {port} is consumed in the split: drop it from UNREAD_BOTH")

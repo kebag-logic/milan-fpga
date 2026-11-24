@@ -30,6 +30,7 @@ from unittest.mock import patch
 import yaml
 
 import build
+import channel_gate
 import grade
 import run
 import save_grade
@@ -172,7 +173,7 @@ def clock_checks(built: Callable[..., tuple[str, dict]], main_verdict: Callable[
             line = build.clock_line(spec) if spec else ''
             out.append(('the clock line names the CPU on sys at the product clock',
                         line == "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz", line))
-            with patch.object(build, 'Core', lambda *a, core=build.Core: core(*a, cpu_cd='milan')):
+            with patch.object(build, 'Core', lambda *a, core=build.Core, **kw: core(*a, cpu_cd='milan', **kw)):
                 verdict, spec = built(root / 'milan')
             out.append(('a build whose SoC puts the CPU on the Milan clock is refused and records nothing',
                         verdict.startswith('returned 1') and 'not on the bus clock' in verdict
@@ -491,7 +492,10 @@ def held_checks() -> list[Check]:
     for when, channel, _ in save_window.arrivals(p, run_ms):
         seen.setdefault(channel, []).append(when)
     wrong = []
-    for name, n in scenario.CH.items():
+    # rule A: the receive channels the image opened (its FILTER_EN), not every channel the contract names; the
+    # save images open no gptp channel, so a load that left out an opened channel is still a wrong row here
+    opened = {name: n for name, n in scenario.CH.items() if name in channel_gate.fixture()}
+    for name, n in opened.items():
         ch = scenario.CONTRACT.channels[n]
         times = seen.get(name, [])
         instants = sorted(set(times))
@@ -512,11 +516,12 @@ def held_checks() -> list[Check]:
     for when, channel, _ in save_window.held_arrivals(p, run_ms):
         first.setdefault(channel, when)
     refill = scenario.CONTRACT.channels[scenario.CH['aecp']].refill_ms
-    starts = {name: round(first[name] - save_window.OFFSET_MS * n, 6) for name, n in scenario.CH.items()}
+    starts = {name: round(first[name] - save_window.OFFSET_MS * n, 6) for name, n in opened.items()}
     offered = {name: sum(1 for _, channel, _ in save_window.arrivals(p, run_ms - 5 * (name == 'aecp'))
                          if channel == name) + (name == 'aecp') for name in scenario.CH}
     declared = all(g.save == dict(image=13_256, records=2, loaded=True, offered=offered) for g in (held, starved))
-    return [("every receive channel is held at its contract refill rate with its bursts through a save's stated worst "
+    return [("every receive channel the image opened is held at its contract refill rate with its bursts through a "
+             "save's stated worst "
              "case: admission's records at once, again every as many refill periods, each channel's bursts apart",
              not wrong, '; '.join(wrong)),
             ("save-starved adds a grandmaster change as every pass starts from its change, save-held does not, and "
@@ -524,7 +529,7 @@ def held_checks() -> list[Check]:
              str((starved.steps[change(starved):change(starved) + 3], held.save, starved.save))),
             ("the held AECP channel's first burst comes one refill period after the change, so the SET_NAME's token is "
              "back before it, and every other channel's at the change", starts == {
-                 name: refill if name == 'aecp' else 0 for name in scenario.CH}, str(starts))]
+                 name: refill if name == 'aecp' else 0 for name in opened}, str(starts))]
 
 
 def held_load_checks(sys_hz: int, cpu_hz: int) -> list[Check]:

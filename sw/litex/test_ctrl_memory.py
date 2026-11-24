@@ -13,14 +13,14 @@ block RAM the SoC builds from them. This file grades nine things:
      image is accepted and its rom contents are the bytes placed at their load addresses. Every rule in
      `ctrl_memory.RULES` has a planted defect that must be refused by that rule, among them a truncated ELF, writable
      data running in rom, a CPU with other origins and a load segment carrying fewer bytes than its sections claim.
-     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point
-     (ctrl_memory.LEDGERED, ctrl_memory_ledger.py: the size fixture's and the platform's 8x8 images with two
-     interfaces and the platform's 8x8 image with one) plans its 60.5, 63.0 or 58.0 by name, and through
+     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused. Each ledgered point (ctrl_memory.LEDGERED,
+     ctrl_memory_ledger.py: the 8x8 images, two-interface, the platform's one-interface, and the gPTP ones) plans its
+     60.5, 63.0, 58.5, 59.0, 64.0 or 62.0 by name, and through
      add_ctrl_memory at its own entry by its symbols (#923's ruling), and is refused without its override and half a
      tile past, through add_ctrl_memory too; add_ctrl_memory refuses an unledgered image past 56, and the product
      image with a ctrl_plat of another size. Each override is refused on every other point, on the others' images and
-     on an image with one of its two symbols. Ten planted ledgers, each widening an entry to another point or image or
-     past its tiles, must each turn the ledger red with its pin set aside.
+     on an image with one of its two symbols. Sixteen planted ledgers, each widening an entry to another point or
+     image or past its tiles, must each turn the ledger red with its pin set aside.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the largest image's sram banks (64, 32, 8, 4
      and 2 KiB). rom reads its image at the first and last word of every bank and drops a write; sram writes byte
      lanes and reads them back at every bank boundary. Addresses past the last bank, sampled to the top of the 256 KiB
@@ -185,6 +185,7 @@ class Layout(NamedTuple):
     machine: int = 243
     interfaces: int | None = None   # the size fixture's image_allocation, 8 bytes per interface; None leaves it out
     plat: int | None = None         # the target platform's ctrl_plat, in bytes; None leaves it out
+    gptp: int | None = None         # the gPTP adapter's image_gptp, in bytes (#884); None leaves it out
     text: int = 9_000               # .text's bytes; .rodata and .data's initial bytes follow it in rom
 
 
@@ -203,10 +204,9 @@ def elf(tmp: Path, layout: Layout) -> Path:
     bss_at = RAM + 64 if layout.bss_at is None else layout.bss_at
     stack = RAM + 64 + layout.bss
     symbols = {"_start": 4} if layout.stage is None else {"_start": 4, ctrl_memory.STAGE_SYMBOL: layout.stage}
-    if layout.interfaces is not None:
-        symbols["image_allocation"] = 8 * layout.interfaces
-    if layout.plat is not None:
-        symbols["ctrl_plat"] = layout.plat
+    for name, size in (("image_allocation", None if layout.interfaces is None else 8 * layout.interfaces),
+                       ("ctrl_plat", layout.plat), ("image_gptp", layout.gptp)):
+        symbols.update({} if size is None else {name: size})
     path = tmp / ("image-" + "-".join(str(v) for v in layout) + ".elf")
     path.write_bytes(write_elf(layout.entry, [
         (".text", at, at, bytes((i * 7 + 3) & 0xFF for i in range(layout.text)), False),
@@ -223,12 +223,12 @@ def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
 
 
 def ledger_elf(tmp: Path, case: ledgers.Case) -> Path:
-    """A ledger case written: the good image with five tiles of .text more and of .bss less, still 56 RAMB36,
-    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 63.5, half a tile past
-    the platform's 63.0 (four tiles reached 63.0 alone, past which .bss would run out of sram)."""
-    return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat,
-                                  text=GOOD.text + 10 * GRANULE,
-                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 10) * GRANULE))
+    """A ledger case written: the good image with seven tiles of .text more and of .bss less, still 56 RAMB36,
+    then a granule of .bss more per half tile past 56; sram holds 56 tiles, so a case reaches 64.5, half a tile past
+    the two-interface gPTP image's 64.0 (five tiles reached 63.5, the platform's 63.0 and half a tile)."""
+    return elf(tmp, GOOD._replace(stage=case.stage, interfaces=case.interfaces, plat=case.plat, gptp=case.gptp,
+                                  text=GOOD.text + 14 * GRANULE,
+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 14) * GRANULE))
 
 
 def soc_plan(path: Path) -> object:
@@ -338,9 +338,9 @@ def ledger_arms(problems: list[str], tmp: Path) -> None:
     point and image, an unknown name) are refusal_arms rows under `budget`.
     """
     held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
-    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the size fixture's and the target "
-                                          f"platform's 8x8 images with two interfaces at 60.5 and 63.0 and the "
-                                          f"platform's 8x8 image with one at 58.0 ({held})")
+    check(problems, held == ledgers.HELD, f"the ledger holds the ruled points, the 8x8 two-interface images at 60.5 "
+                                          f"and 63.0, the platform's one-interface image at 58.5, and the gPTP "
+                                          f"images at 59.0, 64.0 and 62.0 ({held})")
     for holds, what in ledgers.facts(partial(ledger_elf, tmp)):
         check(problems, holds, what)
     for holds, what in ledgers.product_facts(partial(ledger_elf, tmp), soc_plan):

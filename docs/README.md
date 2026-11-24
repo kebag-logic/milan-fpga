@@ -69,6 +69,7 @@ Publish conflicts before continuing.
 | Understand why a register works as it does | [CSR design notes](design/CSR_REGISTER_NOTES.md) |
 | Integrate the reference SoC | [LiteX SoC](litex/LITEX_SOC.md) |
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
+| Understand gPTP in firmware (the optimisation line) | [gPTP in firmware](design/GPTP_SOFTWARE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
 | Reset on an AECP REBOOT | [End-station reset](design/REBOOT_RESET.md) |
 | Follow a stream's media clock | [Media-clock following, implemented](design/MEDIA_CLOCK_FOLLOWING.md) |

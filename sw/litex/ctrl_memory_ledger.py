@@ -40,28 +40,41 @@ import ctrl_memory
 
 STAGE_1X1, STAGE_8X8 = 3454, 13594
 FIXTURE, PLATFORM, PRODUCT = "8x8-two-interfaces", "platform-8x8-two-interfaces", "platform-8x8-one-interface"
+#: the size fixture's 8x8 images built --with-gptp (#884's ruling of 2026-11-21, item 4), and sizeof(struct gptp_mbx)
+#: in each, one and two interfaces (gptp/gptp_mbx.h)
+GPTP1, GPTP2 = "8x8-one-interface-gptp", "8x8-two-interfaces-gptp"
+IMG_GPTP_1, IMG_GPTP_2 = 1_104, 2_152
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
-#: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_048, 19_712, 18_944, 21_568
+#: it: 1x1 with one and two interfaces, 8x8 with one and two; each 64 B more but 8x8's two-interface one with
+#: contract 2.5 (#884: the gptp channel's table entries and the face's gPTP answer port), and the 8x8 one-interface
+#: image built --with-gptp, its point PRODUCT_GPTP (the gPTP adapter a member, CTRL_PLAT_GPTP).
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 18_112, 19_776, 19_008, 21_568
+PRODUCT_GPTP, PLAT_8X8_1_GPTP = "platform-8x8-one-interface-gptp", 20_160
 
 
 class Case(NamedTuple):
     """What the ledger reads of an image, None leaving a symbol out: `nvm_stage`'s size, the size fixture's
-    `image_allocation` in interfaces (8 bytes each), the platform's `ctrl_plat` size; and the RAMB36 it plans."""
+    `image_allocation` in interfaces (8 bytes each), the platform's `ctrl_plat` size; the RAMB36 it plans; and the
+    gPTP adapter's `image_gptp` size, None leaving it out."""
 
     stage: int
     interfaces: int | None
     plat: int | None
     tiles: float
+    gptp: int | None = None
 
 
 #: Each ledgered point's own image, at its ledgered tiles.
 OWN = {FIXTURE: Case(STAGE_8X8, 2, None, 60.5), PLATFORM: Case(STAGE_8X8, None, PLAT_8X8_2, 63.0),
-       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 58.0)}
+       PRODUCT: Case(STAGE_8X8, None, PLAT_8X8_1, 58.5), GPTP1: Case(STAGE_8X8, 1, None, 59.0, IMG_GPTP_1),
+       GPTP2: Case(STAGE_8X8, 2, None, 64.0, IMG_GPTP_2), PRODUCT_GPTP: Case(STAGE_8X8, None, PLAT_8X8_1_GPTP, 62.0)}
 #: What the ledger must hold for each: the symbols that make an image that point, and its tiles.
 HELD = {FIXTURE: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 60.5),
         PLATFORM: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_2)), 63.0),
-        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 58.0)}
+        PRODUCT: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1)), 58.5),
+        GPTP1: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 8), ("image_gptp", IMG_GPTP_1)), 59.0),
+        GPTP2: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16), ("image_gptp", IMG_GPTP_2)), 64.0),
+        PRODUCT_GPTP: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("ctrl_plat", PLAT_8X8_1_GPTP)), 62.0)}
 #: (what, override, image), each refused by `budget`: the point half a tile past its tiles, its image's other
 #: points at its tiles and within the budget, the other override's image, an image carrying one of its two
 #: symbols, and names the ledger does not hold.
@@ -82,14 +95,15 @@ REFUSED = (
     ("an 8x8 image with no ctrl_plat at 63.0", PLATFORM, Case(STAGE_8X8, None, None, 63.0)),
     ("the platform's 1x1 one-interface image within the budget", PLATFORM, Case(STAGE_1X1, None, PLAT_1X1_1, 56.0)),
     ("the size fixture's 8x8 two-interface image at 63.0", PLATFORM, OWN[FIXTURE]._replace(tiles=63.0)),
-    ("its own image at 58.5 RAMB36, half a tile past its 58.0", PRODUCT, OWN[PRODUCT]._replace(tiles=58.5)),
-    ("the platform's 1x1 one-interface image at 58.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 58.0)),
-    ("the platform's 1x1 two-interface image at 58.0", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 58.0)),
-    ("the platform's 8x8 two-interface image at 58.0", PRODUCT, OWN[PLATFORM]._replace(tiles=58.0)),
-    ("an image with the point's ctrl_plat and the 1x1 stage at 58.0", PRODUCT,
-     Case(STAGE_1X1, None, PLAT_8X8_1, 58.0)),
-    ("an 8x8 image with no ctrl_plat at 58.0", PRODUCT, Case(STAGE_8X8, None, None, 58.0)),
-    ("the size fixture's 8x8 one-interface image at 58.0", PRODUCT, Case(STAGE_8X8, 1, None, 58.0)),
+    ("its own image at 59.0 RAMB36, half a tile past its 58.5", PRODUCT, OWN[PRODUCT]._replace(tiles=59.0)),
+    ("the platform's 1x1 one-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_1, 58.5)),
+    ("the platform's 1x1 two-interface image at 58.5", PRODUCT, Case(STAGE_1X1, None, PLAT_1X1_2, 58.5)),
+    ("the platform's 8x8 two-interface image at 58.5", PRODUCT, OWN[PLATFORM]._replace(tiles=58.5)),
+    ("an image with the point's ctrl_plat and the 1x1 stage at 58.5", PRODUCT,
+     Case(STAGE_1X1, None, PLAT_8X8_1, 58.5)),
+    ("an 8x8 image with no ctrl_plat at 58.5", PRODUCT, Case(STAGE_8X8, None, None, 58.5)),
+    ("the size fixture's 8x8 one-interface image at 58.5", PRODUCT, Case(STAGE_8X8, 1, None, 58.5)),
+    ("the platform's 8x8 one-interface gPTP image at 58.5", PRODUCT, OWN[PRODUCT_GPTP]._replace(tiles=58.5)),
     ("the size fixture's 8x8 two-interface image, a name the ledger does not hold", "8x8-one-interface",
      OWN[FIXTURE]),
     ("the image of the point it names, a name the ledger does not hold", "8x8-one-interface",
@@ -98,6 +112,18 @@ REFUSED = (
      OWN[PLATFORM]),
     ("the platform's 1x1 one-interface image, a name the ledger does not hold", "platform-1x1-one-interface",
      Case(STAGE_1X1, None, PLAT_1X1_1, 56.5)),
+    ("its own image at 59.5 RAMB36, half a tile past its 59.0", GPTP1, OWN[GPTP1]._replace(tiles=59.5)),
+    ("the size fixture's 8x8 one-interface image without gPTP at 59.0", GPTP1, Case(STAGE_8X8, 1, None, 59.0)),
+    ("its image with an image_gptp of another size at 59.0", GPTP1, OWN[GPTP1]._replace(gptp=IMG_GPTP_1 + 64)),
+    ("the 8x8 two-interface gPTP image at 59.0", GPTP1, OWN[GPTP2]._replace(tiles=59.0)),
+    ("its own image at 64.5 RAMB36, half a tile past its 64.0", GPTP2, OWN[GPTP2]._replace(tiles=64.5)),
+    ("the size fixture's 8x8 two-interface image without gPTP at 64.0", GPTP2, OWN[FIXTURE]._replace(tiles=64.0)),
+    ("the 8x8 one-interface gPTP image at 64.0", GPTP2, OWN[GPTP1]._replace(tiles=64.0)),
+    ("its own image at 62.5 RAMB36, half a tile past its 62.0", PRODUCT_GPTP, OWN[PRODUCT_GPTP]._replace(tiles=62.5)),
+    ("the platform's 8x8 one-interface image without gPTP at 62.0", PRODUCT_GPTP, OWN[PRODUCT]._replace(tiles=62.0)),
+    ("an image with the point's ctrl_plat and the 1x1 stage at 62.0", PRODUCT_GPTP,
+     Case(STAGE_1X1, None, PLAT_8X8_1_GPTP, 62.0)),
+    ("the size fixture's 8x8 one-interface gPTP image at 62.0", PRODUCT_GPTP, OWN[GPTP1]._replace(tiles=62.0)),
 )
 
 
@@ -150,6 +176,15 @@ def product_facts(write: Callable[[Case], Path], build: Callable[[Path], object]
         got = build(write(case))
         yield (isinstance(got, ctrl_memory.Refusal) and got.rule == "budget",
                f"the product SoC build refuses the {PRODUCT} point's image {what} ({got})")
+    # a SoC built --sw-gptp plans its gPTP image at that image's own entry, before the size fixture's (#884)
+    for name in (GPTP1, GPTP2, PRODUCT_GPTP):
+        own = OWN[name]
+        got = build(write(own))
+        yield ((getattr(got, "ledgered", None), getattr(got, "tiles", None)) == (name, own.tiles),
+               f"the SoC build plans the {name} point's image at its {own.tiles} RAMB36 by its symbols ({got})")
+        got = build(write(own._replace(tiles=own.tiles + 0.5)))
+        yield (isinstance(got, ctrl_memory.Refusal) and got.rule == "budget",
+               f"the SoC build refuses the {name} point's image half a tile past ({got})")
 
 
 def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
@@ -169,9 +204,17 @@ def planted() -> list[tuple[str, dict[str, ctrl_memory.Ledgered]]]:
              ("the product entry without ctrl_plat", PRODUCT, {"symbols": (stage,)}),
              ("the product entry at the 1x1 one-interface ctrl_plat and stage", PRODUCT,
               {"symbols": ((ctrl_memory.STAGE_SYMBOL, STAGE_1X1), ("ctrl_plat", PLAT_1X1_1))}),
-             ("the product entry at 58.5 RAMB36", PRODUCT, {"tiles": 58.5}),
+             ("the product entry at 59.0 RAMB36", PRODUCT, {"tiles": 59.0}),
              ("the product entry at the two-interface ctrl_plat", PRODUCT,
-              {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}))
+              {"symbols": (stage, ("ctrl_plat", PLAT_8X8_2))}),
+             ("the one-interface gPTP entry without image_gptp", GPTP1, {"symbols": (stage, ("image_allocation", 8))}),
+             ("the one-interface gPTP entry at 59.5 RAMB36", GPTP1, {"tiles": 59.5}),
+             ("the two-interface gPTP entry without image_gptp", GPTP2,
+              {"symbols": (stage, ("image_allocation", 16))}),
+             ("the two-interface gPTP entry at 64.5 RAMB36", GPTP2, {"tiles": 64.5}),
+             ("the product gPTP entry at the product image's ctrl_plat", PRODUCT_GPTP,
+              {"symbols": (stage, ("ctrl_plat", PLAT_8X8_1))}),
+             ("the product gPTP entry at 62.5 RAMB36", PRODUCT_GPTP, {"tiles": 62.5}))
     return [(what, {**held, name: dataclasses.replace(held[name], **change)}) for what, name, change in edits]
 
 

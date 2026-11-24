@@ -45,6 +45,13 @@ SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
 TICK = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);\n"
 STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, ctrl_plat_phy_store_step, &p->phy, nvm_store_clock, NULL);\n"
 SERVICE = TICK + STEP
+#: gPTP in firmware's binding, between the store's and the open (CTRL_PLAT_GPTP, #884); off in these builds
+GPTP = ("#ifdef CTRL_PLAT_GPTP\n"
+        "\t// gPTP's channel, sink and centisecond, bound before the open, after the store's (#884)\n"
+        "\tif (!gptp(p)) {\n"
+        "\t\treturn reach(p, CTRL_PLAT_COMPOSE, \"Milan split: gPTP refused; entity disabled\\r\\n\");\n"
+        "\t}\n"
+        "#endif\n")
 OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
         "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
         "\t}\n")
@@ -170,7 +177,7 @@ def boot_mutants(mutant: type) -> tuple:
           "\tif (!ctrl_app_open_aecp(&p->bridge) && false) {",
           "platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 no acknowledgement, no AECP"),
         # steps 6-7: the saved state before the mailbox opens, and its write-back bound to the loop
-        m("plat-saved-state-after-mailbox-open", PLAT, SAVED + SERVICE + OPEN, SERVICE + OPEN + SAVED,
+        m("plat-saved-state-after-mailbox-open", PLAT, SAVED + SERVICE + GPTP + OPEN, SERVICE + GPTP + OPEN + SAVED,
           "platboot1", "Boot.B1ReachesReadyInStepOrder",
           "B1 the saved state is read before the mailbox's first access"),
         m("plat-store-tick-unbound", PLAT, TICK, "",

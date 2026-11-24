@@ -607,6 +607,7 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--record-budget-findings', action='store_true')
     parser.add_argument('--record-share-findings', action='store_true',
                         help='record a work pass over the per-pass share (share.py) instead of failing the run')
+    parser.add_argument('--with-gptp', action='store_true', help='gPTP in the image (contract 2.5, gptp_group.py)')
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
@@ -818,11 +819,11 @@ def reference_run(args: argparse.Namespace, build_dir: Path, shape: str, n_if: i
             spec = builder.reused(where)
         except (RuntimeError, OSError, KeyError, ValueError) as error:
             return [], [f'the reference build: {error}']
-        if built_as(spec) != (shape, n_if, args.cpu_regions, 'none', args.variant, args.fetch_l1, args.xip):
+        if built_as(spec) != selected(argparse.Namespace(**{**vars(args), 'mutation': 'none'}), shape, n_if):
             return [], ["the reference build is not this point's unplanted image"]
     else:
         spec = builder.build(where, shape, n_if, mutation='none', variant=args.variant,
-                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=args.with_gptp))
     control = builder.MUTATIONS[args.mutation][3]
     groups = [g for g in all_groups(scenario.point(args.point, spec), spec) if g.name == control]
     out = where / 'results'
@@ -882,13 +883,13 @@ def all_groups(point: object, spec: dict) -> list:
 def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
     """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm. Its CPU
     clock is the split CPU's on the bus clock, which build.reused holds every build to."""
-    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip, args.with_gptp
 
 
 def built_as(spec: dict) -> tuple:
     """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless."""
     return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'],
-            spec.get('fetch_l1', 'none'), spec.get('xip', False))
+            spec.get('fetch_l1', 'none'), spec.get('xip', False), spec.get('gptp', False))
 
 
 def main() -> int:
@@ -918,7 +919,7 @@ def main() -> int:
     else:
         try:
             spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
-                                 core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+                                 core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, gptp=args.with_gptp))
         except builder.ClockRefusal as error:
             print(f'REFUSED {error}')
             return 1

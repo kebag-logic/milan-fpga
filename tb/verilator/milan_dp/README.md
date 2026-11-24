@@ -1200,6 +1200,18 @@ contract's registers or a datapath net its consumers read:
 | `[POL]` | for every talker of the shape, LICENCE bit s alone reaches ACTIVE, admitted and the stream gate every talker's emission reads as bit s alone; the CRF source's licence term reads the gate's top bit; a cleared LICENCE closes them all. The split's generate drives the two nets the processor drives in the all-fabric build, and the gate and every consumer after it are one RTL in both placements (#867) |
 | `[TAP]` | `u_tap` hands out ADP, AECP, ACMP and MAAP on 0x22F0, MSRP at 01-80-C2-00-00-0E and MVRP at 01-80-C2-00-00-21, each whole and counted; it refuses MSRP's and MVRP's EtherType at the other's group address, MSRP's at a unicast address, AAF and subtype 0xFD; a burst past its 4,096-byte FIFO filled to its last word counts each control frame it loses once and no refused frame or one-beat runt, and the count saturates at 255 |
 
+`make split-sw` builds the same top with gPTP in firmware (`GPTP_SW_P`, the
+datapath's `GPTP_SW_EN_P`; #884). The timestamp unit stands in the plane's
+place, the gptp tap carries its trailer, and the narrowed publication is
+decoded onto the consumers' nets. `sim_split.cpp` then adds its `[GPTP]`
+checks. They cover a Sync and a Pdelay_Req stamped through the tap, and a
+Follow_Up with the no-stamp trailer. The published grandmaster reaches
+KL_mbx's GM registers with no AVB_INFO_CHANGED from the datapath. A commit
+made while the one before crosses, followed by an update begun and not
+committed, leaves the datapath holding the commit whole. It is the suite's
+last case (`ci-list`), so the default run and hosted leg 2 run it at every
+head.
+
 `make split` runs the binary only once it has linked. The rule builds it
 (`build-split`), then runs it in a make of its own (`exec-split`). Both were
 once plain prerequisites, so a parallel make started the run beside the link.

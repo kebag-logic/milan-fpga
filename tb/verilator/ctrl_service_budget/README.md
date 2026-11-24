@@ -49,6 +49,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 `8x8-1if` is the 8x8 shape at one interface (#894), the image the 8x8 owner's decision gates; it states one interface's costs, 1x1/1if's, so a run there reports each cost the shape takes past them. `8x8` is the size fixture's ledgered point in the planner, `8x8-two-interfaces`, which may plan 60.5 RAMB36 (`ctrl_memory.LEDGERED`, its measured tiles since the map edits' commit, by [#923's ruling of 2026-11-16](https://github.com/kebag-logic/milan-fpga/issues/923#issuecomment-6906679024): 60.0 on the composed flip train, 60.5 with the largest legal record's cut; 59.0, its cap, since the tiers' composed image by the fallback of #894's [ruling of 2026-11-13](https://github.com/kebag-logic/milan-fpga/issues/894#issuecomment-6844175391), item 2) against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`), in place of the entry the product build names by the image's symbols (`ctrl_memory.own_point`, #923).
 The planner refuses the override on any other image, and the product SoC build names none.
+An image built `--with-gptp` (#884) is planned at its own points instead, `8x8-one-interface-gptp` at `8x8-1if` and `8x8-two-interfaces-gptp` at `8x8` (`GPTP_LEDGERED_POINTS`, 59.0 and 64.0 RAMB36): [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 4, accepts the gPTP ports' memory at 8x8 as debt with a ledger entry, so both 8x8 points are measured with gPTP in firmware. A gPTP image at `1x1` takes no override.
 
 **The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
@@ -508,6 +509,14 @@ A backlog window opens only on a drained event ring (`scenario.OPEN_WINDOW`, the
 Its fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits (`mailbox.yaml`, `KL_mbx_evt.sv`), so with k records held only 16 - k + 1 of them commit: the defined load needs a ring the core has drained, which no fixed wait gives a CPU whose pass is longer than that wait.
 The self-test counts every window's stimulus against the same loads, restated, so a scenario that drops a channel from its stimulus and from its own declaration together still fails.
 
+The defined load covers the channels the image opened, not every channel the contract names (#884, contract 2.5's `gptp` channel).
+The testbench prints each `FILTER_EN` write as `OPEN <cycle> <gate>`, and `channel_gate.py` reads the image's last gate, each bit named by the contract's channel table.
+A log with no `FILTER_EN` write is refused, never read as every channel.
+An opened channel with no load frame in `grade.LOAD_FRAME_BYTES` is refused too, so the rule cannot hide load.
+An image without gPTP opens five channels, so every existing row's defined load is unchanged; one built `--with-gptp` also carries the gptp channel's admitted burst, seven records an interface (the contract's `burst_per_interface`, derived in `mailbox.yaml` from the worst legitimate coincidence of the 802.1AS message kinds in one refill window, #884's ruling of 2026-11-22, item 1), one in the fixture's window. The grader takes the interface count from the run's build (`grade.grade`'s `at`) and the stimulus from its point, each through `mailbox_model.with_interfaces`.
+Each is a peer's Pdelay_Req (`gptp_group.load_frame`), the channel's dearest record: the port answers it with a Pdelay_Resp and its Follow_Up, each with its egress stamp.
+The testbench gives every gptp record the eight-octet ingress trailer `KL_ctrl_split` appends (contract 2.5), the frame's stamp for an event message and all ones for any other, so a record is the frame and 8 octets (`grade.LOAD_FRAME_BYTES`).
+
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
 A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither its budget nor its ceiling.
@@ -519,7 +528,9 @@ A run that did not include every backlog row names the rows not run, and its fig
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 20 ms.
-Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 20 ms for every family but gptp.
+The gptp family's 10 ms is the Pdelay turnaround of IEEE 802.1AS-2011 B.2.3 itself, not a tenth of it, kept by [#884's ruling of 2026-11-21](https://github.com/kebag-logic/milan-fpga/issues/884#issuecomment-7067495546), item 1; only `gptp_group.py`'s probe reads it.
+It does not enter THE SHARE (`share.EXCLUDED`), which stays the approved T_svc over ten passes, 2 ms, by the same ruling; a pass carrying gPTP work is held to that share like any other.
 A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
 A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 
@@ -1303,7 +1314,7 @@ Its checks:
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
-- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
+- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; a gPTP image's at `8x8` at one and at two interfaces, by its own names, and at `1x1` none; every labelled arm and control plant applies to the checkout's sources;
 - a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the aged build's plant is caught only when every group's timer-driven MRPDU is over its bound, not by another row, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
@@ -1424,6 +1435,9 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 | build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
+| build: a gPTP image is planned at the ledgered point of an image without it | a gPTP image's ledgered point is named at 8x8 only, at each interface count, as the planner ledgers it |
+| grade: a burst stated an interface held at one interface's | a gPTP image's defined loads at one and two interfaces, restated |
+| scenario: a gPTP image's composed windows carry no gptp records | every composed window's stimulus is its defined load |
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | build: arm B's path port answers no entries at once, reading no window (earlier rule) | the answering-ports arm's path port is arm_path.py's, which reads the window |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |

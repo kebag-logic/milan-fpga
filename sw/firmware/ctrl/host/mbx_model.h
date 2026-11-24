@@ -121,6 +121,9 @@ struct mbx_model_channel {
 	uint16_t refill;
 };
 
+//! KL_gptp_tsu's FIFO_DEPTH_P: the records a timestamp unit holds
+#define MBX_MODEL_TS_DEPTH 32u
+
 struct mbx_model {
 	uint32_t window[MBX_WINDOW_BYTES / 4u];        // ring storage at its contract offsets
 	struct mbx_model_channel ch[MBX_N_CH];
@@ -133,6 +136,9 @@ struct mbx_model {
 	uint64_t bound_eid[MBX_N_IF][MBX_N_BOUND];     // BOUND_EID_HI:BOUND_EID_LO per interface and entry
 	bool bound_en[MBX_N_IF][MBX_N_BOUND];           // BOUND_EN
 	uint32_t pub[MBX_N_IF][MBX_PUB_STRIDE / 4u];    // the publication block, word by word, its fields masked
+	// the gPTP publication as the datapath holds it (contract 2.5): the GPTP_* words taken whole when a write of
+	// GPTP_STATE moves its GEN, as KL_mbx_cdc's committed bank holds and crosses them
+	uint32_t gptp_snap[MBX_N_IF][MBX_PUB_GPTP_WORDS];
 	uint32_t face[MBX_N_IF][MBX_FACE_STRIDE / 4u];  // the face block's settings and requests, their fields masked
 	bool fw_busy[MBX_N_IF];                         // F_STATUS.BUSY: a commit waits for its acknowledgement
 	struct mbx_model_win win[MBX_N_IF][MBX_MODEL_WINDOWS];
@@ -164,6 +170,17 @@ struct mbx_model {
 	uint64_t ctr_pending[MBX_N_IF];                 // bit b: COUNTERS_CHANGED pending bit b
 	uint64_t ctr_seen[MBX_N_IF];                    // posted in this holdoff epoch
 	uint16_t ctr_epoch_ms;
+	// the timestamp units' FIFOs (contract 2.5): KL_gptp_tsu's depth, one per interface
+	struct mbx_model_ts {
+		bool egress;
+		bool ok;
+		uint8_t msg_type;
+		uint16_t seq;
+		uint64_t ns;
+	} ts[MBX_N_IF][MBX_MODEL_TS_DEPTH];
+	uint8_t ts_head[MBX_N_IF];
+	uint8_t ts_count[MBX_N_IF];
+	uint16_t ts_drop[MBX_N_IF];                     // records a full FIFO lost (the CSR's GPTP_DROPW[31:16])
 	uint8_t tx_last_ch;
 	bool tx_paused;
 	bool evt_paused;
@@ -188,6 +205,11 @@ void mbx_model_advance_ms(struct mbx_model *m, uint32_t ms);
 void mbx_model_set_link(struct mbx_model *m, unsigned interface, bool up);
 void mbx_model_set_gm(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain);
 void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain);
+// One record of the interface's timestamp unit (contract 2.5's TIMESTAMP): the
+// stamp of an event message, or with ok false its loss. Held in the unit's
+// FIFO and posted in order, never coalesced; a full FIFO drops and counts it.
+void mbx_model_timestamp(struct mbx_model *m, unsigned interface, bool egress, bool ok, uint8_t msg_type,
+			 uint16_t seq, uint64_t ns);
 
 // One frame on the ingress path (FCS stripped), arrived on `interface` (an
 // index with no interface in this build has no own MAC); true when it was
@@ -228,6 +250,7 @@ struct mbx_model_pub {
 	bool bound[MBX_N_PUB_SINKS];                    // BINDING.BOUND
 	bool started[MBX_N_PUB_SINKS];                  // BINDING.STARTED
 	uint64_t sid[MBX_N_PUB_SINKS];                  // SID_HI:SID_LO, 0 while SID_VALID is clear
+	uint32_t gptp[MBX_PUB_GPTP_WORDS];             // the GPTP_* words of the last GEN that moved (pub_gptp_o)
 };
 void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mbx_model_pub *out);
 

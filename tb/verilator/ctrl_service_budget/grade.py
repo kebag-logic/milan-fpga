@@ -29,6 +29,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import answers
+import channel_gate
+import gptp_group
 import held
 import join_grade
 import mrpdu_grade
@@ -42,6 +44,7 @@ import scenario
 import shape_costs
 import share
 import whole_grade
+from refusal import Refusal
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
@@ -57,18 +60,14 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: never from the stimulus: an ADPDU is 68 bytes after the Ethernet header (IEEE 1722.1-2021
 #: 6.2.1) and an ACMPDU 56 (Milan v1.2 5.5.2.2); a READ_DESCRIPTOR command (7.4.5.1), a MAAPDU
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
-#: to the 60-byte frame minimum.
-LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
+#: to the 60-byte frame minimum. gptp's is a Pdelay_Req, 54 (802.1AS-2020 11.4.5), its record's trailer 8 more (#884).
+LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60, 'gptp': 14 + 54 + 8}
 #: The backlog rows (MAILBOX_SPLIT.md:773-778): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
 #: self-test's short window. A save's windows (save_window.py) carry their backlog row's.
 COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
-
-
-class Refusal(RuntimeError):
-    """A log or a probe the grader cannot accept; the message names the rule."""
 
 
 @dataclass
@@ -115,6 +114,7 @@ class Log:
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
     writes: list[tuple[int, int, int]] = field(default_factory=list)
+    opened: list[tuple[int, int]] = field(default_factory=list)  # cycle, gate of each FILTER_EN write (OPEN)
     tx: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     commits: list[tuple[int, int, int]] = field(default_factory=list)    # cycle, channel, head of each TX_HEAD write
     wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
@@ -186,7 +186,7 @@ def entry(log: Log, kind: str, rest: list[str]) -> None:
 
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
     """Every observation line; a line the testbench does not print is refused."""
-    log = Log(sys_hz, cpu_hz)
+    log = Log(sys_hz, cpu_hz, opened=channel_gate.writes(text))
     pending_rx: list[tuple[int, str, int, int]] = []   # interface, tag, bytes, last byte of frames not yet committed
     rxs = (0, '-', 0)
     evt: dict[int, tuple[int, int]] = {}
@@ -272,7 +272,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
             log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
                                 'aged=1' in rest[5:]))
-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA'):
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH', 'FLASHDATA', 'OPEN'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -417,7 +417,7 @@ class Grader:
         kind, *args = spec.split(':')
         if kind == 'notify':
             return fanout_end(self.recipients(spec, probe, start, before)[0])
-        if kind in ('tx', 'resp', 'acmp_cmd', 'maap', 'adp'):
+        if kind in ('tx', 'resp', 'acmp_cmd', 'maap', 'adp', 'gptp'):
             ch = int(args[0])
             frames = [(c, fr) for c, k, i, fr in self.log.tx if start <= c <= before and k == ch and i == interface]
             if kind == 'tx':
@@ -425,6 +425,8 @@ class Grader:
                 return frames[n - 1][0] if len(frames) >= n else None
             if kind == 'resp':
                 hits = [c for c, fr in frames if response_sequence(fr) == int(args[1], 16)]
+            elif kind == 'gptp':
+                hits = gptp_group.hits(frames, args)
             elif kind in ('maap', 'adp'):
                 subtype = 0xFE if kind == 'maap' else 0xFA
                 hits = [c for c, fr in frames if len(fr) > 16 and fr[14] == subtype and fr[15] & 0xF == int(args[1])]
@@ -735,9 +737,10 @@ def room(channel: str) -> int:
     return ch.rx_words // (RX_HEADER_WORDS + (LOAD_FRAME_BYTES[channel] + 3) // 4)
 
 
-def defined_load(name: str) -> dict[str, int]:
+def defined_load(name: str, opened: frozenset[str] | None = None, interfaces: int = 1) -> dict[str, int]:
     """The population a composed row's window must commit, from the contract alone and never from the stimulus's
-    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
+    declaration (FR_NFR.md 3.4.1: backlog consumes T_svc), over the channels the image opened (channel_gate.loaded)
+    at the AVB interfaces it was built at.
 
     Every receive channel carries what one instant admits: its token bucket's burst, unless its ring holds fewer records
     of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills the ring's room. Grandmaster changes fill the event
@@ -748,9 +751,10 @@ def defined_load(name: str) -> dict[str, int]:
     name = save_window.row(name)
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
+    channels = channel_gate.loaded(name, opened, LOAD_FRAME_BYTES, interfaces)
     if name == 'fixture':
-        return {**{ch.name: 1 for ch in CONTRACT.channels}, 'GM': 2}
-    load = {ch.name: min(ch.burst, room(ch.name)) for ch in CONTRACT.channels}
+        return {**{ch.name: 1 for ch in channels}, 'GM': 2}
+    load = {ch.name: min(ch.burst, room(ch.name)) for ch in channels}
     load['GM'] = CONTRACT.evt_words // CONTRACT.ev_words - 1
     if name == 'backlog':
         load['LINK'] = 1
@@ -759,12 +763,12 @@ def defined_load(name: str) -> dict[str, int]:
     return load
 
 
-def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]], held: int = 0) -> None:
-    """The composed window must commit exactly its row's defined load: a refused or missing
-    record, a channel left out of the stimulus, or one record too many, is not the composed
-    maximum. The refusal names the event records held when the window opened, which keep its
-    grandmaster changes out of the ring."""
-    defined = defined_load(group.name)
+def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]], held: int = 0,
+               opened: frozenset[str] | None = None, interfaces: int = 1) -> None:
+    """The composed window must commit exactly its row's defined load at its image's interfaces: a refused or missing
+    record, a channel left out of the stimulus, or one record too many, is not the composed maximum. The refusal names
+    the event records held when the window opened, which keep its grandmaster changes out of the ring."""
+    defined = defined_load(group.name, opened, interfaces)
     want = {name: defined.get(name, 0) for name in got}
     # an aged window opens under the grandmaster flood, whose last change may commit just after the window's mark: a
     # change more than its row's, so a heavier window, and never one less
@@ -812,7 +816,7 @@ def served(grader: Grader, taking: Pass, released: int) -> int:
 
 
 #: Each receive channel's 3.4.1 family, for its records' service under a composed load.
-SERVICE_FAMILY = {'adp': 'adp', 'acmp': 'acmp', 'aecp': 'aecp', 'maap': 'maap', 'srp': 'srp'}
+SERVICE_FAMILY = {'adp': 'adp', 'acmp': 'acmp', 'aecp': 'aecp', 'maap': 'maap', 'srp': 'srp', 'gptp': 'gptp'}
 
 
 def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list[dict]:
@@ -863,7 +867,7 @@ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
     return [p for p in log.passes if start <= p.start_sys <= end]
 
 
-def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
+def composed(grader: Grader, group: scenario.Group, marks: dict[str, int], interfaces: int = 1) -> dict | None:
     """The longest pass that starts inside the composed window, whose committed population must be the row's defined
     load exactly (MAAP and SRP included).
 
@@ -879,7 +883,8 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     start, end = marks['composed'], marks['composed_end']
     got = population(grader.log, start, end)
     held = grader.events_held(start)
-    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held)
+    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held,
+               channel_gate.opened(grader.log.opened), interfaces)
     save_phase(grader.log, group.name, start)
     aged = save_grade.aged_window(grader, group, start, end)
     inside = composed_passes(grader.log, start, end)
@@ -970,7 +975,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int,
             later = [c for c, _ in order if c > at]
             limit = later[0] if later else 1 << 62
         rows.append(grade_probe(grader, probe, at, limit, marks))
-    window = composed(grader, group, marks)
+    window = composed(grader, group, marks, getattr(stated_at, 'interfaces', stated_at))
     if window is not None:
         rows += service(grader, group, marks['composed'], marks['composed_end'])
     rows += save_grade.held(grader, group)
