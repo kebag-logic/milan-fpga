@@ -170,10 +170,15 @@ Where `ccache` is installed, the sweep sets `OBJCACHE=ccache` unless the caller 
 Mutant rebuilds then reuse the Verilator runtime and testbench objects.
 Verilator writes each source's path into the model's C++, so a mutant staged at a random path misses in every run.
 Every mutation driver therefore stages through [`scripts/mutant_stage.py`](../../scripts/mutant_stage.py).
-Its directory is `$TMPDIR/milan-mutant-stage-<uid>/<prefix><slot>`, the same from any checkout and in every run.
-A slot is locked while in use and emptied when taken; with every slot held a driver stages at a random path.
+Its directory is `$TMPDIR/milan-mutant-stage-<uid>/<prefix><slot>`, with `$TMPDIR` resolved, the same from any checkout and in every run.
+The two in-tree `milan_dp` drivers, `split_mutants.py` and `srptx_mutants.py`, use `tb/verilator/milan_dp/<prefix><slot>` instead, stable within one checkout.
+The stage root is used only when it is a real directory owned by the user, not a link, and writable by nobody else.
+Its parent must be the user's or root's, and sticky if others may write it; otherwise the driver names the reason and stages at a random private path.
+A slot's lock is the slot directory itself, so every caller naming one directory, by any path or as any user, meets the same lock.
+A held slot is never emptied or reused, another user's slot is never touched, and a slot is emptied when taken.
+With every slot held a driver stages at a random path.
 A later run's mutant models are then answered by the warm cache; the mutants and their verdicts are unchanged.
-Run `python3 scripts/mutant_stage.py --selftest` to see the slot, cleanup and fallback controls.
+Run `python3 scripts/mutant_stage.py --selftest` to see the slot, lock-domain, root-proof, cleanup and fallback controls.
 A harness that touches internal signals lists exactly those in its suite's `probes.vlt`.
 `--public-flat-rw` makes every signal public, which disables most of Verilator's optimisation.
 A signal missing from `probes.vlt` still compiles, so list every `rootp->` name the harness uses.
