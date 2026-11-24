@@ -132,8 +132,9 @@ TWO = dict(base=345, withdraw=245, rebuild=690, walk=60, reclaim=35, retained=36
 #: valid-destinations arm, srp-talker-held), 375 us, each by the rule.
 #: On the post-flip composition train (#956, #957, #950, #954, #948, #584, #969, #973, #972), measured over every
 #: arm and group: 8x8/1if a notice longer than AECP_FAN_BYTES 30,948 CPU cycles (the declaring-outputs arm's
-#: aecp-largest-notice; arm A's 30,912), 325 us by the rule, raised by #665's ruling item 4 of 2026-11-20 with every
-#: owner bound still held (the manager's ruling on the #958 sync's STOP, item 2).
+#: aecp-largest-notice; arm A's 30,912), 325 us by the rule (record_classes.rule), raised with every owner bound
+#: still held (#665's ruling of 2026-11-23 on the #958 sync's STOP: a further statement over is raised by the same
+#: rule while every owner bound holds).
 EIGHT_ONE = dict(base=300, withdraw=110, rebuild=590, walk=120, reclaim=40, retained=375, mrpdu=0, acmp=80, aecp=145,
                  aecp_long=325, acmp_declined=30)
 STATED_US = {shape_costs.Shape(1, 2, 2): ONE, shape_costs.Shape(1, 9, 9): EIGHT_ONE, shape_costs.Shape(2, 2, 2): TWO,

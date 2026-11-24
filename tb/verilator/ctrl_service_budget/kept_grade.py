@@ -11,7 +11,9 @@ the kept Talkers make the same registrations before the bindings. That cost is #
 (the owner's ruling on #969, 2026-11-22: DISPOSITION, amended 2026-11-23: AMENDED). So each record of either group over
 the unit, each of their tier-2 slices of SRP's records over the slice, and the bound group's walk, polls base, builds
 of one MRPDU (as passes and as THE TRANSMIT's slices) and work passes over THE SHARE that its registrations make are
-each named OWED #977, never a pass, while all of these hold, each a finding otherwise:
+each named OWED #977, never a pass, while all of these hold, each a finding otherwise. A tier-2 slice of THE
+TRANSMIT's build over the slice is owed only where its pass is the bound group's build of one; a pass either group
+gives whole to the build (both MRPDUs) stays a failure over the slice, as it does over its stated cost:
 
   the logs        both groups' logs are present and each finished: the simulation completed, with no trap or bus
                   error (grade.refuse_run, as run.py refuses a group's log);
@@ -19,8 +21,8 @@ each named OWED #977, never a pass, while all of these hold, each a finding othe
                   other is, and each has its record;
   kept <= bound   every srp-kept probe's dearest record costs no more than the dearest srp-bound record of its own
                   interface on the same image (the same MRPDU, its inputs unbound and bound), that record present,
-                  held within the measurement rule's 5 % (record_classes.rule, #665's ruling item 4): kept <= bound
-                  x 1.05 (#969's 2026-11-23 amendment), printed with both figures and the margin;
+                  held within the measurement rule's 5 % (record_classes.rule): kept <= bound x 1.05 (#969's
+                  2026-11-23 amendment), printed with both figures and the margin;
   the share       no work pass of srp-kept is over THE SHARE (share.py, 2 ms), nor the longest of any idle run of
                   either group (an idle pass makes no registration, so none is owed); both are read from the logs
                   graded here (grade.pass_share), never from a result file beside them;
@@ -37,8 +39,9 @@ usage: python3 -I kept_grade.py <build-dir> [--results DIR] | --selftest
 Exit 0 = every condition held; 1 = a finding, or a group's log missing.
 --selftest grades synthetic logs at 1x1/1if, through held, Disposition and the standalone entry point: each
 condition's breach is a finding of its own, by name, the unit's overrun and the bound path's build of one and passes
-over THE SHARE alone are owed, kept 4 % over bound holds and 6 % over breaks, and a record is its own probe's, never an
-earlier mark's.
+over THE SHARE alone are owed, kept 4 % over bound holds and 6 % over breaks, bound + 5 % exactly holds and one cycle
+more breaks, a bound pass given whole to THE TRANSMIT's build over the slice stays a failure, and a record is its own
+probe's, never an earlier mark's.
 """
 from __future__ import annotations
 
@@ -57,6 +60,7 @@ import kept_window  # noqa: E402
 import record_classes  # noqa: E402
 import scenario  # noqa: E402
 import shape_costs  # noqa: E402
+import slice_grade  # noqa: E402
 import whole_grade  # noqa: E402
 
 RECORD = 'srp_mbx:receive'
@@ -64,15 +68,18 @@ UNIT = 'CTRL_LOOP_SRP_UNIT_US'
 #: The owner's disposition of the registration cost (#969, ruling of 2026-11-22, option 1).
 DISPOSITION = '#977 (https://github.com/kebag-logic/milan-fpga/issues/977)'
 #: The amendment (#969, ruling of 2026-11-23): kept <= bound within the rule, and srp-bound's build of one owed to #977.
-AMENDED = 'https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252'
-#: kept <= bound is held within the measurement rule's 5 % (record_classes.rule; #665's ruling item 4), per AMENDED.
+AMENDED = "#969's ruling of 2026-11-23"
+#: kept <= bound is held within the measurement rule's 5 % (record_classes.rule), per AMENDED.
 KEPT_MARGIN_PERCENT = 5
+#: run.py's STATED line of a tier-2 slice of THE TRANSMIT's build (run.stated_misses' words). AMENDED owes srp-bound's
+#: only where its pass is a build of one (Disposition.owes), never a pass given whole to the build, never srp-kept's.
+TRANSMIT_SLICE = "a tier-2 slice of THE TRANSMIT's build of "
 #: run.py's STATED lines the registrations make, each group's (run.stated_misses' words), owed while held; srp-bound's
 #: build of one, as a pass and as THE TRANSMIT's tier-2 slice it fills, is owed to #977 by AMENDED, never srp-kept's.
 OWED_KINDS = {kept_window.NAME: ("an SRP record's apply of ", "a tier-2 slice of SRP's records of "),
               kept_window.BOUND: ("an SRP record's apply of ", "a tier-2 slice of SRP's records of ",
                                   "a walk item of ", "a pass's polls base of ", "a build-one pass of ",
-                                  "a tier-2 slice of THE TRANSMIT's build of ")}
+                                  TRANSMIT_SLICE)}
 #: The pass kinds of whole_grade.held srp-bound's registrations make that are owed to #977 (AMENDED), never srp-kept's.
 BOUND_OWED_BUILDS = ('build-one',)
 
@@ -196,6 +203,27 @@ def held(kept: grade.Log, bound: grade.Log, shape: shape_costs.Shape, interfaces
     return lines, owed, findings
 
 
+def transmit_slices(log: grade.Log, shape: shape_costs.Shape) -> dict[str, set[int]]:
+    """The CPU cycles of each tier-2 slice of THE TRANSMIT's build over the stated slice (slice_grade.held), by the
+    pass's kind as whole_grade.held tells it: 'build-one' where the pass makes at most one SRP frame, 'build' where it
+    is given whole to the build (both MRPDUs)."""
+    srp = scenario.CH['srp']
+    frames = sorted(cycle for cycle, ch, _ in log.commits if ch == srp)
+    out: dict[str, set[int]] = {'build': set(), 'build-one': set()}
+    for o in slice_grade.held(log, shape)['over']:
+        if o['kind'] == 'build':
+            end = o['start_sys'] + o['cycles'] * log.sys_hz // log.cpu_hz
+            out['build' if whole_grade.within(frames, o['start_sys'], end) > 1 else 'build-one'].add(o['cycles'])
+    return out
+
+
+def stated_cycles(line: str) -> int | None:
+    """The CPU cycles a STATED line names first, None for none."""
+    head = line.split(' CPU cycles', 1)
+    figure = head[0].rpartition(' ')[2].replace(',', '') if len(head) == 2 else ''
+    return int(figure) if figure.isdigit() else None
+
+
 def point_shape(spec: dict) -> shape_costs.Shape:
     """The image's shape: what its builder states for the configuration and interfaces it was built at, or, for a
     self-test's spec, which names no configuration, the shipping shape's streams (as run.graded's)."""
@@ -211,20 +239,30 @@ class Disposition:
         by = {g['group']: g for g in results}
         self.ran = [name for name in OWED_KINDS if name in by]
         self.owed, self.findings = [], []
+        self.slices: dict[str, set[int]] = {'build': set(), 'build-one': set()}
         if not self.ran:
             return
         if len(self.ran) < len(OWED_KINDS):
             self.findings = [f'{" and ".join(OWED_KINDS)} are graded together on one image, this run graded '
                              f'{self.ran[0]} alone']
             return
-        logs = [grade.parse((out / f'{name}.log').read_text(errors='replace'), spec['sys_hz'], spec['cpu_hz'])
-                for name in OWED_KINDS]
-        _, self.owed, self.findings = held(*logs, point_shape(spec), spec['interfaces'])
+        logs = {name: grade.parse((out / f'{name}.log').read_text(errors='replace'), spec['sys_hz'], spec['cpu_hz'])
+                for name in OWED_KINDS}
+        _, self.owed, self.findings = held(*logs.values(), point_shape(spec), spec['interfaces'])
+        self.slices = transmit_slices(logs[kept_window.BOUND], point_shape(spec))
 
     def owes(self, line: str) -> bool:
-        """Whether a STATED line is one the registrations make in a group this disposition holds."""
-        return not self.findings and any(line.startswith(f'{name}: {kind}') for name, kinds in OWED_KINDS.items()
-                                         for kind in kinds if name in self.ran)
+        """Whether a STATED line is one the registrations make in a group this disposition holds. srp-bound's slice of
+        THE TRANSMIT's build is owed only where its log's slice of those cycles is a build of one, and none given whole
+        to the build is: a pass given whole to THE TRANSMIT's build is never owed (AMENDED)."""
+        if self.findings:
+            return False
+        if line.startswith(f'{kept_window.BOUND}: {TRANSMIT_SLICE}'):
+            cycles = stated_cycles(line)
+            return (kept_window.BOUND in self.ran and cycles in self.slices['build-one'] and
+                    cycles not in self.slices['build'])
+        return any(line.startswith(f'{name}: {kind}') for name, kinds in OWED_KINDS.items() for kind in kinds
+                   if name in self.ran)
 
     def stated(self, lines: list[str]) -> list[str]:
         """The STATED lines that still fail: those not owed, and each finding."""
@@ -277,6 +315,15 @@ class Synthetic:
         srp = scenario.CH['srp']   # a build pass with two SRP head writes is given whole to THE TRANSMIT's build;
         self.whole_over = (f'PASS 1 9500000 9500000 {limits["build"] + 1}', 'ENTRY 9500010 build_mrpdu',
                            f'TXC 9500020 {srp} 0', f'TXC 9500030 {srp} 0')   # each at the head, so no record to read
+        self.slice = slice_grade.held(grade.parse('', self.hz, self.hz), self.shape)['limit']
+        self.limits = limits
+        #: a build of one MRPDU one cycle over the slice (and so over its stated cost, below the slice), and a pass
+        #: given whole to THE TRANSMIT's build over the slice and within CTRL_LOOP_BUILD_PASS_US (above the slice)
+        self.one_cycles, self.whole_cycles = self.slice + 1, (self.slice + limits['build']) // 2
+        self.slice_one = (f'PASS 1 9500000 9500000 {self.one_cycles}', 'ENTRY 9500010 build_mrpdu',
+                          f'TXC 9500020 {srp} 0')
+        self.slice_whole = (f'PASS 2 9700000 9700000 {self.whole_cycles}', 'ENTRY 9700010 build_mrpdu',
+                            f'TXC 9700020 {srp} 0', f'TXC 9700030 {srp} 0')
         self.spec = dict(sys_hz=self.hz, cpu_hz=self.hz, interfaces=1)
 
     @staticmethod
@@ -319,6 +366,8 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
     rule = {name: s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', bound)])
             for name, kept in (('4 %', bound * 104 // 100), ('6 %', bound * 106 // 100), ('at', allowed),
                                ('past', allowed + 1))}
+    integral = {name: s.graded([kept, s.edge, 1_000], [('srp.bound_advertise.if0', 100_000)])
+                for name, kept in (('equal', 105_000), ('over', 105_001))}
     missing = s.graded([1_000, None, 1], [('srp.bound_advertise.if0', s.edge)])
     shared = s.graded(*s.clean, kept_extra=s.over_share, bound_extra=s.over_share)
     bound_shared = s.graded(*s.clean, bound_extra=s.over_share)
@@ -340,6 +389,9 @@ def selftest_held(s: Synthetic) -> list[tuple[str, bool, str]]:
              not any('kept <= bound' in o for o in rule['6 %'][0]), str(rule['6 %'])),
             (f'a kept record at bound + 5 % ({allowed:,} against {bound:,}) holds, one cycle more breaks',
              rule['at'][1] == [] and only(rule['past'][1], 'kept_advertise', 'kept <= bound broken'), str(rule)),
+            ('kept exactly bound + 5 % (105,000 against 100,000) holds, 105,001 breaks: the rule is inclusive',
+             kept_within(105_000, 100_000) and not kept_within(105_001, 100_000) and integral['equal'][1] == [] and
+             only(integral['over'][1], 'kept_advertise', 'kept <= bound broken'), str(integral)),
             ('a probe with no record is a finding, the next probe\'s record not taken for it',
              only(missing[1], 'kept_recount', 'no SRP record'), str(missing)),
             ('a work pass of srp-kept over THE SHARE is a finding; srp-bound\'s is owed to #977',
@@ -392,11 +444,12 @@ def standalone(out: Path, logs: dict[str, str | None], beside: str | None = None
 
 def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
     """Each condition's outcome through Disposition (run.py's) and the standalone entry point, on files."""
+    import run   # its STATED lines, as it prints them (run.stated_misses)
     stated = [f"{kept_window.NAME}: an SRP record's apply of 40,000 CPU cycles, over its stated 28,500",
               f'{kept_window.BOUND}: a walk item of 15,000 CPU cycles, over its stated 12,000',
-              f'{kept_window.BOUND}: a build-one pass of 171,645 CPU cycles, over its stated 147,500',
-              f"{kept_window.BOUND}: a tier-2 slice of THE TRANSMIT's build of 171,645 CPU cycles, over the stated "
-              f'slice 147,500']
+              f'{kept_window.BOUND}: a build-one pass of {s.one_cycles:,} CPU cycles, over its stated '
+              f'{s.limits["build-one"]:,}',
+              f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.one_cycles:,} CPU cycles, over the stated slice {s.slice:,}"]
     kept_build = [f'{kept_window.NAME}: a build-one pass of 81,655 CPU cycles, over its stated 73,500',
                   f"{kept_window.NAME}: a tier-2 slice of THE TRANSMIT's build of 81,655 CPU cycles, over the stated "
                   f'slice 73,500']
@@ -411,19 +464,51 @@ def selftest_files(s: Synthetic) -> list[tuple[str, bool, str]]:
         alone_absent = standalone(out, {**s.texts(*s.clean), kept_window.BOUND: None})
         alone_failed = standalone(out, s.texts(*s.clean, kept_result='FAIL'), stale)
         alone_garbled = standalone(out, {**s.texts(*s.clean), kept_window.NAME: 'NOT-A-LINE 1\nRESULT: PASS\n'})
-        for name, body in s.texts(*s.clean).items():
+        def disposed(**extra: tuple[str, ...]) -> tuple[Disposition, list[str], list[str]]:
+            """Disposition of both groups' logs with those extra lines, run.py's STATED lines of them, and those
+            that still fail."""
+            for name, body in s.texts(*s.clean, **extra).items():
+                (out / f'{name}.log').write_text(body)
+            logs = {name: grade.parse((out / f'{name}.log').read_text(), s.hz, s.hz) for name in OWED_KINDS}
+            lines = run.stated_misses([dict(group=name, passes=dict(slices=slice_grade.held(log, s.shape),
+                                                                    stated=whole_grade.held(log, s.shape)))
+                                       for name, log in logs.items()])
+            d = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
+            return d, lines, d.stated(list(lines))
+        one = disposed(bound_extra=s.slice_one)
+        whole = disposed(bound_extra=s.slice_whole)
+        both = disposed(bound_extra=(*s.slice_one, *s.slice_whole))
+        kept_whole = disposed(kept_extra=s.slice_whole)
+        whole_slice = f"{kept_window.BOUND}: {TRANSMIT_SLICE}{s.whole_cycles:,} CPU cycles"
+        for name, body in s.texts(*s.clean, bound_extra=s.slice_one).items():
             (out / f'{name}.log').write_text(body)
         pair = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
         pair_left = pair.stated([*stated, *kept_build])
         alone = Disposition([dict(group=kept_window.NAME)], out, s.spec)
         alone_left = alone.stated(list(stated))
-        (out / f'{kept_window.NAME}.log').write_text(s.texts(*s.clean, kept_extra=s.over_share)[kept_window.NAME])
+        for name, body in s.texts(*s.clean, kept_extra=s.over_share).items():
+            (out / f'{name}.log').write_text(body)
         broken = Disposition([dict(group=name) for name in OWED_KINDS], out, s.spec)
         broken_left = broken.stated(list(stated))
     return [('both groups graded together: their #977 lines, srp-bound\'s build of one and its build slice with them, '
              'are owed by name and link, and srp-kept\'s build of one and its slice stay failures',
-             pair.findings == [] and pair_left == kept_build and len(pair.owed) == len(stated) and
+             pair.findings == [] and pair_left == kept_build and len(pair.owed) == len(stated) + 1 and
              all('/issues/977' in o for o in pair.owed), str((pair.findings, pair_left, pair.owed))),
+            (f'srp-bound\'s build of one over the slice ({s.one_cycles:,} against {s.slice:,}): run.py\'s build-one '
+             f'and THE TRANSMIT slice lines are both owed, nothing fails',
+             one[0].findings == [] and one[2] == [] and len(one[1]) == 2 and
+             any(TRANSMIT_SLICE in line for line in one[1]), str(one[1:])),
+            (f'a srp-bound pass given whole to THE TRANSMIT\'s build, over the slice and within '
+             f'CTRL_LOOP_BUILD_PASS_US ({s.whole_cycles:,} against {s.slice:,} and {s.limits["build"]:,}): its slice '
+             f'line FAILS, never owed', s.slice < s.whole_cycles <= s.limits['build'] and whole[0].findings == [] and
+             len(whole[1]) == 1 and len(whole[2]) == 1 and whole[2][0].startswith(whole_slice) and
+             not any(TRANSMIT_SLICE in o for o in whole[0].owed), str(whole[1:])),
+            ('srp-bound\'s build of one and its pass given whole, in one log: the one\'s slice is owed, the whole\'s '
+             'still fails', both[0].findings == [] and len(both[2]) == 1 and both[2][0].startswith(whole_slice) and
+             sum(TRANSMIT_SLICE in o for o in both[0].owed) == 1, str(both[1:])),
+            ('srp-kept\'s pass given whole to THE TRANSMIT\'s build over the slice fails, never owed',
+             kept_whole[0].findings == [] and len(kept_whole[2]) == 1 and
+             kept_whole[2][0].startswith(f'{kept_window.NAME}: {TRANSMIT_SLICE}'), str(kept_whole[1:])),
             ('one group graded alone is a finding: nothing is owed and every line stays a failure',
              only(alone.findings, 'graded together', 'alone') and alone.owed == [] and
              alone_left[:-1] == stated and len(alone_left) == len(stated) + 1, str((alone.findings, alone_left))),
