@@ -32,9 +32,9 @@ exercise the separate one-open-return limitation of donor #31.
 | 14 | FPGA-gPTP #40: stop the real wide TX lane at a frame start and again in its body while two complete peer Pdelay_Req frames enter through the production tap/FIFO/parser path. Hold response 1's real boundary tuple, then send two valid Signaling chasers that reuse both donor message banks. Response 2 waits, survives that bank churn through its event snapshot, both responses retain their exact ingress `requestReceiptTimestamp`, and both Follow_Ups retain their own sequence, requestingPortIdentity and real egress boundary time with zero gate conflicts or event drops. |
 | 15 | FPGA-gPTP #41: warm-reset with a real Pdelay_Req boundary tuple outstanding. The volatile gate and timer owner clear, request cadence restarts, and fabric-timed peer responses re-earn asCapable and autonomous mastership. |
 | 16 | FPGA-gPTP #41: independently warm-reset with a real master Sync boundary tuple outstanding. The reset-armed cadence and announce-receipt timers recover asCapable/mastership and produce a fresh Sync/Follow_Up pair carrying the fresh boundary time. |
-| 18 | FPGA-gPTP #107: four masterships through the slice and the real counter. Slaves of grandmasters 100 ppm fast and 100 ppm slow, each settled; the slow one again, left while a slew corrects a 1,500 ns offset; and one elected and lost before any pair. Each takeover latches rate 0, retires the slew and steps no phase, and the real counter then advances exactly 8 ns a clock. The Follow_Up TLV counts the mastership, carries the last slave offset, and its scaledLastGmFreqChange is rate 0 less the settled trim (both signs), present after a slewing slave, and 0 when no slave rate was written since the last mastership |
-| 19 | FPGA-gPTP #106: a grandmaster announcing at a 1 s interval stops announcing while its pairs continue, so the announce receipt timeout ages the port three intervals after its Announce. The first master Announce reaches the lane at once and the 1 s cadence counts from it. Then its next Announce is sent exactly 3.000 s after the elect, in the deadline's own millisecond: one master Announce reaches the lane before that Announce re-elects the grandmaster |
-| 20 | FPGA-gPTP #106: the transmit credit is withheld at the instant by the ledger's seal, a refused record's barrier with the observer held in reset. No master Announce leaves while sealed; released, the withheld Announce leaves one announce interval after the instant, and the cadence runs on from it |
+| 19 | FPGA-gPTP #107: four masterships through the slice and the real counter. Slaves of grandmasters 100 ppm fast and 100 ppm slow, each settled; the slow one again, left while a slew corrects a 1,500 ns offset; and one elected and lost before any pair. Each takeover latches rate 0, retires the slew and steps no phase, and the real counter then advances exactly 8 ns a clock. The Follow_Up TLV counts the mastership, carries the last slave offset, and its scaledLastGmFreqChange is rate 0 less the settled trim (both signs), present after a slewing slave, and 0 when no slave rate was written since the last mastership. After the slewing slave it has the settled arm's opposite sign (observed -3,235,644 against +3,517,186 at -100 ppm), because the slewing pair itself moves the servo integrator; it is graded as present only |
+| 20 | FPGA-gPTP #106: a grandmaster announcing at a 1 s interval stops announcing while its pairs continue, so the announce receipt timeout ages the port three intervals after its Announce. The first master Announce reaches the lane at once and the 1 s cadence counts from it. Then its next Announce is sent exactly 3.000 s after the elect, in the deadline's own millisecond: exactly one master Announce reaches the lane before that Announce re-elects the grandmaster. A frame reaches the lane on the clock its last beat is accepted (`tx_tvalid_o && tx_tready_i`), and the re-election is the clock the published master bit falls; the check compares those two clocks |
+| 21 | FPGA-gPTP #106: a takeover without transmit credit. The reserve arm holds one Sync's launch record, so no result returns, and the master's own Announces fill the ticket past its reserve (more than 8 - 4 frames outstanding). The plane stays unsealed with its lane open and asCapable, so the credit gate alone refuses the first master Announce: none reaches the lane. The seal arm withholds the credit by the ledger's seal, a refused record's barrier with the observer held in reset; its fence also holds the lane, so that arm grades the retry and not the gate. In both, released, the withheld Announce leaves one announce interval after the instant, and the cadence runs on from it |
 | 5 | an AVTP-ethertype frame between gPTP ones is invisible; a runt drops harmlessly and costs no drop count |
 | 6 | an OVERSIZE frame dropped inside the tap FIFO cannot skew the next sync's ingress stamp (falsifies an accept-time ts push -- the commit-pulse transport pairs stamps with DELIVERED frames only) |
 | 7 | a back-to-back burst overflows the tap FIFO: drops are COUNTED via the FIFO's overflow strobe (DROP_WHEN_FULL keeps s_ready high, so a ready-based counter is blind), and the plane keeps working afterwards |
@@ -90,8 +90,13 @@ The default `make` also owns `test_mutant_lifecycle.py` and `mutants.py`.
 The original nine mutations and six unobservable reasons remain.
 Two more restore the donor defects #106 and #107 repaired.
 They plant them in the pinned engine and its generator.
-The first master Announce waits 2 ms, so phase 19's race fails.
-Word 3 applies only during a slew, so phase 18's settled rate fails.
+The first master Announce waits 2 ms, so phase 20's race fails.
+Word 3 applies only during a slew, so phase 19's settled rate fails.
+A third drops the Announce leg's transmit-credit gate.
+Phase 21's reserve arm then sees a master Announce.
+The last stalls this harness's own lane across the race.
+The master Announce then ends after the re-election.
+Phase 20's race check names that order and fails.
 Named checks and completed failure tallies establish detection.
 Compilation failure alone never establishes detection.
 
@@ -139,4 +144,4 @@ Lifecycle fixtures execute the production drivers using command handshakes.
 They exercise source isolation and process cleanup, including nested sweeps.
 Unsafe controls restore caller mutation and must violate isolation.
 Synthetic commands establish orchestration behavior, not RTL correctness.
-The complete real `make` still owns all eleven detections.
+The complete real `make` still owns all thirteen detections.

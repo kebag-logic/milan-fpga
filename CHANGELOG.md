@@ -68,7 +68,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It carries gPTP PRs #103 and #105, test infrastructure only.
 - Taking the grandmaster role sends the first Announce at once.
 - Before, an Announce at the timeout instant could pre-empt it.
-- The 1 s cadence starts there (802.1AS-2011 Figure 10-15).
+- The cadence counts from that Announce (802.1AS-2011 Figure 10-15).
 - A mastership runs on this oscillator.
 - That is its LocalClock (802.1AS-2020 10.1.2.1).
 - Taking the role always writes rate 0 to the PHC.
@@ -77,6 +77,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - scaledLastGmFreqChange is the negated slave estimate.
 - `gptp_shadow` grades both on the real PHC and transport.
 - Its campaign plants both donor defects; each fails by name.
+- It also grades the Announce credit through the ticket reserve.
 - #997 tracks an AECP silence after a -100 ppm takeover.
 - It reproduces at both pins.
 - No engine or top-level port, parameter or register changes.

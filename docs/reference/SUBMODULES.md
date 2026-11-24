@@ -983,11 +983,13 @@ Directives run in the recipe's order.
 
 An image meeting the floor on the first directive ships.
 
-At 1x1 the first missed, as on the base.
-
 Otherwise all three are routed.
 
 The best worst-corner WNS ships (#818).
+
+At 1x1 the first missed, as on the base.
+
+So all three were routed there.
 
 | Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | BRAM tiles | DSP |
 |---|---|---:|---:|---:|---:|---:|
@@ -1034,21 +1036,29 @@ The [`gptp_shadow` suite](../../tb/verilator/gptp_shadow/README.md) grades both 
 
 It runs the real engine, PHC and slice transport.
 
-Phase 18 takes four masterships from slaves at +-100 ppm.
+Phase 19 takes four masterships from slaves at +-100 ppm.
 
 Each runs at rate 0 and steps no phase.
 
 The real counter then advances exactly 8 ns a clock.
 
-Phase 19 queues an Announce at the receipt-timeout instant.
+Phase 20 sends an Announce in the deadline's own millisecond.
 
-The master Announce reaches the lane before it re-elects.
+The master Announce's last beat precedes its re-election clock.
 
-Phase 20 withholds the transmit credit at the instant.
+Phase 21 withholds the transmit credit at the instant.
+
+The ticket reserve withholds it, with the plane unsealed.
+
+The seal withholds it too, behind its fence.
 
 The withheld Announce leaves one announce interval later.
 
-Its campaign plants both donor defects; each fails by name.
+Its campaign plants four defects; each fails by name.
+
+Two are the donor defects; one drops the credit gate.
+
+The fourth stalls the harness lane across the race.
 
 [Issue #997](https://github.com/kebag-logic/milan-fpga/issues/997) tracks a takeover anomaly the donor review found.
 
