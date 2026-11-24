@@ -39,7 +39,7 @@ Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/1213
 | Donor `gaskets` | Bench MII gasket loopback and FIFO wedge |
 | Parent `ptp` | PHC accumulator arithmetic |
 | Parent `ptp_ts` | Stand-alone record stamper, absent from the product |
-| Parent `gptp_shadow` | Transport, pairing, publication, ledger laws |
+| Parent `gptp_shadow` | Transport, pairing, publication, ledger laws, takeover rate and first Announce |
 | Parent `gptp_plane` | Closed-loop PHC steering |
 | Parent `gptp_txts` | Egress launch time over the converted product MAC |
 | Parent `clkvalid` | Discontinuity and holdover |

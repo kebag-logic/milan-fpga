@@ -981,11 +981,13 @@ Both use the release recipe: the split image, one interface.
 
 Directives run in the recipe's order.
 
-Each image takes the first that meets the build floor.
+An image meeting the floor on the first directive ships.
 
 At 1x1 the first missed, as on the base.
 
-So all three were routed there.
+Otherwise all three are routed.
+
+The best worst-corner WNS ships (#818).
 
 | Image, directive | WNS / WHS, worst corner | LUT | FF | Slice | BRAM tiles | DSP |
 |---|---|---:|---:|---:|---:|---:|
@@ -1027,6 +1029,34 @@ At 1x1 it ends at the SoC's UART FIFO.
 Its worst hold path is in `chan_map_render`.
 
 None is in the gPTP plane.
+
+The [`gptp_shadow` suite](../../tb/verilator/gptp_shadow/README.md) grades both changes on the platform.
+
+It runs the real engine, PHC and slice transport.
+
+Phase 18 takes four masterships from slaves at +-100 ppm.
+
+Each runs at rate 0 and steps no phase.
+
+The real counter then advances exactly 8 ns a clock.
+
+Phase 19 queues an Announce at the receipt-timeout instant.
+
+The master Announce reaches the lane before it re-elects.
+
+Phase 20 withholds the transmit credit at the instant.
+
+The withheld Announce leaves one announce interval later.
+
+Its campaign plants both donor defects; each fails by name.
+
+[Issue #997](https://github.com/kebag-logic/milan-fpga/issues/997) tracks a takeover anomaly the donor review found.
+
+A -100 ppm takeover left two GET_COUNTERS windows unanswered.
+
+It reproduces at both pins.
+
+This adoption did not cause it.
 
 The ROM ledger records current and earlier pins.
 
