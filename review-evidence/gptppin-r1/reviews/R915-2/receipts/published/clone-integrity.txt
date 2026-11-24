@@ -1,0 +1,17 @@
+# review clone integrity after probes
+HEAD f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21 tree 90eef089759111d73b0316ded772250ee95a9735
+status: [0 entries incl. ignored]
+index-vs-HEAD diff: 0
+worktree-vs-index diff: 0
+1072c53b12008f140f449ba360d0cb662db31f4a7decbc037b404581b85d63ce   (git ls-files -s: modes+blobs+stages)
+c84e707046dde2fe083a2e864c6317003f1dfb4dd009a875c7056f5af87dbc28   (ls-tree HEAD)
+c84e707046dde2fe083a2e864c6317003f1dfb4dd009a875c7056f5af87dbc28   (index, same fields)
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 1213ac5b9e09b8759ba76cc70c53652b5e108996 gptp-processor (heads/main)
+ 801ef2283ec793e35a2590fc6593c90313a64041 protocol-processor (v2.0-912-g801ef22)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 715589c1db7cf67e2f3259fd7083ebc7f0923376 third_party/tsn-c-stack (715589c1)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor porcelain: 0
+third_party/verilog-axis porcelain: 0
+protocol-processor porcelain: 0

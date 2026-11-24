@@ -1,0 +1,23 @@
+# image/diagram blobs and gitlinks, round-1 head bbfdb674 vs head f97e49fe
+IDENTICAL: 285 image blobs, 6 gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 1213ac5b9e09b8759ba76cc70c53652b5e108996	gptp-processor
+160000 commit 801ef2283ec793e35a2590fc6593c90313a64041	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 715589c1db7cf67e2f3259fd7083ebc7f0923376	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+100644 blob 2448d7bff00aa257e3ecedbeb07aaa1d37a50a3e	docs/diagrams/submodule_boundaries.png
+100644 blob 83e8f5ca2bba8e72062bd0ef06ddca9050f5a110	docs/diagrams/timesync_chain.png
+# paths changed bbfdb674..f97e49fe
+CHANGELOG.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/SUBMODULES.md
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/sim_main.cpp
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+# ROM ledger row
+1213ac5b9e09b8759ba76cc70c53652b5e108996	gptp_ucode.hex	4eb21cefc8d769df4a764402aead970b59be96cb3fa267d25af9d1857935f083
+# independent ROM regeneration at head (default image, as ooc/rom ledger)
+4eb21cefc8d769df4a764402aead970b59be96cb3fa267d25af9d1857935f083

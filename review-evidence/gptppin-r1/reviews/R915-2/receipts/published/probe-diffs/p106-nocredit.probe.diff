@@ -1,0 +1,13 @@
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index ce7b6ed..3c3fef0 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2499,7 +2499,6 @@ def prog_leg_anntx(base: int) -> Prog:
+     p.emit("WRST", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)
+     e_flag_gate(p, FL_AMGM_C, FL_AMGM_C, "gm", "skip")
+     e_flag_gate(p, FL_ASCAP_C, FL_ASCAP_C, "ac", "skip")
+-    e_credit_gate(p, "skip")
+     p.emit("RDST", rd=RA, imm=RG_SCR | S_ASEQ, fmt=FMT_Q)
+     e_hdr(p, 0xB, RA, 0x00, 76)
+     p.emit("BFLD", ra=0, fmt=FMT_Q)                  # 10 reserved bytes
+1213ac5b9e09b8759ba76cc70c53652b5e108996

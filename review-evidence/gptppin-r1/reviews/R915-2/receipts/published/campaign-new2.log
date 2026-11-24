@@ -1,0 +1,11 @@
+population: 11 ['abort_counts_as_completion', 'no_generation_check', 'no_tag_check', 'age_never_expires', 'observer_latency_off_by_one', 'crossing_latency_off_by_one', 'no_fence', 'unseal_without_echo', 'credit_never_withheld', 'first_master_announce_waits_for_a_beat', 'word3_applies_only_during_a_slew']
+[ ok ] first_master_announce_waits_for_a_beat: caught by "#106 race: one master Announce reaches the lane before the re-election"
+[ ok ] word3_applies_only_during_a_slew: caught by "#107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 2   failures: 0
+RESULT: PASS

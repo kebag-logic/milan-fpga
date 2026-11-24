@@ -1,0 +1,21 @@
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "first_master_announce_waits_for_a_beat", "word3_applies_only_during_a_slew"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "first_master_announce_waits_for_a_beat", "word3_applies_only_during_a_slew", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "first_master_announce_waits_for_a_beat", "word3_applies_only_during_a_slew"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "first_master_announce_waits_for_a_beat", "word3_applies_only_during_a_slew"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "first_master_announce_waits_for_a_beat", "word3_applies_only_during_a_slew"], "scratch_removed": true, "source_unchanged": true}
+accept-unrelated: {"accepted": "unrelated", "controls": 11, "exit": 0, "source_unchanged": true}
+accept-presentation: {"accepted": "presentation", "controls": 11, "exit": 0, "source_unchanged": true}
+accept-scrubbed: {"accepted": "scrubbed", "controls": 11, "exit": 0, "source_unchanged": true}
+accept-git-stderr: {"accepted": "git-stderr", "controls": 11, "exit": 0, "source_unchanged": true}
+Traceback (most recent call last):
+  File "<packet>/scratch/probes/head/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 440, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/probes/head/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 417, in main
+    ownership(parent)
+    ~~~~~~~~~^^^^^^^^
+  File "<packet>/scratch/probes/head/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 356, in ownership
+    assert code != 0 and "test_mutant_lifecycle.py" in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: make[1]: *** [Makefile:58: lifecycle] Error 1
+
+make: *** [Makefile:58: lifecycle] Error 1

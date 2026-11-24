@@ -1,0 +1,72 @@
+gptp_ucode.hex: 1024 words, 1015 real (99.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@975 BECGATE@941 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@988 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@999 NOTEN@1009
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_enable_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_arm_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.882 MB sources in 18 modules, into 0.885 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 23.451 s (elab=0.140, cvt=0.560, bld=22.574); cpu 0.282 s on 4 threads; allocated 359.277 MB
+INFO #107 settled +100 ppm: trim 13402, offset 0, slew 0
+FAIL #107 settled +100 ppm: the mastership's PHC rate is this oscillator's, 0 got 000000000000345a exp 0000000000000000
+FAIL #107 settled +100 ppm: the real counter advances 8 ns a clock, this oscillator got 00000000007a222f exp 00000000007a1f10
+INFO #107 settled +100 ppm: trim 13402 units, TLV frequency change 0, expected -3513253 +- 175663
+FAIL #107 settled +100 ppm: scaledLastGmFreqChange is rate 0 less the settled trim got 0000000000000000 exp 0000000000000001
+INFO #107 settled -100 ppm: trim -13418, offset 0, slew 0
+FAIL #107 settled -100 ppm: the mastership's PHC rate is this oscillator's, 0 got 00000000ffffcb96 exp 0000000000000000
+FAIL #107 settled -100 ppm: the real counter advances 8 ns a clock, this oscillator got 00000000007a0ee0 exp 00000000007a1200
+INFO #107 settled -100 ppm: trim -13418 units, TLV frequency change 0, expected 3517448 +- 175873
+FAIL #107 settled -100 ppm: scaledLastGmFreqChange is rate 0 less the settled trim got 0000000000000000 exp 0000000000000001
+INFO #107 slewing -100 ppm: offset -1468, trim 86362, slew 1
+FAIL #107 slewing -100 ppm: the mastership's PHC rate is this oscillator's, 0 got 00000000000030bb exp 0000000000000000
+FAIL #107 slewing -100 ppm: the real counter advances 8 ns a clock, this oscillator got 00000000007a14e7 exp 00000000007a1200
+INFO #107 slewing -100 ppm: trim 86362 units, TLV frequency change 0
+FAIL #107 slewing -100 ppm: scaledLastGmFreqChange is present: a slave rate was written got 0000000000000000 exp 0000000000000001
+FAIL #107 repeated, no slave rate: the slave writes no rate got 00000000000030bb exp 0000000000000000
+FAIL #107 repeated, no slave rate: the mastership's PHC rate is this oscillator's, 0 got 00000000000030bb exp 0000000000000000
+FAIL #107 repeated, no slave rate: the real counter advances 8 ns a clock, this oscillator got 00000000007a2230 exp 00000000007a1f48
+INFO #107 repeated, no slave rate: trim 0 units, TLV frequency change 0, expected 0 +- 1
+INFO #106: the instant is 5999359 clocks after the Announce
+INFO #106: the first master Announce ends 4217 clocks after the instant
+FAIL #106: the first master Announce leaves at once got 0000000000000000 exp 0000000000000001
+INFO #106 race: master at +5999359, re-elected at +6000647
+FAIL #106 race: one master Announce reaches the lane before the re-election got 0000000000000000 exp 0000000000000001
+INFO #106 credit: unsealed 500266 clocks after the instant
+FAIL #106 credit: two master Announces once the credit returns got 0000000000000001 exp 0000000000000002
+INFO #106 credit: the first master Announce ends 2004132 clocks after the instant
+FAIL #106 credit: the withheld Announce leaves 1 s after the instant got 0000000000000000 exp 0000000000000001
+TX flags Sync: 76 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 70 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 35 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+407 checks: 391 PASS, 16 FAIL
+make: *** [Makefile:48: run] Error 1

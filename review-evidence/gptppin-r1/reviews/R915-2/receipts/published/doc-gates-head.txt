@@ -1,0 +1,20 @@
+COMMAND python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+COMMAND python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+COMMAND python3 scripts/check_submodule_docs.py
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+COMMAND python3 scripts/docs_inventory.py --check
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+COMMAND python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0
+COMMAND python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0
+COMMAND git diff --check 2509db684b58b920e215b0d5d327b4a845bac3f4 HEAD
+rc=0

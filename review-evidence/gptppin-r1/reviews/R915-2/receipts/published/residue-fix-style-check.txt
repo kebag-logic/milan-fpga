@@ -1,0 +1,17 @@
+ CHANGELOG.md                 | 2 +-
+ docs/reference/SUBMODULES.md | 6 ++++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+COMMAND python3 scripts/check_doc_style.py (with the R1 and R3 exact fixes applied)
+CHANGELOG.md:71: sentence has 11 words; maximum is 10: The 1 s cadence follows that Announce (802.1AS-2011 Figure 10-15).
+documentation style: FAIL (1 findings)
+rc=1
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+restored: 0 changes
+CANDIDATE: - The cadence counts from that Announce (802.1AS-2011 Figure 10-15).
+documentation style: OK (25 current documents)
+rc=0
+CANDIDATE: - Its 1 s cadence counts from it (802.1AS-2011 Figure 10-15).
+CHANGELOG.md:71: sentence has 11 words; maximum is 10: Its 1 s cadence counts from it (802.1AS-2011 Figure 10-15).
+documentation style: FAIL (1 findings)
+rc=1

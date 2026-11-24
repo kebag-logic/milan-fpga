@@ -1,0 +1,197 @@
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:78:6: Instance pin connected by name with empty reference: 'match_index_o'
+   78 |     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
+      |      ^~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:78:25: Instance pin connected by name with empty reference: 'stream_id_o'
+   78 |     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
+      |                         ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:79:30: Instance pin connected by name with empty reference: 'ts_valid_o'
+   79 |     .subtype_o (subtype_w), .ts_valid_o (),
+      |                              ^~~~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'match_vec_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:86:37: ... Location of port declaration
+   86 |   output logic [N_STREAMS-1:0]      match_vec_o,      
+      |                                     ^~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'fsh2_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:99:37: ... Location of port declaration
+   99 |   output logic [63:0]               fsh2_o,           
+      |                                     ^~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'parse_valid_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:100:37: ... Location of port declaration
+  100 |   output logic                      parse_valid_o,    
+      |                                     ^~~~~~~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'b3_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:101:37: ... Location of port declaration
+  101 |   output logic [7:0]                b3_o,             
+      |                                     ^~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:85:55: Instance has missing pin: 'wire_chans_o'
+   85 |   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_mon (
+      |                                                       ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:144:23: ... Location of port declaration
+  144 |   output logic [7:0]  wire_chans_o,       
+      |                       ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:119:35: Instance pin connected by name with empty reference: 'm_axis_tkeep'
+  119 |     .m_axis_tdata (pcm_tdata_o), .m_axis_tkeep (),
+      |                                   ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:121:6: Instance pin connected by name with empty reference: 'm_axis_tuser'
+  121 |     .m_axis_tuser (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:124:6: Instance pin connected by name with empty reference: 'pdu_out_p_o'
+  124 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_mask_o ()
+      |      ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:124:23: Instance pin connected by name with empty reference: 'pdu_out_idx_o'
+  124 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_mask_o ()
+      |                       ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:124:42: Instance pin connected by name with empty reference: 'drop_p_o'
+  124 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_mask_o ()
+      |                                          ^~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:124:56: Instance pin connected by name with empty reference: 'drop_mask_o'
+  124 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_mask_o ()
+      |                                                        ^~~~~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:110:26: Instance has missing pin: 'hdr_p_o'
+  110 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:129:23: ... Location of port declaration
+  129 |   output logic        hdr_p_o,             
+      |                       ^~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:110:26: Instance has missing pin: 'hdr_ts_o'
+  110 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:133:23: ... Location of port declaration
+  133 |   output logic [31:0] hdr_ts_o,            
+      |                       ^~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:110:26: Instance has missing pin: 'hdr_tv_o'
+  110 |   KL_aaf_rx_depacketizer u_depkt (
+      |                          ^~~~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:134:23: ... Location of port declaration
+  134 |   output logic        hdr_tv_o,            
+      |                       ^~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:61:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   61 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:100:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  100 | module KL_avtp_rx_monitor #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:88:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   88 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-IMPORTSTAR: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:56:8: 'import::*' in $unit scope may pollute global namespace
+   56 | import ethernet_packet_pkg::*;
+      |        ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/IMPORTSTAR?v=5.050
+                     ... Use "/* verilator lint_off IMPORTSTAR */" and lint_on around source to disable this message.
+%Warning-IMPORTSTAR: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:57:8: 'import::*' in $unit scope may pollute global namespace
+   57 | import avtp_subtype_pkg::*;
+      |        ^~~~~~~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:62:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   62 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.593 MB sources in 9 modules, into 0.391 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 28.999 s (elab=0.009, cvt=0.144, bld=28.776); cpu 0.096 s on 32 threads; allocated 726.789 MB
+gptp_ucode.hex: 1024 words, 1013 real (98.9%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@309 BECGATE@941 SELF@975 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@986 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@997 NOTEN@1007
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_enable_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_arm_i'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:263:5: Instance has missing pin: 'pps_target_ns_o'
+  263 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.898 MB sources in 18 modules, into 0.889 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 26.271 s (elab=0.129, cvt=0.341, bld=25.554); cpu 0.271 s on 32 threads; allocated 799.402 MB

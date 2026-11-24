@@ -1,0 +1,18 @@
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 9b04373..7f2a75b 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -1285,8 +1285,10 @@ module KL_gptp_engine
+                 //! low word, BECOME's rate 0, always applies, so the time
+                 //! base runs on this oscillator. The high word is the
+                 //! Follow_Up TLV's (tlv_become).
+-                phc_addend_we_o <= 1'b1;
+-                phc_addend_o    <= st_wdata_w[31:0];
++                if (phc_slew_active_o) begin
++                  phc_addend_we_o <= 1'b1;
++                  phc_addend_o    <= st_wdata_w[31:0];
++                end
+                 phc_slew_left_r   <= 2'd0;
+                 phc_slew_active_o <= 1'b0;
+               end
+1213ac5b9e09b8759ba76cc70c53652b5e108996

@@ -1,0 +1,14 @@
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index ce7b6ed..e43a265 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2008,7 +2008,7 @@ def prog_become(base: int) -> Prog:
+     # integrator stays, so a later slave starts from the estimate, as
+     # after a step
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+-    p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SHL, imm=32)
++    p.emit("ALU", rd=RT, ra=R0, rb=RT, cnd=ALU_SUB)
+     p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+     # no peer is elected: gmPresent is the engine's, from the image. The
+     # grandmaster's own time is the domain's time, so the master role is
+1213ac5b9e09b8759ba76cc70c53652b5e108996
