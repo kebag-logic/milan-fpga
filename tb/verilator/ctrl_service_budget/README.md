@@ -1434,7 +1434,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
-| build: the 1x1 point names the ledgered override too | the ledgered points are named at 8x8 only, with two interfaces and with one (#977), as the planner ledgers them |
+| build: the 1x1 point names the ledgered override too | the ledgered points are named at 8x8 only, two interfaces and one (#977), as the planner ledgers them |
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | build: arm B's path port answers no entries at once, reading no window (earlier rule) | the answering-ports arm's path port is arm_path.py's, which reads the window |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
