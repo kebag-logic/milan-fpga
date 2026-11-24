@@ -139,7 +139,7 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
   # MILAN v1.2 4.2.7.1.1 Table 4.3 supersedes 802.1Q Table 10-7 for a PAAD:
   # LeaveTime 5000 ms, not 600. These words are emitted into the generated CSR
   # defaults and programmed into the engine, so a stale 600 here would undo
-  # the RTL reset the MRP timer round corrected.
+  # the RTL's corrected MRP timer reset.
   timers_ms: { join: 200, leave: 5000, leaveall: 10000 }
   tspec:
     policy: derived                  # pinned 224 until 2026-07-28: a
@@ -152,7 +152,7 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
                                      # wire frame (MSDU 72, tap-measured).
                                      # The pin's only stated reason was
                                      # "changing it needs a reflash"; this
-                                     # round's reflash carries it. derived
+                                     # image's reflash carries it. derived
                                      # follows the WIRE constant
                                      # (framer_wire_channels) end to end.
     max_frame_bytes: 224             # LWSRP_TSPEC[15:0]
