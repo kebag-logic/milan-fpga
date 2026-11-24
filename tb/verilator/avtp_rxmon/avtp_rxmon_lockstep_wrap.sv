@@ -13,7 +13,10 @@
 //! shape: the reference presents a sink's twelve counters at once
 //! (ref_diag_cnt_o), the shipping module one counter named by column
 //! (dut_diag_q_o). The harness compares column c of the first against the
-//! second for the same sink.
+//! second for the same sink. The match is the other (#948): the shipping
+//! module takes every matched context as a vector, which the wrapper builds
+//! as the reference's one index, so the two stay cycle-equal for one
+//! binding per stream.
 
 `default_nettype none
 
@@ -120,16 +123,27 @@ module avtp_rxmon_lockstep_wrap #(
     .last_ts_o (ref_last_ts_o), .last_tsd_o (ref_last_tsd_o)
   );
 
+  //! #948: the shipping engine takes every matched context, and every input
+  //! that lost a dropped frame, as a vector. The reference's match index is
+  //! that vector's one bit, truncated to the context width as the reference
+  //! truncates it; its drop index is compared whole, so one of N or more
+  //! names no input.
+  localparam int unsigned LSIDXW_C = (N_LISTENERS_P <= 1) ? 1 : $clog2(N_LISTENERS_P);
+  wire [N_LISTENERS_P-1:0] dut_match_vec_w = N_LISTENERS_P'(1) << match_index_i[LSIDXW_C-1:0];
+  wire [N_LISTENERS_P-1:0] dut_drop_mask_w = (32'(depkt_drop_idx_i) < N_LISTENERS_P)
+                                             ? N_LISTENERS_P'(1) << depkt_drop_idx_i[LSIDXW_C-1:0] : '0;
+
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_LISTENERS_P), .CLK_FREQ_HZ_P (CLK_FREQ_HZ_P),
     .IVAL_CYC_P (IVAL_CYC_P)
   ) u_dut (
-    .clk_i, .rst_n, .match_valid_i, .match_index_i, .subtype_i, .seq_num_i,
+    .clk_i, .rst_n, .match_valid_i, .match_vec_i (dut_match_vec_w), .subtype_i, .seq_num_i,
     .ts_uncertain_i, .ts_valid_i, .media_restart_i, .avtp_ts_i, .fsh_i,
     .bound_i, .bind_rise_i, .bind_fall_i, .stopped_i, .sid0_i, .fmt0_i,
     .ptp_now_i, .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0),
     .render_sel_i,
-    .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i, .depkt_drop_idx_i,
+    .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i,
+    .depkt_drop_mask_i (dut_drop_mask_w),
     .lctx_wr_en_i, .lctx_wr_addr_i, .lctx_wr_data_i,
     .lctx_wr_rdy_o (dut_lctx_wr_rdy_o),
     .lctx_rd_en_i, .lctx_rd_addr_i,
@@ -150,6 +164,8 @@ module avtp_rxmon_lockstep_wrap #(
     .media_locked_o (dut_media_locked_o), .dirty_p_o (dut_dirty_p_o),
     .pdu_accept_p_o (dut_pdu_accept_p_o),
     .pdu_accept_idx_o (dut_pdu_accept_idx_o),
+    //! the depacketizer's verdict protocol has no reference counterpart
+    .pdu_enq_p_o (), .pdu_done_p_o (), .pdu_done_mask_o (),
     .wire_chans_o (dut_wire_chans_o), .wire_chans_all_o (dut_wire_chans_all_o),
     .diag_idx_i, .diag_col_i, .diag_q_o (dut_diag_q_o),
     .last_ts_o (dut_last_ts_o), .last_tsd_o (dut_last_tsd_o)

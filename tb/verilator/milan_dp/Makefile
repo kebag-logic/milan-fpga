@@ -165,6 +165,9 @@ PAIRFIFO_SRC ?= $(RTL_DIR)/common/cdc_pair_fifo.sv
 # #653: the CRF Media Clock Input engine, overridable the same way so
 # unb_mutants.py elaborates a MUTATED copy through the notify recipe.
 CRFRX_SRC ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
+# #948: the AVTP stream parser, overridable the same way so twin-fanout-plants
+# elaborates the planted parser through the twin's 8x8 recipe.
+PARSER_SRC ?= $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -229,7 +232,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
-       $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv \
+       $(PARSER_SRC) \
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
@@ -839,8 +842,11 @@ exec-nxndv:
 # -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
 # asserts zero dup / zero skip / whole-ramp / clean tail instead of the
 # pre-fix stair signature.
+# NXN8_MDIR is overridable so fan-stop-plants builds this leg on a planted
+# datapath (DP_SRC) beside the clean one.
+NXN8_MDIR ?= obj_nxn8
 build-nxn8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir $(NXN8_MDIR) -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 
 exec-nxn8:
 	./obj_nxn8/Vmilan_dp_nxn8
@@ -908,6 +914,63 @@ exec-ax1x1:
 # large blast radius for no gain.
 build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
+
+# #972: THE LINK FROM RESET (sim_link_reset.cpp). milan_datapath at
+# CTRL_SPLIT_P = 1 with the gPTP plane at its product default, at both shipping
+# shapes, its link input the SoC's link-status word at the reset
+# sw/litex/mac_link_status.py gives the split with an MDIO pair (LINKRESET_PY,
+# overridable so linkreset_plants.py runs a planted copy), the PHY's link
+# retained. Each shape runs published (the firmware's publication at 200 ms)
+# and refused (none, a boot refused before the PHY poll arms); linkreset-plants
+# plants a premature qualification, the word's reset at link up, and requires
+# the check to fail on each shape. Outside the hosted case inventory: run it by
+# name. Each shape takes the parameters the split SoC's export hands its
+# milan_datapath instance (milan_soc.py from the config's soc_params.json),
+# but the clock: the fabric clock is compressed to LINKRESET_CLK_HZ, the
+# gPTP plane's image generated for it (2 MHz, the gptp leg's, is too short a
+# period for the 8x8 talker's fixed delay, Milan v1.2 5.3.7.6).
+LINKRESET_PY ?= ../../../sw/litex/mac_link_status.py
+LINKRESET_COMMON_G = -GAUDIO_IF_MASTER_P=1 -GI2SPB_P=0 -GLPF_P=0 -GTALKER_WIRE_CHANS_P=8 \
+  -GGPTP_INGRESS_LAT_NS_P=656 -GGPTP_EGRESS_LAT_NS_P=219 -GREBOOT_MAC_MIN_MBPS_P=1000 -GREBOOT_MAC_TX_OCTETS_P=11656
+LINKRESET_1X1_G = $(LINKRESET_COMMON_G) -GN_STREAMS=1 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_RENDER_SLOTS_P=8 \
+  -GLOOPBACK_P=1 -GAUDIO_IF_CLK_HZ_P=24576000
+LINKRESET_8X8_G = $(LINKRESET_COMMON_G) -GN_STREAMS=8 -GAUDIO_IF_SLOTS_P=32 -GDPROBES_P=0 -GLTAP_P=0 \
+  -GAUDIO_IF_CLK_HZ_P=98304000
+LINKRESET_CLK_HZ = 10000000
+LINKRESET_WORD = $(shell python3 -B $(LINKRESET_PY) gmii 1 | cut -d' ' -f2)
+LINKRESET_MDIR ?= obj_linkreset
+# the publication after the plane's boot cadence (1200 ms), whose Pdelay_Req a
+# link qualified from reset sends, and the window past the publication's own
+LINKRESET_PUBLISH_MS = 1500
+LINKRESET_WINDOW_MS = 1600
+LINKRESET_PLAT = $(abspath ../../../sw/firmware/ctrl/plat)
+define LINKRESET_BUILD
+mkdir -p $(LINKRESET_MDIR)_$(2)/policy
+python3 -B $(LINKRESET_PLAT)/ctrl_plat_gen.py policy $(5) -o $(LINKRESET_MDIR)_$(2)/policy/ctrl_plat_policy_gen.h
+python3 -B gen_gptp_leg_ucode.py $(5) -o $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex --clk-hz $(LINKRESET_CLK_HZ)
+$(VERILATOR) linkreset_probes.vlt $(1) $(GPTP_ON_VFLAGS) --Mdir $(LINKRESET_MDIR)_$(2) \
+  -GCTRL_SPLIT_P=1 -GMILAN_CLK_FREQ_HZ=$(LINKRESET_CLK_HZ) -GGPTP_PHC_TICK_NS_P=8 $(4) \
+  -GGPTP_UCODE_HEX_P=\"$(abspath $(LINKRESET_MDIR)_$(2)/gptp_ucode.hex)\" \
+  -CFLAGS "-DLINKRESET_POINT=$(3) -DLINKRESET_CLK_HZ=$(LINKRESET_CLK_HZ)u -I$(LINKRESET_PLAT) \
+  -I$(abspath $(LINKRESET_MDIR)_$(2)/policy) -Wall -Wextra" \
+  $(SRCS) sim_link_reset.cpp $(LINKRESET_PLAT)/ctrl_plat_csr.c -o Vmilan_dp_linkreset
+endef
+.PHONY: linkreset build-linkreset-1x1 build-linkreset-8x8 exec-linkreset linkreset-plants
+build-linkreset-1x1: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
+	$(call LINKRESET_BUILD,$(SHAPE_AX1x1),1x1,1,$(LINKRESET_1X1_G),../../../configs/endstation_ax7101_1x1_tdm8.yaml)
+build-linkreset-8x8: ltn_rom.hex ucode.hex $(GPTP_LEG_GEN) $(GEN_ALL)
+	$(call LINKRESET_BUILD,$(SHAPE_8x8),8x8,8,$(LINKRESET_8X8_G),../../../configs/endstation_ax7101_8x8.yaml)
+exec-linkreset:
+	@test -n "$(LINKRESET_WORD)" || { echo "linkreset: no reset from $(LINKRESET_PY)"; exit 2; }
+	set -e; for s in 1x1 8x8; do \
+	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms $(LINKRESET_PUBLISH_MS) \
+	    --window-ms $(LINKRESET_WINDOW_MS); \
+	  ./$(LINKRESET_MDIR)_$$s/Vmilan_dp_linkreset --word-reset $(LINKRESET_WORD) --publish-ms 0 \
+	    --window-ms $(LINKRESET_WINDOW_MS); done
+linkreset: build-linkreset-1x1 build-linkreset-8x8
+	$(MAKE) --no-print-directory exec-linkreset
+linkreset-plants: build-linkreset-1x1 build-linkreset-8x8
+	python3 -B linkreset_plants.py --publish-ms $(LINKRESET_PUBLISH_MS) --window-ms $(LINKRESET_WINDOW_MS)
 
 # #665: THE SPLIT PLACEMENT'S CONTROL PATH. tb_split_top composes
 # KL_mbx on its own clock, KL_mbx_cdc, two byte FIFOs and the datapath with
@@ -1087,6 +1150,78 @@ twin-maps-plants: build-twin-sp
 	  grep -qF -- "$$w" $(TWIN_MAPS_OUT)/no-edit.log || { echo "FAIL the no-edit plant escaped: $$w"; exit 1; }; \
 	  echo "caught: $$w"; done
 
+# #948: ONE TALKER STREAM BOUND TO SEVERAL STREAM INPUTS, on the split half at
+# the 8x8 shape with one interface (twin_split.cpp --fanout): the 8x8 split
+# image's platform firmware, built for the host by twin_fw.py, on
+# tb_split_top's datapath at N_STREAMS_P = 8. A controller binds STREAM_INPUT 0
+# and 1 to one peer talker's stream over ACMP, then 2 as well, then unbinds 1;
+# the talker answers each probe. Each bound input counts every PDU in
+# GET_COUNTERS (TIMESTAMP_VALID, counted on receipt) and receives it (its DEPKT
+# tally in the 0x800 window), and the unbound input neither. The twin's own
+# shape, 1x1, has one AAF input, and the two placements share the datapath
+# this lives in, so the comparison itself could not see it. twin-fanout-plants
+# builds the same binary on a parser planted with the defect #948 found, each
+# PDU to the highest matching entry alone, and requires each word to fail.
+TWIN8_CFG = ../../../configs/endstation_ax7101_8x8.yaml
+TWIN8_FW ?= obj_twin8_fw
+TWIN8_SP_MDIR ?= obj_twin8_sp
+TWIN8_PLANT_MDIR ?= obj_twin8_plant
+TWIN8_OUT ?= obj_twin8
+TWIN8_FW_CFLAGS = -DTWIN_IN0_FMT=0x$(call in0_fmt,$(SHAPE_8x8_F))ULL $$(cat $(TWIN8_FW)/cflags)
+TWIN8_PLANT_WORDS = "FAIL [FAN-TWO] STREAM_INPUT 0 counts every PDU in GET_COUNTERS" \
+  "FAIL [FAN-TWO] the depacketizer emits one PDU per receiving input" \
+  "FAIL [FAN-THREE] STREAM_INPUT 1 receives every PDU" \
+  "FAIL [FAN-UNBIND] STREAM_INPUT 0 counts every PDU in GET_COUNTERS"
+.PHONY: twin8-fw build-twin8-sp twin-fanout twin-fanout-plants
+twin8-fw: stack-pin
+	python3 -B twin_fw.py --config $(TWIN8_CFG) --out $(TWIN8_FW) --maap-preferred $(TWIN_MAAP_PREFERRED)
+
+build-twin8-sp: twin8-fw ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+	$(VERILATOR) twin_probes.vlt $(SHAPE_8x8) $(filter-out -G% --top-module $(TOP),$(VFLAGS)) --top-module tb_split_top \
+	  -GN_STREAMS_P=8 --Mdir $(TWIN8_SP_MDIR) -CFLAGS "$(TWIN8_FW_CFLAGS) -Wall -Wextra" \
+	  -LDFLAGS "$(SRPTX_WRAPS) $(abspath $(TWIN8_FW))/libtwinfw.a" \
+	  $(SRCS) $(SPLIT_SRCS) twin_split.cpp -o Vmilan_dp_twin8_sp
+
+twin-fanout: build-twin8-sp
+	@mkdir -p $(TWIN8_OUT)
+	./$(TWIN8_SP_MDIR)/Vmilan_dp_twin8_sp --fanout > $(TWIN8_OUT)/fanout.log; rc=$$?; cat $(TWIN8_OUT)/fanout.log; exit $$rc
+
+twin-fanout-plants: twin8-fw
+	@mkdir -p $(TWIN8_OUT) $(TWIN8_PLANT_MDIR)
+	python3 -B twin_fanout_plant.py $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv $(TWIN8_PLANT_MDIR)/avtp_stream_parser.sv
+	$(MAKE) --no-print-directory build-twin8-sp TWIN8_SP_MDIR=$(TWIN8_PLANT_MDIR) \
+	  PARSER_SRC=$(abspath $(TWIN8_PLANT_MDIR))/avtp_stream_parser.sv
+	if ./$(TWIN8_PLANT_MDIR)/Vmilan_dp_twin8_sp --fanout > $(TWIN8_OUT)/one-entry.log; then \
+	  echo "FAIL the one-entry plant passed"; exit 1; fi
+	set -e; for w in $(TWIN8_PLANT_WORDS); do \
+	  grep -qF -- "$$w" $(TWIN8_OUT)/one-entry.log || { echo "FAIL the one-entry plant escaped: $$w"; exit 1; }; \
+	  echo "caught: $$w"; done
+
+# #948, Milan v1.2 5.3.8.7 input by input: sim_nxn.cpp's [FAN] STOPs input 4,
+# then 6, of the two bound to one talker stream, and the other goes on
+# receiving every PDU. fan-stop-plants builds obj_nxn8 on a datapath whose stop
+# gate is not per input (fan_stop_plant.py: shared, a stopped input among a
+# PDU's accepting inputs discards it for all; one-index, the accept pulse's
+# one-index stop gates every input's share) and requires each named check to
+# fail.
+FAN_STOP_PLANTS = shared one-index
+FAN_STOP_WORDS_shared = "[FAIL] [FAN] input 4 stopped: input 6 receives every PDU (its DEPKT tally)" \
+  "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"
+FAN_STOP_WORDS_one-index = "[FAIL] [FAN] input 4 stopped: the stopped input 4 receives nothing (its DEPKT tally)" \
+  "[FAIL] [FAN] input 6 stopped: input 4 receives every PDU (its DEPKT tally)"
+.PHONY: fan-stop-plants $(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS))
+fan-stop-plants: $(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS))
+$(addprefix fan-stop-plant-,$(FAN_STOP_PLANTS)): fan-stop-plant-%:
+	@mkdir -p obj_nxn8_plant_$*
+	python3 -B fan_stop_plant.py $(RTL_DIR)/milan/milan_datapath.sv obj_nxn8_plant_$*/milan_datapath.sv $*
+	$(MAKE) --no-print-directory build-nxn8 NXN8_MDIR=obj_nxn8_plant_$* \
+	  DP_SRC=$(abspath obj_nxn8_plant_$*)/milan_datapath.sv
+	if ./obj_nxn8_plant_$*/Vmilan_dp_nxn8 > obj_nxn8_plant_$*/run.log; then \
+	  echo "FAIL the $* stop-gate plant passed"; exit 1; fi
+	set -e; for w in $(FAN_STOP_WORDS_$*); do \
+	  grep -qF -- "$$w" obj_nxn8_plant_$*/run.log || { echo "FAIL the $* stop-gate plant escaped: $$w"; exit 1; }; \
+	  echo "caught ($*): $$w"; done
+
 # #867: THE SPLIT BUILD'S SRP TRANSMIT PATH, on the split half's binary
 # (srptx.hpp): lwSRP's MRPDU, the adapter's record in the SRP transmit ring, KL_mbx_tx,
 # the crossing, ctl_tx_mux and the MAC. Three scenarios, each graded by
@@ -1258,4 +1393,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex gptp_lat_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep obj_bootsa obj_nxn8_plant_* $(TWIN_FW) $(TWIN_AF_MDIR) $(TWIN_SP_MDIR) $(TWIN_OUT) $(SRPTX_OUT)

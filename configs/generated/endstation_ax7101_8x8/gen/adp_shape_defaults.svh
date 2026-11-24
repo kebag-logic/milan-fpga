@@ -28,7 +28,7 @@
   //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
-  localparam int AEM_NAME_ENTRIES_C = 107;
+  localparam int AEM_NAME_ENTRIES_C = 115;
   //! AUDIO_UNIT and CLOCK_DOMAIN descriptors of this exact AEM model:
   //! the saved-state record allocation (KL_nvm_backend) is sized by
   //! them, one sampling-rate record per unit and one clock-source and
@@ -76,14 +76,14 @@
   //! partition plus its global cluster-key projection. RPHYS entries
   //! are {valid, render_crossbar_key[5:0]}; non-physical clusters
   //! remain protocol-visible mappings without aliasing a physical pin.
-  localparam int ADP_DMAP_IN_KEYS_C    = 1;
+  localparam int ADP_DMAP_IN_KEYS_C    = 8;
   localparam int ADP_DMAP_IN_PAGE_C    = 1;
   localparam int ADP_DMAP_IN_NPORTS_C  = 8;
   localparam int ADP_DMAP_IN_NSTRIN_C  = 9;
-  localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
-  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
-  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:7] = '{7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0, 7'd0};
-  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:0] = '{7'h00};
+  localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:7] = '{7'd0, 7'd1, 7'd2, 7'd3, 7'd4, 7'd5, 7'd6, 7'd7};
+  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:7] = '{7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1};
+  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:7] = '{7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1, 7'd1};
+  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:7] = '{7'h42, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00};
   localparam logic  ADP_DMAP_IN_SAAF_C [0:8] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b0};
   localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:8] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd0};
   //! Dynamic output geometry and capture-source words are copied

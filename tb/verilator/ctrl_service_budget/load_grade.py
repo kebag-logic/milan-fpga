@@ -145,9 +145,12 @@ NEAREST = {'8x8/1if': '8x8/2if'}
 #: On the composed flip train's final head with attempt 2's cuts (#665's ruling of 2026-11-18, item 2): 8x8/1if
 #: record.adp 12,779 CPU cycles (arm A, backlog-adp-refill, on the image that carries the unit at 375 us), 135 us,
 #: each by the rule.
-OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 180, 'record.srp': 375}}
+#: With a STREAM_OUTPUT's Listener registration notice (#957): 8x8/1if record.maap 17,259 CPU cycles (the
+#: valid-destinations arm, srp-talker-loss; 16,176 on the flip train's head in the same group), 185 us by the rule. The
+#: record runs none of the change's code: the 8 bytes each 8x8 interface's SRP state grew move the data after it.
+OWN = {'8x8/1if': {'record.adp': 135, 'record.maap': 185, 'record.srp': 375}}
 OWN_MEASURED = {'8x8/1if': {'record.adp': (12_779, 'arm A, backlog-adp-refill, unit 375 us'),
-                            'record.maap': (16_682, 'the valid-destinations arm, srp-talker-loss'),
+                            'record.maap': (17_259, 'the valid-destinations arm, srp-talker-loss'),
                             'record.srp': (35_547, 'the valid-destinations arm, srp-talker-held')}}
 #: The stated costs in microseconds at each point at this tree's TSN stack pin, each the most measured over every
 #: instance plus 5 %, rounded up to 5 us (100 CPU cycles a microsecond on the split CPU at sys, 100 MHz). At 1x1/1if and

@@ -94,6 +94,29 @@ DUT_READER_DISPOSITIONS = {
         "another context, an unlock walk writing over the format) into a copy and requires its named "
         "[CF] check of the N=8 harness to fail; expected values come from the formats the harness "
         "writes and drives, never from the text",
+    "tb/verilator/avtp_rxmon/fanout_mutants.py":
+        "mutation campaign; it plants one of twenty-three #948 fan-out defects across the parser, the context "
+        "engine and the depacketizer (each PDU to one matching entry, a bundle served to one context, "
+        "a done mask without its last accept, accepts carried into the next bundle, no second pass, a "
+        "second pass under the first input or from the wrong word, a frame none accepted read out, a "
+        "frame read before its verdicts, a frame's fate written to the previous entry, a two-entry verdict "
+        "queue, a "
+        "dropped frame counted for no input, no frame-size compare, six samples assumed, every input "
+        "sized by input 0's format, a 24-bit or a 16-bit sample sized as four octets, a hold-only "
+        "tail's last word popped early, a frame short of its payload read out, a pulse taken only while its "
+        "frame is on the tap, the store taking the tap as it comes, the pending DEPKT tallies three bits and "
+        "drained only when idle, a half-full tally waiting for an idle walker) into a copy and requires its "
+        "named [FO] check of the N=8 harness to fail; expected values come from the payloads and "
+        "formats the harness drives, never from the text",
+    "tb/verilator/avtp_rxmon/depkt_mutants.py":
+        "mutation campaign; it plants one of eleven #948 depacketizer frame-boundary defects (a hold-only "
+        "tail's last word popped with the beat before it, the tagged hold sized as untagged, a frame "
+        "short of its payload read out in part, or dropped but counted for no input or not in drops_o, "
+        "its length read at the untagged offset, a short last beat taken for a full one, the store taking the "
+        "tap as it comes, a pulse taken only while its frame is on the tap, a same-cycle pulse missed, a "
+        "two-cycle lag) into a copy and "
+        "requires its named [DT] check of the four-input harness to fail; expected values come from the "
+        "frames and verdicts the harness drives, never from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
         "mutation campaign; it plants one of three source-table and skid defects into a copy and "
         "requires its named lockstep check to fail; expected samples come from the harness's own "
@@ -221,6 +244,17 @@ DUT_READER_DISPOSITIONS = {
         "block, selected per run by a plusarg, and requires each short leg to fail its "
         "named check while the schemata at id 0 and the clean legs pass; no expected "
         "value is read from RTL",
+    "tb/verilator/tdm_render/master_mutants.py":
+        "mutation campaign (#584); it plants one KL_tdm_render_master lane-width defect from "
+        "its own table into a copy, elaborates the copy through the suite's own recipe "
+        "(RM_SRC) and requires the named leg to fail on its words; an unplanted control "
+        "runs first and the tracked source is never edited.",
+    "tb/verilator/milan_dp_render/ship8_mutants.py":
+        "mutation campaign (#584); it plants one projection, adapter or bus-binding defect from its own "
+        "table into a copy of the generated 8x8 shape header or milan_datapath.sv, elaborates the copy through "
+        "the suite's own recipe (SHIP8_SHAPE, DP_SRC) and requires sim_ship8_render to fail on its words, or "
+        "the elaboration to refuse it by its guard's; the unplanted leg runs first and no expected value is "
+        "read from RTL",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
         "mutation campaign; it plants one render-lane defect from its own table into "
         "a copy or runs a leg-side defect arm, and requires the named check to fail. "

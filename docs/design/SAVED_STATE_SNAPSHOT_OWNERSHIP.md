@@ -1681,10 +1681,13 @@ The backend retains its nominal 50 ms hold.
 Its free-running millisecond tick gives a 49 ms guaranteed floor.
 The first tick can arrive immediately after ARM.
 The acceptance limit is therefore 24.5 ms, half that floor.
-**The worst 8x8 measurement is 13.86384 ms.**
-Its floor ratio is 3.5344x.
-The margin to 24.5 ms is 10.63616 ms.
-The previous receipt, #840's round 1, measured 13.85922 ms at the same census.
+**The worst 8x8 measurement is 14.53320 ms** (#584's receipt).
+Its floor ratio is 3.3716x.
+The margin to 24.5 ms is 9.96680 ms.
+Since #584 each 8x8 STREAM_PORT_INPUT owns one AUDIO_CLUSTER, so the 8x8 census is 172 records and 13,850 bytes.
+The 8x8 arms were measured again at that census; the 1x1 arms carry over unchanged.
+The receipt before it measured 13.86384 ms at 164 records and 13,210 bytes, a 10.63616 ms margin.
+The previous receipt, #840's round 1, measured 13.85922 ms at that census.
 67 of 96 captures repeat its system-cycle counts: every 1x1 capture and the 100 MHz ON arm, 15 of 16 8x8 OFF captures and 4 of 16 at 100 MHz OFF.
 No 8x8 contract ON capture repeats; the firmware's code layout moved.
 The #70 receipt before it measured 13.86052 ms, and #671's round 8 13.86328 ms, and so did the two before that.
@@ -1693,8 +1696,8 @@ The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
 Since the #70 receipt the firmware changed in its PHY path only, which this SoC compiles out; `nvm_capture()`, the backend's capture hold and the census are unchanged.
-The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
-The receipt binds the new firmware and the unchanged census.
+The census is 172 records and 13,850 bytes at 8x8 since #584, 54 and 3,290 at 1x1.
+The receipt binds the unchanged firmware and the 8x8's new census.
 
 Each point contains 16 captures per traffic arm.
 The published maximum includes every capture in both arms.
@@ -1704,10 +1707,13 @@ The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
 |---|---|---|---|---|
 | 1x1 | 50 / 100, contract | ON | 3.95802 to 3.96810 | 12.3485x |
 | 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.91180 | 12.5262x |
-| 8x8 | 50 / 100, contract | ON | 13.84694 to 13.86384 | 3.5344x |
-| 8x8 | 50 / 100, contract | OFF | 13.61714 to 13.67682 | 3.5827x |
-| 8x8 | 100 / 100, non-contract | ON | 10.42120 to 10.43279 | 4.6967x |
-| 8x8 | 100 / 100, non-contract | OFF | 10.41591 to 10.41899 | 4.7030x |
+| 8x8 | 50 / 100, contract | ON | 14.51936 to 14.53320 | 3.3716x |
+| 8x8 | 50 / 100, contract | OFF | 14.34008 to 14.34644 | 3.4155x |
+| 8x8 | 100 / 100, non-contract | ON | 10.93360 to 10.94370 | 4.4775x |
+| 8x8 | 100 / 100, non-contract | OFF | 10.92073 to 10.92626 | 4.4846x |
+
+Before #584 the 8x8 rows read 13.84694 to 13.86384 ms ON and 13.61714 to 13.67682 ms OFF.
+At 100 MHz they read 10.42120 to 10.43279 ms ON and 10.41591 to 10.41899 ms OFF.
 
 The #70 receipt, at `c71364bd`, measured 1x1 3.95892 to 3.96490 ms ON and 3.90676 to 3.91178 ms OFF.
 At 8x8 it measured 13.84558 to 13.86052 ms ON and 13.67538 to 13.68956 ms OFF.
@@ -1725,7 +1731,7 @@ The #621 receipt on dev, at the same census and clocks:
 | 8x8 | 100 / 100, non-contract | OFF | 10.41356 to 10.41566 | 4.7045x |
 
 The full closed-record census is 3,290 bytes / 54 records at 1x1.
-At 8x8 it is 13,210 bytes / 164 records.
+At 8x8 it is 13,850 bytes / 172 records since #584 (13,210 / 164 before).
 That includes all 4,672 output-map bytes.
 Materialization does not affect this copy.
 An accepted RELOAD closes every allocated backend record.
@@ -1868,10 +1874,11 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The worst 8x8 copy is 13.86384 ms across both arms.
-   It covers 13,210 bytes and 164 records, including output maps.
-   Its ratio to the guaranteed 49 ms floor is 3.5344x.
-   The 24.5 ms margin is 10.63616 ms.
+   The worst 8x8 copy is 14.53320 ms across both arms, at #584's census.
+   It covers 13,850 bytes and 172 records, including output maps.
+   Its ratio to the guaranteed 49 ms floor is 3.3716x.
+   The 24.5 ms margin is 9.96680 ms.
+   The receipt before #584 measured 13.86384 ms at 13,210 bytes and 164 records.
    The previous receipt, #840's round 1, measured 13.85922 ms, with a 10.64078 ms margin.
    The #70 receipt measured 13.86052 ms (a 10.63948 ms margin), and #671's round 8 13.86328 ms (10.63672 ms).
    The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
@@ -1879,7 +1886,7 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    The unchanged nominal 50 ms hold is retained conditionally.
    The 1x1 maximum is 3.96810 ms (12.3485x floor ratio).
    Both intervals include the complete record walk and attestation.
-   The 100 MHz 8x8 comparison is non-contract: 10.43279 ms maximum.
+   The 100 MHz 8x8 comparison is non-contract: 10.94370 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.
    Hold sizing still uses the writer's actual clock.
    The hosted input gate requires unchanged census and clock values.

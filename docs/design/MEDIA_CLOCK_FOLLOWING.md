@@ -441,7 +441,7 @@ snapshot without a per-PDU strobe.
 
 | Field | Net or source | Use |
 |---|---|---|
-| match and listener index | `avtprx_match`, `avtprx_idx` | the PDU belongs to the followed Stream Input |
+| match and listener index | `avtprx_match` with the followed input's bit of the match vector, `avtprx_vec_w[aaf_follow_idx_r]`; the index is `aaf_follow_idx_r` | the PDU belongs to the followed Stream Input, among every input bound to its stream (#948). The parser's `avtprx_idx`, the highest matching entry, is a diagnostic only |
 | `subtype` | `avtprx_subtype` | AAF (`0x02`) |
 | `tv` | `avtprx_tv_bit` | set; a clear `tv` means the timestamp is ignored (IEEE 1722-2016 4.4.4.5) |
 | `tu` | `avtprx_tu_bit`, byte o+3 bit 0 | history restart on either edge. Not the `tv` net that `KL_crf_rx` takes for the CRF header (`hdl/milan/milan_datapath.sv:5530-5534`): copying that wiring would never see an AAF `tu` edge |

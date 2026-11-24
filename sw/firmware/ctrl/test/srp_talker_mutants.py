@@ -7,10 +7,14 @@ its own words: srp_talker.cpp's (SRP alone) or test_acmp_mbx.cpp's SrpGate (the 
 window, SRP's Listener registration, MAAP's DA gate and a range MAAP loses). The two-interface campaign plants them at
 8x8/2if (ENTITY), the one-interface campaign at 1x1/1if (test_ctrl_firmware.run_srp_mutants selects them by name). One
 defect a rule: a source declares only while valid (Milan v1.2 4.3.3.1, 5.3.7.4) and at once; a lapse withdraws, its
-licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one no sooner than two
-of the longest LeaveAll periods after the Leave (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951), whether it changed while
-declared or while lapsed, after the latest Leave THE TRANSMIT allows, and held across a reset, never at the two
-LeaveAllTime periods it was before #951, alone or after a range lost to a conflict; an admission change swaps in
+licence and TALKER_DECL bit first; an unchanged destination comes back at once and a changed one is held from its
+Leave's request for two of the longest LeaveAll periods less a JoinTime and THE TRANSMIT's MRPDU, so it reaches the
+wire no later than the two periods (IEEE 802.1Q-2018 35.2.2.8, 10.7.4.3; #951, #956), whether it changed while
+declared or while lapsed, at the latest THE TRANSMIT allows, at every withdrawal phase with the join timer idle or
+running as the count ends, a build resumed in a later slice keeping owed what came due since its first, and held
+across a reset; never at the two LeaveAllTime
+periods it was before #951, alone or after a range lost to a conflict, nor with #951's terms added past the two
+periods, nor a centisecond short of the hold-off or with its terms taken twice; an admission change swaps in
 place; a refused declaration is declared again; a withdrawal lwSRP refuses keeps the source declared and owed until
 lwSRP takes its Leave; THE TRANSMIT's call publishes within srp_bounds.h's terms; the entry refuses before attach and
 on reentry; and the composition feeds each interface's DA gate and range. The source's frames carry the stream_id
@@ -20,7 +24,12 @@ word in its own register, again before each reopening, read from the source port
 declaration its STREAM_OUTPUT shows is noticed for its GET_STREAM_INFO notice (#936; Milan v1.2 5.4.5.2, Table 5.22):
 a declaration, a withdrawal, a type swapped in place (only once made) and an adopted Domain's other VID, and nothing
 else, a reset that declares an unchanged source again included; the SRP delivery takes the record and an attach
-starts with none (ctrl_app_srp.c).
+starts with none (ctrl_app_srp.c). Each change of the Listener registered for a source's stream, which its
+STREAM_OUTPUT shows too (#957; #943's REGISTERING and REGISTERING_FAILED), is recorded on its interface: a Listener
+appearing, replacing another or going, while its DA gate is open there, and nothing else, a Listener declared again
+or registered again after a LeaveAll included: the declaration its indication copies compared, Ignore at a
+registration's end, in the record a declaration's change is (noticed), and the first registration after a reset,
+which destroys the registrations with no indication, recorded whatever it declares.
 """
 from __future__ import annotations
 
@@ -37,7 +46,7 @@ VALID = "Talker.ValidSourceDeclaresAtOnceAndNothingBefore"
 LAPSE = "Talker.LapseWithdrawsTheAdvertiseAndDeclaresNothing"
 AGAIN = "Talker.UnchangedDestinationIsDeclaredAgainAtOnce"
 CHANGED = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriods"
-LATEST = "Talker.ChangedDestinationWaitsTwoLongestLeaveAllPeriodsAfterTheLatestLeave"
+LATEST = "Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsAtTheLatest"
 MOVED = "Talker.DestinationChangeWhileValidWithdrawsTheOld"
 ADMIT = "Talker.AdmissionChangeSwapsTheTypeInPlace"
 RESET = "Talker.ResetKeepsAnUnchangedSourceAndHoldsAMovedOne"
@@ -49,6 +58,11 @@ NOTICED = "Talker.DeclarationAndWithdrawalAreNoticed"
 SWAP_NOTICED = "Talker.TypeSwapIsNoticed"
 VID_NOTICED = "Talker.AdoptedDomainVidIsNoticed"
 RESET_NOTICED = "Talker.ResetNoticesNothingUnchanged"
+REGISTRATION = "Talker.ListenerRegistrationChangeIsNoticed"
+REGISTRATION_RESET = "Talker.ListenerRegistrationAfterAResetIsNoticed"
+RUNNING = "Talker.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriodsWithTheJoinTimerRunning"
+#: the sweep's instance at a phase whose count's end finds the join timer running at every point (srp_talker.cpp)
+PHASES = "EveryPhase/TalkerPhase.ChangedDestinationReachesTheWireWithinTwoLongestLeaveAllPeriods/Held340"
 TAKEN = "SrpGate.F936AProbeAndItsExpiryEachNoticeTheSource"
 TAKEN_PASS = "SrpGate.F936BThePassThatTakesTheRecordOwesItsNotice"
 PROBE = "SrpGate.F895AProbeDeclaresTheSourceAndItsExpiryWithdrawsIt"
@@ -68,11 +82,14 @@ WITHDRAWS = "        if ((i->talkers & bit) != 0u && (!valid || (i->readdressed 
 WAITS = "        const bool waits = (i->readdressed & bit) != 0u && m->held_cs[n] != 0u;\n"
 DECLARES = ("        if (valid && !waits && (how != SRP_DECLARE_CHANGED || (i->talkers & bit) == 0u || "
             "admitted != was)) {\n")
-#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two of the longest LeaveAll periods (#951), a JoinTime and
-#: THE TRANSMIT's MRPDU by every source, rounded up to the centisecond.
-REDECLARE = "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS + SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
-#: the hold-off before #951: two LeaveAllTime periods, the shortest two LeaveAll periods can be (10.7.4.3).
-TWO_LEAVEALLTIME = REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "2u * SRP_LEAVEALL_CS")
+#: the withdrawn Talker's hold-off, as srp_mbx.c derives it: two of the longest LeaveAll periods (#951) with a JoinTime
+#: and THE TRANSMIT's MRPDU by every source, rounded up to the centisecond, counted inside them (#956).
+REDECLARE = "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)\n"
+#: #951's hold-off: both terms added past the two periods, about 30.2 s at one interface.
+ADDED = REDECLARE.replace(" - SRP_JOIN_CS - ", " + SRP_JOIN_CS + ")
+#: the hold-off before #951: two LeaveAllTime periods, the shortest two LeaveAll periods can be (10.7.4.3), and both
+#: terms added.
+TWO_LEAVEALLTIME = ADDED.replace("2u * SRP_LEAVEALL_LONGEST_CS", "2u * SRP_LEAVEALL_CS")
 LICENCE = ("            if (i->active[n]) {\n                i->active[n] = false;\n                ++m->stops;\n"
            "                publish_licence(i);\n                m->config.licence(m->config.ctx,i->index,n,false);\n"
            "            }\n")
@@ -102,12 +119,21 @@ TAKE = ("    for (unsigned interface = 0; interface < MBX_N_IF; ++interface) {\n
         "        app->srp->ifs[interface].noticed = 0u;\n    }\n")
 #: the SRP delivery's report of the record it took as owed output (#936; ctrl_loop.h, the polls).
 OWED = "    bool pending = noticed;\n"
+#: what a source's STREAM_OUTPUT shows of its Listener's registration while its DA gate is open, and its record of a
+#: change (#957), as srp_mbx.c holds them: the indication's comparison and copy of the declaration.
+RECORDED = ("            i->noticed |= (uint32_t)(i->declaration[n] != declaration) << n & i->gate;\n"
+            "            i->declaration[n] = (uint8_t)declaration;\n")
+#: the reset's clear of the declaration a registration it destroys held (#957), as srp_mbx.c holds it.
+FORGOTTEN = "        i->declaration[k] = 0u;\n"
+#: what came due since the slice a build resumes from, which the build keeps owed once it ends (#956), as srp_mbx.c
+#: holds it.
+CAME_DUE = "    const unsigned again = resume != 0u ? m->tx_due : 0u;\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
     """Every Talker declaration defect, built with srp_mutants.Defect: the declarations', then the entry's and the
     stream_id's, in that order."""
-    return declaration_defects(kind) + entry_defects(kind) + notice_defects(kind)
+    return declaration_defects(kind) + hold_off_defects(kind) + entry_defects(kind) + notice_defects(kind)
 
 
 def planter(kind: Callable[..., T]) -> Callable[..., T]:
@@ -121,8 +147,8 @@ def planter(kind: Callable[..., T]) -> Callable[..., T]:
 
 
 def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
-    """The declarations' defects: validity, the lapse, the hold-off, the admission's swap, the withdrawal's Leave and
-    THE TRANSMIT's publications (srp_mbx.c)."""
+    """The declarations' defects: validity, the lapse, the admission's swap, the withdrawal's Leave and THE TRANSMIT's
+    publications (srp_mbx.c); the hold-off's are hold_off_defects'."""
     d = planter(kind)
     return (
         d("talker-declared-while-not-valid", VALID, DECLARES, DECLARES.replace("if (valid && !waits", "if (!waits"),
@@ -134,32 +160,6 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           "        bool changed = (valid & ~i->gate) != 0u;\n", "the probe's 15 s expiry withdraws the Talker"),
         d("talker-unchanged-held", AGAIN, WAITS,
           "        const bool waits = m->held_cs[n] != 0u;\n", "an unchanged destination is declared again at once"),
-        d("talker-hold-off-skipped", CHANGED, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "                m->held_cs[n] = 1u;\n",
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
-          "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
-          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
-        d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
-          REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
-          "no Talker of a changed destination is declared before the hold-off ends"),
-        d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
-          "a changed destination waits two of the longest LeaveAll periods after the Leave"),
-        d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
-          REDECLARE.replace(" + (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
-        d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
-          "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the Leave"),
-        d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
-          REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
-          "the changed destination comes no sooner than two of the longest LeaveAll periods after the latest Leave"),
-        d("talker-hold-off-never-ends", CHANGED,
-          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
-          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
-          "a changed destination is declared once the hold-off ends"),
         d("talker-change-while-valid-unmarked", MOVED,
           "                moved = moved || s->value.dest_mac[b] != (uint8_t)dest;\n",
           "                moved = moved || (s->value.dest_mac[b] != (uint8_t)dest && false);\n",
@@ -209,6 +209,65 @@ def declaration_defects(kind: Callable[..., T]) -> tuple[T, ...]:
         d("talker-transmit-publishes-past-its-terms", TERMS, "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "    (void)mbx_pub_talker_decl(i->index,i->talkers);\n    (void)mbx_pub_talker_decl(i->index,i->talkers);\n",
           "THE TRANSMIT's call publishes TALKER_DECL at most once a declarations pass"),
+    )
+
+
+def hold_off_defects(kind: Callable[..., T]) -> tuple[T, ...]:
+    """The withdrawal's hold-off before a changed destination is declared (#895, #951, #956; srp_mbx.c,
+    SRP_REDECLARE_CS and count_held): its start, its terms inside the two longest LeaveAll periods, its end."""
+    d = planter(kind)
+    return (
+        d("talker-hold-off-skipped", CHANGED, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = 1u;\n",
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-lapse-starts-no-hold-off", LOST, "                m->held_cs[n] = SRP_REDECLARE_CS;\n",
+          "                m->held_cs[n] = (i->readdressed & bit) != 0u ? SRP_REDECLARE_CS : 0u;\n",
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
+        d("talker-hold-off-one-leaveall", CHANGED, REDECLARE,
+          REDECLARE.replace("2u * SRP_LEAVEALL_LONGEST_CS", "SRP_LEAVEALL_LONGEST_CS"),
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods", CHANGED, REDECLARE, TWO_LEAVEALLTIME,
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-two-leavealltime-periods-after-a-conflict", LOST, REDECLARE, TWO_LEAVEALLTIME,
+          "a changed destination waits two of the longest LeaveAll periods less its terms after the Leave"),
+        d("talker-hold-off-adds-its-terms", CHANGED, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal"),
+        d("talker-hold-off-adds-its-terms-at-the-latest", LATEST, REDECLARE, ADDED,
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-adds-its-terms-after-a-conflict", LOST, REDECLARE, ADDED,
+          "the new range's destination reaches the wire within two of the longest LeaveAll periods of the conflict"),
+        d("talker-hold-off-a-centisecond-short", CHANGED, REDECLARE, REDECLARE.replace(" / 10u)", " / 10u - 1u)"),
+          "TALKER_DECL holds a changed destination withdrawn while it waits"),
+        d("talker-hold-off-takes-its-terms-twice", CHANGED, REDECLARE,
+          REDECLARE.replace(" - SRP_JOIN_CS - (CTRL_LOOP_TX_MS + 9u) / 10u)",
+                            " - 2u * (SRP_JOIN_CS + (CTRL_LOOP_TX_MS + 9u) / 10u))"),
+          "no Talker of a changed destination is declared before the hold-off ends"),
+        d("talker-hold-off-drops-the-transmit-term", LATEST, REDECLARE,
+          REDECLARE.replace(" - (CTRL_LOOP_TX_MS + 9u) / 10u)", ")"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-drops-the-join-and-transmit-terms", CHANGED, REDECLARE,
+          "#define SRP_REDECLARE_CS (2u * SRP_LEAVEALL_LONGEST_CS)\n",
+          "a changed destination is declared two of the longest LeaveAll periods less a JoinTime and THE "
+          "TRANSMIT's term after its Leave's request"),
+        d("talker-hold-off-rounds-the-transmit-term-down", LATEST, REDECLARE,
+          REDECLARE.replace("(CTRL_LOOP_TX_MS + 9u) / 10u", "CTRL_LOOP_TX_MS / 10u"),
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-hold-off-never-ends", CHANGED,
+          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u) {\n",
+          "                if (((i->gate & i->readdressed) >> n & 1u) != 0u && n > CTRL_SRP_SOURCES) {\n",
+          "a changed destination is declared once the hold-off ends"),
+        # the split before the correction: a build resumed in a later slice drops what came due since its first, so a
+        # join timer's end between the two leaves the declaration the count's end made for the next periodic MRPDU
+        d("talker-resume-drops-what-came-due", RUNNING, CAME_DUE, "    const unsigned again = 0u;\n",
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
+        d("talker-resume-drops-what-came-due-at-a-phase", PHASES, CAME_DUE, "    const unsigned again = 0u;\n",
+          "the changed destination reaches the wire no later than two of the longest LeaveAll periods after the "
+          "withdrawal, at the latest"),
     )
 
 
@@ -287,4 +346,20 @@ def notice_defects(kind: Callable[..., T]) -> tuple[T, ...]:
           path=APP),
         d("talker-notice-owed-unreported", TAKEN_PASS, OWED, "    bool pending = false;\n    (void)noticed;\n",
           "owes its notice", path=APP),
+        # #957: a Listener registration change of a source's stream, what its STREAM_OUTPUT shows of it
+        d("talker-registration-unrecorded", REGISTRATION, RECORDED, RECORDED.split("\n", 1)[1],
+          "a Listener Ready appearing is noticed"),
+        d("talker-registration-unchanged-recorded", REGISTRATION, RECORDED,
+          RECORDED.replace("(uint32_t)(i->declaration[n] != declaration) << n", "1u << n"),
+          "a Listener declared New again unchanged is not noticed"),
+        d("talker-registration-declaration-uncopied", REGISTRATION, RECORDED, RECORDED.split("\n", 1)[0] + "\n",
+          "a Listener declared New again unchanged is not noticed"),
+        d("talker-registration-ungated", REGISTRATION, RECORDED, RECORDED.replace(" & i->gate;", ";"),
+          "a Listener of a source whose DA gate is closed is not noticed"),
+        d("talker-registration-of-source-zero", REGISTRATION, RECORDED,
+          RECORDED.replace("(uint32_t)(i->declaration[n] != declaration) << n & i->gate",
+                           "(uint32_t)(i->declaration[n] != declaration) & i->gate"),
+          "a Listener Ready appearing is noticed"),
+        d("talker-registration-kept-across-a-reset", REGISTRATION_RESET, FORGOTTEN, "",
+          "the first Listener registration after a reset is noticed, whatever the one before it declared"),
     )
