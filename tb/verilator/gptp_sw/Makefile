@@ -8,6 +8,7 @@
 VERILATOR ?= verilator
 ROOT = ../../..
 FW ?= $(ROOT)/sw/firmware/ctrl
+STACK_DIR ?= $(abspath $(ROOT)/third_party/tsn-c-stack)
 HDL = $(ROOT)/hdl
 MDIR ?= ./obj_dir
 GEN = $(abspath $(MDIR))/gen
@@ -20,7 +21,7 @@ MBX = $(GEN)/mbx
 FW_SRC = $(FW)/gptp/gptp.c $(FW)/gptp/gptp_mbx.c $(FW)/loop/ctrl_loop.c $(MBX)/mbx.c $(FW)/host/mbx_model.c \
          $(FW)/host/mbx_plat_host.c
 INC = -I$(MBX) -I$(abspath $(FW))/gptp -I$(abspath $(FW))/loop -I$(abspath $(FW))/host \
-      -I$(abspath $(FW))/port -I$(abspath $(ROOT))/third_party/tsn-c-stack/include
+      -I$(abspath $(FW))/port -I$(abspath $(STACK_DIR))/include
 VFLAGS = --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Wno-DECLFILENAME \
          -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-GENUNNAMED -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
          -Wno-PROCASSINIT -CFLAGS "-std=c++17 -O2 -Wall -Wextra $(INC)"
@@ -38,9 +39,15 @@ $(MBX)/mbx_contract.h: $(ROOT)/sw/mailbox/mailbox.yaml $(wildcard $(ROOT)/sw/mai
 	rm -rf $(MBX) && cp -r $(abspath $(FW))/mbx $(MBX) && cp $(GEN)/mbx_contract.h $(MBX)/mbx_contract.h
 
 # the firmware is C11: built by the C compiler, as the firmware gates build it, and linked into the bench
-$(MDIR)/fw/%.o: $(MBX)/mbx_contract.h $(filter-out $(MBX)/%,$(FW_SRC)) $(wildcard $(FW)/*/*.h)
+$(MDIR)/fw/%.o: $(MBX)/mbx_contract.h $(filter-out $(MBX)/%,$(FW_SRC)) $(wildcard $(FW)/*/*.h) \
+                $(wildcard $(STACK_DIR)/include/*.h)
 	@mkdir -p $(MDIR)/fw
 	$(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(INC) -c $(filter %/$*.c,$(abspath $(FW_SRC))) -o $@
+
+stack-pin:
+	python3 -B $(ROOT)/sw/firmware/ctrl/test/ctrl_build.py --stack-pin $(STACK_DIR)
+
+$(FW_OBJ) build: | stack-pin
 
 build: $(FW_OBJ)
 	$(VERILATOR) $(VFLAGS) --top-module tb_gptp_sw --Mdir $(MDIR) -I$(HDL)/common $(RTL) sim_main.cpp \
@@ -55,4 +62,4 @@ mutants:
 clean:
 	rm -rf obj_dir obj_mut_*
 
-.PHONY: all build run mutants clean
+.PHONY: all build run mutants clean stack-pin
