@@ -1,0 +1,233 @@
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index b8fe69e..9b04373 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -34,7 +34,7 @@
+ //                                            stages the taken path), 15
+ //                                            thisClock RO)
+ //                  4  PHC control       RW  (0 rate, 1 step, 2 slew verdict,
+-//                                            3 integral-only rate)
++//                                            3 mastership rate and change)
+ //                  5  timer arm         WO  (slot = addr, delta ms = data)
+ //                  6  Follow_Up TLV     RO  (#100: 0..2, the information
+ //                                            TLV after its rate offset)
+@@ -929,18 +929,18 @@ module KL_gptp_engine
+   //!    whole here (pub_offset_o carries its low 32 bits). A master
+   //!    publishes no offset, so it holds through the mastership. Zero
+   //!    after a reset, as is the offset.
+-  //!  - scaledLastGmFreqChange is the frequency the time base keeps,
+-  //!    relative to the grandmaster it leaves, from the rate estimate the
+-  //!    slave held: the trim the PHC keeps minus the integrator that word
+-  //!    3 carries. When the write applies (a slew active), the PHC keeps
+-  //!    the estimate itself and the change is zero; otherwise the last
+-  //!    trim stays, its proportional term the change. Zero when no rate
+-  //!    has been written since reset, as the PHC's rate is then unknown.
++  //!  - scaledLastGmFreqChange is the frequency of the time base,
++  //!    relative to the grandmaster it leaves (#107). A mastership runs on
++  //!    this oscillator, so the change is the rate 0 less the slave's
++  //!    estimate, which word 3 carries in its high word (prog_become).
++  //!    Zero when no slave rate has been written since reset or since the
++  //!    last mastership: the time base has then not left this oscillator,
++  //!    or its rate before a reset is not known.
+   //! A trim unit adds 2^-24 ns per clock, CLK_HZ_P * 2^-24 * 1e-9 of
+   //! frequency, which the TLV scales by 2^41 (11.4.4.3.9): one unit is
+   //! CLK_HZ_P * 2^17 / 1e9, here TLV_K_C / 2^16, rounded to the nearest.
+-  //! The product is floored ("the next smaller signed integer"). Both
+-  //! trims lie within RATE_PPM_C, so the difference fits 25 bits and the
++  //! The product is floored ("the next smaller signed integer"). The
++  //! estimate lies within RATE_PPM_C, so the change fits 25 bits and the
+   //! result 31.
+   localparam longint unsigned TLV_K_C =
+       ((64'(CLK_HZ_P) << 33) + 64'd500_000_000) / 64'd1_000_000_000;
+@@ -948,7 +948,7 @@ module KL_gptp_engine
+   logic [15:0] tlv_tbi_r = 16'd0;
+   /* verilator lint_on PROCASSINIT */
+   logic [31:0] pub_offset_hi_r;
+-  logic        phc_rate_seen_r;
++  logic        slave_rate_seen_r;
+   logic        tlv_mul_r;
+   logic signed [24:0] tlv_dlt_r;
+   logic signed [31:0] tlv_freq_r;
+@@ -958,26 +958,31 @@ module KL_gptp_engine
+   wire         tlv_become_w = st_req_w && st_we_w &&
+                               (st_addr_w[19:16] == 4'd4) &&
+                               (st_addr_w[1:0] == 2'd3);
++  //! a slave's rate write, PHC word 0 (a step's rate tail included)
++  wire         tlv_rate_w = st_req_w && st_we_w &&
++                            (st_addr_w[19:16] == 4'd4) &&
++                            (st_addr_w[1:0] == 2'd0);
+   wire signed [63:0] tlv_prod_w = 64'(tlv_dlt_r) *
+                                   $signed({1'b0, TLV_K_C[31:0]});
+ 
+   always_ff @(posedge clk_i) begin : tlv_become
+     if (tlv_become_w) tlv_tbi_r <= tlv_tbi_r + 16'd1;
+     if (!rst_n) begin
+-      pub_offset_hi_r <= '0;
+-      phc_rate_seen_r <= 1'b0;
+-      tlv_mul_r       <= 1'b0;
+-      tlv_dlt_r       <= '0;
+-      tlv_freq_r      <= '0;
++      pub_offset_hi_r   <= '0;
++      slave_rate_seen_r <= 1'b0;
++      tlv_mul_r         <= 1'b0;
++      tlv_dlt_r         <= '0;
++      tlv_freq_r        <= '0;
+     end else begin
+       if (st_req_w && st_we_w && (st_addr_w[19:16] == 4'd3) &&
+           (st_addr_w[3:0] == 4'd4))
+         pub_offset_hi_r <= st_wdata_w[63:32];
+-      if (phc_addend_we_o) phc_rate_seen_r <= 1'b1;
++      if (tlv_rate_w) slave_rate_seen_r <= 1'b1;
++      else if (tlv_become_w) slave_rate_seen_r <= 1'b0;
+       tlv_mul_r <= tlv_become_w;
+       if (tlv_become_w)
+-        tlv_dlt_r <= (phc_slew_active_o || !phc_rate_seen_r) ? 25'sd0
+-                   : 25'(phc_addend_o - st_wdata_w[31:0]);
++        tlv_dlt_r <= !slave_rate_seen_r ? 25'sd0
++                   : 25'(st_wdata_w[63:32]);
+       if (tlv_mul_r) tlv_freq_r <= 32'(tlv_prod_w >>> 16);
+     end
+   end
+@@ -1276,11 +1281,12 @@ module KL_gptp_engine
+                   phc_slew_active_o <= 1'b1;
+               end
+               2'd3: begin
+-                //! Mastership explicitly retires the slave's phase term.
+-                if (phc_slew_active_o) begin
+-                  phc_addend_we_o <= 1'b1;
+-                  phc_addend_o    <= st_wdata_w[31:0];
+-                end
++                //! Mastership retires the slave's correction (#107): the
++                //! low word, BECOME's rate 0, always applies, so the time
++                //! base runs on this oscillator. The high word is the
++                //! Follow_Up TLV's (tlv_become).
++                phc_addend_we_o <= 1'b1;
++                phc_addend_o    <= st_wdata_w[31:0];
+                 phc_slew_left_r   <= 2'd0;
+                 phc_slew_active_o <= 1'b0;
+               end
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index baeb0d0..ce7b6ed 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -4,6 +4,23 @@
+ """gPTP µcode ROM image generator -- v8, the announce qualification and the
+ Pdelay_Resp_Follow_Up pairing rounds.
+ 
++FPGA-gPTP #107, the rate of this plane's mastership: a grandmaster without
++a ClockSource runs on its LocalClock (802.1AS-2020 10.1.2.1, 10.2.4.14), so
++BECOME no longer keeps the slave's rate. Its PHC word-3 write carries rate
++0, this oscillator, in its low word, which the engine always applies, and
++the integrator in its high word. The integrator is the negated rate
++estimate, so it is the frequency change of the time base, the
++scaledLastGmFreqChange the engine sends (10.2.8.2.1 l), 11.4.4.3.9). The
++same three words as before.
++
++FPGA-gPTP #106, the master announcement on the wire: BECOME used to arm the
++first Announce on a 2 ms beat. An Announce queued at the receipt timeout
++instant, or arriving within those 2 ms, then ran first, re-elected its
++grandmaster and disarmed the beat, so the aged port's mastership never
++reached the wire. SELF now ends in ANNTX, so the handler that takes the role
++sends its first Announce and arms the 1 s cadence from it (802.1AS-2011
++Figure 10-15). Two words fewer.
++
+ FPGA-gPTP #100, what this plane's mastership and its receipt rules carry:
+ 
+   * The Follow_Up information TLV of a grandmaster (802.1AS-2011
+@@ -11,8 +28,9 @@ FPGA-gPTP #100, what this plane's mastership and its receipt rules carry:
+     from region 6 (RG_TLV): gmTimeBaseIndicator counts BECOME's PHC
+     word-3 write, the one entry into mastership; lastGmPhaseChange is the
+     offset of the last Sync consumed as a slave (10.2.9, Figure 10-6);
+-    scaledLastGmFreqChange is the trim the PHC keeps less the rate
+-    estimate word 3 carries. cumulativeScaledRateOffset stays zero.
++    scaledLastGmFreqChange was the trim the PHC kept less the rate
++    estimate word 3 carried (since #107, rate 0 less that estimate).
++    cumulativeScaledRateOffset stays zero.
+   * The announce receipt watch (timer slot 2) is announceReceiptTimeout
+     times the received interval (10.3.9.1). The engine scales BTCA's
+     3000 ms arm by 2^logMessageInterval and counts it from the Announce's
+@@ -1975,18 +1993,22 @@ def prog_becgate(base: int) -> Prog:
+ 
+ def prog_become(base: int) -> Prog:
+     """Take the grandmaster role: retire the slave's phase correction, swap
+-    the slave's receipt watches for the Sync and Announce transmit
+-    cadences, then publish ourselves through SELF."""
++    the slave's Announce receipt watch for the Sync transmit cadence, then
++    publish ourselves through SELF, whose ANNTX tail sends the first
++    Announce and starts the Announce cadence (#106)."""
+     p = Prog(base)
+-    # Retire the slave's phase correction before publishing mastership.
+-    # Word 3 replaces the trim with the retained rate estimate and clears
+-    # the slew verdict on that same PHC write, just as a step's rate tail.
+-    # #100: this write is also the engine's mark of a new mastership, for
+-    # the Follow_Up TLV: it counts gmTimeBaseIndicator and takes the
+-    # frequency change against the estimate it carries. Keep it BECOME's
+-    # alone, once per mastership
++    # Retire the slave's correction before publishing mastership. #107:
++    # the time base returns to this oscillator. Word 3's low word is the
++    # rate, here 0, which replaces the trim and clears the slew verdict on
++    # that same PHC write. Its high word is the frequency change, rate 0
++    # less the slave's estimate: the integrator itself, as the trim is its
++    # negation. #100: this write is also the engine's mark of a new
++    # mastership, for the Follow_Up TLV: it counts gmTimeBaseIndicator and
++    # keeps that change. Keep it BECOME's alone, once per mastership. The
++    # integrator stays, so a later slave starts from the estimate, as
++    # after a step
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+-    p.emit("ALU", rd=RT, ra=R0, rb=RT, cnd=ALU_SUB)
++    p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SHL, imm=32)
+     p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+     # no peer is elected: gmPresent is the engine's, from the image. The
+     # grandmaster's own time is the domain's time, so the master role is
+@@ -1998,8 +2020,10 @@ def prog_become(base: int) -> Prog:
+     e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)  # sync now
+-    p.emit("MOVE", rd=RT, ra=0, imm=2)
+-    p.emit("WRST", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)  # announce now
++    # #106: no Announce beat is armed here. SELF ends in ANNTX, which sends
++    # this mastership's first Announce in this same handler, so it leaves
++    # before any event queued behind the role change (802.1AS-2011 Figure
++    # 10-15, TRANSMIT_ANNOUNCE on newInfo), and arms the 1 s cadence from it
+     p.emit("WRST", ra=0, imm=RG_TMR | 2, fmt=FMT_Q)   # stop the watch
+     # The port's Sync watches run on (#89). syncReceiptTimeoutTime is the
+     # port's, so an expiry after this still marks it (10.3.11). A parked
+@@ -2012,7 +2036,17 @@ def prog_become(base: int) -> Prog:
+ def prog_self(base: int) -> Prog:
+     """Publish ourselves: thisClock as grandmaster and parent, the best
+     record back to our own vector and the path {thisClock}, in one COMMIT.
+-    BECOME ends here, and so does BECGATE's drop of an elected peer (#82)."""
++    BECOME ends here, and so does BECGATE's drop of an elected peer (#82).
++
++    Then ANNTX (#106). After BECOME it sends the new master's first
++    Announce at once and starts the 1 s cadence from it (802.1AS-2011
++    Figure 10-15: UPDATE's newInfo takes IDLE to TRANSMIT_ANNOUNCE, and
++    announceSendTime counts from that transmission). A deferred beat lost
++    the race to an Announce already queued at the receipt timeout instant,
++    whose handler disarmed it, so no master announcement reached the wire.
++    After the drop, the role gate in ANNTX skips the beat, and the cadence
++    then runs as Figure 10-15's TRANSMIT_PERIODIC does for a port that is
++    not a MasterPort, sending nothing until an adoption disarms it."""
+     p = Prog(base)
+     p.emit("RDST", rd=RC, imm=RG_SCR | S_CID, fmt=FMT_Q)
+     p.emit("WRST", ra=RC, imm=RG_PUB | 0, fmt=FMT_Q)
+@@ -2028,7 +2062,7 @@ def prog_self(base: int) -> Prog:
+     # transaction: the path {thisClock}, every later entry erased.
+     p.emit("WRST", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)
+     p.emit("COMMIT")
+-    p.emit("END")
++    p.emit("BR", label=LB["ANNTX"])
+     return p
+ 
+ 
+@@ -2455,6 +2489,10 @@ def prog_leg_anntx(base: int) -> Prog:
+     transmit credit. The skipped beat now ends the program rather than
+     sitting between the gates and the body, so the gates fall straight
+     through into the build and no branch around them is needed.
++
++    Entered from the slot-3 beat and, since #106, from SELF: there it is a
++    new mastership's first Announce, sent at once, and its re-arm starts
++    the cadence one announceInterval after that Announce.
+     """
+     p = Prog(base)
+     p.emit("MOVE", rd=RT, ra=0, imm=1000)

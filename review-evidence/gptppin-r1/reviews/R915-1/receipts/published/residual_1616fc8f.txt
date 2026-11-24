@@ -1,0 +1,45 @@
+HEAD:CHANGELOG.md:23:- **[Unreleased - gPTP pin 1616fc8f](#unreleased---gptp-pin-1616fc8f)** -- clockAccuracy per board.
+HEAD:CHANGELOG.md:164:- The FPGA-gPTP pin stays `1616fc8f`.
+HEAD:CHANGELOG.md:220:- It lands with #843's FPGA-gPTP `1616fc8f`.
+HEAD:CHANGELOG.md:366:## Unreleased - gPTP pin 1616fc8f
+HEAD:CHANGELOG.md:368:- Issue #843 adopts gPTP `1616fc8f`, PRs #99 and #101.
+HEAD:docs/design/AREA_BUDGET.md:126:Issue [#843](https://github.com/kebag-logic/milan-fpga/issues/843) then re-recorded the route endpoint at lane commit `a6d7cdf3`, its merge of dev `1eb5289d`, adopting FPGA-gPTP `1616fc8f` with processor `92100657`.
+HEAD:docs/design/AREA_BUDGET.md:129:That route and those standalone records were the gate's record; the route's [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) retain the preceding route recor
+HEAD:docs/design/AREA_BUDGET.md:130:Issue [#851](https://github.com/kebag-logic/milan-fpga/issues/851) then re-recorded all three endpoints at lane commit `e44a4d20`, its merge of dev `0a75aa77`, adopting processor `044cb25f` with FPGA-gPTP `1616fc8f`.
+HEAD:docs/design/AREA_BUDGET.md:132:That measurement was the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) retain the preceding record.
+HEAD:docs/design/AREA_BUDGET.md:137:That commit carried FPGA-gPTP `a64be73d`, which a later lane commit reverts to `1616fc8f`; the two pins' synthesis inputs are the same.
+HEAD:docs/design/AREA_BUDGET.md:205:The adoption of FPGA-gPTP `1616fc8f` ([#843](https://github.com/kebag-logic/milan-fpga/issues/843)) is the other lab-fix pin that decision covers.
+HEAD:docs/design/AREA_BUDGET.md:235:| Directive, processor `044cb25f` with FPGA-gPTP `1616fc8f` | WNS / WHS, worst corner | LUT | FF | Slice | Free |
+HEAD:docs/design/AREA_BUDGET.md:693:The [fourteenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) re-records the route alone for [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1
+HEAD:docs/design/AREA_BUDGET.md:699:The [fifteenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) records [#851](https://github.com/kebag-logic/milan-fpga/issues/851)'s adoption of processor `0
+HEAD:docs/design/AREA_BUDGET.md:704:The [sixteenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-11-09-the-control-frame-drop-count) records [#854](https://github.com/kebag-logic/milan-fpga/issues/854)'s control-frame drop count at lane commi
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1104:[#843](https://github.com/kebag-logic/milan-fpga/issues/843) then re-recorded it at FPGA-gPTP `1616fc8f`, under the same decision, to 53,221 LUTs, 15,834 slices and 74/27.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:14:Its [next record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) adopted FPGA-gPTP `1616fc8f` for #843 on its merge of dev `1eb5289d`, under the same decision, and kept #845's standalone records.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:15:Its [next record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f) adopted processor `044cb25f` for #851 on its merge of dev `0a75aa77`, the first image with all four lab fixes.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:22:The #843 record moved the gPTP pin to `1616fc8f`, and the #851 record moved the processor pin to `044cb25f`; the #854 record moved no pin.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:23:The current record, #883's, moves the processor pin to `801ef228`; the gPTP pin stays `1616fc8f`.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:29:- **[Re-baseline of 2026-11-11, processor 801ef228](#re-baseline-of-2026-11-11-processor-801ef228)** -- The current record: #883's processor `801ef228` on dev `46c971fa`, gPTP kept at `1616fc8f`, remeasured 
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:31:- **[Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)** -- The preceding record: processor `044cb25f` on the merge
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:32:- **[Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f)** -- The preceding route record, under the same maintainer decision: FPGA-gPTP `1616fc8f` with processor `92
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:57:This re-baseline records [#883](https://github.com/kebag-logic/milan-fpga/issues/883)'s adoption of processor `801ef2283ec793e35a2590fc6593c90313a64041` (protocol-processor PRs #218 and #219, for its #216 an
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:59:That commit carried FPGA-gPTP `a64be73de32f3ec5084cf908a530218e9006453e` (FPGA-gPTP PR #103, for its #102); lane commit `8edfae99` reverts it to `1616fc8f`, and the lane's other later commits change no synth
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:63:FPGA-gPTP `a64be73d` changes test infrastructure only; its `hdl/` and `syn/` are byte-identical to `1616fc8f`'s and its ROM digest is unchanged.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:162:Processor `044cb25f` and FPGA-gPTP `1616fc8f` are unchanged.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:164:From the [preceding record](#re-baseline-of-2026-11-08-processor-044cb25f-with-fpga-gptp-1616fc8f)'s commit `e44a4d20` to dev `ac0a01e3` no synthesis input moves: the diff lists documentation, testbench fil
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:283:## Re-baseline of 2026-11-08, processor 044cb25f with FPGA-gPTP 1616fc8f
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:285:This re-baseline records [#851](https://github.com/kebag-logic/milan-fpga/issues/851)'s adoption of processor `044cb25f4ed2187bd238490650e73d5d189855d1` (protocol-processor PR #215, for its #214) on dev `0a
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:290:Dev `0a75aa77`'s synthesis inputs are those the [preceding route record](#re-baseline-of-2026-11-07-fpga-gptp-1616fc8f) measured at `a6d7cdf3`, so the route's differences below are this adoption's alone.
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:410:## Re-baseline of 2026-11-07, FPGA-gPTP 1616fc8f
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:412:This re-baseline records [#843](https://github.com/kebag-logic/milan-fpga/issues/843)'s adoption of FPGA-gPTP `1616fc8f062fbf58c35ad31674b5b233207bbdb8` (FPGA-gPTP PRs #99 and #101, for its #98 and #100), w
+HEAD:docs/reference/STRICTER_READINGS.md:100:They merged in FPGA-gPTP main `1616fc8f`, PR #101, which [#843](https://github.com/kebag-logic/milan-fpga/issues/843) pinned.
+HEAD:docs/reference/SUBMODULES.md:636:Issue #843 adopts gPTP pin `1616fc8f`.
+HEAD:docs/reference/SUBMODULES.md:728:It lands on dev `0a75aa77`, which carries #843's FPGA-gPTP `1616fc8f`.
+HEAD:docs/reference/SUBMODULES.md:864:The FPGA-gPTP pin stays `1616fc8f`.
+HEAD:docs/reference/SUBMODULES.md:887:| Leg, AX7101 1x1 | At `801ef228`, `1616fc8f` | At `044cb25f`, `1616fc8f`, the same harness |
+HEAD:docs/reference/SUBMODULES.md:951:It fast-forwards `1616fc8f` on the donor's `main`.
+HEAD:syn/ooc/pp_resource_baseline.json:451:   "measured": "2026-11-18, #665 (rulings issuecomment-6979461559, issuecomment-6979996755 and issuecomment-6981065172; the growth is area debt on #640, not a floor exception): the flip train's final head 05dc1791, st
+HEAD:syn/ooc/pp_resource_baseline.json:919:   "measured": "2026-11-11, issue #883 (processor pin 801ef2283ec793e35a2590fc6593c90313a64041, processor #216 and #217, PRs #218 and #219; FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8 unchanged): RTL inputs
+HEAD:syn/ooc/pp_resource_baseline.json:1377:   "measured": "2026-11-11, issue #883 (processor pin 801ef2283ec793e35a2590fc6593c90313a64041, processor #216 and #217, PRs #218 and #219; FPGA-gPTP pin 1616fc8f062fbf58c35ad31674b5b233207bbdb8 unchanged): RTL input
+HEAD:syn/yosys/rom_digests.tsv:19:1616fc8f062fbf58c35ad31674b5b233207bbdb8	gptp_ucode.hex	e83709d94e3368c8c10016c617dd9acc7072fe0b4f40a0e7b9111638de275357
+HEAD:tb/verilator/milan_dp/README.md:616:| processor `044cb25f` and FPGA-gPTP `1616fc8f`, the pins before #883 | Local control only: a scratch clone of the lane with both submodules checked out at those pins builds this leg with the #883 harness | 7 of 458 fai
+HEAD:tb/verilator/milan_dp/README.md:892:At the pins before #883 (processor `044cb25f`, FPGA-gPTP `1616fc8f`), the

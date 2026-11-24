@@ -1,0 +1,32 @@
+### python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0
+### python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0
+### python3 scripts/docs_inventory.py --check
+documentation inventory: OK (538 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+### python3 scripts/check_em_dash.py --base 300da99beed5bb1c77e4b04af0bb4f9369856e0d
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### git diff --check 300da99beed5bb1c77e4b04af0bb4f9369856e0d HEAD
+rc=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (25 current documents)
+rc=0
+### python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 223 md files + 1937 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
