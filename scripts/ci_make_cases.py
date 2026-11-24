@@ -76,7 +76,7 @@ def execute(directory: Path, name: str, form: str = "tally") -> tuple[str, int, 
 #: A case absent here costs 0 and keeps its driver order behind the measured
 #: ones; a stale figure can only make a piece slower, never change a verdict.
 #: How the figures were taken, and how to retake them: TESTING.md, "Case
-#: start order in a piece".
+#: start order in a piece". Issue #998; REQ-VER-01 and REQ-VER-04.
 CASE_SECONDS: dict[str, dict[str, int]] = {
     # 2026-11-24, at fcbc31f3: each case's `exec-<case>` alone on one core of its own, CPU seconds.
     "milan_dp": {

@@ -497,7 +497,9 @@ its own setup is not on their critical path. The workers run `--ci-pieces
 failed, cancelled or skipped preflight, a record for another SHA and a missing
 record each fail it, as `scripts/ci_suite_pieces_selftest.py` shows by running
 the generated step. The job is one of the fail-fast watcher's expected jobs, so
-a failing preflight also cancels the run's workers. The 122-second setup
+a failing preflight also cancels the run's workers on a push or a
+same-repository pull request; on a fork pull request the workers run to
+completion and `verilator-suites` is red. The 122-second setup
 allowance below still includes the preflight: it is re-measured from a hosted
 run before it is lowered.
 

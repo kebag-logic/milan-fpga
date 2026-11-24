@@ -78,7 +78,8 @@ def preflight_job(worker: dict) -> dict:
 
     Every worker ran the same eight self-tests on the same tree before its suites. This job
     runs them once, in parallel with the workers so that its own setup is not on their
-    critical path, and verilator-suites requires its success and its SHA record."""
+    critical path, and verilator-suites requires its success and its SHA record.
+    Issue #998; REQ-VER-01 and REQ-VER-04."""
     steps = [{"uses": "actions/checkout@v4"}]
     for step in worker["steps"]:
         if step.get("name") in PREFLIGHT_SETUP:

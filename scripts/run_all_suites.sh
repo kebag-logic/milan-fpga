@@ -17,7 +17,7 @@
 # once for the head, and the verilator-suites aggregate requires that job's
 # success for the same SHA (docs/testing/CI_WORKFLOWS.md, "Exhaustive
 # validation"). The serial sweep, --physical-gptp and every local run keep
-# their preflight.
+# their preflight. Issue #998; REQ-VER-01 and REQ-VER-04.
 #
 # Each suite is a directory with its own Makefile; the default target builds
 # and runs every shape that suite owns (several own more than one - milan_dp
