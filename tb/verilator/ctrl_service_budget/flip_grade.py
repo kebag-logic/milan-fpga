@@ -66,8 +66,8 @@ FLIP = {'8x8/2if': 0.70, '8x8/1if': 0.75}
 POINTS = (*rows_grade.POINTS, '8x8/1if')
 REPORTED = ('8x8/1if',)
 #: The understated figures planted at a reported point, each refused by name (TX_HELD_CONTROLS): well under the row
-#: (60 ms), under it by more than a millisecond (69 ms), and a millisecond under the head's figure (77 ms).
-TX_UNDER_MS = (60, 69, 77)
+#: (60 ms), under it by more than a millisecond (69 ms), and a millisecond under the head's figure (76 ms).
+TX_UNDER_MS = (60, 69, 76)
 TX_HELD_CONTROLS = tuple(f"8x8/1if's CTRL_LOOP_TX_MS planted at {ms} ms, under its tx row" for ms in TX_UNDER_MS)
 #: The control that --check itself reports tx_held's refusal (check_held_control): main run as the CLI runs it.
 CHECK_HELD_CONTROL = "--check --point 8x8/1if with 8x8/1if's CTRL_LOOP_TX_MS planted at 70 ms"
