@@ -907,7 +907,7 @@ def main() -> int:
         parser.error('use an external scratch build directory')
     os.environ.setdefault('PYTHONHASHSEED', '0')
     import build as builder
-    import kept_grade, scenario   # kept_grade: the registrations' cost owed to #977 while held (#969)
+    import kept_grade, scenario   # kept_grade: the kept and bound groups graded together, nothing owed (#969, #977)
     import share
     shape, n_if = POINTS[args.point]
     if args.reuse_build or args.regrade:

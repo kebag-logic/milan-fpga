@@ -788,27 +788,24 @@ is the bound path the base has: every input bound to its own stream through BIND
 PROBE_TX_RESPONSE, then the same MRPDU, as a bridge re-declares the bound Talkers after any LeaveAll.
 
 A record that registers more than one or two Talkers is past `CTRL_LOOP_SRP_UNIT_US`, on that bound path as for the
-kept ones. That cost is owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977), and the unit is not
-restated (the owner's ruling on #969, 2026-11-22, [amended 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252)).
-[`kept_grade.py`](kept_grade.py) grades both groups as owed to it: each record over the unit, and the bound group's
-walk, polls base, builds of one MRPDU (as passes and as THE TRANSMIT's tier-2 slices) and work passes over THE SHARE,
-are named OWED #977 while every condition holds, each breach a finding by name: both groups' logs are present and
-finished (no incomplete simulation, trap or bus error); every probe the point makes is marked, none other, and each
-has its record; every kept record costs no more than the bound record of its own interface on the same image within
-the measurement rule's 5 % (`record_classes.rule`; kept <= bound x 1.05), that record present, printed with both
-figures and the margin; no work pass of `srp-kept` is over THE SHARE, nor any idle run's longest pass in either group
-(an idle pass makes no registration, so none is owed); every pass of both given whole to THE TRANSMIT's build, and
-every build of one of `srp-kept`, is within its stated cost. A tier-2 slice of THE TRANSMIT's build over the slice is
-owed only where its pass is `srp-bound`'s build of one, which the amendment owes; a pass either group gives whole to the
-build (both MRPDUs) stays a failure over the slice as over its stated cost. `CTRL_LOOP_BUILD_ONE_PASS_US` and the SRP
-unit are not restated. THE SHARE is read from the logs graded, never from a result file beside them, so a stale, empty or absent
-`<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the same disposition
-(`kept_grade.Disposition`), and one of the two groups graded alone is a finding. `--selftest` breaks each condition in
-synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone entry point (29 checks), and each must be
-the finding it names: kept 4 % over bound holds and 6 % over breaks, kept exactly bound + 5 % (105,000 against
-100,000) holds and one cycle more breaks, a kept pass over THE SHARE and a kept build of one over its slice are
-findings, and the bound path's are owed, while a `srp-bound` pass given whole to THE TRANSMIT's build, over the slice
-and within `CTRL_LOOP_BUILD_PASS_US`, stays a failure (`run.py`'s own STATED lines).
+kept ones. That cost was owed to [#977](https://github.com/kebag-logic/milan-fpga/issues/977) (the owner's ruling on
+#969, 2026-11-22, [amended 2026-11-23](https://github.com/kebag-logic/milan-fpga/issues/969#issuecomment-7116192252)),
+and #977 charges it: the drain charges each record the unit plus `CTRL_LOOP_SRP_REG_US` for each Talker value its
+frame carries. [`kept_grade.py`](kept_grade.py) owes nothing and holds both groups to every condition, each breach a
+finding by name: both groups' logs are present and finished (no incomplete simulation, trap or bus error); every
+probe the point makes is marked, none other, and each has its record, its dearest within its charge
+(`poll_grade.record_limits`, from the group's own tagged frames); every kept record costs no more than the bound
+record of its own interface on the same image within the measurement rule's 5 % (`record_classes.rule`; kept <=
+bound x 1.05), that record present, printed with both figures and the margin; no work pass of either group is over
+THE SHARE, nor any idle run's longest pass; every pass of both given whole to THE TRANSMIT's build, and every build of
+one MRPDU, is within its stated cost. THE SHARE is read from the logs graded, never from a result file beside them,
+so a stale, empty or absent `<group>.json` neither clears nor hides it. `run.py` gives its STATED and SHARE lines the
+same grade (`kept_grade.Disposition`, which owes nothing), and one of the two groups graded alone is a finding.
+`--selftest` breaks each condition in synthetic logs at 1x1/1if, through `held`, `Disposition` and the standalone
+entry point (29 checks), and each must be the finding it names: a record over its charge, kept 4 % over bound holds
+and 6 % over breaks, kept exactly bound + 5 % (105,000 against 100,000) holds and one cycle more breaks, a pass of
+either group over THE SHARE and a build of one over its stated cost are findings, nothing owed, and a pass given whole
+to THE TRANSMIT's build over the slice stays a failure (`run.py`'s own STATED lines).
 
 ### Backlog rows
 
