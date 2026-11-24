@@ -211,6 +211,17 @@ This identifies the published JSON bytes, after path redaction.
 The earlier report's `f6f1d2f535a8de0ec2348dbb0998a152103f3583e9bf4cc72b0115552ef1886c` identifies a local receipt.
 That local hash does not identify the published file.
 
+Text receipt packets can be checked with `receipt_regrade.py PACKET`.
+`census.json` maps every case to its manifest and hash.
+Each manifest binds original-log size/hash, extracted observations, and original grades.
+It also includes the scenario, stimulus, and any journal bytes.
+Numbered text parts stay below 190 KB, with whole-file hashes.
+The script reconstructs every grade using the normal native graders.
+Every resulting field must equal its original recorded value.
+Timing manifests likewise preserve complete reports as numbered text parts.
+Their checks include setup/hold floors and failing endpoint counts.
+Full-log hashes identify local originals; extracts cannot authenticate omitted bytes.
+
 - **A larger miss.** A measured instance of a ledger row over its figure fails, by as little as one cycle of the bus, whatever its name; so does one never released or answered, whose time is a lower bound.
 - **A new miss.** A budget miss of any other row fails, and so do a ledger row with no measured instance and any instance not measured.
 - **Its inputs** are the harness's own: a results directory's group grades, whose figures retain each point's clock resolution, beside its run's `results.json`, whose refusals fail (a group the harness refused has no grade of its own), or a run's log, whose `BUDGET` lines name every instance over its budget to 1 us. A row read from a log is held at the most its printed figure can be, so one printed at its ledger figure fails, and a log must end in its run's summary, with no refusal and one `BUDGET` line a budget miss.
