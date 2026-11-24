@@ -234,14 +234,16 @@ measured file the ratchet does not record, and a recorded file nothing
 measured. `--write` records the measurement and refuses to record a drop.
 
 **The target** is 100 % branch coverage of the protocol and saved-state code,
-and every file here is at 100 % of its lines and branches once the exclusions
-below are taken out. Each exclusion is a branch no sequence of calls through
+and every recorded file except `ctrl/gptp/gptp.c` is at 100 % of its lines and
+branches once the exclusions below are taken out. The gPTP port is recorded at
+its measured floor, 665/704 lines and 346/437 branches; its header is 2/2 lines.
+The floor does not change the target. Each exclusion is a branch no sequence of calls through
 the module's public header reaches, with the ports keeping the contract their
 header states; a static function is judged through the public functions that
 call it. A row's proof does not rest on what today's callers happen to pass.
 Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
-All sixteen rows meet that standard through their public headers.
+Every exclusion row meets that standard through its public header.
 The five `adp.c` rows cite the no-callback rule of the stack's
 [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/docs/PORTING.md#ownership-and-dispatch), for the ports of
 [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/715589c1db7cf67e2f3259fd7083ebc7f0923376/include/adp.h), enforced by the core guard (#678).
