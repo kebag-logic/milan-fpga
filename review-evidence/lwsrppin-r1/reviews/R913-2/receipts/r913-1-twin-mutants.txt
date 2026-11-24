@@ -1,0 +1,12 @@
+control: PASS rc=0: twin_mrp selftest: OK (11 checks)
+rla-after-txla: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-lv-after-own-leaveall, mvrp-lv-after-own-leaveall (11 checks)
+rla-before-txla: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-lv-after-own-leaveall, mvrp-lv-after-own-leaveall, mt-at-own-leaveall, omission-with-room (11 checks)
+txlaf-unconditional: CAUGHT rc=1: twin_mrp selftest: FAILED omission-with-room (11 checks)
+txlaf-qa-stays: CAUGHT rc=1: twin_mrp selftest: FAILED omission-from-full, omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+txla-qa-bracketed: CAUGHT rc=1: twin_mrp selftest: FAILED omission-with-room, omission-from-full, omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+room-1514: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-octets, msrp-full-for-a-listener (11 checks)
+vector-no-header: CAUGHT rc=1: twin_mrp selftest: FAILED msrp-full-for-a-listener, msrp-room-for-a-domain, mvrp-octets (11 checks)
+mvrp-no-final-endmark: CAUGHT rc=1: twin_mrp selftest: FAILED mvrp-octets (11 checks)
+txlaf-registrar-kept: CAUGHT rc=1: twin_mrp selftest: FAILED omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+twin_mutants: 9 mutants, 0 escaped or failed
+rc=0

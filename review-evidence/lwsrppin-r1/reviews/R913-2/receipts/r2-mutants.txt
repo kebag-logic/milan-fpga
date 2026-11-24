@@ -1,0 +1,10 @@
+control: rc 0 PASS | twin_mrp selftest: OK (11 checks)
+txlaf-registrar-kept: rc 1 CAUGHT | twin_mrp selftest: FAILED omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+txlaf-registrar-to-mt: rc 1 CAUGHT | twin_mrp selftest: FAILED omission-from-full-registrar-in (11 checks)
+txlaf-applicant-kept: rc 1 CAUGHT | twin_mrp selftest: FAILED omission-from-full, omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+txlaf-outcome-dropped: rc 1 CAUGHT | twin_mrp selftest: FAILED omission-from-full, omission-from-full-registrar-in, joinin-after-omission-from-full (11 checks)
+rjoinin-not-registering: rc 1 CAUGHT | twin_mrp selftest: FAILED omission-from-full-registrar-in (11 checks)
+census-not-counted: rc 1 CAUGHT | twin_mrp selftest: OK (0 checks)
+census-zero-checks: rc 1 CAUGHT | twin_mrp selftest: OK (0 checks)
+summary: 7 caught, 0 escaped of 7
+rc=0

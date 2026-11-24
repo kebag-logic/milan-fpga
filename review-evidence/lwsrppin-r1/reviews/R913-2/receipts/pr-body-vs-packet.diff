@@ -1,0 +1,20 @@
+87c87
+< must fit and meet the timing floor (#818), with its LUT/FF totals below. 8x8/2if and both 1x1 images are
+---
+> must fit and meet the timing floor (#818), and its LUT/FF totals are added here. 8x8/2if and both 1x1 images are
+90c90
+< | Routed 8x8/1if (first directive) | Base `aa30d77f` | Head `dbba60e6` |
+---
+> | Routed 8x8/1if | Base | Head |
+92,97c92,93
+< | LUT / FF | 43,145 / 51,005 | 43,068 / 51,015 (-77 / +10) |
+< | RAMB36 / RAMB18 / DSP | 78 / 33 / 11 | 78 / 33 / 11 |
+< | Worst WNS / WHS (ns) | +0.193 / +0.036 | +0.194 / +0.032 |
+< 
+< The head fits and meets the floor at every corner on its first directive: the merge condition is met. Round 2's
+< images are byte-identical to `dbba60e6`'s (28 of 28 ELF/bin/hex), so the route stands for this head.
+---
+> | LUT / FF | pending | pending |
+> | WNS / WHS | pending | pending |
+105d100
+< 
