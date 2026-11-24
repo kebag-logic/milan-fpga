@@ -1,0 +1,137 @@
+HEAD bbfdb6746d585e490508783dc8a88c79fbab02c0
+TREE eb8282dfbfa9d8dc2e1c87bc3c09b5c010d30263
+bbfdb6746d585e490508783dc8a88c79fbab02c0 Keep the 1213ac5b records within the audience style's ten-word sentence
+8c5a51e197b98ef79b3fbc7d8add8d6bf2126ee0 Record FPGA-gPTP 1213ac5b's behaviour and its release routes: the first master Announce at once, each mastership on this oscillator, both images within the build floor
+39e9c9d247ba0b22fe8611c9253c216700210ae4 Carry FPGA-gPTP 1213ac5b to every pin site: the pin row, the engine guide permalinks, both diagrams through their generators and the gptp_ucode.hex ledger row
+973f2f20ab4e4dbb329a7fce224f86d19ce395ac Move the gptp-processor gitlink to FPGA-gPTP main 1213ac5b: a new master's first Announce at once (#106), each mastership on this oscillator (#107)
+ CHANGELOG.md                              |  24 ++++++++
+ docs/design/GM_LOSS_RECOVERY.md           |  14 +++++
+ docs/design/GPTP_PLANE.md                 |  16 ++++--
+ docs/design/TIME_SYNC.md                  |   2 +-
+ docs/diagrams/PNG_MANIFEST.json           |   8 +--
+ docs/diagrams/submodule_boundaries.drawio |   2 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 437087 -> 437525 bytes
+ docs/diagrams/submodule_boundaries.svg    |   2 +-
+ docs/diagrams/timesync_chain.drawio       |   2 +-
+ docs/diagrams/timesync_chain.png          | Bin 313723 -> 314244 bytes
+ docs/diagrams/timesync_chain.svg          |   2 +-
+ docs/guides/gptp/HDL_DEVELOPER.md         |   8 +--
+ docs/guides/gptp/MANAGER.md               |   4 +-
+ docs/guides/gptp/SYSTEM_INTEGRATOR.md     |   2 +-
+ docs/guides/gptp/TEST_DEVELOPER.md        |   2 +-
+ docs/reference/STRICTER_READINGS.md       |   8 ++-
+ docs/reference/SUBMODULES.md              |  92 ++++++++++++++++++++++++++++--
+ docs/traceability/ieee8021as.md           |   2 +-
+ gptp-processor                            |   2 +-
+ syn/yosys/rom_digests.tsv                 |   1 +
+ 20 files changed, 162 insertions(+), 31 deletions(-)
+Donor pin fast-forwards old pin; tree equals reviewed donor head 7b579e33a97ff4f2bec8c0064f0f73c862bbb135
+route-input-ancestor to final identical tree: hdl
+route-input-ancestor to final identical tree: configs
+route-input-ancestor to final identical tree: sw
+route-input-ancestor to final identical tree: tb
+route-input-ancestor to final identical tree: scripts
+973f2f20..HEAD changed paths:
+CHANGELOG.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/STRICTER_READINGS.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+syn/yosys/rom_digests.tsv
+c2b2ba1a..base changed paths:
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/srp/README.md
+sw/firmware/ctrl/test/ctrl_configs.py
+sw/firmware/ctrl/test/sink_mutants.py
+sw/litex/ctrl_memory.py
+sw/litex/test_ctrl_memory.py
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/kept_grade.py
+tb/verilator/ctrl_service_budget/kept_window.py
+tb/verilator/ctrl_service_budget/poll_grade.py
+Base route ctrl_memory.py AST identical; changed source is string wrapping
+Base route HDL/config trees identical
+<packet>/scratch/audit-rom.hex: 1024 words, 1013 real (98.9%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@309 BECGATE@941 SELF@975 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@986 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@997 NOTEN@1007
+ROM generated/default/tracked/ledger equal: 4eb21cefc8d769df4a764402aead970b59be96cb3fa267d25af9d1857935f083
+PNG/source manifest matches docs/diagrams/submodule_boundaries.png
+PNG/source manifest matches docs/diagrams/timesync_chain.png
+Read 89 author packet files at 3779446004dfb5ea4b18088bed83637e49139754
+8x8-ExtraPostPlacementOpt LUT 46246 base 46621 delta -375
+#818 PASS Slow_85C WNS +0.066 WHS +0.102
+#818 PASS Slow_0C WNS +0.066 WHS +0.102
+#818 PASS Fast_85C WNS +1.660 WHS +0.036
+#818 PASS Fast_0C WNS +1.660 WHS +0.036
+Published identity receipt: image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+Published image digests: 788cd754826629e97509b24f976fc5ed0b1beaa09c66fee06c12723e264474fd  gateware/alinx_ax7101.bit
+6bfb972187a4c8b8ae6a2e0e32a6a281d715c8fd228edf08dd37a3a98aae9560  image_manifest.json
+ec36d8ec244ef19bc97dfa7750ef2f618e5d9b9e14af6749860f8a3908f674ec  csr.csv
+1x1-ExtraTimingOpt LUT 32639 base 32680 delta -41
+#818 PASS Slow_85C WNS +0.170 WHS +0.102
+#818 PASS Slow_0C WNS +0.170 WHS +0.102
+#818 PASS Fast_85C WNS +1.636 WHS +0.024
+#818 PASS Fast_0C WNS +1.636 WHS +0.024
+Published identity receipt: image identity: a split image whose manifest, ident, firmware, bitstream and placement agree, with no DDR3
+Published image digests: 8095f07b2ef5e2f6daadc7fa888e7536918cc043a98b5b1918552c54fef3c46d  gateware/alinx_ax7101.bit
+0490b7a8bd08ed3a162def97096685a0543cfb8494d1d1f6fa19cb2fc9f69a6c  image_manifest.json
+2eabb59a4acd514e44c2cbd95bc8afe4576524fdcdb9a1ac748228e51cd3bda5  csr.csv
+1x1 signoff receipt rc=1 uses extra WHS>=0.030; #818 is WHS>=0 and passes
+rtl/milan_dp-gptp-39e9c9d2.log
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF822436A, expected clockAccuracy 0x22
+212 checks: 212 PASS, 0 FAIL
+rtl/milan_dp-gptp-lat-39e9c9d2.log
+[CA] 4 DUT Announce frame(s); last clockQuality 0xF8FE436A, expected clockAccuracy 0xFE
+212 checks: 212 PASS, 0 FAIL
+sweep-shard-0-8c5a51e1.txt
+PASS     gptp_txts
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 361761   in-suite failures: 0
+porcelain-after 0 END rc=0 2026-11-24T08:49:05+01:00
+sweep-shard-1-8c5a51e1.txt
+PASS     gptp_shadow
+PASS     gptp_tables
+suites: 17   passed: 16   failed: 1   timed out: 0
+checks: 2046723   in-suite failures: 0
+porcelain-after 0 END rc=1 2026-11-24T08:36:16+01:00
+sweep-shard-2-8c5a51e1.txt
+PASS     gptp_plane
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 286399   in-suite failures: 0
+porcelain-after 0 END rc=0 2026-11-24T10:10:09+01:00
+sweep-shard-3-8c5a51e1.txt
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 20946   in-suite failures: 0
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+porcelain-after 0 END rc=0 2026-11-24T08:38:37+01:00
+Public issue comments: 0 PR discussion entries: 2
+https://github.com/kebag-logic/milan-fpga/pull/995#issuecomment-7128348002 [A10] INDEPENDENT REVIEW STARTED: R915-1
+https://github.com/kebag-logic/milan-fpga/pull/995#issuecomment-7128360806 [A10] INDEPENDENT REVIEW STARTED: R916-1
+No prior public review findings in the returned merged discussion timeline
+Live body difference from the public packet:
+--- packet/PR-BODY.md
++++ live PR body
+@@ -26,6 +26,8 @@
+ ## Linked Issue / roles
+ 
+ Closes #994
++
++Stacked on the composed flip train, PR #988 (`pf-train-1123` at `300da99b`): until #988 merges into `dev-soft-core`, this PR's diff also shows the train's commits. This change is the four commits after `300da99b`.
+ 
+ Executor: `[A835]`
+ Internal cleared-context reviewer: to be named
+
+PASS bounded artifact audit; this is not a full gate or a candidate merge validation

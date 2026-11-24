@@ -1,0 +1,13 @@
+COMMAND make -j16 --no-print-directory -C tb/verilator/gptp_plane run VERILATOR=<simulator>
+<simulator> --cc --exe --build -j 5 --top-module gptp_plane_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<packet>/scratch/baseline/tb/verilator/gptp_plane -Wall -Wextra -DOUR_CQ_TB=0xf822436a" gptp_plane_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_plane_sim
+g++  -I.  -MMD -I<external-install> -I<external-install> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/baseline/tb/verilator/gptp_plane -Wall -Wextra -DOUR_CQ_TB=0xf822436a   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_plane_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_plane_sim
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.729 s (elab=0.000, cvt=0.000, bld=1.729); cpu 0.001 s on 5 threads; allocated 16.496 MB
+./obj_dir/Vgptp_plane_sim
+OBSERVED master addend Q8.24: 0
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 5 frames, 0 wrong, expected 0x0000
+31 checks: 31 PASS, 0 FAIL

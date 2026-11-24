@@ -1,0 +1,12 @@
+diff --git a/tb/verilator/gptp_plane/sim_main.cpp b/tb/verilator/gptp_plane/sim_main.cpp
+index 4cf1b3d383..47381a939b 100644
+--- a/tb/verilator/gptp_plane/sim_main.cpp
++++ b/tb/verilator/gptp_plane/sim_main.cpp
+@@ -506,6 +506,7 @@ class GptpPlaneHarness {
+   void prove_grandmaster_follow_up_rides_the_real_counter() {
+     expect("quiet ride to grandmaster",
+            wait_flags(FL_AMGM, FL_AMGM, kGrandmasterTicks), 1);
++    printf("OBSERVED master addend Q8.24: %d\n", adj_seen.empty() ? 0 : static_cast<int32_t>(adj_seen.back()));
+     const size_t gm_first = txf.size();
+     tx_seen = txf.size();
+     std::vector<uint8_t> sy = wait_tx(0x0, kTxWaitTicks);

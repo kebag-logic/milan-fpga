@@ -1,0 +1,22 @@
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index ce7b6ed..2860da9 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2024,6 +2024,8 @@ def prog_become(base: int) -> Prog:
+     # this mastership's first Announce in this same handler, so it leaves
+     # before any event queued behind the role change (802.1AS-2011 Figure
+     # 10-15, TRANSMIT_ANNOUNCE on newInfo), and arms the 1 s cadence from it
++    p.emit("MOVE", rd=RT, ra=0, imm=2)
++    p.emit("WRST", ra=RT, imm=RG_TMR | 3, fmt=FMT_Q)
+     p.emit("WRST", ra=0, imm=RG_TMR | 2, fmt=FMT_Q)   # stop the watch
+     # The port's Sync watches run on (#89). syncReceiptTimeoutTime is the
+     # port's, so an expiry after this still marks it (10.3.11). A parked
+@@ -2062,7 +2064,7 @@ def prog_self(base: int) -> Prog:
+     # transaction: the path {thisClock}, every later entry erased.
+     p.emit("WRST", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)
+     p.emit("COMMIT")
+-    p.emit("BR", label=LB["ANNTX"])
++    p.emit("END")
+     return p
+ 
+ 
