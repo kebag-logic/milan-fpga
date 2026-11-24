@@ -138,6 +138,63 @@ static bool is(const struct ctrl_plat_console *c, const char *command)
 	return n == c->len && command[n] == '\0';
 }
 
+#ifdef CTRL_PLAT_LAT_WRITABLE
+// One decimal field of the line from *at to a space or the line's end, at
+// most 65535: false, *at and *value unwritten, on an empty field, any byte
+// that is not a digit (a NUL among them) or a larger value. Times ten by
+// shifts: RV32I has no multiply.
+static bool number(const struct ctrl_plat_console *c, unsigned *at, uint16_t *value)
+{
+	uint32_t v = 0;
+	unsigned n = *at;
+	while (n < c->len && c->line[n] != ' ') {
+		if (c->line[n] < '0' || c->line[n] > '9') {
+			return false;
+		}
+		v = (v << 3) + (v << 1) + (uint32_t)(c->line[n] - '0');
+		if (v > 0xffffu) {
+			return false;
+		}
+		++n;
+	}
+	if (n == *at) {
+		return false;
+	}
+	*at = n;
+	*value = (uint16_t)v;
+	return true;
+}
+
+// milan_lat INGRESS EGRESS (#878): the runtime latency pair of a build with
+// gptp.latency_writable (#829), decimal nanoseconds, one space before each;
+// the answer is GPTP_LAT read back. Any other spelling writes nothing and is
+// refused. A build without the key compiles none of this, so its console
+// keeps decision D6's two commands (#665).
+static bool lat(struct ctrl_plat_console *c)
+{
+	static const char name[] = "milan_lat ";
+	unsigned at = 0;
+	while (name[at] != '\0') {
+		if (at == c->len || c->line[at] != name[at]) {
+			return false;
+		}
+		++at;
+	}
+	uint16_t ingress = 0;
+	uint16_t egress = 0;
+	if (!number(c, &at, &ingress) || at == c->len) {
+		return false;
+	}
+	++at;
+	if (!number(c, &at, &egress) || at != c->len) {
+		return false;
+	}
+	field(c, "GPTP_LAT=", ctrl_plat_csr_set_lat(c->csr, ingress, egress));
+	ctrl_plat_console_puts(c, "\r\n");
+	return true;
+}
+#endif
+
 static void run(struct ctrl_plat_console *c)
 {
 	if (is(c, "milan_status")) {
@@ -146,6 +203,10 @@ static void run(struct ctrl_plat_console *c)
 	} else if (is(c, "milan_gettime")) {
 		tod(c);
 		++c->commands;
+#ifdef CTRL_PLAT_LAT_WRITABLE
+	} else if (lat(c)) {
+		++c->commands;
+#endif
 	} else {
 		ctrl_plat_console_puts(c, "?\r\n");
 		++c->refused;

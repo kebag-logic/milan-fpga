@@ -1,0 +1,259 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The Arty A7-100T's split bench configuration (#878, #665): the shape of
+# endstation_arty_current - 1 AAF listener + CRF sink + 1 AAF talker, the
+# Philips-stereo I2S render on the Pmod I2S2 - built at control.placement:
+# split, where the firmware on the RV32 core runs ADP, ACMP, MAAP, SRP and
+# AECP behind the mailbox. A bench image, not a release image.
+#
+# Generate this shape through the split recipe (#878).
+# The CPU and sys share 80 MHz; the datapath runs at 50 MHz.
+# The runtime latency pair resets to the measured 1409/100 ns (#829).
+# No tap compensation is included in this configuration.
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.2.0"
+
+control:
+  placement: split
+
+entity:
+  name: "Milan FPGA Talker"          # AEM ENTITY object_name (<=63 bytes)
+  entity_model_id: hash-derived      # default path: EUI-64 from the model
+                                     # shape (sha256 of the canonical shape
+                                     # JSON, top 8 bytes folded under the
+                                     # 00-1B-C5 OUI prefix - exact recipe in
+                                     # sw/builder/README-parameters.md)
+  model_id_pin: "0x001BC50AC1000006" # PINNED: the CURRENTLY DEPLOYED model
+                                     # id - already-flashed silicon must not
+                                     # change identity when the hash recipe
+                                     # or shape serialization evolves.
+                                     # Remove the pin only with a model-
+                                     # changing reflash.
+                                     # ...0001 -> ...0002 on 2026-08-13: the
+                                     # descriptor byte layout moved from
+                                     # 1722.1-2013 to -2021 (see
+                                     # AEM_LAYOUT_REV). 6.2.2.8 requires a new
+                                     # id for a changed model, and a pin that
+                                     # outlives the change is exactly the
+                                     # stale-controller-cache bug the pin is
+                                     # otherwise there to prevent.
+                                     # ...0002 -> ...0003 on 2026-08-14:
+                                     # AUDIO_CLUSTER finished that same move. It
+                                     # had been left at the 2013 87 octets while
+                                     # everything else went to 2021; Table 7-27
+                                     # adds aes3_data_type_reference and
+                                     # aes3_data_type for 90 (AEM_LAYOUT_REV
+                                     # 2 -> 3). Same 6.2.2.8 reasoning. The pin
+                                     # stays a HAND-ASSIGNED value in its own
+                                     # ...0AC100xx series rather than being set
+                                     # to today's derived hash: gate 8 proves a
+                                     # pin OVERRIDES a differing hash, and a pin
+                                     # equal to the hash would prove nothing.
+                                     # ...0003 -> ...0004 on 2026-09-09 (#389):
+                                     # the per-AAF-listener INPUT_STREAM
+                                     # CLOCK_SOURCE is gone (nothing followed
+                                     # it), so the descriptor set has one
+                                     # descriptor fewer and the CLOCK_DOMAIN
+                                     # lists two sources. Same 6.2.2.8
+                                     # reasoning: a changed model, a new id.
+                                     # ...0004 -> ...0005 on 2026-09-21
+                                     # (#462, #463): AVB_INTERFACE
+                                     # port_number now names the port the
+                                     # gPTP plane announces (1, not 0) and
+                                     # the IDENTIFY CONTROL's reset_time is
+                                     # 0 because nothing auto-clears it.
+                                     # Two descriptor FIELD values moved,
+                                     # which is 6.2.2.8's "any descriptor
+                                     # fields ... are different" and not a
+                                     # layout change, so AEM_LAYOUT_REV
+                                     # stays 3 and the four hash-derived
+                                     # configs rotate on their own; this
+                                     # pinned one needs the bump by hand.
+                                     # ...0005 -> ...0006 on 2026-10-02
+                                     # (#629): the per-AAF-listener
+                                     # INPUT_STREAM CLOCK_SOURCE is back,
+                                     # followed by the AAF clock meter, so
+                                     # the set has one descriptor more and
+                                     # the CLOCK_DOMAIN lists three sources.
+                                     # Same 6.2.2.8 reasoning.
+  entity_id: mac-derived             # EUI-64 from station MAC (MAC48->FF-FE)
+  vendor_name: "Kebag Logic"
+  # NO firmware_version KEY - it is DERIVED, not declared. The version lives
+  # in hdl/common/csr/milan_csr.sv's `parameter logic [31:0] VERSION` (the
+  # read-only 0x004 register, whose //! comment IS the gateware changelog),
+  # and the ENTITY descriptor renders it as major.minor.rev:
+  # [31:16].[15:0].firmware_rev, so 0x0001_0016 -> "1.22.0". Until
+  # 2026-07-28 this key said "0.1.0" in all three configs while the fabric
+  # was at 0x0001_0016, so every board we ship told Hive - and every other
+  # controller on the segment - that it ran firmware 0.1.0. Same shape as
+  # the ADP shape defect: a hand-typed declaration nothing could compare
+  # against the fabric. The builder now refuses the key rather than
+  # preferring one of two answers; `firmware_rev: N` (optional, default 0)
+  # is the lever for a respin that changes no CSR ABI.
+  serial_number: "AX7101-0001"       # deployed-ROM truth: the serial baked
+                                     # into the shared AEM ROM image (both
+                                     # boards; per-board identity rides the
+                                     # runtime ENT_NAME8 CSR overlay).
+                                     # Byte-identity gate pins this value.
+  group_name: ""
+
+board:
+  target: arty                       # arty | ax7101
+  features:
+    fabric_gptp: true               # the one product owner (#259)
+  constraints:                       # physical facts -> milan_soc.py argv
+    sys_clk_hz: 80000000             # cfg_arty: board PLL's 800 MHz VCO / 10
+    milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain
+    l2_bytes: 0                      # #259 bare-metal cacheless product
+    phy: mii-100                     # DP83848 MII (arty) | gmii-1g (ax7101)
+    gtx_tx_invert: false             # GMII-only knob (ax7101)
+    floorplan: false
+    flashboot: baremetal             # #259: the {bitstream, aem} manifest (N25Q128 QSPI)
+    uart_baudrate: 115200
+    num_queues: 5                    # 802.1Q shaper queues =
+                                     # ethernet_packet_pkg::NUMBER_OF_QUEUES
+                                     # (q5 class A .. q0 best effort - see
+                                     # docs/reference/EGRESS_QUEUE_MAP.md)
+    # eth_port: only for multi-PHY boards (ax7101 e1|e2); arty has one PHY
+
+srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
+                                     # table -> CSR 0x680 group. Every value
+                                     # here is the DEPLOYED reset word; the
+                                     # builder gates 18a/18b parse
+                                     # hdl/common/csr/milan_csr.sv and
+                                     # hdl/ieee8021q/srp/lwsrp_pkg.sv and
+                                     # assert the emission matches, so a hand
+                                     # edit on either side fails the build.
+  sr_class: A                        # Milan v1.2 5.6: class A only
+  vid: 2                             # THE SR VID (VID 0 floods unshaped)
+  stream_dmac_base: "0x91E0F000FE01" # MAAP range 91:E0:F0:00:FE:01
+  accumulated_latency_ns: 0          # constant until measured
+  class_queue: 4                     # LWSRP_CTRL[4:2], reset PCP3->TC3->q4
+                                     # (802.1Q order: q5 = SR class A, the
+                                     # top of the 6-queue egress map)
+  enable_at_reset: false             # LWSRP_CTRL[0]
+  talker_declare_at_reset: false     # LWSRP_CTRL[1]
+  bandwidth_limit_pct: 75            # Milan 5.6 / 802.1Q 34.3.1
+  # MILAN v1.2 4.2.7.1.1 Table 4.3 supersedes 802.1Q Table 10-7 for a PAAD:
+  # LeaveTime 5000 ms, not 600. These words are emitted into the generated CSR
+  # defaults and programmed into the engine, so a stale 600 here would undo
+  # the RTL reset the MRP timer round corrected.
+  timers_ms: { join: 200, leave: 5000, leaveall: 10000 }
+  tspec:
+    policy: derived                  # pinned 224 until 2026-07-28: a
+                                     # hand-picked "conservative" value that
+                                     # over-reserved the 2ch stream ~3x and
+                                     # contradicted 802.1Q 35.2.2.8.4 a) -
+                                     # MaxFrameSize is "the maximum frame
+                                     # size that the Talker WILL PRODUCE",
+                                     # and this talker produces the 90-byte
+                                     # wire frame (MSDU 72, tap-measured).
+                                     # The pin's only stated reason was
+                                     # "changing it needs a reflash"; this
+                                     # round's reflash carries it. derived
+                                     # follows the WIRE constant
+                                     # (framer_wire_channels) end to end.
+    max_frame_bytes: 224             # LWSRP_TSPEC[15:0]
+    interval_frames: 1               # LWSRP_TSPEC[31:16]
+  rtl_table: false                   # endstation_arty_current owns the
+                                     # tracked CSR reset header
+
+platform:                            # identity + processor-memory placement
+  mac_address: "02:4b:4c:4b:4c:02"   # #840: the Arty's decided prototype identity
+                                     # locally administered, not IEEE-assigned
+  pp_mem_phys: 0x4fe00000            # 1 MiB protocol-processor window
+
+clocking:
+  sampling_rate_hz: 48000            # current media clock (AAF base rate)
+  audio_unit_rates_hz: [48000, 96000, 192000]  # AUDIO_UNIT advertisement
+                                     # (today's ROM: RATES 48/96/192)
+  media_clock_sources: [internal, crf, input_stream] # INTERNAL 0, CRF 1, AAF listener k at 2 + k (#629)
+  default_source: internal           # CLOCK_DOMAIN reset source
+  crf_sink: true                     # CRF STREAM_INPUT media-clock sink
+  audio_pll_hz: 24576000             # clean MMCM audio clock (MCLK = /2)
+
+audio_interface:
+  kind: i2s_philips                  # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
+  word_length_bits: 24               # CS4344 24-bit Philips
+  cluster_mapping:
+    policy: cluster-per-stream-channel
+    # cluster-count policy (USER decision, config-selectable):
+    #   cluster-per-stream-channel - the stream's `clusters` field verbatim
+    #     (the deployed ROM layout)
+    #   cap-at-interface - min(clusters, physical interface channels):
+    #     clusters model real endpoints only (wire truth)
+    # Either way each cluster is mono MBLA; each stream owns ONE
+    # STREAM_PORT + cluster block + AUDIO_MAP (port-relative offsets,
+    # 1722.1-2021 7.2.19); physical interface channels bind in order to
+    # the first clusters per direction; extra stream channels are virtual,
+    # missing physical render 0 (USER wire-truth 1-to-1 rule).
+
+streams:
+  listeners:
+    - name: "Stream 1"               # AAF STREAM_INPUT 0 (CRF appended after)
+      channels: 8                    # 8 clusters; the Milan 6.4 family below
+      map_mode: dynamic              # Milan v1.2 5.3.3.9, no input AUDIO_MAP
+      formats: ["0x0205022000806000"]
+      # The CURRENT format ONLY, and it is deliberately NARROWER than
+      # `channels`: 2ch-first is the deployed reset default: an 8ch default
+      # plus a reboot plus a pure-ACMP
+      # bind starved the render to a quarter rate), so it cannot be derived
+      # from `channels` the way the other configs' can. Milan v1.2 6.4's
+      # family completion is appended by the builder (base_format_complete),
+      # not written here: the ut entry it used to carry by hand,
+      # 0x0215022002006000, is now derived from 6.2's channel counts.
+      buffer_length_ns: 2126000
+      clusters: 8
+  talkers:
+    - name: "Stream Output 0"
+      channels: 2                    # talker truth: stereo framer
+      # No family completion on a Stream Output: Milan v1.2 6.3 asks a Base
+      # Talker only for one Stream Output advertising a Base format, then
+      # "A PAAD-AE Base Talker may advertise any Base Format that is
+      # reasonable for its functionality" - 6.4's SHALL is Stream Inputs.
+      clusters: 8                    # deployed ROM keeps 8 output clusters;
+                                     # `clusters` is the single
+                                     # authority - new shapes ship the
+                                     # wire-truth value instead (see the
+                                     # 4x4/8x8 examples)
+
+gptp:
+  clock_accuracy: 0xFE              # IEEE 802.1AS-2011 8.6.2.3: unknown
+  # The two latency corrections below are only reset values on this board:
+  # CSR 0x540 and 0x544 move them at runtime, and 0x7F0 reads what is applied
+  # (#829). The bench writes the compensation for an inline tap there and
+  # never here (#878). The AX7101 leaves this key off.
+  latency_writable: true
+  # ONE source (USER 2026-08-05): these values generate the AVB_INTERFACE
+  # descriptor's clock fields and the fabric uCPU image. priority1 248 =
+  # the deferring Milan end-station default (see the AX7101 configs). The
+  # fabric plane is the one product gPTP owner (#259)
+  # configuration is generated from this section any more. The engine
+  # consumes priority1 and this board's clock_accuracy (plus MAC and clock
+  # frequency); other fields are derived or refused against the engine.
+  # The Arty oscillator is not characterised, so its accuracy is unknown.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  offset_scaled_log_variance: 0x436A
+  domain: 0
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+
+  # THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  # MANDATORY for every board whose gPTP plane is on; the method is in
+  # docs/integration/BOARD_PORTING_AX7101.md.
+  #
+  # THIS BOARD'S PAIR (#829). An inline tap on the link compared the Pdelay
+  # turnaround on the wire with the t3 - t2 this board claims, against the
+  # bench switch on the same tap: a sum of 1509 ns, and direct to the switch
+  # the peer delay read 752 ns, the same sum. THE SUM IS MEASURED, THE SPLIT
+  # IS NOT: egress takes the DP83848's 100BASE-TX figures, one 40 ns MII
+  # clock to the PHY's sampling edge and 6 bit times to the wire, and ingress
+  # the rest. The measurement used the same 80 MHz system clock selected
+  # here. #878 keeps this board's calibration; the manager verifies the
+  # split image on the bench after IMAGE READY.
+  ingress_latency_ns: 1409
+  egress_latency_ns: 100

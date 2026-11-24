@@ -58,7 +58,7 @@ flowchart LR
 - Each board's own latency correction is applied there (#358).
 - Ingress is subtracted; egress is added.
 - The fabric plane is their only consumer.
-- `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch.
+- `PTP_INGRESS_LAT` and `PTP_EGRESS_LAT` stay inert scratch, unless a build sets `gptp.latency_writable` (#829).
 - `GPTP_LAT` (`0x7F0`) publishes what is applied.
 - Link delay asymmetry is not modelled; it is zero (#511).
 - The engine runs peer delay and synchronization.

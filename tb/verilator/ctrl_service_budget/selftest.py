@@ -611,6 +611,19 @@ def fanout_checks() -> list[Check]:
     return out
 
 
+def fixed_map_checks() -> list[Check]:
+    """A fixed output port has no dynamic map; an input map must still supply its edit."""
+    with tempfile.TemporaryDirectory() as tmp:
+        elf = Path(tmp) / 'firmware.elf'
+        (elf.with_name('aecp_entity_gen.h')).write_text(
+            '{14,0,0,0,(rows)+0,0,1,aecp_map_defaults+0,1}\n'
+            'aecp_map_defaults[] = {{0,0,0,0}};\n')
+        build = dict(elf=str(elf))
+        actual = (scenario.map_edit(build, 14), scenario.map_edit(build, 15))
+        expected = (bytes.fromhex('000e0000000100000000000000000000'), None)
+    return [('a fixed output map is absent without dropping the input edit', actual == expected, str(actual))]
+
+
 def run_checks() -> list[Check]:
     """The run's exit status, the regrade's refusal of an absent log or script, and a trap's refusal."""
     out = []
@@ -738,7 +751,7 @@ def build_checks() -> list[Check]:
     others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
               if (shape, n) not in run.POINTS.values()}
     out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
-            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None} and
+            named == {'1x1': None, '8x8': '8x8-two-interfaces', '8x8-1if': None, 'arty-1x1': None} and
             named['8x8'] in ctrl_memory.LEDGERED and not any(others.values()), f'{named}; other points {others}')]
     with tempfile.TemporaryDirectory() as tmp:
         failed = []
@@ -925,7 +938,8 @@ def cache_build_checks() -> list[Check]:
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *fixed_map_checks(),
+            *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *stated_checks(synthetic, SYS_HZ, CPU_HZ), *round_checks(synthetic, SYS_HZ, CPU_HZ), *ceiling_checks(),
             *polls_checks(synthetic, SYS_HZ, CPU_HZ, tx_record), *answer_checks(sys.modules[__name__]),

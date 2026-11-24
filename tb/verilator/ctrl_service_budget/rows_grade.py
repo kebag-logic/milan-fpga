@@ -94,7 +94,8 @@ POINTS = ('1x1/1if', '8x8/2if')
 #: the image with the Listener copies (#930, 46cf2a7d's), 175 us by the rule; so too its datapath events
 #: (rows_tiers.DATAPATH_US, 3,103, 2,864 and 1,851 cycles there). Its rows are reported (flip_grade.py, REPORTED), and
 #: THE TRANSMIT's figure there is held to its tx row (rows_tiers.tx_statements, flip_grade.tx_held).
-ROW_COSTS = {'1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}, '8x8/1if': {'event.LINK': 300}}
+ROW_COSTS = {
+    'arty-1x1': {'event.LINK': 150},'1x1/1if': {'event.LINK': 155}, '8x8/2if': {'event.LINK': 300}, '8x8/1if': {'event.LINK': 300}}
 #: The sources the docstring names, each a part of every solved row's window (links R5's alone), and the terms of
 #: demand() that make each up.
 SOURCES = {'records': ('aecp', 'srp', 'others'), 'ticks': ('ticks',), 'timers': ('timers',), 'gm': ('gm',),

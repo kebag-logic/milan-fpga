@@ -3605,7 +3605,8 @@ def model_shape(cfg: dict[str, Any]) -> dict[str, Any]:
     if cfg.get("gptp") is not None:
         shape["gptp"] = {k: v for k, v in cfg["gptp"].items()
                          if k not in ("ingress_latency_ns",
-                                      "egress_latency_ns")}
+                                      "egress_latency_ns",
+                                      "latency_writable")}
     if i["cluster_policy"] == "role-pools":
         shape["cluster_pools"] = {
             "physical": [i["physical_channels"]["capture"],
@@ -4258,7 +4259,8 @@ def _load_gptp(cfg):
                      "clock_accuracy", "offset_scaled_log_variance",
                      "domain", "log_sync_interval", "log_announce_interval",
                      "log_pdelay_interval",
-                     "ingress_latency_ns", "egress_latency_ns"}
+                     "ingress_latency_ns", "egress_latency_ns",
+                     "latency_writable"}
         if not isinstance(gp_raw, dict) or set(gp_raw) - _known_gp:
             raise ConfigError(f"gptp: unknown keys "
                               f"{sorted(set(gp_raw) - _known_gp)} "
@@ -4295,8 +4297,15 @@ def _load_gptp(cfg):
         #! the AVB_INTERFACE descriptor names the port the gPTP plane puts
         #! in its sourcePortIdentity. A config stating it is already
         #! refused by _known_gp above - there is nothing here to choose.
+        #! Off by default, and a yes/no the YAML must spell as one (#829): a
+        #! board that does not state it builds exactly what it built before.
+        _lat_writable = gp_raw.get("latency_writable", False)
+        if not isinstance(_lat_writable, bool):
+            raise ConfigError(f"gptp.latency_writable {_lat_writable!r} is "
+                              f"not true or false (#829)")
         gptp = dict(
             port_number=gptp_engine_port_number(),
+            latency_writable=_lat_writable,
             ingress_latency_ns=_gptp_latency_key(gp_raw,
                                                  "ingress_latency_ns"),
             egress_latency_ns=_gptp_latency_key(gp_raw,
@@ -5118,6 +5127,9 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
                       ("--gptp-egress-lat-ns", "egress_latency_ns")):
         if cfg["gptp"][key]:
             argv += [flag, str(cfg["gptp"][key])]
+    # issue #829: absent unless the board states it, the same discipline.
+    if cfg["gptp"]["latency_writable"]:
+        argv += ["--gptp-lat-writable"]
     return argv
 
 
@@ -5203,6 +5215,8 @@ def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
                        ("GPTP_EGRESS_LAT_NS_P", "egress_latency_ns")):
         if cfg["gptp"][key]:
             out[param] = int(cfg["gptp"][key])
+    if cfg["gptp"]["latency_writable"]:
+        out["GPTP_LAT_WRITABLE_P"] = 1
     # The processor window of emit_platform_shape: the descriptor image at
     # its foot, the AECP response buffer in its last 4 KiB.
     base = int(plat["pp_mem_phys"])
@@ -5582,7 +5596,8 @@ def _overlay_document(cfg, parts):
         #! to be the descriptor set - where the next reader would have to
         #! work out that nothing consumes it.
         **({"gptp": {k: v for k, v in cfg["gptp"].items()
-                     if k not in ("ingress_latency_ns", "egress_latency_ns")}}
+                     if k not in ("ingress_latency_ns", "egress_latency_ns",
+                                  "latency_writable")}}
            if cfg.get("gptp") is not None else {}),
         # schema 1.2 singleton object_names, emitted ONLY when declared so a
         # config that states none keeps a byte-identical overlay; what is

@@ -49,7 +49,8 @@ if TYPE_CHECKING:
 #: one-row edit 29,331 CPU cycles (the answering-ports arm, aecp-fanout, a one-row REMOVE_AUDIO_MAPPINGS), 310 us,
 #: each by the rule; on the SRP cut's head (#665's ruling of 2026-11-20, item 3), whose code moves AECP's, 29,993 CPU
 #: cycles there, 315 us, raised as the owner decided on 2026-11-20 (#665, ruling item 4).
-PACED = {'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
+PACED = {
+    'arty-1x1': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 315},'1x1/1if': {'a one-row edit': 315, 'an accepted SET_CONFIGURATION': 305},
          '8x8/2if': {'a one-row edit': 355, 'an accepted SET_CONFIGURATION': 595},
          '8x8/1if': {'a one-row edit': 335, 'an accepted SET_CONFIGURATION': 685}}
 #: The paced class's record at each point: the dearest of its members'.
@@ -63,8 +64,9 @@ def point_of(i: Inputs) -> str:
     never by its interface count alone (THE SHAPES): 1x1/1if, 8x8/1if or 8x8/2if; a point the class is not measured at
     takes the measured one of its interface count."""
     import load_grade
-    own = [p for p in PACED if (load_grade.POINTS[p]['n_if'], load_grade.POINTS[p]['sinks_per_if']) ==
-           (i.s['n_if'], i.s['sinks_per_if'])]
+    own = [p for p in PACED if (load_grade.POINTS[p]['n_if'], load_grade.POINTS[p]['sinks_per_if'],
+                              load_grade.POINTS[p].get('sources')) ==
+           (i.s['n_if'], i.s['sinks_per_if'], i.s.get('sources'))]
     return own[0] if own else '1x1/1if' if i.s['n_if'] == 1 else '8x8/2if'
 
 

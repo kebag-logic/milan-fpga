@@ -5,7 +5,7 @@
 The CPU is the CPU budget harness's (tb/verilator/ctrl_service_budget/split_soc.py,
 imported read only): MilanSoC's own VexiiRiscv path with the DMA port the
 shipping image has and the split placement's instruction cache, the CPU at
-the Milan clock. Its firmware memory is milan_soc.add_ctrl_memory, which
+the system clock, including its data cache. Its firmware memory is milan_soc.add_ctrl_memory, which
 also hands the CPU generator the split regions as aligned power-of-two
 pieces (milan_soc.exact_cpu_decode, ctrl_memory.cpu_regions).
 
@@ -100,14 +100,14 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
     platform = split_soc.platform_for(contract, 1)
     geometry = split_soc.fetch_l1_geometry('split')
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
     with mutated(mutant), patch.object(ctrl_memory, 'plan', full_plan):
         cpu = split_soc.CpuPatches('as-built' if mutant == 'single-mask' else 'cover')
         with cpu.applied():
             soc = milan_soc.MilanSoC(
                 platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
                 board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-                flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
+                flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD, l2_bytes=clocks['l2_bytes'],
                 extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
                 integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
             milan_soc.add_ctrl_memory(soc, elf)
@@ -121,12 +121,12 @@ def build(build_dir: Path, shape: str, elf: Path, mutant: str) -> dict:
                               csr_csv=str(build_dir / 'csr.csv'))
             sim_config = SimConfig()
             sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
-            sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
+            sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
             builder.build(run=False, sim_config=sim_config)
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'shape': shape, 'mutant': mutant,
+        'sys_hz': sys_hz, 'cpu_hz': soc.cpu_clk_freq, 'cpu_cd': soc.cpu_cd, 'milan_hz': milan_hz, 'shape': shape, 'mutant': mutant,
         'netlist': VexiiRiscv.netlist_name,
         'memory_regions': cpu.soc_regions,
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],

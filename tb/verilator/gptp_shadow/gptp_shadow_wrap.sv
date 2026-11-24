@@ -278,6 +278,8 @@ module gptp_shadow_wrap #(
       .PHC_TICK_NS_P (PHC_TICK_NS_P),
       .ETH_TICK_NS_P (PHC_TICK_NS_P)
   ) u_shadow (
+      .lat_ingress_ns_i (16'd0),
+      .lat_egress_ns_i  (16'd0),
       .clk_i           (clk_i),
       .rst_n           (rst_n),
       .rx_tdata_i      (rx_tdata_i),

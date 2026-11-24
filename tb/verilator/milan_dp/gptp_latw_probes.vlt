@@ -1,0 +1,6 @@
+`verilator_config
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Keep the publication count observable at the datapath boundary for the
+// in-flight GET_AS_PATH snapshot check; do not depend on an optimized alias.
+public_flat_rd -module "milan_datapath" -var "gptp_pub_path_count_w"

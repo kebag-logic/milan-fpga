@@ -397,7 +397,7 @@ So a controller host reads what is applied.
 
 So does `PTP_EGRESS_LAT` (`0x544`).
 
-Neither has a timestamp consumer.
+Neither has a timestamp consumer without the key below.
 
 One owner cannot be two.
 
@@ -406,6 +406,74 @@ A correction two layers each apply is applied twice.
 The builder REFUSES a board that omits either key.
 
 A generated default looks exactly like a measured zero.
+
+#### Writable corrections
+
+The key `gptp.latency_writable` is off unless stated (#829).
+
+Off, the two corrections stay the elaboration constants above.
+
+No flop, port load or adder then exists for them.
+
+On, the same two values are only reset values.
+
+A write to `0x540` or `0x544` then moves one.
+
+Bits `[15:0]` of the word are what is applied.
+
+The applied value feeds the same arithmetic and sign.
+
+It is applied at the same point.
+
+`GPTP_LAT` reads the applied pair after every write.
+
+The plane stays the only consumer.
+
+So nothing applies a correction twice.
+
+The CSR block and the plane share `axis_clk`.
+
+So the value crosses no clock domain.
+
+The crossing census has no new row.
+
+A write takes effect within two plane clocks.
+
+One is the ingress flop's, one the egress net's.
+
+A stamp reads one register on one edge.
+
+So it carries the old value or the new, whole.
+
+Arrival stamps read ingress at the frame's first accepted beat.
+
+Launch stamps read egress where the record resolves.
+
+That is after the launch.
+
+So a write inside an exchange spoils that exchange only.
+
+The two words are two bus writes.
+
+So one exchange can see one direction moved.
+
+The neighbor rate ratio spans two exchanges.
+
+The window across a write of `X` ns is off by `X`.
+
+No later window is.
+
+`make -C tb/verilator/gptp_txts run-latw` grades this at both link shapes.
+
+`make -C tb/verilator/milan_dp gptp-latw` grades it through the real CSR block.
+
+The key is a bring-up and calibration lever.
+
+It is not a product surface.
+
+A release board states its pair, with the key off.
+
+On the Arty, the split console's `milan_lat` writes the pair (#878).
 
 #### What is measured, and what is assigned
 

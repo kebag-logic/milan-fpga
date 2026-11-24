@@ -344,40 +344,41 @@ media-grid observation point rather than part of the TDM bus, so
 `o_media_lrclk_o` remains internal on the Arty while the master still
 elaborates and drives the complete five-signal header.
 
-The Arty split port (#878) is separate from that recipe.
-Its requested datapath clock is 50 MHz.
-The owner's round-3 ruling selects exactly 80 MHz sys/CPU.
-The first firmware build refuses its unmeasured scheduler shape.
-That shape has one source, two sinks, and one interface.
-The existing AX7101 1x1 point has two sources instead.
-Each scheduler shape requires its own measured service costs.
-The clock ruling keeps `_CRG`'s `margin=0` contract.
-Its selected VCO is 800 MHz, divided by ten.
-Companion outputs use divisors 32, 16 and four: 25/50/200 MHz.
-This decision replaces round 2's unachievable 83,333,000 Hz request.
-The configuration and launcher updates remain pending after STOP.
+The Arty split recipe uses `configs/endstation_arty_split.yaml` (#878).
+It keeps one AAF talker, one AAF listener and one CRF input.
+That scheduler shape has one source, two sinks and one interface.
+The `arty-1x1` service-budget point measures it at exactly 80 MHz sys/CPU.
+The existing AX7101 1x1 point has two sources and separate costs.
+The datapath remains at 50 MHz.
 
-Round 3 re-graded round 2's seven held-egress misses.
-Those measurements remain at 83,333,000 Hz, never re-labelled as 80 MHz.
-The `backlog-owed` stimulus fills the ACMP transmit ring.
-It holds egress for 60 ms after admitting measured commands.
-No frame leaves during the hold.
-Five response commits take 62.67491 to 63.21346 ms.
-Two receive-service rows take 61.79409 and 61.99946 ms.
-[FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges backpressure to their 20 ms budgets.
-No normative wait applies; releasing egress never restarts timing.
-These failures require STOP under the round-3 instruction.
-The existing egress ledger supplies no Arty exception.
-No 80 MHz service costs, slice or pace are qualified.
-No routed image or flash layout is qualified yet.
+The clock ruling keeps `_CRG`'s `margin=0` contract.
+Its selected VCO is 800 MHz, divided by ten for sys/CPU.
+Companion outputs use divisors 32, 16 and four: 25/50/200 MHz.
+The configuration and launcher use those exact frequencies.
+This replaces round 2's unachievable 83,333,000 Hz request.
+Historical measurements keep their original clock basis.
+
+The owner's round-4 ruling permits a measured Arty held-egress ledger.
+The `backlog-owed` stimulus holds egress for 60 ms after admitting commands.
+[FR_NFR 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) charges backpressure to the service budget.
+Its seven misses remain recorded misses, with no normative wait allowance.
+`ctrl_service_budget/egress_ledger.py` bounds each by its own 80 MHz measurement.
+It applies #894's hold-plus-service rule and rejects a new or larger miss.
+The scheduler costs, slice and pace pass the complete 80 MHz service campaign.
+[Section 15](../design/SPLIT_CONTROL_MEMORY.md#15-arty-split-at-80-mhz) records the measurements and the Arty memory ledger.
+Each routed image needs its own timing and identity evidence.
+For this split image, #878 applies the #818 floor: WNS at least +0.030 ns
+and WHS at least zero in all four signoff reports.
+Select the best worst-corner WNS from three placement directives.
+Hardware checks follow image qualification.
 Earlier Arty bench evidence applies only to its recorded images.
 
-The DP83848 supports 10 and 100 Mb/s.
+The MII split initializer advertises only 100BASE-TX full duplex.
+The policy is enabled by the `mii-100` platform constraint.
 Milan v1.2 Section 4.2.1 incorporates IEEE 802.1BA requirements.
-IEEE 802.1BA-2011 Table 6-1 excludes 10 Mb/s and half duplex.
-The requested image must advertise only 100BASE-TX full duplex.
-The current split initializer leaves 10/100 PHY advertisements unchanged.
-Therefore that policy still needs implementation and verification.
+IEEE 802.1BA-2011 Table 6-1 and 6.5 exclude 10 Mb/s and half duplex.
+The host tests cover the advertised modes, loss, readback and step budget.
+Planted policy defects must fail the firmware gate.
 
 ### Adding a configuration
 
@@ -811,7 +812,9 @@ slice, and the check must `FAIL` naming that port.
    the directive with the best worst-corner WNS. For an adoption,
    `pp_resource_gate.py` reads the same reports and enforces them on the
    recipe's route set.
-   The retired Arty recipe retains its WNS >= 0 rule.
+   The retired all-fabric Arty recipe retains its WNS >= 0 rule.
+   The Arty split image in #878 uses the +0.030 ns WNS and nonnegative WHS
+   floor at all four signoff reports, with the same best-of-three selection.
 2. **Utilization** vs the AREA-70 scoreboard (`*_utilization_place.rpt`:
    Slice LUTs / Slice / Block RAM Tile rows; hierarchical variants for
    attribution  -  but OOC-synth a module before believing its hierarchical

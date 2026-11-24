@@ -356,6 +356,7 @@ CONFIGS = {
     "arty_current": ROOT / "configs/endstation_arty_current.yaml",
     "arty_4x4": ROOT / "configs/endstation_arty_4x4.yaml",
     "arty_8ch": ROOT / "configs/endstation_arty_8ch.yaml",
+    "arty_split": ROOT / "configs/endstation_arty_split.yaml",
     "ax7101_8x8": ROOT / "configs/endstation_ax7101_8x8.yaml",
     "ax7101_1x1_tdm8": ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml",
 }
@@ -23899,7 +23900,7 @@ FABRIC_SUFFIX = "+all-fabric"
 #: The tracked configs that ship the split placement since the flip (#665):
 #: the two AX7101 shapes its bench gate qualified. Every other tracked
 #: config is all-fabric (gate 23n).
-SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8")
+SPLIT_SHIPPING = ("ax7101_1x1_tdm8", "ax7101_8x8", "arty_split")
 
 
 def _split_cfg(cfg):
@@ -24256,6 +24257,11 @@ def test_control_placement_key() -> None:
     """gate 23n - control.placement: the AX7101 configs split since the flip, the rest all-fabric, the two
     placements differing in the key alone."""
     cfgs = {name: eb.load_config(str(path)) for name, path in CONFIGS.items()}
+    for name, cfg in cfgs.items():
+        argv = eb.emit_soc_argv(cfg)
+        for flag, key in (("--sys-clk-freq", "sys_clk_hz"), ("--milan-clk-freq", "milan_clk_hz")):
+            if flag in argv:
+                assert int(float(argv[argv.index(flag) + 1])) == cfg["constraints"][key], (name, flag)
     bad = _placement_findings(eb, cfgs)
     assert not bad, "gate 23n:\n  " + "\n  ".join(bad)
     # negative control: the flip reverted in one shipping config is a finding
@@ -24812,7 +24818,10 @@ def test_build_sh_argv_follows_the_config() -> None:
     before = _launcher_soc_argv(BUILD_SH, ["arty", "--dry-run"])[0]
     assert flag not in before, f"the arty recipe already carries {flag}"
     planted = ROOT / "configs" / "gate23i_planted.yaml"
-    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    # The recipe's bound config is its generated include's stem. Follow that
+    # binding when cfg_arty changes placement; mutate only the flag under test.
+    bound = Path(before[before.index("--entity-gen-dir") + 1]).name
+    cfg = yaml.safe_load((ROOT / "configs" / f"{bound}.yaml").read_text())
     cfg["board"]["features"]["datapath_probes"] = False
     # A builder run on an rtl_table config rewrites the tracked CSR header
     # in its name; a throwaway must never own the tree.
@@ -24837,7 +24846,16 @@ def test_build_sh_argv_follows_the_config() -> None:
     assert split[1][0] == want, ("the launch line's design part is not the "
                                  f"throwaway's emit_soc_argv:\n got  "
                                  f"{split[1][0]}\n want {want}")
-    assert [a for a in split[1][0] if a != flag] == split[0][0], \
+    compared = [list(part[0]) for part in split]
+    # A split config also names its own ELF. Prove each binding before
+    # removing that expected config-name difference from the flag comparison.
+    for argv, stem in zip(compared, (bound, planted.stem)):
+        if "--ctrl-firmware" in argv:
+            at = argv.index("--ctrl-firmware") + 1
+            expected = f"sw/builder/out/{stem}/ctrl_app.elf"
+            assert argv[at] == expected, f"split firmware {argv[at]} is not {expected}"
+            argv[at] = "@CONFIG_FIRMWARE@"
+    assert [a for a in compared[1] if a != flag] == compared[0], \
         "planting one flag moved another design flag on the launch line"
     assert Path(split[1][1]).name == planted.stem, \
         f"--entity-gen-dir {split[1][1]} does not name the throwaway config"
@@ -27550,6 +27568,7 @@ def test_station_mac_ul_bit_warns() -> None:
     decided = {"ax7101_8x8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
                "ax7101_1x1_tdm8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
                "arty_current": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_split": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
                "arty_4x4": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
                "arty_8ch": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02)}
     assert set(decided) == set(CONFIGS), \
@@ -29367,7 +29386,61 @@ GPTP_LAT_MEASURED_SUM_NS = 875
 GPTP_LAT_SUM_TOL_NS = 10
 #: Which tracked configs carry a measured sum, and which declare zero
 #: because no one has measured them on this plane.
-GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8")
+GPTP_LAT_MEASURED = ("ax7101_8x8", "ax7101_1x1_tdm8", "arty_split")
+#: Board-specific measured sums; the AX7101 default remains 875 ns.
+GPTP_LAT_MEASURED_SUM_OF = {"arty_split": 1509}
+
+
+def test_gptp_latency_writable_key() -> None:
+    """Gate 36a (#829): off unless stated, and absent from what it leaves off."""
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        writable = cfg["gptp"]["latency_writable"]
+        argv = eb.emit_soc_argv(cfg)
+        params = eb.datapath_params(cfg)
+        assert ("--gptp-lat-writable" in argv) == writable, (
+            f"gate 36a: {name}: argv and the key disagree: {argv}")
+        assert ("GPTP_LAT_WRITABLE_P" in params) == writable, (
+            f"gate 36a: {name}: datapath parameters and the key disagree")
+        if cfg["board_target"] == "ax7101":
+            assert not writable, (
+                f"gate 36a: {name} is a shipping AX7101 shape and must keep "
+                f"its corrections elaboration constants")
+    # A board that states the key off builds what one that omits it builds.
+    base = eb.load_config(CONFIGS[BEHAVIOURAL_CFG])
+    assert not base["gptp"]["latency_writable"]
+    stated = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                      lambda c: c["gptp"].update(latency_writable=False))
+    moved = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                     lambda c: c["gptp"].update(latency_writable=True))
+    bad = _variant(CONFIGS[BEHAVIOURAL_CFG],
+                   lambda c: c["gptp"].update(latency_writable=1))
+    try:
+        off = eb.load_config(stated)
+        # Compare design options: each split variant names a different ELF
+        # because its temporary config has a different output directory.
+        assert eb.emit_design_opts(off) == eb.emit_design_opts(base), (
+            "gate 36a: stating the key off moved the design argv")
+        on = eb.load_config(moved)
+        argv_on = eb.emit_design_opts(on)
+        assert ("--gptp-lat-writable" in argv_on and
+                [a for a in argv_on if a != "--gptp-lat-writable"]
+                == eb.emit_design_opts(base)), (
+            "gate 36a: the key on must add its flag and nothing else")
+        assert on["model_id"]["hash"] == base["model_id"]["hash"], (
+            "gate 36a: the key rotated entity_model_id, and it changes no "
+            "descriptor (IEEE 1722.1 6.2.2.8)")
+        try:
+            eb.load_config(bad)
+        except eb.ConfigError as exc:
+            assert "latency_writable" in str(exc), (
+                "gate 36a: a non-boolean key was refused for another reason")
+        else:
+            raise AssertionError("gate 36a: a non-boolean key was ACCEPTED")
+    finally:
+        stated.unlink()
+        moved.unlink()
+        bad.unlink()
 
 
 def test_gptp_latency_corrections_are_declared_and_carried() -> None:
@@ -29400,10 +29473,11 @@ def test_gptp_latency_corrections_are_declared_and_carried() -> None:
         if name in GPTP_LAT_MEASURED:
             assert ing and egr, (
                 f"gate 36: {name} is a measured board and declares a zero")
-            off = abs(ing + egr - GPTP_LAT_MEASURED_SUM_NS)
+            measured = GPTP_LAT_MEASURED_SUM_OF.get(name, GPTP_LAT_MEASURED_SUM_NS)
+            off = abs(ing + egr - measured)
             assert off <= GPTP_LAT_SUM_TOL_NS, (
                 f"gate 36: {name} splits {ing} + {egr} = {ing + egr} ns, "
-                f"{off} ns off the measured {GPTP_LAT_MEASURED_SUM_NS} ns "
+                f"{off} ns off the measured {measured} ns "
                 f"(tolerance {GPTP_LAT_SUM_TOL_NS} ns). The SUM is what the "
                 f"tap measured; only the split between the two is open")
             assert ing != egr, (
@@ -29521,7 +29595,7 @@ def test_audio_unit_rates_loader_contract() -> None:
 def test_audio_unit_shipping_rates() -> None:
     """Gate 36a: every shipped AUDIO_UNIT retains its advertised rate words."""
     for name, path in CONFIGS.items():
-        want = [48000, 96000, 192000] if name == "arty_current" else [48000]
+        want = [48000, 96000, 192000] if name in ("arty_current", "arty_split") else [48000]
         cfg = eb.load_config(path)
         assert cfg["clocking"]["audio_unit_rates_hz"] == want, \
             f"gate 36a: {name} shipping rate declaration changed"
@@ -30696,6 +30770,7 @@ if __name__ == "__main__":
                test_boot_policy_follows_the_declaration,
                test_nvm_firmware_shapes,
                test_gptp_latency_corrections_are_declared_and_carried,
+               test_gptp_latency_writable_key,
                test_audio_unit_rates_loader_contract,
                test_audio_unit_shipping_rates,
                test_shipping_image_contract,

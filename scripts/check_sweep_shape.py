@@ -66,7 +66,7 @@ BUILD_CFGS = {
     "ax7101": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax7a200t": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax8x8": "configs/endstation_ax7101_8x8.yaml",
-    "arty":  "configs/endstation_arty_current.yaml",
+    "arty":  "configs/endstation_arty_split.yaml",
 }
 
 # #911: the die a recipe adds to its config's emission; every other recipe adds none.

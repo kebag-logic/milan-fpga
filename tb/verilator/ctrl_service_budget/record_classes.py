@@ -29,7 +29,7 @@ runs any leg, it runs arm A there, its arm A legs together ran every group of th
 cost measured over the arm depending on every one of them, and its answering-ports leg there ran aecp-fanout's
 accepted SET_CONFIGURATION and its SET_STREAM_INFO, as #902 held 1x1/1if; and a pass that runs no leg at any such
 point is refused. So a pass of 8x8/1if's legs alone is held complete at 8x8/1if, and one that also carries a 1x1/1if
-leg is held complete there too. At 1x1/1if its answering-ports leg must also have run aecp-reboot's accepted REBOOT
+leg is held complete there too. At 1x1/1if and Arty its answering-ports leg must also have run aecp-reboot's accepted REBOOT
 and a refused one, and in its aecp group a GET_AS_PATH answered SUCCESS with the entries the arm's path port reads
 (#897): that port reads the window as the product's does and answers arm_path.ENTRIES (arm_path.py), so the
 response's control_data_length is ANSWERED_LENGTH (IEEE 1722.1-2021 7.4.41.2: 16 and 8 an entry), and that record,
@@ -96,12 +96,12 @@ CONTROLS = ('a pass missing a group of arm A', 'an unpaced edit charged at the e
             "an 8x8/1if pass missing arm B's SET_CONFIGURATION",
             "a mixed-point pass missing 1x1/1if's arm A and its arm B's SET_CONFIGURATION")
 #: The points a pass is held complete at, each at its own statements: 1x1/1if, #902's flip point, and 8x8/1if, #894's
-#: 8x8/1if gate (THE SHAPES).
-COMPLETE = ('1x1/1if', '8x8/1if')
+#: 8x8/1if gate (THE SHAPES), and #878's Arty point at its own 80 MHz costs.
+COMPLETE = ('1x1/1if', '8x8/1if', 'arty-1x1')
 #: run.POINTS' label of each point a pass is held complete at.
-LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if'}
-#: The point whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
-REBOOT_PATH_POINT = '1x1/1if'
+LABELS = {'1x1/1if': '1x1', '8x8/1if': '8x8-1if', 'arty-1x1': 'arty-1x1'}
+#: The points whose answering-ports leg must also run aecp-reboot's REBOOTs and the answered GET_AS_PATH (#871, #897).
+REBOOT_PATH_POINTS = ('1x1/1if', 'arty-1x1')
 #: The declaring-outputs arm's records a pass must run at each point it is held complete at, each with the completion.
 DECLARED = {'answered GET_STREAM_INFO': lambda r: r.command == GET_STREAM_INFO and r.status == 0,
             'accepted SET_STREAM_INFO': lambda r: r.command == SET_STREAM_INFO and r.status == 0,
@@ -136,7 +136,11 @@ def rule(cycles: int, cpu_hz: int) -> int:
 
 
 def point_name(spec: dict) -> str:
-    """The stated-cost point of a build: 1x1/1if, 8x8/2if, or 8x8/1if (#894's 8x8/1if shape)."""
+    """The stated-cost point of a build, including #878's distinct Arty (1,1,2) shape."""
+    if spec['shape'] in ('endstation_arty_current', 'endstation_arty_split'):
+        if spec['interfaces'] != 1:
+            raise ValueError('Arty record classes require exactly one interface')
+        return 'arty-1x1'
     eight = '8x8' in spec['shape']
     return ('8x8/2if' if spec['interfaces'] == 2 else '8x8/1if') if eight else '1x1/1if'
 
@@ -146,7 +150,7 @@ def statements(point: str, root: Path = ROOT) -> dict[str, int]:
     import edit_rows
     import load_grade
     import rows_tiers
-    pace = rows_tiers.point_inputs(root, '1x1/1if').pace_ms
+    pace = rows_tiers.point_inputs(root, point).pace_ms
     return {'long': rows_tiers.LONG_RECORD_US[point], 'paced': edit_rows.EDIT_RECORD_US[point],
             'other': load_grade.stated(root, point, load_grade.GRADED)['record.aecp'], 'pace_ms': pace}
 
@@ -239,6 +243,9 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | 
     at every point it names and at every point of COMPLETE the pass runs any leg at, so a point with legs and no arm A
     leg is refused by name, whatever groups_of_arm holds."""
     out, reported = [], []
+    out += [f'arty-1x1 {leg.variant}: its CPU and bus must both be exactly 80000000 Hz, '
+            f'not {leg.cpu_hz} and {leg.sys_hz}' for leg in legs
+            if leg.point == 'arty-1x1' and (leg.cpu_hz, leg.sys_hz) != (80_000_000, 80_000_000)]
     if groups_of_arm is not None:
         wanted = groups_of_arm if isinstance(groups_of_arm, dict) else {'1x1/1if': groups_of_arm}
         points = sorted({leg.point for leg in legs if leg.point in COMPLETE} | set(wanted))
@@ -266,7 +273,7 @@ def findings(legs: list[Leg], groups_of_arm: list[str] | dict[str, list[str]] | 
             out += [f"the pass is missing the declaring-outputs arm's {name}: no declaring-outputs leg at {point} ran "
                     'one whose record ran the completion, which no other arm reaches'
                     for name, test in DECLARED.items() if not any(map(test, completed))]
-            if point != REBOOT_PATH_POINT:
+            if point not in REBOOT_PATH_POINTS:
                 continue
             reboots = [r for leg in ports for r in leg.groups.get(REBOOT_GROUP, []) if r.command == REBOOT]
             for what, ran in (('accepted', any(r.status == 0 for r in reboots)),
@@ -436,6 +443,58 @@ def controls() -> list[str]:
     return escaped
 
 
+def arty_checks() -> list[tuple[str, bool, str]]:
+    """Arty's own completeness and 80 MHz conversion, including a mixed-point pass.
+
+    The synthetic records preserve synthetic()'s elapsed times at 80 MHz. Its ordinary
+    cost is deliberately distinct from that fixture's AX cost: 17,500 cycles exceed
+    Arty's 225 us statement by the rule, but fit 235 us and would fit at 100 MHz.
+    """
+    import copy
+    legs, groups, ax = synthetic()
+    own = {**ax, 'other': 225, 'paced': 310, 'long': 1000}
+    for leg in legs:
+        leg.point = 'arty-1x1'
+        leg.sys_hz = leg.cpu_hz = 80_000_000
+        for records in leg.groups.values():
+            for r in records:
+                r.start = r.start * 4 // 5
+                r.cycles = r.cycles * 4 // 5
+    wanted = {'arty-1x1': groups}
+    at = lambda point: own if point == 'arty-1x1' else ax  # noqa: E731
+    clean, reported = findings(legs, wanted, at)
+    checks = [('Arty record classes accept their complete 80 MHz fixture',
+               not clean and len(reported) == 1, '; '.join(clean) or 'complete')]
+    plants = (
+        ('missing Arty arm A', lambda p: p.pop(0), 'the pass runs no arm A leg at arty-1x1'),
+        ('missing Arty accepted REBOOT', lambda p: p[1].groups[REBOOT_GROUP].pop(1),
+         "missing arm B's accepted REBOOT"),
+        ('missing Arty GET_AS_PATH', lambda p: p[1].groups['aecp'].clear(), "missing arm B's GET_AS_PATH"),
+        ('Arty record over its own cost', lambda p: setattr(p[0].groups['aecp'][0], 'cycles', 17_500),
+         "over the other record's 225 us"),
+        ('Arty measured on a 100 MHz CPU basis', lambda p: setattr(p[0], 'cpu_hz', 100_000_000),
+         'must both be exactly 80000000 Hz'),
+        ('Arty measured on a 100 MHz bus basis', lambda p: setattr(p[0], 'sys_hz', 100_000_000),
+         'must both be exactly 80000000 Hz'),
+    )
+    for name, plant, words in plants:
+        changed = copy.deepcopy(legs)
+        plant(changed)
+        caught = any(words in f for f in findings(changed, wanted, at)[0])
+        checks.append((f'the record classes refuse {name}', caught, 'refused' if caught else 'escaped'))
+    axes, ax_groups, _ = synthetic()
+    mixed = findings(axes + [copy.deepcopy(legs[1])], {'1x1/1if': ax_groups}, at)[0]
+    caught = 'the pass runs no arm A leg at arty-1x1' in mixed
+    checks.append(('an AX pass does not supply Arty arm A', caught, 'refused' if caught else 'escaped'))
+    caught = False
+    try:
+        point_name({'shape': 'endstation_arty_current', 'interfaces': 2})
+    except ValueError as refused:
+        caught = 'exactly one interface' in str(refused)
+    checks.append(('an Arty leg with two interfaces is refused', caught, 'refused' if caught else 'escaped'))
+    return checks
+
+
 def port_findings() -> list[str]:
     """What is wrong with the answering-ports arm's path port, whose answered read the pass holds: build.py must put
     arm_path.py's port in the face's path port, and that port must read the count and each entry through the
@@ -462,19 +521,22 @@ def checks() -> list[tuple[str, bool, str]]:
     return [(f'the record classes refuse {name}', name not in escaped, 'escaped' if name in escaped else 'refused')
             for name in CONTROLS] + [("the answering-ports arm's path port is arm_path.py's, which reads the window",
                                      not port, '; '.join(port) or 'arm_path.B_PATH in build.VARIANTS')] + \
-        declaring_outputs.checks()
+        declaring_outputs.checks() + arty_checks()
 
 
 def main(argv: list[str]) -> int:
     """Hold a pass's legs, or plant each control."""
     if argv == ['--selftest']:
         escaped, port = controls(), port_findings()
+        arty = arty_checks()
+        escaped += [name for name, ok, _ in arty if not ok]
         for name in escaped:
             print(f'ESCAPED {name}')
         for line in port:
             print(f'REFUSED {line}')
         print(f'record classes: {len(CONTROLS) - len(escaped)} of {len(CONTROLS)} planted controls refused; the '
               f"answering-ports arm's path port {'is not' if port else 'is'} arm_path.py's")
+        print(f'Arty record checks: {sum(ok for _, ok, _ in arty)} of {len(arty)} passed')
         return int(bool(escaped or port))
     if not argv or any(a.startswith('-') for a in argv):
         print(__doc__)

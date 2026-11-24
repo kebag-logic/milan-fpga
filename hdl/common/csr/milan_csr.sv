@@ -119,6 +119,14 @@ module milan_csr #(
   //! (125 MHz -> 0x08000000); milan_datapath overrides with its own
   //! MILAN_CLK_FREQ_HZ so the two can never disagree.
   parameter int unsigned MILAN_CLK_FREQ_HZ_P = 125_000_000,
+  //! THE WRITABLE LATENCY CORRECTIONS (issue #829, build key
+  //! gptp.latency_writable). Off, 0x540 and 0x544 stay inert scratch that
+  //! resets to zero. On, milan_datapath applies [15:0] of a write to either
+  //! word and these two words reset to the build-time pair, so that a read
+  //! returns what is applied until the first write.
+  parameter bit          GPTP_LAT_WRITABLE_P   = 1'b0,
+  parameter int unsigned GPTP_INGRESS_LAT_NS_P = 0,
+  parameter int unsigned GPTP_EGRESS_LAT_NS_P  = 0,
   //! When set, the gPTP publication bank owns the legacy GM/parent/pdelay
   //! read addresses. Each 64-bit identity is snapshotted across a two-half
   //! read in either order. Default 0 retains the addresses as an ownerless,
@@ -153,7 +161,8 @@ module milan_csr #(
   //! writes inert, option OFF zero - the timestamp latency corrections the
   //! fabric gPTP plane is applying, {ingress_ns[31:16], egress_ns[15:0]}.
   //! Nothing else moves, and the ONLY live consumer of a latency correction
-  //! remains the plane: 0x540 and 0x544 stay inert scratch. 0x005D was never
+  //! remains the plane: 0x540 and 0x544 stay inert scratch unless the build
+  //! sets GPTP_LAT_WRITABLE_P (issue #829). 0x005D was never
   //! released: a parallel lane held it and landed as 0x005F.
   //!
   //! 0x005F lands the saved-state SNAPSHOT OWNERSHIP contract (#484,
@@ -276,7 +285,8 @@ module milan_csr #(
   output wire                    o_ptp_cmd_adjust,  //! adjtime apply strobe (1-cycle pulse, PTP_CMD[1])
   output wire                    o_ptp_cmd_snapshot,//! gettime latch strobe (1-cycle pulse, PTP_CMD[2])
   //! PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544) are readable, inert scratch:
-  //! plain RW with no timestamp-correction consumer at VERSION 0x0002_0057.
+  //! plain RW with no timestamp-correction consumer at VERSION 0x0002_0057,
+  //! unless the build sets GPTP_LAT_WRITABLE_P (issue #829).
   //! They have no port: the ptp_ts_core record path left with the general-data chain.
   input  wire [63:0]             i_ptp_tod,         //! gettime snapshot value from the PHC (gtx_clk, synchronised)
   input  wire                    i_ptp_tod_valid,   //! 1-cycle pulse: latch i_ptp_tod into PTP_TOD_RD (REQ-PTP-03/CSR-03)
@@ -314,7 +324,8 @@ module milan_csr #(
   input  wire [15:0]             i_gptp_txts_lost,
   //! THE TIMESTAMP LATENCY CORRECTIONS THE PLANE IS APPLYING (issue #358),
   //! nanoseconds: {ingress[31:16], egress[15:0]}. Elaboration constants the
-  //! builder carried from the board configuration, republished so a
+  //! builder carried from the board configuration, or the written pair under
+  //! GPTP_LAT_WRITABLE_P (issue #829), republished so a
   //! controller host and the UART status can read what is actually applied
   //! rather than what a configuration file elsewhere claims. Option OFF
   //! reads zero, as every other plane publication does.
@@ -921,7 +932,8 @@ module milan_csr #(
   //! two drop words above. One word so a reader gets both directions in one
   //! access and can never pair an ingress value with another build's
   //! egress. This is the ONLY live latency-correction publication: 0x540
-  //! and 0x544 remain inert scratch with no timestamp consumer.
+  //! and 0x544 remain inert scratch with no timestamp consumer unless the
+  //! build sets GPTP_LAT_WRITABLE_P (issue #829).
   localparam [ADDR_WIDTH-1:0] A_GPTP_LAT   = 'h7F0;  //! RO live {ingress_ns16, egress_ns16}
   //! MMCM-DRP media-clock servo status. Deliberately parked at the 0x8F8
   //! tail (after the 0x800-0x85C indexed window) so parallel feature lanes
@@ -1577,6 +1589,12 @@ module milan_csr #(
   wire       stg_hit_w     = stg_vld_r && (stg_sel_r == {strm_dir_r,
                                                          strm_idx_r});
 
+  //! The reset image of the two correction words (issue #829).
+  localparam logic [31:0] PTP_ILAT_RST_C =
+      GPTP_LAT_WRITABLE_P ? 32'(GPTP_INGRESS_LAT_NS_P) : 32'd0;
+  localparam logic [31:0] PTP_ELAT_RST_C =
+      GPTP_LAT_WRITABLE_P ? 32'(GPTP_EGRESS_LAT_NS_P) : 32'd0;
+
   //! Register file write path: synchronous reset defaults, hardware event
   //! latching (before W1C), AXI-Lite register writes, W1C on IRQ_STATUS, and
   //! the single-cycle command strobes (stats snapshot/reset, PTP load/adjust/
@@ -2032,6 +2050,8 @@ module milan_csr #(
       //! passed MILAN_CLK_FREQ_HZ_P, so it elaborated at the 125 MHz
       //! default where the two agreed and nothing caught it.
       A_PTP_INCR[10:0]:   csr_default = PTP_INCR_RST_C;
+      A_PTP_ILAT[10:0]:   csr_default = PTP_ILAT_RST_C;
+      A_PTP_ELAT[10:0]:   csr_default = PTP_ELAT_RST_C;
       A_ADP_CTRL[10:0]:   csr_default = 32'h0000_0A00;
       //! RO shape words: the reset value IS the answer, forever (0x0015)
       A_ADP_TALK[10:0]:   csr_default = ADP_TALK_C;

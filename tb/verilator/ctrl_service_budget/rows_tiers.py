@@ -98,7 +98,8 @@ DATAPATH = {'AVB_INFO_CHANGED': 'interface', 'AS_PATH_CHANGED': 'interface', 'AM
 #: over its datapath-events group at the point (the testbench's datapath change pads, split_soc.DATAPATH_PADS), plus
 #: 5 %, rounded up to 5 us, the larger of each image's measurement and the one before it (#894: at #810's merge 31.96,
 #: 29.06, 23.33 us at 1x1/1if, 36.57, 34.43, 23.02 at 8x8; direct index 30.55, 31.57, 25.51; #895 AMAP 8x8 24.65).
-DATAPATH_US = {'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
+DATAPATH_US = {
+    'arty-1x1': {'AVB_INFO_CHANGED': 25, 'AS_PATH_CHANGED': 25, 'AMAP_LIVE_WRITE': 15},'1x1/1if': {'AVB_INFO_CHANGED': 35, 'AS_PATH_CHANGED': 35, 'AMAP_LIVE_WRITE': 30},
                '8x8/2if': {'AVB_INFO_CHANGED': 40, 'AS_PATH_CHANGED': 40, 'AMAP_LIVE_WRITE': 30}}
 #: The five rows decision D bounds, the slice rule's (slice_choice).
 TIER_ROWS = ('R4', 'R5', 'R6', 'first', 'last')
@@ -124,7 +125,7 @@ LONG_RULES = ('buffer', 'slot-552')
 #: measured over the aecp-largest-notice group, a 550 B notice to every registration but the requester's (15 and 31;
 #: long_notice.py), plus 5 %, rounded up to 5 us (#894's slice ruling of 2026-11-13: the measured cost replaces the
 #: stated 665 us). Each point's at its shape (THE SHAPES), 8x8/1if's its own.
-LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if')}
+LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LONG] for p in (*POINTS, '8x8/1if', 'arty-1x1')}
 #: The largest legal command's record in us, each of AECP's records in a LONG_ROWS row (every command one that the
 #: largest legal notice answers): the most measured AECP record handler (aecp_mbx.c, frame) over the aecp-largest-notice
 #: group, its refused collision and conflict edits too, plus 5 %, rounded up to 5 us, the larger kept: 92,766 CPU cycles
@@ -132,7 +133,8 @@ LONG_NOTICE_US = {p: poll_grade.stated_us(shape_costs.of_point(p))[poll_grade.LO
 #: (965 us; refused 23,883 to 75,892), 156,716 at 8x8/2if in the answering-ports arm, whose output map it edits (147,843
 #: before), and at 8x8/1if (THE SHAPES) 162,969 on the image that merges dev-soft-core 70f4056f (#901; 143,648 before,
 #: 1,510 us), 1,715 us (#904: one decode, one pass), 1,720 (#943: 163,520). record.aecp is shorter ones'.
-LONG_RECORD_US = {'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
+LONG_RECORD_US = {
+    'arty-1x1': 1095,'1x1/1if': 975, '8x8/2if': 1650, '8x8/1if': 1720}
 #: The terms a tier-1 row may not carry: tier 2's work, for which only the one slice its window opens on stands.
 TIER2_TERMS = ('srp', 'item.retained', 'item.mrpdu', 'builds', 'rounds', 'item.withdraw', 'item.rebuild')
 #: Each term these models count and its source: rows_grade's list, the three datapath events, and the tier model's.
@@ -192,7 +194,8 @@ def point_inputs(root: Path, point: str, texts: dict[str, str] | None = None) ->
 def as_tiers(base: rows_grade.Inputs) -> Inputs:
     """rows_grade's inputs as these models read them: the datapath events' stated costs at the point of their
     interfaces, the retry spacing of aecp.h's AECP_RETRY_MAX_MS (8 ms) and no built constants."""
-    point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if'])
+    point = next(p for p in POINTS if load_grade.POINTS[p]['n_if'] == base.s['n_if']
+                 and load_grade.POINTS[p].get('sources') == base.s.get('sources'))
     costs = {**base.c, **{f'event.{kind}': us for kind, us in DATAPATH_US[point].items()},
              'item.aecp.long': LONG_NOTICE_US[point], 'record.aecp.long': LONG_RECORD_US[point]}
     return Inputs(base.h, costs, *base[2:], 8)

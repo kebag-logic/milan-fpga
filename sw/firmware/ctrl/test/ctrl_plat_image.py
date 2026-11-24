@@ -48,6 +48,8 @@ REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_
             "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
             "nvm_store_tick", "nvm_store_step", "ctrl_loop_step", "ctrl_plat_phy_arm", "ctrl_plat_phy_step",
             "ctrl_plat_phy_store_step"}
+#: The console command is compiled only for gptp.latency_writable (#878).
+LAT_WRITABLE = "-DCTRL_PLAT_LAT_WRITABLE"
 #: The fixture's placeholder for the mailbox (ctrl_build.SPLIT_RV32_FLAGS); the map's replaces it. The record
 #: mover's bank stays there: the SoC pins it at that address (milan_soc.add_ctrl_mailbox).
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
@@ -78,6 +80,16 @@ def generate(config: Path, csr_csv: Path, out: Path) -> None:
     gen = CTRL / "plat/ctrl_plat_gen.py"
     image.checked([sys.executable, "-B", str(gen), "policy", str(config), "-o", str(out / "ctrl_plat_policy_gen.h")])
     image.checked([sys.executable, "-B", str(gen), "map", str(csr_csv), "-o", str(out / "ctrl_plat_map_gen.h")])
+
+
+def lat_writable(config: Path) -> bool:
+    """Whether the config sets gptp.latency_writable, through the generator's one reading of it."""
+    sys.path.insert(0, str(CTRL / "plat"))
+    import ctrl_plat_gen  # noqa: E402
+    try:
+        return ctrl_plat_gen.latency_writable(config)
+    except ctrl_plat_gen.Refusal as error:
+        raise Refusal(str(error)) from error
 
 
 #: The members of struct ctrl_plat (plat/ctrl_plat.h), the platform's one static object, each measured apart.
@@ -148,6 +160,13 @@ def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path
     lwsrp_pin(lw)
     flags = [f for f in image.layout_flags("split")[1] if not PLACEHOLDER.fullmatch(f)]
     flags += ["-DLWSRP_MILAN=1", "-include", str(out / "ctrl_plat_map_gen.h")]
+    # the console's milan_lat under the build key gptp.latency_writable alone (#829, #878): off, the flags are
+    # the ones every other image is compiled with
+    if lat_writable(args.config):
+        flags += [LAT_WRITABLE]
+    import ctrl_plat_gen
+    if ctrl_plat_gen.mii_100_only(args.config):
+        flags += ["-DCTRL_PLAT_PHY_100_ONLY"]
     inc += [f"-I{out}", f"-I{tree.src / 'plat'}", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}",
             *fw_rv32.includes(cc)]
     extra_inc, aecp_sources = image.aecp_inputs(tree, args.config, out, NVM_DIR, args.flash_map)

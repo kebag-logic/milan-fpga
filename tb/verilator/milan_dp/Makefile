@@ -598,6 +598,25 @@ build-gptp-lat: ltn_rom.hex ucode.hex gptp_lat_ucode.hex $(GEN_ALL)
 exec-gptp-lat:
 	./obj_gptplat/Vmilan_dp_gptplat
 
+# issue #829: THE SAME LEG ELABORATED WITH THE WRITABLE KEY. Everything the
+# `gptp-lat` leg proves of the pair must hold of it as a reset value, and the
+# bus then moves each stamp by exactly what is written.
+gptp-latw: build-gptp-latw
+	$(MAKE) --no-print-directory exec-gptp-latw
+
+build-gptp-latw: ltn_rom.hex ucode.hex gptp_lat_ucode.hex $(GEN_ALL) gptp_latw_probes.vlt
+	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptplatw \
+	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+	  -GGPTP_INGRESS_LAT_NS_P=$(GPTP_LAT_ING) \
+	  -GGPTP_EGRESS_LAT_NS_P=$(GPTP_LAT_EGR) \
+	  -GGPTP_LAT_WRITABLE_P=1 \
+	  -GGPTP_UCODE_HEX_P='"gptp_lat_ucode.hex"' \
+	  -CFLAGS "-DGPTP_LAT_ING_TB=$(GPTP_LAT_ING) -DGPTP_LAT_EGR_TB=$(GPTP_LAT_EGR) -DGPTP_CLOCK_ACCURACY_TB=$(GPTP_LAT_ACCURACY) -DGPTP_LAT_WRITABLE_TB -Wall -Wextra" \
+	  gptp_latw_probes.vlt $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptplatw
+
+exec-gptp-latw:
+	./obj_gptplatw/Vmilan_dp_gptplatw
+
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
 # Its build alone, into OPTOFF_MDIR, is what ../milan_dp_gm_steps/
@@ -759,7 +778,7 @@ ax1x1gptp-extended: ax1x1gptp
 
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
-PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+PREFIX_CASES = gptp gptp-lat gptp-latw $(COUNTER_CASES)
 ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4 split bootsa
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'

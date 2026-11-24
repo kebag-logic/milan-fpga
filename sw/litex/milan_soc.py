@@ -269,6 +269,8 @@ class _CRG(LiteXModule):
         if board == "arty":
             clkin, clkin_freq = platform.request("clk100"), 100e6
             self.pll = pll = S7PLL(speedgrade=-1)
+            # #878: the Arty clock ruling fixes the VCO at 800 MHz.
+            pll.vco_freq_range = (800e6, 800e6)
         else:
             clkin, clkin_freq = platform.request("clk200"), 200e6
             self.pll = pll = S7PLL(speedgrade=-int(platform.device.rsplit("-", 1)[1]))
@@ -533,6 +535,7 @@ class MilanNIC(LiteXModule):
                  audio_word_bits=AUDIO_IF_WORD_BITS_DEFAULT, pps=False,
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
+                 gptp_lat_writable=False,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_split=False):
@@ -557,6 +560,7 @@ class MilanNIC(LiteXModule):
                            gptp_plane=gptp_plane,
                            gptp_ingress_lat_ns=gptp_ingress_lat_ns,
                            gptp_egress_lat_ns=gptp_egress_lat_ns,
+                           gptp_lat_writable=gptp_lat_writable,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            entity_gen_dir=entity_gen_dir,
@@ -871,6 +875,7 @@ def add_milan_datapath(host: Module, platform: object,
                        gptp_plane: bool | None = None,
                        gptp_ingress_lat_ns: int = 0,
                        gptp_egress_lat_ns: int = 0,
+                       gptp_lat_writable: bool = False,
                        loopback_lane: bool = False,
                        render_lpf: bool = True,
                        optional_blocks: dict[str, bool] | None = None,
@@ -1035,6 +1040,10 @@ def add_milan_datapath(host: Module, platform: object,
         dp_params["p_GPTP_INGRESS_LAT_NS_P"] = int(gptp_ingress_lat_ns)
     if gptp_egress_lat_ns:
         dp_params["p_GPTP_EGRESS_LAT_NS_P"] = int(gptp_egress_lat_ns)
+    # issue #829: the same discipline, so a board that does not ask keeps its
+    # generated top .v.
+    if gptp_lat_writable:
+        dp_params["p_GPTP_LAT_WRITABLE_P"] = 1
     if gptp_plane:
         # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
@@ -2458,7 +2467,7 @@ def pp_mem_timeout_cycles(sys_clk_hz: float, milan_clk_hz: float,
     processor in milan_cd - so "first" is a comparison in TIME, and cycle counts
     alone do not settle it. A fixed 2,048 held at the shipping AX shape only
     because milan and sys are both 100 MHz there; it was generous on the Arty
-    shape (milan 50, sys 83.333) and it INVERTS on any build with milan faster
+    shape (milan 50, sys 80) and it INVERTS on any build with milan faster
     than sys, silently, with nothing to catch it.
 
     The processor is also AHEAD: its counter starts on `mreq_valid_r`
@@ -3632,6 +3641,7 @@ class MilanSoC(SoCCore):
                  software_profile="baremetal",
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
+                 gptp_lat_writable=False,
                  render_lpf=True, optional_blocks=None,
                  entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
                  **kwargs):
@@ -3874,7 +3884,7 @@ class MilanSoC(SoCCore):
             # Both boards use the same timing-robust single-lane recipe.
             # The litespi S25FL128S table only
             # lists plain READ_1_1_1 (0x03) on one lane - valid to 50 MHz on
-            # this chip, and our effective SCK at sys 83.333 MHz is ~20.8 MHz.
+            # this chip, and our effective SCK at sys 80 MHz is 20 MHz.
             flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
                             else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
@@ -4137,6 +4147,7 @@ class MilanSoC(SoCCore):
                                   gptp_plane=gptp_plane,
                                   gptp_ingress_lat_ns=int(gptp_ingress_lat_ns),
                                   gptp_egress_lat_ns=int(gptp_egress_lat_ns),
+                                  gptp_lat_writable=bool(gptp_lat_writable),
                                   loopback_lane=bool(loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
@@ -4625,7 +4636,8 @@ def main() -> None:
     # emits a flag only for a NON-ZERO one, so a board that applies no
     # correction keeps a byte-identical argv and generated top .v - the
     # default-absent discipline the audio and prune flags already follow.
-    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert.
+    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert
+    # unless --gptp-lat-writable.
     gptp_group2 = ap.add_argument_group("gPTP timestamp latency")
     gptp_group2.add_argument("--gptp-ingress-lat-ns", default=0, type=int,
                              help="nanoseconds the fabric gPTP plane "
@@ -4641,6 +4653,12 @@ def main() -> None:
                                   "Per-board physical transmit latency, on "
                                   "top of the plane's own measured register "
                                   "stages; 0..65535")
+    gptp_group2.add_argument("--gptp-lat-writable", action="store_true",
+                             help="let CSR 0x540 and 0x544 move the two "
+                                  "corrections at runtime, the pair above "
+                                  "being only their reset value (milan_datapath "
+                                  "GPTP_LAT_WRITABLE_P, issue #829). Off, those "
+                                  "words stay inert scratch")
     # Resolve omission after parsing because --no-milan has no gPTP owner.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
@@ -5019,7 +5037,15 @@ def main() -> None:
     # whole 2026-07-13 AX sweep). The AX bitstream is JTAG-SRAM per policy,
     # so it keeps its platform's proven settings untouched.
     if args.board == "arty":
+        # #878/#818: route with setup and hold at both fixed speed models,
+        # then retain reports at both commercial junction endpoints.
+        timing_script = SOC_DIR / "timing_grade.tcl"
+        for command in (f"source {{{timing_script}}}",
+                        f"kl_timing_grade_configure {platform.device} commercial 0 85 {{Slow Fast}}"):
+            platform.toolchain.pre_placement_commands.append(
+                command.replace("{", "{{").replace("}", "}}"))
         platform.toolchain.bitstream_commands += [
+            "kl_timing_grade_reports {build_name}_signoff",
             "set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]",
             "set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 1 [current_design]",
             "set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]",
@@ -5059,6 +5085,7 @@ def main() -> None:
                    gptp_plane=args.fabric_gptp,
                    gptp_ingress_lat_ns=args.gptp_ingress_lat_ns,
                    gptp_egress_lat_ns=args.gptp_egress_lat_ns,
+                   gptp_lat_writable=args.gptp_lat_writable,
                    loopback_lane=args.loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the

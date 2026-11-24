@@ -17,12 +17,14 @@ a command's terminator, caught by AddressSanitizer in the test that sent the
 line; the boot's order of Milan v1.2 5.6.1, caught by the step order, the
 saved state's place among the steps by the flash's accesses in that order;
 and the saved state's write-back, caught by a bind after ready reaching the
-flash.
+flash; and the console's milan_lat under gptp.latency_writable (#878), caught
+by its write list and its answer, and the key reaching a build that leaves it
+off, caught by that build's refusal.
 """
 from __future__ import annotations
 
 #: The test files whose every test a defect here must name.
-SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp", "test_plat_phy.cpp")
+SOURCES = ("test_plat.cpp", "test_plat_mmio.cpp", "test_plat_boot.cpp", "test_plat_phy.cpp", "test_plat_phy_mii.cpp")
 CSR = "plat/ctrl_plat_csr.c"
 CONSOLE = "plat/ctrl_plat_console.c"
 PLAT = "plat/ctrl_plat.c"
@@ -35,11 +37,14 @@ YIELD = "\tif (!nvm_store_owed() && owes(ctx)) {\n"
 FRAME = "\t\treturn ctrl_plat_phy_step(ctx, (int32_t)(deadline - nvm_store_clock(NULL)));\n"
 C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
+K7 = "Plat.K7MilanLatWritesThePairAndReadsItBack"
 
 
 #: The reorder plant's two writes, as ctrl_plat_csr.c holds them and swapped.
 EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
        "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
+#: milan_lat's two writes, as ctrl_plat_csr.c holds them (#878).
+LAT = ("\twr(csr, CTRL_PLAT_CSR_PTP_ILAT, ingress_ns);\n", "\twr(csr, CTRL_PLAT_CSR_PTP_ELAT, egress_ns);\n")
 #: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
 SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
 TICK = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);\n"
@@ -52,7 +57,7 @@ OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
 
 def mutants(mutant: type) -> tuple:
     """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
-    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant) + phy_mutants(mutant)
+    return csr_mutants(mutant) + console_mutants(mutant) + lat_mutants(mutant) + boot_mutants(mutant) + phy_mutants(mutant) + mii_mutants(mutant)
 
 
 def csr_mutants(mutant: type) -> tuple:
@@ -80,6 +85,27 @@ def csr_mutants(mutant: type) -> tuple:
         m("plat-tod-torn-accepted", CSR, "if (rd(csr, CTRL_PLAT_CSR_TOD_RD_HI) == hi) {",
           "if (rd(csr, CTRL_PLAT_CSR_TOD_RD_HI) == hi || true) {",
           "plat", "Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords", "C4 the agreeing high word"),
+    )
+
+
+def lat_mutants(mutant: type) -> tuple:
+    """The console's milan_lat under gptp.latency_writable (#878): a direction crossed, a value or a field past the
+    command accepted, an answer that is not the read back, and the key reaching a build that leaves it off."""
+    m = mutant
+    return (
+        m("plat-lat-directions-crossed", CSR, LAT[0] + LAT[1],
+          LAT[0].replace("ILAT", "ELAT") + LAT[1].replace("ELAT", "ILAT"),
+          "plat", K7, "K7 ingress to 0x540, egress to 0x544"),
+        m("plat-lat-wide-value-accepted", CONSOLE, "if (v > 0xffffu) {", "if (v > 0x1ffffu) {",
+          "plat", K7, "K7 a value past 65535 is refused"),
+        m("plat-lat-third-field-accepted", CONSOLE, "if (!number(c, &at, &egress) || at != c->len) {",
+          "if (!number(c, &at, &egress)) {", "plat", K7, "K7 a third field is refused"),
+        m("plat-lat-answer-not-read-back", CSR, "\treturn rd(csr, CTRL_PLAT_CSR_GPTP_LAT);\n",
+          "\treturn ((uint32_t)ingress_ns << 16) | egress_ns;\n",
+          "plat", K7, "K7 the answer is GPTP_LAT read back"),
+        m("plat-lat-key-reaches-every-build", "plat/ctrl_plat_csr.h", "#define CTRL_PLAT_CSR_H\n",
+          "#define CTRL_PLAT_CSR_H\n#define CTRL_PLAT_LAT_WRITABLE 1\n",
+          "plat", "Plat.K8MilanLatIsNoCommandWithoutTheKey", "K8 without the key milan_lat is refused"),
     )
 
 
@@ -577,4 +603,31 @@ def advertisement_mutants(mutant: type) -> tuple:
         m("plat-phy-outcome-on-unadvertised", PHY, OUTCOME,
           OUTCOME.replace("phy->adv == 0u", "(phy->adv & CTRL_PLAT_PHY_ADV_OWED) == 0u"), "platboot1",
           "PlatPhy.P18OnlyAMissingGigabitLinkOwesARestart", "P18 a PHY the advertisement is not for owes no restart"),
+    )
+
+
+def mii_mutants(mutant: type) -> tuple:
+    """The MII-only policy, including loss, readback and THE STEP's room (#878)."""
+    m = mutant
+    advertised = "const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL;"
+    return (
+        m("mii-advertises-ten", PHY, advertised,
+          "const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL | CTRL_PLAT_PHY_AN_10_FULL;",
+          "platmii", "ArtyPhy.BootAdvertisesOnly100FullWithoutGigabitRegisters", "MII only 100 full advertised",
+          also=(("platmii", "ArtyPhy.TenOnlyPartnerNeverPublishesUp", "MII no unsupported negotiation"),)),
+        m("mii-advertises-half", PHY, advertised,
+          "const uint32_t advertised = CTRL_PLAT_PHY_AN_100_FULL | CTRL_PLAT_PHY_AN_100_HALF;",
+          "platmii", "ArtyPhy.HalfDuplexPartnerNeverPublishesUp", "MII no unsupported negotiation"),
+        m("mii-loss-not-latched", PHY, LATCHED, "\t\t\t\tphy->published = 0u;\n",
+          "platmii", "ArtyPhy.LatchedLossRechecksWithoutAnotherRestart", "MII both link edges"),
+        m("mii-advertised-once", PHY, "\t\tphy->adv = CTRL_PLAT_PHY_ADV_OWED;\n", "\t\t(void)0;\n",
+          "platmii", "ArtyPhy.ResetAdvertisementIsRepairedAndRenegotiated", "MII only 100 full advertised"),
+        m("mii-readback-unchecked", PHY, "if (v >= 0 && gigabit_only(u, 0u)) {", "if (true) {",
+          "platmii", "ArtyPhy.DroppedAdvertisementStaysOwedUntilReadback", "MII advertisement remains owed"),
+        m("mii-unacknowledged-local-written", PHY,
+          "next = phy->local < 0 || v < 0 ? phy->resume : CTRL_PLAT_PHY_ADV_SET_LOCAL;",
+          "next = v < 0 ? phy->resume : CTRL_PLAT_PHY_ADV_SET_LOCAL;",
+          "platmii", "ArtyPhy.UnacknowledgedAdvertisementWritesNothing", "MII no write before read acknowledgement"),
+        m("mii-no-room-ignored", PHY, "if (room >= (int32_t)CTRL_PLAT_PHY_STEP_US) {", "if (room >= 0) {",
+          "platmii", "ArtyPhy.NoFrameWithoutStepBudget", "MII no frame without room"),
     )

@@ -4,7 +4,9 @@
 
   plat      the CSR window, the console and the MMIO platform, each on its own
             host bus (test_plat.cpp, test_plat_mmio.cpp); the CSR window and the
-            console under AddressSanitizer, whose report fails the test it is in;
+            console under AddressSanitizer, whose report fails the test it is in,
+            once as every image compiles them and once under the build key
+            gptp.latency_writable, which adds the console's milan_lat (#878);
   platboot  the boot and composition of ctrl_plat.c, at the shipping shape with
             one and with two AVB interfaces, on the mailbox model, F1's flash
             model and the host bus (test_plat_boot.cpp), and the PHY poll on a
@@ -36,6 +38,11 @@ CSR_CONSOLE = ("plat/ctrl_plat_csr.c", "plat/ctrl_plat_console.c")
 #: the store build it: platboot, which also runs its own suite (test_plat_phy.cpp), and platrv32.
 PHY = "plat/ctrl_plat_phy.c"
 
+#: The console's two builds, (tag, the firmware's flags, the test's): as every image compiles it, and as
+#: ctrl_plat_image.py compiles it for a config that sets gptp.latency_writable (#878). The test is told its build
+#: apart from the firmware's flag, so a firmware header that defines the key in every build is caught.
+CONSOLE_BUILDS = (("plat", (), ()), ("plat-latw", ("-DCTRL_PLAT_LAT_WRITABLE",), ("-DPLAT_TEST_LATW",)))
+
 
 def nvm_tree(tree: Tree) -> Path:
     """The saved-state store beside the tree: a campaign's planted copy (aecp_mutants.py copies it), else the
@@ -51,15 +58,17 @@ def arm_plat(tree: Tree) -> Outcome:
     planted neighbour accesses stay inside that array, and are caught by their checks' words."""
     inc = (f"-I{tree.src / 'plat'}",)
     sanitized = dataclasses.replace(tree, build=dataclasses.replace(tree.build, address_sanitizer=True))
-    objs = compile_c(sanitized, [tree.src / n for n in CSR_CONSOLE], "plat", inc)
-    exe = link(sanitized, "test_plat", objs + compile_tests(sanitized, ("plat_bus.cpp", "test_plat.cpp"),
-                                                            "plat/tests", inc))
-    ok, log = fw_gtest.run_binary(exe, env={**os.environ, "ASAN_OPTIONS": "abort_on_error=1"})
-    units = Outcome("plat", 0 if ok else 1, log)
+    units = []
+    for tag, key, told in CONSOLE_BUILDS:
+        objs = compile_c(sanitized, [tree.src / n for n in CSR_CONSOLE], tag, (*inc, *key))
+        exe = link(sanitized, f"test_{tag.replace('-', '_')}", objs + compile_tests(
+            sanitized, ("plat_bus.cpp", "test_plat.cpp"), f"{tag}/tests", (*inc, *told)))
+        ok, log = fw_gtest.run_binary(exe, env={**os.environ, "ASAN_OPTIONS": "abort_on_error=1"})
+        units.append(Outcome("plat", 0 if ok else 1, log))
     mmio = compile_c(tree, [tree.src / "plat/ctrl_plat_mmio.c"], "plat/mmio", inc)
     platform = execute("plat", link(tree, "test_plat_mmio", mmio + compile_tests(
         tree, ("test_plat_mmio.cpp",), "plat/mmio/tests", inc)))
-    return Outcome("plat", max(units.rc, platform.rc), f"{units.log}\n{platform.log}")
+    return Outcome("plat", max(u.rc for u in (*units, platform)), "\n".join(u.log for u in (*units, platform)))
 
 
 def generated(tree: Tree, config: Path, out: Path) -> list[str]:
@@ -82,14 +91,17 @@ def generated(tree: Tree, config: Path, out: Path) -> list[str]:
     return [f"-I{out}", f"-I{out / 'gen'}"]
 
 
-def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
+def arm_platboot(tree: Tree, interfaces: int, mii: bool = False) -> Outcome:
     """ctrl_plat.c's boot and composition at the shipping shape, one or two interfaces."""
     from aecp_arms import AECP_SOURCES
     from ctrl_arms import lwsrp_pin
     from srp_arms import LWSRP_SOURCES, prepared
-    out = tree.out / f"platboot-if{interfaces}"
-    variant, inc = prepared(tree, interfaces, out, SHIPPING)
-    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, SHIPPING, out)
+    out = tree.out / f"platboot-if{interfaces}{'-mii' if mii else ''}"
+    config = ROOT / "configs/endstation_arty_split.yaml" if mii else SHIPPING
+    variant, inc = prepared(tree, interfaces, out, config)
+    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+    if mii:
+        inc += ["-DCTRL_PLAT_PHY_100_ONLY"]
     lw = ROOT / "third_party/lwSRP"
     lwsrp_pin(lw)
     inc += ["-DLWSRP_MILAN=1", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}"]
@@ -99,8 +111,8 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
     firmware += [tree.src / n for n in ("app/ctrl_app_aecp.c", "app/ctrl_app_srp.c", "srp/srp_mbx.c",
                                         "plat/ctrl_plat.c", *CSR_CONSOLE, PHY)]
     firmware += [store / "nvm_klj2.c", store / "nvm_store.c"]
-    models = [tree.src / n for n in HOST if n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
-    label = f"-DPLAT_TEST_SHAPE=\"{SHIPPING.stem} if{interfaces}\""
+    models = [tree.src / n for n in HOST if mii or n != "host/mbx_plat_host.c"] + [store / "host/nvm_fmodel.c"]
+    label = f"-DPLAT_TEST_SHAPE=\"{config.stem} if{interfaces}\""
     # The variant's include path alone, so its two-interface contract is the one every unit sees
     # (srp_arms.prepared); the harness's build and grade, as aecp_arms.core_arm uses them.
     try:
@@ -110,11 +122,11 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
         # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
         objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
-                                       [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp",
-                                        HERE / "test_plat_phy.cpp"], out / "tests")
+                                       [HERE / "plat_bus.cpp", *([HERE / "test_plat_phy_mii.cpp"] if mii else
+                                        [HERE / "test_plat_boot.cpp", HERE / "test_plat_phy.cpp"])], out / "tests")
     except fw_gtest.BuildError as exc:
         raise Refusal(str(exc)) from exc
-    return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))
+    return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}{'-mii' if mii else ''}", objs))
 
 
 #: The sink-format arm's shapes (#946), each with the AAF Stream Inputs above 0 it holds: 8x8/1if, whose inputs 1
@@ -166,7 +178,7 @@ def sink_arms(tree: Tree) -> list[Outcome]:
 SHIFT_HELPER = "__lshrdi3"
 
 
-def arm_platrv32(tree: Tree, require: bool) -> Outcome:
+def arm_platrv32(tree: Tree, require: bool, mii: bool = False) -> Outcome:
     """The platform and its composition, cross-compiled freestanding for RV32I at the shipping shape: ABI,
     instruction set and runtime closure, as the SRP arm checks its own (srp_arms.arm_srp_rv32). main() is the
     linked image's (ctrl_plat_image.py), which needs the SoC's csr.csv."""
@@ -180,9 +192,13 @@ def arm_platrv32(tree: Tree, require: bool) -> Outcome:
         if require:
             raise Refusal("no RV32 compiler (the pinned SDK's riscv32-linux-gcc or a bare-metal one)")
         return Outcome("platrv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
-    out = tree.out / "platrv32"
-    variant, inc = prepared(tree, 1, out, SHIPPING)
-    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, SHIPPING, out)
+    label = "platrv32-arty" if mii else "platrv32"
+    out = tree.out / label
+    config = ROOT / "configs/endstation_arty_split.yaml" if mii else SHIPPING
+    variant, inc = prepared(tree, 1, out, config)
+    inc += [f"-I{variant / d}" for d in ("aecp", "plat")] + generated(tree, config, out)
+    if mii:
+        inc += ["-DCTRL_PLAT_PHY_100_ONLY", "-DCTRL_PLAT_LAT_WRITABLE"]
     lw = ROOT / "third_party/lwSRP"
     lwsrp_pin(lw)
     inc += ["-DLWSRP_MILAN=1", f"-I{lw / 'src/include'}", f"-I{lw / 'src'}", f"-I{NVM_DIR / 'test/rv32'}",
@@ -200,7 +216,7 @@ def arm_platrv32(tree: Tree, require: bool) -> Outcome:
         obj = out / f"{index}-{src.stem}.o"
         result = run([cc, *RV32_FLAGS, *inc, "-c", str(src), "-o", str(obj)])
         if result.returncode:
-            return Outcome("platrv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{result.stderr}")
+            return Outcome(label, 1, f"  [FAIL] {src.name} does not build for RV32I:\n{result.stderr}")
         objects.append(obj)
     findings = fw_rv32.object_findings(cc, objects)
     nm = cc.removesuffix("gcc") + "nm"
@@ -216,7 +232,7 @@ def arm_platrv32(tree: Tree, require: bool) -> Outcome:
                      *[f"  [FAIL] {f}" for f in findings],
                      f"== ctrl split platform RV32I build: checks: 1   failures: {1 if findings else 0} ==",
                      f"RESULT: {'FAIL' if findings else 'PASS'}"])
-    return Outcome("platrv32", 1 if findings else 0, log)
+    return Outcome(label, 1 if findings else 0, log)
 
 
 def arm_plattrace(tree: Tree) -> Outcome:
@@ -269,7 +285,8 @@ def arm_platmap(tree: Tree) -> Outcome:
 
 def all_arms(tree: Tree, require_rv32: bool) -> list[Outcome]:
     """Every platform arm, as the suites run them."""
-    return [arm_plat(tree), arm_platboot(tree, 1), arm_platboot(tree, 2), arm_platrv32(tree, require_rv32),
+    return [arm_plat(tree), arm_platboot(tree, 1), arm_platboot(tree, 2), arm_platboot(tree, 1, mii=True),
+            arm_platrv32(tree, require_rv32), arm_platrv32(tree, require_rv32, mii=True),
             arm_plattrace(tree), arm_platmap(tree)]
 
 

@@ -72,8 +72,8 @@
 // answered in that pass, so (N + 1) passes must fit that bound. The deepest
 // admitted wait is nine passes: THE TRANSMIT's at two interfaces, and the A3 row
 // of seven owed frames, answered in pass 8 after the room returns. So no pass
-// may exceed 20 ms / 10 = 2.0 ms of CPU time: 200,000 cycles of the split CPU's
-// own clock, the 100 MHz bus clock
+// may exceed 20 ms / 10 = 2.0 ms of CPU time: 200,000 cycles at AX7101's
+// 100 MHz bus clock, or 160,000 at Arty's exact 80 MHz bus clock
 // it runs on (#665, owner decision 2026-10-30). Every slice serves that share,
 // and each module's work in one pass is bounded, the rest resumed on the next
 // pass:
@@ -348,6 +348,11 @@ extern "C" {
 // up, 77 ms for the 76.81 ms of #665's final head (#665's ruling of 2026-11-18,
 // item 2a; 75 for #894's 74.26), at most 80 so a withdrawn Talker's hold-off
 // stays 8 cs (srp_mbx.c), and both two-interface shapes 8x8/2if's, 62 and 105 ms.
+// Arty FPGA (1,1,2), #878: every cost is measured at 80 MHz. The row also
+// states its own aged step, centisecond work, notice cost and AECP pace;
+// the defaults below remain the existing AX7101 statements. This is not
+// a Linux-host scheduling profile. Section 15 of SPLIT_CONTROL_MEMORY.md
+// records the cost basis, rules, owner bounds and held-egress ledger.
 #ifdef CTRL_SRP_SOURCES
 #define CTRL_LOOP_SOURCES CTRL_SRP_SOURCES
 #define CTRL_LOOP_SINKS CTRL_SRP_SINKS
@@ -393,6 +398,19 @@ extern "C" {
 #define CTRL_LOOP_RETRY_ATTEMPT_US 34u
 #define CTRL_LOOP_QUEUED_MS 62u
 #define CTRL_LOOP_TX_MS 105u
+#elif CTRL_LOOP_SHAPE(1u, 1u, 2u)      // Arty FPGA: one interface, AAF talker, AAF and CRF sinks, 80 MHz
+#define CTRL_LOOP_SLICE_US 950u
+#define CTRL_LOOP_BUILD_PASS_US 1035u
+#define CTRL_LOOP_BUILD_ONE_PASS_US 660u
+#define CTRL_LOOP_SRP_UNIT_US 300u
+#define CTRL_LOOP_RETRY_COLD_US 125u
+#define CTRL_LOOP_RETRY_ATTEMPT_US 30u
+#define CTRL_LOOP_QUEUED_MS 125u
+#define CTRL_LOOP_TX_MS 30u
+#define CTRL_LOOP_STEP_PASS_US 1060u
+#define CTRL_LOOP_TICK_US 150u
+#define AECP_NOTICE_US 230u
+#define AECP_PACE_MS 9u
 #else
 #error "THE SHAPES: the shape (MBX_N_IF, CTRL_SRP_SOURCES, CTRL_SRP_SINKS) is not one ctrl_loop.h lists"
 #endif
@@ -420,7 +438,8 @@ extern "C" {
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
 // The measured costs the bounds below rest on, in microseconds (CPU budget
-// harness; 100 cycles a microsecond). A pass given whole to an aged step, to a
+// harness; 100 cycles a microsecond on AX7101, 80 on Arty). A pass given whole
+// to an aged step, to a
 // build of both of an interface's MRPDUs, and to a build of one: each the
 // heaviest measured at its point over every group plus 5 %, rounded up to 5 us,
 // an aged step never below its earlier figure, the harness failing a pass over
@@ -444,7 +463,9 @@ extern "C" {
 // two slices: it is stated at the heaviest sum of one build's two passes, 140,273
 // and 30,613 cycles, plus 5 %, 1,795 us, which is over the slice
 // (CTRL_LOOP_BUILD_MOST 1) and under two builds of one (#894).
+#ifndef CTRL_LOOP_STEP_PASS_US
 #define CTRL_LOOP_STEP_PASS_US (MBX_N_IF == 1u ? 975u : 1030u)
+#endif
 // The MRPDUs THE TRANSMIT's build makes in one slice (THE TIERS): both of an
 // interface's where the slice holds that build, else one, and the next slice
 // makes the other.
@@ -495,8 +516,10 @@ extern "C" {
 // (srp_mbx.c, SRP_REDECLARE_CS), so the hold-off follows the row. At
 // 8x8/2if and at 8x8/1if, whose rows by every source are reported and not held
 // (#894, the owner's decision of 2026-11-12, owed to #872), it is over the bound,
-// and ctrl_loop.c holds 1x1/1if alone to it.
+// and ctrl_loop.c holds 1x1/1if and the Arty point to it.
+#ifndef CTRL_LOOP_TICK_US
 #define CTRL_LOOP_TICK_US 430u
+#endif
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
 #define CTRL_LOOP_RX_MIN_RECORD_WORDS (MBX_RX_HDR_WORDS + 4u)

@@ -206,7 +206,7 @@ recipe_config() {  # -> the end-station config named recipe "$1" builds
     case "$1" in
         ax7101|ax7a200t) echo "configs/endstation_ax7101_1x1_tdm8.yaml";;
         ax8x8)  echo "configs/endstation_ax7101_8x8.yaml";;
-        arty)   echo "configs/endstation_arty_current.yaml";;
+        arty)   echo "configs/endstation_arty_split.yaml";;
         *)      echo "no end-station config is bound to '$1'" >&2; return 1;;
     esac
 }
@@ -413,11 +413,9 @@ cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flo
     echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
           --place-directive AltSpreadLogic_high"
 }
-cfg_arty() {     # Arty A7-100 bare-metal (endstation_arty_current): Vivado defaults
-    # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); the config
-    # runs the datapath at 50 MHz with sys 83.333 (VCO 1000; 90e6 has NO
-    # solution with the 25 MHz eth ref). Proven to reach the Instance
-    # (test_builder gate 23g), not built: the board is a retired DUT.
+cfg_arty() {     # Arty A7-100 split (endstation_arty_split): Vivado defaults
+    # #878: sys/CPU exactly 80 MHz, datapath 50 MHz, VCO 800 MHz.
+    # The exact-divider rule is unchanged; the MII PHY reference is 25 MHz.
     echo ""
 }
 

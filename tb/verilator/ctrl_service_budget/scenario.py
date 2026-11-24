@@ -48,6 +48,7 @@ import frames as f
 import long_notice
 import reboot_group
 import save_window
+from stimulus_clock import clocked_step
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
@@ -140,6 +141,7 @@ class Group:
     load: dict[str, int] = field(default_factory=dict)
     admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
     save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
+    sys_hz: int = 100_000_000  # bus clock for the script's temporal cycle counts
 
     def offer(self, channel: str, step: str, frame: bytes) -> None:
         """One record of the composed load: a frame (or a reply) step the channel must commit."""
@@ -177,7 +179,7 @@ class Group:
 
     def script(self) -> str:
         """The stimulus script sim_main.cpp runs."""
-        return '\n'.join([*self.steps, 'end']) + '\n'
+        return '\n'.join([*(clocked_step(step, self.sys_hz) for step in self.steps), 'end']) + '\n'
 
 
 def tagged(step: str, tag: str) -> str:
@@ -517,7 +519,10 @@ def map_edit(build: dict, port_type: int, copies: int = 1) -> bytes | None:
     import re
     header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
     maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
-    _, _, _, capacity, first, number = next(m for m in maps if m[:3] == (str(port_type), '0', '0'))
+    entry = next((m for m in maps if m[:3] == (str(port_type), '0', '0')), None)
+    if entry is None:  # The Arty's fixed talker has no dynamic output map.
+        return None
+    _, _, _, capacity, first, number = entry
     if not int(capacity) or not int(number):
         return None
     defaults = header[header.index('aecp_map_defaults[] = {'):]

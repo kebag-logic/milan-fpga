@@ -964,6 +964,7 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "platsinks1": lambda tree: plat_arms.arm_platsinks(tree, *plat_arms.SINK_SHAPES[1]),
             "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
             "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2),
+            "platmii": lambda tree: plat_arms.arm_platboot(tree, 1, mii=True),
             "platrv32": lambda tree: plat_arms.arm_platrv32(tree, True), "platmap": plat_arms.arm_platmap}
     build = fw_gtest.Build(jobs=jobs)
     try:

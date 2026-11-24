@@ -67,6 +67,13 @@ class Refusal(Exception):
     """The input does not say what the header needs."""
 
 
+def mii_100_only(config: Path) -> bool:
+    """Whether the board's AVB port is MII at 100 Mb/s (#878)."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb
+    return eb.load_config(str(config))["constraints"]["phy"] == "mii-100"
+
+
 def builder_inputs(config: Path) -> tuple[dict, dict]:
     """The config's AEM overlay and lwSRP table, as the end-station builder emits them."""
     sys.path.insert(0, str(ROOT / "sw/builder"))
@@ -76,6 +83,18 @@ def builder_inputs(config: Path) -> tuple[dict, dict]:
         return eb.emit_aem_overlay(cfg), eb.emit_lwsrp_table(cfg)
     except eb.ConfigError as error:
         raise Refusal(f"{config.name}: {error}") from error
+
+
+def latency_writable(config: Path) -> bool:
+    """The build key gptp.latency_writable (#829), as the end-station builder loads it: the console's milan_lat
+    command is compiled only under it (#878), so a config that leaves it off compiles the image it compiled before."""
+    sys.path.insert(0, str(ROOT / "sw/builder"))
+    import endstation_builder as eb  # noqa: E402
+    try:
+        gptp = eb.load_config(str(config))["gptp"]
+    except eb.ConfigError as error:
+        raise Refusal(f"{config.name}: {error}") from error
+    return bool(gptp is not None and gptp["latency_writable"])
 
 
 def streams(overlay: dict, lwsrp: dict) -> list[tuple[int, int, int, int]]:

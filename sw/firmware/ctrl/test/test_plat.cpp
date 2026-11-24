@@ -29,6 +29,11 @@
 //       command per pass, run only with room for the longest response
 //   K5  the ring: text past its room is dropped and counted
 //   K6  numbers: %08lx and %lu at their edges
+//   K7  milan_lat, compiled under gptp.latency_writable (#829, #878): ingress
+//       to PTP_INGRESS_LAT then egress to PTP_EGRESS_LAT, the answer GPTP_LAT
+//       read back, 0 and 65535 accepted; any other spelling writes nothing
+//   K8  without that key milan_lat is no command and writes nothing, so the
+//       console keeps decision D6's two commands (#665)
 
 #include <gtest/gtest.h>
 
@@ -40,7 +45,11 @@
 #include "fw_gtest.hpp"
 #include "plat_bus.hpp"
 
+#ifdef PLAT_TEST_LATW  // the console built under gptp.latency_writable (plat_arms.py)
+FW_TALLY_LABEL("ctrl split platform CSR window and console, gptp.latency_writable (host bus)");
+#else
 FW_TALLY_LABEL("ctrl split platform CSR window and console (host bus)");
+#endif
 
 namespace {
 
@@ -302,5 +311,51 @@ TEST_F(Plat, K6NumbersAtTheirEdges) {
     EXPECT_NE(s.find(" PDELAY_NS=7 "), std::string::npos) << "K6 no leading zeros";
     EXPECT_NE(s.find(" GPTP_LAT=a0b0c0d0"), std::string::npos) << "K6 eight lower-case digits";
 }
+
+#ifdef PLAT_TEST_LATW
+TEST_F(Plat, K7MilanLatWritesThePairAndReadsItBack) {
+    bus().csr[CTRL_PLAT_CSR_GPTP_LAT] = 0x0581abcdu;
+    EXPECT_EQ(answer("milan_lat 1409 581\r"), "GPTP_LAT=0581abcd\r\n") << "K7 the answer is GPTP_LAT read back";
+    const std::vector<std::pair<std::uint32_t, std::uint32_t>> pair = {{0x540u, 1409u}, {0x544u, 581u}};
+    EXPECT_EQ(bus().writes(), pair) << "K7 ingress to 0x540, egress to 0x544";
+    std::vector<std::pair<bool, std::uint32_t>> window;
+    for (const auto& a : bus().log) {
+        if (a.address >= kCsr && a.address < kCsr + 0x10000u) {
+            window.emplace_back(a.write, static_cast<std::uint32_t>(a.address - kCsr));
+        }
+    }
+    const std::vector<std::pair<bool, std::uint32_t>> order = {{true, 0x540u}, {true, 0x544u}, {false, 0x7f0u}};
+    EXPECT_EQ(window, order) << "K7 two writes, then the read back";
+    bus().log.clear();
+    EXPECT_EQ(answer("milan_lat 0 65535\r").rfind("GPTP_LAT=", 0), 0u) << "K7 0 and 65535 are accepted";
+    const std::vector<std::pair<std::uint32_t, std::uint32_t>> edges = {{0x540u, 0u}, {0x544u, 65535u}};
+    EXPECT_EQ(bus().writes(), edges) << "K7 0 and 65535 are accepted";
+    bus().log.clear();
+    EXPECT_EQ(answer("milan_lat 00100 007\r").rfind("GPTP_LAT=", 0), 0u) << "K7 leading zeros are digits";
+    const std::vector<std::pair<std::uint32_t, std::uint32_t>> zeros = {{0x540u, 100u}, {0x544u, 7u}};
+    EXPECT_EQ(bus().writes(), zeros) << "K7 leading zeros are digits";
+    EXPECT_EQ(console.commands, 3u) << "K7 each line ran once";
+    bus().log.clear();
+    EXPECT_EQ(answer("milan_lat 65536 0\r"), "?\r\n") << "K7 a value past 65535 is refused";
+    EXPECT_EQ(answer("milan_lat 1 2 3\r"), "?\r\n") << "K7 a third field is refused";
+    const char* refused[] = {"milan_la\r", "milan_lot 1 2\r", "milan_lat x 2\r", "milan_lat 1/ 2\r",
+                             "milan_lat  1 2\r", "milan_lat 1\r", "milan_lat 1 \r", "milan_lat\r",
+                             "milan_lat -1 2\r", "milan_lat 1 2x\r"};
+    for (const char* line : refused) {
+        EXPECT_EQ(answer(line), "?\r\n") << "K7 any other spelling is refused: " << line;
+    }
+    // a NUL inside a field: refused, read no further than the line (this binary runs under AddressSanitizer)
+    EXPECT_EQ(answer(std::string("milan_lat 1\0 2\r", 15)), "?\r\n") << "K7 any other spelling is refused";
+    EXPECT_TRUE(bus().writes().empty()) << "K7 a refused line writes nothing";
+    EXPECT_EQ(console.refused, 13u) << "K7 refusals are counted";
+    EXPECT_EQ(console.commands, 3u) << "K7 a refused line runs nothing";
+}
+#else
+TEST_F(Plat, K8MilanLatIsNoCommandWithoutTheKey) {
+    EXPECT_EQ(answer("milan_lat 1409 581\r"), "?\r\n") << "K8 without the key milan_lat is refused";
+    EXPECT_TRUE(bus().writes().empty()) << "K8 without the key milan_lat writes nothing";
+    EXPECT_EQ(console.commands, 0u) << "K8 without the key milan_lat runs nothing";
+}
+#endif
 
 }  // namespace

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 # Report the fixed speed models; changing power Tj does not prorate Artix-7 timing.
-# All device/grade/range values arrive from platforms/ax7101_timing.py.
+# Device/grade/range values arrive from each board's implementation setup.
 
 proc kl_timing_grade_configure {part grade min_c max_c corners} {
     set expected [get_property NAME [get_parts $part]]
