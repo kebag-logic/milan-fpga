@@ -1,0 +1,17 @@
+# gptp_tables mutants.py main() on MUTATIONS[0:13] (tools/suite_mutants_slice.py) at f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21
+slice 0:13 of 26: rx_fifo_wrong_depth, rx_fifo_wrong_read_latency, rx_fifo_lane_alias, tx_fifo_wrong_depth, tx_fifo_wrong_read_latency, tx_fifo_count_alias, tx_fifo_decode_odd_counts, ledger_wrong_depth, ledger_wrong_read_latency, ledger_index_alias, results_wrong_depth, results_wrong_read_latency, results_index_alias
+[ ok ] rx_fifo_wrong_depth: caught by "rx_fifo lockstep"
+[ ok ] rx_fifo_wrong_read_latency: caught by "rx_fifo lockstep"
+[ ok ] rx_fifo_lane_alias: caught by "rx_fifo lockstep"
+[ ok ] tx_fifo_wrong_depth: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_wrong_read_latency: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_count_alias: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_decode_odd_counts: caught by "tx_fifo decode"
+[ ok ] ledger_wrong_depth: caught by "ledger lockstep"
+[ ok ] ledger_wrong_read_latency: caught by "ledger lockstep"
+[ ok ] ledger_index_alias: caught by "ledger lockstep"
+[ ok ] results_wrong_depth: caught by "results lockstep"
+[ ok ] results_wrong_read_latency: caught by "results lockstep"
+[ ok ] results_index_alias: caught by "results lockstep"
+controls: 13   failures: 0
+RESULT: PASS

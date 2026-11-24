@@ -1,0 +1,44 @@
+# make -C tb/verilator/gptp_shadow run on a clean clone at bbfdb674 (the round-1 head), for the check count and run time
+gptp_ucode.hex: 1024 words, 1013 real (98.9%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@309 BECGATE@941 SELF@975 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@698 SRTO@986 SRWATCH@58 FUTO@509 SERVO@0 SLEW@163 SVRATE@958 RESUME@248 PDREQ@890 TXLOST@106 TXT1OK@997 NOTEN@1007
+%Warning-PINMISSING: gptp_shadow_wrap.sv:258:5: Instance has missing pin: 'pps_enable_i'
+  258 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:258:5: Instance has missing pin: 'pps_target_ns_i'
+  258 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:258:5: Instance has missing pin: 'pps_arm_i'
+  258 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:258:5: Instance has missing pin: 'pps_o'
+  258 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:258:5: Instance has missing pin: 'pps_target_ns_o'
+  258 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.879 MB sources in 18 modules, into 0.889 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 14.691 s (elab=0.131, cvt=0.193, bld=14.096); cpu 0.294 s on 16 threads; allocated 1215.320 MB
+TX flags Sync: 25 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 20 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 15 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+326 checks: 326 PASS, 0 FAIL

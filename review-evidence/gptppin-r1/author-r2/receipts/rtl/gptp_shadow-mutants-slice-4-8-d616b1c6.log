@@ -1,0 +1,14 @@
+# mutants.py main() on MUTATIONS[4:8], lane at d616b1c6 (campaign inputs equal f97e49fe's)
+slice 4:8 of 11: observer_latency_off_by_one, crossing_latency_off_by_one, no_fence, unseal_without_echo
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch', 'phc: a held disable keeps the guard loaded', 'phc: a settime reloads the guard']
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 4   failures: 0
+RESULT: PASS

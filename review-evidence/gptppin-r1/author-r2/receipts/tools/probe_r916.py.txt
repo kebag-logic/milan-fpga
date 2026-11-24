@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Re-run R916-1's two disposable donor-defect probes against the new
+gptp_shadow phases. Usage: probe_r916.py REPO HEAD R916_PACKET OUT VERILATOR
+
+Each case is a fresh shared clone of REPO at HEAD with gptp-processor and
+verilog-axis at their pins; the case's patch (R916-1's own file) is applied to the submodule only,
+and `make run` of tb/verilator/gptp_shadow is recorded with its exit code.
+No input tree is edited; everything is written under OUT.
+"""
+import concurrent.futures
+import os
+import pathlib
+import subprocess
+import sys
+
+repo, head, packet, out, verilator = sys.argv[1:]
+repo = pathlib.Path(repo).resolve()
+packet = pathlib.Path(packet).resolve()
+out = pathlib.Path(out).resolve()
+(out / "scratch").mkdir(parents=True, exist_ok=True)
+CASES = {"control": None,
+         "delayed-announce": packet / "delayed-announce.patch",
+         "retained-slave-rate": packet / "retained-slave-rate.patch"}
+
+
+def run(case):
+    tree = out / "scratch" / case
+    log = out / f"probe-{case}.log"
+    with log.open("w") as f:
+        def cmd(args, cwd=repo, env=None):
+            f.write("COMMAND " + " ".join(map(str, args)).replace(str(repo), "<source>")
+                    .replace(str(out), "<out>").replace(str(packet), "<r916>") + "\n")
+            f.flush()
+            return subprocess.run(list(map(str, args)), cwd=cwd, env=env, stdout=f,
+                                  stderr=subprocess.STDOUT).returncode
+        assert cmd(["git", "clone", "--quiet", "--shared", "--no-checkout", repo, tree]) == 0
+        assert cmd(["git", "checkout", "--quiet", "--detach", head], tree) == 0
+        for sub in ("gptp-processor", "third_party/verilog-axis"):
+            assert cmd(["git", "config", f"submodule.{sub}.url", repo / sub], tree) == 0
+            assert cmd(["git", "-c", "protocol.file.allow=always", "submodule", "update",
+                        "--init", sub], tree) == 0
+        if CASES[case]:
+            assert cmd(["git", "apply", CASES[case]], tree / "gptp-processor") == 0
+        cmd(["git", "diff", "--stat"], tree / "gptp-processor")
+        env = dict(os.environ, MAKEFLAGS="--no-print-directory", PYTHONDONTWRITEBYTECODE="1")
+        rc = cmd(["make", "-s", "-C", "tb/verilator/gptp_shadow", "run", "VERILATOR=" + verilator,
+                  "VERILATOR_JOBS=8"], tree, env)
+    (out / f"probe-{case}.rc").write_text(f"{rc}\n")
+    return case, rc
+
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+    for case, rc in pool.map(run, CASES):
+        print(case, rc, flush=True)

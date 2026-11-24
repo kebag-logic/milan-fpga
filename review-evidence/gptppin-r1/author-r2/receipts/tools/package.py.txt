@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+"""package.py: copy this round's receipts into the packet, host paths replaced by
+placeholders, each file refused at 200 KB, then write INDEX.md (path, size,
+sha256 prefix and first line of every file)."""
+import hashlib
+from pathlib import Path
+
+S = Path("<scratch>")
+O = Path("<mgmt>/gptppin-a835/round2/receipts")
+HEAD = "f97e49fec4fabd42ec6cb526c3c9baf61e0f1e21"
+SUBS = (("<scratch>", "<scratch>"),
+        ("<lane>", "<lane>"),
+        ("<mgmt>", "<mgmt>"),
+        ("<tools>", "<tools>"),
+        ("<tools>", "<tools>"),
+        ("<home>", "<home>"),
+        ("<data>", "<data>"))
+#: (destination, source under S, header line)
+FILES = [
+    ("rtl/gptp_shadow-run-f97e49fe.log", "legs5-f97e49fe/gptp_shadow-run.log",
+     f"# make -C tb/verilator/gptp_shadow run on a clean clone at {HEAD} (pinned Verilator 5.050), full log"),
+    ("rtl/gptp_shadow-lifecycle-f97e49fe.log", "legs5-f97e49fe/gptp_shadow-lifecycle.log",
+     f"# make -C tb/verilator/gptp_shadow lifecycle (test_mutant_lifecycle.py) on the clean clone at {HEAD}"),
+    ("rtl/gptp_shadow-legs-SUMMARY-f97e49fe.txt", "legs5-f97e49fe/SUMMARY.txt", None),
+    ("rtl/gptp_shadow-mutants-slice-0-4-d616b1c6.log", "mutants-slice-0-4.log",
+     "# mutants.py main() on MUTATIONS[0:4] (tools/mutants_slice.py), lane at d616b1c6, whose campaign inputs equal f97e49fe's"),
+    ("rtl/gptp_shadow-mutants-slice-4-8-d616b1c6.log", "mutants-slice-4-8.log",
+     "# mutants.py main() on MUTATIONS[4:8], lane at d616b1c6 (campaign inputs equal f97e49fe's)"),
+    ("rtl/gptp_shadow-mutants-slice-8-11-d616b1c6.log", "mutants-slice-8-11.log",
+     "# mutants.py main() on MUTATIONS[8:11], lane at d616b1c6 (campaign inputs equal f97e49fe's): the two new controls"),
+    ("rtl/gptp_shadow-mutants-credit-control-at-bbfdb674.log", "mutants-base-bbfdb674-slice-8-9.log",
+     "# mutants.py main() on MUTATIONS[8:9], credit_never_withheld, on a clean clone at bbfdb674: already caught only by other checks"),
+    ("rtl/gptp_shadow-run-base-bbfdb674.log", "shadow-base-bbfdb674-run.log",
+     "# make -C tb/verilator/gptp_shadow run on a clean clone at bbfdb674 (the round-1 head), for the check count and run time"),
+    ("rtl/probe-control-f97e49fe.log", "probes-final/probe-control.log",
+     f"# tools/probe_r916.py case control: gptp_shadow run at {HEAD}, no patch (rc in probe-*.rc)"),
+    ("rtl/probe-delayed-announce-f97e49fe.log", "probes-final/probe-delayed-announce.log",
+     f"# tools/probe_r916.py: R916-1's delayed-announce.patch on gptp-processor, gptp_shadow run at {HEAD}"),
+    ("rtl/probe-retained-slave-rate-f97e49fe.log", "probes-final/probe-retained-slave-rate.log",
+     f"# tools/probe_r916.py: R916-1's retained-slave-rate.patch on gptp-processor, gptp_shadow run at {HEAD}"),
+    ("rtl/probe-control.rc", "probes-final/probe-control.rc", None),
+    ("rtl/probe-delayed-announce.rc", "probes-final/probe-delayed-announce.rc", None),
+    ("rtl/probe-retained-slave-rate.rc", "probes-final/probe-retained-slave-rate.rc", None),
+    ("rtl/legs1-SUMMARY-f97e49fe.txt", "legs-f97e49fe/SUMMARY.txt", None),
+    ("rtl/tsn_fuzz-f97e49fe.log", "legs-f97e49fe/tsn_fuzz.log",
+     f"# make -C tb/verilator/tsn_fuzz at {HEAD}, TSN_GEN_ROOT at tsn-gen deca300c (the CI pin)"),
+    ("rtl/tsn_fuzz-tracked-diff-f97e49fe.txt", "legs-f97e49fe/tsn_fuzz-tracked-diff.txt",
+     "# the two TEST_RESULTS.md the campaigns rewrite: only the timestamps move (restored in the clone, not committed)"),
+    ("rtl/gptp_txts-f97e49fe.log", "legs-f97e49fe/gptp_txts.log", f"# make -C tb/verilator/gptp_txts (all: mutants) at {HEAD}"),
+    ("rtl/milan_dp-gptp-f97e49fe.log", "legs-f97e49fe/milan_dp-gptp.log", f"# make -C tb/verilator/milan_dp gptp at {HEAD}"),
+    ("rtl/gptp_plane-all-window1-f97e49fe.log", "legs-f97e49fe/gptp_plane.log",
+     f"# make -C tb/verilator/gptp_plane (all) at {HEAD}: run passes, phc-step stopped by the 585 s window"),
+    ("rtl/gptp_tables-all-window1-f97e49fe.log", "legs-f97e49fe/gptp_tables.log",
+     f"# make -C tb/verilator/gptp_tables (all) at {HEAD}: limits and run pass, mutants stopped by the 585 s window after 21 controls"),
+    ("rtl/milan_dp-gptp-lat-window1-f97e49fe.log", "legs-f97e49fe/milan_dp-gptp-lat.log",
+     f"# make -C tb/verilator/milan_dp gptp-lat at {HEAD}: stopped by the 585 s window under six parallel legs"),
+    ("rtl/legs2-SUMMARY-f97e49fe.txt", "legs2-f97e49fe/SUMMARY.txt", None),
+    ("rtl/gptp_plane-run-f97e49fe.log", "legs2-f97e49fe/gptp_plane-run.log", f"# make -C tb/verilator/gptp_plane run at {HEAD}"),
+    ("rtl/gptp_plane-phc-step-arms1-4-f97e49fe.log", "legs2-f97e49fe/gptp_plane-phc-step.log",
+     f"# make -C tb/verilator/gptp_plane phc-step at {HEAD}: clean and the first three arms pass, then the 585 s window ends it"),
+    ("rtl/milan_dp-gptp-lat-f97e49fe.log", "legs2-f97e49fe/milan_dp-gptp-lat.log", f"# make -C tb/verilator/milan_dp gptp-lat at {HEAD}"),
+    ("rtl/gptp_tables-limits-f97e49fe.log", "legs2-f97e49fe/gptp_tables-limits.log", f"# make -C tb/verilator/gptp_tables limits at {HEAD}"),
+    ("rtl/legs3-SUMMARY-f97e49fe.txt", "legs3-f97e49fe/SUMMARY.txt", None),
+    ("rtl/gptp_plane-phc-step-arms5-8-f97e49fe.log", "legs3-f97e49fe/gptp_plane-phc-step-arms5-8.log",
+     f"# phc_step_slice.py --mutants (phc_step.py plus the PHC_STEP_ARMS filter) at {HEAD}: the four arms window 1 did not reach"),
+    ("rtl/legs4-SUMMARY-f97e49fe.txt", "legs4-f97e49fe/SUMMARY.txt", None),
+    ("rtl/gptp_tables-mutants-0-13-f97e49fe.log", "legs4-f97e49fe/gptp_tables-mutants-0-13.log",
+     f"# gptp_tables mutants.py main() on MUTATIONS[0:13] (tools/suite_mutants_slice.py) at {HEAD}"),
+    ("rtl/gptp_tables-mutants-13-26-f97e49fe.log", "legs4-f97e49fe/gptp_tables-mutants-13-26.log",
+     f"# gptp_tables mutants.py main() on MUTATIONS[13:26] at {HEAD}"),
+    ("rtl/lint_rtl-f97e49fe.log", "lint_rtl-f97e49fe.log", f"# python3 scripts/lint_rtl.py --check --self-test --jobs 16 on the clean clone at {HEAD}"),
+    ("ledger/plat-ledger-f97e49fe.txt", "ledger/plat-ledger-f97e49fe.txt",
+     f"# tools/ledger.sh: plat_ledger.py on the clean clone at {HEAD}, then each image's sha256"),
+    ("ledger/image-hashes-vs-round1.txt", None, None),
+    ("ledger/image-inputs-f97e49fe.txt", "image-inputs.txt", None),
+]
+TOOLS = ["probe_r916.py", "mutants_slice.py", "suite_mutants_slice.py", "phc_step_slice.py", "legs.sh",
+         "legs3.sh", "mkclone.sh", "ledger.sh", "docs_steps.py", "package.py"]
+
+
+def clean(text: str) -> str:
+    for a, b in SUBS:
+        text = text.replace(a, b)
+    return text
+
+
+def put(dest: str, text: str) -> None:
+    path = O / dest
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(clean(text))
+    assert path.stat().st_size < 200_000, (dest, path.stat().st_size)
+
+
+for dest, src, head in FILES:
+    if src is None:
+        continue
+    put(dest, (head + "\n" if head else "") + (S / src).read_text(errors="replace"))
+
+r1 = sorted(l for l in Path("<mgmt>/gptppin-a835/round1/receipts/ledger/"
+                             "plat-ledger-39e9c9d2.txt").read_text().splitlines() if l[:64].isalnum() and "  ./" in l)
+r2 = sorted(l for l in (S / "ledger/plat-ledger-f97e49fe.txt").read_text().splitlines() if l[:64].isalnum() and "  ./" in l)
+verdict = "IDENTICAL" if r1 == r2 and len(r2) == 24 else "DIFFERENT"
+put("ledger/image-hashes-vs-round1.txt",
+    f"# the 24 image digests (elf, stripped, loadable at each of 8 points) at {HEAD} against round 1's at 39e9c9d2\n"
+    + "\n".join(f"{a}    {'==' if a == b else '!='}    {b}" for a, b in zip(r1, r2)) + "\n"
+    + f"{verdict}: {sum(a == b for a, b in zip(r1, r2))} of {len(r2)} digests equal\n")
+
+steps = []
+for name in ("docs-wa", "docs-ng", "docs-g0", "docs-g0b", "docs-g0c", "docs-g0d", "docs-g0e", "docs-g1", "docs-g2", "docs-g2b", "docs-g2c"):
+    steps.append(f"## window {name}\n" + (S / f"{name}.out").read_text(errors="replace"))
+put("docs/docs-workflow-steps-f97e49fe.txt",
+    f"# tools/docs_steps.py {HEAD}: every run: step of docs.yml's gate jobs on fresh clean clones, in ten-minute windows "
+    "(STEP_FILTER selects a window's steps; 'outside this window' marks a step run in another window); em-dash base 2509db68. "
+    "rc=124 on a window line is the window's own timeout ending a long step, named in the summary.\n" + "\n".join(steps))
+for name in ("docs-g0", "docs-g0c", "docs-g0d"):
+    for log in sorted((S / name / "logs").glob("*.log")):
+        if any(k in log.name for k in ("Concise_audience", "Python_idiom", "C_and_C_idiom", "SystemVerilog_idiom", "Test_evidence", "Added_line_em_dash")):
+            put(f"docs/step-logs/{log.name}", log.read_text(errors="replace"))
+
+for t in TOOLS:
+    put(f"tools/{t}.txt", (S / "tools" / t).read_text())
+
+rows = []
+for p in sorted(O.rglob("*")):
+    if p.is_file() and p.name != "INDEX.md":
+        b = p.read_bytes()
+        first = b.decode(errors="replace").splitlines()[0][:160].replace("|", "\\|") if b else ""
+        rows.append(f"| `{p.relative_to(O)}` | {len(b):,} | `{hashlib.sha256(b).hexdigest()[:16]}` | {first} |")
+(O / "INDEX.md").write_text("# Receipts (generated from the files present)\n\n| File | Bytes | sha256 | First line |\n"
+                            "|---|---:|---|---|\n" + "\n".join(rows) + "\n")
+print(len(rows), "files,", sum(p.stat().st_size for p in O.rglob("*") if p.is_file()), "bytes;", verdict)

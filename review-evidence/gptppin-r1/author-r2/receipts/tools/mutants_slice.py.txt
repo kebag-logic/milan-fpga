@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Run tb/verilator/gptp_shadow/mutants.py's own main() on a slice of its
+MUTATIONS list. Usage: mutants_slice.py REPO START STOP
+
+The campaign, its private input copy, its detection rule and its tally are
+the driver's own; only the population of controls is narrowed, so the whole
+list can be run in slices that each fit a ten-minute foreground window.
+"""
+import sys
+from pathlib import Path
+
+repo, start, stop = Path(sys.argv[1]).resolve(), int(sys.argv[2]), int(sys.argv[3])
+sys.path.insert(0, str(repo / "tb" / "verilator" / "gptp_shadow"))
+sys.argv = [sys.argv[0]]
+import mutants  # noqa: E402
+
+whole = list(mutants.MUTATIONS)
+mutants.MUTATIONS[:] = whole[start:stop]
+print(f"slice {start}:{stop} of {len(whole)}: "
+      + ", ".join(row[0] for row in mutants.MUTATIONS), flush=True)
+sys.exit(mutants.main())

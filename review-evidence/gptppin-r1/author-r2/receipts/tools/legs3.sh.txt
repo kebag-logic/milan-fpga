@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# legs3.sh: gptp_plane's phc-step campaign, the four arms the 585 s window did not reach, through a copy of
+# phc_step.py whose only change is the PHC_STEP_ARMS arm filter; and gptp_tables' mutants target, at once.
+set -u
+C=<scratch>/clones/legs; O=<scratch>/legs3-f97e49fe
+export PATH=<tools>/pinned-verilator-5.050:$PATH VERILATOR=<tools>/pinned-verilator-5.050/verilator MAKEFLAGS=--no-print-directory
+mkdir -p $O; echo "head $(git -C $C rev-parse HEAD) porcelain $(git -C $C status --porcelain --untracked-files=no | wc -l)" > $O/SUMMARY.txt
+( t0=$(date +%s); cd $C/tb/verilator/gptp_plane && PHC_STEP_ARMS=never-rearm-measurement,liveness-not-marked,r571-no-liveness,credit-on-step timeout 585 python3 phc_step_slice.py --mutants > $O/gptp_plane-phc-step-arms5-8.log 2>&1; echo "gptp_plane-phc-step-arms5-8 rc=$? seconds=$(( $(date +%s) - t0 ))" >> $O/SUMMARY.txt ) &
+( t0=$(date +%s); timeout 585 make -C $C/tb/verilator/gptp_tables mutants > $O/gptp_tables-mutants.log 2>&1; echo "gptp_tables-mutants rc=$? seconds=$(( $(date +%s) - t0 ))" >> $O/SUMMARY.txt ) &
+wait; echo "porcelain-after $(git -C $C status --porcelain --untracked-files=no | wc -l)" >> $O/SUMMARY.txt; echo DONE >> $O/SUMMARY.txt
